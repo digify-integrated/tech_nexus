@@ -39,10 +39,12 @@
                   <table id="travel-form-table" class="table table-hover nowrap w-100 text-uppercase">
                     <thead>
                       <tr>
-                        <th>Employee</th>
-                        <th>Leave Type</th>
-                        <th>Entitlement</th>
-                        <th>Period Covered</th>
+                        <th>Created By</th>
+                        <th>Checked By</th>
+                        <th>Checked Date</th>
+                        <th>Approval By</th>
+                        <th>Approval Date</th>
+                        <th>Status</th>
                         <th>Actions</th>
                       </tr>
                     </thead>

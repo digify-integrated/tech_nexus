@@ -9560,6 +9560,125 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generatePrintCollectionsTable(IN p_or_date DATE, IN p_company_id VARCHAR(50))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM loan_collections';
+    SET conditionList = ' WHERE mode_of_payment != "Check"';
+    
+    IF p_or_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (or_date = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_or_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_company_id IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN (');
+        SET conditionList = CONCAT(conditionList, p_company_id);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY or_number ASC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generatePrintCollectionsCompanyTotal(IN p_or_date DATE, IN p_company_id VARCHAR(50))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT company_id, SUM(payment_amount) AS payment_amount FROM loan_collections';
+    SET conditionList = ' WHERE mode_of_payment != "Check"';
+    
+    IF p_or_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (or_date = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_or_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_company_id IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN (');
+        SET conditionList = CONCAT(conditionList, p_company_id);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' GROUP BY company_id;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE getTotalCollectionsGreaterThanTodayByCompany(IN p_or_date DATE, IN p_company_id INT)
+BEGIN
+    SELECT company_id, SUM(payment_amount) AS payment_amount FROM loan_collections WHERE or_date > p_or_date AND company_id = p_company_id AND collection_status = 'Posted' AND mode_of_payment != "Check" GROUP BY company_id;
+END //
+
+CREATE PROCEDURE generatePrintDepositsTable( IN p_deposit_date DATE, IN p_company_id VARCHAR(50))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT deposit_amount, deposit_date, deposited_to, reference_number, transaction_date, remarks FROM deposits';
+    SET conditionList = ' WHERE 1';
+    
+     IF p_deposit_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (deposit_date = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_deposit_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_company_id IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN (');
+        SET conditionList = CONCAT(conditionList, p_company_id);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY deposit_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generatePrintDepositsCompanyTotal( IN p_deposit_date DATE, IN p_company_id VARCHAR(50))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT company_id, SUM(deposit_amount) AS deposit_amount FROM deposits';
+    SET conditionList = ' WHERE 1';
+    
+     IF p_deposit_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (deposit_date = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_deposit_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_company_id IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN (');
+        SET conditionList = CONCAT(conditionList, p_company_id);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' GROUP BY company_id;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 
 
 CREATE PROCEDURE deleteCollections(IN p_loan_collection_id INT)
@@ -10202,7 +10321,7 @@ BEGIN
         pulled_out_date = NOW(),
         pulled_out_reason = p_reason,
         last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending');
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending', 'Cancelled', 'Redeposit', 'On-Hold');
     END IF;
 END //
 
@@ -10455,27 +10574,28 @@ END //
 CREATE PROCEDURE checkGatePassExist (IN p_travel_form_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
-    FROM gate_pass
+    FROM travel_gate_pass
     WHERE travel_form_id = p_travel_form_id;
 END //
 
-CREATE PROCEDURE insertGatePass(IN p_travel_form_id INT, IN p_name_of_driver VARCHAR(500), IN p_contact_number VARCHAR(50), IN p_vehicle_type VARCHAR(200), IN p_plate_number VARCHAR(200), p_department_id INT, IN p_gate_pass_departure_date DATE, IN p_odometer_reading VARCHAR(200), IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+CREATE PROCEDURE insertGatePass(IN p_travel_form_id INT, IN p_name_of_driver VARCHAR(500), IN p_contact_number VARCHAR(50), IN p_vehicle_type VARCHAR(200), IN p_plate_number VARCHAR(200), IN p_purpose_of_entry_exit VARCHAR(500), p_department_id INT, IN p_gate_pass_departure_date DATE, IN p_odometer_reading VARCHAR(200), IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
-    INSERT INTO gate_pass (travel_form_id, p_name_of_driver, contact_number, vehicle_type, plate_number, department_id, gate_pass_departure_date, odometer_reading, remarks, last_log_by) 
-	VALUES(p_travel_form_id, p_name_of_driver, p_contact_number, p_vehicle_type, p_plate_number, p_department_id, p_gate_pass_departure_date, p_odometer_reading, p_remarks, p_last_log_by);
+    INSERT INTO travel_gate_pass (travel_form_id, name_of_driver, contact_number, vehicle_type, plate_number, purpose_of_entry_exit, department_id, gate_pass_departure_date, odometer_reading, remarks, last_log_by) 
+	VALUES(p_travel_form_id, p_name_of_driver, p_contact_number, p_vehicle_type, p_plate_number, p_purpose_of_entry_exit, p_department_id, p_gate_pass_departure_date, p_odometer_reading, p_remarks, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateGatePass(IN p_travel_form_id INT, IN p_name_of_driver VARCHAR(500), IN p_contact_number VARCHAR(50), IN p_vehicle_type VARCHAR(200), IN p_plate_number VARCHAR(200), IN p_department_id INT, IN p_gate_pass_departure_date DATE, IN p_odometer_reading VARCHAR(200), IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+CREATE PROCEDURE updateGatePass(IN p_travel_form_id INT, IN p_name_of_driver VARCHAR(500), IN p_contact_number VARCHAR(50), IN p_vehicle_type VARCHAR(200), IN p_plate_number VARCHAR(200), IN p_purpose_of_entry_exit VARCHAR(100), IN p_department_id INT, IN p_gate_pass_departure_date DATE, IN p_odometer_reading VARCHAR(200), IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
 
-	UPDATE gate_pass
+	UPDATE travel_gate_pass
     SET name_of_driver = p_name_of_driver,
         contact_number = p_contact_number,
         vehicle_type = p_vehicle_type,
         plate_number = p_plate_number,
+        purpose_of_entry_exit = p_purpose_of_entry_exit,
         department_id = p_department_id,
         gate_pass_departure_date = p_gate_pass_departure_date,
         odometer_reading = p_odometer_reading,
@@ -10486,7 +10606,7 @@ END //
 
 CREATE PROCEDURE getGatePass(IN p_travel_form_id INT)
 BEGIN
-	SELECT * FROM gate_pass
+	SELECT * FROM travel_gate_pass
     WHERE travel_form_id = p_travel_form_id;
 END //
 
@@ -10505,8 +10625,8 @@ CREATE PROCEDURE insertTravelForm(IN p_checked_by INT, IN p_approval_by INT, IN 
 BEGIN
     SET time_zone = '+08:00';
     
-    INSERT INTO travel_form (checked_by, approval_by, last_log_by) 
-	VALUES(p_checked_by, p_approval_by, p_last_log_by);
+    INSERT INTO travel_form (checked_by, approval_by, created_by, last_log_by) 
+	VALUES(p_checked_by, p_approval_by, p_last_log_by, p_last_log_by);
 	
     SET p_travel_form_id = LAST_INSERT_ID();
 END //
@@ -10535,7 +10655,72 @@ END //
 
 CREATE PROCEDURE generateTravelFormTable()
 BEGIN
-    SELECT travel_form_id, checked_by, approval_by, travel_form_status
+    SELECT travel_form_id, checked_by, checked_date, approval_by, approval_date, travel_form_status, created_by
     FROM travel_form
     ORDER BY travel_form_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE PROCEDURE checkItineraryExist (IN p_itinerary_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM travel_itinerary
+    WHERE itinerary_id = p_itinerary_id;
+END //
+
+CREATE PROCEDURE insertItinerary(IN p_travel_form_id INT, IN p_itinerary_date DATE, IN p_customer_id INT, IN p_itinerary_destination VARCHAR(500), IN p_itinerary_purpose VARCHAR(500), IN p_expected_time_of_departure TIME, IN p_expected_time_of_arrival TIME, IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+    INSERT INTO travel_itinerary (travel_form_id, itinerary_date, customer_id, itinerary_destination, itinerary_purpose, expected_time_of_departure, expected_time_of_arrival, last_log_by) 
+	VALUES(p_travel_form_id, p_itinerary_date, p_customer_id, p_itinerary_destination, p_itinerary_purpose, p_expected_time_of_departure, p_expected_time_of_arrival, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateItinerary(IN p_itinerary_id INT, IN p_travel_form_id INT, IN p_itinerary_date DATE, IN p_customer_id INT, IN p_itinerary_destination VARCHAR(500), IN p_itinerary_purpose VARCHAR(500), IN p_expected_time_of_departure TIME, IN p_expected_time_of_arrival TIME, IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+	UPDATE travel_itinerary
+    SET travel_form_id = p_travel_form_id,
+        itinerary_date = p_itinerary_date,
+        customer_id = p_customer_id,
+        itinerary_destination = p_itinerary_destination,
+        itinerary_purpose = p_itinerary_purpose,
+        expected_time_of_departure = p_expected_time_of_departure,
+        expected_time_of_arrival = p_expected_time_of_arrival,
+        last_log_by = p_last_log_by
+    WHERE itinerary_id = p_itinerary_id;
+END //
+
+CREATE PROCEDURE deleteItinerary(IN p_itinerary_id INT)
+BEGIN
+    DELETE FROM travel_itinerary WHERE itinerary_id = p_itinerary_id;
+END //
+
+CREATE PROCEDURE getItinerary(IN p_itinerary_id INT)
+BEGIN
+	SELECT * FROM travel_itinerary
+    WHERE itinerary_id = p_itinerary_id;
+END //
+
+CREATE PROCEDURE getItineraryByTravelForm(IN p_travel_form_id INT)
+BEGIN
+	SELECT * FROM travel_itinerary
+    WHERE travel_form_id = p_travel_form_id;
+END //
+
+CREATE PROCEDURE generateItineraryTable(IN p_travel_form_id INT)
+BEGIN
+    SELECT itinerary_id, itinerary_date, customer_id, itinerary_destination, itinerary_purpose, expected_time_of_departure, expected_time_of_arrival
+    FROM travel_itinerary
+    WHERE travel_form_id = p_travel_form_id
+    ORDER BY itinerary_id;
+END //
+
+
+CREATE PROCEDURE getEmployeePrimaryContactInformation(IN p_contact_id INT)
+BEGIN
+	SELECT mobile, telephone, email FROM contact_information
+    WHERE contact_id = p_contact_id AND is_primary = 1;
 END //

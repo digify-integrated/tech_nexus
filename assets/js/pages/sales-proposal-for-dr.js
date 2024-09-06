@@ -288,6 +288,17 @@
                     $('#delivery_price').prop('readonly', false);
                 }
             }
+
+            if($(this).val() == 'Refinancing'){
+                if($('#insurance_premium').length){
+                    $('#insurance_premium').prop('readonly', false);
+                }
+            }
+            else{
+                if($('#insurance_premium').length){
+                    $('#insurance_premium').prop('readonly', true);
+                }
+            }
         });
 
         $(document).on('change','#comaker_id',function() {
@@ -6344,6 +6355,10 @@ function calculateTotalOtherCharges(){
         }
         else{
            var insurance_premium = 0;
+        }
+
+        if(productType == 'Refinancing'){
+            var insurance_premium = parseCurrency($("#insurance_premium").val());
         }
 
         var handling_fee = (amount_financed * 0.035) + 6000;

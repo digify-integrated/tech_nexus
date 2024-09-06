@@ -5,6 +5,9 @@
         if($('#travel-form-table').length){
             travelFormTable('#travel-form-table');
         }
+        if($('#itinerary-table').length){
+            itineraryTable('#itinerary-table');
+        }
 
         if($('#travel-form').length){
             travelForm();
@@ -16,6 +19,10 @@
 
         if($('#gate-pass-form').length){
             gatePassForm();
+        }
+
+        if($('#itinerary-form').length){
+            itineraryForm();
         }
 
         if($('#travel-form-id').length){
@@ -211,6 +218,113 @@
 
             enableForm();
         });
+
+        $(document).on('click','#add-itinerary',function() {
+            resetModalForm("itinerary-form");
+        });
+
+        $(document).on('click','.update-itinerary',function() {
+            const itinerary_id = $(this).data('itinerary-id');
+    
+            sessionStorage.setItem('itinerary_id', itinerary_id);
+            
+            displayDetails('get itinerary details');
+        });
+
+        $(document).on('click','.delete-itinerary',function() {
+            const itinerary_id = $(this).data('itinerary-id');
+            const transaction = 'delete itinerary';
+    
+            Swal.fire({
+                title: 'Confirm Itinerary Deletion',
+                text: 'Are you sure you want to delete this itinerary?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/travel-form-controller.php',
+                        dataType: 'json',
+                        data: {
+                            itinerary_id : itinerary_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Itinerary Success', 'The itinerary has been deleted successfully.', 'success');
+                                reloadDatatable('#itinerary-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Delete Itinerary Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#print-consolidated',function() {
+            const travel_form_id = $('#travel-form-id').text();
+
+            window.open('print-travel-consolidated.php?id=' + travel_form_id, '_blank');
+        });
+
+        $(document).on('click','#print-travel-authorization',function() {
+            const travel_form_id = $('#travel-form-id').text();
+
+            window.open('print-travel-authorization.php?id=' + travel_form_id, '_blank');
+        });
+
+        $(document).on('click','#print-gate-pass',function() {
+            const travel_form_id = $('#travel-form-id').text();
+
+            window.open('print-gate-pass.php?id=' + travel_form_id, '_blank');
+        });
+
+        $(document).on('click','#print-itinerary',function() {
+            const travel_form_id = $('#travel-form-id').text();
+
+            window.open('print-itinerary.php?id=' + travel_form_id, '_blank');
+        });
+
+        $(document).on('change','#toll_fee',function() {
+            calculateEstimatedCost();
+        });
+
+        $(document).on('change','#accomodation',function() {
+            calculateEstimatedCost();
+        });
+
+        $(document).on('change','#meals',function() {
+            calculateEstimatedCost();
+        });
+
+        $(document).on('change','#other_expenses',function() {
+            calculateEstimatedCost();
+        });
     });
 })(jQuery);
 
@@ -219,15 +333,23 @@ function travelFormTable(datatable_name, buttons = false, show_all = false){
     var settings;
 
     const column = [ 
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'APPLICATION_SOURCE_NAME' },
+        { 'data' : 'CREATED_BY' },
+        { 'data' : 'CHECKED_BY' },
+        { 'data' : 'CHECKED_DATE' },
+        { 'data' : 'APPROVAL_BY' },
+        { 'data' : 'APPROVAL_DATE' },
+        { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '84%', 'aTargets': 1 },
-        { 'width': '15%','bSortable': false, 'aTargets': 2 }
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': '15%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -238,6 +360,70 @@ function travelFormTable(datatable_name, buttons = false, show_all = false){
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function itineraryTable(datatable_name, buttons = false, show_all = false){
+    const type = 'itinerary table';
+    const travel_form_id = $('#travel-form-id').text();
+    var settings;
+
+    const column = [ 
+        { 'data' : 'ITINERARY_DATE' },
+        { 'data' : 'CUSTOMER_NAME' },
+        { 'data' : 'ITINERARY_DESTINATION' },
+        { 'data' : 'ITINERARY_PURPOSE' },
+        { 'data' : 'EXPECTED_TIME_OF_DEPARTURE' },
+        { 'data' : 'EXPECTED_TIME_OF_ARRIVAL' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': '15%','bSortable': false, 'aTargets': 6 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_travel_form_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'travel_form_id' : travel_form_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -514,6 +700,9 @@ function gatePassForm(){
             plate_number: {
                 required: true
             },
+            purpose_of_entry_exit: {
+                required: true
+            },
             department_id: {
                 required: true
             },
@@ -536,6 +725,9 @@ function gatePassForm(){
             },
             plate_number: {
                 required: 'Please enter the plate number'
+            },
+            purpose_of_entry_exit: {
+                required: 'Please enter the purpose of entry/exit'
             },
             department_id: {
                 required: 'Please choose the department'
@@ -615,6 +807,125 @@ function gatePassForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-gate-pass-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function itineraryForm(){
+    $('#itinerary-form').validate({
+        rules: {
+            itinerary_date: {
+                required: true
+            },
+            client_id: {
+                required: true
+            },
+            itinerary_destination: {
+                required: true
+            },
+            itinerary_purpose: {
+                required: true
+            },
+            expected_time_of_departure: {
+                required: true
+            },
+            expected_time_of_arrival: {
+                required: true
+            },
+        },
+        messages: {
+            itinerary_date: {
+                required: 'Please choose the itinerary date'
+            },
+            client_id: {
+                required: 'Please choose the client'
+            },
+            itinerary_destination: {
+                required: 'Please enter the destination'
+            },
+            itinerary_purpose: {
+                required: 'Please enter the purpose'
+            },
+            expected_time_of_departure: {
+                required: 'Please enter the expected time of departure'
+            },
+            expected_time_of_arrival: {
+                required: 'Please enter the expected time of arrival'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const travel_form_id = $('#travel-form-id').text();
+            const transaction = 'save itinerary';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/travel-form-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&travel_form_id=' + travel_form_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-itinerary-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Itinerary Success' : 'Update Itinerary Success';
+                        const notificationDescription = response.insertRecord ? 'The itinerary has been inserted successfully.' : 'The itinerary has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                        reloadDatatable('#itinerary-table');
+                        $('#itinerary-offcanvas').offcanvas('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-itinerary-data', 'Save');
                 }
             });
         
@@ -707,6 +1018,9 @@ function displayDetails(transaction){
                         fullErrorMessage += `, Response: ${xhr.responseText}`;
                     }
                     showErrorDialog(fullErrorMessage);
+                },
+                complete: function(){
+                    calculateEstimatedCost();
                 }
             });
             break;
@@ -732,6 +1046,7 @@ function displayDetails(transaction){
                         $('#plate_number').val(response.plateNumber);
                         $('#gate_pass_departure_date').val(response.gatePassDepartureDate);
                         $('#odometer_reading').val(response.odometerReading);
+                        $('#purpose_of_entry_exit').val(response.purposeOfEntryExit);
                         $('#remarks').val(response.remarks);
 
                         checkOptionExist('#department_id', response.departmentID, '');
@@ -754,5 +1069,59 @@ function displayDetails(transaction){
                 }
             });
             break;
+        case 'get itinerary details':
+            var itinerary_id = sessionStorage.getItem('itinerary_id');
+            
+            $.ajax({
+                url: 'controller/travel-form-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    itinerary_id : itinerary_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetForm('travel-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#itinerary_id').val(itinerary_id);
+                        $('#itinerary_date').val(response.itineraryDate);
+                        $('#itinerary_destination').val(response.itineraryDestination);
+                        $('#itinerary_purpose').val(response.itineraryPurpose);
+                        $('#expected_time_of_departure').val(response.expectedTimeOfDeparture);
+                        $('#expected_time_of_arrival').val(response.expectedTimeOfArrival);
+
+                        checkOptionExist('#client_id', response.customerID, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Travel Form Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
     }
+}
+
+function calculateEstimatedCost() {
+    var tollFee = parseFloat($('#toll_fee').val().replace(/[$,]/g, ''));
+    var accommodation = parseFloat($('#accomodation').val().replace(/[$,]/g, ''));
+    var meals = parseFloat($('#meals').val().replace(/[$,]/g, ''));
+    var otherExpenses = parseFloat($('#other_expenses').val().replace(/[$,]/g, ''));
+
+    var total = tollFee + accommodation + meals + otherExpenses;
+
+    $('#total_estimated_cost').val(total.toFixed(2));
 }

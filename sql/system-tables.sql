@@ -5643,6 +5643,7 @@ CREATE TABLE travel_form (
     approval_by INT UNSIGNED NOT NULL,
     approval_date DATETIME,
     travel_form_status VARCHAR(100) DEFAULT 'Draft',
+    created_by INT,
 	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
@@ -5689,5 +5690,22 @@ CREATE TABLE travel_gate_pass (
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 ); 
 
-CREATE INDEX travel_authorization_index_travel_authorization_id ON travel_authorization(travel_authorization_id);
-CREATE INDEX travel_authorization_index_travel_form_id ON travel_authorization(travel_form_id);
+CREATE INDEX travel_gate_pass_index_travel_gate_pass_id ON travel_gate_pass(gate_pass_id);
+CREATE INDEX travel_gate_pass_index_travel_form_id ON travel_gate_pass(travel_form_id);
+
+CREATE TABLE travel_itinerary (
+    itinerary_id INT AUTO_INCREMENT PRIMARY KEY,
+    travel_form_id INT,
+    itinerary_date DATE,
+    customer_id INT,
+    itinerary_destination VARCHAR(500),
+    itinerary_purpose VARCHAR(500),
+    expected_time_of_departure TIME,
+    expected_time_of_arrival TIME,
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+); 
+
+CREATE INDEX travel_itinerary_index_travel_itinerary_id ON travel_itinerary(itinerary_id);
+CREATE INDEX travel_itinerary_index_travel_form_id ON travel_itinerary(travel_form_id);

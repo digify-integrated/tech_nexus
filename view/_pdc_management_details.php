@@ -43,7 +43,7 @@
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-for-deposit-details">For Deposit PDC</button></li>';
                   }
 
-                  if ($tagPDCAsPulledOut['total'] > 0 && $collectionStatus == 'Pending') {
+                  if ($tagPDCAsPulledOut['total'] > 0 && ($collectionStatus == 'Pending'|| $collectionStatus == 'Cancelled' || $collectionStatus == 'Redeposit' || $collectionStatus == 'On-Hold' )) {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-pulled-out-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-pulled-out-offcanvas" aria-controls="pdc-pulled-out-offcanvas">Pulled-Out PDC</button></li>';
                   }
 

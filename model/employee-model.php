@@ -237,6 +237,26 @@ class EmployeeModel {
     }
     # -------------------------------------------------------------
 
+     # -------------------------------------------------------------
+    #
+    # Function: getEmployeePrimaryContactInformation
+    # Description: Retrieves the details of a contact primary contact information.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    #
+    # Returns:
+    # - An array containing the bank.
+    #
+    # -------------------------------------------------------------
+    public function getEmployeePrimaryContactInformation($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getEmployeePrimaryContactInformation(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #
     # Function: updateContactIdentification

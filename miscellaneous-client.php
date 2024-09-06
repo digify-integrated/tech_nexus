@@ -1,38 +1,33 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/customer-model.php');
-  require('model/travel-form-model.php');
+  require('model/miscellaneous-client-model.php');
 
-  $travelFormModel = new EmployeeModel($databaseModel);
-  $customerModel = new CustomerModel($databaseModel);
-  $travelFormModel = new TravelFormModel($databaseModel);
+  $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 
-  $pageTitle = 'Travel Form';
+  $pageTitle = 'Miscellaneous Client';
     
-  $travelFormReadAccess = $userModel->checkMenuItemAccessRights($user_id, 112, 'read');
-  $travelFormCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 112, 'create');
-  $travelFormWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 112, 'write');
-  $travelFormDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 112, 'delete');
-  $travelFormDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 112, 'duplicate');
-  
-  $travelFormForRecommendation = $userModel->checkSystemActionAccessRights($user_id, 152);
+  $miscellaneousClientReadAccess = $userModel->checkMenuItemAccessRights($user_id, 106, 'read');
+  $miscellaneousClientCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 106, 'create');
+  $miscellaneousClientWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 106, 'write');
+  $miscellaneousClientDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 106, 'delete');
+  $miscellaneousClientDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 106, 'duplicate');
 
-  if ($travelFormReadAccess['total'] == 0) {
+  if ($miscellaneousClientReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: travel-form.php');
+      header('location: miscellaneous-client.php');
       exit;
     }
 
-    $travelFormID = $securityModel->decryptData($_GET['id']);
+    $miscellaneousClientID = $securityModel->decryptData($_GET['id']);
 
-    $checkTravelFormExist = $travelFormModel->checkTravelFormExist($travelFormID);
-    $total = $checkTravelFormExist['total'] ?? 0;
+    $checkMiscellaneousClientExist = $miscellaneousClientModel->checkMiscellaneousClientExist($miscellaneousClientID);
+    $total = $checkMiscellaneousClientExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
@@ -40,7 +35,7 @@
     }
   }
   else{
-    $travelFormID = null;
+    $miscellaneousClientID = null;
   }
 
   $newRecord = isset($_GET['new']);
@@ -52,8 +47,6 @@
 <html lang="en">
 <head>
     <?php include_once('config/_title.php'); ?>
-    <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
-    <link rel="stylesheet" href="./assets/css/plugins/datepicker-bs5.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
@@ -74,12 +67,12 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item">Employee</li>
-                    <li class="breadcrumb-item">Form</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="travel-form.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item">Technical</li>
+                    <li class="breadcrumb-item">Configurations</li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="miscellaneous-client.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($travelFormID)){
-                            echo '<li class="breadcrumb-item" id="travel-form-id">'. $travelFormID .'</li>';
+                        if(!$newRecord && !empty($miscellaneousClientID)){
+                            echo '<li class="breadcrumb-item" id="miscellaneous-client-id">'. $miscellaneousClientID .'</li>';
                         }
 
                         if($newRecord){
@@ -97,14 +90,14 @@
           </div>
         </div>
         <?php
-          if($newRecord && $travelFormCreateAccess['total'] > 0){
-            require_once('view/_travel_form_new.php');
+          if($newRecord && $miscellaneousClientCreateAccess['total'] > 0){
+            require_once('view/_miscellaneous_client_new.php');
           }
-          else if(!empty($travelFormID) && $travelFormWriteAccess['total'] > 0){
-            require_once('view/_travel_form_details.php');
+          else if(!empty($miscellaneousClientID) && $miscellaneousClientWriteAccess['total'] > 0){
+            require_once('view/_miscellaneous_client_details.php');
           }
           else{
-            require_once('view/_travel_form.php');
+            require_once('view/_miscellaneous_client.php');
           }
         ?>
       </div>
@@ -121,9 +114,7 @@
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
-    <script src="./assets/js/plugins/datepicker-full.min.js"></script>
-    <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/travel-form.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/miscellaneous-client.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

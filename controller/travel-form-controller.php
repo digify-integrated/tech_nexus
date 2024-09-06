@@ -72,6 +72,9 @@ class TravelFormController {
                 case 'save gate pass':
                     $this->saveGatePass();
                     break;
+                case 'save itinerary':
+                    $this->saveItinerary();
+                    break;
                 case 'get travel form details':
                     $this->getTravelFormDetails();
                     break;
@@ -81,8 +84,14 @@ class TravelFormController {
                 case 'get gate pass details':
                     $this->getGatePassDetails();
                     break;
+                case 'get itinerary details':
+                    $this->getItineraryDetails();
+                    break;
                 case 'delete travel form':
                     $this->deleteTravelForm();
+                    break;
+                case 'delete itinerary':
+                    $this->deleteItinerary();
                     break;
                 case 'delete multiple travel form':
                     $this->deleteMultipleTravelForm();
@@ -223,6 +232,7 @@ class TravelFormController {
         $contactNumber = htmlspecialchars($_POST['contact_number'], ENT_QUOTES, 'UTF-8');
         $vehicleType = htmlspecialchars($_POST['vehicle_type'], ENT_QUOTES, 'UTF-8');
         $plateNumber = htmlspecialchars($_POST['plate_number'], ENT_QUOTES, 'UTF-8');
+        $purposeOfEntryExit = htmlspecialchars($_POST['purpose_of_entry_exit'], ENT_QUOTES, 'UTF-8');
         $departmentID = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
         $gatePassDepartureDate = $this->systemModel->checkDate('empty', $_POST['gate_pass_departure_date'], '', 'Y-m-d', '');
         $odometerReading = htmlspecialchars($_POST['odometer_reading'], ENT_QUOTES, 'UTF-8');
@@ -239,13 +249,64 @@ class TravelFormController {
         $total = $checkGatePassExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->travelFormModel->updateGatePass($travelFormID, $nameOfDriver, $contactNumber, $vehicleType, $plateNumber, $departmentID, $gatePassDepartureDate, $odometerReading, $remarks, $userID);
+            $this->travelFormModel->updateGatePass($travelFormID, $nameOfDriver, $contactNumber, $vehicleType, $plateNumber, $purposeOfEntryExit, $departmentID, $gatePassDepartureDate, $odometerReading, $remarks, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $travelFormID = $this->travelFormModel->insertGatePass($travelFormID, $nameOfDriver, $contactNumber, $vehicleType, $plateNumber, $departmentID, $gatePassDepartureDate, $odometerReading, $remarks, $userID);
+            $travelFormID = $this->travelFormModel->insertGatePass($travelFormID, $nameOfDriver, $contactNumber, $vehicleType, $plateNumber, $purposeOfEntryExit, $departmentID, $gatePassDepartureDate, $odometerReading, $remarks, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveItinerary
+    # Description: 
+    # Updates the existing travel form if it exists; otherwise, inserts a new travel form.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveItinerary() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $itineraryID = isset($_POST['itinerary_id']) ? htmlspecialchars($_POST['itinerary_id'], ENT_QUOTES, 'UTF-8') : null;
+        $travelFormID = htmlspecialchars($_POST['travel_form_id'], ENT_QUOTES, 'UTF-8');
+        $itineraryDate = $this->systemModel->checkDate('empty', $_POST['itinerary_date'], '', 'Y-m-d', '');
+        $clientID = htmlspecialchars($_POST['client_id'], ENT_QUOTES, 'UTF-8');
+        $itineraryDestination = htmlspecialchars($_POST['itinerary_destination'], ENT_QUOTES, 'UTF-8');
+        $itineraryPurpose = htmlspecialchars($_POST['itinerary_purpose'], ENT_QUOTES, 'UTF-8');
+        $expectedTimeOfDeparture = $this->systemModel->checkDate('empty', $_POST['expected_time_of_departure'], '', 'H:i:s', '');
+        $expectedTimeOfArrival = $this->systemModel->checkDate('empty', $_POST['expected_time_of_arrival'], '', 'H:i:s', '');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkItineraryExist = $this->travelFormModel->checkItineraryExist($itineraryID);
+        $total = $checkItineraryExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->travelFormModel->updateItinerary($itineraryID, $travelFormID, $itineraryDate, $clientID, $itineraryDestination, $itineraryPurpose, $expectedTimeOfDeparture, $expectedTimeOfArrival, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $travelFormID = $this->travelFormModel->insertItinerary($travelFormID, $itineraryDate, $clientID, $itineraryDestination, $itineraryPurpose, $expectedTimeOfDeparture, $expectedTimeOfArrival, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -327,6 +388,47 @@ class TravelFormController {
         foreach($travelFormIDs as $travelFormID){
             $this->travelFormModel->deleteTravelForm($travelFormID);
         }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteItinerary
+    # Description: 
+    # Delete the travel form if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteItinerary() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $itineraryID = htmlspecialchars($_POST['itinerary_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkItineraryExist = $this->travelFormModel->checkItineraryExist($itineraryID);
+        $total = $checkItineraryExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->travelFormModel->deleteItinerary($itineraryID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -455,7 +557,7 @@ class TravelFormController {
                 exit;
             }
     
-            $travelFormDetails = $this->travelFormModel->getTravelAuthorization($travelFormID);
+            $travelFormDetails = $this->travelFormModel->getGatePass($travelFormID);
 
             $response = [
                 'success' => true,
@@ -463,10 +565,56 @@ class TravelFormController {
                 'contactNumber' => $travelFormDetails['contact_number'] ?? null,
                 'vehicleType' => $travelFormDetails['vehicle_type'] ?? null,
                 'plateNumber' => $travelFormDetails['plate_number'] ?? null,
+                'purposeOfEntryExit' => $travelFormDetails['purpose_of_entry_exit'] ?? null,
                 'departmentID' => $travelFormDetails['department_id'] ?? null,
                 'gatePassDepartureDate' =>  $this->systemModel->checkDate('empty', $travelFormDetails['gate_pass_departure_date'] ?? null, '', 'm/d/Y', ''),
                 'odometerReading' => $travelFormDetails['odometer_reading'] ?? null,
                 'remarks' => $travelFormDetails['remarks'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getItinerary
+    # Description: 
+    # Handles the retrieval of travel form details such as travel form name, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getItineraryDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['itinerary_id']) && !empty($_POST['itinerary_id'])) {
+            $userID = $_SESSION['user_id'];
+            $itineraryID = $_POST['itinerary_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $travelFormDetails = $this->travelFormModel->getItinerary($itineraryID);
+
+            $response = [
+                'success' => true,
+                'itineraryDate' =>  $this->systemModel->checkDate('empty', $travelFormDetails['itinerary_date'] ?? null, '', 'm/d/Y', ''),
+                'customerID' => $travelFormDetails['customer_id'] ?? null,
+                'itineraryDestination' => $travelFormDetails['itinerary_destination'] ?? null,
+                'itineraryPurpose' => $travelFormDetails['itinerary_purpose'] ?? null,
+                'expectedTimeOfDeparture' => $this->systemModel->checkDate('empty', $travelFormDetails['expected_time_of_departure'], '', 'H:i', ''),
+                'expectedTimeOfArrival' => $this->systemModel->checkDate('empty', $travelFormDetails['expected_time_of_arrival'], '', 'H:i', '')
             ];
 
             echo json_encode($response);
