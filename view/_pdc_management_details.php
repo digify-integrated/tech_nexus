@@ -347,6 +347,17 @@
           <form id="pdc-reverse-form" method="post" action="#">
             <div class="form-group row">
                 <div class="col-lg-12 mt-3 mt-lg-0">
+                    <label class="form-label">Reversal Date <span class="text-danger">*</span></label>
+                    <div class="input-group date">
+                      <input type="text" class="form-control regular-datepicker" id="reversal_date" name="reversal_date" autocomplete="off">
+                      <span class="input-group-text">
+                          <i class="feather icon-calendar"></i>
+                      </span>
+                  </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-12 mt-3 mt-lg-0">
                     <label class="form-label">Reversal Reason <span class="text-danger">*</span></label>
                     <select class="form-control offcanvas-select2" name="reversal_reason" id="reversal_reason">
                         <option value="">--</option>

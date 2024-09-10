@@ -206,7 +206,6 @@
         $approvalByDepartmentName = $departmentModel->getDepartment($approvalByDepartmentID)['department_name'] ?? null;
         $approvalByJobPositionName = $jobPositionModel->getJobPosition($approvalByJobPositionID)['job_position_name'] ?? null;
         
-
         $travelAuthorizationDetails = $travelFormModel->getTravelAuthorization($travelFormID);
         $destination = $travelAuthorizationDetails['destination'];
         $modeOfTransportation = $travelAuthorizationDetails['mode_of_transportation'];
@@ -220,8 +219,6 @@
         $otherExpenses = $travelAuthorizationDetails['other_expenses'];
         $totalEstimatedCost = $tollFee + $accomodation + $meals + $otherExpenses;
         $additionalComments = $travelAuthorizationDetails['additional_comments'];
-
-        $pdcData = array();
 
         $response = '<table border="0.5" width="100%" cellpadding="2" align="left">
                         <tbody>

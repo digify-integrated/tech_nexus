@@ -64,6 +64,21 @@
     $depositsTotalSummaryTable = generateDepositsTotalPrintSummaryTable($dateAsOf, $filterCompanyID);
     $onhandSummaryTable = generateOnhandSummaryTable($dateAsOf, $filterCompanyID);
 
+    $combinedTablesHTML = '
+<table cellspacing="0" cellpadding="2" border="0" width="80%">
+  <tr>
+    <!-- First table in the first column -->
+    <td width="70%" style="vertical-align: top; padding: 0;">
+      ' . $collectionsTotalSummaryTable . '
+    </td>
+    <!-- Second table in the second column -->
+    <td width="70%" style="vertical-align: top; padding: 0;">
+      ' . $depositsTotalSummaryTable . '
+    </td>
+  </tr>
+</table>';
+
+    
     ob_start();
 
     // Create TCPDF instance
@@ -89,23 +104,19 @@
 
     // Add a page
     $pdf->AddPage();
-    $pdf->SetFont('times', '', 12);
+    $pdf->SetFont('times', '', 10);
 
-    $pdf->MultiCell(0, 0, '<b>SUMMARY AS OF '. strtoupper($dateAsOf) .'</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(10);
-    $pdf->writeHTML($collectionsTotalSummaryTable, true, false, true, false, '');
-    $pdf->writeHTML($depositsTotalSummaryTable, true, false, true, false, '');
+    $pdf->writeHTML($combinedTablesHTML, true, false, true, false, '');
     $pdf->writeHTML($onhandSummaryTable, true, false, true, false, '');
-    $pdf->Ln(10);
+    $pdf->Ln(0);
     
     $pdf->MultiCell(0, 0, '<b>COLLECTIONS AS OF '. strtoupper($dateAsOf) .'</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(10);
+    $pdf->Ln(8);
     $pdf->writeHTML($collectionsSummaryTable, true, false, true, false, '');
-
+    $pdf->Ln(5);
     
-    $pdf->AddPage();
     $pdf->MultiCell(0, 0, '<b>DEPOSITS AS OF '. strtoupper($dateAsOf) .'</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(10);
+    $pdf->Ln(8);
     $pdf->writeHTML($depositsSummaryTable, true, false, true, false, '');
 
 
@@ -139,7 +150,6 @@
                 <td style="background-color: rgba(220, 38, 38, .8);"><b>OR NO.</b></td>
                 <td style="background-color: rgba(220, 38, 38, .8);"><b>PAYMENT AMOUNT</b></td>
                 <td style="background-color: rgba(220, 38, 38, .8);"><b>PAYMENT DATE</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>TRANSACTION DATE</b></td>
                 <td style="background-color: rgba(220, 38, 38, .8);"><b>CUSTOMER</b></td>
                 <td style="background-color: rgba(220, 38, 38, .8);"><b>STOCK NO.</b></td>
                 <td style="background-color: rgba(220, 38, 38, .8);"><b>LOAN NO.</b></td>
@@ -147,7 +157,6 @@
                 <td style="background-color: rgba(220, 38, 38, .8);"><b>DEPOSITED TO</b></td>
                 <td style="background-color: rgba(220, 38, 38, .8);"><b>PYMT DETAILS</b></td>
                 <td style="background-color: rgba(220, 38, 38, .8);"><b>MODE OF PAYMENT</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>COLLECTION STATUS</b></td>
                 <td style="background-color: rgba(220, 38, 38, .8);"><b>REMARKS</b></td>
             </tr>
         </thead>
@@ -215,7 +224,6 @@
                                 <td>'. $or_number .'</td>
                                 <td>'. number_format($payment_amount, 2) .'</td>
                                 <td>'. $payment_date .'</td>
-                                <td>'. $transaction_date .'</td>
                                 <td>'. $customerName .'</td>
                                 <td>'. $stockNumber .'</td>
                                 <td>'. $loan_number .'</td>
@@ -223,7 +231,6 @@
                                 <td>'. $bank_name .'</td>
                                 <td>'. $payment_details .'</td>
                                 <td>'. $mode_of_payment .'</td>
-                                <td>'. $collection_status .'</td>
                                 <td>'. $remarks .'</td>
                             </tr>';
             

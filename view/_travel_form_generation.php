@@ -43,24 +43,28 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $travelFormID = $row['travel_form_id'];
                 $checkedBy = $row['checked_by'];
                 $checkedDate = $systemModel->checkDate('empty', $row['checked_date'], '', 'm/d/Y', '');
+                $recommendedBy = $row['recommended_by'];
+                $recommendedDate = $systemModel->checkDate('empty', $row['recommended_date'], '', 'm/d/Y', '');
                 $approvalBy = $row['approval_by'];
                 $approvalDate = $systemModel->checkDate('empty', $row['approval_date'], '', 'm/d/Y', '');
                 $travelFormStatus = $row['travel_form_status'];
                 $createdBy = $row['created_by'];
 
-                $checkedByDetails = $userModel->getUserByID($checkedBy);
-                $checkedByName = $checkedByDetails['file_as'] ?? null;
+                $checkedByName = !empty($checkedBy) ? ($employeeModel->getPersonalInformation($checkedBy)['file_as'] ?? '--') : '--';
 
-                $approvalByDetails = $userModel->getUserByID($approvalBy);
-                $approvalByName = $approvalByDetails['file_as'] ?? null;
+                $recommendedByName = !empty($recommendedBy) ? ($employeeModel->getPersonalInformation($recommendedBy)['file_as'] ?? '--') : '--';
+
+                $approvalByName = !empty($approvalBy) ? ($employeeModel->getPersonalInformation($approvalBy)['file_as'] ?? '--') : '--';
 
                 $createdByDetails = $userModel->getUserByID($createdBy);
                 $createdByName = $createdByDetails['file_as'] ?? null;
-
+                
                 $statusClasses = [
                     'Draft' => 'info',
                     'For Checking' => 'warning',
                     'Checked' => 'success',
+                    'For Recommendation' => 'warning',
+                    'Recommended' => 'success',
                     'For Approval' => 'warning',
                     'Approved' => 'success'
                 ];
@@ -75,10 +79,90 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'CREATED_BY' => $createdByName,
-                    'CHECKED_BY' => $checkedBy,
-                    'CHECKED_DATE' => $checkedByName,
-                    'APPROVAL_BY' => $approvalBy,
-                    'APPROVAL_DATE' => $approvalByName,
+                    'CHECKED_BY' => $checkedByName,
+                    'CHECKED_DATE' => $checkedDate,
+                    'RECOMMENDED_BY' => $recommendedByName,
+                    'RECOMMENDED_DATE' => $recommendedDate,
+                    'APPROVAL_BY' => $approvalByName,
+                    'APPROVAL_DATE' => $approvalDate,
+                    'STATUS' => $badge,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="travel-form.php?id='. $travelFormIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: travel form table
+        # Description:
+        # Generates the travel form table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'travel approval form table':
+            $contactID = $_SESSION['contact_id'];
+            $sql = $databaseModel->getConnection()->prepare('CALL generateTravelApprovalFormTable(:contactID)');
+            $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $travelFormID = $row['travel_form_id'];
+                $checkedBy = $row['checked_by'];
+                $checkedDate = $systemModel->checkDate('empty', $row['checked_date'], '', 'm/d/Y', '');
+                $recommendedBy = $row['recommended_by'];
+                $recommendedDate = $systemModel->checkDate('empty', $row['recommended_date'], '', 'm/d/Y', '');
+                $approvalBy = $row['approval_by'];
+                $approvalDate = $systemModel->checkDate('empty', $row['approval_date'], '', 'm/d/Y', '');
+                $travelFormStatus = $row['travel_form_status'];
+                $createdBy = $row['created_by'];
+
+                $checkedByName = !empty($checkedBy) ? ($employeeModel->getPersonalInformation($checkedBy)['file_as'] ?? '--') : '--';
+
+                $recommendedByName = !empty($recommendedBy) ? ($employeeModel->getPersonalInformation($recommendedBy)['file_as'] ?? '--') : '--';
+
+                $approvalByName = !empty($approvalBy) ? ($employeeModel->getPersonalInformation($approvalBy)['file_as'] ?? '--') : '--';
+
+                $createdByDetails = $userModel->getUserByID($createdBy);
+                $createdByName = $createdByDetails['file_as'] ?? null;
+
+                $statusClasses = [
+                    'Draft' => 'info',
+                    'For Checking' => 'warning',
+                    'Checked' => 'success',
+                    'For Recommendation' => 'warning',
+                    'Recommended' => 'success',
+                    'For Approval' => 'warning',
+                    'Approved' => 'success'
+                ];
+                
+                $defaultClass = 'dark';
+                
+                $class = $statusClasses[$travelFormStatus] ?? $defaultClass;
+                
+                $badge = '<span class="badge bg-' . $class . '">' . $travelFormStatus . '</span>';
+
+                $travelFormIDEncrypted = $securityModel->encryptData($travelFormID);
+
+                $response[] = [
+                    'CREATED_BY' => $createdByName,
+                    'CHECKED_BY' => $checkedByName,
+                    'CHECKED_DATE' => $checkedDate,
+                    'RECOMMENDED_BY' => $recommendedByName,
+                    'RECOMMENDED_DATE' => $recommendedDate,
+                    'APPROVAL_BY' => $approvalByName,
+                    'APPROVAL_DATE' => $approvalDate,
                     'STATUS' => $badge,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="travel-form.php?id='. $travelFormIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">

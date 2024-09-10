@@ -14,7 +14,7 @@
                  </button>
                  <ul class="dropdown-menu dropdown-menu-end">';
              
-                    if ($depositsDeleteAccess['total'] > 0) {
+                    if ($depositsDeleteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))) {
                         $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-deposits-details">Delete Deposits</button></li>';
                     }
                           

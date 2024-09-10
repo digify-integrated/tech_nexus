@@ -1347,7 +1347,7 @@
                                                             </div>
                                                         </td>
                                                     </tr>
-                                                    <tr>
+                                                    <tr id="remarks-block">
                                                         <td colspan="4" style="padding-bottom:0 !important;" class="text-wrap">
                                                             <div class="row pb-0 mb-0">
                                                                 <div class="col-lg-12">

@@ -732,7 +732,8 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'STATUS' },
         { 'data' : 'LOAN_NUMBER' },
         { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT' }
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'REVERSAL_DATE' },
     ];
 
     const column_definition = [
@@ -747,7 +748,8 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 8 },
         { 'width': 'auto', 'aTargets': 9 },
         { 'width': 'auto', 'aTargets': 10 },
-        { 'width': 'auto', 'aTargets': 11 }
+        { 'width': 'auto', 'aTargets': 11 },
+        { 'width': 'auto', 'aTargets': 12 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1667,6 +1669,9 @@ function pdcRedepositForm(){
 function pdcReverseForm(){
     $('#pdc-reverse-form').validate({
         rules: {
+            reversal_date: {
+                required: true
+            },
             reversal_reason: {
                 required: true
             },
@@ -1675,6 +1680,9 @@ function pdcReverseForm(){
             },
         },
         messages: {
+            reversal_date: {
+                required: 'Please choose the reversal date'
+            },
             reversal_reason: {
                 required: 'Please enter the reversal reason'
             },
@@ -1761,6 +1769,9 @@ function pdcReverseForm(){
 function massPDCReverseForm(){
     $('#mass-pdc-reverse-form').validate({
         rules: {
+            reversal_date: {
+                required: true
+            },
             reversal_reason: {
                 required: true
             },
@@ -1769,6 +1780,9 @@ function massPDCReverseForm(){
             },
         },
         messages: {
+            reversal_date: {
+                required: 'Please choose the reversal date'
+            },
             reversal_reason: {
                 required: 'Please enter the reversal reason'
             },

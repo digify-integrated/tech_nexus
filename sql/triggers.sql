@@ -6573,6 +6573,26 @@ BEGIN
     IF NEW.travel_form_status <> OLD.travel_form_status THEN
         SET audit_log = CONCAT(audit_log, "Approval Date: ", OLD.travel_form_status, " -> ", NEW.travel_form_status, "<br/>");
     END IF;
+
+    IF NEW.recommended_date <> OLD.recommended_date THEN
+        SET audit_log = CONCAT(audit_log, "Approval Date: ", OLD.recommended_date, " -> ", NEW.recommended_date, "<br/>");
+    END IF;
+
+    IF NEW.recommended_date <> OLD.recommended_date THEN
+        SET audit_log = CONCAT(audit_log, "Recommended Date: ", OLD.recommended_date, " -> ", NEW.recommended_date, "<br/>");
+    END IF;
+
+    IF NEW.for_checking_date <> OLD.for_checking_date THEN
+        SET audit_log = CONCAT(audit_log, "For Checking Date: ", OLD.for_checking_date, " -> ", NEW.for_checking_date, "<br/>");
+    END IF;
+
+    IF NEW.for_recommendation_date <> OLD.for_recommendation_date THEN
+        SET audit_log = CONCAT(audit_log, "For Recommendation Date: ", OLD.for_recommendation_date, " -> ", NEW.for_recommendation_date, "<br/>");
+    END IF;
+
+    IF NEW.for_approval <> OLD.for_approval THEN
+        SET audit_log = CONCAT(audit_log, "For Approval Date: ", OLD.for_approval, " -> ", NEW.for_approval, "<br/>");
+    END IF;
     
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 

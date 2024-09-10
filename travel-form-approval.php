@@ -8,7 +8,7 @@
   $customerModel = new CustomerModel($databaseModel);
   $travelFormModel = new TravelFormModel($databaseModel);
 
-  $pageTitle = 'Travel Form';
+  $pageTitle = 'Travel Approval Form';
     
   $travelFormReadAccess = $userModel->checkMenuItemAccessRights($user_id, 112, 'read');
   $travelFormCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 112, 'create');
@@ -102,7 +102,7 @@
             require_once('view/_travel_form_details.php');
           }
           else{
-            require_once('view/_travel_form.php');
+            require_once('view/_travel_form_approval.php');
           }
         ?>
       </div>

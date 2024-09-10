@@ -120,6 +120,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $collectionStatus = $row['collection_status'];
                 $checkDate = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
                 $redepositDate = $systemModel->checkDate('empty', $row['new_deposit_date'], '', 'm/d/Y', '');
+                $reversalDate = $systemModel->checkDate('empty', $row['reversal_date'], '', 'm/d/Y', '');
 
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;
@@ -165,6 +166,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'REDEPOSIT_DATE' => $redepositDate,
                     'PAYMENT_AMOUNT' => number_format($paymentAmount, 2),
                     'BANK_BRANCH' => $bankBranch,
+                    'REVERSAL_DATE' => $reversalDate,
                     'STATUS' => $badge,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">

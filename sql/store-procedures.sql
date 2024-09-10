@@ -10287,7 +10287,7 @@ BEGIN
 
         UPDATE loan_collections
         SET collection_status = p_collection_status,
-        reversal_date = NOW(),
+        reversal_date = p_new_deposit_date,
         reversal_reason = p_reason,
         reversal_remarks = p_remarks,
         reversal_reference_number = p_reference_number,
@@ -10621,25 +10621,63 @@ BEGIN
     WHERE travel_form_id = p_travel_form_id;
 END //
 
-CREATE PROCEDURE insertTravelForm(IN p_checked_by INT, IN p_approval_by INT, IN p_last_log_by INT, OUT p_travel_form_id INT)
+CREATE PROCEDURE insertTravelForm(IN p_checked_by INT, IN p_recommended_by INT, IN p_approval_by INT, IN p_last_log_by INT, OUT p_travel_form_id INT)
 BEGIN
     SET time_zone = '+08:00';
     
-    INSERT INTO travel_form (checked_by, approval_by, created_by, last_log_by) 
-	VALUES(p_checked_by, p_approval_by, p_last_log_by, p_last_log_by);
+    INSERT INTO travel_form (checked_by, recommended_by, approval_by, created_by, last_log_by) 
+	VALUES(p_checked_by, p_recommended_by, p_approval_by, p_last_log_by, p_last_log_by);
 	
     SET p_travel_form_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateTravelForm(IN p_travel_form_id INT, IN p_checked_by INT, IN p_approval_by INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateTravelForm(IN p_travel_form_id INT, IN p_checked_by INT, IN p_recommended_by INT, IN p_approval_by INT, IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
 
 	UPDATE travel_form
     SET checked_by = p_checked_by,
+        recommended_by = p_recommended_by,
         approval_by = p_approval_by,
         last_log_by = p_last_log_by
     WHERE travel_form_id = p_travel_form_id;
+END //
+
+CREATE PROCEDURE updateTravelFormStatus(IN p_travel_form_id INT, IN p_travel_form_status VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+    IF p_travel_form_status = 'For Checking' THEN
+        UPDATE travel_form
+        SET travel_form_status = p_travel_form_status,
+            for_checking_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE travel_form_id = p_travel_form_id;
+    ELSEIF p_travel_form_status = 'Checked' THEN
+        UPDATE travel_form
+        SET travel_form_status = p_travel_form_status,
+            checked_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE travel_form_id = p_travel_form_id;
+    ELSEIF p_travel_form_status = 'For Recommendation' THEN
+        UPDATE travel_form
+        SET travel_form_status = p_travel_form_status,
+            for_recommendation_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE travel_form_id = p_travel_form_id;
+    ELSEIF p_travel_form_status = 'Recommended' THEN
+        UPDATE travel_form
+        SET travel_form_status = p_travel_form_status,
+            recommended_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE travel_form_id = p_travel_form_id;
+    ELSE
+        UPDATE travel_form
+        SET travel_form_status = p_travel_form_status,
+            approval_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE travel_form_id = p_travel_form_id;
+    END IF;
 END //
 
 CREATE PROCEDURE deleteTravelForm(IN p_travel_form_id INT)
@@ -10655,8 +10693,16 @@ END //
 
 CREATE PROCEDURE generateTravelFormTable()
 BEGIN
-    SELECT travel_form_id, checked_by, checked_date, approval_by, approval_date, travel_form_status, created_by
+    SELECT travel_form_id, checked_by, checked_date, recommended_by, recommended_date, approval_by, approval_date, travel_form_status, created_by
     FROM travel_form
+    ORDER BY travel_form_id;
+END //
+
+CREATE PROCEDURE generateTravelApprovalFormTable(IN p_contact_id INT)
+BEGIN
+    SELECT travel_form_id, checked_by, checked_date, recommended_by, recommended_date, approval_by, approval_date, travel_form_status, created_by
+    FROM travel_form
+    WHERE travel_form_status = 'Draft' AND (checked_by = p_contact_id OR recommended_by = p_contact_id OR approval_by = p_contact_id)
     ORDER BY travel_form_id;
 END //
 

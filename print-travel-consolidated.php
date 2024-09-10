@@ -98,8 +98,6 @@
     // Set margins and auto page break
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
     $pdf->SetMargins(15, 15, 15);
-    $pdf->SetHeaderMargin(5);
-    $pdf->SetFooterMargin(10);
     $pdf->SetAutoPageBreak(TRUE, 15);
 
     // Add a page
@@ -233,8 +231,8 @@
             $customerID = $row['customer_id'] ?? null;
             $itineraryDestination = $row['itinerary_destination'] ?? null;
             $itineraryPurpose = $row['itinerary_purpose'] ?? null;
-            $expectedTimeOfDeparture = $systemModel->checkDate('empty', $row['expected_time_of_departure'], '', 'H:i a', '');
-            $expectedTimeOfArrival = $systemModel->checkDate('empty', $row['expected_time_of_arrival'], '', 'H:i a', '');
+            $expectedTimeOfDeparture = $systemModel->checkDate('empty', $row['expected_time_of_departure'] ?? null, '', 'H:i a', '');
+            $expectedTimeOfArrival = $systemModel->checkDate('empty', $row['expected_time_of_arrival'] ?? null, '', 'H:i a', '');
 
             $itineraryRow .= '
                         <tr>
@@ -246,7 +244,112 @@
                             <td>'. $expectedTimeOfArrival .'</td>
                         </tr>
             ';
+
+            
         }
+
+        $travelAuthorizationDetails = $travelFormModel->getTravelAuthorization($travelFormID);
+            $destination = $travelAuthorizationDetails['destination'] ?? null;
+            $modeOfTransportation = $travelAuthorizationDetails['mode_of_transportation'] ?? null;
+            $purposeOfTravel = $travelAuthorizationDetails['purpose_of_travel'] ?? null;
+            $authorizationDepartureDate = $systemModel->checkDate('empty', $travelAuthorizationDetails['authorization_departure_date'] ?? null, '', 'M d, Y', '');
+            $authorizationReturnDate = $systemModel->checkDate('empty', $travelAuthorizationDetails['authorization_return_date'] ?? null, '', 'M d, Y', '');
+            $accomodationDetails = $travelAuthorizationDetails['accomodation_details'] ?? null;
+            $tollFee = $travelAuthorizationDetails['toll_fee'] ?? null;
+            $accomodation = $travelAuthorizationDetails['accomodation'] ?? null;
+            $meals = $travelAuthorizationDetails['meals'] ?? null;
+            $otherExpenses = $travelAuthorizationDetails['other_expenses'] ?? null;
+            $totalEstimatedCost = $tollFee + $accomodation + $meals + $otherExpenses;
+            $additionalComments = $travelAuthorizationDetails['additional_comments'] ?? null;
+
+            $travelFormDetails = $travelFormModel->getGatePass($travelFormID);
+            $nameOfDriver = $travelFormDetails['name_of_driver'] ?? null;
+            $contactNumber = $travelFormDetails['contact_number'] ?? null;
+            $vehicleType = $travelFormDetails['vehicle_type'] ?? null;
+            $plateNumber = $travelFormDetails['plate_number'] ?? null;
+            $departmentID = $travelFormDetails['department_id'] ?? null;
+            $odometerReading = $travelFormDetails['odometer_reading'] ?? null;
+            $purposeOfEntryExit = $travelFormDetails['purpose_of_entry_exit'] ?? null;
+            $remarks = $travelFormDetails['remarks'] ?? null;
+            $gatePassDepartureDate = $systemModel->checkDate('empty', $travelFormDetails['gate_pass_departure_date'] ?? null, '', 'm/d/Y', '');
+
+            $departmentName = $departmentModel->getDepartment($departmentID)['department_name'] ?? null;
+
+            $itineraryRow .= '
+                            <tr>
+                                <td colspan="3" style="text-align: center"><b>Travel Authorization</b></td>
+                                <td colspan="3" style="text-align: center"><b>Vehicle Gatepass</b></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Mode of Transportation:</td>
+                                <td>'. strtoupper($modeOfTransportation) .'</td>
+                                <td colspan="2">Name of Driver :</td>
+                                <td>'. strtoupper($nameOfDriver) .'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><b>Estimated Expenses:</b></td>
+                                <td></td>
+                                <td colspan="2">Return Date:</td>
+                                <td>'. strtoupper($authorizationReturnDate) .'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Transportation (TOLL FEE)</td>
+                                <td>'. number_format($tollFee, 2) .'</td>
+                                <td colspan="2">Contact Number :</td>
+                                <td>'. strtoupper($contactNumber) .'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Accommodation:</td>
+                                <td>'. number_format($accomodation, 2) .'</td>
+                                <td colspan="2">Vehicle Type :</td>
+                                <td>'. strtoupper($vehicleType) .'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Meals:</td>
+                                <td>'. number_format($meals, 2) .'</td>
+                                <td colspan="2">Plate No. :</td>
+                                <td>'. strtoupper($plateNumber) .'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Other Expenses (Specify on Notes):</td>
+                                <td>'. number_format($otherExpenses, 2) .'</td>
+                                <td colspan="2">Department :</td>
+                                <td>'. strtoupper($departmentName) .'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Total Estimated Cost:</td>
+                                <td>'. number_format($totalEstimatedCost, 2) .'</td>
+                                <td colspan="2">Purpose of Entry/Exit :</td>
+                                <td>'. strtoupper($purposeOfEntryExit) .'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Accommodation Details (if applicable):</td>
+                                <td>'. strtoupper($accomodationDetails) .'</td>
+                                <td colspan="2">Odometer Reading :</td>
+                                <td>'. strtoupper($odometerReading) .'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" rowspan="5"></td>
+                                <td colspan="2">Gate In-charge/Security Officer :</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Date of Arrival :</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Odometer Reading:</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Gate In-charge/Security Officer:</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Remarks:</td>
+                                <td>'. strtoupper($remarks) .'</td>
+                            </tr>
+                            ';
 
         $response = '<table border="0.5" width="100%" cellpadding="2" align="left">
                         <tbody>

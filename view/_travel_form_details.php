@@ -1,6 +1,9 @@
 <?php
 $travelFormDetails = $travelFormModel->getTravelForm($travelFormID);
 $travelFormStatus = $travelFormDetails['travel_form_status'];
+$checkedBy = $travelFormDetails['checked_by'];
+$recommendedBy = $travelFormDetails['recommended_by'];
+$approvalBy = $travelFormDetails['approval_by'];
 
 $disabled = '';
 if($travelFormStatus != 'Draft'){
@@ -36,6 +39,26 @@ if($travelFormStatus != 'Draft'){
                                     <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
                             }
 
+                            if ($travelFormStatus == 'Draft' && !empty($checkedBy)) {
+                                echo '<button type="button" id="tag-as-for-checking" class="btn btn-warning me-2">For Checking</button>';
+                            }
+
+                            if ($travelFormStatus == 'For Checking' && $checkedBy == $contact_id) {
+                                echo '<button type="button" id="tag-as-checked" class="btn btn-warning me-2">Checked</button>';
+                            }
+
+                            if (($travelFormStatus == 'Draft' && empty($checkedBy)) || $travelFormStatus == 'Checked') {
+                                echo '<button type="button" id="tag-as-for-recommendation" class="btn btn-warning me-2">For Recommendation</button>';
+                            }
+
+                            if ($travelFormStatus == 'For Recommendation' && $recommendedBy == $contact_id) {
+                                echo '<button type="button" id="tag-as-recommended" class="btn btn-warning me-2">Recommended</button>';
+                            }
+
+                            if ($travelFormStatus == 'Recommended' && $approvalBy == $contact_id) {
+                                echo '<button type="button" id="tag-as-approved" class="btn btn-warning me-2">Approved</button>';
+                            }
+
                             if ($travelFormCreateAccess['total'] > 0) {
                                 echo '<a class="btn btn-success m-r-5 form-details" href="travel-form.php?new">Create</a>';
                             }
@@ -46,13 +69,22 @@ if($travelFormStatus != 'Draft'){
         <div class="card-body">
             <form id="travel-form" method="post" action="#">
                 <div class="form-group row">
-                    <label class="col-lg-2 col-form-label">Checked By <span class="text-danger">*</span></label>
+                    <label class="col-lg-2 col-form-label">Checked By</label>
                     <div class="col-lg-4">
                         <select class="form-control select2" name="checked_by" id="checked_by" <?php echo $disabled; ?>>
                             <option value="">--</option>
                             <?php echo $employeeModel->generateEmployeeOptions('all'); ?>
                         </select>
                     </div>
+                    <label class="col-lg-2 col-form-label">Recommended By <span class="text-danger">*</span></label>
+                    <div class="col-lg-4">
+                        <select class="form-control select2" name="recommended_by" id="recommended_by" <?php echo $disabled; ?>>
+                            <option value="">--</option>
+                            <?php echo $employeeModel->generateEmployeeOptions('all'); ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
                     <label class="col-lg-2 col-form-label">Approval By <span class="text-danger">*</span></label>
                     <div class="col-lg-4">
                         <select class="form-control select2" name="approval_by" id="approval_by" <?php echo $disabled; ?>>
@@ -62,6 +94,49 @@ if($travelFormStatus != 'Draft'){
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5>Itinerary</h5>
+                    </div>
+                    <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                        <?php
+                            if ($travelFormWriteAccess['total'] > 0 && $travelFormStatus == 'Draft') {
+                                echo '<button type="button" form="travel-form" class="btn btn-success" id="itinerary-details" data-bs-toggle="offcanvas" data-bs-target="#itinerary-offcanvas" aria-controls="itinerary-offcanvas">Add</button>';
+                            }
+
+                            if ($travelFormStatus == 'Approved') {
+                                echo '<button type="button" class="btn btn-warning" id="print-itinerary">Print</button>';
+                            }
+                        ?>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive dt-responsive">
+                    <table id="itinerary-table" class="table table-hover nowrap w-100 text-uppercase">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Name of Client</th>
+                                <th>Destination</th>
+                                <th>Purpose</th>
+                                <th>Expected Time of Departure (ETD)</th>
+                                <th>Expected Time of Arrival (ETA)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -76,9 +151,11 @@ if($travelFormStatus != 'Draft'){
                     <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                         <?php
                             if ($travelFormWriteAccess['total'] > 0 && $travelFormStatus == 'Draft') {
-                                echo '
-                                <button type="button" class="btn btn-warning" id="print-travel-authorization">Print</button>
-                                <button type="submit" form="travel-authorization-form" class="btn btn-success" id="submit-travel-authorization-data">Save</button>';
+                                echo '<button type="submit" form="travel-authorization-form" class="btn btn-success" id="submit-travel-authorization-data">Save</button>';
+                            }
+
+                            if ($travelFormStatus == 'Approved') {
+                                echo '<button type="button" class="btn btn-warning" id="print-travel-authorization">Print</button>';
                             }
                         ?>
                     </div>
@@ -182,8 +259,11 @@ if($travelFormStatus != 'Draft'){
                     <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                         <?php
                             if ($travelFormWriteAccess['total'] > 0 && $travelFormStatus == 'Draft') {
-                                echo '<button type="button" class="btn btn-warning" id="print-gate-pass">Print</button>
-                                <button type="submit" form="gate-pass-form" class="btn btn-success" id="submit-gate-pass-data">Save</button>';
+                                echo '<button type="submit" form="gate-pass-form" class="btn btn-success" id="submit-gate-pass-data">Save</button>';
+                            }
+
+                            if ($travelFormStatus == 'Approved') {
+                                echo '<button type="button" class="btn btn-warning" id="print-gate-pass">Print</button>';
                             }
                         ?>
                     </div>
@@ -242,7 +322,7 @@ if($travelFormStatus != 'Draft'){
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-lg-5 col-form-label">Odometer Reading <span class="text-danger">*</span></label>
+                        <label class="col-lg-5 col-form-label">Odometer Reading</label>
                         <div class="col-lg-7">
                             <input type="text" class="form-control" id="odometer_reading" name="odometer_reading" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                         </div>
@@ -254,45 +334,6 @@ if($travelFormStatus != 'Draft'){
                         </div>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <h5>Itinerary</h5>
-                    </div>
-                    <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                        <?php
-                            if ($travelFormWriteAccess['total'] > 0 && $travelFormStatus == 'Draft') {
-                                echo '<button type="button" class="btn btn-warning" id="print-itinerary">Print</button>
-                                <button type="button" form="travel-form" class="btn btn-success" id="itinerary-details" data-bs-toggle="offcanvas" data-bs-target="#itinerary-offcanvas" aria-controls="itinerary-offcanvas">Add</button>';
-                            }
-                        ?>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive dt-responsive">
-                    <table id="itinerary-table" class="table table-hover nowrap w-100 text-uppercase">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Name of Client</th>
-                                <th>Destination</th>
-                                <th>Purpose</th>
-                                <th>Expected Time of Departure (ETD)</th>
-                                <th>Expected Time of Arrival (ETA)</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
             </div>
         </div>
     </div>

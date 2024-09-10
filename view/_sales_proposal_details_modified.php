@@ -307,45 +307,6 @@
                                                         </td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="4" style="padding-bottom:0 !important;" class="text-wrap">
-                                                            <div class="row pb-0 mb-0">
-                                                                <div class="col-lg-12">
-                                                                    <div class="table-responsive">
-                                                                        <table class="table table-borderless text-sm ">
-                                                                            <tbody>
-                                                                                <tr>
-                                                                                    <td></td>
-                                                                                    <td><u>2ND YEAR</u></td>
-                                                                                    <td><u>3RD YEAR</u></td>
-                                                                                    <td><u>4TH YEAR</u></td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td>REGISTRATION</td>
-                                                                                    <td id="summary-registration-second-year"></td>
-                                                                                    <td id="summary-registration-third-year"></td>
-                                                                                    <td id="summary-registration-fourth-year"></td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td>INS. COVERAGE</td>
-                                                                                    <td id="summary-insurance-coverage-second-year"></td>
-                                                                                    <td id="summary-insurance-coverage-third-year"></td>
-                                                                                    <td id="summary-insurance-coverage-fourth-year"></td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td>INS. PREMIUM</td>
-                                                                                    <td id="summary-insurance-premium-second-year"></td>
-                                                                                    <td id="summary-insurance-premium-third-year"></td>
-                                                                                    <td id="summary-insurance-premium-fourth-year"></td>
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td colspan="4" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>REMARKS</b></small><br/><br/><span id="summary-remarks" class="text-sm"></span></td>
-                                                    </tr>
-                                                    <tr>
                                                         <td colspan="8" style="padding-bottom:0 !important;" class="text-wrap">
                                                             <small style="color:#c60206"><b>REQUIREMENTS:</b></small><br/><br/>
                                                             <div class="row">

@@ -1258,6 +1258,7 @@
         $(document).on('click','#print',function() {
             $('#pricing-computation-block').removeClass('dontprint');
             $('#amortization-block').removeClass('dontprint');
+            $('#remarks-block').removeClass('dontprint');
 
             window.print();
         });
@@ -1265,6 +1266,7 @@
         $(document).on('click','#print2',function() {
             $('#pricing-computation-block').addClass('dontprint');
             $('#amortization-block').addClass('dontprint');
+            $('#remarks-block').addClass('dontprint');
 
             window.print();
         });

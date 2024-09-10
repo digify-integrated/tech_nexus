@@ -15,6 +15,8 @@ session_start();
 class TravelFormController {
     private $travelFormModel;
     private $userModel;
+    private $emailSettingModel;
+    private $notificationSettingModel;
     private $systemModel;
     private $securityModel;
 
@@ -34,9 +36,11 @@ class TravelFormController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(TravelFormModel $travelFormModel, UserModel $userModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(TravelFormModel $travelFormModel, UserModel $userModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->travelFormModel = $travelFormModel;
         $this->userModel = $userModel;
+        $this->emailSettingModel = $emailSettingModel;
+        $this->notificationSettingModel = $notificationSettingModel;
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
@@ -60,9 +64,6 @@ class TravelFormController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'save travel form':
-                    $this->saveTravelForm();
-                    break;
                 case 'save travel form':
                     $this->saveTravelForm();
                     break;
@@ -93,6 +94,21 @@ class TravelFormController {
                 case 'delete itinerary':
                     $this->deleteItinerary();
                     break;
+                case 'tag for checking':
+                    $this->tagForChecking();
+                    break;
+                case 'tag as checked':
+                    $this->tagAsChecked();
+                    break;
+                case 'tag for recommendation':
+                    $this->tagForRecommendation();
+                    break;
+                case 'tag as recommended':
+                    $this->tagAsRecommended();
+                    break;
+                case 'tag as approved':
+                    $this->tagAsApproved();
+                    break;
                 case 'delete multiple travel form':
                     $this->deleteMultipleTravelForm();
                     break;
@@ -101,6 +117,296 @@ class TravelFormController {
                     break;
             }
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagForChecking
+    # Description: 
+    # Delete the travel form if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagForChecking() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $travelFormID = htmlspecialchars($_POST['travel_form_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkTravelFormExist = $this->travelFormModel->checkTravelFormExist($travelFormID);
+        $total = $checkTravelFormExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'For Checking', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagAsChecked
+    # Description: 
+    # Delete the travel form if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagAsChecked() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $travelFormID = htmlspecialchars($_POST['travel_form_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkTravelFormExist = $this->travelFormModel->checkTravelFormExist($travelFormID);
+        $total = $checkTravelFormExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'Checked', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagForRecommendation
+    # Description: 
+    # Delete the travel form if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagForRecommendation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $travelFormID = htmlspecialchars($_POST['travel_form_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkTravelFormExist = $this->travelFormModel->checkTravelFormExist($travelFormID);
+        $total = $checkTravelFormExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'For Recommendation', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagAsRecommended
+    # Description: 
+    # Delete the travel form if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagAsRecommended() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $travelFormID = htmlspecialchars($_POST['travel_form_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkTravelFormExist = $this->travelFormModel->checkTravelFormExist($travelFormID);
+        $total = $checkTravelFormExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'Recommended', $userID);
+        
+        $travelFormDetails = $this->travelFormModel->getTravelForm($travelFormID);
+        $approvalBy = $travelFormDetails['approval_by'];
+
+        $approvalEmail = $this->userModel->getContactByContactID($approvalBy)['email'] ?? null;
+
+        $this->sendPublish($travelFormID, $approvalEmail);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: sendOTP
+    # Description: 
+    # Sends an OTP (One-Time Password) to the user's email address.
+    #
+    # Parameters: 
+    # - $email (string): The email address of the user.
+    # - $otp (string): The OTP generated.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function sendPublish($travelFormID, $approvalEmail) {
+
+        $travelFormIDEncrypted = $this->securityModel->encryptData($travelFormID);
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(9);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{TRAVEL_FORM_LINK}', $travelFormIDEncrypted, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        $mailer->addAddress($approvalEmail);
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: configureSMTP
+    # Description: 
+    # Sets the SMTP configuration
+    #
+    # Parameters: 
+    # - $mailer (array): The PHP mailer.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    private function configureSMTP($mailer, $isHTML = true) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailHost = $emailSetting['mail_host'] ?? MAIL_HOST;
+        $smtpAuth = empty($emailSetting['smtp_auth']) ? false : true;
+        $mailUsername = $emailSetting['mail_username'] ?? MAIL_USERNAME;
+        $mailPassword = !empty($password) ? $this->securityModel->decryptData($emailSetting['mail_password']) : MAIL_PASSWORD;
+        $mailEncryption = $emailSetting['mail_encryption'] ?? MAIL_SMTP_SECURE;
+        $port = $emailSetting['port'] ?? MAIL_PORT;
+        
+        $mailer->isSMTP();
+        $mailer->isHTML(true);
+        $mailer->Host = $mailHost;
+        $mailer->SMTPAuth = $smtpAuth;
+        $mailer->Username = $mailUsername;
+        $mailer->Password = $mailPassword;
+        $mailer->SMTPSecure = $mailEncryption;
+        $mailer->Port = $port;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagAsApproved
+    # Description: 
+    # Delete the travel form if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagAsApproved() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $travelFormID = htmlspecialchars($_POST['travel_form_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkTravelFormExist = $this->travelFormModel->checkTravelFormExist($travelFormID);
+        $total = $checkTravelFormExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'Approved', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -127,6 +433,7 @@ class TravelFormController {
         $userID = $_SESSION['user_id'];
         $travelFormID = isset($_POST['travel_form_id']) ? htmlspecialchars($_POST['travel_form_id'], ENT_QUOTES, 'UTF-8') : null;
         $checkedBy = htmlspecialchars($_POST['checked_by'], ENT_QUOTES, 'UTF-8');
+        $recommendedBy = htmlspecialchars($_POST['recommended_by'], ENT_QUOTES, 'UTF-8');
         $approvalBy = htmlspecialchars($_POST['approval_by'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -140,13 +447,13 @@ class TravelFormController {
         $total = $checkTravelFormExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->travelFormModel->updateTravelForm($travelFormID, $checkedBy, $approvalBy, $userID);
+            $this->travelFormModel->updateTravelForm($travelFormID, $checkedBy, $recommendedBy, $approvalBy, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'travelFormID' => $this->securityModel->encryptData($travelFormID)]);
             exit;
         } 
         else {
-            $travelFormID = $this->travelFormModel->insertTravelForm($checkedBy, $approvalBy, $userID);
+            $travelFormID = $this->travelFormModel->insertTravelForm($checkedBy, $recommendedBy, $approvalBy, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'travelFormID' => $this->securityModel->encryptData($travelFormID)]);
             exit;
@@ -471,6 +778,7 @@ class TravelFormController {
             $response = [
                 'success' => true,
                 'checkedBy' => $travelFormDetails['checked_by'],
+                'recommendedBy' => $travelFormDetails['recommended_by'],
                 'approvalBy' => $travelFormDetails['approval_by']
             ];
 
@@ -631,7 +939,12 @@ require_once '../model/travel-form-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
+require_once '../model/notification-setting-model.php';
+require_once '../model/email-setting-model.php';
+require '../assets/libs/PHPMailer/src/PHPMailer.php';
+require '../assets/libs/PHPMailer/src/Exception.php';
+require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new TravelFormController(new TravelFormModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SystemModel(), new SecurityModel());
+$controller = new TravelFormController(new TravelFormModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

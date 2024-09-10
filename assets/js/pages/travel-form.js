@@ -5,6 +5,11 @@
         if($('#travel-form-table').length){
             travelFormTable('#travel-form-table');
         }
+
+        if($('#travel-approval-form-table').length){
+            travelApprovalFormTable('#travel-approval-form-table');
+        }
+
         if($('#itinerary-table').length){
             itineraryTable('#itinerary-table');
         }
@@ -310,6 +315,281 @@
             window.open('print-itinerary.php?id=' + travel_form_id, '_blank');
         });
 
+        $(document).on('click','#tag-as-for-checking',function() {
+            const travel_form_id = $('#travel-form-id').text();
+            const transaction = 'tag for checking';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Travel For Checking',
+                text: 'Are you sure you want to tag this travel form for checking?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'For Checking',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/travel-form-controller.php',
+                        dataType: 'json',
+                        data: {
+                            travel_form_id : travel_form_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Travel Form For Checking Success', 'The travel form has been tagged for checking successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Travel Form For Checking Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#tag-as-checked',function() {
+            const travel_form_id = $('#travel-form-id').text();
+            const transaction = 'tag as checked';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Travel As Checked',
+                text: 'Are you sure you want to tag this travel form for checking?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Checked',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/travel-form-controller.php',
+                        dataType: 'json',
+                        data: {
+                            travel_form_id : travel_form_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Travel Form As Checked Success', 'The travel form has been tagged as checked successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Travel Form As Checked Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#tag-as-for-recommendation',function() {
+            const travel_form_id = $('#travel-form-id').text();
+            const transaction = 'tag for recommendation';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Travel For Recommendation',
+                text: 'Are you sure you want to tag this travel form for recommendation?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'For Recommendation',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/travel-form-controller.php',
+                        dataType: 'json',
+                        data: {
+                            travel_form_id : travel_form_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Travel Form For Recommendation Success', 'The travel form has been tagged for recommendation successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Travel Form For Recommendation Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#tag-as-recommended',function() {
+            const travel_form_id = $('#travel-form-id').text();
+            const transaction = 'tag as recommended';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Travel As Recommended',
+                text: 'Are you sure you want to tag this travel form for recommended?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Recommended',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/travel-form-controller.php',
+                        dataType: 'json',
+                        data: {
+                            travel_form_id : travel_form_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Travel Form As Recommended Success', 'The travel form has been tagged as recommended successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Travel Form As Recommended Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#tag-as-approved',function() {
+            const travel_form_id = $('#travel-form-id').text();
+            const transaction = 'tag as approved';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Travel As Approved',
+                text: 'Are you sure you want to tag this travel form for approved?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Approved',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/travel-form-controller.php',
+                        dataType: 'json',
+                        data: {
+                            travel_form_id : travel_form_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Travel Form As Approved Success', 'The travel form has been tagged as approved successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Travel Form As Approved Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('change','#toll_fee',function() {
             calculateEstimatedCost();
         });
@@ -336,6 +616,8 @@ function travelFormTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CREATED_BY' },
         { 'data' : 'CHECKED_BY' },
         { 'data' : 'CHECKED_DATE' },
+        { 'data' : 'RECOMMENDED_BY' },
+        { 'data' : 'RECOMMENDED_DATE' },
         { 'data' : 'APPROVAL_BY' },
         { 'data' : 'APPROVAL_DATE' },
         { 'data' : 'STATUS' },
@@ -349,7 +631,76 @@ function travelFormTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': '15%','bSortable': false, 'aTargets': 6 }
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '15%','bSortable': false, 'aTargets': 8 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_travel_form_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function travelApprovalFormTable(datatable_name, buttons = false, show_all = false){
+    const type = 'travel approval form table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'CREATED_BY' },
+        { 'data' : 'CHECKED_BY' },
+        { 'data' : 'CHECKED_DATE' },
+        { 'data' : 'RECOMMENDED_BY' },
+        { 'data' : 'RECOMMENDED_DATE' },
+        { 'data' : 'APPROVAL_BY' },
+        { 'data' : 'APPROVAL_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '15%','bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -458,7 +809,7 @@ function itineraryTable(datatable_name, buttons = false, show_all = false){
 function travelForm(){
     $('#travel-form').validate({
         rules: {
-            checked_by: {
+            recommended_by: {
                 required: true
             },
             approval_by: {
@@ -466,8 +817,8 @@ function travelForm(){
             },
         },
         messages: {
-            checked_by: {
-                required: 'Please choose the checked by'
+            recommended_by: {
+                required: 'Please choose the recommended by'
             },
             approval_by: {
                 required: 'Please choose the approval by'
@@ -708,10 +1059,7 @@ function gatePassForm(){
             },
             gate_pass_departure_date: {
                 required: true
-            },
-            odometer_reading: {
-                required: true
-            },
+            }
         },
         messages: {
             name_of_driver: {
@@ -734,9 +1082,6 @@ function gatePassForm(){
             },
             gate_pass_departure_date: {
                 required: 'Please choose the departure date'
-            },
-            odometer_reading: {
-                required: 'Please enter the odometer reading'
             },
         },
         errorPlacement: function (error, element) {
@@ -955,6 +1300,7 @@ function displayDetails(transaction){
                         $('#travel_form_id').val(travel_form_id);
 
                         checkOptionExist('#checked_by', response.checkedBy, '');
+                        checkOptionExist('#recommended_by', response.recommendedBy, '');
                         checkOptionExist('#approval_by', response.approvalBy, '');
                     } 
                     else {

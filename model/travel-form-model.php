@@ -28,10 +28,11 @@ class TravelFormModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateTravelForm($p_travel_form_id, $p_checked_by, $p_approval_by, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateTravelForm(:p_travel_form_id, :p_checked_by, :p_approval_by, :p_last_log_by)');
+    public function updateTravelForm($p_travel_form_id, $p_checked_by, $p_recommended_by, $p_approval_by, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateTravelForm(:p_travel_form_id, :p_checked_by, :p_recommended_by, :p_approval_by, :p_last_log_by)');
         $stmt->bindValue(':p_travel_form_id', $p_travel_form_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_checked_by', $p_checked_by, PDO::PARAM_STR);
+        $stmt->bindValue(':p_recommended_by', $p_recommended_by, PDO::PARAM_STR);
         $stmt->bindValue(':p_approval_by', $p_approval_by, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -130,6 +131,28 @@ class TravelFormModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateTravelFormStatus
+    # Description: Updates the travel form.
+    #
+    # Parameters:
+    # - $p_travel_form_id (int): The travel form ID.
+    # - $p_checked_by (string): The travel form name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateTravelFormStatus($p_travel_form_id, $p_travel_form_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateTravelFormStatus(:p_travel_form_id, :p_travel_form_status, :p_last_log_by)');
+        $stmt->bindValue(':p_travel_form_id', $p_travel_form_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_travel_form_status', $p_travel_form_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -145,9 +168,10 @@ class TravelFormModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertTravelForm($p_checked_by, $p_approval_by, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertTravelForm(:p_checked_by, :p_approval_by, :p_last_log_by, @p_travel_form_id)');
+    public function insertTravelForm($p_checked_by, $p_recommended_by, $p_approval_by, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertTravelForm(:p_checked_by, :p_recommended_by, :p_approval_by, :p_last_log_by, @p_travel_form_id)');
         $stmt->bindValue(':p_checked_by', $p_checked_by, PDO::PARAM_STR);
+        $stmt->bindValue(':p_recommended_by', $p_recommended_by, PDO::PARAM_STR);
         $stmt->bindValue(':p_approval_by', $p_approval_by, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();

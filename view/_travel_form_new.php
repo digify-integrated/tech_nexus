@@ -19,13 +19,22 @@
         </div>
         <div class="card-body">
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Checked By <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Checked By</label>
             <div class="col-lg-4">
               <select class="form-control select2" name="checked_by" id="checked_by">
                 <option value="">--</option>
                 <?php echo $employeeModel->generateEmployeeOptions('all'); ?>
               </select>
             </div>
+            <label class="col-lg-2 col-form-label">Recommended By <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="recommended_by" id="recommended_by">
+                <option value="">--</option>
+                <?php echo $employeeModel->generateEmployeeOptions('all'); ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Approval By <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="approval_by" id="approval_by">

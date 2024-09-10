@@ -295,6 +295,7 @@
                     <th>Loan Number</th>
                     <th>Customer</th>
                     <th>Product</th>
+                    <th>Reversal Date</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -345,6 +346,17 @@
       <div class="row">
         <div class="col-lg-12">
           <form id="mass-pdc-reverse-form" method="post" action="#">
+            <div class="form-group row">
+                <div class="col-lg-12 mt-3 mt-lg-0">
+                    <label class="form-label">Reversal Date <span class="text-danger">*</span></label>
+                    <div class="input-group date">
+                      <input type="text" class="form-control regular-datepicker" id="reversal_date" name="reversal_date" autocomplete="off">
+                      <span class="input-group-text">
+                          <i class="feather icon-calendar"></i>
+                      </span>
+                  </div>
+                </div>
+            </div>
             <div class="form-group row">
                 <div class="col-lg-12 mt-3 mt-lg-0">
                     <label class="form-label">Reversal Reason <span class="text-danger">*</span></label>

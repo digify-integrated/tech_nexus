@@ -42,6 +42,8 @@
                         <th>Created By</th>
                         <th>Checked By</th>
                         <th>Checked Date</th>
+                        <th>Recommended By</th>
+                        <th>Recommended Date</th>
                         <th>Approval By</th>
                         <th>Approval Date</th>
                         <th>Status</th>

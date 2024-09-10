@@ -203,7 +203,7 @@
 
             if($collection_status == 'Reversed'){
                 $or_number = $pdcManagementDetails['reversal_reference_number'];
-                $or_date = $systemModel->checkDate('empty', $pdcManagementDetails['reversal_reference_date'], '', 'm/d/Y', '');
+                $or_date = $systemModel->checkDate('empty', $pdcManagementDetails['reversal_date'], '', 'm/d/Y', '');
             }
             else{
                 $or_number = $pdcManagementDetails['or_number'];

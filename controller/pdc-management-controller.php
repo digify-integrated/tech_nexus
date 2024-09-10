@@ -693,6 +693,7 @@ class PDCManagementController {
         $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
         $reversalReason = $_POST['reversal_reason'];
         $reversalRemarks = $_POST['reversal_remarks'];
+        $reversalDate = $this->systemModel->checkDate('empty', $_POST['reversal_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -711,7 +712,7 @@ class PDCManagementController {
     
         $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
 
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, '', $referenceNumber, '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, $reversalDate, $referenceNumber, '', $userID);
 
         if($reversalReason == 'Account Closed'){
             $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
@@ -750,6 +751,7 @@ class PDCManagementController {
         $loanCollectionIDs = explode(',', $loanCollectionID);
         $reversalReason = $_POST['reversal_reason'];
         $reversalRemarks = $_POST['reversal_remarks'];
+        $reversalDate = $this->systemModel->checkDate('empty', $_POST['reversal_date'], '', 'Y-m-d', '');
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -765,7 +767,7 @@ class PDCManagementController {
             if($total > 0){
                 $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
 
-                $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, '', $referenceNumber, '', $userID);
+                $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, $reversalDate, $referenceNumber, '', $userID);
                 
                 $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
             }
