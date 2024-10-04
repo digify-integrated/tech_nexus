@@ -115,8 +115,8 @@ class TravelFormModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateItinerary($p_itinerary_id, $p_travel_form_id, $p_itinerary_date, $p_customer_id, $p_itinerary_destination, $p_itinerary_purpose, $p_expected_time_of_departure, $p_expected_time_of_arrival, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateItinerary(:p_itinerary_id, :p_travel_form_id, :p_itinerary_date, :p_customer_id, :p_itinerary_destination, :p_itinerary_purpose, :p_expected_time_of_departure, :p_expected_time_of_arrival, :p_last_log_by)');
+    public function updateItinerary($p_itinerary_id, $p_travel_form_id, $p_itinerary_date, $p_customer_id, $p_itinerary_destination, $p_itinerary_purpose, $p_expected_time_of_departure, $p_expected_time_of_arrival, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateItinerary(:p_itinerary_id, :p_travel_form_id, :p_itinerary_date, :p_customer_id, :p_itinerary_destination, :p_itinerary_purpose, :p_expected_time_of_departure, :p_expected_time_of_arrival, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_itinerary_id', $p_itinerary_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_travel_form_id', $p_travel_form_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_itinerary_date', $p_itinerary_date, PDO::PARAM_STR);
@@ -125,6 +125,7 @@ class TravelFormModel {
         $stmt->bindValue(':p_itinerary_purpose', $p_itinerary_purpose, PDO::PARAM_STR);
         $stmt->bindValue(':p_expected_time_of_departure', $p_expected_time_of_departure, PDO::PARAM_STR);
         $stmt->bindValue(':p_expected_time_of_arrival', $p_expected_time_of_arrival, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -143,10 +144,11 @@ class TravelFormModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateTravelFormStatus($p_travel_form_id, $p_travel_form_status, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateTravelFormStatus(:p_travel_form_id, :p_travel_form_status, :p_last_log_by)');
+    public function updateTravelFormStatus($p_travel_form_id, $p_travel_form_status, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateTravelFormStatus(:p_travel_form_id, :p_travel_form_status, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_travel_form_id', $p_travel_form_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_travel_form_status', $p_travel_form_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -259,8 +261,8 @@ class TravelFormModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertItinerary($p_travel_form_id, $p_itinerary_date, $p_customer_id, $p_itinerary_destination, $p_itinerary_purpose, $p_expected_time_of_departure, $p_expected_time_of_arrival, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertItinerary(:p_travel_form_id, :p_itinerary_date, :p_customer_id, :p_itinerary_destination, :p_itinerary_purpose, :p_expected_time_of_departure, :p_expected_time_of_arrival, :p_last_log_by)');
+    public function insertItinerary($p_travel_form_id, $p_itinerary_date, $p_customer_id, $p_itinerary_destination, $p_itinerary_purpose, $p_expected_time_of_departure, $p_expected_time_of_arrival, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertItinerary(:p_travel_form_id, :p_itinerary_date, :p_customer_id, :p_itinerary_destination, :p_itinerary_purpose, :p_expected_time_of_departure, :p_expected_time_of_arrival, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_travel_form_id', $p_travel_form_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_itinerary_date', $p_itinerary_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_STR);
@@ -268,6 +270,7 @@ class TravelFormModel {
         $stmt->bindValue(':p_itinerary_purpose', $p_itinerary_purpose, PDO::PARAM_STR);
         $stmt->bindValue(':p_expected_time_of_departure', $p_expected_time_of_departure, PDO::PARAM_STR);
         $stmt->bindValue(':p_expected_time_of_arrival', $p_expected_time_of_arrival, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

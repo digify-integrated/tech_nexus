@@ -766,6 +766,9 @@ class DocumentController {
         $mailer->addAddress('mdsoniga.fuso@christianmotors.ph');
         $mailer->addAddress('i.bernabe@christianmotors.ph');
         $mailer->addAddress('j.dechavez@christianmotors.ph');
+        $mailer->addAddress('j.dechavez@christianmotors.ph');
+        $mailer->addAddress('paolobaguisa@christianmotors.ph');
+        $mailer->addAddress('ma.garsula@christianmotors.ph');
         $mailer->Subject = $emailSubject;
         $mailer->Body = $message;
     

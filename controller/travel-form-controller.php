@@ -109,6 +109,12 @@ class TravelFormController {
                 case 'tag as approved':
                     $this->tagAsApproved();
                     break;
+                case 'travel form reject':
+                    $this->tagAsRejected();
+                    break;
+                case 'travel form set to draft':
+                    $this->tagAsSetToDraft();
+                    break;
                 case 'delete multiple travel form':
                     $this->deleteMultipleTravelForm();
                     break;
@@ -154,7 +160,14 @@ class TravelFormController {
             exit;
         }
     
-        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'For Checking', $userID);
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'For Checking', '', $userID);
+
+        $travelFormDetails = $this->travelFormModel->getTravelForm($travelFormID);
+        $approvalBy = $travelFormDetails['checked_by'];
+
+        $approvalEmail = $this->userModel->getContactByContactID($approvalBy)['email'] ?? null;
+
+        $this->sendPublish2($travelFormID, $approvalEmail);
             
         echo json_encode(['success' => true]);
         exit;
@@ -195,7 +208,7 @@ class TravelFormController {
             exit;
         }
     
-        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'Checked', $userID);
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'Checked', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -236,7 +249,7 @@ class TravelFormController {
             exit;
         }
     
-        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'For Recommendation', $userID);
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'For Recommendation', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -277,7 +290,7 @@ class TravelFormController {
             exit;
         }
     
-        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'Recommended', $userID);
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'Recommended', '', $userID);
         
         $travelFormDetails = $this->travelFormModel->getTravelForm($travelFormID);
         $approvalBy = $travelFormDetails['approval_by'];
@@ -312,6 +325,39 @@ class TravelFormController {
         $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
 
         $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(9);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{TRAVEL_FORM_LINK}', $travelFormIDEncrypted, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        $mailer->addAddress($approvalEmail);
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+    # -------------------------------------------------------------
+
+    public function sendPublish2($travelFormID, $approvalEmail) {
+
+        $travelFormIDEncrypted = $this->securityModel->encryptData($travelFormID);
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(10);
         $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
         $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
         $emailBody = str_replace('{TRAVEL_FORM_LINK}', $travelFormIDEncrypted, $emailBody);
@@ -403,7 +449,91 @@ class TravelFormController {
             exit;
         }
     
-        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'Approved', $userID);
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'Approved', '', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagAsRejected
+    # Description: 
+    # Delete the travel form if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagAsRejected() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $travelFormID = htmlspecialchars($_POST['travel_form_id'], ENT_QUOTES, 'UTF-8');
+        $rejectionReason = $_POST['rejection_reason'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkTravelFormExist = $this->travelFormModel->checkTravelFormExist($travelFormID);
+        $total = $checkTravelFormExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'Rejected', $rejectionReason, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagAsSetToDraft
+    # Description: 
+    # Delete the travel form if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagAsSetToDraft() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $travelFormID = htmlspecialchars($_POST['travel_form_id'], ENT_QUOTES, 'UTF-8');
+        $setToDraftReason = $_POST['set_to_draft_reason'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkTravelFormExist = $this->travelFormModel->checkTravelFormExist($travelFormID);
+        $total = $checkTravelFormExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->travelFormModel->updateTravelFormStatus($travelFormID, 'Draft', $setToDraftReason, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -595,6 +725,7 @@ class TravelFormController {
         $itineraryPurpose = htmlspecialchars($_POST['itinerary_purpose'], ENT_QUOTES, 'UTF-8');
         $expectedTimeOfDeparture = $this->systemModel->checkDate('empty', $_POST['expected_time_of_departure'], '', 'H:i:s', '');
         $expectedTimeOfArrival = $this->systemModel->checkDate('empty', $_POST['expected_time_of_arrival'], '', 'H:i:s', '');
+        $remarks = $_POST['itinerary_remarks'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -607,13 +738,13 @@ class TravelFormController {
         $total = $checkItineraryExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->travelFormModel->updateItinerary($itineraryID, $travelFormID, $itineraryDate, $clientID, $itineraryDestination, $itineraryPurpose, $expectedTimeOfDeparture, $expectedTimeOfArrival, $userID);
+            $this->travelFormModel->updateItinerary($itineraryID, $travelFormID, $itineraryDate, $clientID, $itineraryDestination, $itineraryPurpose, $expectedTimeOfDeparture, $expectedTimeOfArrival, $remarks, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $travelFormID = $this->travelFormModel->insertItinerary($travelFormID, $itineraryDate, $clientID, $itineraryDestination, $itineraryPurpose, $expectedTimeOfDeparture, $expectedTimeOfArrival, $userID);
+            $travelFormID = $this->travelFormModel->insertItinerary($travelFormID, $itineraryDate, $clientID, $itineraryDestination, $itineraryPurpose, $expectedTimeOfDeparture, $expectedTimeOfArrival, $remarks, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;

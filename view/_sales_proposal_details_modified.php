@@ -31,7 +31,7 @@
 
                 if($salesProposalStatus == 'On-Process'){
                   if($tagSalesProposalReadyForRelease['total'] > 0 && !empty($qualityControlForm)){
-                    if(($additionalJobOrderCount['total'] > 0 && !empty($additionalJobOrderConfirmation)) || $additionalJobOrderCount['total'] == 0){
+                    if((($additionalJobOrderCount['total'] > 0 && !empty($additionalJobOrderConfirmation)) || $additionalJobOrderCount['total'] == 0) && $productType != 'Brand New'){
                       echo '<div class="previous me-2 d-none" id="ready-for-release-sales-proposal-button">
                       <button class="btn btn-info m-l-5" id="ready-for-release-sales-proposal">Ready For Release</button>
                     </div>';

@@ -18,6 +18,10 @@
             internalDRReleaseForm();
         }
 
+        if($('#internal-dr-tag-as-cancelled-form').length){
+            internalDRCancelForm();
+        }
+
         if($('#internal-dr-unit-image-form').length){
             internalDRUnitImageForm();
         }
@@ -476,6 +480,90 @@ function internalDRReleaseForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-internal-dr-tag-as-released', 'Submit');
+                    displayDetails('get internal DR details');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function internalDRCancelForm(){
+    $('#internal-dr-tag-as-cancelled-form').validate({
+        rules: {
+            cancellation_reason: {
+                required: true
+            },
+        },
+        messages: {
+            cancellation_reason: {
+                required: 'Please eneter the cancellation remarks'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const internal_dr_id = $('#internal-dr-id').text();
+            const transaction = 'tag for cancelled';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/internal-dr-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&internal_dr_id=' + internal_dr_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-internal-dr-tag-as-cancelled');
+                },
+                success: function (response) {
+                    if (!response.success) {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                    else{
+                        window.location.reload();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-internal-dr-tag-as-cancelled', 'Submit');
                     displayDetails('get internal DR details');
                 }
             });

@@ -18,6 +18,14 @@
             travelForm();
         }
 
+        if($('#travel-form-set-to-draft-form').length){
+            travelFormSetToDraftForm();
+        }
+
+        if($('#travel-form-reject-form').length){
+            travelFormRejectForm();
+        }
+
         if($('#travel-authorization-form').length){
             travelAuthorizationForm();
         }
@@ -754,6 +762,7 @@ function itineraryTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'ITINERARY_PURPOSE' },
         { 'data' : 'EXPECTED_TIME_OF_DEPARTURE' },
         { 'data' : 'EXPECTED_TIME_OF_ARRIVAL' },
+        { 'data' : 'REMARKS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -764,7 +773,8 @@ function itineraryTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': '15%','bSortable': false, 'aTargets': 6 }
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': '15%','bSortable': false, 'aTargets': 7 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1152,6 +1162,182 @@ function gatePassForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-gate-pass-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function travelFormSetToDraftForm(){
+    $('#travel-form-set-to-draft-form').validate({
+        rules: {
+            set_to_draft_reason: {
+                required: true
+            }
+        },
+        messages: {
+            set_to_draft_reason: {
+                required: 'Please enter the set to draft reason'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const travel_form_id = $('#travel-form-id').text();
+            const transaction = 'travel form set to draft';
+
+            var formData = new FormData(form);
+            formData.append('travel_form_id', travel_form_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/travel-form-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-travel-form-set-to-draft');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Set Travel Form To Draft Success', 'The travel form has been set to draft successfully.', 'success');
+                        window.location.reload();
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-travel-form-set-to-draft', 'Submit');
+                    $('#travel-form-set-to-draft-offcanvas').offcanvas('hide');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function travelFormRejectForm(){
+    $('#travel-form-reject-form').validate({
+        rules: {
+            rejection_reason: {
+                required: true
+            }
+        },
+        messages: {
+            rejection_reason: {
+                required: 'Please enter the rejection reason'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const travel_form_id = $('#travel-form-id').text();
+            const transaction = 'travel form reject';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/travel-form-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&travel_form_id=' + travel_form_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-travel-form-reject');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Reject Travel Form Success', 'The travel form has been rejected successfully.', 'success');
+                        window.location.reload();
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-travel-form-reject', 'Submit');
+                    $('#travel-form-reject-offcanvas').offcanvas('hide');
                 }
             });
         

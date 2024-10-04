@@ -131,6 +131,7 @@
                       </div>
                     </th>
                     <th>Sales Proposal Number</th>
+                    <th>Created Date</th>
                     <th>Customer</th>
                     <th>Product Type</th>
                     <th>Stock</th>

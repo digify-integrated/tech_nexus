@@ -35,17 +35,8 @@
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Reference Number</label>
-            <div class="col-lg-4">
+            <div class="col-lg-10">
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="200" autocomplete="off">
-            </div>
-            <label class="col-lg-2 col-form-label">Deposit Date <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-                <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="deposit_date" name="deposit_date" autocomplete="off">
-                    <span class="input-group-text">
-                        <i class="feather icon-calendar"></i>
-                    </span>
-                </div>
             </div>
           </div>
           <div class="form-group row">

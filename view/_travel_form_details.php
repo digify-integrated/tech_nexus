@@ -16,10 +16,10 @@ if($travelFormStatus != 'Draft'){
         <div class="card">
             <div class="card-header">
                 <div class="row align-items-center">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <h5>Travel Form</h5>
                     </div>
-                    <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                    <div class="col-md-8 text-sm-end mt-3 mt-sm-0">
                         <?php                            
                             $dropdown = '<div class="btn-group m-r-5">
                             <button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
@@ -57,6 +57,14 @@ if($travelFormStatus != 'Draft'){
 
                             if ($travelFormStatus == 'Recommended' && $approvalBy == $contact_id) {
                                 echo '<button type="button" id="tag-as-approved" class="btn btn-warning me-2">Approved</button>';
+                            }
+
+                            if ($travelFormStatus == 'Recommended' && $approvalBy == $contact_id) {
+                                echo '<button type="button" id="tag-as-rejected" data-bs-toggle="offcanvas" data-bs-target="#travel-form-reject-offcanvas" aria-controls="travel-form-reject-offcanvas" class="btn btn-danger me-2">Reject</button>';
+                            }
+
+                            if ($travelFormStatus != 'Approved' && $travelFormStatus != 'Draft') {
+                                echo '<button type="button" id="tag-as-rejected" data-bs-toggle="offcanvas" data-bs-target="#travel-form-set-to-draft-offcanvas" aria-controls="travel-form-set-to-draft-offcanvas" class="btn btn-warning me-2">Set To Draft</button>';
                             }
 
                             if ($travelFormCreateAccess['total'] > 0) {
@@ -109,7 +117,7 @@ if($travelFormStatus != 'Draft'){
                     <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                         <?php
                             if ($travelFormWriteAccess['total'] > 0 && $travelFormStatus == 'Draft') {
-                                echo '<button type="button" form="travel-form" class="btn btn-success" id="itinerary-details" data-bs-toggle="offcanvas" data-bs-target="#itinerary-offcanvas" aria-controls="itinerary-offcanvas">Add</button>';
+                                echo '<button type="button" form="travel-form" class="btn btn-success" id="add-itinerary" data-bs-toggle="offcanvas" data-bs-target="#itinerary-offcanvas" aria-controls="itinerary-offcanvas">Add</button>';
                             }
 
                             if ($travelFormStatus == 'Approved') {
@@ -130,6 +138,7 @@ if($travelFormStatus != 'Draft'){
                                 <th>Purpose</th>
                                 <th>Expected Time of Departure (ETD)</th>
                                 <th>Expected Time of Arrival (ETA)</th>
+                                <th>Remarks</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -140,6 +149,7 @@ if($travelFormStatus != 'Draft'){
         </div>
     </div>
 </div>
+
 <div class="row">
     <div class="col-lg-6">
         <div class="card">
@@ -394,6 +404,12 @@ if($travelFormStatus != 'Draft'){
                 <input class="form-control" id="expected_time_of_arrival" name="expected_time_of_arrival" type="time">
               </div>
             </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Remarks</label>
+                <textarea class="form-control" id="itinerary_remarks" name="itinerary_remarks" maxlength="1000"></textarea>
+              </div>
+            </div>
           </form>
         </div>
       </div>
@@ -404,6 +420,64 @@ if($travelFormStatus != 'Draft'){
         </div>
       </div>
     </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="travel-form-reject-offcanvas" aria-labelledby="travel-form-reject-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="travel-form-reject-offcanvas-label" style="margin-bottom:-0.5rem">Reject Travel Form</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="travel-form-reject-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Rejection Reason <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="rejection_reason" name="rejection_reason" maxlength="500"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-travel-form-reject" form="travel-form-reject-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="travel-form-set-to-draft-offcanvas" aria-labelledby="travel-form-set-to-draft-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="travel-form-set-to-draft-offcanvas-label" style="margin-bottom:-0.5rem">Set Travel Form To Draft</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="travel-form-set-to-draft-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Set To Draft Reason <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="set_to_draft_reason" name="set_to_draft_reason" maxlength="500"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-travel-form-set-to-draft" form="travel-form-set-to-draft-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <?php

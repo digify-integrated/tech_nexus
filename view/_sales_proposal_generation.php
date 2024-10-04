@@ -68,6 +68,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productType = $row['product_type'];
                     $productID = $row['product_id'];
                     $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+                    $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
 
                     $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
 
@@ -87,12 +88,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'SALES_PROPOSAL_NUMBER' => '<a href="sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                         '. $salesProposalNumber .'
                                                     </a>',
-                    'CUSTOMER' => '<div class="col">
+                        'CREATED_DATE' => $createdDate,
+                        'CUSTOMER' => '<div class="col">
                                                     <h6 class="mb-0">'. $customerName .'</h6>
                                                     <p class="f-12 mb-0">'. $corporateName .'</p>
                                                 </div>',
                         'PRODUCT_TYPE' => $productType,
-                        'PRODUCT' => $stockNumber . ' - ' . $productName,
+                        'PRODUCT' => $stockNumber,
                         'STATUS' => $salesProposalStatus,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <a href="sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">

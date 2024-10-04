@@ -283,7 +283,7 @@
                 }
             }
 
-            if($(this).val() == 'Refinancing'){
+            if($(this).val() == 'Refinancing' || $(this).val() == 'Restructure'){
                 if($('#insurance_premium').length){
                     $('#insurance_premium').prop('readonly', false);
                 }
@@ -1283,6 +1283,7 @@ function salesProposalTable(datatable_name, buttons = false, show_all = false){
     const column = [ 
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'CREATED_DATE' },
         { 'data' : 'CUSTOMER' },
         { 'data' : 'PRODUCT_TYPE' },
         { 'data' : 'PRODUCT' },
@@ -1292,12 +1293,13 @@ function salesProposalTable(datatable_name, buttons = false, show_all = false){
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '14%', 'aTargets': 1 },
-        { 'width': '25%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
-        { 'width': '25%', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': '10%','bSortable': false, 'aTargets': 7 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1317,7 +1319,7 @@ function salesProposalTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'desc' ]],
+        'order': [[ 2, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -2731,9 +2733,6 @@ function salesProposalFuelForm(){
                         fullErrorMessage += ', Response: ${xhr.responseText}';
                     }
                     showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    displayDetails('get sales proposal fuel details');
                 }
             });
         
@@ -5937,11 +5936,12 @@ function calculatePricingComputation(){
 function calculateRenewalAmount(){
     var product_type = $('#product_type').val();
     var product_category = $('#product_category').val();
-    var delivery_price = parseCurrency($('#total_delivery_price').val()) || 0;
+   
+    if(product_type == 'Refinancing'){
+        var delivery_price = parseCurrency($('#insurance_coverage').val()) || 0;
 
-    if(product_type == 'Refinancing' || product_type == 'Restructure'){
         if(delivery_price > 0){
-            var second_year_coverage = delivery_price * 0.8;
+            var second_year_coverage = delivery_price * 0.9;
             var third_year_coverage = second_year_coverage * 0.9;
             var fourth_year_coverage = third_year_coverage * 0.9;
             
@@ -6023,7 +6023,37 @@ function calculateRenewalAmount(){
             $('#summary-insurance-premium-fourth-year').text(0);
         }
     }
+    else if(product_type == 'Restructure'){
+        if($('#compute_second_year').is(':checked')) {
+            $('#insurance_premium_second_year').attr('readonly', false);
+            $('#insurance_coverage_second_year').attr('readonly', false);
+        }
+        else{            
+            $('#insurance_coverage_second_year').attr('readonly', true); 
+            $('#insurance_premium_second_year').attr('readonly', true);
+        }
+    
+        if($('#compute_third_year').is(':checked')) {
+            $('#insurance_premium_third_year').attr('readonly', false); 
+            $('#insurance_coverage_third_year').attr('readonly', false); 
+        }
+        else{
+            $('#insurance_coverage_third_year').attr('readonly', true); 
+            $('#insurance_premium_third_year').attr('readonly', true);
+        }
+    
+        if($('#compute_fourth_year').is(':checked')) {
+            $('#insurance_premium_fourth_year').attr('readonly', false); 
+            $('#insurance_coverage_fourth_year').attr('readonly', false); 
+        }
+        else{            
+            $('#insurance_coverage_fourth_year').attr('readonly', true); 
+            $('#insurance_premium_fourth_year').attr('readonly', true);
+        }
+    }
     else{
+        var delivery_price = parseCurrency($('#total_delivery_price').val()) || 0;
+
         if(delivery_price > 0){
             var second_year_coverage = delivery_price * 0.8;
             var third_year_coverage = second_year_coverage * 0.9;
@@ -6159,7 +6189,7 @@ function calculateTotalOtherCharges(){
            var insurance_premium = 0;
         }
 
-        if(productType == 'Refinancing'){
+        if(productType == 'Refinancing' || productType == 'Restructure'){
             var insurance_premium = parseCurrency($("#insurance_premium").val());
         }
 

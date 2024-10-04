@@ -26,6 +26,10 @@
             massPDCCancelForm();
         }
 
+        if($('#mass-pdc-pulled-out-form').length){
+            massPDCPulledOutForm();
+        }
+
         if($('#pdc-deposited-form').length){
             pdcDepositedForm();
         }
@@ -604,6 +608,13 @@
                     checkOptionExist('#sales_proposal_id', '', '');
                     checkOptionExist('#product_id', '', '');
                     break;
+                    case 'Leasing':
+                        $('#leasing_field').removeClass('d-none');
+                        checkOptionExist('#sales_proposal_id', '', '');
+                        checkOptionExist('#product_id', '', '');
+                        checkOptionExist('#customer_id', '', '');
+                        $('#collected_from').val('');
+                        break;
             }
         });
 
@@ -635,6 +646,23 @@
 
             if(checkedBoxes != ''){
                 window.open('pdc-acknowledgement-print.php?id=' + checkedBoxes, '_blank');
+            }
+            else{
+                showNotification('Print PDC Acknowledgement Error', 'No selected pdc.', 'danger');
+            }
+        });
+
+        $(document).on('click','#print-pulledout',function() {
+            var checkedBoxes = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('pdc-pulledout-print.php?id=' + checkedBoxes, '_blank');
             }
             else{
                 showNotification('Print PDC Acknowledgement Error', 'No selected pdc.', 'danger');
@@ -712,12 +740,18 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
     var filter_clear_date_end_date = $('#filter_clear_date_end_date').val();
 
     var pdc_filter_values = [];
+    var pdc_filter_values_company = [];
 
     $('.pdc-management-status-filter:checked').each(function() {
         pdc_filter_values.push($(this).val());
     });
 
+    $('.company-checkbox:checked').each(function() {
+        pdc_filter_values_company.push($(this).val());
+    });
+
     var filter_pdc_management_status = pdc_filter_values.join(', ');
+    var filter_pdc_management_company = pdc_filter_values_company.join(', ');
     var settings;
 
     const column = [ 
@@ -752,7 +786,7 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 12 }
     ];
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+    const length_menu = show_all ? [[-1], ['All']] : [[-1, 10, 25, 50, 100], ['All', 10, 25, 50, 100]];
 
     settings = {
         'ajax': { 
@@ -778,6 +812,7 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
                 'filter_cancellation_date_end_date' : filter_cancellation_date_end_date, 
                 'filter_clear_date_start_date' : filter_clear_date_start_date, 
                 'filter_clear_date_end_date' : filter_clear_date_end_date, 
+                'filter_pdc_management_company' : filter_pdc_management_company, 
                 'filter_pdc_management_status' : filter_pdc_management_status
             },
             'dataSrc' : '',
@@ -895,6 +930,13 @@ function pdcManagementForm(){
                 required: {
                     depends: function(element) {
                         return $("select[name='pdc_type']").val() === 'Customer';
+                    }
+                }
+            },
+            leasing_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='pdc_type']").val() === 'Leasing';
                     }
                 }
             },
@@ -1374,6 +1416,99 @@ function massPDCCancelForm(){
                         showNotification(notificationMessage, notificationDescription, 'success');
                         reloadDatatable('#pdc-management-table');
                         $('#pdc-cancel-offcanvas').offcanvas('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function(){
+                    toggleHideActionDropdown();
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function massPDCPulledOutForm(){
+    $('#mass-pdc-pulled-out-form').validate({
+        rules: {
+            pulled_out_reason: {
+                required: true
+            },
+        },
+        messages: {
+            pulled_out_reason: {
+                required: 'Please enter the pulled out reason'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            let loan_collection_id = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    loan_collection_id.push(element.value);
+                }
+            });
+
+            const transaction = 'tag multiple pdc as pulled out';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/pdc-management-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&loan_collection_id=' + loan_collection_id,
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'PDC Pulled Out Success';
+                        const notificationDescription = 'The PDC has been tag as pulled out successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                        reloadDatatable('#pdc-management-table');
+                        $('#pdc-pulled-out-offcanvas').offcanvas('hide');
                     }
                     else {
                         if (response.isInactive) {
@@ -1995,6 +2130,7 @@ function displayDetails(transaction){
                         checkOptionExist('#sales_proposal_id', response.salesProposalID, '');
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#customer_id', response.customerID, '');
+                        checkOptionExist('#leasing_id', response.leasingID, '');
                         checkOptionExist('#payment_details', response.paymentDetails, '');
                         checkOptionExist('#company_id', response.companyID, '');
                     } 

@@ -376,7 +376,6 @@ class DepositsController {
         $depositedTo = htmlspecialchars($_POST['deposited_to'], ENT_QUOTES, 'UTF-8');
         $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $remarks = $_POST['remarks'];
-        $depositDate = $this->systemModel->checkDate('empty', $_POST['deposit_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -397,7 +396,7 @@ class DepositsController {
     
         $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $depositAmount;
 
-        $depositsID = $this->depositsModel->insertDeposits($companyID, $depositAmount, $depositDate, $depositedTo, $referenceNumber, $remarks, $userID);
+        $depositsID = $this->depositsModel->insertDeposits($companyID, $depositAmount, $depositedTo, $referenceNumber, $remarks, $userID);
                 
         $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
 

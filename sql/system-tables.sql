@@ -5714,3 +5714,18 @@ CREATE TABLE travel_itinerary (
 
 CREATE INDEX travel_itinerary_index_travel_itinerary_id ON travel_itinerary(itinerary_id);
 CREATE INDEX travel_itinerary_index_travel_form_id ON travel_itinerary(travel_form_id);
+
+/* Chart of Account Table */
+
+CREATE TABLE chart_of_account(
+	chart_of_account_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	code VARCHAR(100) NOT NULL,
+	name VARCHAR(500) NOT NULL,
+	account_type VARCHAR(500) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX chart_of_account_index_chart_of_account_id ON chart_of_account(chart_of_account_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

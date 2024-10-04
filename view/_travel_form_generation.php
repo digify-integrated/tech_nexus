@@ -100,9 +100,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
-        # Type: travel form table
+        # Type: travel approval form table
         # Description:
-        # Generates the travel form table.
+        # Generates the travel approval form table.
         #
         # Parameters: None
         #
@@ -187,11 +187,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'itinerary table':            
+        case 'itinerary table':
             $travelFormID = $_POST['travel_form_id'];
 
             $travelFormDetails = $travelFormModel->getTravelForm($travelFormID);
-            $travelFormStatus = $travelFormDetails['travel_form_status'];            
+            $travelFormStatus = $travelFormDetails['travel_form_status'];      
+            $approvalBy = $travelFormDetails['approval_by'];    
 
             $sql = $databaseModel->getConnection()->prepare('CALL generateItineraryTable(:travelFormID)');
             $sql->bindValue(':travelFormID', $travelFormID, PDO::PARAM_INT);
@@ -207,12 +208,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $itineraryPurpose = $row['itinerary_purpose'];
                 $expectedTimeOfDeparture = $systemModel->checkDate('empty', $row['expected_time_of_departure'], '', 'h:i a', '');
                 $expectedTimeOfArrival = $systemModel->checkDate('empty', $row['expected_time_of_arrival'], '', 'h:i a', '');
+                $remarks = $row['remarks'];
 
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;
 
                 $action = '';
-                if($travelFormStatus == 'Draft'){
+                if($travelFormStatus == 'Draft' || ($approvalBy == $contact_id && $travelFormStatus == 'Recommended')){
                     $action = '<div class="d-flex gap-2">
                         <button type="button" class="btn btn-icon btn-success update-itinerary" data-bs-toggle="offcanvas" data-bs-target="#itinerary-offcanvas" aria-controls="itinerary-offcanvas" data-itinerary-id="'. $itineraryID .'" title="Update Itinerary">
                             <i class="ti ti-edit"></i>
@@ -230,6 +232,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'ITINERARY_PURPOSE' => $itineraryPurpose,
                     'EXPECTED_TIME_OF_DEPARTURE' => $expectedTimeOfDeparture,
                     'EXPECTED_TIME_OF_ARRIVAL' => $expectedTimeOfArrival,
+                    'REMARKS' => $remarks,
                     'ACTION' => $action
                 ];
             }

@@ -172,7 +172,7 @@
                     <th>Status</th>
                     <th>Loan Number</th>
                     <th>Customer</th>
-                    <th>Product</th>
+                    <th>Collected From</th>
                   </tr>
                 </thead>
                 <tbody></tbody>

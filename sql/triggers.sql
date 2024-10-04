@@ -6629,3 +6629,53 @@ BEGIN
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('travel_form', NEW.travel_form_id, audit_log, NEW.last_log_by, NOW());
 END //
+
+/* Chart of Account Table Triggers */
+
+CREATE TRIGGER chart_of_account_trigger_update
+AFTER UPDATE ON chart_of_account
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.code <> OLD.code THEN
+        SET audit_log = CONCAT(audit_log, "Code: ", OLD.code, " -> ", NEW.code, "<br/>");
+    END IF;
+
+    IF NEW.name <> OLD.name THEN
+        SET audit_log = CONCAT(audit_log, "Name: ", OLD.name, " -> ", NEW.name, "<br/>");
+    END IF;
+
+    IF NEW.account_type <> OLD.account_type THEN
+        SET audit_log = CONCAT(audit_log, "Account Type: ", OLD.account_type, " -> ", NEW.account_type, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('chart_of_account', NEW.chart_of_account_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER chart_of_account_trigger_insert
+AFTER INSERT ON chart_of_account
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Chart of account created. <br/>';
+
+    IF NEW.code <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Code: ", NEW.code);
+    END IF;
+
+    IF NEW.name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Name: ", NEW.name);
+    END IF;
+
+    IF NEW.account_type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Account Type: ", NEW.account_type);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('chart_of_account', NEW.chart_of_account_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

@@ -8,6 +8,7 @@ require_once '../model/sales-proposal-model.php';
 require_once '../model/customer-model.php';
 require_once '../model/product-model.php';
 require_once '../model/security-model.php';
+require_once '../model/miscellaneous-client-model.php';
 require_once '../model/system-model.php';
 
 $databaseModel = new DatabaseModel();
@@ -18,6 +19,7 @@ $customerModel = new CustomerModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $securityModel = new SecurityModel();
+$miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
     $type = htmlspecialchars($_POST['type'], ENT_QUOTES, 'UTF-8');
@@ -80,6 +82,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $modeOfPayment = $row['mode_of_payment'];
                 $paymentAmount = $row['payment_amount'];
                 $collectionStatus = $row['collection_status'];
+                $collectedFrom = $row['collected_from'];
                 $orDate = $systemModel->checkDate('empty', $row['or_date'], '', 'm/d/Y', '');
                 $paymentDate = $systemModel->checkDate('empty', $row['payment_date'], '', 'm/d/Y', '');
                 $transactionDate = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y', '');
@@ -91,6 +94,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $productDetails = $productModel->getProduct($productID);
                 $productName = $productDetails['description'] ?? null;
                 $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($collectedFrom);
+                $clientName = $miscellaneousClientDetails['client_name'] ?? null;
 
                 if($collectionStatus == 'Pending'){
                     $collectionStatus = 'Posted';
@@ -125,10 +131,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                     <h6 class="mb-0">'. $customerName .'</h6>
                                                     <p class="f-12 mb-0">'. $corporateName .'</p>
                                                 </div></a>',
-                    'PRODUCT' => '<a href="collections.php?id='. $loanCollectionIDEncrypted .'" title="View Details">' . $stockNumber . '<br/>' . $productName . '</a>',
                     'PAYMENT_DETAILS' => $paymentDetails,
                     'MODE_OF_PAYMENT' => $modeOfPayment,
                     'PAYMENT_DATE' => $paymentDate,
+                    'COLLECTED_FROM' => $clientName,
                     'TRANSACTION_DATE' => $transactionDate,
                     'OR_NUMBER' => $orNumber,
                     'OR_DATE' => $orDate,

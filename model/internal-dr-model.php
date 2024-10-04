@@ -75,6 +75,32 @@ class InternalDRModel {
     }
     # -------------------------------------------------------------
 
+    # -------------------------------------------------------------
+    #
+    # Function: updateInternalDRAsCancelled
+    # Description: Updates the internal DR.
+    #
+    # Parameters:
+    # - $p_internal_dr_id (int): The internal DR ID.
+    # - $p_release_to (string): The internal DR name.
+    # - $p_release_mobile (string): The internal DR description.
+    # - $p_api_key (string): The Internal DR key.
+    # - $p_api_secret (string): The Internal DR secret.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateInternalDRAsCancelled($p_internal_dr_id, $p_dr_status, $p_cancellation_reason, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateInternalDRAsCancelled(:p_internal_dr_id, :p_dr_status, :p_cancellation_reason, :p_last_log_by)');
+        $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_dr_status', $p_dr_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cancellation_reason', $p_cancellation_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
      # -------------------------------------------------------------
     #
     # Function: updateInternalDRUnitImage

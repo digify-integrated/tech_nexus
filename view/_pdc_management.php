@@ -79,6 +79,31 @@
                         </div>
                       </li>
                       <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#company-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Company
+                        </a>
+                        <div class="collapse" id="company-filter-collapse">
+                          <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
+                              <div class="col-12">
+                                <div class="form-check my-2">
+                                  <input class="form-check-input company-checkbox" type="checkbox" id="company-cgmi" value="1"/>
+                                  <label class="form-check-label" for="company-cgmi">Christian General Motors Inc.</label>
+                                </div>
+                                <div class="form-check my-2">
+                                  <input class="form-check-input company-checkbox" type="checkbox" id="company-ne-truck" value="2"/>
+                                  <label class="form-check-label" for="company-ne-truck">NE Truck Builders</label>
+                                </div>
+                                <div class="form-check my-2">
+                                  <input class="form-check-input company-checkbox" type="checkbox" id="company-fuso-tarlac" value="3"/>
+                                  <label class="form-check-label" for="company-nefuso-tarlac">FUSO Tarlac</label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Check Date
                         </a>
@@ -240,6 +265,10 @@
                       $action .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-cancel-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-cancel-offcanvas" aria-controls="pdc-cancel-offcanvas">Tag As Cancelled</button></li>';
                     }
 
+                    if($massTagPDCAsPulledOut['total'] > 0){
+                      $action .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-pulled-out-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-pulled-out-offcanvas" aria-controls="pdc-pulled-out-offcanvas">Tag As Pulled Out</button></li>';
+                    }
+
                     if($massTagPDCAsReturned['total'] > 0){
                       $action .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-reversed-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-reverse-offcanvas" aria-controls="pdc-reverse-offcanvas">Tag As Returned</button></li>';
                     }
@@ -261,6 +290,7 @@
                 <button class="btn btn-danger dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Print</button>
                   <div class="dropdown-menu" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 43px);" data-popper-placement="bottom-start">
                     <a class="dropdown-item" href="javascript:void(0);" id="print-acknowledgement">Print Acknowledgment</a> 
+                    <a class="dropdown-item" href="javascript:void(0);" id="print-pulledout">Print Pulled-Out</a> 
                     <a class="dropdown-item" href="javascript:void(0);" id="print">Print Report</a> 
                     <a class="dropdown-item" href="javascript:void(0);" id="print-reversal">Print Reversal</a>
                     <a class="dropdown-item" href="javascript:void(0);" id="print-check">Print Check</a>
@@ -453,6 +483,34 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-pdc-cancel" form="mass-pdc-cancel-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="pdc-pulled-out-offcanvas" aria-labelledby="pdc-pulled-out-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="pdc-pulled-out-offcanvas-label" style="margin-bottom:-0.5rem">Pulled Out PDC</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="mass-pdc-pulled-out-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Pulled Out Reason <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="pulled_out_reason" name="pulled_out_reason" maxlength="500"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-pdc-pulled-out" form="mass-pdc-pulled-out-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

@@ -65,18 +65,18 @@
     $onhandSummaryTable = generateOnhandSummaryTable($dateAsOf, $filterCompanyID);
 
     $combinedTablesHTML = '
-<table cellspacing="0" cellpadding="2" border="0" width="80%">
-  <tr>
-    <!-- First table in the first column -->
-    <td width="70%" style="vertical-align: top; padding: 0;">
-      ' . $collectionsTotalSummaryTable . '
-    </td>
-    <!-- Second table in the second column -->
-    <td width="70%" style="vertical-align: top; padding: 0;">
-      ' . $depositsTotalSummaryTable . '
-    </td>
-  </tr>
-</table>';
+        <table cellspacing="0" cellpadding="2" border="0" width="80%">
+        <tr>
+            <!-- First table in the first column -->
+            <td width="70%" style="vertical-align: top; padding: 0;">
+            ' . $collectionsTotalSummaryTable . '
+            </td>
+            <!-- Second table in the second column -->
+            <td width="70%" style="vertical-align: top; padding: 0;">
+            ' . $depositsTotalSummaryTable . '
+            </td>
+        </tr>
+        </table>';
 
     
     ob_start();
@@ -132,6 +132,7 @@
         require_once 'model/product-model.php';
         require_once 'model/sales-proposal-model.php';
         require_once 'model/bank-model.php';
+        require_once 'model/miscellaneous-client-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -140,6 +141,7 @@
         $productModel = new ProductModel($databaseModel);
         $salesProposalModel = new SalesProposalModel($databaseModel);
         $bankModel = new BankModel($databaseModel);
+        $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
         
         $dateAsOf = $systemModel->checkDate('empty', $dateAsOf, '', 'Y-m-d', '');
 
@@ -183,9 +185,12 @@
             $remarks = $row['remarks'];
             $pdc_type = $row['pdc_type'];
             $collected_from = $row['collected_from'];
+            $miscellaneous_client_id = $row['miscellaneous_client_id'];
             $deposited_to = $row['deposited_to'];
             $payment_date = $systemModel->checkDate('empty', $row['payment_date'], '', 'm/d/Y', '');
             $transaction_date = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y', '');
+
+            $miscellaneous_client_name = $miscellaneousClientModel->getMiscellaneousClient($collected_from)['client_name'] ?? null;
 
             $getBankDetails = $bankModel->getBank($deposited_to);
             $bank_name = $getBankDetails['bank_name'];
@@ -227,7 +232,7 @@
                                 <td>'. $customerName .'</td>
                                 <td>'. $stockNumber .'</td>
                                 <td>'. $loan_number .'</td>
-                                <td>'. $collected_from .'</td>
+                                <td>'. $miscellaneous_client_name .'</td>
                                 <td>'. $bank_name .'</td>
                                 <td>'. $payment_details .'</td>
                                 <td>'. $mode_of_payment .'</td>

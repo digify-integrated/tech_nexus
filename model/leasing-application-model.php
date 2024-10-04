@@ -662,5 +662,33 @@ class LeasingApplicationModel {
         return '<span class="badge bg-' . $class . '">' . $p_repayment_status . '</span>';
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateLeasingApplicationOptions
+    # Description: Generates the make options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateLeasingApplicationOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateLeasingApplicationOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $leasing_application_id = $row['leasing_application_id'];
+            $leasing_application_number = $row['leasing_application_number'];
+            $tenant_name = $row['tenant_name'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($leasing_application_id, ENT_QUOTES) . '">' . htmlspecialchars($leasing_application_number, ENT_QUOTES) .' - '. $tenant_name .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

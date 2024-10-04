@@ -14,7 +14,7 @@
                  </button>
                  <ul class="dropdown-menu dropdown-menu-end">';
              
-                    if ($depositsDeleteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))) {
+                    if ($depositsDeleteAccess['total'] > 0) {
                         $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-deposits-details">Delete Deposits</button></li>';
                     }
                           
@@ -23,7 +23,7 @@
                       
                   echo $dropdown;
 
-                  if ($depositsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))) {
+                  if ($depositsWriteAccess['total'] > 0 && $transactionDate == date('Y-m-d')) {
                     echo '<button type="button" id="discard-create" class="btn btn-outline-danger me-2">Discard</button>';
                   }
 
@@ -53,17 +53,8 @@
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Reference Number</label>
-            <div class="col-lg-4">
+            <div class="col-lg-10">
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="200" autocomplete="off" disabled>
-            </div>
-            <label class="col-lg-2 col-form-label">Deposit Date <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-                <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="deposit_date" name="deposit_date" autocomplete="off" disabled>
-                    <span class="input-group-text">
-                        <i class="feather icon-calendar"></i>
-                    </span>
-                </div>
             </div>
           </div>
           <div class="form-group row">

@@ -418,6 +418,7 @@ class CollectionsController {
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
         $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+        $leasingID = htmlspecialchars($_POST['leasing_id'], ENT_QUOTES, 'UTF-8');
         $paymentDetails = $_POST['payment_details'];
         $orNumber = $_POST['or_number'];
         $paymentAmount = $_POST['payment_amount'];
@@ -448,16 +449,28 @@ class CollectionsController {
         }
     
         if ($total > 0) {
-            $this->collectionsModel->updateCollection($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $userID);
-            
-            echo json_encode(['success' => true, 'insertRecord' => false, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
-            exit;
-        } 
-        else {
-            if($companyID == 1){
+            $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
+            $paymentAmount2 = $collectionsDetails['payment_amount'];
+            $companyID2 = $collectionsDetails['company_id'];
+    
+            if($companyID2 == '1'){
                 $systemSettingID = 11;
             }
-            else if($companyID == 2){
+            else if($companyID2 == '2'){
+                $systemSettingID = 12;
+            }
+            else{
+                $systemSettingID = 13;
+            }
+
+            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount2;
+
+            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+
+            if($companyID == '1'){
+                $systemSettingID = 11;
+            }
+            else if($companyID == '2'){
                 $systemSettingID = 12;
             }
             else{
@@ -466,7 +479,27 @@ class CollectionsController {
             
             $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $paymentAmount;
 
-            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $userID);
+            $this->collectionsModel->updateCollection($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $leasingID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $userID);
+                    
+            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
+            exit;
+        } 
+        else {
+            if($companyID == '1'){
+                $systemSettingID = 11;
+            }
+            else if($companyID == '2'){
+                $systemSettingID = 12;
+            }
+            else{
+                $systemSettingID = 13;
+            }
+            
+            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $paymentAmount;
+
+            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $leasingID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $userID);
                     
             $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
 
@@ -637,9 +670,10 @@ class CollectionsController {
                 'modeOfPayment' => $collectionsDetails['mode_of_payment'],
                 'remarks' => $collectionsDetails['remarks'],
                 'companyID' => $collectionsDetails['company_id'],
+                'leasingID' => $collectionsDetails['leasing_application_id'],
                 'referenceNumber' => $collectionsDetails['reference_number'],
                 'depositedTo' => $collectionsDetails['deposited_to'],
-                'miscellaneousClientID' => $collectionsDetails['miscellaneous_client_id'],
+                'miscellaneousClientID' => $collectionsDetails['collected_from'],
                 'orDate' =>  $this->systemModel->checkDate('empty', $collectionsDetails['or_date'], '', 'm/d/Y', ''),
                 'paymentDate' =>  $this->systemModel->checkDate('empty', $collectionsDetails['payment_date'], '', 'm/d/Y', ''),
             ];

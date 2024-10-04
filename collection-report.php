@@ -17,26 +17,12 @@
   $bankModel = new BankModel($databaseModel);
   $leasingApplicationModel = new LeasingApplicationModel($databaseModel);
 
-  $pageTitle = 'PDC Management';
+  $pageTitle = 'Collection Report';
     
-  $pdcManagementReadAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'read');
-  $pdcManagementCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'create');
-  $pdcManagementWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'write');
-  $pdcManagementDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'delete');
-
-  $tagPDCAsCleared = $userModel->checkSystemActionAccessRights($user_id, 154);
-  $tagPDCOnHold = $userModel->checkSystemActionAccessRights($user_id, 155);
-  $tagPDCAsReversed = $userModel->checkSystemActionAccessRights($user_id, 156);
-  $tagPDCAsCancelled = $userModel->checkSystemActionAccessRights($user_id, 157);
-  $tagPDCAsRedeposit = $userModel->checkSystemActionAccessRights($user_id, 158);
-  $tagPDCAsForDeposit = $userModel->checkSystemActionAccessRights($user_id, 159);
-  $tagPDCAsPulledOut = $userModel->checkSystemActionAccessRights($user_id, 160);
-  $tagClearedPDCAsReturned = $userModel->checkSystemActionAccessRights($user_id, 161);
-  $tagPDCAsDeposited = $userModel->checkSystemActionAccessRights($user_id, 162);
-  $massTagPDCAsCancelled = $userModel->checkSystemActionAccessRights($user_id, 163);
-  $massTagPDCAsPulledOut = $userModel->checkSystemActionAccessRights($user_id, 170);
-  $massTagPDCAsReturned = $userModel->checkSystemActionAccessRights($user_id, 164);
-  $duplicateCancelledPDC = $userModel->checkSystemActionAccessRights($user_id, 165);
+  $pdcManagementReadAccess = $userModel->checkMenuItemAccessRights($user_id, 115, 'read');
+  $pdcManagementCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 115, 'create');
+  $pdcManagementWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 115, 'write');
+  $pdcManagementDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 115, 'delete');
 
   if ($pdcManagementReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -78,8 +64,9 @@
     <?php include_once('config/_title.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
     <link rel="stylesheet" href="./assets/css/plugins/datepicker-bs5.min.css">
-    <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="./assets/css/plugins/buttons.bootstrap5.min.css" />
+    <?php include_once('config/_required_css.php'); ?>
 </head>
 
 <body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="false" data-pc-theme="light">
@@ -99,7 +86,7 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Sales Proposal</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="pdc-management.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="collection-report.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($pdcManagementID)){
                             echo '<li class="breadcrumb-item" id="loan-collection-id">'. $pdcManagementID .'</li>';
@@ -120,15 +107,7 @@
           </div>
         </div>
         <?php
-          if($newRecord && $pdcManagementCreateAccess['total'] > 0){
-            require_once('view/_pdc_management_new.php');
-          }
-          else if(!empty($pdcManagementID) && $pdcManagementWriteAccess['total'] > 0){
-            require_once('view/_pdc_management_details.php');
-          }
-          else{
-            require_once('view/_pdc_management.php');
-          }
+            require_once('view/_collection_report.php');
         ?>
       </div>
     </section>
@@ -141,12 +120,20 @@
         include_once('config/_customizer.php'); 
     ?>
     <script src="./assets/js/plugins/bootstrap-maxlength.min.js"></script>
-    <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
+    <script src="./assets/js/plugins/dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
+    <script src="./assets/js/plugins/buttons.colVis.min.js"></script>
+    <script src="./assets/js/plugins/buttons.print.min.js"></script>
+    <script src="./assets/js/plugins/pdfmake.min.js"></script>
+    <script src="./assets/js/plugins/jszip.min.js"></script>
+    <script src="./assets/js/plugins/dataTables.buttons.min.js"></script>
+    <script src="./assets/js/plugins/vfs_fonts.js"></script>
+    <script src="./assets/js/plugins/buttons.html5.min.js"></script>
+    <script src="./assets/js/plugins/buttons.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/pdc-management.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/collection-report.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

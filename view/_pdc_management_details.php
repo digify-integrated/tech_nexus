@@ -86,6 +86,7 @@
                 <option value="Loan">Loan</option>
                 <option value="Product">Product</option>
                 <option value="Customer">Customer</option>
+                <option value="Leasing">Leasing</option>
                </select>
             </div>
             <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
@@ -120,6 +121,15 @@
                 <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $customerModel->generateCustomerOptions('active customer'); ?>
+                </select>
+              </div>
+            </div>
+            <div id="leasing_field" class="form-group row field d-none">
+              <label class="col-lg-2 col-form-label">Leasing Application <span class="text-danger">*</span></label>
+              <div class="col-lg-10">
+                <select class="form-control select2" name="leasing_id" id="leasing_id">+
+                <option value="">--</option>
+                <?php echo $leasingApplicationModel->generateLeasingApplicationOptions(); ?>
                 </select>
               </div>
             </div>

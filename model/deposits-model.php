@@ -57,11 +57,10 @@ class DepositsModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertDeposits($p_company_id, $p_deposit_amount, $p_deposit_date, $p_deposited_to, $p_reference_number, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertDeposits(:p_company_id, :p_deposit_amount, :p_deposit_date, :p_deposited_to, :p_reference_number, :p_remarks, :p_last_log_by, @p_deposits_id)');
+    public function insertDeposits($p_company_id, $p_deposit_amount, $p_deposited_to, $p_reference_number, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertDeposits(:p_company_id, :p_deposit_amount, :p_deposited_to, :p_reference_number, :p_remarks, :p_last_log_by, @p_deposits_id)');
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_deposit_amount', $p_deposit_amount, PDO::PARAM_STR);
-        $stmt->bindValue(':p_deposit_date', $p_deposit_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_deposited_to', $p_deposited_to, PDO::PARAM_INT);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);

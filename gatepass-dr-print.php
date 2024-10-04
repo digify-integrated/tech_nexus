@@ -123,7 +123,7 @@
     }
 
     
-    $gatePassTable = generateGatePassTable($customerName, $unitImage, $customerMobile, $customerAddress, $drNumber, $productDescription);
+    $gatePassTable = generateGatePassTable($customerName, $unitImage, $customerMobile, $customerAddress, $drNumber, $productDescription, $stockNumber);
 
     ob_start();
 
@@ -171,7 +171,7 @@
     $pdf->Output('gate-pass.pdf', 'I');
     ob_flush();
 
-    function generateGatePassTable($customerName, $unitImage, $customerMobile, $customerAddress, $drNumber, $productDescription){
+    function generateGatePassTable($customerName, $unitImage, $customerMobile, $customerAddress, $drNumber, $productDescription, $stockNumber){
         $response = '<table border="0.5" width="100%" cellpadding="2">
                         <tbody>
                             <tr>
@@ -183,7 +183,9 @@
                             </tr>
                             <tr>
                                 <td><small>Contact Number</small></td>
-                                <td colspan="4"><small>'. $customerMobile .'</small></td>
+                                <td><small>'. $customerMobile .'</small></td>
+                                <td><small>Stock Number</small></td>
+                                <td colspan="2"><small>'. $stockNumber .'</small></td>
                             </tr>
                             <tr>
                                 <td><small>Address</small></td>

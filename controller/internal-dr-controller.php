@@ -75,6 +75,9 @@ class InternalDRController {
                 case 'tag for release':
                     $this->tagInternalDRAsReleased();
                     break;
+                case 'tag for cancelled':
+                    $this->tagInternalDRAsCancelled();
+                    break;
                 case 'delete internal DR':
                     $this->deleteInternalDR();
                     break;
@@ -379,6 +382,47 @@ class InternalDRController {
         }
     
         $this->internalDRModel->updateInternalDRAsReleased($internalDRID, 'Released', $releaseRemarks, $userID);
+
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagInternalDRAsCancelled
+    # Description: 
+    # Updates the existing internal dr accessories if it exists; otherwise, inserts a new internal dr accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagInternalDRAsCancelled() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $internalDRID = htmlspecialchars($_POST['internal_dr_id'], ENT_QUOTES, 'UTF-8');
+        $cancellationReason = $_POST['cancellation_reason'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkInternalDRExist = $this->internalDRModel->checkInternalDRExist($internalDRID);
+        $total = $checkInternalDRExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->internalDRModel->updateInternalDRAsCancelled($internalDRID, 'Cancelled', $cancellationReason, $userID);
 
         echo json_encode(['success' => true]);
     }

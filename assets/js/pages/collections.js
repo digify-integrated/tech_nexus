@@ -45,18 +45,21 @@
                     $('#loan_field').removeClass('d-none');
                     checkOptionExist('#product_id', '', '');
                     checkOptionExist('#customer_id', '', '');
+                    checkOptionExist('#leasing_id', '', '');
                     $('#collected_from').val('');
                     break;
                 case 'Product':
                     $('#product_field').removeClass('d-none');
                     checkOptionExist('#sales_proposal_id', '', '');
                     checkOptionExist('#customer_id', '', '');
+                    checkOptionExist('#leasing_id', '', '');
                     $('#collected_from').val('');
                     break;
                 case 'Customer':
                     $('#customer_field').removeClass('d-none');
                     checkOptionExist('#sales_proposal_id', '', '');
                     checkOptionExist('#product_id', '', '');
+                    checkOptionExist('#leasing_id', '', '');
                     $('#collected_from').val('');
                     break;
                 case 'Miscellaneous':
@@ -64,6 +67,14 @@
                     checkOptionExist('#sales_proposal_id', '', '');
                     checkOptionExist('#product_id', '', '');
                     checkOptionExist('#customer_id', '', '');
+                    checkOptionExist('#leasing_id', '', '');
+                    break;
+                case 'Leasing':
+                    $('#leasing_field').removeClass('d-none');
+                    checkOptionExist('#sales_proposal_id', '', '');
+                    checkOptionExist('#product_id', '', '');
+                    checkOptionExist('#customer_id', '', '');
+                    $('#collected_from').val('');
                     break;
             }
         });
@@ -438,7 +449,7 @@ function collectionsTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'STATUS' },
         { 'data' : 'LOAN_NUMBER' },
         { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT' }
+        { 'data' : 'COLLECTED_FROM' },
     ];
 
     const column_definition = [
@@ -454,7 +465,7 @@ function collectionsTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 9 },
         { 'width': 'auto', 'aTargets': 10 },
         { 'width': 'auto', 'aTargets': 11 },
-        { 'width': 'auto', 'aTargets': 12 }
+        { 'width': 'auto', 'aTargets': 12 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -486,7 +497,7 @@ function collectionsTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 2, 'asc' ]],
+        'order': [[ 3, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -614,6 +625,13 @@ function collectionsForm(){
                 required: {
                     depends: function(element) {
                         return $("select[name='pdc_type']").val() === 'Miscellaneous';
+                    }
+                }
+            },
+            leasing_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='pdc_type']").val() === 'Leasing';
                     }
                 }
             },
@@ -1166,6 +1184,7 @@ function displayDetails(transaction){
                         checkOptionExist('#sales_proposal_id', response.salesProposalID, '');
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#customer_id', response.customerID, '');
+                        checkOptionExist('#leasing_id', response.leasingID, '');
                         checkOptionExist('#payment_details', response.paymentDetails, '');
                         checkOptionExist('#deposited_to', response.depositedTo, '');
                         checkOptionExist('#miscellaneous_client_id', response.miscellaneousClientID, '');

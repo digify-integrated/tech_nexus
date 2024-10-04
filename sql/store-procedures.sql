@@ -337,6 +337,13 @@ BEGIN
     ORDER BY changed_at DESC;
 END //
 
+CREATE PROCEDURE getCreatedByLog(IN p_table_name VARCHAR(255), IN p_reference_id INT)
+BEGIN
+	SELECT changed_by FROM audit_log
+    WHERE table_name = p_table_name AND reference_id = p_reference_id
+    ORDER BY changed_at ASC LIMIT 1;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* UI Customization Setting Table Stored Procedures */
@@ -1072,6 +1079,14 @@ CREATE PROCEDURE generateFileTypeOptions()
 BEGIN
 	SELECT file_type_id, file_type_name FROM file_type
 	ORDER BY file_type_name;
+END //
+
+CREATE PROCEDURE generateLeasingApplicationOptions()
+BEGIN
+	SELECT leasing_application_id, leasing_application_number, tenant_name FROM leasing_application
+    LEFT OUTER JOIN tenant ON tenant.tenant_id = leasing_application.tenant_id
+    WHERE application_status = 'Active'
+	ORDER BY tenant_name;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -7233,22 +7248,22 @@ BEGIN
     WHERE loan_collection_id = p_loan_collection_id;
 END //
 
-CREATE PROCEDURE insertPDCManagement(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_remarks VARCHAR(500), IN p_account_number VARCHAR(100), IN p_company_id INT, IN p_last_log_by INT, OUT p_loan_collection_id INT)
+CREATE PROCEDURE insertPDCManagement(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_pdc_type VARCHAR(20), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_remarks VARCHAR(500), IN p_account_number VARCHAR(100), IN p_company_id INT, IN p_last_log_by INT, OUT p_loan_collection_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, pdc_type, mode_of_payment, payment_details, payment_amount, check_number, check_date, bank_branch, remarks, account_number, company_id, last_log_by) 
-	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_pdc_type, 'Check', p_payment_details, p_payment_amount, p_check_number, p_check_date, p_bank_branch, p_remarks, p_account_number, p_company_id, p_last_log_by);
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, leasing_application_id, pdc_type, mode_of_payment, payment_details, payment_amount, check_number, check_date, bank_branch, remarks, account_number, company_id, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_leasing_application_id, p_pdc_type, 'Check', p_payment_details, p_payment_amount, p_check_number, p_check_date, p_bank_branch, p_remarks, p_account_number, p_company_id, p_last_log_by);
 
     SET p_loan_collection_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE insertCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_last_log_by INT, OUT p_loan_collection_id INT)
+CREATE PROCEDURE insertCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_last_log_by INT, OUT p_loan_collection_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, pdc_type, mode_of_payment, or_number, or_date, payment_date, payment_amount, reference_number, payment_details, company_id, deposited_to, remarks, transaction_date, collection_status, collected_from, last_log_by) 
-	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_pdc_type, p_mode_of_payment, p_or_number, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), 'Posted', p_collected_from, p_last_log_by);
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, leasing_application_id, pdc_type, mode_of_payment, or_number, or_date, payment_date, payment_amount, reference_number, payment_details, company_id, deposited_to, remarks, transaction_date, collection_status, collected_from, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_leasing_application_id, p_pdc_type, p_mode_of_payment, p_or_number, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), 'Posted', p_collected_from, p_last_log_by);
 
     SET p_loan_collection_id = LAST_INSERT_ID();
 
@@ -7256,7 +7271,7 @@ BEGIN
     VALUES(p_loan_collection_id, p_mode_of_payment, NOW(), 'Posted', p_or_number, p_or_date, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_last_log_by INT)
+CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
@@ -7265,6 +7280,7 @@ BEGIN
     loan_number = p_loan_number,
     product_id = p_product_id,
     customer_id = p_customer_id,
+    leasing_application_id = p_leasing_application_id,
     pdc_type = p_pdc_type,
     mode_of_payment = p_mode_of_payment,
     or_number = p_or_number,
@@ -7281,7 +7297,7 @@ BEGIN
     WHERE loan_collection_id = p_loan_collection_id;
 END //
 
-CREATE PROCEDURE updatePDCManagement(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_remarks VARCHAR(500), IN p_account_number VARCHAR(100), IN p_company_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updatePDCManagement(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_pdc_type VARCHAR(20), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_remarks VARCHAR(500), IN p_account_number VARCHAR(100), IN p_company_id INT, IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
@@ -7290,6 +7306,7 @@ BEGIN
     loan_number = p_loan_number,
     product_id = p_product_id,
     customer_id = p_customer_id,
+    leasing_application_id = p_leasing_application_id,
     pdc_type = p_pdc_type,
     check_number = p_check_number,
     check_date = p_check_date,
@@ -7515,6 +7532,11 @@ BEGIN
     ci_completion_date = NOW(),
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
+
+    UPDATE sales_proposal
+    SET sales_proposal_status = 'For Final Approval',
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id AND sales_proposal_status = 'For CI';
 END //
 
 CREATE PROCEDURE updateSalesProposalChangeRequestStatus(IN p_sales_proposal_id INT, IN p_change_request_status VARCHAR(100), IN p_last_log_by INT)
@@ -7785,7 +7807,7 @@ END //
 
 CREATE PROCEDURE generateApprovedSalesProposalTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type NOT IN ('Refinancing', 'Parts', 'Brand New');
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type NOT IN ('Refinancing', 'Parts');
 END //
 
 CREATE PROCEDURE generateReleasedSalesProposalTable()
@@ -9037,6 +9059,16 @@ BEGIN
     WHERE internal_dr_id = p_internal_dr_id;
 END //
 
+CREATE PROCEDURE updateInternalDRAsCancelled(IN p_internal_dr_id INT, IN p_dr_status VARCHAR(50), IN p_cancellation_reason VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE internal_dr
+    SET dr_status = p_dr_status,
+    cancellation_reason = p_cancellation_reason,
+    cancellation_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE internal_dr_id = p_internal_dr_id;
+END //
+
 CREATE PROCEDURE updateInternalDRUnitImage(IN p_internal_dr_id INT, IN p_unit_image VARCHAR(500), IN p_last_log_by INT)
 BEGIN
       UPDATE internal_dr
@@ -9392,7 +9424,7 @@ BEGIN
     WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE manager_id = p_contact_id) AND status = 'For Recommendation';
 END //
 
-CREATE PROCEDURE generatePDCManagementTable(IN p_pdc_management_status VARCHAR(500), IN p_check_start_date DATE, IN p_check_end_date DATE, IN p_redeposit_start_date DATE, IN p_redeposit_end_date DATE, IN p_onhold_start_date DATE, IN p_onhold_end_date DATE, IN p_for_deposit_start_date DATE, IN p_for_deposit_end_date DATE, IN p_deposit_start_date DATE, IN p_deposit_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_pulled_out_start_date DATE, IN p_pulled_out_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE, IN p_clear_start_date DATE, IN p_clear_end_date DATE)
+CREATE PROCEDURE generatePDCManagementTable(IN p_pdc_management_status VARCHAR(500), IN p_pdc_management_company VARCHAR(500), IN p_check_start_date DATE, IN p_check_end_date DATE, IN p_redeposit_start_date DATE, IN p_redeposit_end_date DATE, IN p_onhold_start_date DATE, IN p_onhold_end_date DATE, IN p_for_deposit_start_date DATE, IN p_for_deposit_end_date DATE, IN p_deposit_start_date DATE, IN p_deposit_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_pulled_out_start_date DATE, IN p_pulled_out_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE, IN p_clear_start_date DATE, IN p_clear_end_date DATE)
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -9490,8 +9522,52 @@ BEGIN
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
+    IF p_pdc_management_company IS NOT NULL AND p_pdc_management_company <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN (');
+        SET conditionList = CONCAT(conditionList, p_pdc_management_company);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY loan_number ASC, check_date ASC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateCollectionReportTable(IN p_pdc_management_company VARCHAR(500), IN p_filter_transaction_date_start_date DATE, IN p_filter_transaction_date_end_date DATE, IN p_filter_payment_date_start_date DATE, IN p_filter_payment_date_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM loan_collections';
+    SET conditionList = ' WHERE 1';
+    
+    IF p_filter_transaction_date_start_date IS NOT NULL AND p_filter_transaction_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_transaction_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_transaction_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_filter_payment_date_start_date IS NOT NULL AND p_filter_payment_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (payment_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_payment_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_payment_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_pdc_management_company IS NOT NULL AND p_pdc_management_company <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN (');
+        SET conditionList = CONCAT(conditionList, p_pdc_management_company);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY transaction_date DESC;');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -10447,12 +10523,12 @@ BEGIN
     WHERE deposits_id = p_deposits_id;
 END //
 
-CREATE PROCEDURE insertDeposits(IN p_company_id INT, IN p_deposit_amount DOUBLE, IN p_deposit_date DATE, IN p_deposited_to INT, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(500), IN p_last_log_by INT, OUT p_deposits_id INT)
+CREATE PROCEDURE insertDeposits(IN p_company_id INT, IN p_deposit_amount DOUBLE, IN p_deposited_to INT, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(500), IN p_last_log_by INT, OUT p_deposits_id INT)
 BEGIN
     SET time_zone = '+08:00';
     
     INSERT INTO deposits (company_id, deposit_amount, deposit_date, deposited_to, reference_number, remarks, last_log_by) 
-	VALUES(p_company_id,p_deposit_amount, p_deposit_date, p_deposited_to, p_reference_number, p_remarks, p_last_log_by);
+	VALUES(p_company_id,p_deposit_amount, NOW(), p_deposited_to, p_reference_number, p_remarks, p_last_log_by);
 	
     SET p_deposits_id = LAST_INSERT_ID();
 END //
@@ -10643,7 +10719,7 @@ BEGIN
     WHERE travel_form_id = p_travel_form_id;
 END //
 
-CREATE PROCEDURE updateTravelFormStatus(IN p_travel_form_id INT, IN p_travel_form_status VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updateTravelFormStatus(IN p_travel_form_id INT, IN p_travel_form_status VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
@@ -10669,6 +10745,20 @@ BEGIN
         UPDATE travel_form
         SET travel_form_status = p_travel_form_status,
             recommended_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE travel_form_id = p_travel_form_id;
+    ELSEIF p_travel_form_status = 'Rejected' THEN
+        UPDATE travel_form
+        SET travel_form_status = p_travel_form_status,
+            rejection_date = NOW(),
+            rejection_reason = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE travel_form_id = p_travel_form_id;
+    ELSEIF p_travel_form_status = 'Draft' THEN
+        UPDATE travel_form
+        SET travel_form_status = p_travel_form_status,
+            set_to_draft_date = NOW(),
+            set_to_draft_reason = p_remarks,
         last_log_by = p_last_log_by
         WHERE travel_form_id = p_travel_form_id;
     ELSE
@@ -10715,15 +10805,15 @@ BEGIN
     WHERE itinerary_id = p_itinerary_id;
 END //
 
-CREATE PROCEDURE insertItinerary(IN p_travel_form_id INT, IN p_itinerary_date DATE, IN p_customer_id INT, IN p_itinerary_destination VARCHAR(500), IN p_itinerary_purpose VARCHAR(500), IN p_expected_time_of_departure TIME, IN p_expected_time_of_arrival TIME, IN p_last_log_by INT)
+CREATE PROCEDURE insertItinerary(IN p_travel_form_id INT, IN p_itinerary_date DATE, IN p_customer_id INT, IN p_itinerary_destination VARCHAR(500), IN p_itinerary_purpose VARCHAR(500), IN p_expected_time_of_departure TIME, IN p_expected_time_of_arrival TIME, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
-    INSERT INTO travel_itinerary (travel_form_id, itinerary_date, customer_id, itinerary_destination, itinerary_purpose, expected_time_of_departure, expected_time_of_arrival, last_log_by) 
-	VALUES(p_travel_form_id, p_itinerary_date, p_customer_id, p_itinerary_destination, p_itinerary_purpose, p_expected_time_of_departure, p_expected_time_of_arrival, p_last_log_by);
+    INSERT INTO travel_itinerary (travel_form_id, itinerary_date, customer_id, itinerary_destination, itinerary_purpose, expected_time_of_departure, expected_time_of_arrival, remarks, last_log_by) 
+	VALUES(p_travel_form_id, p_itinerary_date, p_customer_id, p_itinerary_destination, p_itinerary_purpose, p_expected_time_of_departure, p_expected_time_of_arrival, p_remarks, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateItinerary(IN p_itinerary_id INT, IN p_travel_form_id INT, IN p_itinerary_date DATE, IN p_customer_id INT, IN p_itinerary_destination VARCHAR(500), IN p_itinerary_purpose VARCHAR(500), IN p_expected_time_of_departure TIME, IN p_expected_time_of_arrival TIME, IN p_last_log_by INT)
+CREATE PROCEDURE updateItinerary(IN p_itinerary_id INT, IN p_travel_form_id INT, IN p_itinerary_date DATE, IN p_customer_id INT, IN p_itinerary_destination VARCHAR(500), IN p_itinerary_purpose VARCHAR(500), IN p_expected_time_of_departure TIME, IN p_expected_time_of_arrival TIME, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
 
@@ -10735,6 +10825,7 @@ BEGIN
         itinerary_purpose = p_itinerary_purpose,
         expected_time_of_departure = p_expected_time_of_departure,
         expected_time_of_arrival = p_expected_time_of_arrival,
+        remarks = p_remarks,
         last_log_by = p_last_log_by
     WHERE itinerary_id = p_itinerary_id;
 END //
@@ -10758,7 +10849,7 @@ END //
 
 CREATE PROCEDURE generateItineraryTable(IN p_travel_form_id INT)
 BEGIN
-    SELECT itinerary_id, itinerary_date, customer_id, itinerary_destination, itinerary_purpose, expected_time_of_departure, expected_time_of_arrival
+    SELECT itinerary_id, itinerary_date, customer_id, itinerary_destination, itinerary_purpose, expected_time_of_departure, expected_time_of_arrival, remarks
     FROM travel_itinerary
     WHERE travel_form_id = p_travel_form_id
     ORDER BY itinerary_id;
@@ -10770,3 +10861,50 @@ BEGIN
 	SELECT mobile, telephone, email FROM contact_information
     WHERE contact_id = p_contact_id AND is_primary = 1;
 END //
+
+/* Chart of Account Table Stored Procedures */
+
+CREATE PROCEDURE checkChartOfAccountExist (IN p_chart_of_account_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM chart_of_account
+    WHERE chart_of_account_id = p_chart_of_account_id;
+END //
+
+CREATE PROCEDURE insertChartOfAccount(IN p_code VARCHAR(100), IN p_name VARCHAR(500), IN p_account_type VARCHAR(500), IN p_last_log_by INT, OUT p_chart_of_account_id INT)
+BEGIN
+    INSERT INTO chart_of_account (code, name, account_type, last_log_by) 
+	VALUES(p_code, p_name, p_account_type, p_last_log_by);
+	
+    SET p_chart_of_account_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateChartOfAccount(IN p_chart_of_account_id INT, IN p_code VARCHAR(100), IN p_name VARCHAR(500), IN p_account_type VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE chart_of_account
+    SET code = p_code,
+        name = p_name,
+        account_type = p_account_type,
+    last_log_by = p_last_log_by
+    WHERE chart_of_account_id = p_chart_of_account_id;
+END //
+
+CREATE PROCEDURE deleteChartOfAccount(IN p_chart_of_account_id INT)
+BEGIN
+    DELETE FROM chart_of_account WHERE chart_of_account_id = p_chart_of_account_id;
+END //
+
+CREATE PROCEDURE getChartOfAccount(IN p_chart_of_account_id INT)
+BEGIN
+	SELECT * FROM chart_of_account
+    WHERE chart_of_account_id = p_chart_of_account_id;
+END //
+
+CREATE PROCEDURE generateChartOfAccountTable()
+BEGIN
+    SELECT chart_of_account_id, code, name, account_type
+    FROM chart_of_account
+    ORDER BY chart_of_account_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

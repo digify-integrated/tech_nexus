@@ -287,7 +287,7 @@
                 }
             }
 
-            if($(this).val() == 'Refinancing'){
+            if($(this).val() == 'Refinancing' || $(this).val() == 'Restructure'){
                 if($('#insurance_premium').length){
                     $('#insurance_premium').prop('readonly', false);
                 }
@@ -2791,9 +2791,6 @@ function salesProposalFuelForm(){
                         fullErrorMessage += ', Response: ${xhr.responseText}';
                     }
                     showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    displayDetails('get sales proposal fuel details');
                 }
             });
         
@@ -5997,11 +5994,12 @@ function calculatePricingComputation(){
 function calculateRenewalAmount(){
     var product_type = $('#product_type').val();
     var product_category = $('#product_category').val();
-    var delivery_price = parseCurrency($('#total_delivery_price').val()) || 0;
+   
+    if(product_type == 'Refinancing'){
+        var delivery_price = parseCurrency($('#insurance_coverage').val()) || 0;
 
-    if(product_type == 'Refinancing' || product_type == 'Restructure'){
         if(delivery_price > 0){
-            var second_year_coverage = delivery_price * 0.8;
+            var second_year_coverage = delivery_price * 0.9;
             var third_year_coverage = second_year_coverage * 0.9;
             var fourth_year_coverage = third_year_coverage * 0.9;
             
@@ -6083,7 +6081,37 @@ function calculateRenewalAmount(){
             $('#summary-insurance-premium-fourth-year').text(0);
         }
     }
+    else if(product_type == 'Restructure'){
+        if($('#compute_second_year').is(':checked')) {
+            $('#insurance_premium_second_year').attr('readonly', false);
+            $('#insurance_coverage_second_year').attr('readonly', false);
+        }
+        else{            
+            $('#insurance_coverage_second_year').attr('readonly', true); 
+            $('#insurance_premium_second_year').attr('readonly', true);
+        }
+    
+        if($('#compute_third_year').is(':checked')) {
+            $('#insurance_premium_third_year').attr('readonly', false); 
+            $('#insurance_coverage_third_year').attr('readonly', false); 
+        }
+        else{
+            $('#insurance_coverage_third_year').attr('readonly', true); 
+            $('#insurance_premium_third_year').attr('readonly', true);
+        }
+    
+        if($('#compute_fourth_year').is(':checked')) {
+            $('#insurance_premium_fourth_year').attr('readonly', false); 
+            $('#insurance_coverage_fourth_year').attr('readonly', false); 
+        }
+        else{            
+            $('#insurance_coverage_fourth_year').attr('readonly', true); 
+            $('#insurance_premium_fourth_year').attr('readonly', true);
+        }
+    }
     else{
+        var delivery_price = parseCurrency($('#total_delivery_price').val()) || 0;
+
         if(delivery_price > 0){
             var second_year_coverage = delivery_price * 0.8;
             var third_year_coverage = second_year_coverage * 0.9;
@@ -6219,7 +6247,7 @@ function calculateTotalOtherCharges(){
            var insurance_premium = 0;
         }
 
-        if(productType == 'Refinancing'){
+        if(productType == 'Refinancing' || productType == 'Restructure'){
             var insurance_premium = parseCurrency($("#insurance_premium").val());
         }
 

@@ -12,6 +12,8 @@
   $internalDRWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 78, 'write');
   $internalDRDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 78, 'delete');
   $internalDRDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 78, 'duplicate');
+  $cancelInternalDR = $userModel->checkSystemActionAccessRights($user_id, 169);
+
 
   if ($internalDRReadAccess['total'] == 0) {
     header('location: 404.php');

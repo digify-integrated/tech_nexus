@@ -123,12 +123,14 @@
     $pdf->Ln(35);
     $pdf->Cell(100, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(15, 4, '', 0, 0, 'L', 0, '', 1);
-    $pdf->Cell(80, 4, 'CHECKED BY: ______________________', 0, 0, 'L', 0, '', 1);
+    $pdf->Cell(80, 4, 'RECEIVED BY: ______________________', 0, 0, 'L', 0, '', 1);
     $pdf->Ln(15);
+    $pdf->Cell(10, 4, '', 0, 0, 'L', 0, '', 1);
+    $pdf->MultiCell(50, 4, 'CHECKED BY: ______________________',  0, 'L', false, 0, '', '', true, 0, true, true, 0);
+    $pdf->Cell(8, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->SetFont('times', '', 7);
     $pdf->SetTextColor(255, 0, 0);
-    $pdf->Cell(67, 4, '', 0, 0, 'L', 0, '', 1);
-    $pdf->MultiCell(136, 4, '<b><i>REMARKS: THE COMPANY IS ACTING AS A SELLING AGENT (CONSIGNEE) ONLY OF</i></b>', 0, 'L', false, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(106, 4, '<b><i>REMARKS: THE COMPANY IS ACTING AS A SELLING AGENT (CONSIGNEE) ONLY OF</i></b>', 0, 'L', false, 0, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->Cell(67, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->MultiCell(136, 4, '<b><i>THE CONSIGNOR, THEREFORE, SALES SHALL BE CLAIMED AGAINST THE</i></b>', 0, 'L', false, 0, '', '', true, 0, true, true, 0);

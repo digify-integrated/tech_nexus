@@ -2,25 +2,25 @@
     'use strict';
 
     $(function() {
-        if($('#deposits-table').length){
-            depositsTable('#deposits-table');
+        if($('#chart-of-account-table').length){
+            chartOfAccountTable('#chart-of-account-table');
         }
 
-        if($('#deposits-form').length){
-            depositsForm();
+        if($('#chart-of-account-form').length){
+            chartOfAccountForm();
         }
 
-        if($('#deposits-id').length){
-            displayDetails('get deposits details');
+        if($('#chart-of-account-id').length){
+            displayDetails('get chart of account details');
         }
 
-        $(document).on('click','.delete-deposits',function() {
-            const deposits_id = $(this).data('deposits-id');
-            const transaction = 'delete deposits';
+        $(document).on('click','.delete-chart-of-account',function() {
+            const chart_of_account_id = $(this).data('chart-of-account-id');
+            const transaction = 'delete chart of account';
     
             Swal.fire({
-                title: 'Confirm Deposits Deletion',
-                text: 'Are you sure you want to delete this deposits?',
+                title: 'Confirm Chart of Account Deletion',
+                text: 'Are you sure you want to delete this chart of account?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -32,16 +32,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/deposits-controller.php',
+                        url: 'controller/chart-of-account-controller.php',
                         dataType: 'json',
                         data: {
-                            deposits_id : deposits_id, 
+                            chart_of_account_id : chart_of_account_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Deposits Success', 'The deposits has been deleted successfully.', 'success');
-                                reloadDatatable('#deposits-table');
+                                showNotification('Delete Chart of Account Success', 'The chart of account has been deleted successfully.', 'success');
+                                reloadDatatable('#chart-of-account-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -49,11 +49,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Deposits Error', 'The deposits does not exist.', 'danger');
-                                    reloadDatatable('#deposits-table');
+                                    showNotification('Delete Chart of Account Error', 'The chart of account does not exist.', 'danger');
+                                    reloadDatatable('#chart-of-account-table');
                                 }
                                 else {
-                                    showNotification('Delete Deposits Error', response.message, 'danger');
+                                    showNotification('Delete Chart of Account Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -70,20 +70,20 @@
             });
         });
 
-        $(document).on('click','#delete-deposits',function() {
-            let deposits_id = [];
-            const transaction = 'delete multiple deposits';
+        $(document).on('click','#delete-chart-of-account',function() {
+            let chart_of_account_id = [];
+            const transaction = 'delete multiple chart of account';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
-                    deposits_id.push(element.value);
+                    chart_of_account_id.push(element.value);
                 }
             });
     
-            if(deposits_id.length > 0){
+            if(chart_of_account_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Deposits Deletion',
-                    text: 'Are you sure you want to delete these deposits?',
+                    title: 'Confirm Multiple Chart of Accounts Deletion',
+                    text: 'Are you sure you want to delete these chart of accounts?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -95,16 +95,16 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller/deposits-controller.php',
+                            url: 'controller/chart-of-account-controller.php',
                             dataType: 'json',
                             data: {
-                                deposits_id: deposits_id,
+                                chart_of_account_id: chart_of_account_id,
                                 transaction : transaction
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Deposits Success', 'The selected deposits have been deleted successfully.', 'success');
-                                        reloadDatatable('#deposits-table');
+                                    showNotification('Delete Chart of Account Success', 'The selected chart of accounts have been deleted successfully.', 'success');
+                                    reloadDatatable('#chart-of-account-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -112,7 +112,7 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else {
-                                        showNotification('Delete Deposits Error', response.message, 'danger');
+                                        showNotification('Delete Chart of Account Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -133,17 +133,17 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Deposits Error', 'Please select the deposits you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Chart of Account Error', 'Please select the chart of accounts you wish to delete.', 'danger');
             }
         });
 
-        $(document).on('click','#delete-deposits-details',function() {
-            const deposits_id = $('#deposits-id').text();
-            const transaction = 'delete deposits';
+        $(document).on('click','#delete-chart-of-account-details',function() {
+            const chart_of_account_id = $('#chart-of-account-id').text();
+            const transaction = 'delete chart of account';
     
             Swal.fire({
-                title: 'Confirm Deposits Deletion',
-                text: 'Are you sure you want to delete this deposits?',
+                title: 'Confirm Chart of Account Deletion',
+                text: 'Are you sure you want to delete this chart of account?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -155,16 +155,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/deposits-controller.php',
+                        url: 'controller/chart-of-account-controller.php',
                         dataType: 'json',
                         data: {
-                            deposits_id : deposits_id, 
+                            chart_of_account_id : chart_of_account_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Deleted Deposits Success', 'The deposits has been deleted successfully.', 'success');
-                                window.location = 'deposits.php';
+                                setNotification('Deleted Chart of Account Success', 'The chart of account has been deleted successfully.', 'success');
+                                window.location = 'chart-of-account.php';
                             }
                             else {
                                 if (response.isInactive) {
@@ -175,7 +175,7 @@
                                     window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Delete Deposits Error', response.message, 'danger');
+                                    showNotification('Delete Chart of Account Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -193,83 +193,101 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('deposits.php');
+            discardCreate('chart-of-account.php');
         });
 
-        $(document).on('click','#apply-filter',function() {
-            depositsTable('#deposits-table');
-        });
-        
-        $(document).on('click','#print',function() {
-            var checkedBoxes = [];
-            var collection_report_date = $('#collection_report_date').val();
-            var link = 'deposits-print.php?';
+        $(document).on('click','#edit-form',function() {
+            displayDetails('get chart of account details');
 
-            $('.company-checkbox').each((index, element) => {
-                if ($(element).is(':checked')) {
-                    checkedBoxes.push(element.value);
+            enableForm();
+        });
+
+        $(document).on('click','#duplicate-chart-of-account',function() {
+            const chart_of_account_id = $('#chart-of-account-id').text();
+            const transaction = 'duplicate chart of account';
+    
+            Swal.fire({
+                title: 'Confirm Chart of Account Duplication',
+                text: 'Are you sure you want to duplicate this chart of account?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Duplicate',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/chart-of-account-controller.php',
+                        dataType: 'json',
+                        data: {
+                            chart_of_account_id : chart_of_account_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Duplicate Chart of Account Success', 'The chart of account has been duplicated successfully.', 'success');
+                                window.location = 'chart-of-account.php?id=' + response.chartOfAccountID;
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Duplicate Chart of Account Error', 'The chart of account does not exist.', 'danger');
+                                    reloadDatatable('#chart-of-account-table');
+                                }
+                                else {
+                                    showNotification('Duplicate Chart of Account Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
                 }
             });
-
-            if(checkedBoxes != ''){
-                link = link + 'id=' + checkedBoxes;
-            }
-
-            if(collection_report_date != '' && checkedBoxes != ''){
-                link = link + '&date=' + collection_report_date;
-            }
-            else{
-                link = link + 'date=' + collection_report_date;
-            }
-
-            window.open(link, '_blank');
         });
     });
 })(jQuery);
 
-function depositsTable(datatable_name, buttons = false, show_all = false){
-    const type = 'deposits table';
-    var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
-    var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
-
-    var filter_deposit_date_start_date = $('#filter_deposit_date_start_date').val();
-    var filter_deposit_date_end_date = $('#filter_deposit_date_end_date').val();
-    
+function chartOfAccountTable(datatable_name, buttons = false, show_all = false){
+    const type = 'chart of account table';
     var settings;
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'DEPOSIT_AMOUNT' },
-        { 'data' : 'DEPOSIT_DATE' },
-        { 'data' : 'DEPOSITED_TO' },
-        { 'data' : 'REFERENCE_NUMBER' },
-        { 'data' : 'TRANSACTION_DATE' },
+        { 'data' : 'CODE' },
+        { 'data' : 'NAME' },
+        { 'data' : 'ACCOUNT_TYPE' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
-        { 'width': 'auto', 'aTargets': 4 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 5 },
-        { 'width': '15%','bSortable': false, 'aTargets': 6 },
+        { 'width': '15%','bSortable': false, 'aTargets': 4 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_deposits_generation.php',
+            'url' : 'view/_chart_of_account_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 
-                'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
-                'filter_transaction_date_end_date' : filter_transaction_date_end_date, 
-                'filter_deposit_date_start_date' : filter_deposit_date_start_date, 
-                'filter_deposit_date_end_date' : filter_deposit_date_end_date
-            },
+            'data': {'type' : type},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -279,7 +297,7 @@ function depositsTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 2, 'asc' ]],
+        'order': [[ 1, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -301,29 +319,29 @@ function depositsTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function depositsForm(){
-    $('#deposits-form').validate({
+function chartOfAccountForm(){
+    $('#chart-of-account-form').validate({
         rules: {
-            deposit_amount: {
+            code: {
                 required: true
             },
-            company_id: {
+            code_name: {
                 required: true
             },
-            deposited_to: {
+            account_type: {
                 required: true
-            }
+            },
         },
         messages: {
-            deposit_amount: {
-                required: 'Please choose the mode of payment'
+            code: {
+                required: 'Please enter the code'
             },
-            company_id: {
-                required: 'Please choose the company'
+            code_name: {
+                required: 'Please enter the name'
             },
-            deposited_to: {
-                required: 'Please choose the company'
-            }
+            account_type: {
+                required: 'Please choose the account type'
+            },
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -355,32 +373,29 @@ function depositsForm(){
             }
         },
         submitHandler: function(form) {
-            const deposits_id = $('#deposits-id').text();
-            const transaction = 'save deposits';
+            const chart_of_account_id = $('#chart-of-account-id').text();
+            const transaction = 'save chart of account';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/deposits-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&deposits_id=' + deposits_id,
+                url: 'controller/chart-of-account-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&chart_of_account_id=' + chart_of_account_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Deposits Success' : 'Update Deposits Success';
-                        const notificationDescription = response.insertRecord ? 'The deposits has been inserted successfully.' : 'The deposits has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Chart of Account Success' : 'Update Chart of Account Success';
+                        const notificationDescription = response.insertRecord ? 'The chart of account has been inserted successfully.' : 'The chart of account has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'deposits.php?id=' + response.depositsID;
+                        window.location = 'chart-of-account.php?id=' + response.chartOfAccountID;
                     }
                     else {
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
-                        }
-                        else if (response.checkConflict) {
-                            showNotification('Insert Deposits Management Error', 'The check number you entered conflicts to the existing check number on this loan.', 'danger');
                         }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
@@ -406,36 +421,34 @@ function depositsForm(){
 
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get deposits details':
-            const deposits_id = $('#deposits-id').text();
+        case 'get chart of account details':
+            const chart_of_account_id = $('#chart-of-account-id').text();
             
             $.ajax({
-                url: 'controller/deposits-controller.php',
+                url: 'controller/chart-of-account-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    deposits_id : deposits_id, 
+                    chart_of_account_id : chart_of_account_id, 
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetForm('deposits-form');
+                    resetForm('chart-of-account-form');
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#deposit_amount').val(response.depositAmount);
-                        $('#reference_number').val(response.referenceNumber);
-                        $('#remarks').val(response.remarks);
-                        $('#deposit_date').val(response.depositDate);
+                        $('#chart_of_account_id').val(chart_of_account_id);
+                        $('#code').val(response.code);
+                        $('#code_name').val(response.name);
 
-                        checkOptionExist('#company_id', response.companyID, '');
-                        checkOptionExist('#deposited_to', response.depositedTo, '');
+                        checkOptionExist('#account_type', response.accountType, '');
                     } 
                     else {
                         if(response.isInactive){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Deposits Details Error', response.message, 'danger');
+                            showNotification('Get Chart of Account Details Error', response.message, 'danger');
                         }
                     }
                 },

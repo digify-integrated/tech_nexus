@@ -108,6 +108,9 @@ class PDCManagementController {
                 case 'tag multiple pdc as cancelled':
                     $this->tagMultiplePDCAsCancel();
                     break;
+                case 'tag multiple pdc as pulled out':
+                    $this->tagMultiplePDCAsPulledOut();
+                    break;
                 case 'tag pdc as pulled-out':
                     $this->tagPDCAsPulledOut();
                     break;
@@ -209,11 +212,13 @@ class PDCManagementController {
         }
 
         foreach($loanCollectionIDs as $loanCollectionID){
-            $referenceNumber = $this->systemSettingModel->getSystemSetting(9)['value'] + 1;
+            if(!empty($loanCollectionID) && !empty($depositTo)){
+                $referenceNumber = $this->systemSettingModel->getSystemSetting(9)['value'] + 1;
 
-            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $depositTo, $userID);
-
-            $this->systemSettingModel->updateSystemSettingValue(9, $referenceNumber, $userID);
+                $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $depositTo, $userID);
+    
+                $this->systemSettingModel->updateSystemSettingValue(9, $referenceNumber, $userID);
+            }
         }
             
         echo json_encode(['success' => true]);
@@ -591,6 +596,43 @@ class PDCManagementController {
 
     # -------------------------------------------------------------
     #
+    # Function: tagMultiplePDCAsPulledOut
+    # Description: 
+    # Delete the selected pdc managements if it exists; otherwise, skip it.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagMultiplePDCAsPulledOut() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $loanCollectionID = $_POST['loan_collection_id']; 
+        $loanCollectionIDs = explode(',', $loanCollectionID);
+        $pulledOutReason = $_POST['pulled_out_reason'];
+        
+        $user = $this->userModel->getUserByID($userID);
+            
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($loanCollectionIDs as $loanCollectionID){
+            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Pulled-Out', $pulledOutReason, '', '', '', '', $userID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: tagPDCAsPulledOut
     # Description: 
     # Tag the pdc as deposited if it exists; otherwise, return an error message.
@@ -839,6 +881,7 @@ class PDCManagementController {
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
         $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+        $leasingID = htmlspecialchars($_POST['leasing_id'], ENT_QUOTES, 'UTF-8');
         $paymentDetails = $_POST['payment_details'];
         $checkNumber = $_POST['check_number'];
         $paymentAmount = $_POST['payment_amount'];
@@ -877,7 +920,7 @@ class PDCManagementController {
             }
 
             if ($total == 0) {
-                $this->pdcManagementModel->updatePDCManagement($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $remarks, $accountNumber, $companyID, $userID);
+                $this->pdcManagementModel->updatePDCManagement($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $leasingID, $pdcType, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $remarks, $accountNumber, $companyID, $userID);
             
                 echo json_encode(['success' => true, 'insertRecord' => false, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
                 exit;
@@ -897,7 +940,7 @@ class PDCManagementController {
             }
 
             if ($total == 0) {
-                $loanCollectionID = $this->pdcManagementModel->insertPDCManagement($salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $remarks, $accountNumber, $companyID, $userID);
+                $loanCollectionID = $this->pdcManagementModel->insertPDCManagement($salesProposalID, $loanNumber, $productID, $customerID, $leasingID, $pdcType, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $remarks, $accountNumber, $companyID, $userID);
 
                 echo json_encode(['success' => true, 'insertRecord' => true, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
                 exit;
@@ -1085,6 +1128,7 @@ class PDCManagementController {
                 'remarks' => $pdcManagementDetails['remarks'],
                 'accountNumber' => $pdcManagementDetails['account_number'],
                 'companyID' => $pdcManagementDetails['company_id'],
+                'leasingID' => $pdcManagementDetails['leasing_application_id'],
                 'cancellationReason' => $pdcManagementDetails['cancellation_reason'],
                 'pulledOutReason' => $pdcManagementDetails['pulled_out_reason'],
                 'reversalReason' => $pdcManagementDetails['reversal_reason'],
