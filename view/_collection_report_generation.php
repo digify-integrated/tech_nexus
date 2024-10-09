@@ -83,13 +83,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $modeOfPayment = $row['mode_of_payment'];
                 $paymentDetails = $row['payment_details'];
                 $pdcType = $row['pdc_type'];
+                $remarks = $row['remarks'];
+                $customerID = $row['customer_id'];
                 $transactionDate = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y', '');
                 $paymentDate = $systemModel->checkDate('empty', $row['payment_date'], '', 'm/d/Y', '');
                 $depositDate = $systemModel->checkDate('empty', $row['deposit_date'], '', 'm/d/Y', '');
                 $checkDate = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
 
-                if($pdcType == 'Client'){
+                if(empty($loanNumber)){
                     $loanNumber = '1000000808';
+                    $customerDetails = $customerModel->getPersonalInformation($customerID);
+                    $customerName = $customerDetails['file_as'] ?? null;
+
+                    $paymentDetails = $customerName . ' - ' . $paymentDetails . ' - ' . $remarks;
                 }
 
                 $getCreatedByLog = $pdcManagementModel->getCreatedByLog('loan_collections', $loanCollectionID);

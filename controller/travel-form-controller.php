@@ -250,6 +250,13 @@ class TravelFormController {
         }
     
         $this->travelFormModel->updateTravelFormStatus($travelFormID, 'For Recommendation', '', $userID);
+
+        $travelFormDetails = $this->travelFormModel->getTravelForm($travelFormID);
+        $recommendedBy = $travelFormDetails['recommended_by'];
+
+        $approvalEmail = $this->userModel->getContactByContactID($recommendedBy)['email'] ?? null;
+
+        $this->sendPublish3($travelFormID, $approvalEmail);
             
         echo json_encode(['success' => true]);
         exit;
@@ -358,6 +365,39 @@ class TravelFormController {
         $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
 
         $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(10);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{TRAVEL_FORM_LINK}', $travelFormIDEncrypted, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        $mailer->addAddress($approvalEmail);
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+    # -------------------------------------------------------------
+
+    public function sendPublish3($travelFormID, $approvalEmail) {
+
+        $travelFormIDEncrypted = $this->securityModel->encryptData($travelFormID);
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(11);
         $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
         $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
         $emailBody = str_replace('{TRAVEL_FORM_LINK}', $travelFormIDEncrypted, $emailBody);

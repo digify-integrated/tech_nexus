@@ -203,7 +203,7 @@
     $pdf->Cell(0, 0, 'P30.00 WILL BE ADDED TO THE TOTAL AMOUNT DUE', 0, 1, 'L');
     $pdf->SetTextColor(0, 0, 0); // reset text color to black
     $pdf->Ln(10);
-    $pdf->MultiCell(0, 0, 'PLEASE TEXT YOUR NAME, THE NAME OF THE BANK AND BRANCH WHERE THE ONLINE DEPOSIT WAS MADE, THE AMOUNT OF THE DEPOSIT, AND THE DATE OF PAYMENT TO CELLPHONE NO.0968-099-287', 0, 'J', 0, 1, '', '', true, 0, false, true, 0);
+    $pdf->MultiCell(0, 0, 'PLEASE TEXT YOUR NAME, THE NAME OF THE BANK AND BRANCH WHERE THE ONLINE DEPOSIT WAS MADE, THE AMOUNT OF THE DEPOSIT, AND THE DATE OF PAYMENT TO CELLPHONE NO.0968-099-2871', 0, 'J', 0, 1, '', '', true, 0, false, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'AFTER TEXTING, KINDLY SCAN AND E-MAIL THE	DEPOSIT	SLIP TO v.reyes@christianmotors.ph ON THE', 0, 'J', 0, 1, '', '', true, 0, false, true, 0);
     $pdf->MultiCell(0, 0, 'SAME DAY THE DEPOSIT IS MADE OR THE FOLLOWING DAY.', 0, 'L', 0, 1, '', '', true, 0, false, true, 0);
@@ -219,7 +219,7 @@
     $pdf->Ln(5);
     $pdf->SetTextColor(0, 0, 0);
     $pdf->MultiCell(0, 0, 'PLEASE ADVISE OUR COMPANY IMMEDIATELY IF THERE IS AN ATTEMPT TO REQUEST YOU  TO ONLINE YOUR  PAYMENT  TO  ACCOUNTS  OTHER  THAN  OUR DESIGNATED BANK ACCOUNTS', 0, 'J', 0, 1, '', '', true, 0, false, true, 0);
-    $pdf->MultiCell(0, 0, 'THROUGH CELLPHONE NOS. 0968-099-287.', 0, 'L', 0, 1, '', '', true, 0, false, true, 0);
+    $pdf->MultiCell(0, 0, 'THROUGH CELLPHONE NOS. 0968-099-2871.', 0, 'L', 0, 1, '', '', true, 0, false, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'OUR COMPANY HAS NO RESPONSIBILITY OR LIABILITY FOR ALL YOUR PAYMENTS COURSED', 0, 'J', 0, 1, '', '', true, 0, false, true, 0);
     $pdf->MultiCell(0, 0, 'THROUGH OTHER COMPANIES OR INDIVIDUALS.', 0, 'L', 0, 1, '', '', true, 0, false, true, 0);

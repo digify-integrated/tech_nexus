@@ -10,6 +10,13 @@
   require('model/color-model.php');
   require('model/company-model.php');
   require('model/id-type-model.php');
+  require('model/supplier-model.php');
+  require('model/brand-model.php');
+  require('model/cabin-model.php');
+  require('model/model-model.php');
+  require('model/make-model.php');
+  require('model/class-model.php');
+  require('model/mode-of-acquisition-model.php');
   
   $productModel = new ProductModel($databaseModel);
   $productCategoryModel = new ProductCategoryModel($databaseModel);
@@ -20,6 +27,13 @@
   $unitModel = new UnitModel($databaseModel);
   $colorModel = new ColorModel($databaseModel);
   $idTypeModel = new IDTypeModel($databaseModel);
+  $supplierModel = new SupplierModel($databaseModel);
+  $brandModel = new BrandModel($databaseModel);
+  $cabinModel = new CabinModel($databaseModel);
+  $modelModel = new ModelModel($databaseModel);
+  $makeModel = new MakeModel($databaseModel);
+  $classModel = new ClassModel($databaseModel);
+  $modeOfAcquisitionModel = new ModeOfAcquisitionModel($databaseModel);
 
   $pageTitle = 'Product';
     

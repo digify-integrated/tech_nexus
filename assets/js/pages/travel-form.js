@@ -728,7 +728,7 @@ function travelApprovalFormTable(datatable_name, buttons = false, show_all = fal
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 6, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

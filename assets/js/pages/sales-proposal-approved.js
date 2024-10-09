@@ -6168,8 +6168,8 @@ function calculateTotalOtherCharges(){
         var product_category = $('#product_category').val();
     
         var insurance_coverage = parseCurrency($("#insurance_coverage").val());
-
-        if(product_category == '1' || product_category == '3'){
+        
+        if(product_category == '1' || product_category == '3' || productType == 'Brand New'){
             var insurance_premium = Math.ceil((((insurance_coverage * 0.025) + 2700) * 1.2526) + 1300);
         }
         else if(product_category == '2'){

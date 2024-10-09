@@ -4967,6 +4967,20 @@ CREATE INDEX product_index_product_warehouse_id ON product(warehouse_id);
 CREATE INDEX product_index_product_body_type_id ON product(body_type_id);
 CREATE INDEX product_index_product_color_id ON product(color_id);
 
+
+CREATE TABLE product_image(
+	product_image_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	product_id INT UNSIGNED NOT NULL,
+	product_image VARCHAR(500) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES product(product_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX product_image_index_product_image_id ON product_image(product_image_id);
+CREATE INDEX product_image_index_product_id ON product_image(product_id);
+CREATE INDEX product_image_index_product_image ON product_image(product_image);
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Temporary Product Table */

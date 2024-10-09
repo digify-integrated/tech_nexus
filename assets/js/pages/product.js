@@ -165,6 +165,14 @@
             productForm();
         }
 
+        if($('#product-details-form').length){
+            productDetailsForm();
+        }
+
+        if($('#landed-cost-form').length){
+            landedCostForm();
+        }
+
         if($('#product-image-form').length){
             productImageForm();
         }
@@ -203,6 +211,10 @@
 
         if($('#color-reference-table').length){
             colorReferenceTable('#color-reference-table');
+        }
+
+        if($('#product_other_images').length){
+            generateProductOtherImages();
         }
 
         $(document).on('click','#import-product',function() {
@@ -382,9 +394,161 @@
                 }
             });
         });
+
+        $(document).on('click','.delete-product-image',function() {
+            const product_image_id = $(this).data('product-image-id');
+            const transaction = 'delete product image';
+    
+            Swal.fire({
+                title: 'Confirm Product Image Deletion',
+                text: 'Are you sure you want to delete this product image?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/product-controller.php',
+                        dataType: 'json',
+                        data: {
+                            product_image_id : product_image_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Product Image Success', 'The product image has been deleted successfully.', 'success');
+                                generateProductOtherImages();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Product Error', 'The product does not exist.', 'danger');
+                                    generateProductOtherImages();
+                                }
+                                else {
+                                    showNotification('Delete Product Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
         
         $(document).on('click','#apply-import-filter',function() {
             importProductTable('#product-import-table', false, true);
+        });
+
+        $(document).on('change','#product_image',function() {
+            if ($(this).val() !== '' && $(this)[0].files.length > 0) {
+                const transaction = 'update product image';
+                const product_id = $('#product-id').text();
+                var formData = new FormData();
+                formData.append('product_image', $(this)[0].files[0]);
+                formData.append('transaction', transaction);
+                formData.append('product_id', product_id);
+        
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller/product-controller.php',
+                    dataType: 'json',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        if (response.success) {
+                            showNotification('Update Product Thumbnail Success', 'The product thumbnail has been updated successfully.', 'success');
+                            displayDetails('get product details');
+                        }
+                        else {
+                            if (response.isInactive || response.userNotExist || response.userInactive || response.userLocked || response.sessionExpired) {
+                                setNotification(response.title, response.message, response.messageType);
+                                window.location = 'logout.php?logout';
+                            }
+                            else if (response.notExist) {
+                                setNotification(response.title, response.message, response.messageType);
+                                window.location = page_link;
+                            }
+                            else {
+                                showNotification(response.title, response.message, response.messageType);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                        if (xhr.responseText) {
+                            fullErrorMessage += `, Response: ${xhr.responseText}`;
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    }
+                });
+            }
+        });
+
+        $(document).on('change','#product_other_image',function() {
+            if ($(this).val() !== '' && $(this)[0].files.length > 0) {
+                const transaction = 'insert product image';
+                const product_id = $('#product-id').text();
+                var formData = new FormData();
+                formData.append('product_other_image', $(this)[0].files[0]);
+                formData.append('transaction', transaction);
+                formData.append('product_id', product_id);
+        
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller/product-controller.php',
+                    dataType: 'json',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        if (response.success) {
+                            showNotification('Inser Product Image Success', 'The product image has been inserted successfully.', 'success');
+                            generateProductOtherImages();
+                        }
+                        else {
+                            if (response.isInactive || response.userNotExist || response.userInactive || response.userLocked || response.sessionExpired) {
+                                setNotification(response.title, response.message, response.messageType);
+                                window.location = 'logout.php?logout';
+                            }
+                            else if (response.notExist) {
+                                setNotification(response.title, response.message, response.messageType);
+                                window.location = page_link;
+                            }
+                            else {
+                                showNotification(response.title, response.message, response.messageType);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                        if (xhr.responseText) {
+                            fullErrorMessage += `, Response: ${xhr.responseText}`;
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    }
+                });
+            }
+        });
+
+        $(document).on('click','#discard-create',function() {
+            discardCreate('product.php');
         });
     });
 })(jQuery);
@@ -501,17 +665,59 @@ function productForm(){
     });
 }
 
-function productImageForm(){
-    $('#product-image-form').validate({
+function generateProductOtherImages(){
+    const product_id = $('#product-id').text();
+    const type = 'product image cards';
+
+    $.ajax({
+        type: 'POST',
+        url: 'view/_product_generation.php',
+        dataType: 'json',
+        data: { type: type, 'product_id' : product_id },
+        beforeSend: function(){
+            document.getElementById('product_other_images').innerHTML = '<div class="text-center"><div class="spinner-grow text-dark" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+        },
+        success: function (result) {
+            document.getElementById('product_other_images').innerHTML = result[0].OTHER_IMAGE;
+        }
+    });
+}
+
+function productDetailsForm(){
+    $('#product-details-form').validate({
         rules: {
-            product_image: {
+            company_id: {
                 required: true
-            }
+            },
+            product_subcategory_id: {
+                required: true
+            },
+            stock_number: {
+                required: true
+            },
+            description: {
+                required: true
+            },
+            warehouse_id: {
+                required: true
+            },
         },
         messages: {
-            product_image: {
-                required: 'Please choose the image'
-            }
+            company_id: {
+                required: 'Please choose the company'
+            },
+            product_subcategory_id: {
+                required: 'Please choose the product category'
+            },
+            stock_number: {
+                required: 'Please enter the stock number'
+            },
+            description: {
+                required: 'Please enter the description'
+            },
+            warehouse_id: {
+                required: 'Please choose the warehouse'
+            },
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -544,37 +750,28 @@ function productImageForm(){
         },
         submitHandler: function(form) {
             const product_id = $('#product-id').text();
-            const transaction = 'update product image';
-            var formData = new FormData(form);
-            formData.append('product_id', product_id);
-            formData.append('transaction', transaction);
+            const transaction = 'save product details';
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/product-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
+                data: $(form).serialize() + '&transaction=' + transaction + '&product_id=' + product_id,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-product-image-data');
+                    disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = 'Update Product Image Success';
-                        const notificationDescription = 'The product image has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Product Success' : 'Update Product Success';
+                        const notificationDescription = response.insertRecord ? 'The product has been inserted successfully.' : 'The product has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location.reload();
+                        window.location = 'product.php?id=' + response.productID;
                     }
                     else {
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
-                        }
-                        else if (response.notExist) {
-                            setNotification('Transaction Error', 'The product does not exists.', 'danger');
-                            window.location = '404.php';
                         }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
@@ -589,7 +786,101 @@ function productImageForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-product-image-data', 'Save');
+                    enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function landedCostForm(){
+    $('#landed-cost-form').validate({
+        rules: {
+            product_price: {
+                required: true
+            },
+            product_cost: {
+                required: true
+            },
+        },
+        messages: {
+            product_price: {
+                required: 'Please enter the product price'
+            },
+            product_cost: {
+                required: 'Please enter the product cost'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const product_id = $('#product-id').text();
+            const transaction = 'save landed cost';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/product-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&product_id=' + product_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Product Success' : 'Update Product Success';
+                        const notificationDescription = response.insertRecord ? 'The product has been inserted successfully.' : 'The product has been updated successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location = 'product.php?id=' + response.productID;
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Save');
                 }
             });
         
@@ -851,6 +1142,38 @@ function displayDetails(transaction){
                         $('#received_from_address').val(response.receivedFromAddress);
                         $('#received_from_id_number').val(response.receivedFromIDNumber);
                         $('#unit_description').val(response.unitDescription);
+                        
+                        $('#rr_no').val(response.rr_no);
+                        $('#ref_no').val(response.ref_no);
+                        $('#broker').val(response.broker);
+                        $('#registered_owner').val(response.registered_owner);
+                        $('#mode_of_registration').val(response.mode_of_registration);
+                        $('#year_model').val(response.year_model);
+                        $('#fx_rate').val(response.fx_rate);
+                        $('#unit_cost').val(response.unit_cost);
+                        $('#package_deal').val(response.package_deal);
+                        $('#taxes_duties').val(response.taxes_duties);
+                        $('#freight').val(response.freight);
+                        $('#lto_registration').val(response.lto_registration);
+                        $('#royalties').val(response.royalties);
+                        $('#conversion').val(response.conversion);
+                        $('#arrastre').val(response.arrastre);
+                        $('#wharrfage').val(response.wharrfage);
+                        $('#insurance').val(response.insurance);
+                        $('#aircon').val(response.aircon);
+                        $('#import_permit').val(response.import_permit);
+                        $('#others').val(response.others);
+                        $('#sub_total').val(response.sub_total);
+                        $('#total_landed_cost').val(response.total_landed_cost);
+                        $('#with_cr').val(response.with_cr);
+                        $('#with_plate').val(response.with_plate);
+                        $('#returned_to_supplier').val(response.returned_to_supplier);
+                        $('#quantity').val(response.quantity);
+                        $('#rr_date').val(response.rrDate);
+                        $('#arrival_date').val(response.arrival_date);
+                        $('#checklist_date').val(response.checklist_date);
+
+                        document.getElementById('product_thumbnail').src = response.productImage;
 
                         checkOptionExist('#company_id', response.companyID, '');
                         checkOptionExist('#product_subcategory_id', response.productSubcategoryID, '');
@@ -858,6 +1181,14 @@ function displayDetails(transaction){
                         checkOptionExist('#body_type_id', response.bodyTypeID, '');
                         checkOptionExist('#color_id', response.colorID, '');
                         checkOptionExist('#length_unit', response.lengthUnit, '');
+
+                        checkOptionExist('#supplier_id', response.supplier_id, '');
+                        checkOptionExist('#brand_id', response.brand_id, '');
+                        checkOptionExist('#cabin_id', response.cabin_id, '');
+                        checkOptionExist('#model_id', response.model_id, '');
+                        checkOptionExist('#make_id', response.make_id, '');
+                        checkOptionExist('#class_id', response.class_id, '');
+                        checkOptionExist('#mode_of_acquisition_id', response.mode_of_acquisition_id, '');
 
                         checkOptionExist('#received_from_id_type', response.receivedFromIDType, '');
                     } 

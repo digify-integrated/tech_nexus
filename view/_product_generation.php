@@ -253,6 +253,57 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: import product table
+        # Description:
+        # Generates the import product table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'product image cards':
+            if(isset($_POST['product_id']) && isset($_POST['product_id'])){
+                $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateProductImage(:productID)');
+                $sql->bindValue(':productID', $productID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                $productImage = '';
+                foreach ($options as $row) {
+                    $product_image_id = $row['product_image_id'];
+                    $product_image = $row['product_image'];
+
+                    $productImage .= '<div class="col-sm-auto text-center">
+                                        <div class="position-relative me-3 d-inline-flex">
+                                        <div class="position-absolute top-50 start-100 translate-middle">
+                                            <button class="btn btn-sm btn-primary btn-icon delete-product-image" data-product-image-id="'. $product_image_id .'"><i class="ti ti-trash"></i></button>
+                                        </div>
+                                        <img src="'. $product_image .'" alt="user-image" class="wid-150 rounded img-fluid ms-2">
+                                        </div>
+                                    </div>';
+
+                   
+                }
+
+                if(empty($productImage)){
+                    $productImage = 'No Other Images Found.';
+                }
+
+                $response[] = [
+                    'OTHER_IMAGE' => $productImage
+                ];
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
     }
 }
 
