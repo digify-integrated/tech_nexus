@@ -212,7 +212,10 @@ class PDCManagementController {
         }
 
         foreach($loanCollectionIDs as $loanCollectionID){
-            if(!empty($loanCollectionID) && !empty($depositTo)){
+            $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
+            $collectionStatus = $pdcManagementDetails['collection_status'];
+
+            if(!empty($loanCollectionID) && !empty($depositTo) && $collectionStatus == 'For Deposit'){
                 $referenceNumber = $this->systemSettingModel->getSystemSetting(9)['value'] + 1;
 
                 $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $depositTo, $userID);

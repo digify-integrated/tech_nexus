@@ -5922,112 +5922,238 @@ function calculateTotalOtherCharges(){
 }
 
 function calculateRenewalAmount(){
+    var product_type = $('#product_type').val();
     var product_category = $('#product_category').val();
-    var delivery_price = parseFloat($('#total_delivery_price').val()) || 0;
+   
+    if(product_type == 'Refinancing'){
+        var delivery_price = parseCurrency($('#insurance_coverage').val()) || 0;
 
-    if(delivery_price > 0){
-        var second_year_coverage = delivery_price * 0.8;
-        var third_year_coverage = second_year_coverage * 0.9;
-        var fourth_year_coverage = third_year_coverage * 0.9;
+        if(delivery_price > 0){
+            var second_year_coverage = delivery_price * 0.9;
+            var third_year_coverage = second_year_coverage * 0.9;
+            var fourth_year_coverage = third_year_coverage * 0.9;
+            
+            if($('#compute_second_year').is(':checked')) {
+                $('#insurance_coverage_second_year').val(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
+                $('#summary-insurance-coverage-second-year').text(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
         
-        if($('#compute_second_year').is(':checked')) {
-            $('#insurance_coverage_second_year').val(second_year_coverage.toFixed(2));
-            $('#summary-insurance-coverage-second-year').text(parseFloat(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
-    
-            if(product_category == '1' || product_category == '3'){
                 var premium = Math.ceil((((second_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
-    
-                $('#insurance_premium_second_year').val(premium.toFixed(2));
-                $('#summary-insurance-premium-second-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
-            }
-            else if(product_category == '2'){
-                var premium = Math.ceil((second_year_coverage * 0.025) * 1.2526);
-    
-                $('#insurance_premium_second_year').val(premium.toFixed(2));
-                $('#summary-insurance-premium-second-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
+        
+                $('#insurance_premium_second_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                $('#summary-insurance-premium-second-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+
+                $('#insurance_premium_second_year').attr('readonly', true); 
+                $('#insurance_coverage_second_year').attr('readonly', true); 
             }
             else{
+                $('#insurance_coverage_second_year').val(0);
                 $('#insurance_premium_second_year').val(0);
-                $('#insurance_premium_second_year').attr('readonly', false); 
+                
+                $('#insurance_premium_second_year').attr('readonly', true); 
+                $('#insurance_coverage_second_year').attr('readonly', true); 
+            }
+        
+            if($('#compute_third_year').is(':checked')) {
+                $('#insurance_coverage_third_year').val(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
+                $('#summary-insurance-coverage-third-year').text(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
+        
+                var premium = Math.ceil((((third_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
+        
+                    $('#insurance_premium_third_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                    $('#summary-insurance-premium-third-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+
+                    $('#insurance_coverage_third_year').attr('readonly', true); 
+                    $('#insurance_premium_third_year').attr('readonly', true);
+            }
+            else{
+                $('#insurance_coverage_third_year').val(0);
+                $('#insurance_premium_third_year').val(0);
+
+                $('#insurance_coverage_third_year').attr('readonly', true); 
+                $('#insurance_premium_third_year').attr('readonly', true);
+            }
+        
+            if($('#compute_fourth_year').is(':checked')) {
+                $('#insurance_coverage_fourth_year').val(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
+                $('#summary-insurance-coverage-fourth-year').text(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
+        
+                var premium = Math.ceil((((fourth_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
+        
+                    $('#insurance_premium_fourth_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                    $('#summary-insurance-premium-fourth-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+
+                    $('#insurance_coverage_fourth_year').attr('readonly', true); 
+                    $('#insurance_premium_fourth_year').attr('readonly', true);
+            }
+            else{
+                $('#insurance_coverage_fourth_year').val(0);
+                $('#insurance_premium_fourth_year').val(0);
+
+                $('#insurance_coverage_fourth_year').attr('readonly', true); 
+                $('#insurance_premium_fourth_year').attr('readonly', true);
             }
         }
         else{
             $('#insurance_coverage_second_year').val(0);
             $('#insurance_premium_second_year').val(0);
+            $('#insurance_coverage_third_year').val(0);
+            $('#insurance_premium_third_year').val(0);
+            $('#insurance_coverage_fourth_year').val(0);
+            $('#insurance_premium_fourth_year').val(0);
+    
+            $('#summary-insurance-coverage-second-year').text(0);
+            $('#summary-insurance-premium-second-year').text(0);
             
-            $('#insurance_premium_second_year').attr('readonly', true); 
+            $('#summary-insurance-coverage-third-year').text(0);
+            $('#summary-insurance-premium-third-year').text(0);
+            
+            $('#summary-insurance-coverage-fourth-year').text(0);
+            $('#summary-insurance-premium-fourth-year').text(0);
+        }
+    }
+    else if(product_type == 'Restructure'){
+        if($('#compute_second_year').is(':checked')) {
+            $('#insurance_premium_second_year').attr('readonly', false);
+            $('#insurance_coverage_second_year').attr('readonly', false);
+        }
+        else{            
+            $('#insurance_coverage_second_year').attr('readonly', true); 
+            $('#insurance_premium_second_year').attr('readonly', true);
         }
     
         if($('#compute_third_year').is(':checked')) {
-            $('#insurance_coverage_third_year').val(third_year_coverage.toFixed(2));
-            $('#summary-insurance-coverage-third-year').text(parseFloat(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
-    
-            if(product_category == '1' || product_category == '3'){
-                var premium = Math.ceil((((third_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
-    
-                $('#insurance_premium_third_year').val(premium.toFixed(2));
-                $('#summary-insurance-premium-third-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
-            }
-            else if(product_category == '2'){
-                var premium = Math.ceil((third_year_coverage * 0.025) * 1.2526);
-    
-                $('#insurance_premium_third_year').val(premium.toFixed(2));
-                $('#summary-insurance-premium-third-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
-            }
-            else{
-                $('#insurance_premium_third_year').val(0);
-                $('#insurance_premium_third_year').attr('readonly', false); 
-            }
+            $('#insurance_premium_third_year').attr('readonly', false); 
+            $('#insurance_coverage_third_year').attr('readonly', false); 
         }
         else{
-            $('#insurance_coverage_third_year').val(0);
-            $('#insurance_premium_third_year').val(0);
-            $('#insurance_premium_third_year').attr('readonly', true); 
+            $('#insurance_coverage_third_year').attr('readonly', true); 
+            $('#insurance_premium_third_year').attr('readonly', true);
         }
     
         if($('#compute_fourth_year').is(':checked')) {
-            $('#insurance_coverage_fourth_year').val(fourth_year_coverage.toFixed(2));
-            $('#summary-insurance-coverage-fourth-year').text(parseFloat(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
-    
-            if(product_category == '1' || product_category == '3'){
-                var premium = Math.ceil((((fourth_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
-    
-                $('#insurance_premium_fourth_year').val(premium.toFixed(2));
-                $('#summary-insurance-premium-fourth-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
-            }
-            else if(product_category == '2'){
-                var premium = Math.ceil((fourth_year_coverage * 0.025) * 1.2526);
-    
-                $('#insurance_premium_fourth_year').val(premium.toFixed(2));
-                $('#summary-insurance-premium-fourth-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
-            }
-            else{
-                $('#insurance_premium_fourth_year').val(0);
-                $('#insurance_premium_fourth_year').attr('readonly', false); 
-            }
+            $('#insurance_premium_fourth_year').attr('readonly', false); 
+            $('#insurance_coverage_fourth_year').attr('readonly', false); 
         }
-        else{
-            $('#insurance_coverage_fourth_year').val(0);
-            $('#insurance_premium_fourth_year').val(0);
-            $('#insurance_premium_fourth_year').attr('readonly', true); 
+        else{            
+            $('#insurance_coverage_fourth_year').attr('readonly', true); 
+            $('#insurance_premium_fourth_year').attr('readonly', true);
         }
     }
     else{
-        $('#insurance_coverage_second_year').val(0);
-        $('#insurance_premium_second_year').val(0);
-        $('#insurance_coverage_third_year').val(0);
-        $('#insurance_premium_third_year').val(0);
-        $('#insurance_coverage_fourth_year').val(0);
-        $('#insurance_premium_fourth_year').val(0);
+        var delivery_price = parseCurrency($('#insurance_coverage').val()) || 0;
 
-        $('#summary-insurance-coverage-second-year').text(0);
-        $('#summary-insurance-premium-second-year').text(0);
+        if(delivery_price > 0){
+            var second_year_coverage = delivery_price * 0.8;
+            var third_year_coverage = second_year_coverage * 0.9;
+            var fourth_year_coverage = third_year_coverage * 0.9;
+            
+            if($('#compute_second_year').is(':checked')) {
+                $('#insurance_coverage_second_year').val(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
+                $('#summary-insurance-coverage-second-year').text(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
         
-        $('#summary-insurance-coverage-third-year').text(0);
-        $('#summary-insurance-premium-third-year').text(0);
+                if(product_category == '1' || product_category == '3'){
+                    var premium = Math.ceil((((second_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
         
-        $('#summary-insurance-coverage-fourth-year').text(0);
-        $('#summary-insurance-premium-fourth-year').text(0);
+                    $('#insurance_premium_second_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                    $('#summary-insurance-premium-second-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                }
+                else if(product_category == '2'){
+                    var premium = Math.ceil((second_year_coverage * 0.025) * 1.2526);
+        
+                    $('#insurance_premium_second_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                    $('#summary-insurance-premium-second-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                }
+                else{
+                    $('#insurance_premium_second_year').val(0);
+                    $('#insurance_premium_second_year').attr('readonly', false);
+                    $('#insurance_coverage_second_year').attr('readonly', false);
+                }
+            }
+            else{
+                $('#insurance_coverage_second_year').val(0);
+                $('#insurance_premium_second_year').val(0);
+                
+                $('#insurance_coverage_second_year').attr('readonly', true); 
+                $('#insurance_premium_second_year').attr('readonly', true);
+            }
+        
+            if($('#compute_third_year').is(':checked')) {
+                $('#insurance_coverage_third_year').val(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
+                $('#summary-insurance-coverage-third-year').text(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
+        
+                if(product_category == '1' || product_category == '3'){
+                    var premium = Math.ceil((((third_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
+        
+                    $('#insurance_premium_third_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                    $('#summary-insurance-premium-third-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                }
+                else if(product_category == '2'){
+                    var premium = Math.ceil((third_year_coverage * 0.025) * 1.2526);
+        
+                    $('#insurance_premium_third_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                    $('#summary-insurance-premium-third-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                }
+                else{
+                    $('#insurance_premium_third_year').val(0);
+                    $('#insurance_premium_third_year').attr('readonly', false); 
+                    $('#insurance_coverage_third_year').attr('readonly', false); 
+                }
+            }
+            else{
+                $('#insurance_coverage_third_year').val(0);
+                $('#insurance_premium_third_year').val(0);
+
+                $('#insurance_coverage_third_year').attr('readonly', true); 
+                $('#insurance_premium_third_year').attr('readonly', true);
+            }
+        
+            if($('#compute_fourth_year').is(':checked')) {
+                $('#insurance_coverage_fourth_year').val(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
+                $('#summary-insurance-coverage-fourth-year').text(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
+        
+                if(product_category == '1' || product_category == '3'){
+                    var premium = Math.ceil((((fourth_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
+        
+                    $('#insurance_premium_fourth_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                    $('#summary-insurance-premium-fourth-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                }
+                else if(product_category == '2'){
+                    var premium = Math.ceil((fourth_year_coverage * 0.025) * 1.2526);
+        
+                    $('#insurance_premium_fourth_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                    $('#summary-insurance-premium-fourth-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+                }
+                else{
+                    $('#insurance_premium_fourth_year').val(0);
+                    $('#insurance_premium_fourth_year').attr('readonly', false); 
+                    $('#insurance_coverage_fourth_year').attr('readonly', false); 
+                }
+            }
+            else{
+                $('#insurance_coverage_fourth_year').val(0);
+                $('#insurance_premium_fourth_year').val(0);
+                
+                $('#insurance_coverage_fourth_year').attr('readonly', true); 
+                $('#insurance_premium_fourth_year').attr('readonly', true);
+            }
+        }
+        else{
+            $('#insurance_coverage_second_year').val(0);
+            $('#insurance_premium_second_year').val(0);
+            $('#insurance_coverage_third_year').val(0);
+            $('#insurance_premium_third_year').val(0);
+            $('#insurance_coverage_fourth_year').val(0);
+            $('#insurance_premium_fourth_year').val(0);
+    
+            $('#summary-insurance-coverage-second-year').text(0);
+            $('#summary-insurance-premium-second-year').text(0);
+            
+            $('#summary-insurance-coverage-third-year').text(0);
+            $('#summary-insurance-premium-third-year').text(0);
+            
+            $('#summary-insurance-coverage-fourth-year').text(0);
+            $('#summary-insurance-premium-fourth-year').text(0);
+        }
     }
 }
 

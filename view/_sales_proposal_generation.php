@@ -791,7 +791,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $customerName = $customerDetails['file_as'] ?? null;
                 $corporateName = $customerDetails['corporate_name'] ?? null;
 
-                $proceedDate = $systemModel->checkDate('summary', $row['approval_date'], '', 'm/d/Y h:i:s A', '');
+                $releasedDate = $systemModel->checkDate('summary', $row['released_date'], '', 'm/d/Y', '');
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
@@ -804,7 +804,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             </div>',
                     'PRODUCT_TYPE' => $productType,
                     'PRODUCT' => $stockNumber,
-                    'PROCEED_DATE' => $proceedDate,
+                    'PROCEED_DATE' => $releasedDate,
                     'STATUS' => $salesProposalStatus,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="released-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">

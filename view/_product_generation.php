@@ -151,6 +151,87 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # -------------------------------------------------------------
 
         # -------------------------------------------------------------
+        case 'product table':
+            $productSearch = htmlspecialchars($_POST['product_search'], ENT_QUOTES, 'UTF-8');
+                $companyFilter = htmlspecialchars($_POST['company_filter'], ENT_QUOTES, 'UTF-8');
+                $productCategoryFilter = htmlspecialchars($_POST['product_category_filter'], ENT_QUOTES, 'UTF-8');
+                $productSubcategoryFilter = htmlspecialchars($_POST['product_subcategory_filter'], ENT_QUOTES, 'UTF-8');
+                $warehouseFilter = htmlspecialchars($_POST['warehouse_filter'], ENT_QUOTES, 'UTF-8');
+                $bodyTypeFilter = htmlspecialchars($_POST['body_type_filter'], ENT_QUOTES, 'UTF-8');
+                $colorFilter = htmlspecialchars($_POST['color_filter'], ENT_QUOTES, 'UTF-8');
+                $filterProductCostMin = htmlspecialchars($_POST['filter_product_cost_min'], ENT_QUOTES, 'UTF-8');
+                $filterProductCostMax = htmlspecialchars($_POST['filter_product_cost_max'], ENT_QUOTES, 'UTF-8');
+                $filterProductPriceMin = htmlspecialchars($_POST['filter_product_price_min'], ENT_QUOTES, 'UTF-8');
+                $filterProductPriceMax = htmlspecialchars($_POST['filter_product_price_max'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateProductTable(:productSearch, :productCategoryFilter, :productSubcategoryFilter, :companyFilter, :warehouseFilter, :bodyTypeFilter, :colorFilter, :filterProductCostMin, :filterProductCostMax, :filterProductPriceMin, :filterProductPriceMax)');
+                $sql->bindValue(':productSearch', $productSearch, PDO::PARAM_STR);
+                $sql->bindValue(':productCategoryFilter', $productCategoryFilter, PDO::PARAM_STR);
+                $sql->bindValue(':productSubcategoryFilter', $productSubcategoryFilter, PDO::PARAM_STR);
+                $sql->bindValue(':companyFilter', $companyFilter, PDO::PARAM_STR);
+                $sql->bindValue(':warehouseFilter', $warehouseFilter, PDO::PARAM_STR);
+                $sql->bindValue(':bodyTypeFilter', $bodyTypeFilter, PDO::PARAM_STR);
+                $sql->bindValue(':colorFilter', $colorFilter, PDO::PARAM_STR);
+                $sql->bindValue(':filterProductCostMin', $filterProductCostMin, PDO::PARAM_STR);
+                $sql->bindValue(':filterProductCostMax', $filterProductCostMax, PDO::PARAM_STR);
+                $sql->bindValue(':filterProductPriceMin', $filterProductPriceMin, PDO::PARAM_STR);
+                $sql->bindValue(':filterProductPriceMax', $filterProductPriceMax, PDO::PARAM_STR);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                $productDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 67, 'delete');
+                
+                foreach ($options as $row) {
+                    $productID = $row['product_id'];
+                    $productCategoryID = $row['product_category_id'];
+                    $productSubategoryID = $row['product_subcategory_id'];
+                    $stockNumber = $row['stock_number'];
+                    $description = $row['description'];
+                    $productStatus = $productModel->getProductStatus($row['product_status']);
+                    $productImage = $systemModel->checkImage($row['product_image'], 'default');
+
+                    $productCategoryDetails = $productCategoryModel->getProductCategory($productCategoryID);
+                    $productCategoryName = $productCategoryDetails['product_category_name'];
+
+                    $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
+                    $productSubcategoryName = $productSubcategoryDetails['product_subcategory_name'] ?? null;
+                   
+                    $productIDEncrypted = $securityModel->encryptData($productID);
+
+                    $delete = '';
+                    if($productDeleteAccess['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-product" data-product-id="'. $productID .'" title="Delete Product">
+                                    <i class="ti ti-trash"></i>
+                                </button>';
+                    }
+    
+                    $response[] = [
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $productID .'">',
+                        'STOCK_NUMBER' => '<div class="row">
+                                        <div class="col-auto pe-0">
+                                            <img src="'. $productImage .'" alt="user-image" class="wid-40 hei-40">
+                                        </div>
+                                        <div class="col">
+                                            <h6 class="mb-0">'. $stockNumber .'</h6>
+                                            <p class="f-12 mb-0">'. $description .'</p>
+                                        </div>
+                                    </div>',
+                        'CATEGORY' => $productSubcategoryName,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        <a href="product.php?id='. $productIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                            <i class="ti ti-eye"></i>
+                                        </a>
+                                        '. $delete .'
+                                    </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
         #
         # Type: import product table
         # Description:
@@ -285,7 +366,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <div class="position-absolute top-50 start-100 translate-middle">
                                             <button class="btn btn-sm btn-primary btn-icon delete-product-image" data-product-image-id="'. $product_image_id .'"><i class="ti ti-trash"></i></button>
                                         </div>
-                                        <img src="'. $product_image .'" alt="user-image" class="wid-150 rounded img-fluid ms-2">
+                                        <img src="'. $product_image .'" alt="user-image" class="wid-80 rounded img-fluid ms-2">
                                         </div>
                                     </div>';
 

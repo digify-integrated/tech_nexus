@@ -21,11 +21,16 @@ class ProductController {
     private $warehouseModel;
     private $unitModel;
     private $colorModel;
+    private $brandModel;
+    private $makeModel;
+    private $cabinModel;
+    private $modelModel;
     private $userModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
     private $securityModel;
     private $systemModel;
+    private $systemSettingModel;
 
     # -------------------------------------------------------------
     #
@@ -52,7 +57,7 @@ class ProductController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(ProductModel $productModel, ProductCategoryModel $productCategoryModel, ProductSubcategoryModel $productSubcategoryModel, CompanyModel $companyModel, BodyTypeModel $bodyTypeModel, WarehouseModel $warehouseModel, UnitModel $unitModel, ColorModel $colorModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(ProductModel $productModel, ProductCategoryModel $productCategoryModel, ProductSubcategoryModel $productSubcategoryModel, CompanyModel $companyModel, BodyTypeModel $bodyTypeModel, WarehouseModel $warehouseModel, UnitModel $unitModel, ColorModel $colorModel, CabinModel $cabinModel, BrandModel $brandModel, MakeModel $makeModel, ModelModel $modelModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->productModel = $productModel;
         $this->productCategoryModel = $productCategoryModel;
         $this->productSubcategoryModel = $productSubcategoryModel;
@@ -61,9 +66,14 @@ class ProductController {
         $this->warehouseModel = $warehouseModel;
         $this->unitModel = $unitModel;
         $this->colorModel = $colorModel;
+        $this->brandModel = $brandModel;
+        $this->makeModel = $makeModel;
+        $this->cabinModel = $cabinModel;
+        $this->modelModel = $modelModel;
         $this->userModel = $userModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
+        $this->systemSettingModel = $systemSettingModel;
         $this->securityModel = $securityModel;
         $this->systemModel = $systemModel;
     }
@@ -87,8 +97,8 @@ class ProductController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'save product':
-                    $this->saveProduct();
+                case 'save new product':
+                    $this->saveNewProduct();
                     break;
                 case 'save product details':
                     $this->saveProductDetails();
@@ -137,7 +147,7 @@ class ProductController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveProduct
+    # Function: saveNewProduct
     # Description: 
     # Updates the existing product if it exists; otherwise, inserts a new product.
     #
@@ -146,79 +156,67 @@ class ProductController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveProduct() {
+    public function saveNewProduct() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $productID = isset($_POST['product_id']) ? htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8') : null;
-        $stockNumber = $_POST['stock_number'];
-        $description = $_POST['description'];
-        $rrNo = $_POST['rr_no'];
+        $brandID = $_POST['brand_id'];
+        $productSubcategoryID = $_POST['product_subcategory_id'];
         $companyID = $_POST['company_id'];
+        $quantity = $_POST['quantity'];
+        $preorder = $_POST['preorder'];
+        $remarks = $_POST['remarks'];
         $supplierID = $_POST['supplier_id'];
         $refNo = $_POST['ref_no'];
-        $brandID = $_POST['brand_id'];
-        $cabinID = $_POST['cabin_id'];
-        $modelID = $_POST['model_id'];
-        $bodyTypeID = $_POST['body_type_id'];
-        $length = $_POST['length'];
-        $lengthUnit = $_POST['length_unit'];
-        $classID = $_POST['class_id'];
-        $modeOfAcquisitionID = $_POST['mode_of_acquisition_id'];
         $broker = $_POST['broker'];
-        $engineNumber = $_POST['engine_number'];
-        $chassisNumber = $_POST['chassis_number'];
-        $plateNumber = $_POST['plate_number'];
-        $registeredOwner = $_POST['registered_owner'];
-        $colorID = $_POST['color_id'];
-        $modeOfRegistration = $_POST['mode_of_registration'];
-        $warehouseID = $_POST['warehouse_id'];
-        $yearModel = $_POST['year_model'];
-        $withCR = $_POST['with_cr'];
-        $withPlate = $_POST['with_plate'];
-        $returnedToSupplier = $_POST['returned_to_supplier'];
-        $productSubcategoryID = $_POST['product_subcategory_id'];
-        $runningHours = $_POST['running_hours'];
-        $mileage = $_POST['mileage'];
-        $orcrNo = $_POST['orcr_no'];
+        $modeOfAcquisitionID = $_POST['mode_of_acquisition_id'];
         $receivedFrom = $_POST['received_from'];
         $receivedFromAddress = $_POST['received_from_address'];
         $receivedFromIDType = $_POST['received_from_id_type'];
         $receivedFromIDNumber = $_POST['received_from_id_number'];
-        $unitDescription = $_POST['unit_description'];
-        $remarks = $_POST['remarks'];
-        $productPrice = $_POST['product_price'];
-        $productCost = $_POST['product_cost'];
-        $unitCost = $_POST['unit_cost'];
-        $fxRate = $_POST['fx_rate'];
-        $packageDeal = $_POST['package_deal'];
-        $taxesDuties = $_POST['taxes_duties'];
-        $freight = $_POST['freight'];
-        $ltoRegistration = $_POST['lto_registration'];
-        $royalties = $_POST['royalties'];
-        $conversion = $_POST['conversion'];
-        $arrastre = $_POST['arrastre'];
-        $wharrfage = $_POST['wharrfage'];
-        $insurance = $_POST['insurance'];
-        $aircon = $_POST['aircon'];
-        $importPermit = $_POST['import_permit'];
-        $others = $_POST['others'];
-        $subTotal = $_POST['sub_total'];
-        $totalLandedCost = $_POST['total_landed_cost'];
+        $modelID = $_POST['model_id'];
         $makeID = $_POST['make_id'];
-        $rrDate = $this->systemModel->checkDate('empty', $_POST['rr_date'], '', 'Y-m-d', '');
-        $arrivalDate = $this->systemModel->checkDate('empty', $_POST['arrival_date'], '', 'Y-m-d', '');
-        $checklistDate = $this->systemModel->checkDate('empty', $_POST['checklist_date'], '', 'Y-m-d', '');
+        $bodyTypeID = $_POST['body_type_id'];
+        $length = $_POST['length'];
+        $lengthUnit = $_POST['length_unit'];
+        $classID = $_POST['class_id'];
+        $cabinID = $_POST['cabin_id'];
+        $yearModel = $_POST['year_model'];
+        $engineNumber = $_POST['engine_number'];
+        $chassisNumber = $_POST['chassis_number'];
+        $plateNumber = $_POST['plate_number'];
+        $orcrNo = $_POST['orcr_no'];
+        $registeredOwner = $_POST['registered_owner'];
+        $colorID = $_POST['color_id'];
+        $modeOfRegistration = $_POST['mode_of_registration'];
+        $withCR = $_POST['with_cr'];
+        $withPlate = $_POST['with_plate'];
+        $returnedToSupplier = $_POST['returned_to_supplier'];
+        $warehouseID = $_POST['warehouse_id'];
+        $runningHours = $_POST['running_hours'];
+        $mileage = $_POST['mileage'];
+
         $orcrDate = $this->systemModel->checkDate('empty', $_POST['orcr_date'], '', 'Y-m-d', '');
         $orcrExpiryDate = $this->systemModel->checkDate('empty', $_POST['orcr_expiry_date'], '', 'Y-m-d', '');
+        $arrivalDate = $this->systemModel->checkDate('empty', $_POST['arrival_date'], '', 'Y-m-d', '');
+        $checklistDate = $this->systemModel->checkDate('empty', $_POST['checklist_date'], '', 'Y-m-d', '');
 
         $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubcategoryID);
         $productCategoryID = $productSubcategoryDetails['product_category_id'];
         $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'];
 
-        $stockNumber = $productSubcategoryCode . $stockNumber;
+        $stockNumberLatest = $this->systemSettingModel->getSystemSetting(17)['value'] + 1;
+        $rrNumber = $this->systemSettingModel->getSystemSetting(18)['value'] + 1;
+
+        if($preorder == 'No'){
+            $stockNumber = $productSubcategoryCode . date('my') . $stockNumberLatest;
+            $this->systemSettingModel->updateSystemSettingValue(17, $stockNumberLatest, $userID);
+        }
+        else{
+            $stockNumber = '';
+        }
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -226,22 +224,21 @@ class ProductController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
-    
-        $checkProductExist = $this->productModel->checkProductExist($productID);
-        $total = $checkProductExist['total'] ?? 0;
-    
-        if ($total > 0) {
-            $this->productModel->updateProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $unitDescription, $rrDate, $rrNo, $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $fxRate, $unitCost, $packageDeal, $taxesDuties, $freight, $ltoRegistration, $royalties, $conversion, $arrastre, $wharrfage, $insurance, $aircon, $importPermit, $others, $subTotal, $totalLandedCost, $withCR, $withPlate, $returnedToSupplier, $userID);
-            
-            echo json_encode(['success' => true, 'insertRecord' => false, 'productID' => $this->securityModel->encryptData($productID)]);
-            exit;
-        } 
-        else {
-            $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $unitDescription, $rrDate, $rrNo, $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $fxRate, $unitCost, $packageDeal, $taxesDuties, $freight, $ltoRegistration, $royalties, $conversion, $arrastre, $wharrfage, $insurance, $aircon, $importPermit, $others, $subTotal, $totalLandedCost, $withCR, $withPlate, $returnedToSupplier, $userID);
 
-            echo json_encode(['success' => true, 'insertRecord' => true, 'productID' => $this->securityModel->encryptData($productID)]);
-            exit;
-        }
+        $brandName = $this->brandModel->getBrand($brandID)['brand_name'] ?? '';
+        $makeName = $this->makeModel->getMake($makeID)['make_name'] ?? '';
+        $cabinName = $this->cabinModel->getCabin($cabinID)['cabin_name'] ?? '';
+        $modelName = $this->modelModel->getModel($modelID)['model_name'] ?? '';
+        $bodyTypeName = $this->bodyTypeModel->getBodyType($bodyTypeID)['body_type_name'] ?? '';
+
+        $description = $brandName . ' ' . $makeName . ' ' . $cabinName . ' ' . $modelName . ' ' . $bodyTypeName . ' ' . $length . ' ' . $lengthUnit . ' ' . $yearModel;
+    
+        $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $rrNumber, $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $userID);
+
+        $this->systemSettingModel->updateSystemSettingValue(18, $rrNumber, $userID);
+
+        echo json_encode(['success' => true, 'insertRecord' => true, 'productID' => $this->securityModel->encryptData($productID)]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -262,13 +259,11 @@ class ProductController {
         }
     
         $userID = $_SESSION['user_id'];
-        $productID = isset($_POST['product_id']) ? htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8') : null;
-        $stockNumber = $_POST['stock_number'];
-        $description = $_POST['description'];
-        $rrNo = $_POST['rr_no'];
+        $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
         $companyID = $_POST['company_id'];
         $supplierID = $_POST['supplier_id'];
         $refNo = $_POST['ref_no'];
+        $preorder = $_POST['preorder'];
         $brandID = $_POST['brand_id'];
         $cabinID = $_POST['cabin_id'];
         $modelID = $_POST['model_id'];
@@ -297,10 +292,9 @@ class ProductController {
         $receivedFromAddress = $_POST['received_from_address'];
         $receivedFromIDType = $_POST['received_from_id_type'];
         $receivedFromIDNumber = $_POST['received_from_id_number'];
-        $unitDescription = $_POST['unit_description'];
         $remarks = $_POST['remarks'];
         $makeID = $_POST['make_id'];
-        $rrDate = $this->systemModel->checkDate('empty', $_POST['rr_date'], '', 'Y-m-d', '');
+        $quantity = $_POST['quantity'];
         $arrivalDate = $this->systemModel->checkDate('empty', $_POST['arrival_date'], '', 'Y-m-d', '');
         $checklistDate = $this->systemModel->checkDate('empty', $_POST['checklist_date'], '', 'Y-m-d', '');
         $orcrDate = $this->systemModel->checkDate('empty', $_POST['orcr_date'], '', 'Y-m-d', '');
@@ -310,7 +304,21 @@ class ProductController {
         $productCategoryID = $productSubcategoryDetails['product_category_id'];
         $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'];
 
-        $stockNumber = $productSubcategoryCode . $stockNumber;
+        $brandName = $this->brandModel->getBrand($brandID)['brand_name'] ?? '';
+        $makeName = $this->makeModel->getMake($makeID)['make_name'] ?? '';
+        $cabinName = $this->cabinModel->getCabin($cabinID)['cabin_name'] ?? '';
+        $modelName = $this->modelModel->getModel($modelID)['model_name'] ?? '';
+        $bodyTypeName = $this->bodyTypeModel->getBodyType($bodyTypeID)['body_type_name'] ?? '';
+
+        $productDetails = $this->productModel->getProduct($productID);
+        $stockNumber = $productDetails['stock_number'] ?? null;
+
+        if($preorder == 'No' && empty($stockNumber)){
+            $stockNumber = $productSubcategoryCode . date('my') . $stockNumberLatest;
+            $this->systemSettingModel->updateSystemSettingValue(17, $stockNumberLatest, $userID);
+        }
+
+        $description = $brandName . ' ' . $makeName . ' ' . $cabinName . ' ' . $modelName . ' ' . $bodyTypeName . ' ' . $length . ' ' . $lengthUnit . ' ' . $yearModel;
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -323,7 +331,7 @@ class ProductController {
         $total = $checkProductExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->productModel->updateProductDetails($productID, $productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $unitDescription, $rrDate, $rrNo, $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $userID);
+            $this->productModel->updateProductDetails($productID, $stockNumber, $productCategoryID, $productSubcategoryID, $companyID, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'productID' => $this->securityModel->encryptData($productID)]);
             exit;
@@ -980,7 +988,6 @@ class ProductController {
                 'receivedFromAddress' => $productDetails['received_from_address'],
                 'receivedFromIDType' => $productDetails['received_from_id_type'],
                 'receivedFromIDNumber' => $productDetails['received_from_id_number'],
-                'unitDescription' => $productDetails['unit_description'],
                 'rr_no' => $productDetails['rr_no'],
                 'supplier_id' => $productDetails['supplier_id'],
                 'ref_no' => $productDetails['ref_no'],
@@ -1014,6 +1021,7 @@ class ProductController {
                 'with_plate' => $productDetails['with_plate'],
                 'returned_to_supplier' => $productDetails['returned_to_supplier'],
                 'quantity' => $productDetails['quantity'],
+                'preorder' => $productDetails['preorder'],
                 'productImage' => $this->systemModel->checkImage($productDetails['product_image'], 'default'),
                 'orcrDate' =>  $this->systemModel->checkDate('empty', $productDetails['orcr_date'], '', 'm/d/Y', ''),
                 'orcrExpiryDate' =>  $this->systemModel->checkDate('empty', $productDetails['orcr_expiry_date'], '', 'm/d/Y', ''),
@@ -1040,12 +1048,18 @@ require_once '../model/body-type-model.php';
 require_once '../model/warehouse-model.php';
 require_once '../model/unit-model.php';
 require_once '../model/color-model.php';
+require_once '../model/brand-model.php';
+require_once '../model/cabin-model.php';
+require_once '../model/make-model.php';
+require_once '../model/model-model.php';
 require_once '../model/user-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
+require_once '../model/system-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new ProductController(new ProductModel(new DatabaseModel), new ProductCategoryModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new CompanyModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new WarehouseModel(new DatabaseModel), new UnitModel(new DatabaseModel), new ColorModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new ProductController(new ProductModel(new DatabaseModel), new ProductCategoryModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new CompanyModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new WarehouseModel(new DatabaseModel), new UnitModel(new DatabaseModel), new ColorModel(new DatabaseModel), new CabinModel(new DatabaseModel), new BrandModel(new DatabaseModel), new MakeModel(new DatabaseModel), new ModelModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
+
 ?>

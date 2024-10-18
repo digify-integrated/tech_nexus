@@ -10,6 +10,7 @@ require_once '../model/product-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require_once '../model/pdc-management-model.php';
+require_once '../model/miscellaneous-client-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -19,6 +20,7 @@ $customerModel = new CustomerModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $pdcManagementModel = new PDCManagementModel($databaseModel);
+$miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -85,6 +87,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $pdcType = $row['pdc_type'];
                 $remarks = $row['remarks'];
                 $customerID = $row['customer_id'];
+                $collectedFrom = $row['collected_from'];
                 $transactionDate = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y', '');
                 $paymentDate = $systemModel->checkDate('empty', $row['payment_date'], '', 'm/d/Y', '');
                 $depositDate = $systemModel->checkDate('empty', $row['deposit_date'], '', 'm/d/Y', '');
@@ -95,7 +98,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $customerDetails = $customerModel->getPersonalInformation($customerID);
                     $customerName = $customerDetails['file_as'] ?? null;
 
-                    $paymentDetails = $customerName . ' - ' . $paymentDetails . ' - ' . $remarks;
+                    if(empty($customerName)){
+                        $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($collectedFrom);
+                        $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+                    }
+
+                    $paymentDetails = $customerName . ' - ' . $paymentDetails . ' - ' . $remarks;                   
                 }
 
                 $getCreatedByLog = $pdcManagementModel->getCreatedByLog('loan_collections', $loanCollectionID);

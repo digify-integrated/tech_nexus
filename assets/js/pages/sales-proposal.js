@@ -482,6 +482,70 @@
             calculateRenewalAmount();
         });
 
+        $(document).on('change','#commission_amount',function() {
+            $('#summary-commission').text($(this).val());
+        });
+
+        $(document).on('change','#referred_by',function() {
+            $('#summary-referred-by').text($(this).val());
+        });
+
+        $(document).on('change','#product_type',function() {
+            $('#summary-product-type').text($(this).val());
+        });
+
+        $(document).on('change','#transaction_type',function() {
+            $('#summary-transaction-type').text($(this).val());
+        });
+
+        $(document).on('change','#term_length',function() {
+            var term_type = $('#term_type').val();
+
+            $('#summary-term').text($(this).val() + ' ' + term_type);
+        });
+
+        $(document).on('change','#term_type',function() {
+            var term_length = $('#term_length').val();
+
+            $('#summary-term').text(term_length + ' ' + $(this).val());
+        });
+
+        $(document).on('change','#number_of_payments',function() {
+            $('#summary-no-payments').text($(this).val());
+        });
+
+        $(document).on('change','#remarks',function() {
+            $('#summary-remarks').text($(this).val());
+        });
+
+        $(document).on('change','#new_color',function() {
+            $('#summary-new-color').text($(this).val());
+        });
+
+        $(document).on('change','#new_body',function() {
+            $('#summary-new-body').text($(this).val());
+        });
+
+        $(document).on('change','#new_engine',function() {
+            $('#summary-new-engine').text($(this).val());
+        });
+
+        $(document).on('change','#diesel_fuel_quantity',function() {
+            $('#summary-diesel-fuel-quantity').text($(this).val() + ' lt');
+        });
+
+        $(document).on('change','#regular_fuel_quantity',function() {
+            $('#summary-regular-fuel-quantity').text($(this).val() + ' lt');
+        });
+
+        $(document).on('change','#premium_fuel_quantity',function() {
+            $('#summary-premium-fuel-quantity').text($(this).val() + ' lt');
+        });
+
+        //-----------------------------------------------------------------------
+
+
+
         $(document).on('click','#sales-proposal-final-approval',function() {
             resetModalForm("sales-proposal-final-approval-form");
         });
@@ -498,23 +562,48 @@
             resetModalForm("sales-proposal-set-to-draft-form");
         });
 
-        $(document).on('click','#next-step',function() {
+        $(document).on('click', '#next-step', function() {
+            var $this = $(this);
+            $this.prop('disabled', true);
+            setTimeout(function() {
+                $this.prop('disabled', false);
+            }, 800);
             traverseTabs('next');
         });
-
-        $(document).on('click','#previous-step',function() {
+        
+        $(document).on('click', '#previous-step', function() {
+            var $this = $(this);
+            $this.prop('disabled', true);
+            setTimeout(function() {
+                $this.prop('disabled', false);
+            }, 800);
             traverseTabs('previous');
         });
-
-        $(document).on('click','#first-step',function() {
+        
+        $(document).on('click', '#first-step', function() {
+            var $this = $(this);
+            $this.prop('disabled', true);
+            setTimeout(function() {
+                $this.prop('disabled', false);
+            }, 800);
             traverseTabs('first');
         });
-
-        $(document).on('click','#last-step',function() {
+        
+        $(document).on('click', '#last-step', function() {
+            var $this = $(this);
+            $this.prop('disabled', true);
+            setTimeout(function() {
+                $this.prop('disabled', false);
+            }, 800);
             traverseTabs('last');
         });
-
-        $(document).on('click','#last-step2',function() {
+        
+        $(document).on('click', '#last-step2', function() {
+            var $this = $(this);
+            $this.prop('disabled', true);
+            setTimeout(function() {
+                $this.prop('disabled', false);
+            }, 800);
             traverseTabs('last');
         });
 
@@ -2347,6 +2436,7 @@ function salesProposalSummaryPDCManualInputTable(){
 }
 
 
+
 function salesProposalForm(){
     $('#sales-proposal-form').validate({
         rules: {
@@ -2512,11 +2602,11 @@ function salesProposalForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    displayDetails('get sales proposal basic details');
-                    displayDetails('get sales proposal unit details');
-                    displayDetails('get sales proposal fuel details');
-                    displayDetails('get sales proposal refinancing details');
-                    displayDetails('get sales proposal pricing computation details');
+                    //displayDetails('get sales proposal basic details');
+                    //displayDetails('get sales proposal unit details');
+                    //displayDetails('get sales proposal fuel details');
+                    //displayDetails('get sales proposal refinancing details');
+                    //displayDetails('get sales proposal pricing computation details');
                 }
             });
         
@@ -2623,7 +2713,7 @@ function salesProposalUnitForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    displayDetails('get sales proposal unit details');
+                   //displayDetails('get sales proposal unit details');
                 }
             });
         
@@ -2826,7 +2916,7 @@ function salesProposalRefinancingForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    displayDetails('get sales proposal refinancing details');
+                    //displayDetails('get sales proposal refinancing details');
                 }
             });
         
@@ -3155,7 +3245,7 @@ function salesProposalOtherChargesForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    displayDetails('get sales proposal other charges details');
+                    //displayDetails('get sales proposal other charges details');
                 }
             });
         
@@ -3222,7 +3312,7 @@ function salesProposalRenewalAmountForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    displayDetails('get sales proposal renewal amount details');
+                    //displayDetails('get sales proposal renewal amount details');
                 }
             });
         
@@ -4971,7 +5061,7 @@ function displayDetails(transaction){
                             document.getElementById('draft-file').src = response.setToDraftFile;
                         }
 
-                        $('#summary-commission').text(encryptCommission(response.commissionAmount));
+                        $('#summary-commission').text(response.commissionAmount);
                        
                         checkOptionExist('#renewal_tag', response.renewalTag, '');
                         checkOptionExist('#application_source_id', response.applicationSourceID, '');
@@ -5022,10 +5112,10 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                 displayDetails('get sales proposal fuel details');
-                 displayDetails('get sales proposal other charges details');
-                 displayDetails('get sales proposal confirmation details');
-                 displayDetails('get sales proposal renewal amount details');
+                 //displayDetails('get sales proposal fuel details');
+                 //displayDetails('get sales proposal other charges details');
+                 //displayDetails('get sales proposal confirmation details');
+                 //displayDetails('get sales proposal renewal amount details');
                 }
             });
             break;
@@ -6052,7 +6142,7 @@ function calculateRenewalAmount(){
         }
     }
     else{
-        var delivery_price = parseCurrency($('#total_delivery_price').val()) || 0;
+        var delivery_price = parseCurrency($('#insurance_coverage').val()) || 0;
 
         if(delivery_price > 0){
             var second_year_coverage = delivery_price * 0.8;

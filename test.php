@@ -1,6 +1,6 @@
 <?php
-  #require('config/_required_php_file.php');
-    #echo $securityModel->decryptData('BDbouHuj17TD3SsMGK%2Fyca0xxaKLmtjTP0r%2B4I8DVoM%3D');
+  require('config/_required_php_file.php');
+    echo $securityModel->decryptData('UsDpF0dYRC6M9v0tT3MHq%2BlrRJu01%2Fb95Dq%2BAeCfu2Y%3D');
 
     // Set initial variables
 /*$start_date = new DateTime('2022-01-01'); // starting date
@@ -38,5 +38,5 @@ for ($i = 0; $i < $term; $i++) {
 }
 echo "</table>\n";*/
 
-echo file_get_contents('email-template/default-email.html');
+#echo file_get_contents('email-template/default-email.html');
 ?>

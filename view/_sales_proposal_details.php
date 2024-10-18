@@ -1037,7 +1037,7 @@
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Credit Advice</h5>
                         <?php
-                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
+                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review' || $salesProposalStatus == 'For DR'){
                             if($transactionType == 'Bank Financing'){
                               echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-credit-advice-offcanvas" aria-controls="sales-proposal-credit-advice-offcanvas" id="sales-proposal-credit-advice">Credit Advice</button>';
                             }

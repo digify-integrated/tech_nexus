@@ -136,6 +136,16 @@
                   </div>
                 </li>
               </ul>
+              <div class="col-auto">
+                <ul class="nav nav-pills nav-price" id="pills-tab" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="card-view-tab" data-bs-toggle="pill" data-bs-target="#card-view" type="button" role="tab" aria-controls="card-view" aria-selected="true"><i data-feather="grid"></i></button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="table-view-tab" data-bs-toggle="pill" data-bs-target="#table-view" type="button" role="tab" aria-controls="table-view" aria-selected="false"><i data-feather="align-justify"></i></button>
+                  </li>
+                </ul>
+              </div>
               <ul class="list-inline ms-auto my-1">
                 <?php
                   if($productCreateAccess['total'] > 0){
@@ -155,11 +165,38 @@
             </div>
           </div>
         </div>
-        <div class="row" id="product-card"></div>
-          <div class="row" class="d-none" id="load-content">
-            <div class="col-lg-12 text-center">
-              <div class="spinner-grow text-primary" role="status">
-                <span class="sr-only">Loading...</span>
+        <div class="tab-content" id="pills-tabContent">
+          <div class="tab-pane fade show active" id="card-view" role="tabpanel" aria-labelledby="card-view-tab" tabindex="0">
+            <div class="row" id="product-card"></div>
+              <div class="row" class="d-none" id="load-content">
+                <div class="col-lg-12 text-center">
+                  <div class="spinner-grow text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                </div>
+              </div>
+            </div>  
+          </div>
+          <div class="tab-pane fade" id="table-view" role="tabpanel" aria-labelledby="table-view-tab" tabindex="0">
+            <div class="card table-card">
+              <div class="card-body">
+                <div class="table-responsive dt-responsive">
+                  <table id="product-table" class="table table-hover nowrap w-100">
+                    <thead>
+                      <tr>
+                        <th class="all">
+                          <div class="form-check">
+                            <input class="form-check-input" id="datatable-checkbox" type="checkbox">
+                          </div>
+                        </th>
+                        <th>Stock Number</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>

@@ -157,7 +157,7 @@
     ob_end_flush();
 
     function generatePrint($travelFormID){
-        
+         
         require_once 'model/database-model.php';
         require_once 'model/pdc-management-model.php';
         require_once 'model/system-model.php';
@@ -167,6 +167,7 @@
         require_once 'model/department-model.php';
         require_once 'model/job-position-model.php';
         require_once 'model/travel-form-model.php';
+        require_once 'model/customer-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -175,6 +176,7 @@
         $employeeModel = new EmployeeModel($databaseModel);
         $departmentModel = new DepartmentModel($databaseModel);
         $jobPositionModel = new JobPositionModel($databaseModel);
+        $customerModel = new CustomerModel($databaseModel);
         
         $travelFormDetails = $travelFormModel->getTravelForm($travelFormID);
         $createdBy = $travelFormDetails['created_by'];
@@ -233,13 +235,16 @@
             $customerID = $row['customer_id'] ?? null;
             $itineraryDestination = $row['itinerary_destination'] ?? null;
             $itineraryPurpose = $row['itinerary_purpose'] ?? null;
-            $expectedTimeOfDeparture = $systemModel->checkDate('empty', $row['expected_time_of_departure'], '', 'H:i a', '');
-            $expectedTimeOfArrival = $systemModel->checkDate('empty', $row['expected_time_of_arrival'], '', 'H:i a', '');
+            $expectedTimeOfDeparture = $systemModel->checkDate('empty', $row['expected_time_of_departure'], '', 'h:i a', '');
+            $expectedTimeOfArrival = $systemModel->checkDate('empty', $row['expected_time_of_arrival'], '', 'h:i a', '');
+
+            $customerDetails = $customerModel->getPersonalInformation($customerID);
+            $customerName = strtoupper($customerDetails['file_as'] ?? null);
 
             $itineraryRow .= '
                         <tr>
                             <td>'. $itineraryDate .'</td>
-                            <td>'. $customerID .'</td>
+                            <td>'. $customerName .'</td>
                             <td>'. $itineraryDestination .'</td>
                             <td>'. $itineraryPurpose .'</td>
                             <td>'. $expectedTimeOfDeparture .'</td>

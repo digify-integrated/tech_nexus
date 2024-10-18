@@ -6741,10 +6741,10 @@ END //
 
 
 /* TO CHANGE */
-CREATE PROCEDURE insertProduct(IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_unit_description VARCHAR(1000), IN p_rr_date DATE, IN p_rr_no VARCHAR(100), IN p_supplier_id INT, IN p_ref_no VARCHAR(200), IN p_brand_id INT, IN p_cabin_id INT, IN p_model_id INT, IN p_make_id INT, IN p_class_id INT, IN p_mode_of_acquisition_id INT, IN p_broker VARCHAR(200), IN p_registered_owner VARCHAR(300), IN p_mode_of_registration VARCHAR(300), IN p_year_model VARCHAR(10), IN p_arrival_date DATE, IN p_checklist_date DATE, IN p_fx_rate DATE, IN p_unit_cost DOUBLE, IN p_package_deal DOUBLE, IN p_taxes_duties DOUBLE, IN p_freight DOUBLE, IN p_lto_registration DOUBLE, IN p_royalties DOUBLE, IN p_conversion DOUBLE, IN p_arrastre DOUBLE, IN p_wharrfage DOUBLE, IN p_insurance DOUBLE, IN p_aircon DOUBLE, IN p_import_permit DOUBLE, IN p_others DOUBLE, IN p_sub_total DOUBLE, IN p_total_landed_cost DOUBLE, IN p_with_cr VARCHAR(5), IN p_with_plate VARCHAR(5), IN p_returned_to_supplier VARCHAR(500), IN p_last_log_by INT, OUT p_product_id INT)
+CREATE PROCEDURE insertProduct(IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(2000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_rr_no VARCHAR(100), IN p_supplier_id INT, IN p_ref_no VARCHAR(200), IN p_brand_id INT, IN p_cabin_id INT, IN p_model_id INT, IN p_make_id INT, IN p_class_id INT, IN p_mode_of_acquisition_id INT, IN p_broker VARCHAR(200), IN p_registered_owner VARCHAR(300), IN p_mode_of_registration VARCHAR(300), IN p_year_model VARCHAR(10), IN p_arrival_date DATE, IN p_checklist_date DATE, IN p_with_cr VARCHAR(5), IN p_with_plate VARCHAR(5), IN p_returned_to_supplier VARCHAR(500), IN p_quantity INT, IN p_preorder VARCHAR(5), IN p_last_log_by INT, OUT p_product_id INT)
 BEGIN
-    INSERT INTO product (product_category_id, product_subcategory_id, company_id, stock_number, engine_number, chassis_number, plate_number, description, warehouse_id, body_type_id, length, length_unit, running_hours, mileage, color_id, product_cost, product_price, remarks, orcr_no, orcr_date, orcr_expiry_date, received_from, received_from_address, received_from_id_type, received_from_id_number, unit_description, rr_date, rr_no, supplier_id, ref_no, brand_id, cabin_id, model_id, make_id, class_id, mode_of_acquisition_id, broker, registered_owner, mode_of_registration, year_model, arrival_date, checklist_date, fx_rate, unit_cost, package_deal, taxes_duties, freight, lto_registration, royalties, conversion, arrastre, wharrfage, insurance, aircon, import_permit, others, sub_total, total_landed_cost, with_cr, with_plate, returned_to_supplier, last_log_by) 
-	VALUES(p_product_category_id, p_product_subcategory_id, p_company_id, p_stock_number, p_engine_number, p_chassis_number, p_plate_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_product_cost, p_product_price, p_remarks, p_orcr_no, p_orcr_date, p_orcr_expiry_date, p_received_from, p_received_from_address, p_received_from_id_type, p_received_from_id_number, p_unit_description, p_rr_date, p_rr_no, p_supplier_id, p_ref_no, p_brand_id, p_cabin_id, p_model_id, p_make_id, p_class_id, p_mode_of_acquisition_id, p_broker, p_registered_owner, p_mode_of_registration, p_year_model, p_arrival_date, p_checklist_date, p_fx_rate, p_unit_cost, p_package_deal, p_taxes_duties, p_freight, p_lto_registration, p_royalties, p_conversion, p_arrastre, p_wharrfage, p_insurance, p_aircon, p_import_permit, p_others, p_sub_total, p_total_landed_cost, p_with_cr, p_with_plate, p_returned_to_supplier, p_last_log_by);
+    INSERT INTO product (product_category_id, product_subcategory_id, company_id, stock_number, engine_number, chassis_number, plate_number, description, warehouse_id, body_type_id, length, length_unit, running_hours, mileage, color_id, remarks, orcr_no, orcr_date, orcr_expiry_date, received_from, received_from_address, received_from_id_type, received_from_id_number, rr_no, supplier_id, ref_no, brand_id, cabin_id, model_id, make_id, class_id, mode_of_acquisition_id, broker, registered_owner, mode_of_registration, year_model, arrival_date, checklist_date, with_cr, with_plate, returned_to_supplier, quantity, preorder, last_log_by) 
+	VALUES(p_product_category_id, p_product_subcategory_id, p_company_id, p_stock_number, p_engine_number, p_chassis_number, p_plate_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_remarks, p_orcr_no, p_orcr_date, p_orcr_expiry_date, p_received_from, p_received_from_address, p_received_from_id_type, p_received_from_id_number, p_rr_no, p_supplier_id, p_ref_no, p_brand_id, p_cabin_id, p_model_id, p_make_id, p_class_id, p_mode_of_acquisition_id, p_broker, p_registered_owner, p_mode_of_registration, p_year_model, p_arrival_date, p_checklist_date, p_with_cr, p_with_plate, p_returned_to_supplier, p_quantity, p_preorder, p_last_log_by);
 	
     SET p_product_id = LAST_INSERT_ID();
 END //
@@ -6842,13 +6842,13 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
-CREATE PROCEDURE updateProductDetails(IN p_product_id INT, IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_unit_description VARCHAR(1000), IN p_rr_date DATE, IN p_rr_no VARCHAR(100), IN p_supplier_id INT, IN p_ref_no VARCHAR(200), IN p_brand_id INT, IN p_cabin_id INT, IN p_model_id INT, IN p_make_id INT, IN p_class_id INT, IN p_mode_of_acquisition_id INT, IN p_broker VARCHAR(200), IN p_registered_owner VARCHAR(300), IN p_mode_of_registration VARCHAR(300), IN p_year_model VARCHAR(10), IN p_arrival_date DATE, IN p_checklist_date DATE, IN p_with_cr VARCHAR(5), IN p_with_plate VARCHAR(5), IN p_returned_to_supplier VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateProductDetails(IN p_product_id INT, IN p_stock_number VARCHAR(100), IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(2000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_supplier_id INT, IN p_ref_no VARCHAR(200), IN p_brand_id INT, IN p_cabin_id INT, IN p_model_id INT, IN p_make_id INT, IN p_class_id INT, IN p_mode_of_acquisition_id INT, IN p_broker VARCHAR(200), IN p_registered_owner VARCHAR(300), IN p_mode_of_registration VARCHAR(300), IN p_year_model VARCHAR(10), IN p_arrival_date DATE, IN p_checklist_date DATE, IN p_with_cr VARCHAR(5), IN p_with_plate VARCHAR(5), IN p_returned_to_supplier VARCHAR(500), IN p_quantity INT, IN p_preorder VARCHAR(5), IN p_last_log_by INT)
 BEGIN
 	UPDATE product
-    SET product_category_id = p_product_category_id,
+    SET stock_number = p_stock_number,
+    product_category_id = p_product_category_id,
     product_subcategory_id = p_product_subcategory_id,
     company_id = p_company_id,
-    stock_number = p_stock_number,
     engine_number = p_engine_number,
     chassis_number = p_chassis_number,
     plate_number = p_plate_number,
@@ -6868,9 +6868,6 @@ BEGIN
     received_from_address = p_received_from_address,
     received_from_id_type = p_received_from_id_type,
     received_from_id_number = p_received_from_id_number,
-    unit_description = p_unit_description,
-    rr_date = p_rr_date,
-    rr_no = p_rr_no,
     supplier_id = p_supplier_id,
     ref_no = p_ref_no,
     brand_id = p_brand_id,
@@ -6888,13 +6885,15 @@ BEGIN
     with_cr = p_with_cr,
     with_plate = p_with_plate,
     returned_to_supplier = p_returned_to_supplier,
+    quantity = p_quantity,
+    preorder = p_preorder,
     last_log_by = p_last_log_by
     WHERE product_id = p_product_id;
 END //
 
 CREATE PROCEDURE deleteProduct(IN p_product_id INT)
 BEGIN
-    DELETE FROM product_image WHERE product_id = p_product_id;
+    /*DELETE FROM product_image WHERE product_id = p_product_id;*/
     DELETE FROM product WHERE product_id = p_product_id;
 END //
 /* TO CHANGE */ 
@@ -7026,6 +7025,87 @@ BEGIN
 
     DEALLOCATE PREPARE stmt;
 END //
+
+CREATE PROCEDURE generateProductTable(
+    IN p_search VARCHAR(500), 
+    IN p_product_category VARCHAR(500), 
+    IN p_product_subcategory VARCHAR(500), 
+    IN p_company VARCHAR(500), 
+    IN p_warehouse VARCHAR(500), 
+    IN p_body_type VARCHAR(500), 
+    IN p_color VARCHAR(500), 
+    IN p_product_cost_min DOUBLE, 
+    IN p_product_cost_max DOUBLE, 
+    IN p_product_price_min DOUBLE, 
+    IN p_product_price_max DOUBLE
+)
+BEGIN
+    DECLARE sql_query LONGTEXT;
+
+    SET sql_query = 'SELECT * FROM product WHERE 1=1';
+
+    IF p_search IS NOT NULL AND p_search <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND (stock_number LIKE ? OR description LIKE ?)');
+    END IF;
+
+    IF p_product_category IS NOT NULL AND p_product_category <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_category_id IN (', p_product_category, ')');
+    END IF;
+
+    IF p_product_subcategory IS NOT NULL AND p_product_subcategory <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_subcategory_id IN (', p_product_subcategory, ')');
+    END IF;
+
+    IF p_company IS NOT NULL AND p_company <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND company_id IN (', p_company, ')');
+    END IF;
+
+    IF p_warehouse IS NOT NULL AND p_warehouse <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND warehouse_id IN (', p_warehouse, ')');
+    END IF;
+
+    IF p_body_type IS NOT NULL AND p_body_type <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND body_type_id IN (', p_body_type, ')');
+    END IF;
+
+    IF p_color IS NOT NULL AND p_color <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND color_id IN (', p_color, ')');
+    END IF;
+
+    IF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_cost BETWEEN ? AND ?');
+    END IF;
+
+    IF p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_price BETWEEN ? AND ?');
+    END IF;
+
+    SET sql_query = CONCAT(sql_query, ' ORDER BY stock_number;');
+
+    PREPARE stmt FROM sql_query;
+
+    IF p_search IS NOT NULL AND p_search <> '' THEN
+        IF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL AND p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
+            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), p_product_cost_min, p_product_cost_max, p_product_price_min, p_product_price_max;
+        ELSEIF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL THEN
+            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), p_product_cost_min, p_product_cost_max;
+        ELSEIF p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
+            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), p_product_price_min, p_product_price_max;
+        ELSE
+            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%');
+        END IF;
+    ELSE
+        IF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL AND p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
+            EXECUTE stmt USING p_product_cost_min, p_product_cost_max, p_product_price_min, p_product_price_max;
+        ELSEIF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL THEN
+            EXECUTE stmt USING p_product_cost_min, p_product_cost_max;
+        ELSEIF p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
+            EXECUTE stmt USING p_product_price_min, p_product_price_max;
+        END IF;
+    END IF;
+
+    DEALLOCATE PREPARE stmt;
+END;
 
 CREATE PROCEDURE generateProductOptions()
 BEGIN

@@ -38,7 +38,7 @@
                     <th>Customer</th>
                     <th>Product Type</th>
                     <th>Stock</th>
-                    <th>Proceed Date</th>
+                    <th>Released Date</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>

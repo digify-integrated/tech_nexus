@@ -813,7 +813,7 @@ function calculateRenewalAmount(){
         }
     }
     else{
-        var delivery_price = parseCurrency($('#total_delivery_price').val()) || 0;
+        var delivery_price = parseCurrency($('#insurance_coverage').val()) || 0;
 
         if(delivery_price > 0){
             var second_year_coverage = delivery_price * 0.8;
