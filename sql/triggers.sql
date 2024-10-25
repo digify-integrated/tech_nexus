@@ -4302,6 +4302,14 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Product Subcategory ID: ", OLD.product_subcategory_id, " -> ", NEW.product_subcategory_id, "<br/>");
     END IF;
 
+    IF NEW.company_id <> OLD.company_id THEN
+        SET audit_log = CONCAT(audit_log, "Company ID: ", OLD.company_id, " -> ", NEW.company_id, "<br/>");
+    END IF;
+
+    IF NEW.product_image <> OLD.product_image THEN
+        SET audit_log = CONCAT(audit_log, "Product Image: ", OLD.product_image, " -> ", NEW.product_image, "<br/>");
+    END IF;
+
     IF NEW.product_status <> OLD.product_status THEN
         SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
     END IF;
@@ -4331,7 +4339,7 @@ BEGIN
     END IF;
 
     IF NEW.body_type_id <> OLD.body_type_id THEN
-        SET audit_log = CONCAT(audit_log, "Body ID: ", OLD.body_type_id, " -> ", NEW.body_type_id, "<br/>");
+        SET audit_log = CONCAT(audit_log, "Body Type ID: ", OLD.body_type_id, " -> ", NEW.body_type_id, "<br/>");
     END IF;
 
     IF NEW.length <> OLD.length THEN
@@ -4354,6 +4362,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Color ID: ", OLD.color_id, " -> ", NEW.color_id, "<br/>");
     END IF;
 
+    IF NEW.product_cost <> OLD.product_cost THEN
+        SET audit_log = CONCAT(audit_log, "Product Cost: ", OLD.product_cost, " -> ", NEW.product_cost, "<br/>");
+    END IF;
+
     IF NEW.product_price <> OLD.product_price THEN
         SET audit_log = CONCAT(audit_log, "Product Price: ", OLD.product_price, " -> ", NEW.product_price, "<br/>");
     END IF;
@@ -4361,7 +4373,71 @@ BEGIN
     IF NEW.remarks <> OLD.remarks THEN
         SET audit_log = CONCAT(audit_log, "Remarks: ", OLD.remarks, " -> ", NEW.remarks, "<br/>");
     END IF;
-    
+
+    IF NEW.fx_rate <> OLD.fx_rate THEN
+        SET audit_log = CONCAT(audit_log, "FX Rate: ", OLD.fx_rate, " -> ", NEW.fx_rate, "<br/>");
+    END IF;
+
+    IF NEW.unit_cost <> OLD.unit_cost THEN
+        SET audit_log = CONCAT(audit_log, "Unit Cost: ", OLD.unit_cost, " -> ", NEW.unit_cost, "<br/>");
+    END IF;
+
+    IF NEW.sub_total <> OLD.sub_total THEN
+        SET audit_log = CONCAT(audit_log, "Subtotal: ", OLD.sub_total, " -> ", NEW.sub_total, "<br/>");
+    END IF;
+
+    IF NEW.total_landed_cost <> OLD.total_landed_cost THEN
+        SET audit_log = CONCAT(audit_log, "Total Landed Cost: ", OLD.total_landed_cost, " -> ", NEW.total_landed_cost, "<br/>");
+    END IF;
+
+    IF NEW.with_cr <> OLD.with_cr THEN
+        SET audit_log = CONCAT(audit_log, "With CR: ", OLD.with_cr, " -> ", NEW.with_cr, "<br/>");
+    END IF;
+
+    IF NEW.with_plate <> OLD.with_plate THEN
+        SET audit_log = CONCAT(audit_log, "With Plate: ", OLD.with_plate, " -> ", NEW.with_plate, "<br/>");
+    END IF;
+
+    IF NEW.quantity <> OLD.quantity THEN
+        SET audit_log = CONCAT(audit_log, "Quantity: ", OLD.quantity, " -> ", NEW.quantity, "<br/>");
+    END IF;
+
+    IF NEW.returned_to_supplier <> OLD.returned_to_supplier THEN
+        SET audit_log = CONCAT(audit_log, "Returned to Supplier: ", OLD.returned_to_supplier, " -> ", NEW.returned_to_supplier, "<br/>");
+    END IF;
+
+    IF NEW.created_date <> OLD.created_date THEN
+        SET audit_log = CONCAT(audit_log, "Created Date: ", OLD.created_date, " -> ", NEW.created_date, "<br/>");
+    END IF;
+
+    IF NEW.preorder <> OLD.preorder THEN
+        SET audit_log = CONCAT(audit_log, "Preorder: ", OLD.preorder, " -> ", NEW.preorder, "<br/>");
+    END IF;
+
+    IF NEW.converted_amount <> OLD.converted_amount THEN
+        SET audit_log = CONCAT(audit_log, "Converted Amount: ", OLD.converted_amount, " -> ", NEW.converted_amount, "<br/>");
+    END IF;
+
+    IF NEW.for_sale_date <> OLD.for_sale_date THEN
+        SET audit_log = CONCAT(audit_log, "For Sale Date: ", OLD.for_sale_date, " -> ", NEW.for_sale_date, "<br/>");
+    END IF;
+
+    IF NEW.sold_date <> OLD.sold_date THEN
+        SET audit_log = CONCAT(audit_log, "Sold Date: ", OLD.sold_date, " -> ", NEW.sold_date, "<br/>");
+    END IF;
+
+    IF NEW.ropa_date <> OLD.ropa_date THEN
+        SET audit_log = CONCAT(audit_log, "ROPA Date: ", OLD.ropa_date, " -> ", NEW.ropa_date, "<br/>");
+    END IF;
+
+    IF NEW.returned_date <> OLD.returned_date THEN
+        SET audit_log = CONCAT(audit_log, "Returned Date: ", OLD.returned_date, " -> ", NEW.returned_date, "<br/>");
+    END IF;
+
+    IF NEW.last_log_by <> OLD.last_log_by THEN
+        SET audit_log = CONCAT(audit_log, "Last Log By: ", OLD.last_log_by, " -> ", NEW.last_log_by, "<br/>");
+    END IF;
+
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('product', NEW.product_id, audit_log, NEW.last_log_by, NOW());
@@ -4382,12 +4458,24 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Product Subcategory ID: ", NEW.product_subcategory_id);
     END IF;
 
+    IF NEW.company_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Company ID: ", NEW.company_id);
+    END IF;
+
+    IF NEW.product_image <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Image: ", NEW.product_image);
+    END IF;
+
     IF NEW.product_status <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Product Status: ", NEW.product_status);
     END IF;
 
     IF NEW.stock_number <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Stock Number: ", NEW.stock_number);
+    END IF;
+
+    IF NEW.engine_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Engine Number: ", NEW.engine_number);
     END IF;
 
     IF NEW.chassis_number <> '' THEN
@@ -4430,6 +4518,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Color ID: ", NEW.color_id);
     END IF;
 
+    IF NEW.product_cost <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Cost: ", NEW.product_cost);
+    END IF;
+
     IF NEW.product_price <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Product Price: ", NEW.product_price);
     END IF;
@@ -4438,9 +4530,74 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Remarks: ", NEW.remarks);
     END IF;
 
+    IF NEW.fx_rate <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>FX Rate: ", NEW.fx_rate);
+    END IF;
+
+    IF NEW.unit_cost <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Unit Cost: ", NEW.unit_cost);
+    END IF;
+
+    IF NEW.sub_total <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Subtotal: ", NEW.sub_total);
+    END IF;
+
+    IF NEW.total_landed_cost <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Total Landed Cost: ", NEW.total_landed_cost);
+    END IF;
+
+    IF NEW.with_cr <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>With CR: ", NEW.with_cr);
+    END IF;
+
+    IF NEW.with_plate <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>With Plate: ", NEW.with_plate);
+    END IF;
+
+    IF NEW.quantity <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Quantity: ", NEW.quantity);
+    END IF;
+
+    IF NEW.returned_to_supplier <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Returned to Supplier: ", NEW.returned_to_supplier);
+    END IF;
+
+    IF NEW.created_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Created Date: ", NEW.created_date);
+    END IF;
+
+    IF NEW.preorder <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Preorder: ", NEW.preorder);
+    END IF;
+
+    IF NEW.converted_amount <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Converted Amount: ", NEW.converted_amount);
+    END IF;
+
+    IF NEW.for_sale_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For Sale Date: ", NEW.for_sale_date);
+    END IF;
+
+    IF NEW.sold_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Sold Date: ", NEW.sold_date);
+    END IF;
+
+    IF NEW.ropa_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>ROPA Date: ", NEW.ropa_date);
+    END IF;
+
+    IF NEW.returned_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Returned Date: ", NEW.returned_date);
+    END IF;
+
+    IF NEW.last_log_by <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Last Log By: ", NEW.last_log_by);
+    END IF;
+
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('product', NEW.product_id, audit_log, NEW.last_log_by, NOW());
 END //
+
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

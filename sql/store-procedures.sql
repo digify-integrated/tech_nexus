@@ -6739,6 +6739,13 @@ BEGIN
     WHERE product_image_id = p_product_image_id;
 END //
 
+CREATE PROCEDURE checkProductDocumentExist (IN p_product_document_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_document
+    WHERE product_document_id = p_product_document_id;
+END //
+
 
 /* TO CHANGE */
 CREATE PROCEDURE insertProduct(IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(2000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_rr_no VARCHAR(100), IN p_supplier_id INT, IN p_ref_no VARCHAR(200), IN p_brand_id INT, IN p_cabin_id INT, IN p_model_id INT, IN p_make_id INT, IN p_class_id INT, IN p_mode_of_acquisition_id INT, IN p_broker VARCHAR(200), IN p_registered_owner VARCHAR(300), IN p_mode_of_registration VARCHAR(300), IN p_year_model VARCHAR(10), IN p_arrival_date DATE, IN p_checklist_date DATE, IN p_with_cr VARCHAR(5), IN p_with_plate VARCHAR(5), IN p_returned_to_supplier VARCHAR(500), IN p_quantity INT, IN p_preorder VARCHAR(5), IN p_last_log_by INT, OUT p_product_id INT)
@@ -6817,12 +6824,12 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
-CREATE PROCEDURE updateProductLandedCost(IN p_product_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_fx_rate DOUBLE, IN p_unit_cost DOUBLE, IN p_package_deal DOUBLE, IN p_taxes_duties DOUBLE, IN p_freight DOUBLE, IN p_lto_registration DOUBLE, IN p_royalties DOUBLE, IN p_conversion DOUBLE, IN p_arrastre DOUBLE, IN p_wharrfage DOUBLE, IN p_insurance DOUBLE, IN p_aircon DOUBLE, IN p_import_permit DOUBLE, IN p_others DOUBLE, IN p_sub_total DOUBLE, IN p_total_landed_cost DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateProductLandedCost(IN p_product_id INT, IN p_product_price DOUBLE, IN p_fx_rate DOUBLE, IN p_converted_amount DOUBLE, IN p_unit_cost DOUBLE, IN p_package_deal DOUBLE, IN p_taxes_duties DOUBLE, IN p_freight DOUBLE, IN p_lto_registration DOUBLE, IN p_royalties DOUBLE, IN p_conversion DOUBLE, IN p_arrastre DOUBLE, IN p_wharrfage DOUBLE, IN p_insurance DOUBLE, IN p_aircon DOUBLE, IN p_import_permit DOUBLE, IN p_others DOUBLE, IN p_total_landed_cost DOUBLE, IN p_last_log_by INT)
 BEGIN
 	UPDATE product
-    SET product_cost = p_product_cost,
-    product_price = p_product_price,
+    SET product_price = p_product_price,
     fx_rate = p_fx_rate,
+    converted_amount = p_converted_amount,
     unit_cost = p_unit_cost,
     package_deal = p_package_deal,
     taxes_duties = p_taxes_duties,
@@ -6836,7 +6843,6 @@ BEGIN
     aircon = p_aircon,
     import_permit = p_import_permit,
     others = p_others,
-    sub_total = p_sub_total,
     total_landed_cost = p_total_landed_cost,
     last_log_by = p_last_log_by
     WHERE product_id = p_product_id;
@@ -6917,11 +6923,23 @@ BEGIN
     INSERT INTO product_image (product_id, product_image, last_log_by) VALUES(p_product_id, p_product_image, p_last_log_by);
 END //
 
+CREATE PROCEDURE insertProductDocument(IN p_product_id INT, IN p_document_type VARCHAR(200), IN p_product_document VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO product_document (product_id, product_document_type, document_path, last_log_by) VALUES(p_product_id, p_document_type, p_product_document, p_last_log_by);
+END //
+
 CREATE PROCEDURE generateProductImage(IN p_product_id INT)
 BEGIN
 	SELECT product_image_id, product_image FROM product_image
     WHERE product_id = p_product_id
 	ORDER BY product_image_id;
+END //
+
+CREATE PROCEDURE generateProductDocument(IN p_product_id INT)
+BEGIN
+	SELECT product_document_id, product_document_type, document_path FROM product_document
+    WHERE product_id = p_product_id
+	ORDER BY product_document_id;
 END //
 
 CREATE PROCEDURE updateImportedProduct(IN p_product_id INT, IN p_product_category_id INT, IN p_company_id INT, IN p_product_status VARCHAR(50), IN p_product_subcategory_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
@@ -8746,6 +8764,11 @@ END //
 CREATE PROCEDURE generateLeasingApplicationTable()
 BEGIN
    SELECT leasing_application_id, leasing_application_number, tenant_id, property_id, application_status FROM leasing_application;
+END //
+
+CREATE PROCEDURE generateClosedLeasingApplicationTable()
+BEGIN
+    SELECT * FROM leasing_application WHERE application_status = 'Closed';
 END //
 
 CREATE PROCEDURE updateLeasingApplicationContactImage(IN p_leasing_application_id INT, IN p_contract_image VARCHAR(500), IN p_last_log_by INT)
@@ -11131,4 +11154,74 @@ BEGIN
     ORDER BY chart_of_account_id;
 END //
 
+CREATE PROCEDURE generateProductExpenseTable(IN p_product_id INT, IN p_reference_type VARCHAR(100), IN p_expense_type VARCHAR(100))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM product_expense';
+    SET conditionList = ' WHERE 1';
+    
+    IF p_reference_type IS NOT NULL AND p_reference_type <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND reference_type =');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_reference_type));
+    END IF;
+    
+    IF p_expense_type IS NOT NULL AND p_expense_type <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND expense_type =');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_expense_type));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE PROCEDURE updateProductStatus(IN p_product_id INT, IN p_product_status VARCHAR(50), IN p_particulars VARCHAR(500), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+    IF p_product_status = 'For Sale' THEN
+        UPDATE product
+        SET product_status = p_product_status,
+        for_sale_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE product_id = p_product_id;
+
+        INSERT INTO product_expense (product_id, expense_amount, expense_type, particulars, last_log_by) 
+	    VALUES(p_product_id, p_expense_amount, p_expense_type, p_particulars, p_last_log_by);
+    ELSE
+        UPDATE product
+        SET product_status = p_product_status,
+        sold_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE product_id = p_product_id;
+    END IF;
+END //
+
+CREATE PROCEDURE insertProductExpense(IN p_product_id INT, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(200), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_particulars VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO product_expense (product_id, reference_type, reference_number, expense_amount, expense_type, particulars, last_log_by) 
+	VALUES(p_product_id, p_reference_type, p_reference_number, p_expense_amount, p_expense_type, p_particulars, p_last_log_by);
+END //
+
+CREATE PROCEDURE deleteProductExpense(IN p_product_expense_id INT)
+BEGIN
+    DELETE FROM product_expense WHERE product_expense_id = p_product_expense_id;
+END //
+
+CREATE PROCEDURE deleteProductDocument(IN p_product_document_id INT)
+BEGIN
+    DELETE FROM product_document WHERE product_document_id = p_product_document_id;
+END //
+
+CREATE PROCEDURE getProductDocument(IN p_product_document_id INT)
+BEGIN
+	SELECT * FROM product_document
+    WHERE product_document_id = p_product_document_id;
+END //

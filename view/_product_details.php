@@ -43,6 +43,10 @@ if($productDeleteAccess['total'] > 0){
                                 </div>
                             </div>';
 }
+
+if($addProductExpense['total'] > 0){
+  $addProductExpenseButton = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#product-expense-offcanvas" aria-controls="product-expense-offcanvas" id="product-expense">Add Expense</button>';
+}
 ?>
 
 <div class="row">
@@ -60,6 +64,13 @@ if($productDeleteAccess['total'] > 0){
                               Action
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">';
+
+                        if ($tagForSale['total'] > 0 && $productStatus == 'Draft') {
+                            $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-product-for-sale">Tag For Sale</button></li>';
+                        }
+
+                        $dropdown .= '<li><a href="print-receiving-report.php?id='. $productID .'" class="dropdown-item" type="button">Print Receiving Report</a></li>';
+                        $dropdown .= '<li><a href="print-incoming-checklist.php?id='. $productID .'" class="dropdown-item" type="button">Print Incoming Checklist</a></li>';
 
                         if ($productDeleteAccess['total'] > 0) {
                             $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-product-details">Delete Product</button></li>';
@@ -188,7 +199,7 @@ if($productDeleteAccess['total'] > 0){
                 </div>
                 <label class="col-lg-3 col-form-label">Mode of Acquisition</label>
                 <div class="col-lg-3">
-                  <select class="form-control select2" name="mode_of_acquisition_id" id="mode_of_acquisition_id">
+                  <select class="form-control select2" name="mode_of_acquisition_id" id="mode_of_acquisition_id" <?php echo $disabledProductForm; ?>>
                     <option value="">--</option>
                     <?php echo $modeOfAcquisitionModel->generateModeOfAcquisitionOptions(); ?>
                   </select>
@@ -427,7 +438,20 @@ if($productDeleteAccess['total'] > 0){
     </div>
   </div>
 </div>
-<div class="row">
+
+<?php
+  $classHidden = 'd-none';
+  $expenseHidden = 'd-none';
+  if($viewProductCost['total'] > 0){
+    $classHidden = '';
+  }
+
+  if($viewProductCost['total'] > 0 && $productStatus != 'Draft'){
+    $expenseHidden = '';
+  }
+?>
+
+<div class="row" class="<?php echo $classHidden; ?>">
   <div class="col-md-12">
     <div class="card">
       <div class="card-header">
@@ -527,10 +551,6 @@ if($productDeleteAccess['total'] > 0){
             </div>
           </div>
           <div class="form-group row mb-0">
-            <label class="col-lg-3 col-form-label">Sub-Total</label>
-            <div class="col-lg-3">
-              <input type="number" class="form-control" id="sub_total" name="sub_total" min="0" step="0.01" readonly>
-            </div>
             <label class="col-lg-3 col-form-label">Total Landed Cost</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="total_landed_cost" name="total_landed_cost" min="0" step="0.01" readonly>
@@ -541,6 +561,252 @@ if($productDeleteAccess['total'] > 0){
     </div>
   </div>
 </div>
+
+<div class="card table-card <?php echo $expenseHidden; ?>">
+  <div class="card-header">
+    <div class="row align-items-center">
+      <div class="col-sm-6">
+        <h5>Expense</h5>
+      </div>
+      <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+          <button type="button" class="d-xxl-none btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
+            Filter
+          </button>
+          <?php echo $addProductExpenseButton; ?>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="dt-responsive table-responsive">
+      <table id="product-expense-table" class="table table-hover nowrap w-100 dataTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th class="all">Reference Type</th>
+            <th class="all">Reference Number</th>
+            <th class="all">Amount</th>
+            <th class="all">Particulars</th>
+            <th class="all">Type</th>
+            <th class="all">Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        </table>
+    </div>
+  </div>
+</div>
+
+<div class="card table-card">
+  <div class="card-header">
+    <div class="row align-items-center">
+      <div class="col-sm-6">
+        <h5>Product Document</h5>
+      </div>
+      <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+        <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#product-document-offcanvas" aria-controls="product-document-offcanvas" id="product-document">Add Document</button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="dt-responsive table-responsive">
+      <table id="product-document-table" class="table table-hover nowrap w-100 dataTable">
+        <thead>
+          <tr>
+            <th class="all">Document Type</th>
+            <th class="all">Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        </table>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="product-document-offcanvas" aria-labelledby="product-document-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="product-document-offcanvas-label" style="margin-bottom:-0.5rem">Add Expense</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="product-document-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Document Type <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="document_type" id="document_type">
+                  <option value="">--</option>
+                  <option value="Certificate of Registration (CR)">Certificate of Registration (CR)</option>
+                  <option value="Incoming Checklist">Incoming Checklist</option>
+                  <option value="Official Receipt (OR)">Official Receipt (OR)</option>
+                  <option value="LTO Registration">LTO Registration</option>
+                  <option value="Insurance Certificate">Insurance Certificate</option>
+                  <option value="Emission Test Certificate">Emission Test Certificate</option>
+                  <option value="Certificate of Roadworthiness">Certificate of Roadworthiness</option>
+                  <option value="TAX Certificate">TAX Certificate</option>
+                  <option value="Tare Weight Certificate">Tare Weight Certificate</option>
+                  <option value="Chassis Number">Chassis Number</option>
+                  <option value="Engine Number">Engine Number</option>
+                </select>
+              </div>
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Document <span class="text-danger">*</span></label>
+                <input type="file" id="product_document" name="product_document" class="form-control">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-product-document" form="product-document-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="product-expense-offcanvas" aria-labelledby="product-expense-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="product-expense-offcanvas-label" style="margin-bottom:-0.5rem">Add Expense</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="product-expense-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Reference Type <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="reference_type" id="reference_type">
+                  <option value="">--</option>
+                  <option value="CV">CV</option>
+                  <option value="CDV">CDV</option>
+                  <option value="I/S">I/S</option>
+                  <option value="Contractor Report">Contractor Report</option>
+                  <option value="Adjustment">Adjustment</option>
+                </select>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Reference Number <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="200" autocomplete="off">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Amount <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="expense_amount" name="expense_amount" value="0" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Expense Type <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="expense_type" id="expense_type">
+                  <option value="">--</option>
+                  <option value="Assemble / Conversion">Assemble / Conversion</option>
+                  <option value="Body Builder">Body Builder</option>
+                  <option value="Commission">Commission</option>
+                  <option value="Delivery">Delivery</option>
+                  <option value="Insurance">Insurance</option>
+                  <option value="Landed Cost">Landed Cost</option>
+                  <option value="Latero">Latero</option>
+                  <option value="Painting">Painting</option>
+                  <option value="Parts & ACC">Parts & ACC</option>
+                  <option value="Registration">Registration</option>
+                  <option value="Registration C/O Customer">Registration C/O Customer</option>
+                  <option value="Repairs & Maintenance">Repairs & Maintenance</option>
+                  <option value="Supplies">Supplies</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Particulars <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="particulars" name="particulars" maxlength="500"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-product-expense" form="product-expense-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="filter-canvas">
+        <div class="offcanvas-body p-0 sticky-xxl-top">
+          <div id="ecom-filter" class="show collapse collapse-horizontal">
+            <div class="ecom-filter">
+              <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                  <h5>Filter</h5>
+                  <a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" data-bs-dismiss="offcanvas" data-bs-target="#filter-canvas">
+                    <i class="ti ti-x f-20"></i>
+                  </a>
+                </div>
+                <div class="scroll-block">
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#reference-type-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Reference Type
+                        </a>
+                        <div class="collapse show" id="reference-type-filter-collapse">
+                          <div class="py-3">
+                            <select class="form-control" id="reference_type_filter">
+                              <option value="">--</option>
+                              <option value="CV">CV</option>
+                              <option value="CDV">CDV</option>
+                              <option value="I/S">I/S</option>
+                              <option value="Contractor Report">Contractor Report</option>
+                              <option value="Adjustment">Adjustment</option>
+                            </select>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#expense-type-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Expense Type
+                        </a>
+                        <div class="collapse show" id="expense-type-filter-collapse">
+                          <div class="py-3">
+                            <select class="form-control" id="expense_type_filter">
+                              <option value="">--</option>
+                              <option value="Assemble / Conversion">Assemble / Conversion</option>
+                              <option value="Body Builder">Body Builder</option>
+                              <option value="Commission">Commission</option>
+                              <option value="Delivery">Delivery</option>
+                              <option value="Insurance">Insurance</option>
+                              <option value="Landed Cost">Landed Cost</option>
+                              <option value="Latero">Latero</option>
+                              <option value="Painting">Painting</option>
+                              <option value="Parts & ACC">Parts & ACC</option>
+                              <option value="Registration">Registration</option>
+                              <option value="Registration C/O Customer">Registration C/O Customer</option>
+                              <option value="Repairs & Maintenance">Repairs & Maintenance</option>
+                              <option value="Supplies">Supplies</option>
+                            </select>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <button type="button" class="btn btn-light-success w-100" id="apply-filter">Apply</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+</div>
+
 <?php
   echo '<div class="row">
         <div class="col-lg-12">

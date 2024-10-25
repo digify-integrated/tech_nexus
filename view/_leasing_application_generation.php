@@ -173,6 +173,103 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
+        # Type: closed leasing summary table
+        # Description:
+        # Generates the closed leasing summary table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'closed leasing summary table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateClosedLeasingApplicationTable()');
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $leasingApplicationID = $row['leasing_application_id'];
+                    $leasingApplicationNumber = $row['leasing_application_number'];
+                    $tenantID = $row['tenant_id'];
+                    $propertyID = $row['property_id'];
+                    $floorArea = $row['floor_area'];
+                    $termLength = $row['term_length'];
+                    $termType = $row['term_type'];
+                    $securityDeposit = $row['security_deposit'];
+                    $escalationRate = $row['escalation_rate'];
+                    $initialBasicRental = $row['initial_basic_rental'];
+                    $contractDate = $systemModel->checkDate('summary', $row['contract_date'], '', 'm/d/Y', '');
+                    $maturityDate = $systemModel->checkDate('summary', $row['maturity_date'], '', 'm/d/Y', '');
+                    $leasingApplicationStatus = $leasingApplicationModel->getLeasingApplicationStatus($row['application_status']);
+
+                    $tenantDetails = $tenantModel->getTenant($tenantID);
+                    $tenantName = $tenantDetails['tenant_name'];
+                    $contactPerson = $tenantDetails['contact_person'];
+
+                    $propertyDetails = $propertyModel->getProperty($propertyID);
+                    $propertyName = $propertyDetails['property_name'];
+
+                    $leasingApplicationIDEncrypted = $securityModel->encryptData($leasingApplicationID);
+
+                    $unpaidRental = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Rental')['total'];
+                    $unpaidElectricity = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Electricity')['total'];
+                    $unpaidWater = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Water')['total'];
+                    $unpaidOtherCharges = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Other Charges')['total'];
+                    $outstandingBalance = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Outstanding Balance')['total'];
+
+                    if($unpaidRental <= 0){
+                        $unpaidRental = 0;
+                    }
+
+                    if($unpaidElectricity <= 0){
+                        $unpaidElectricity = 0;
+                    }
+
+                    if($unpaidWater <= 0){
+                        $unpaidWater = 0;
+                    }
+
+                    if($unpaidOtherCharges <= 0){
+                        $unpaidOtherCharges = 0;
+                    }
+
+                    if($outstandingBalance <= 0){
+                        $outstandingBalance = 0;
+                    }
+
+                    $response[] = [
+                        'TENANT_NAME' => '<a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'">
+                                         <div class="row">
+                                        <div class="col">
+                                        <h6 class="mb-0">'. $tenantName .'</h6>
+                                        <p class="f-12 mb-0">'. $contactPerson .'</p>
+                                        </div>
+                                    </div>
+                        </a>',
+                        'PROPERTY_NAME' => $propertyName,
+                        'UNPAID_RENTAL' => number_format($unpaidRental, 2),
+                        'UNPAID_ELECTRICITY' => number_format($unpaidElectricity, 2),
+                        'UNPAID_WATER' => number_format($unpaidWater, 2),
+                        'UNPAID_OTHER_CHARGES' => number_format($unpaidOtherCharges, 2),
+                        'OUTSTANDING_BALANCE' => number_format($outstandingBalance, 2),
+                        'FLOOR_AREA' => number_format($floorArea, 0),
+                        'TERM' => $termLength . ' ' . $termType,
+                        'INCEPTION_DATE' => $contractDate,
+                        'MATURITY_DATE' => $maturityDate,
+                        'SECURITY_DEPOSIT' => number_format($securityDeposit, 2),
+                        'ESCALATION_RATE' => number_format($escalationRate, 2) . '%',
+                        'STATUS' => $leasingApplicationStatus,
+                        'INITIAL_BASIC_RENTAL' => number_format($initialBasicRental, 2)
+                    ];
+                }
+
+                echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
         # Type: leasing repayment table
         # Description:
         # Generates the leasing repayment table.

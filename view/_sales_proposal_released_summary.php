@@ -152,6 +152,7 @@
                                 <select class="form-control select2" name="company_id" id="company_id">
                                     <option value="">--</option>
                                     <option value="1">Christian General Motors Inc.</option>
+                                    <option value="2">NE Truck Builders</option>
                                     <option value="3">FUSO Tarlac</option>
                                 </select>
                                 </div>

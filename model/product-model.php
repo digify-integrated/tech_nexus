@@ -163,12 +163,12 @@ class ProductModel {
         $stmt->execute();
     }
 
-    public function updateProductLandedCost($p_product_id, $p_product_cost, $p_product_price, $p_fx_rate, $p_unit_cost, $p_package_deal, $p_taxes_duties, $p_freight, $p_lto_registration, $p_royalties, $p_conversion, $p_arrastre, $p_wharrfage, $p_insurance, $p_aircon, $p_import_permit, $p_others, $p_sub_total, $p_total_landed_cost, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateProductLandedCost(:p_product_id, :p_product_cost, :p_product_price, :p_fx_rate, :p_unit_cost, :p_package_deal, :p_taxes_duties, :p_freight, :p_lto_registration, :p_royalties, :p_conversion, :p_arrastre, :p_wharrfage, :p_insurance, :p_aircon, :p_import_permit, :p_others, :p_sub_total, :p_total_landed_cost, :p_last_log_by)');
+    public function updateProductLandedCost($p_product_id, $p_product_price, $p_fx_rate, $p_converted_amount, $p_unit_cost, $p_package_deal, $p_taxes_duties, $p_freight, $p_lto_registration, $p_royalties, $p_conversion, $p_arrastre, $p_wharrfage, $p_insurance, $p_aircon, $p_import_permit, $p_others, $p_total_landed_cost, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateProductLandedCost(:p_product_id, :p_product_price, :p_fx_rate, :p_converted_amount, :p_unit_cost, :p_package_deal, :p_taxes_duties, :p_freight, :p_lto_registration, :p_royalties, :p_conversion, :p_arrastre, :p_wharrfage, :p_insurance, :p_aircon, :p_import_permit, :p_others, :p_total_landed_cost, :p_last_log_by)');
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_product_cost', $p_product_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_price', $p_product_price, PDO::PARAM_STR);
         $stmt->bindValue(':p_fx_rate', $p_fx_rate, PDO::PARAM_STR);
+        $stmt->bindValue(':p_converted_amount', $p_converted_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_unit_cost', $p_unit_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_package_deal', $p_package_deal, PDO::PARAM_STR);
         $stmt->bindValue(':p_taxes_duties', $p_taxes_duties, PDO::PARAM_STR);
@@ -182,7 +182,6 @@ class ProductModel {
         $stmt->bindValue(':p_aircon', $p_aircon, PDO::PARAM_STR);
         $stmt->bindValue(':p_import_permit', $p_import_permit, PDO::PARAM_STR);
         $stmt->bindValue(':p_others', $p_others, PDO::PARAM_STR);
-        $stmt->bindValue(':p_sub_total', $p_sub_total, PDO::PARAM_STR);
         $stmt->bindValue(':p_total_landed_cost', $p_total_landed_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -273,6 +272,43 @@ class ProductModel {
         $stmt = $this->db->getConnection()->prepare('CALL insertProductImage(:p_product_id, :p_product_image, :p_last_log_by)');
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_image', $p_product_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    # -------------------------------------------------------------
+    public function insertProductDocument($p_product_id, $p_document_type, $p_product_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertProductDocument(:p_product_id, :p_document_type, :p_product_image, :p_last_log_by)');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_document_type', $p_document_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_image', $p_product_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    public function updateProductStatus($p_product_id, $p_product_status, $p_particulars, $p_expense_amount, $p_expense_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateProductStatus(:p_product_id, :p_product_status, :p_particulars, :p_expense_amount, :p_expense_type, :p_last_log_by)');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_status', $p_product_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_particulars', $p_particulars, PDO::PARAM_STR);
+        $stmt->bindValue(':p_expense_amount', $p_expense_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_expense_type', $p_expense_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    public function insertProductExpense($p_product_id, $p_reference_type, $p_reference_number, $p_expense_amount, $p_expense_type, $p_particulars, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertProductExpense(:p_product_id, :p_reference_type, :p_reference_number, :p_expense_amount, :p_expense_type, :p_particulars, :p_last_log_by)');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_type', $p_reference_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_expense_amount', $p_expense_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_expense_type', $p_expense_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_particulars', $p_particulars, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -513,6 +549,15 @@ class ProductModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    public function checkProductDocumentExist($p_product_document_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkProductDocumentExist(:p_product_document_id)');
+        $stmt->bindValue(':p_product_document_id', $p_product_document_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #
     # Function: checkProductExist
     # Description: Checks if a product exists.
@@ -575,6 +620,20 @@ class ProductModel {
         $stmt->execute();
     }
     # -------------------------------------------------------------
+    # -------------------------------------------------------------
+    public function deleteProductExpense($p_product_expense_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteProductExpense(:p_product_expense_id)');
+        $stmt->bindValue(':p_product_expense_id', $p_product_expense_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    # -------------------------------------------------------------
+    public function deleteProductDocument($p_product_document_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteProductDocument(:p_product_document_id)');
+        $stmt->bindValue(':p_product_document_id', $p_product_document_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Get methods
@@ -603,6 +662,14 @@ class ProductModel {
     public function getProductImage($p_product_image_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getProductImage(:p_product_image_id)');
         $stmt->bindValue(':p_product_image_id', $p_product_image_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+    # -------------------------------------------------------------
+    public function getProductDocument($p_product_document_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getProductDocument(:p_product_document_id)');
+        $stmt->bindValue(':p_product_document_id', $p_product_document_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

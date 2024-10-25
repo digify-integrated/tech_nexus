@@ -5742,4 +5742,33 @@ CREATE TABLE chart_of_account(
 
 CREATE INDEX chart_of_account_index_chart_of_account_id ON chart_of_account(chart_of_account_id);
 
+CREATE TABLE product_expense(
+	product_expense_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	product_id INT UNSIGNED NOT NULL,
+	cv VARCHAR(100),
+	cdv VARCHAR(100),
+	i_s VARCHAR(100),
+	contractor_reference VARCHAR(100),
+	expense_amount DOUBLE,
+	expense_type VARCHAR(100),
+	expense_category VARCHAR(100),
+	particulars VARCHAR(500),
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX product_expense_index_product_expense_id ON product_expense(product_expense_id);
+CREATE INDEX product_expense_index_product_id ON product_expense(product_id);
+
+CREATE TABLE product_document(
+	product_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	product_id INT UNSIGNED NOT NULL,
+	product_document_type VARCHAR(100),
+	document_path VARCHAR(500),
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */

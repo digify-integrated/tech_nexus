@@ -167,6 +167,14 @@
             productTable('#product-table');
         }
 
+        if($('#product-expense-table').length){
+            productExpenseTable('#product-expense-table');
+        }
+
+        if($('#product-document-table').length){
+            productDocumentTable('#product-document-table');
+        }
+
         if($('#product-form').length){
             productForm();
         }
@@ -177,6 +185,14 @@
 
         if($('#landed-cost-form').length){
             landedCostForm();
+        }
+
+        if($('#product-expense-form').length){
+            productExpenseForm();
+        }
+
+        if($('#product-document-form').length){
+            productDocumentForm();
         }
 
         if($('#product-image-form').length){
@@ -554,8 +570,237 @@
             }
         });
 
+        $(document).on('change','#unit_cost',function() {
+            calculateConvertedAmount();
+        });
+
+        $(document).on('change','#fx_rate',function() {
+            calculateConvertedAmount();
+        });
+
+        $(document).on('change','#package_deal',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#taxes_duties',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#freight',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#lto_registration',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#royalties',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#conversion',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#arrastre',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#wharrfage',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#insurance',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#aircon',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#import_permit',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#others',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('click','#tag-product-for-sale',function() {
+            const product_id = $('#product-id').text();
+            const transaction = 'tag for sale';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Product For Sale',
+                text: 'Are you sure you want to tag this product for sale?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'For Sale',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-warning mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/product-controller.php',
+                        dataType: 'json',
+                        data: {
+                            product_id : product_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Product For Sale Success', 'The producct has been tagged for sale successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.preOrder) {
+                                    showNotification('Product Pre-order', 'The product is tagged as pre-order.', 'danger');
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Product For Sale Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.delete-product-expense',function() {
+            const product_expense_id = $(this).data('product-expense-id');
+            const transaction = 'delete product expense';
+    
+            Swal.fire({
+                title: 'Confirm Expense Deletion',
+                text: 'Are you sure you want to delete this expense?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/product-controller.php',
+                        dataType: 'json',
+                        data: {
+                            product_expense_id : product_expense_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Expense Success', 'The expense has been deleted successfully.', 'success');
+                                reloadDatatable('#product-expense-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Delete Expense Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.delete-product-document',function() {
+            const product_document_id = $(this).data('product-document-id');
+            const transaction = 'delete product document';
+    
+            Swal.fire({
+                title: 'Confirm Product Document Deletion',
+                text: 'Are you sure you want to delete this product document?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/product-controller.php',
+                        dataType: 'json',
+                        data: {
+                            product_document_id : product_document_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Product Document Success', 'The product document has been deleted successfully.', 'success');
+                                reloadDatatable('#product-document-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Product Error', 'The product does not exist.', 'danger');
+                                    generateProductOtherImages();
+                                }
+                                else {
+                                    showNotification('Delete Product Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('click','#discard-create',function() {
             discardCreate('product.php');
+        });
+
+        $(document).on('click','#apply-filter',function() {
+            productExpenseTable('#product-expense-table');
         });
     });
 })(jQuery);
@@ -797,6 +1042,136 @@ function productTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
+function productExpenseTable(datatable_name, buttons = false, show_all = false){
+    const type = 'product expense table';
+    const product_id = $('#product-id').text();
+    const reference_type_filter = $('#reference_type_filter').val();
+    const expense_type_filter = $('#expense_type_filter').val();
+    var settings;
+
+    const column = [ 
+        { 'data' : 'CREATED_DATE' },
+        { 'data' : 'REFERENCE_TYPE' },
+        { 'data' : 'REFERENCE_NUMBER' },
+        { 'data' : 'EXPENSE_AMOUNT' },
+        { 'data' : 'PARTICULARS' },
+        { 'data' : 'EXPENSE_TYPE' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': '20%', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': '5%','bSortable': false, 'aTargets': 6 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_product_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'product_id' : product_id,
+                'reference_type_filter' : reference_type_filter,
+                'expense_type_filter' : expense_type_filter
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'dom': 'Brtip',
+        'order': [[ 0, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function productDocumentTable(datatable_name, buttons = false, show_all = false){
+    const type = 'product document table';
+    const product_id = $('#product-id').text();
+    var settings;
+
+    const column = [ 
+        { 'data' : 'DOCUMENT_TYPE' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': '5%','bSortable': false, 'aTargets': 1 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_product_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'product_id' : product_id
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'dom': 'Brtip',
+        'order': [[ 0, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 function generateProductOtherImages(){
     const product_id = $('#product-id').text();
     const type = 'product image cards';
@@ -897,8 +1272,7 @@ function productDetailsForm(){
                         const notificationMessage = response.insertRecord ? 'Insert Product Success' : 'Update Product Success';
                         const notificationDescription = response.insertRecord ? 'The product has been inserted successfully.' : 'The product has been updated successfully.';
                         
-                        setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'product.php?id=' + response.productID;
+                        showNotification(notificationMessage, notificationDescription, 'success');
                     }
                     else {
                         if (response.isInactive) {
@@ -932,17 +1306,11 @@ function landedCostForm(){
         rules: {
             product_price: {
                 required: true
-            },
-            product_cost: {
-                required: true
-            },
+            }
         },
         messages: {
             product_price: {
                 required: 'Please enter the product price'
-            },
-            product_cost: {
-                required: 'Please enter the product cost'
             },
         },
         errorPlacement: function (error, element) {
@@ -984,15 +1352,14 @@ function landedCostForm(){
                 data: $(form).serialize() + '&transaction=' + transaction + '&product_id=' + product_id,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-data');
+                    disableFormSubmitButton('submit-landed-cost-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Product Success' : 'Update Product Success';
-                        const notificationDescription = response.insertRecord ? 'The product has been inserted successfully.' : 'The product has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Landed Cost Success' : 'Update Landed Cost Success';
+                        const notificationDescription = response.insertRecord ? 'The landed cost has been inserted successfully.' : 'The landed cost has been updated successfully.';
                         
-                        setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'product.php?id=' + response.productID;
+                        showNotification(notificationMessage, notificationDescription, 'success');
                     }
                     else {
                         if (response.isInactive) {
@@ -1012,7 +1379,222 @@ function landedCostForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-data', 'Save');
+                    enableFormSubmitButton('submit-landed-cost-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function productExpenseForm(){
+    $('#product-expense-form').validate({
+        rules: {
+            reference_type: {
+                required: true
+            },
+            reference_number: {
+                required: true
+            },
+            expense_amount: {
+                required: true
+            },
+            expense_type: {
+                required: true
+            },
+            particulars: {
+                required: true
+            },
+        },
+        messages: {
+            reference_type: {
+                required: 'Please choose the reference type'
+            },
+            reference_number: {
+                required: 'Please enter the reference number'
+            },
+            expense_amount: {
+                required: 'Please enter the amount'
+            },
+            expense_type: {
+                required: 'Please choose the expense type'
+            },
+            particulars: {
+                required: 'Please enter the particulars'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const product_id = $('#product-id').text();
+            const transaction = 'save product expense';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/product-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&product_id=' + product_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-product-expense');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Expense Success' : 'Update Landed Cost Success';
+                        const notificationDescription = response.insertRecord ? 'The expense has been inserted successfully.' : 'The landed cost has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-product-expense', 'Submit');
+                    reloadDatatable('#product-expense-table');
+                    $('#product-expense-offcanvas').offcanvas('hide');
+                    resetModalForm('product-expense-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function productDocumentForm(){
+    $('#product-document-form').validate({
+        rules: {
+            document_type: {
+                required: true
+            },
+            product_document: {
+                required: true
+            },
+        },
+        messages: {
+            document_type: {
+                required: 'Please choose the document type'
+            },
+            product_document: {
+                required: 'Please choose the document'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const product_id = $('#product-id').text();
+            const transaction = 'add product document';
+            var formData = new FormData(form);
+            formData.append('transaction', transaction);
+            formData.append('product_id', product_id);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/product-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-product-document');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Insert Document Success';
+                        const notificationDescription = 'The document has been inserted successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-product-document', 'Submit');
+                    reloadDatatable('#product-document-table');
+                    $('#product-document-offcanvas').offcanvas('hide');
+                    resetModalForm('product-document-form');
                 }
             });
         
@@ -1341,16 +1923,39 @@ function displayDetails(transaction){
                         fullErrorMessage += `, Response: ${xhr.responseText}`;
                     }
                     showErrorDialog(fullErrorMessage);
+                },
+                complete: function(){
+                    calculateConvertedAmount();
+                    calculateTotalLandedCost();
                 }
             });
             break;
     }
 }
 
-function calculateConvertedAmount(){
-    var unit_cost = $('#unit_cost').val();
-    var fx_rate = $('#fx_rate').val();
+function calculateConvertedAmount() {
+    var unit_cost = parseFloat($('#unit_cost').val()) || 0;
+    var fx_rate = parseFloat($('#fx_rate').val()) || 0;
     var total = unit_cost * fx_rate;
 
-    $('#converted_amount').val(total);
+    $('#converted_amount').val(total.toFixed(2));
+}
+
+function calculateTotalLandedCost() {
+    var package_deal = parseFloat($('#package_deal').val()) || 0;
+    var taxes_duties = parseFloat($('#taxes_duties').val()) || 0;
+    var freight = parseFloat($('#freight').val()) || 0;
+    var lto_registration = parseFloat($('#lto_registration').val()) || 0;
+    var royalties = parseFloat($('#royalties').val()) || 0;
+    var conversion = parseFloat($('#conversion').val()) || 0;
+    var arrastre = parseFloat($('#arrastre').val()) || 0;
+    var wharrfage = parseFloat($('#wharrfage').val()) || 0;
+    var insurance = parseFloat($('#insurance').val()) || 0;
+    var aircon = parseFloat($('#aircon').val()) || 0;
+    var import_permit = parseFloat($('#import_permit').val()) || 0;
+    var others = parseFloat($('#others').val()) || 0;
+
+    var total = package_deal + taxes_duties + freight + lto_registration + royalties + conversion + arrastre + wharrfage + insurance + aircon + import_permit + others;
+
+    $('#total_landed_cost').val(total.toFixed(2));
 }

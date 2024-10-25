@@ -118,6 +118,9 @@ class ProductController {
                 case 'update product image':
                     $this->updateProductImage();
                     break;
+                case 'add product document':
+                    $this->addProductDocument();
+                    break;
                 case 'insert product image':
                     $this->insertProductImage();
                     break;
@@ -127,8 +130,20 @@ class ProductController {
                 case 'delete product image':
                     $this->deleteProductImage();
                     break;
+                case 'delete product document':
+                    $this->deleteProductDocument();
+                    break;
                 case 'delete multiple product':
                     $this->deleteMultipleProduct();
+                    break;
+                case 'delete product expense':
+                    $this->deleteProductExpense();
+                    break;
+                case 'tag for sale':
+                    $this->tagProductForSale();
+                    break;
+                case 'save product expense':
+                    $this->saveProductExpense();
                     break;
                 case 'duplicate product':
                     $this->duplicateProduct();
@@ -144,6 +159,45 @@ class ProductController {
     # -------------------------------------------------------------
     #   Save methods
     # -------------------------------------------------------------
+
+    public function tagProductForSale() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkProductExist = $this->productModel->checkProductExist($productID);
+        $total = $checkProductExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $productDetails = $this->productModel->getProduct($productID);
+        $preorder = $productDetails['preorder'];
+        $description = $productDetails['description'];
+        $totalLandedCost = $productDetails['total_landed_cost'];
+
+        if($preorder == 'Yes'){
+            echo json_encode(['success' => false, 'preOrder' =>  true]);
+            exit;
+        }
+
+        $this->productModel->updateProductStatus($productID, 'For Sale', $description, $totalLandedCost, 'Landed Cost', $userID);
+            
+        echo json_encode(['success' => true]);
+    }
 
     # -------------------------------------------------------------
     #
@@ -314,6 +368,7 @@ class ProductController {
         $stockNumber = $productDetails['stock_number'] ?? null;
 
         if($preorder == 'No' && empty($stockNumber)){
+            $stockNumberLatest = $this->systemSettingModel->getSystemSetting(17)['value'] + 1;
             $stockNumber = $productSubcategoryCode . date('my') . $stockNumberLatest;
             $this->systemSettingModel->updateSystemSettingValue(17, $stockNumberLatest, $userID);
         }
@@ -341,6 +396,49 @@ class ProductController {
 
     # -------------------------------------------------------------
     #
+    # Function: saveProductExpense
+    # Description: 
+    # Updates the existing product if it exists; otherwise, inserts a new product.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveProductExpense() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $productID = $_POST['product_id'];
+        $reference_type = $_POST['reference_type'];
+        $reference_number = $_POST['reference_number'];
+        $expense_amount = $_POST['expense_amount'];
+        $expense_type = $_POST['expense_type'];
+        $particulars = $_POST['particulars'];
+        
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkProductExist = $this->productModel->checkProductExist($productID);
+        $total = $checkProductExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->productModel->insertProductExpense($productID, $reference_type, $reference_number, $expense_amount, $expense_type, $particulars, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        } 
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: saveProduct
     # Description: 
     # Updates the existing product if it exists; otherwise, inserts a new product.
@@ -358,9 +456,9 @@ class ProductController {
         $userID = $_SESSION['user_id'];
         $productID = isset($_POST['product_id']) ? htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8') : null;
         $productPrice = $_POST['product_price'];
-        $productCost = $_POST['product_cost'];
         $unitCost = $_POST['unit_cost'];
         $fxRate = $_POST['fx_rate'];
+        $convertedAmount = $_POST['converted_amount'];
         $packageDeal = $_POST['package_deal'];
         $taxesDuties = $_POST['taxes_duties'];
         $freight = $_POST['freight'];
@@ -373,7 +471,6 @@ class ProductController {
         $aircon = $_POST['aircon'];
         $importPermit = $_POST['import_permit'];
         $others = $_POST['others'];
-        $subTotal = $_POST['sub_total'];
         $totalLandedCost = $_POST['total_landed_cost'];
     
         $user = $this->userModel->getUserByID($userID);
@@ -387,7 +484,7 @@ class ProductController {
         $total = $checkProductExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->productModel->updateProductLandedCost($productID, $productCost, $productPrice, $fxRate, $unitCost, $packageDeal, $taxesDuties, $freight, $ltoRegistration, $royalties, $conversion, $arrastre, $wharrfage, $insurance, $aircon, $importPermit, $others, $subTotal, $totalLandedCost, $userID);
+            $this->productModel->updateProductLandedCost($productID, $productPrice, $fxRate, $convertedAmount, $unitCost, $packageDeal, $taxesDuties, $freight, $ltoRegistration, $royalties, $conversion, $arrastre, $wharrfage, $insurance, $aircon, $importPermit, $others, $totalLandedCost, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'productID' => $this->securityModel->encryptData($productID)]);
             exit;
@@ -738,10 +835,10 @@ class ProductController {
             exit;
         }
 
-        $productImageFileName = $_FILES['product_other_image']['name'];
-        $productImageFileSize = $_FILES['product_other_image']['size'];
-        $productImageFileError = $_FILES['product_other_image']['error'];
-        $productImageTempName = $_FILES['product_other_image']['tmp_name'];
+        $productImageFileName = $_FILES['product_document']['name'];
+        $productImageFileSize = $_FILES['product_document']['size'];
+        $productImageFileError = $_FILES['product_document']['error'];
+        $productImageTempName = $_FILES['product_document']['tmp_name'];
         $productImageFileExtension = explode('.', $productImageFileName);
         $productImageActualFileExtension = strtolower(end($productImageFileExtension));
 
@@ -803,6 +900,109 @@ class ProductController {
         exit;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: addProductDocument
+    # Description: 
+    # Handles the update of the product image.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function addProductDocument() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $documentType = htmlspecialchars($_POST['document_type'], ENT_QUOTES, 'UTF-8');
+        $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        $isActive = $user['is_active'] ?? 0;
+    
+        if (!$isActive) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $checkProductExist = $this->productModel->checkProductExist($productID);
+        $total = $checkProductExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $productImageFileName = $_FILES['product_document']['name'];
+        $productImageFileSize = $_FILES['product_document']['size'];
+        $productImageFileError = $_FILES['product_document']['error'];
+        $productImageTempName = $_FILES['product_document']['tmp_name'];
+        $productImageFileExtension = explode('.', $productImageFileName);
+        $productImageActualFileExtension = strtolower(end($productImageFileExtension));
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(17);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(17);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($productImageActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+        
+        if(empty($productImageTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the product image.']);
+            exit;
+        }
+        
+        if($productImageFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+        
+        if($productImageFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The product image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $productImageActualFileExtension;
+
+        $directory = DEFAULT_PRODUCT_RELATIVE_PATH_FILE . $productID  . '/document/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_PRODUCT_FULL_PATH_FILE . $productID . '/document/' . $fileNew;
+        $filePath = $directory . $fileNew;
+
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+            exit;
+        }
+
+        if(!move_uploaded_file($productImageTempName, $fileDestination)){
+            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+            exit;
+        }
+
+        $this->productModel->insertProductDocument($productID, $documentType, $filePath, $userID);
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
     
     # -------------------------------------------------------------
     #   Delete methods
@@ -857,6 +1057,27 @@ class ProductController {
         echo json_encode(['success' => true]);
         exit;
     }
+
+    public function deleteProductExpense() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $productExpenseID = htmlspecialchars($_POST['product_expense_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->productModel->deleteProductExpense($productExpenseID);
+    
+        echo json_encode(['success' => true]);
+        exit;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -904,6 +1125,47 @@ class ProductController {
         }
     
         $this->productModel->deleteProductImage($productImageID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    public function deleteProductDocument() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $productImageID = htmlspecialchars($_POST['product_document_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkProductImageExist = $this->productModel->checkProductDocumentExist($productImageID);
+        $total = $checkProductImageExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $productDetails = $this->productModel->getProductDocument($productImageID);
+        $productImage = !empty($productDetails['document_path']) ? '.' . $productDetails['document_path'] : null;
+
+        if(file_exists($productImage)){
+            if (!unlink($productImage)) {
+                echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
+                exit;
+            }
+        }
+    
+        $this->productModel->deleteProductDocument($productImageID);
             
         echo json_encode(['success' => true]);
         exit;
