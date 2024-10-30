@@ -482,6 +482,66 @@
             calculateRenewalAmount();
         });
 
+        $(document).on('change','#commission_amount',function() {
+            $('#summary-commission').text(encryptCommission($(this).val()));
+        });
+
+        $(document).on('change','#referred_by',function() {
+            $('#summary-referred-by').text($(this).val());
+        });
+
+        $(document).on('change','#product_type',function() {
+            $('#summary-product-type').text($(this).val());
+        });
+
+        $(document).on('change','#transaction_type',function() {
+            $('#summary-transaction-type').text($(this).val());
+        });
+
+        $(document).on('change','#term_length',function() {
+            var term_type = $('#term_type').val();
+
+            $('#summary-term').text($(this).val() + ' ' + term_type);
+        });
+
+        $(document).on('change','#term_type',function() {
+            var term_length = $('#term_length').val();
+
+            $('#summary-term').text(term_length + ' ' + $(this).val());
+        });
+
+        $(document).on('change','#number_of_payments',function() {
+            $('#summary-no-payments').text($(this).val());
+        });
+
+        $(document).on('change','#remarks',function() {
+            $('#summary-remarks').text($(this).val());
+        });
+
+        $(document).on('change','#new_color',function() {
+            $('#summary-new-color').text($(this).val());
+        });
+
+        $(document).on('change','#new_body',function() {
+            $('#summary-new-body').text($(this).val());
+        });
+
+        $(document).on('change','#new_engine',function() {
+            $('#summary-new-engine').text($(this).val());
+        });
+
+        $(document).on('change','#diesel_fuel_quantity',function() {
+            $('#summary-diesel-fuel-quantity').text($(this).val() + ' lt');
+        });
+
+        $(document).on('change','#regular_fuel_quantity',function() {
+            $('#summary-regular-fuel-quantity').text($(this).val() + ' lt');
+        });
+
+        $(document).on('change','#premium_fuel_quantity',function() {
+            $('#summary-premium-fuel-quantity').text($(this).val() + ' lt');
+        });
+
         $(document).on('click','#sales-proposal-final-approval',function() {
             resetModalForm("sales-proposal-final-approval-form");
         });
@@ -1229,6 +1289,9 @@
         if($('#sales-proposal-id').length){
             displayDetails('get sales proposal basic details');
             displayDetails('get sales proposal pricing computation details');
+            displayDetails('get sales proposal other charges details');
+            displayDetails('get sales proposal confirmation details');
+            displayDetails('get sales proposal renewal amount details');
         }
 
         $(document).on('click','#apply-filter',function() {
@@ -2502,11 +2565,11 @@ function salesProposalForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    displayDetails('get sales proposal basic details');
-                    displayDetails('get sales proposal unit details');
-                    displayDetails('get sales proposal fuel details');
-                    displayDetails('get sales proposal refinancing details');
-                    displayDetails('get sales proposal pricing computation details');
+                    //displayDetails('get sales proposal basic details');
+                    //displayDetails('get sales proposal unit details');
+                    //displayDetails('get sales proposal fuel details');
+                    //displayDetails('get sales proposal refinancing details');
+                    //displayDetails('get sales proposal pricing computation details');
                 }
             });
         
@@ -2537,6 +2600,14 @@ function salesProposalUnitForm(){
                     }
                 }
             },
+            final_orcr_name: {
+                required: {
+                    depends: function(element) {
+                        var productType = $("#product_category").val();
+                        return productType === '1';
+                    }
+                }
+            },
         },
         messages: {
             product_id: {
@@ -2550,6 +2621,9 @@ function salesProposalUnitForm(){
             },
             new_engine: {
                 required: 'Please enter the new engine'
+            },
+            final_orcr_name: {
+                required: 'Please enter the final name on or/cr'
             },
         },
         errorPlacement: function (error, element) {
@@ -5658,7 +5732,7 @@ function displayDetails(transaction){
                     },
                     success: function(response) {
                         if (response.success) {
-                            $('#delivery_price').val(response.productPrice * 1000);
+                            $('#delivery_price').val(response.productPrice);
                             $('#old_color').val(response.colorName);
                             $('#old_body').val(response.bodyTypeName);
                             $('#old_engine').val(response.engineNumber);
@@ -5680,7 +5754,7 @@ function displayDetails(transaction){
                             $('#insurance_color').text(response.colorName);
 
                             if($('#product_cost_label').length){
-                                $('#product_cost_label').text(parseFloat(response.productCost * 1000).toLocaleString("en-US"));
+                                $('#product_cost_label').text(parseFloat(response.productCost).toLocaleString("en-US"));
                             }
                         } 
                         else {

@@ -7,16 +7,22 @@ $productDetails = $productModel->getProduct($productID);
 $productStatus = $productDetails['product_status'];
 
 $updateLandedCost = $userModel->checkSystemActionAccessRights($user_id, 171);
+$updateProductDisabled = $userModel->checkSystemActionAccessRights($user_id, 175);
 
 $checkSalesProposalProduct = $productModel->checkSalesProposalProduct($productID);
 $disabledProductForm = 'disabled';
-$disabledLandedCostForm = 'disabled';
+$disabledLandedCostForm = 'readonly';
+$disabledLandedCostForm2 = 'readonly';
 
-if($updateLandedCost['total'] > 0 && $productStatus == 'Draft'){
+if(($updateLandedCost['total'] > 0 && $productStatus == 'Draft') || $updateProductDisabled['total'] > 0 && $productStatus != 'Draft' &&  $productStatus != 'Sold'){
   $disabledLandedCostForm = '';
+  if($updateProductDisabled['total'] > 0 && $productStatus != 'Draft' &&  $productStatus != 'Sold'){
+    $disabledLandedCostForm = 'readonly';
+    $disabledLandedCostForm2 = '';
+  }
 }
 
-if($productWriteAccess['total'] > 0 && $productStatus == 'Draft'){
+if(($productWriteAccess['total'] > 0 && $productStatus == 'Draft') || $updateProductDisabled['total'] > 0 && $productStatus != 'Draft' &&  $productStatus != 'Sold'){
   $disabledProductForm = '';
 }
 
@@ -81,7 +87,7 @@ if($addProductExpense['total'] > 0){
                               
                         echo $dropdown;
 
-                        if ($productWriteAccess['total'] > 0 && $productStatus == 'Draft') {
+                        if(($productWriteAccess['total'] > 0 && $productStatus == 'Draft') || $updateProductDisabled['total'] > 0 && $productStatus != 'Draft' &&  $productStatus != 'Sold'){
                           echo '<button type="submit" form="product-details-form" class="btn btn-success me-1" id="submit-product-details-data">Save</button>';
                         }
 
@@ -461,7 +467,7 @@ if($addProductExpense['total'] > 0){
           </div>
           <div class="col-md-8 text-sm-end mt-3 mt-sm-0">
             <?php
-              if ($updateLandedCost['total'] > 0 && $productStatus == 'Draft') {
+            if(($updateLandedCost['total'] > 0 && $productStatus == 'Draft') || $updateProductDisabled['total'] > 0 && $productStatus != 'Draft' &&  $productStatus != 'Sold'){
                 echo '<button type="submit" form="landed-cost-form" class="btn btn-success" id="submit-landed-cost-data">Save</button>';
               }
             ?>
@@ -473,7 +479,7 @@ if($addProductExpense['total'] > 0){
           <div class="form-group row">
             <label class="col-lg-3 col-form-label">Product Price (SRP)</label>
             <div class="col-lg-3">
-              <input type="number" class="form-control" id="product_price" name="product_price" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
+              <input type="number" class="form-control" id="product_price" name="product_price" min="0" step="0.01" <?php echo $disabledLandedCostForm2; ?>>
             </div>
             <label class="col-lg-3 col-form-label">Unit Cost (Currency)</label>
             <div class="col-lg-3">

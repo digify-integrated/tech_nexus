@@ -304,7 +304,17 @@
                             <div class="col-lg-7">
                                 <select class="form-control select2" name="product_id" id="product_id">
                                 <option value="">--</option>
-                                <?php echo $productModel->generateInStockProductOptions(); ?>
+                                <?php 
+                                    if($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review' || $salesProposalStatus == 'For Initial Approval'){
+                                    echo $productModel->generateForSaleProductOptions(); 
+                                    }
+                                    else if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'Proceed' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'On-Process' || $salesProposalStatus == 'For DR' || $salesProposalStatus == 'Read For Release' || $salesProposalStatus == 'Released'){
+                                    echo $productModel->generateWithApplicationProductOptions(); 
+                                    }
+                                    else{
+                                    echo $productModel->generateAllProductOptions(); 
+                                    }
+                                ?>
                                 </select>
                             </div>
                             </div>

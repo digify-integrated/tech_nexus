@@ -661,7 +661,7 @@ function travelFormTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 4, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -728,7 +728,7 @@ function travelApprovalFormTable(datatable_name, buttons = false, show_all = fal
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 6, 'desc' ]],
+        'order': [[ 4, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

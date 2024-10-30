@@ -82,8 +82,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateSalesProposalUnit($p_sales_proposal_id, $p_product_id, $p_for_registration, $p_with_cr, $p_for_transfer, $p_for_change_color, $p_new_color, $p_for_change_body, $p_new_body, $p_for_change_engine, $p_new_engine, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalUnit(:p_sales_proposal_id, :p_product_id, :p_for_registration, :p_with_cr, :p_for_transfer, :p_for_change_color, :p_new_color, :p_for_change_body, :p_new_body, :p_for_change_engine, :p_new_engine, :p_last_log_by)');
+    public function updateSalesProposalUnit($p_sales_proposal_id, $p_product_id, $p_for_registration, $p_with_cr, $p_for_transfer, $p_for_change_color, $p_new_color, $p_for_change_body, $p_new_body, $p_for_change_engine, $p_new_engine, $p_final_orcr_name, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalUnit(:p_sales_proposal_id, :p_product_id, :p_for_registration, :p_with_cr, :p_for_transfer, :p_for_change_color, :p_new_color, :p_for_change_body, :p_new_body, :p_for_change_engine, :p_new_engine, :p_final_orcr_name, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_for_registration', $p_for_registration, PDO::PARAM_STR);
@@ -95,6 +95,7 @@ class SalesProposalModel {
         $stmt->bindValue(':p_new_body', $p_new_body, PDO::PARAM_STR);
         $stmt->bindValue(':p_for_change_engine', $p_for_change_engine, PDO::PARAM_STR);
         $stmt->bindValue(':p_new_engine', $p_new_engine, PDO::PARAM_STR);
+        $stmt->bindValue(':p_final_orcr_name', $p_final_orcr_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -293,6 +294,14 @@ class SalesProposalModel {
         $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalSetToDraft(:p_sales_proposal_id, :p_sales_proposal_form, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_sales_proposal_form', $p_sales_proposal_form, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    public function updateSalesProposalOtherDocument($p_sales_proposal_id, $p_other_document_file, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOtherDocument(:p_sales_proposal_id, :p_other_document_file, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_other_document_file', $p_other_document_file, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

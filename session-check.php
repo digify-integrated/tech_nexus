@@ -18,7 +18,7 @@ if (isset($_COOKIE['remember_token']) && !empty($_COOKIE['remember_token'])) {
         $_SESSION['user_id'] = $userID;
         $_SESSION['contact_id'] = $contactDetails['contact_id'] ?? null;
 
-        $userModel->updateLastConnection($userID, $connectionDate);
+        $userModel->updateLastConnection($userID, date('Y-m-d'));
 
         header('Location: dashboard.php');
         exit;

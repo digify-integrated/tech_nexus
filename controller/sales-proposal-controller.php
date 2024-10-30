@@ -158,6 +158,9 @@ class SalesProposalController {
                 case 'sales proposal set to draft':
                     $this->tagSalesProposalSetToDraft();
                     break;
+                case 'sales proposal other document':
+                    $this->salesProposalOtherDocument();
+                    break;
                 case 'tag on process':
                     $this->tagSalesProposalOnProcess();
                     break;
@@ -343,6 +346,7 @@ class SalesProposalController {
             $newBody = htmlspecialchars($_POST['new_body'], ENT_QUOTES, 'UTF-8');
             $forChangeEngine = htmlspecialchars($_POST['for_change_engine'], ENT_QUOTES, 'UTF-8');
             $newEngine = htmlspecialchars($_POST['new_engine'], ENT_QUOTES, 'UTF-8');
+            $finalOrcrName = htmlspecialchars($_POST['final_orcr_name'], ENT_QUOTES, 'UTF-8');
 
             $dieselFuelQuantity = str_replace(',', '', $_POST['diesel_fuel_quantity']);
             $dieselPricePerLiter = str_replace(',', '', $_POST['diesel_price_per_liter']);
@@ -414,13 +418,13 @@ class SalesProposalController {
             $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
             if($productType == 'Unit'){
-                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, $productID, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $userID);
+                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, $productID, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $finalOrcrName, $userID);
                 $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
                 $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
             }
             else if($productType == 'Fuel'){
                 $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, $dieselFuelQuantity, $dieselPricePerLiter, $regularFuelQuantity, $regularPricePerliter, $premiumFuelQuantity, $premiumPricePerliter, $userID);
-                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', $userID);
+                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', $userID);
                 $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
             }
             else if($productType == 'Brand New' || $productType == 'Refinancing' || $productType == 'Restructure'){
@@ -435,7 +439,7 @@ class SalesProposalController {
                 }
 
                 $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, $stockNumber, $refEngineNo, $refChassisNo, $refPlateNo, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $unitDescription, $userID);
-                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', $userID);
+                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', $userID);
                 $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
             }
 
@@ -481,6 +485,7 @@ class SalesProposalController {
         $newBody = htmlspecialchars($_POST['new_body'], ENT_QUOTES, 'UTF-8');
         $forChangeEngine = htmlspecialchars($_POST['for_change_engine'], ENT_QUOTES, 'UTF-8');
         $newEngine = htmlspecialchars($_POST['new_engine'], ENT_QUOTES, 'UTF-8');
+        $finalOrcrName = htmlspecialchars($_POST['final_orcr_name'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -493,7 +498,7 @@ class SalesProposalController {
         $total = $checkSalesProposalExist['total'] ?? 0;
     
         if ($total > 0) {            
-            $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, $productID, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $userID);
+            $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, $productID, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $finalOrcrName, $userID);
             $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
             $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
             
@@ -542,7 +547,7 @@ class SalesProposalController {
     
         if ($total > 0) {            
             $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, $dieselFuelQuantity, $dieselPricePerLiter, $regularFuelQuantity, $regularPricePerliter, $premiumFuelQuantity, $premiumPricePerliter, $userID);
-            $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', $userID);
+            $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', $userID);
             $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
@@ -609,7 +614,7 @@ class SalesProposalController {
             }
 
             $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, $stockNumber, $refEngineNo, $refChassisNo, $refPlateNo, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $unitDescription, $userID);
-            $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', $userID);
+            $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', $userID);
             $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
@@ -1958,6 +1963,107 @@ class SalesProposalController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    public function salesProposalOtherDocument() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $setToDraftFileFileName = $_FILES['other_document_file']['name'];
+        $setToDraftFileFileSize = $_FILES['other_document_file']['size'];
+        $setToDraftFileFileError = $_FILES['other_document_file']['error'];
+        $setToDraftFileTempName = $_FILES['other_document_file']['tmp_name'];
+        $setToDraftFileFileExtension = explode('.', $setToDraftFileFileName);
+        $setToDraftFileActualFileExtension = strtolower(end($setToDraftFileFileExtension));
+
+        
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $clientsetToDraftFile = !empty($salesProposalDetails['other_document_file']) ? '.' . $salesProposalDetails['other_document_file'] : null;
+
+        if(file_exists($clientsetToDraftFile)){
+            if (!unlink($clientsetToDraftFile)) {
+                echo json_encode(['success' => false, 'message' => 'Sales proposal file cannot be deleted due to an error.']);
+                exit;
+            }
+        }
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(17);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(17);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($setToDraftFileActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+        
+        if(empty($setToDraftFileTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the sales proposal form.']);
+            exit;
+        }
+        
+        if($setToDraftFileFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+        
+        if($setToDraftFileFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The sales proposal file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $setToDraftFileActualFileExtension;
+
+        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/other_document_file/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/other_document_file/' . $fileNew;
+        $filePath = $directory . $fileNew;
+
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+            exit;
+        }
+
+        if(!move_uploaded_file($setToDraftFileTempName, $fileDestination)){
+            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+            exit;
+        }
+
+        $this->salesProposalModel->updateSalesProposalOtherDocument($salesProposalID, $filePath, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #
     # Function: tagSalesProposalOnProcess
     # Description: 
@@ -3120,6 +3226,7 @@ class SalesProposalController {
                 'remarks' => $salesProposalDetails['remarks'],
                 'companyID' => $salesProposalDetails['company_id'],
                 'setToDraftFile' => $salesProposalDetails['set_to_draft_file'] ?? null,
+                'otherDocumentFile' => $salesProposalDetails['other_document_file'] ?? null,
                 'initialApprovingOfficer' => $initialApprovingOfficer,
                 'finalApprovingOfficer' => $finalApprovingOfficer,
                 'createdByName' => $createdByName,
@@ -3165,6 +3272,7 @@ class SalesProposalController {
             $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
             $initialApprovalBy = $salesProposalDetails['initial_approval_by'];
             $approvalBy = $salesProposalDetails['approval_by'];
+            $finalOrcrName = $salesProposalDetails['final_orcr_name'];
 
             $createdByDetails = $this->customerModel->getPersonalInformation($salesProposalDetails['created_by']);
             $createdByName = strtoupper($createdByDetails['file_as'] ?? null);
@@ -3196,6 +3304,7 @@ class SalesProposalController {
                 'oldBody' => $bodyTypeName,
                 'newBody' => $salesProposalDetails['new_body'] ?? null,
                 'oldEngine' => $engineNumber,
+                'finalOrcrName' => $finalOrcrName,
                 'newEngine' => $salesProposalDetails['new_engine'] ?? null,
             ];
 

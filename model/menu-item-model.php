@@ -94,10 +94,10 @@ class MenuItemModel {
     # -------------------------------------------------------------
     public function buildMenuItemHTML($p_menu_item, $level = 1) {
         $html = '';
-        $menu_item_name = $p_menu_item['MENU_ITEM_NAME'];
+        $menu_item_name = $p_menu_item['MENU_ITEM_NAME'] ?? '';
         $menu_item_icon = $p_menu_item['MENU_ITEM_ICON'] ?? 'menu';
-        $menu_item_url = $p_menu_item['MENU_ITEM_URL'];
-        $children = $p_menu_item['CHILDREN'];
+        $menu_item_url = $p_menu_item['MENU_ITEM_URL'] ?? '';
+        $children = $p_menu_item['CHILDREN'] ?? null;
     
         if ($level === 1) {
             if (empty($children)) {

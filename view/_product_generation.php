@@ -52,20 +52,43 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $productPerPage = $initialProductPerPage;
                 
                 $currentPage = htmlspecialchars($_POST['current_page'], ENT_QUOTES, 'UTF-8');
+                $productStatusFilter = htmlspecialchars($_POST['product_status_filter'], ENT_QUOTES, 'UTF-8');
                 $productSearch = htmlspecialchars($_POST['product_search'], ENT_QUOTES, 'UTF-8');
                 $companyFilter = htmlspecialchars($_POST['company_filter'], ENT_QUOTES, 'UTF-8');
                 $productCategoryFilter = htmlspecialchars($_POST['product_category_filter'], ENT_QUOTES, 'UTF-8');
                 $productSubcategoryFilter = htmlspecialchars($_POST['product_subcategory_filter'], ENT_QUOTES, 'UTF-8');
                 $warehouseFilter = htmlspecialchars($_POST['warehouse_filter'], ENT_QUOTES, 'UTF-8');
                 $bodyTypeFilter = htmlspecialchars($_POST['body_type_filter'], ENT_QUOTES, 'UTF-8');
-                $colorFilter = htmlspecialchars($_POST['color_filter'], ENT_QUOTES, 'UTF-8');
-                $filterProductCostMin = htmlspecialchars($_POST['filter_product_cost_min'], ENT_QUOTES, 'UTF-8');
-                $filterProductCostMax = htmlspecialchars($_POST['filter_product_cost_max'], ENT_QUOTES, 'UTF-8');
-                $filterProductPriceMin = htmlspecialchars($_POST['filter_product_price_min'], ENT_QUOTES, 'UTF-8');
-                $filterProductPriceMax = htmlspecialchars($_POST['filter_product_price_max'], ENT_QUOTES, 'UTF-8');
+                $colorFilter = null;               
+                $filterProductCostMin = null;
+                $filterProductCostMax = null;
+                
+               
+
+                if(empty($_POST['product_status_filter'])){
+                    $productStatusFilter = null;
+                }
+                else{
+                    $productStatusFilter = $_POST['product_status_filter'] ?? null;
+                }
+
+                if(empty($_POST['filter_product_price_min'])){
+                    $filterProductPriceMin = null;
+                }
+                else{
+                    $filterProductPriceMin = htmlspecialchars($_POST['filter_product_price_min'], ENT_QUOTES, 'UTF-8');
+                }
+
+                if(empty($_POST['filter_product_price_max'])){
+                    $filterProductPriceMax = null;
+                }
+                else{
+                    $filterProductPriceMax = htmlspecialchars($_POST['filter_product_price_max'], ENT_QUOTES, 'UTF-8');
+                }
+                
                 $offset = ($currentPage - 1) * $productPerPage;
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateProductCard(:offset, :productPerPage, :productSearch, :productCategoryFilter, :productSubcategoryFilter, :companyFilter, :warehouseFilter, :bodyTypeFilter, :colorFilter, :filterProductCostMin, :filterProductCostMax, :filterProductPriceMin, :filterProductPriceMax)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateProductCard(:offset, :productPerPage, :productSearch, :productCategoryFilter, :productSubcategoryFilter, :companyFilter, :warehouseFilter, :bodyTypeFilter, :colorFilter, :filterProductCostMin, :filterProductCostMax, :filterProductPriceMin, :filterProductPriceMax, :productStatusFilter)');
                 $sql->bindValue(':offset', $offset, PDO::PARAM_INT);
                 $sql->bindValue(':productPerPage', $productPerPage, PDO::PARAM_INT);
                 $sql->bindValue(':productSearch', $productSearch, PDO::PARAM_STR);
@@ -79,6 +102,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->bindValue(':filterProductCostMax', $filterProductCostMax, PDO::PARAM_STR);
                 $sql->bindValue(':filterProductPriceMin', $filterProductPriceMin, PDO::PARAM_STR);
                 $sql->bindValue(':filterProductPriceMax', $filterProductPriceMax, PDO::PARAM_STR);
+                $sql->bindValue(':productStatusFilter', $productStatusFilter, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -125,7 +149,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                         </div>
                                                     </div>
                                                     <div class="card-body position-absolute start-0 top-0">
-                                                        <span class="badge bg-info">'. $productSubcategoryName .'</span>
+                                                        <span class="badge bg-info">'. $productSubcategoryName .'</span><br/>
+                                                        '. $productStatus .'
                                                     </div>
                                                     '. $delete .'
                                                 </div>
@@ -158,13 +183,34 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $productSubcategoryFilter = htmlspecialchars($_POST['product_subcategory_filter'], ENT_QUOTES, 'UTF-8');
                 $warehouseFilter = htmlspecialchars($_POST['warehouse_filter'], ENT_QUOTES, 'UTF-8');
                 $bodyTypeFilter = htmlspecialchars($_POST['body_type_filter'], ENT_QUOTES, 'UTF-8');
-                $colorFilter = htmlspecialchars($_POST['color_filter'], ENT_QUOTES, 'UTF-8');
-                $filterProductCostMin = htmlspecialchars($_POST['filter_product_cost_min'], ENT_QUOTES, 'UTF-8');
-                $filterProductCostMax = htmlspecialchars($_POST['filter_product_cost_max'], ENT_QUOTES, 'UTF-8');
-                $filterProductPriceMin = htmlspecialchars($_POST['filter_product_price_min'], ENT_QUOTES, 'UTF-8');
-                $filterProductPriceMax = htmlspecialchars($_POST['filter_product_price_max'], ENT_QUOTES, 'UTF-8');
+                $colorFilter = null;               
+                $filterProductCostMin = null;
+                $filterProductCostMax = null;
+                
+               
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateProductTable(:productSearch, :productCategoryFilter, :productSubcategoryFilter, :companyFilter, :warehouseFilter, :bodyTypeFilter, :colorFilter, :filterProductCostMin, :filterProductCostMax, :filterProductPriceMin, :filterProductPriceMax)');
+                if(empty($_POST['product_status_filter'])){
+                    $productStatusFilter = null;
+                }
+                else{
+                    $productStatusFilter = $_POST['product_status_filter'] ?? null;
+                }
+
+                if(empty($_POST['filter_product_price_min'])){
+                    $filterProductPriceMin = null;
+                }
+                else{
+                    $filterProductPriceMin = htmlspecialchars($_POST['filter_product_price_min'], ENT_QUOTES, 'UTF-8');
+                }
+
+                if(empty($_POST['filter_product_price_max'])){
+                    $filterProductPriceMax = null;
+                }
+                else{
+                    $filterProductPriceMax = htmlspecialchars($_POST['filter_product_price_max'], ENT_QUOTES, 'UTF-8');
+                }
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateProductTable(:productSearch, :productCategoryFilter, :productSubcategoryFilter, :companyFilter, :warehouseFilter, :bodyTypeFilter, :colorFilter, :filterProductCostMin, :filterProductCostMax, :filterProductPriceMin, :filterProductPriceMax, :productStatusFilter)');
                 $sql->bindValue(':productSearch', $productSearch, PDO::PARAM_STR);
                 $sql->bindValue(':productCategoryFilter', $productCategoryFilter, PDO::PARAM_STR);
                 $sql->bindValue(':productSubcategoryFilter', $productSubcategoryFilter, PDO::PARAM_STR);
@@ -176,6 +222,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->bindValue(':filterProductCostMax', $filterProductCostMax, PDO::PARAM_STR);
                 $sql->bindValue(':filterProductPriceMin', $filterProductPriceMin, PDO::PARAM_STR);
                 $sql->bindValue(':filterProductPriceMax', $filterProductPriceMax, PDO::PARAM_STR);
+                $sql->bindValue(':productStatusFilter', $productStatusFilter, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -218,6 +265,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         </div>
                                     </div>',
                         'CATEGORY' => $productSubcategoryName,
+                        'PRODUCT_STATUS' => $productStatus,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <a href="product.php?id='. $productIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                             <i class="ti ti-eye"></i>

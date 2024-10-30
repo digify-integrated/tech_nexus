@@ -362,6 +362,12 @@
                   <input type="text" class="form-control text-uppercase" id="new_engine" name="new_engine" maxlength="100" autocomplete="off" readonly>
                 </div>
               </div>
+              <div class="form-group row">
+                <label class="col-lg-5 col-form-label">Final Name On OR/CR :</label>
+                <div class="col-lg-7">
+                  <input type="text" class="form-control text-uppercase" id="final_orcr_name" name="final_orcr_name" maxlength="500" autocomplete="off">
+                </div>
+              </div>
             </div>
           </div>
         </div>

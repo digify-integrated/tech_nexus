@@ -4362,10 +4362,6 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Color ID: ", OLD.color_id, " -> ", NEW.color_id, "<br/>");
     END IF;
 
-    IF NEW.product_cost <> OLD.product_cost THEN
-        SET audit_log = CONCAT(audit_log, "Product Cost: ", OLD.product_cost, " -> ", NEW.product_cost, "<br/>");
-    END IF;
-
     IF NEW.product_price <> OLD.product_price THEN
         SET audit_log = CONCAT(audit_log, "Product Price: ", OLD.product_price, " -> ", NEW.product_price, "<br/>");
     END IF;
@@ -4516,10 +4512,6 @@ BEGIN
 
     IF NEW.color_id <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Color ID: ", NEW.color_id);
-    END IF;
-
-    IF NEW.product_cost <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Product Cost: ", NEW.product_cost);
     END IF;
 
     IF NEW.product_price <> '' THEN

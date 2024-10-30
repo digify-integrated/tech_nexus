@@ -61,6 +61,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $transmitterDepartment = $row['transmitter_department'];
                     $receiverID = $row['receiver_id'];
                     $receiverDepartment = $row['receiver_department'];
+                    $createdBy = $row['created_by'];
                     $transmittalStatus = $row['transmittal_status'];
                     $transmittalDate = $systemModel->checkDate('empty', $row['transmittal_date'], '', 'm/d/Y g:i:s a', '');
 

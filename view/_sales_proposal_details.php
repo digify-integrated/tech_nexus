@@ -432,7 +432,17 @@
                   <div class="col-lg-7">
                     <select class="form-control select2" name="product_id" id="product_id">
                       <option value="">--</option>
-                      <?php echo $productModel->generateInStockProductOptions(); ?>
+                      <?php 
+                        if($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review' || $salesProposalStatus == 'For Initial Approval'){
+                          echo $productModel->generateForSaleProductOptions(); 
+                        }
+                        else if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'Proceed' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'On-Process' || $salesProposalStatus == 'For DR' || $salesProposalStatus == 'Read For Release' || $salesProposalStatus == 'Released'){
+                          echo $productModel->generateWithApplicationProductOptions(); 
+                        }
+                        else{
+                          echo $productModel->generateAllProductOptions(); 
+                        }
+                      ?>
                     </select>
                   </div>
                 </div>
@@ -494,6 +504,12 @@
                   <label class="col-lg-5 col-form-label">New Engine :</label>
                   <div class="col-lg-7">
                     <input type="text" class="form-control text-uppercase" id="new_engine" name="new_engine" maxlength="100" autocomplete="off" readonly>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-lg-5 col-form-label">Final Name On OR/CR :</label>
+                  <div class="col-lg-7">
+                    <input type="text" class="form-control text-uppercase" id="final_orcr_name" name="final_orcr_name" maxlength="500" autocomplete="off">
                   </div>
                 </div>
               </div>
@@ -1138,6 +1154,32 @@
                 </div>
               </div>
             </div>
+            <div class="row">
+              <div class="col-xl-12">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Other Document</h5>
+                        <?php
+                          if($salesProposalStatus != 'Rejected' && $salesProposalStatus != 'Cancelled' && $salesProposalStatus != 'Released'){
+                            echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-other-document-offcanvas" aria-controls="sales-proposal-other-document-offcanvas" id="sales-proposal-other-document">Other Document</button>';
+                          }
+                        ?>
+                          
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <embed id="other-document-file" width="100%" height="600" type="application/pdf" />
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="tab-pane" id="v-remarks">
             <div class="form-group row">
@@ -1688,6 +1730,35 @@
       <div class="row">
         <div class="col-lg-12">
         <button type="submit" class="btn btn-primary" id="submit-sales-proposal-additional-job-order-confirmation" form="sales-proposal-job-order-confirmation-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-other-document-offcanvas" aria-labelledby="sales-proposal-other-document-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-other-document-offcanvas-label" style="margin-bottom:-0.5rem">Other Document</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-other-document-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Other Document</label>
+                <input type="file" class="form-control" id="other_document_file" name="other_document_file">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-other-document-form" form="sales-proposal-other-document-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

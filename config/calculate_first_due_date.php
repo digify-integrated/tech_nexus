@@ -1,4 +1,7 @@
 <?php
+// Set the correct timezone
+date_default_timezone_set("Asia/Manila");
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $start_date = $_POST["start_date"];
     $payment_frequency = $_POST["payment_frequency"];

@@ -6985,21 +6985,41 @@ BEGIN
     WHERE product_image_id = p_product_image_id;
 END //
 
-CREATE PROCEDURE generateProductCard(IN p_offset INT, IN p_product_per_page INT, IN p_search VARCHAR(500), IN p_product_category VARCHAR(500), IN p_product_subcategory VARCHAR(500), IN p_company VARCHAR(500), IN p_warehouse VARCHAR(500), IN p_body_type VARCHAR(500), IN p_color VARCHAR(500), IN p_product_cost_min DOUBLE, IN p_product_cost_max DOUBLE, IN p_product_price_min DOUBLE, IN p_product_price_max DOUBLE)
+CREATE PROCEDURE generateProductCard(
+    IN p_offset INT, 
+    IN p_product_per_page INT, 
+    IN p_search VARCHAR(500), 
+    IN p_product_category VARCHAR(500), 
+    IN p_product_subcategory VARCHAR(500), 
+    IN p_company VARCHAR(500), 
+    IN p_warehouse VARCHAR(500), 
+    IN p_body_type VARCHAR(500), 
+    IN p_color VARCHAR(500), 
+    IN p_product_cost_min DOUBLE, 
+    IN p_product_cost_max DOUBLE, 
+    IN p_product_price_min DOUBLE, 
+    IN p_product_price_max DOUBLE, 
+    IN p_product_status VARCHAR(100)
+)
 BEGIN
-    DECLARE sql_query VARCHAR(5000);
+    DECLARE sql_query LONGTEXT;
 
-    SET sql_query = 'SELECT *
-    FROM product
-    WHERE 1';
+    -- Base query
+    SET sql_query = 'SELECT * FROM product WHERE 1=1';
 
+    -- Search condition
     IF p_search IS NOT NULL AND p_search <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND (
-            stock_number LIKE ?
-            OR description LIKE ?
-        )');
+        SET sql_query = CONCAT(sql_query, ' AND (stock_number LIKE ? OR description LIKE ?)');
     END IF;
 
+    -- Product status condition
+    IF p_product_status IS NOT NULL AND p_product_status <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_status = ', QUOTE(p_product_status));
+    ELSE
+        SET sql_query = CONCAT(sql_query, ' AND product_status != "Sold"');
+    END IF;
+
+    -- Additional filters
     IF p_product_category IS NOT NULL AND p_product_category <> '' THEN
         SET sql_query = CONCAT(sql_query, ' AND product_category_id IN (', p_product_category, ')');
     END IF;
@@ -7024,25 +7044,47 @@ BEGIN
         SET sql_query = CONCAT(sql_query, ' AND color_id IN (', p_color, ')');
     END IF;
 
-    IF p_product_cost_min IS NOT NULL AND p_product_cost_min <> '' AND p_product_cost_max IS NOT NULL AND p_product_cost_max <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND product_cost BETWEEN ', p_product_cost_min, ' AND ', p_product_cost_max);
+    -- Cost range condition
+    IF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_cost BETWEEN ? AND ?');
     END IF;
 
-    IF p_product_price_min IS NOT NULL AND p_product_price_min <> '' AND p_product_price_max IS NOT NULL AND p_product_price_max <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND product_price BETWEEN ', p_product_price_min, ' AND ', p_product_price_max);
+    -- Price range condition
+    IF p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_price BETWEEN ? AND ?');
     END IF;
 
-    SET sql_query = CONCAT(sql_query, ' ORDER BY description LIMIT ?, ?;');
+    -- Sorting and pagination
+    SET sql_query = CONCAT(sql_query, ' ORDER BY description LIMIT ?, ?');
 
+    -- Prepare and execute statement
     PREPARE stmt FROM sql_query;
+    
     IF p_search IS NOT NULL AND p_search <> '' THEN
-        EXECUTE stmt USING CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), p_offset, p_product_per_page;
+        IF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL AND p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
+            EXECUTE stmt USING CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), p_product_cost_min, p_product_cost_max, p_product_price_min, p_product_price_max, p_offset, p_product_per_page;
+        ELSEIF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL THEN
+            EXECUTE stmt USING CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), p_product_cost_min, p_product_cost_max, p_offset, p_product_per_page;
+        ELSEIF p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
+            EXECUTE stmt USING CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), p_product_price_min, p_product_price_max, p_offset, p_product_per_page;
+        ELSE
+            EXECUTE stmt USING CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), p_offset, p_product_per_page;
+        END IF;
     ELSE
-        EXECUTE stmt USING p_offset, p_product_per_page;
+        IF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL AND p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
+            EXECUTE stmt USING p_product_cost_min, p_product_cost_max, p_product_price_min, p_product_price_max, p_offset, p_product_per_page;
+        ELSEIF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL THEN
+            EXECUTE stmt USING p_product_cost_min, p_product_cost_max, p_offset, p_product_per_page;
+        ELSEIF p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
+            EXECUTE stmt USING p_product_price_min, p_product_price_max, p_offset, p_product_per_page;
+        ELSE
+            EXECUTE stmt USING p_offset, p_product_per_page;
+        END IF;
     END IF;
 
+    -- Deallocate the prepared statement
     DEALLOCATE PREPARE stmt;
-END //
+END//
 
 CREATE PROCEDURE generateProductTable(
     IN p_search VARCHAR(500), 
@@ -7055,17 +7097,28 @@ CREATE PROCEDURE generateProductTable(
     IN p_product_cost_min DOUBLE, 
     IN p_product_cost_max DOUBLE, 
     IN p_product_price_min DOUBLE, 
-    IN p_product_price_max DOUBLE
+    IN p_product_price_max DOUBLE,
+    IN p_product_status VARCHAR(100)
 )
 BEGIN
     DECLARE sql_query LONGTEXT;
 
+    -- Start the SQL query with a base condition
     SET sql_query = 'SELECT * FROM product WHERE 1=1';
 
+    -- Apply filters for product status
+    IF p_product_status IS NOT NULL AND p_product_status <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_status = ', QUOTE(p_product_status));
+    ELSE
+        SET sql_query = CONCAT(sql_query, ' AND product_status != "Sold"');
+    END IF;
+
+    -- Apply search filter
     IF p_search IS NOT NULL AND p_search <> '' THEN
         SET sql_query = CONCAT(sql_query, ' AND (stock_number LIKE ? OR description LIKE ?)');
     END IF;
 
+    -- Apply category and subcategory filters
     IF p_product_category IS NOT NULL AND p_product_category <> '' THEN
         SET sql_query = CONCAT(sql_query, ' AND product_category_id IN (', p_product_category, ')');
     END IF;
@@ -7074,6 +7127,7 @@ BEGIN
         SET sql_query = CONCAT(sql_query, ' AND product_subcategory_id IN (', p_product_subcategory, ')');
     END IF;
 
+    -- Apply company and warehouse filters
     IF p_company IS NOT NULL AND p_company <> '' THEN
         SET sql_query = CONCAT(sql_query, ' AND company_id IN (', p_company, ')');
     END IF;
@@ -7082,6 +7136,7 @@ BEGIN
         SET sql_query = CONCAT(sql_query, ' AND warehouse_id IN (', p_warehouse, ')');
     END IF;
 
+    -- Apply body type and color filters
     IF p_body_type IS NOT NULL AND p_body_type <> '' THEN
         SET sql_query = CONCAT(sql_query, ' AND body_type_id IN (', p_body_type, ')');
     END IF;
@@ -7090,6 +7145,7 @@ BEGIN
         SET sql_query = CONCAT(sql_query, ' AND color_id IN (', p_color, ')');
     END IF;
 
+    -- Apply product cost and price range filters
     IF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL THEN
         SET sql_query = CONCAT(sql_query, ' AND product_cost BETWEEN ? AND ?');
     END IF;
@@ -7098,10 +7154,13 @@ BEGIN
         SET sql_query = CONCAT(sql_query, ' AND product_price BETWEEN ? AND ?');
     END IF;
 
+    -- Final ordering by stock number
     SET sql_query = CONCAT(sql_query, ' ORDER BY stock_number;');
 
+    -- Prepare the statement
     PREPARE stmt FROM sql_query;
 
+    -- Execute statement with appropriate parameters based on conditions
     IF p_search IS NOT NULL AND p_search <> '' THEN
         IF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL AND p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
             EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), p_product_cost_min, p_product_cost_max, p_product_price_min, p_product_price_max;
@@ -7119,11 +7178,15 @@ BEGIN
             EXECUTE stmt USING p_product_cost_min, p_product_cost_max;
         ELSEIF p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
             EXECUTE stmt USING p_product_price_min, p_product_price_max;
+        ELSE
+            EXECUTE stmt;
         END IF;
     END IF;
 
+    -- Deallocate the prepared statement
     DEALLOCATE PREPARE stmt;
-END;
+END//
+
 
 CREATE PROCEDURE generateProductOptions()
 BEGIN
@@ -7131,10 +7194,36 @@ BEGIN
 	ORDER BY stock_number;
 END //
 
+CREATE PROCEDURE getTotalProductCost(IN p_product_id INT)
+BEGIN
+	SELECT SUM(expense_amount) AS expense_amount FROM product_expense
+    WHERE product_id = p_product_id;
+END //
+
 CREATE PROCEDURE generateInStockProductOptions()
 BEGIN
 	SELECT product_id, description, stock_number FROM product
     WHERE product_status = 'In Stock'
+	ORDER BY stock_number;
+END //
+
+CREATE PROCEDURE generateForSaleProductOptions()
+BEGIN
+	SELECT product_id, description, stock_number FROM product
+    WHERE product_status = 'For Sale'
+	ORDER BY stock_number;
+END //
+
+CREATE PROCEDURE generateWithApplicationProductOptions()
+BEGIN
+	SELECT product_id, description, stock_number FROM product
+    WHERE product_status IN ('With Application', 'On-Process', 'Ready For Release', 'For DR', 'Sold')
+	ORDER BY stock_number;
+END //
+
+CREATE PROCEDURE generateAllProductOptions()
+BEGIN
+	SELECT product_id, description, stock_number FROM product
 	ORDER BY stock_number;
 END //
 
@@ -7699,6 +7788,9 @@ BEGIN
         initial_approval_remarks = p_remarks,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
+
+        UPDATE product SET product_status = 'With Application'
+        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
     ELSEIF p_sales_proposal_status = 'For CI' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -7713,6 +7805,20 @@ BEGIN
         rejection_reason = p_remarks,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
+
+        UPDATE product 
+        SET product_status = 'For Sale'
+        WHERE product_id = (
+            SELECT product_id 
+            FROM sales_proposal 
+            WHERE sales_proposal_id = p_sales_proposal_id
+        )
+        AND NOT EXISTS (
+            SELECT 1
+            FROM sales_proposal sp
+            WHERE sp.product_id = product.product_id
+            AND sp.sales_proposal_status IN ('For Final Approval', 'Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released')
+        );
     ELSEIF p_sales_proposal_status = 'Cancelled' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -7720,6 +7826,20 @@ BEGIN
         cancellation_reason = p_remarks,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
+
+        UPDATE product 
+        SET product_status = 'For Sale'
+        WHERE product_id = (
+            SELECT product_id 
+            FROM sales_proposal 
+            WHERE sales_proposal_id = p_sales_proposal_id
+        )
+        AND NOT EXISTS (
+            SELECT 1
+            FROM sales_proposal sp
+            WHERE sp.product_id = product.product_id
+            AND sp.sales_proposal_status IN ('For Final Approval', 'Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released')
+        );
     ELSEIF p_sales_proposal_status = 'Proceed' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -7735,18 +7855,27 @@ BEGIN
         additional_job_order_confirmation = '',
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
+
+        UPDATE product SET product_status = 'On-Process'
+        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
     ELSEIF p_sales_proposal_status = 'Ready For Release' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
         ready_for_release_date = NOW(),
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
+
+        UPDATE product SET product_status = 'Ready For Release'
+        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
     ELSEIF p_sales_proposal_status = 'For DR' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
         for_dr_date = NOW(),
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
+
+        UPDATE product SET product_status = 'For DR'
+        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
     ELSEIF p_sales_proposal_status = 'For Review' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -7759,6 +7888,20 @@ BEGIN
         set_to_draft_reason = p_remarks,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
+
+        UPDATE product 
+        SET product_status = 'For Sale'
+        WHERE product_id = (
+            SELECT product_id 
+            FROM sales_proposal 
+            WHERE sales_proposal_id = p_sales_proposal_id
+        )
+        AND NOT EXISTS (
+            SELECT 1
+            FROM sales_proposal sp
+            WHERE sp.product_id = product.product_id
+            AND sp.sales_proposal_status IN ('For Final Approval', 'Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released')
+        );
     ELSE
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -7845,6 +7988,14 @@ CREATE PROCEDURE updateSalesProposalSetToDraft(IN p_sales_proposal_id INT, IN p_
 BEGIN
       UPDATE sales_proposal
         SET set_to_draft_file = p_set_to_draft_file,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalOtherDocument(IN p_sales_proposal_id INT, IN p_other_document_file VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE sales_proposal
+        SET other_document_file = p_other_document_file,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
 END //
@@ -11171,6 +11322,9 @@ BEGIN
         SET conditionList = CONCAT(conditionList, ' AND expense_type =');
         SET conditionList = CONCAT(conditionList, QUOTE(p_expense_type));
     END IF;
+
+    SET conditionList = CONCAT(conditionList, ' AND product_id =');
+    SET conditionList = CONCAT(conditionList, QUOTE(p_product_id));
 
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY created_date DESC;');

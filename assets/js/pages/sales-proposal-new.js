@@ -414,6 +414,14 @@ function addSalesProposalForm(){
                     }
                 }
             },
+            final_orcr_name: {
+                required: {
+                    depends: function(element) {
+                        var productType = $("#product_category").val();
+                        return productType === '1';
+                    }
+                }
+            },
         },
         messages: {
             renewal_tag: {
@@ -499,6 +507,9 @@ function addSalesProposalForm(){
             },
             ref_plate_no: {
                 required: 'Please enter the plate number'
+            },
+            final_orcr_name: {
+                required: 'Please enter the final name on or/cr'
             },
         },
         errorPlacement: function (error, element) {
@@ -1044,7 +1055,7 @@ function displayDetails(transaction){
                     },
                     success: function(response) {
                         if (response.success) {
-                            $('#delivery_price').val(parseCurrency((response.productPrice * 1000).toFixed(2)).toLocaleString("en-US"));
+                            $('#delivery_price').val(parseCurrency((response.productPrice).toFixed(2)).toLocaleString("en-US"));
                             $('#old_color').val(response.colorName);
                             $('#old_body').val(response.bodyTypeName);
                             $('#old_engine').val(response.engineNumber);

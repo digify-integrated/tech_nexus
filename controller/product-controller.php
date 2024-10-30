@@ -1221,6 +1221,9 @@ class ProductController {
             $getColor = $this->colorModel->getColor($colorID);
             $colorName = $getColor['color_name'] ?? null;
 
+            
+            $productCost = $this->productModel->getTotalProductCost($productID)['expense_amount'] ?? 0;
+
             $response = [
                 'success' => true,
                 'productSubcategoryID' => $productSubategoryID,
@@ -1242,7 +1245,7 @@ class ProductController {
                 'mileage' => $productDetails['mileage'],
                 'colorID' => $colorID,
                 'colorName' => $colorName,
-                'productCost' => $productDetails['product_cost'],
+                'productCost' => $productCost,
                 'productPrice' => $productDetails['product_price'],
                 'remarks' => $productDetails['remarks'],
                 'orcrNo' => $productDetails['orcr_no'],

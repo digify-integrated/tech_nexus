@@ -4,10 +4,12 @@
     $publishButton = '';
     $removeDocumentPasswordButton = '';
 
+    $updateDocumentButton = '';
     if($draftDocumentWriteAccess['total'] > 0){
         $updateDocumentButton = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-document-offcanvas" aria-controls="update-document-offcanvas" id="update-document"><i class="ti ti-pencil"></i></button>';
     }
 
+    $updateDocumentFileButton = '';
     if($updateDocumentFile['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0)){
         $updateDocumentFileButton = '<a class="dropdown-item" href="Javascript:void(0)" data-bs-toggle="offcanvas" data-bs-target="#update-document-file-offcanvas" aria-controls="update-document-file-offcanvas">Update Document File</a>';
     }
@@ -20,14 +22,17 @@
         }
     }
 
+    $publishButton = '';
     if($publishDocument['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $fullAccessToDocuments['total'] > 0)){
         $publishButton = '<button type="button" class="btn btn-icon btn-success" id="publish-document"><i class="ti ti-check"></i></button>';
     }
 
+    $addDocumentDepartmentRestrictionsButton = '';
     if($addDocumentDepartmentRestrictions['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0)){
         $addDocumentDepartmentRestrictionsButton = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-department-restrictions-offcanvas" aria-controls="add-department-restrictions-offcanvas" id="add-department-restrictions">Add Department Restrictions</button>';
     }
 
+    $addDocumentEmployeeRestrictionsButton = '';
     if($addDocumentEmployeeRestrictions['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0)){
         $addDocumentEmployeeRestrictionsButton = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-employee-restrictions-offcanvas" aria-controls="add-employee-restrictions-offcanvas" id="add-employee-restrictions">Add Employee Restrictions</button>';
     }

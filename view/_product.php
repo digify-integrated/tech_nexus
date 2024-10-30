@@ -15,11 +15,50 @@
                 <div class="scroll-block">
                   <div class="card-body">
                     <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Product Status
+                        </a>
+                        <div class="collapse " id="product-status-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-all" value="" checked />
+                                <label class="form-check-label" for="product-status-all">All</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-for-sale" value="For Sale" />
+                                <label class="form-check-label" for="product-status-for-sale">For Sale</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-with-application" value="With Application" />
+                                <label class="form-check-label" for="product-status-with-application">With Application</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-on-process" value="On-Process" />
+                                <label class="form-check-label" for="product-status-on-process">On-Process</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-ready-for-release" value="Ready For Release" />
+                                <label class="form-check-label" for="product-status-ready-for-release">Ready For Release</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-ready-for-dr" value="For DR" />
+                                <label class="form-check-label" for="product-status-ready-for-dr">For DR</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-sold" value="Sold" />
+                                <label class="form-check-label" for="product-status-sold">Sold</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
                       <li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#company-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Company
                         </a>
-                        <div class="collapse show" id="company-filter-collapse">
+                        <div class="collapse " id="company-filter-collapse">
                           <div class="py-3">
                             <?php
                               echo $companyModel->generateCompanyCheckBox();
@@ -31,7 +70,7 @@
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-category-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                                 Product Category
                             </a>
-                            <div class="collapse show" id="product-category-filter-collapse">
+                            <div class="collapse " id="product-category-filter-collapse">
                                 <div class="py-3">
                                     <?php
                                         echo $productCategoryModel->generateProductCategoryCheckBox();
@@ -43,7 +82,7 @@
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-subcategory-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                                 Product Subcategory
                             </a>
-                            <div class="collapse show" id="product-subcategory-filter-collapse">
+                            <div class="collapse " id="product-subcategory-filter-collapse">
                                 <div class="py-3">
                                     <?php
                                         echo $productSubcategoryModel->generateProductSubcategoryCheckBox();
@@ -55,7 +94,7 @@
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#warehouse-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                                 Warehouse
                             </a>
-                            <div class="collapse show" id="warehouse-filter-collapse">
+                            <div class="collapse " id="warehouse-filter-collapse">
                                 <div class="py-3">
                                     <?php
                                         echo $warehouseModel->generateWarehouseCheckBox();
@@ -67,7 +106,7 @@
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#body-type-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                                 Body Type
                             </a>
-                            <div class="collapse show" id="body-type-filter-collapse">
+                            <div class="collapse " id="body-type-filter-collapse">
                                 <div class="py-3">
                                     <?php
                                         echo $bodyTypeModel->generateBodyTypeCheckBox();
@@ -75,11 +114,11 @@
                                 </div>
                             </div>
                         </li>
-                        <li class="list-group-item px-0 py-2">
+                        <li class="list-group-item px-0 py-2 d-none">
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#color-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                                 Color
                             </a>
-                            <div class="collapse show" id="color-filter-collapse">
+                            <div class="collapse " id="color-filter-collapse">
                                 <div class="py-3">
                                     <?php
                                         echo $colorModel->generateColorCheckBox();
@@ -87,11 +126,11 @@
                                 </div>
                             </div>
                         </li>
-                        <li class="list-group-item px-0 py-2">
+                        <li class="list-group-item px-0 py-2 d-none">
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-cost-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                                 Product Cost
                             </a>
-                            <div class="collapse show" id="product-cost-filter-collapse">
+                            <div class="collapse " id="product-cost-filter-collapse">
                                 <div class="row py-3">
                                     <div class="col-12">
                                         <input type="number" class="form-control mb-3" autocomplete="off" name="filter_product_cost_min" id="filter_product_cost_min" placeholder="Min" min="0" step="0.01">
@@ -104,7 +143,7 @@
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-price-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                                 Product Price
                             </a>
-                            <div class="collapse show" id="product-price-filter-collapse">
+                            <div class="collapse " id="product-price-filter-collapse">
                                 <div class="row py-3">
                                     <div class="col-12">
                                         <input type="number" class="form-control mb-3" autocomplete="off" name="filter_product_price_min" id="filter_product_price_min" placeholder="Min" min="0" step="0.01">
@@ -181,7 +220,7 @@
             <div class="card table-card">
               <div class="card-body">
                 <div class="table-responsive dt-responsive">
-                  <table id="product-table" class="table table-hover nowrap w-100">
+                  <table id="product-table" class="table table-hover wrap w-100">
                     <thead>
                       <tr>
                         <th class="all">
@@ -191,6 +230,7 @@
                         </th>
                         <th>Stock Number</th>
                         <th>Category</th>
+                        <th>Status</th>
                         <th>Actions</th>
                       </tr>
                     </thead>

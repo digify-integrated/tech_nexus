@@ -1,6 +1,7 @@
 <?php
 $checkIfDocumentAuthorizer = $documentModel->checkIfDocumentAuthorizer($contact_id);
 
+$unpublishButton = '';
 if($unpublishDocument['total'] > 0 && ($author == $contact_id || $checkIfDocumentAuthorizer['total'] > 0 || $fullAccessToDocuments['total'] > 0)){
     $unpublishButton = '<button type="button" class="btn btn-icon btn-danger" id="unpublish-document"><i class="ti ti-x"></i></button>';
 }

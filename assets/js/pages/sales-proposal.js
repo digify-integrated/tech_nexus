@@ -214,6 +214,10 @@
         if($('#sales-proposal-set-to-draft-form').length){
             salesProposalSetToDraftForm();
         }
+        
+        if($('#sales-proposal-other-document-form').length){
+            salesProposalOtherDocumentForm();
+        }
 
         if($('#sales-proposal-quality-control-form').length){
             salesProposalQualityControlForm();
@@ -483,7 +487,7 @@
         });
 
         $(document).on('change','#commission_amount',function() {
-            $('#summary-commission').text($(this).val());
+            $('#summary-commission').text(encryptCommission($(this).val()));
         });
 
         $(document).on('change','#referred_by',function() {
@@ -1324,6 +1328,9 @@
         if($('#sales-proposal-id').length){
             displayDetails('get sales proposal basic details');
             displayDetails('get sales proposal pricing computation details');
+            displayDetails('get sales proposal other charges details');
+            displayDetails('get sales proposal confirmation details');
+            displayDetails('get sales proposal renewal amount details');
         }
 
         $(document).on('click','#apply-filter',function() {
@@ -2435,8 +2442,6 @@ function salesProposalSummaryPDCManualInputTable(){
     });
 }
 
-
-
 function salesProposalForm(){
     $('#sales-proposal-form').validate({
         rules: {
@@ -2637,6 +2642,14 @@ function salesProposalUnitForm(){
                     }
                 }
             },
+            final_orcr_name: {
+                required: {
+                    depends: function(element) {
+                        var productType = $("#product_category").val();
+                        return productType === '1';
+                    }
+                }
+            },
         },
         messages: {
             product_id: {
@@ -2650,6 +2663,9 @@ function salesProposalUnitForm(){
             },
             new_engine: {
                 required: 'Please enter the new engine'
+            },
+            final_orcr_name: {
+                required: 'Please enter the final name on or/cr'
             },
         },
         errorPlacement: function (error, element) {
@@ -4365,6 +4381,97 @@ function salesProposalSetToDraftForm(){
     });
 }
 
+function salesProposalOtherDocumentForm(){
+    $('#sales-proposal-other-document-form').validate({
+        rules: {
+            other_document_file: {
+                required: true
+            },
+        },
+        messages: {
+            other_document_file: {
+                required: 'Please choose the other document'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'sales proposal other document';
+
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-set-to-draft');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Save Other Document', 'The other document has been saved successfully.', 'success');
+                        window.location.reload();
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-set-to-draft', 'Submit');
+                    $('#sales-proposal-set-to-draft-offcanvas').offcanvas('hide');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function salesProposalQualityControlForm(){
     $('#sales-proposal-quality-control-form').validate({
         rules: {
@@ -5061,7 +5168,11 @@ function displayDetails(transaction){
                             document.getElementById('draft-file').src = response.setToDraftFile;
                         }
 
-                        $('#summary-commission').text(response.commissionAmount);
+                        if($('#other-document-file').length){
+                            document.getElementById('other-document-file').src = response.otherDocumentFile;
+                        }
+
+                        $('#summary-commission').text(encryptCommission(response.commissionAmount));
                        
                         checkOptionExist('#renewal_tag', response.renewalTag, '');
                         checkOptionExist('#application_source_id', response.applicationSourceID, '');
@@ -5138,6 +5249,7 @@ function displayDetails(transaction){
                         $('#new_body').val(response.newBody);
                         $('#old_engine').val(response.oldEngine);
                         $('#new_engine').val(response.newEngine);
+                        $('#final_orcr_name').val(response.finalOrcrName);
 
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#for_registration', response.forRegistration, '');
@@ -5758,7 +5870,7 @@ function displayDetails(transaction){
                     },
                     success: function(response) {
                         if (response.success) {
-                            $('#delivery_price').val(response.productPrice * 1000);
+                            $('#delivery_price').val(response.productPrice);
                             $('#old_color').val(response.colorName);
                             $('#old_body').val(response.bodyTypeName);
                             $('#old_engine').val(response.engineNumber);
@@ -5780,7 +5892,7 @@ function displayDetails(transaction){
                             $('#insurance_color').text(response.colorName);
 
                             if($('#product_cost_label').length){
-                                $('#product_cost_label').text(parseFloat(response.productCost * 1000).toLocaleString("en-US"));
+                                $('#product_cost_label').text(parseFloat(response.productCost).toLocaleString("en-US"));
                             }
                         } 
                         else {
