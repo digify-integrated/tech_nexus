@@ -255,7 +255,7 @@
             if($('#sales-proposal-tab-2').length && $('#sales-proposal-tab-3').length && $('#sales-proposal-tab-4').length){
                 $('#sales-proposal-tab-2, #sales-proposal-tab-3, #sales-proposal-tab-4').addClass('d-none');
 
-                if (productType === 'Unit' || productType === 'Rental') {
+                if (productType === 'Unit' || productType === 'Rental' || productType === 'Consignment') {
                     $('#sales-proposal-tab-2').removeClass('d-none');
                     resetModalForm('sales-proposal-unit-details-form');
                     displayDetails('get sales proposal unit details');
@@ -272,7 +272,7 @@
                 }
             }
 
-            if($(this).val() == 'Unit' || $(this).val() == 'Fuel'){
+            if(productType == 'Unit' || productType === 'Rental' || productType === 'Consignment' || productType == 'Fuel'){
                 if($('#delivery_price').length){
                     $('#delivery_price').prop('readonly', true);
                 }
@@ -283,7 +283,7 @@
                 }
             }
 
-            if($(this).val() == 'Refinancing' || $(this).val() == 'Restructure'){
+            if(productType == 'Refinancing' || productType == 'Restructure'){
                 if($('#insurance_premium').length){
                     $('#insurance_premium').prop('readonly', false);
                 }
@@ -3842,6 +3842,9 @@ function salesProposalInitalApprovalForm(){
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
                         } 
+                        else if (response.withApplication) {
+                            showNotification('For Initial Approval Error', 'The product selected already linked to another sales proposal.', 'danger');
+                        }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
@@ -5010,7 +5013,7 @@ function displayDetails(transaction){
                         $('#sales_proposal_number').text(response.salesProposalNumber);
                         $('#summary-sales-proposal-number').text(response.salesProposalNumber);
 
-                        if(response.productType != 'Unit' && response.productType != 'Refinancing' && response.productType != 'Brand New' && response.productType != 'Restructure'){
+                        if(response.productType != 'Unit' && response.productType != 'Rental' && response.productType != 'Consignment' && response.productType != 'Refinancing' && response.productType != 'Brand New' && response.productType != 'Restructure'){
                             $('#summary-stock-no').text(response.salesProposalNumber);
                         }
 
@@ -5086,10 +5089,17 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                 displayDetails('get sales proposal fuel details');
-                 displayDetails('get sales proposal other charges details');
-                 displayDetails('get sales proposal confirmation details');
-                 displayDetails('get sales proposal renewal amount details');
+                    var productType = $('#product_type').val();
+
+                    if(productType == 'Unit' || productType == 'Rental' || productType == 'Consignment'){
+                        displayDetails('get sales proposal unit details');
+                    }
+                    else if(productType == 'Fuel'){
+                        displayDetails('get sales proposal fuel details');
+                    }
+                    else{
+                        displayDetails('get sales proposal refinancing details');
+                    }
                 }
             });
             break;
@@ -5965,11 +5975,15 @@ function calculatePricingComputation(){
     var cost_of_accessories = parseCurrency($('#cost_of_accessories').val());
     var reconditioning_cost = parseCurrency($('#reconditioning_cost').val());
     var downpayment = parseCurrency($('#downpayment').val());
+    var number_of_payments = parseCurrency($('#number_of_payments').val());
 
     var payment_frequency = $('#payment_frequency').val();
 
     if(payment_frequency == 'Lumpsum'){
         term_length = 1;
+    }
+    else if(payment_frequency == 'Semi-Annual' || payment_frequency == 'Quarterly'){
+        term_length = (number_of_payments);
     }
 
     var subtotal = delivery_price + cost_of_accessories + reconditioning_cost;

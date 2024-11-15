@@ -1,4 +1,5 @@
 <?php    // Include TCPDF library
+date_default_timezone_set('Asia/Manila');
     require('assets/libs/tcpdf2/tcpdf.php');
 
     // Create TCPDF instance

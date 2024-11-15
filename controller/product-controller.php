@@ -142,6 +142,18 @@ class ProductController {
                 case 'tag for sale':
                     $this->tagProductForSale();
                     break;
+                case 'tag as sold':
+                    $this->tagProductAsSold();
+                    break;
+                case 'tag as returned':
+                    $this->tagProductAsReturned();
+                    break;
+                case 'tag as ROPA':
+                    $this->tagProductAsROPA();
+                    break;
+                case 'tag as repossessed':
+                    $this->tagProductAsRepossessed();
+                    break;
                 case 'save product expense':
                     $this->saveProductExpense();
                     break;
@@ -194,7 +206,163 @@ class ProductController {
             exit;
         }
 
+        
+        $rrNumber = $this->systemSettingModel->getSystemSetting(18)['value'] + 1;
         $this->productModel->updateProductStatus($productID, 'For Sale', $description, $totalLandedCost, 'Landed Cost', $userID);
+        $this->productModel->updateProductRRNumber($productID, $rrNumber, $userID);
+        $this->systemSettingModel->updateSystemSettingValue(18, $rrNumber, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+
+    public function tagProductAsSold() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkProductExist = $this->productModel->checkProductExist($productID);
+        $total = $checkProductExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $productDetails = $this->productModel->getProduct($productID);
+        $preorder = $productDetails['preorder'];
+
+        if($preorder == 'Yes'){
+            echo json_encode(['success' => false, 'preOrder' =>  true]);
+            exit;
+        }
+
+        $this->productModel->updateProductStatus($productID, 'Sold', '', '', '', $userID);
+        $this->productModel->insertProductExpense($productID, '', '', 0, 'Sold', 'Sold', $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+
+    public function tagProductAsReturned() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkProductExist = $this->productModel->checkProductExist($productID);
+        $total = $checkProductExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $productDetails = $this->productModel->getProduct($productID);
+        $preorder = $productDetails['preorder'];
+
+        if($preorder == 'Yes'){
+            echo json_encode(['success' => false, 'preOrder' =>  true]);
+            exit;
+        }
+
+        $this->productModel->updateProductStatus($productID, 'Returned', '', '', '', $userID);
+        $this->productModel->insertProductExpense($productID, '', '', 0, 'Returned', 'Returned', $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+
+    public function tagProductAsROPA() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkProductExist = $this->productModel->checkProductExist($productID);
+        $total = $checkProductExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $productDetails = $this->productModel->getProduct($productID);
+        $preorder = $productDetails['preorder'];
+
+        if($preorder == 'Yes'){
+            echo json_encode(['success' => false, 'preOrder' =>  true]);
+            exit;
+        }
+
+        $this->productModel->updateProductStatus($productID, 'ROPA', '', '', '', $userID);
+        $this->productModel->insertProductExpense($productID, '', '', 0, 'ROPA', 'ROPA', $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+
+    public function tagProductAsRepossessed() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkProductExist = $this->productModel->checkProductExist($productID);
+        $total = $checkProductExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $productDetails = $this->productModel->getProduct($productID);
+        $preorder = $productDetails['preorder'];
+
+        if($preorder == 'Yes'){
+            echo json_encode(['success' => false, 'preOrder' =>  true]);
+            exit;
+        }
+
+        $this->productModel->updateProductStatus($productID, 'Repossessed', '', '', '', $userID);
+        $this->productModel->insertProductExpense($productID, '', '', 0, 'Repossessed', 'Repossessed', $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -262,7 +430,6 @@ class ProductController {
         $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'];
 
         $stockNumberLatest = $this->systemSettingModel->getSystemSetting(17)['value'] + 1;
-        $rrNumber = $this->systemSettingModel->getSystemSetting(18)['value'] + 1;
 
         if($preorder == 'No'){
             $stockNumber = $productSubcategoryCode . date('my') . $stockNumberLatest;
@@ -285,11 +452,41 @@ class ProductController {
         $modelName = $this->modelModel->getModel($modelID)['model_name'] ?? '';
         $bodyTypeName = $this->bodyTypeModel->getBodyType($bodyTypeID)['body_type_name'] ?? '';
 
-        $description = $brandName . ' ' . $makeName . ' ' . $cabinName . ' ' . $modelName . ' ' . $bodyTypeName . ' ' . $length . ' ' . $lengthUnit . ' ' . $yearModel;
-    
-        $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $rrNumber, $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $userID);
+        $unitDetails = $this->unitModel->getUnit($lengthUnit);
+        $unitShortName = $unitDetails['short_name'] ?? null;
 
-        $this->systemSettingModel->updateSystemSettingValue(18, $rrNumber, $userID);
+        $descriptionParts = [];
+
+        if (!empty($brandName)) {
+            $descriptionParts[] = $brandName;
+        }
+        if (!empty($makeName)) {
+            $descriptionParts[] = $makeName;
+        }
+        if (!empty($cabinName)) {
+            $descriptionParts[] = $cabinName;
+        }
+        if (!empty($modelName)) {
+            $descriptionParts[] = $modelName;
+        }
+        if (!empty($bodyTypeName)) {
+            $descriptionParts[] = $bodyTypeName;
+        }
+        if (!empty($length)) {
+            $descriptionParts[] = $length;
+        }
+        if (!empty($unitShortName)) {
+            $descriptionParts[] = $unitShortName;
+        }
+        if (!empty($yearModel)) {
+            $descriptionParts[] = $yearModel;
+        }
+
+        $description = implode(' ', $descriptionParts);
+    
+        $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, '', $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $userID);
+
+        
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'productID' => $this->securityModel->encryptData($productID)]);
         exit;
@@ -373,7 +570,37 @@ class ProductController {
             $this->systemSettingModel->updateSystemSettingValue(17, $stockNumberLatest, $userID);
         }
 
-        $description = $brandName . ' ' . $makeName . ' ' . $cabinName . ' ' . $modelName . ' ' . $bodyTypeName . ' ' . $length . ' ' . $lengthUnit . ' ' . $yearModel;
+        $unitDetails = $this->unitModel->getUnit($lengthUnit);
+        $unitShortName = $unitDetails['short_name'] ?? null;
+
+        $descriptionParts = [];
+
+        if (!empty($brandName)) {
+            $descriptionParts[] = $brandName;
+        }
+        if (!empty($makeName)) {
+            $descriptionParts[] = $makeName;
+        }
+        if (!empty($cabinName)) {
+            $descriptionParts[] = $cabinName;
+        }
+        if (!empty($modelName)) {
+            $descriptionParts[] = $modelName;
+        }
+        if (!empty($bodyTypeName)) {
+            $descriptionParts[] = $bodyTypeName;
+        }
+        if (!empty($length)) {
+            $descriptionParts[] = $length;
+        }
+        if (!empty($unitShortName)) {
+            $descriptionParts[] = $unitShortName;
+        }
+        if (!empty($yearModel)) {
+            $descriptionParts[] = $yearModel;
+        }
+
+        $description = implode(' ', $descriptionParts);
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -1224,6 +1451,8 @@ class ProductController {
             
             $productCost = $this->productModel->getTotalProductCost($productID)['expense_amount'] ?? 0;
 
+            
+
             $response = [
                 'success' => true,
                 'productSubcategoryID' => $productSubategoryID,
@@ -1232,6 +1461,7 @@ class ProductController {
                 'fullStockNumber' => $fullStockNumber,
                 'productCategoryID' => $productCategoryID,
                 'summaryStockNumber' => $productDetails['stock_number'],
+                'productStatus' => $productDetails['product_status'],
                 'engineNumber' => $productDetails['engine_number'],
                 'chassisNumber' => $productDetails['chassis_number'],
                 'plateNumber' => $productDetails['plate_number'],

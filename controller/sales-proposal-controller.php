@@ -1500,13 +1500,6 @@ class SalesProposalController {
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
 
         $productDetails = $this->productModel->getProduct($productID);
-        $productSubategoryID = $productDetails['product_subcategory_id'] ?? null;
-
-        $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
-        $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
-
-        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? null);
-        $fullStockNumber = $productSubcategoryCode . $stockNumber;
         
         $approverDetails = $this->userModel->getContactByContactID($inititialApprovingOfficer);
         $approverEmail = $approverDetails['email'];
@@ -1573,13 +1566,6 @@ class SalesProposalController {
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
 
         $productDetails = $this->productModel->getProduct($productID);
-        $productSubategoryID = $productDetails['product_subcategory_id'] ?? null;
-
-        $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
-        $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
-
-        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? null);
-        $fullStockNumber = $productSubcategoryCode . $stockNumber;
 
         /*$forChangeEngine = $salesProposalDetails['for_change_engine'] ?? 'No';
         $newEngineStencil = $salesProposalDetails['new_engine_stencil'] ?? null;
@@ -1591,7 +1577,7 @@ class SalesProposalController {
         }*/
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Review', '', $userID);
-        $this->sendForReview('', $salesProposalNumber, $customerName, $productType, $fullStockNumber);
+        $this->sendForReview('', $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null);
             
         echo json_encode(['success' => true]);
     }
@@ -1725,19 +1711,18 @@ class SalesProposalController {
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
 
         $productDetails = $this->productModel->getProduct($productID);
-        $productSubategoryID = $productDetails['product_subcategory_id'];
+        $productStatus = $productDetails['product_status'];
 
-        $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
-        $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
-
-        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
-        $fullStockNumber = $productSubcategoryCode . $stockNumber;
+        if($productStatus != 'For Sale'){
+            echo json_encode(['success' => false, 'withApplication' =>  true]);
+            exit;
+        }
         
         $approverDetails = $this->userModel->getContactByContactID($finalApprovingOfficer);
         $approverEmail = $approverDetails['email'];
 
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Final Approval', $initialApprovalRemarks, $userID);
-        $this->sendFinalApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $fullStockNumber);
+        $this->sendFinalApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null);
         
             
         echo json_encode(['success' => true]);
@@ -1833,16 +1818,9 @@ class SalesProposalController {
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
 
         $productDetails = $this->productModel->getProduct($productID);
-        $productSubategoryID = $productDetails['product_subcategory_id'];
-
-        $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
-        $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
-
-        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
-        $fullStockNumber = $productSubcategoryCode . $stockNumber;
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Proceed', $finalApprovalRemarks, $userID);
-        $this->sendProceed('', $salesProposalNumber, $customerName, $productType, $fullStockNumber);
+        $this->sendProceed('', $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null);
             
         echo json_encode(['success' => true]);
     }
@@ -2223,6 +2201,8 @@ class SalesProposalController {
         }
 
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $productType = $salesProposalDetails['product_type'] ?? null;
+        $productID = $salesProposalDetails['product_id'] ?? null;
 
         $loanNumber = $salesProposalDetails['loan_number'] ?? null;
 
@@ -2234,7 +2214,28 @@ class SalesProposalController {
         else{
             $this->salesProposalModel->updateSalesProposalAsReleased($salesProposalID, $loanNumber, 'Released', $releaseRemarks, $userID);
         }
-            
+        
+        if($productType == 'Unit' || $productType == 'Rental' || $productType == 'Consignment'){
+            if($productType == 'Unit'){
+                $particulars = 'Sold';
+                $status = 'Sold';
+                $expense_type = 'Sold';
+            }
+            else if($productType == 'Consignment'){
+                $particulars = 'Consigned';
+                $status = 'Consigned';
+                $expense_type = 'Consigned';
+            }
+            else{
+                $particulars = 'Rented';
+                $status = 'Rented';
+                $expense_type = 'Rented';
+            }
+
+            $this->productModel->insertProductExpense($productID, '', $loanNumber, 0, $expense_type, $particulars, $userID);
+            $this->productModel->updateProductStatus($productID, $status, '', '', '', $userID);
+        }
+
         echo json_encode(['success' => true]);
     }
     # -------------------------------------------------------------
@@ -2613,6 +2614,8 @@ class SalesProposalController {
         $productDescription = $_POST['product_description'];
         $drNumber = htmlspecialchars($_POST['dr_number'], ENT_QUOTES, 'UTF-8');
         $businessStyle = $_POST['business_style'];
+        $si = $_POST['si'];
+        $di = $_POST['di'];
         $startDate = $this->systemModel->checkDate('empty', $_POST['actual_start_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
@@ -2628,13 +2631,13 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalActualStartDate($salesProposalID, $drNumber, $releaseTo, $startDate, $userID);
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $userID);
+            $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->salesProposalModel->insertSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $userID);
+            $this->salesProposalModel->insertSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -3212,6 +3215,8 @@ class SalesProposalController {
                 'approvalByName' => $approvalByName,
                 'productName' => $stockNumber . ' - ' . $productDescription,
                 'drNumber' => $salesProposalDetails['dr_number'],
+                'si' => $salesProposalDetails['si'],
+                'di' => $salesProposalDetails['di'],
                 'releaseTo' => $salesProposalDetails['release_to'],
                 'actualStartDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['actual_start_date'], '', 'm/d/Y', ''),
                 'referredBy' => $salesProposalDetails['referred_by'],
@@ -3914,6 +3919,8 @@ class SalesProposalController {
                 'make' => $salesProposalOtherChargesDetails['make'] ?? null,
                 'productDescription' => $salesProposalOtherChargesDetails['product_description'] ?? null,
                 'businessStyle' => $salesProposalOtherChargesDetails['business_style'] ?? null,
+                'si' => $salesProposalOtherChargesDetails['si'] ?? null,
+                'di' => $salesProposalOtherChargesDetails['di'] ?? null,
             ];
 
             echo json_encode($response);

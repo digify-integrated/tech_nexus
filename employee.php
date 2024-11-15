@@ -20,6 +20,7 @@
     require('model/language-proficiency-model.php');
     require('model/bank-model.php');
     require('model/bank-account-type-model.php');
+    require('model/departure-reason-model.php');
     require('model/system-setting-model.php');
   
     $systemSettingModel = new SystemSettingModel($databaseModel);
@@ -42,6 +43,7 @@
     $languageProficiencyModel = new LanguageProficiencyModel($databaseModel);
     $bankModel = new BankModel($databaseModel);
     $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
+    $departureReasonModel = new DepartureReasonModel($databaseModel);
 
     $pageTitle = 'Employee';
     

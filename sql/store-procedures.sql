@@ -4215,6 +4215,17 @@ BEGIN
     WHERE contact_id = p_contact_id;
 END //
 
+CREATE PROCEDURE archiveEmployee(IN p_contact_id INT, IN p_offboard_date DATE,  IN p_departure_reason_id  INT, IN p_detailed_departure_reason VARCHAR(5000), IN p_last_log_by INT)
+BEGIN
+	UPDATE employment_information
+    SET offboard_date = p_offboard_date,
+    employment_status = 0,
+    departure_reason_id = p_departure_reason_id,
+    detailed_departure_reason = p_detailed_departure_reason,
+    last_log_by = p_last_log_by
+    WHERE contact_id = p_contact_id;
+END //
+
 CREATE PROCEDURE updateContactImage(IN p_contact_id INT, IN p_contact_image VARCHAR(500), IN p_last_log_by INT)
 BEGIN
 	UPDATE personal_information 
@@ -6918,6 +6929,14 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
+CREATE PROCEDURE updateProductRRNumber(IN p_product_id INT, IN p_rr_no VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE product 
+    SET rr_no = p_rr_no, 
+    last_log_by = p_last_log_by 
+    WHERE product_id = p_product_id;
+END //
+
 CREATE PROCEDURE insertProductImage(IN p_product_id INT, IN p_product_image VARCHAR(500), IN p_last_log_by INT)
 BEGIN
     INSERT INTO product_image (product_id, product_image, last_log_by) VALUES(p_product_id, p_product_image, p_last_log_by);
@@ -7218,6 +7237,13 @@ CREATE PROCEDURE generateWithApplicationProductOptions()
 BEGIN
 	SELECT product_id, description, stock_number FROM product
     WHERE product_status IN ('With Application', 'On-Process', 'Ready For Release', 'For DR', 'Sold')
+	ORDER BY stock_number;
+END //
+
+CREATE PROCEDURE generateNotDraftProductOptions()
+BEGIN
+	SELECT product_id, description, stock_number FROM product
+    WHERE product_status != 'Draft'
 	ORDER BY stock_number;
 END //
 
@@ -7789,7 +7815,8 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
 
-        UPDATE product SET product_status = 'With Application'
+        UPDATE product SET product_status = 'With Application',
+        last_log_by = p_last_log_by
         WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
     ELSEIF p_sales_proposal_status = 'For CI' THEN
         UPDATE sales_proposal
@@ -7856,7 +7883,8 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
 
-        UPDATE product SET product_status = 'On-Process'
+        UPDATE product SET product_status = 'On-Process',
+        last_log_by = p_last_log_by
         WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
     ELSEIF p_sales_proposal_status = 'Ready For Release' THEN
         UPDATE sales_proposal
@@ -7865,7 +7893,8 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
 
-        UPDATE product SET product_status = 'Ready For Release'
+        UPDATE product SET product_status = 'Ready For Release',
+        last_log_by = p_last_log_by
         WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
     ELSEIF p_sales_proposal_status = 'For DR' THEN
         UPDATE sales_proposal
@@ -7874,7 +7903,8 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
 
-        UPDATE product SET product_status = 'For DR'
+        UPDATE product SET product_status = 'For DR',
+        last_log_by = p_last_log_by
         WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
     ELSEIF p_sales_proposal_status = 'For Review' THEN
         UPDATE sales_proposal
@@ -8167,6 +8197,16 @@ BEGIN
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateDashboardForInitialApproval(IN p_initial_approving_officer INT)
+BEGIN
+    SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For Initial Approval' AND initial_approving_officer = p_initial_approving_officer;
+END //
+
+CREATE PROCEDURE generateDashboardForFinalApproval(IN p_final_approving_officer  INT)
+BEGIN
+    SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For Final Approval' AND final_approving_officer  = p_final_approving_officer;
 END //
 
 CREATE PROCEDURE generateOwnSalesProposalTable(IN p_contact_id INT, IN p_user_id INT, IN p_sales_proposal_status VARCHAR(50))
@@ -8706,13 +8746,13 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE insertSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE insertSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_si DOUBLE, IN p_di DOUBLE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO sales_proposal_other_product_details (sales_proposal_id, year_model, cr_no, mv_file_no, make, product_description, business_style, last_log_by) 
-	VALUES(p_sales_proposal_id, p_year_model, p_cr_no, p_mv_file_no, p_make, p_product_description, p_business_style, p_last_log_by);
+    INSERT INTO sales_proposal_other_product_details (sales_proposal_id, year_model, cr_no, mv_file_no, make, product_description, business_style, si, di, last_log_by) 
+	VALUES(p_sales_proposal_id, p_year_model, p_cr_no, p_mv_file_no, p_make, p_product_description, p_business_style, p_si, p_di, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_si DOUBLE, IN p_di DOUBLE, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_other_product_details
     SET year_model = p_year_model,
@@ -8721,6 +8761,8 @@ BEGIN
     make = p_make,
     product_description = p_product_description,
     business_style = p_business_style,
+    si = p_si,
+    di = p_di,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
@@ -11334,6 +11376,33 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateProductExpenseTable2(IN p_reference_type VARCHAR(100), IN p_expense_type VARCHAR(100))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM product_expense';
+    SET conditionList = ' WHERE 1';
+    
+    IF p_reference_type IS NOT NULL AND p_reference_type <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND reference_type =');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_reference_type));
+    END IF;
+
+    IF p_expense_type IS NOT NULL AND p_expense_type <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND expense_type = ', QUOTE(p_expense_type));
+    ELSE
+        SET conditionList = CONCAT(conditionList, ' AND expense_type != "Landed Cost"');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 CREATE PROCEDURE updateProductStatus(IN p_product_id INT, IN p_product_status VARCHAR(50), IN p_particulars VARCHAR(500), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_last_log_by INT)
@@ -11349,6 +11418,36 @@ BEGIN
 
         INSERT INTO product_expense (product_id, expense_amount, expense_type, particulars, last_log_by) 
 	    VALUES(p_product_id, p_expense_amount, p_expense_type, p_particulars, p_last_log_by);
+    ELSEIF p_product_status = 'Rented' THEN
+        UPDATE product
+        SET product_status = p_product_status,
+        rented_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE product_id = p_product_id;
+    ELSEIF p_product_status = 'Returned' THEN
+        UPDATE product
+        SET product_status = 'For Sale',
+        returned_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE product_id = p_product_id;
+    ELSEIF p_product_status = 'Consigned' THEN
+        UPDATE product
+        SET product_status = p_product_status,
+        consignment_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE product_id = p_product_id;
+    ELSEIF p_product_status = 'Repossessed' THEN
+        UPDATE product
+        SET product_status = p_product_status,
+        repossessed_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE product_id = p_product_id;
+    ELSEIF p_product_status = 'ROPA' THEN
+        UPDATE product
+        SET product_status = 'For Sale',
+        ropa_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE product_id = p_product_id;
     ELSE
         UPDATE product
         SET product_status = p_product_status,

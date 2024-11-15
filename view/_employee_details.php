@@ -1,4 +1,8 @@
 <?php
+  $employmentDetails = $employeeModel->getEmploymentInformation($employeeID);
+  $employmentStatus = $employmentDetails['employment_status'];
+
+  $deactivateEmployee = $userModel->checkSystemActionAccessRights($user_id, 180);
   $portalAccessButton = '';
   if($grantPortalAccess['total'] > 0 && !$portalAccess){
     $portalAccessButton = '<button type="button" class="btn btn-outline-success w-100 text-center mb-2" id="grant-portal-access">Grant Portal Access</button>';
@@ -6,6 +10,11 @@
 
   if($revokePortalAccess['total'] > 0 && $portalAccess){
     $portalAccessButton = '<button type="button" class="btn btn-outline-danger w-100 text-center mb-2" id="revoke-portal-access">Revoke Portal Access</button>';
+  }
+
+  $deactivateButton = '';
+  if($deactivateEmployee['total'] > 0 && $employmentStatus){
+    $deactivateButton = '<button type="button" class="btn btn-outline-warning w-100 text-center mb-2" data-bs-toggle="offcanvas" data-bs-target="#archive-employee-offcanvas" aria-controls="archive-employee-offcanvas" id="deactivate-employee">Archive Employee</button>';
   }
 
   if($employeeWriteAccess['total'] > 0){
@@ -112,6 +121,7 @@
           <p class="text-sm" id="job_position"></p>
           <p class="mb-4" id="employee_bio"></p>
           <?php echo $portalAccessButton; ?>
+          <?php echo $deactivateButton; ?>
           <button type="button" class="btn btn-outline-info w-100 text-center mb-0" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-qr-code-offcanvas" aria-controls="contact-employee-qr-code-offcanvas" id="generate-employee-qr-code"><i class="ti ti-qrcode me-1"></i>QR Code</button>
         </div>
       </div>
@@ -1482,3 +1492,54 @@
     </div>
   </div>
 </div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="archive-employee-offcanvas" aria-labelledby="archive-employee-offcanvas-label">
+                          <div class="offcanvas-header">
+                            <h2 id="archive-employee-offcanvas-label" style="margin-bottom:-0.5rem">Archive Employee</h2>
+                            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                          </div>
+                          <div class="offcanvas-body">
+                            <div class="row">
+                              <div class="col-lg-12">
+                                <form id="archive-employee-form" method="post" action="#">
+                                  <div class="form-group row mb-0">
+                                    <div class="col-lg-12">
+                                      <label class="form-label">Departure Reason <span class="text-danger">*</span></label>
+                                    </div>
+                                  </div>
+                                  <div class="form-group row">
+                                    <div class="col-lg-12">
+                                      <select class="form-control offcanvas-select2" name="departure_reason_id" id="departure_reason_id">
+                                        <option value="">--</option>
+                                        <?php echo $departureReasonModel->generateDepartureReasonOptions(); ?>
+                                      </select>
+                                    </div>
+                                  </div>
+                                  <div class="form-group row">
+                                    <div class="col-lg-12 mt-3 mt-lg-0">
+                                      <label class="form-label">Offboard Date <span class="text-danger">*</span></label>
+                                      <div class="input-group date">
+                                        <input type="text" class="form-control regular-datepicker" id="offboard_date" name="offboard_date" autocomplete="off">
+                                        <span class="input-group-text">
+                                          <i class="feather icon-calendar"></i>
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group row">
+                                    <div class="col-lg-12">
+                                      <label class="form-label">Detailed Departure Reason <span class="text-danger">*</span></label>
+                                      <textarea class="form-control" id="detailed_departure_reason" name="detailed_departure_reason" maxlength="5000" rows="5"></textarea>
+                                    </div>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-lg-12">
+                                <button type="submit" class="btn btn-primary" id="submit-archive-employee" form="archive-employee-form">Submit</button>
+                                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>

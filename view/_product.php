@@ -27,6 +27,10 @@
                                 <label class="form-check-label" for="product-status-all">All</label>
                               </div>
                               <div class="form-check my-2">
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-draft" value="Draft" />
+                                <label class="form-check-label" for="product-status-draft">Draft</label>
+                              </div>
+                              <div class="form-check my-2">
                                 <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-for-sale" value="For Sale" />
                                 <label class="form-check-label" for="product-status-for-sale">For Sale</label>
                               </div>
@@ -49,6 +53,18 @@
                               <div class="form-check my-2">
                                 <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-sold" value="Sold" />
                                 <label class="form-check-label" for="product-status-sold">Sold</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-rented" value="Rented" />
+                                <label class="form-check-label" for="product-status-rented">Rented</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-returned" value="Returned" />
+                                <label class="form-check-label" for="product-status-returned">Returned</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-ropa" value="ROPA" />
+                                <label class="form-check-label" for="product-status-ropa">ROPA</label>
                               </div>
                             </div>
                           </div>
@@ -230,6 +246,7 @@
                         </th>
                         <th>Stock Number</th>
                         <th>Category</th>
+                        <th>Product Price (SRP)</th>
                         <th>Status</th>
                         <th>Actions</th>
                       </tr>

@@ -234,9 +234,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $unpaidOtherCharges = 0;
                     }
 
-                    if($outstandingBalance <= 0){
-                        $outstandingBalance = 0;
-                    }
+                    $outstandingBalance = 0;
 
                     $response[] = [
                         'TENANT_NAME' => '<a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'">
@@ -248,11 +246,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </div>
                         </a>',
                         'PROPERTY_NAME' => $propertyName,
-                        'UNPAID_RENTAL' => number_format($unpaidRental, 2),
-                        'UNPAID_ELECTRICITY' => number_format($unpaidElectricity, 2),
-                        'UNPAID_WATER' => number_format($unpaidWater, 2),
-                        'UNPAID_OTHER_CHARGES' => number_format($unpaidOtherCharges, 2),
-                        'OUTSTANDING_BALANCE' => number_format($outstandingBalance, 2),
+                        'UNPAID_RENTAL' => '0.00',
+                        'UNPAID_ELECTRICITY' => '0.00',
+                        'UNPAID_WATER' => '0.00',
+                        'UNPAID_OTHER_CHARGES' => '0.00',
+                        'OUTSTANDING_BALANCE' => '0.00',
                         'FLOOR_AREA' => number_format($floorArea, 0),
                         'TERM' => $termLength . ' ' . $termType,
                         'INCEPTION_DATE' => $contractDate,

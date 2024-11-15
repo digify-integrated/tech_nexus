@@ -100,6 +100,7 @@
                     <option value="Parts">Parts</option>
                     <option value="Repair">Repair</option>
                     <option value="Rental">Rental</option>
+                    <option value="Consignment">Consignment</option>
                     <option value="Brand New">Brand New</option>
                     <option value="Refinancing">Refinancing</option>
                     <option value="Restructure">Restructure</option>
@@ -248,7 +249,7 @@
                 <div class="col-lg-7">
                   <select class="form-control select2" name="product_id" id="product_id">
                     <option value="">--</option>
-                    <?php echo $productModel->generateInStockProductOptions(); ?>
+                    <?php echo $productModel->generateForSaleProductOptions(); ?>
                   </select>
                 </div>
               </div>

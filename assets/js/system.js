@@ -695,6 +695,27 @@ function createEmployeeQRCode(container, name, badgeID){
     qrcode.makeCode(card);
 }
 
+function createProductQRCode(container, product_id, description, stock_number) {
+    document.getElementById(container).innerHTML = '';
+
+    var card = 'BEGIN:VCARD\r\n';
+    card += 'VERSION:3.0\r\n';
+    card += 'PRODUCT_ID:' + product_id + '\r\n';
+    card += 'DESCRIPTION:' + description + '\r\n';
+    card += 'STOCK_NUMBER:' + stock_number + '\r\n';
+    card += 'END:VCARD';
+
+    var qrcode = new QRCode(document.getElementById(container), {
+        width: 400,
+        height: 400,
+        colorDark: "#000000", 
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+
+    qrcode.makeCode(card);
+}
+
 function getLocation(containerID) {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {

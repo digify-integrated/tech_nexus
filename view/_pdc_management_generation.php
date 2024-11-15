@@ -344,6 +344,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $customerID = $pdcManagementDetails['customer_id'] ?? null;
                 $paymentDetails = $pdcManagementDetails['payment_details'] ?? null;
                 $checkNumber = $pdcManagementDetails['check_number'] ?? null;
+                $paymentAmount = $pdcManagementDetails['payment_amount'] ?? null;
 
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;
@@ -366,6 +367,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PRODUCT' => '<a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details" target="_blank">' . $stockNumber . '<br/>' . $productName . '</a>',
                     'PAYMENT_DETAILS' => $paymentDetails,
                     'CHECK_NUMBER' => $checkNumber,
+                    'PAYMENT_AMOUNT' => number_format($paymentAmount, 2),
                     'MODE_OF_PAYMENT' => $modeOfPayment,
                     'TRANSACTION_TYPE' => $transactionType,
                     'TRANSACTION_DATE' => $transactionDate,

@@ -268,6 +268,15 @@ class ProductModel {
     }
     # -------------------------------------------------------------
     # -------------------------------------------------------------
+    public function updateProductRRNumber($p_product_id, $p_rr_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateProductRRNumber(:p_product_id, :p_rr_number, :p_last_log_by)');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_rr_number', $p_rr_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    # -------------------------------------------------------------
     public function insertProductImage($p_product_id, $p_product_image, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL insertProductImage(:p_product_id, :p_product_image, :p_last_log_by)');
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
@@ -689,8 +698,13 @@ class ProductModel {
     # -------------------------------------------------------------
     public function getProductStatus($p_product_status) {
         $statusClasses = [
-            'In Stock' => 'success',
-            'Sold' => 'danger'
+            'Draft' => 'info',
+            'For Sale' => 'info',
+            'With Application' => 'warning',
+            'On-Process' => 'danger',
+            'For DR' => 'danger',
+            'Ready For Release' => 'danger',
+            'Sold' => 'success'
         ];
         
         $defaultClass = 'dark';
@@ -859,6 +873,25 @@ class ProductModel {
     # -------------------------------------------------------------
     public function generateAllProductOptions() {
         $stmt = $this->db->getConnection()->prepare('CALL generateAllProductOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $productID = $row['product_id'];
+            $description = $row['description'];
+            $stockNumber = $row['stock_number'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($productID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    public function generateNotDraftProductOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateNotDraftProductOptions()');
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

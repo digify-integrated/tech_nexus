@@ -126,6 +126,7 @@
                         <th>Product</th>
                         <th>Payment Details</th>
                         <th>Check Number</th>
+                        <th>Amount</th>
                         <th>Mode of Payment</th>
                         <th>Transaction Type</th>
                         <th>Transaction Date</th>

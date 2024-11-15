@@ -8,18 +8,25 @@ $productStatus = $productDetails['product_status'];
 
 $updateLandedCost = $userModel->checkSystemActionAccessRights($user_id, 171);
 $updateProductDisabled = $userModel->checkSystemActionAccessRights($user_id, 175);
+$tagProductAsReturned = $userModel->checkSystemActionAccessRights($user_id, 176);
+$tagProductAsROPA = $userModel->checkSystemActionAccessRights($user_id, 177);
+$tagProductAsSold = $userModel->checkSystemActionAccessRights($user_id, 178);
+$tagProductAsRepossessed = $userModel->checkSystemActionAccessRights($user_id, 179);
 
 $checkSalesProposalProduct = $productModel->checkSalesProposalProduct($productID);
 $disabledProductForm = 'disabled';
 $disabledLandedCostForm = 'readonly';
 $disabledLandedCostForm2 = 'readonly';
 
-if(($updateLandedCost['total'] > 0 && $productStatus == 'Draft') || $updateProductDisabled['total'] > 0 && $productStatus != 'Draft' &&  $productStatus != 'Sold'){
+if ($updateLandedCost['total'] > 0 && $productStatus == 'Draft') {
   $disabledLandedCostForm = '';
-  if($updateProductDisabled['total'] > 0 && $productStatus != 'Draft' &&  $productStatus != 'Sold'){
-    $disabledLandedCostForm = 'readonly';
-    $disabledLandedCostForm2 = '';
-  }
+  $disabledLandedCostForm2 = '';
+} elseif ($updateProductDisabled['total'] > 0 && $productStatus != 'Draft' && $productStatus != 'Sold') {
+  $disabledLandedCostForm = 'readonly';
+  $disabledLandedCostForm2 = '';
+} else {
+  $disabledLandedCostForm = 'readonly';
+  $disabledLandedCostForm2 = 'readonly';
 }
 
 if(($productWriteAccess['total'] > 0 && $productStatus == 'Draft') || $updateProductDisabled['total'] > 0 && $productStatus != 'Draft' &&  $productStatus != 'Sold'){
@@ -75,8 +82,26 @@ if($addProductExpense['total'] > 0){
                             $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-product-for-sale">Tag For Sale</button></li>';
                         }
 
-                        $dropdown .= '<li><a href="print-receiving-report.php?id='. $productID .'" class="dropdown-item" type="button">Print Receiving Report</a></li>';
-                        $dropdown .= '<li><a href="print-incoming-checklist.php?id='. $productID .'" class="dropdown-item" type="button">Print Incoming Checklist</a></li>';
+                        if ($tagProductAsSold['total'] > 0 && ($productStatus == 'For Sale' || $productStatus == 'Consigned')) {
+                            $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-product-as-sold">Tag As Sold</button></li>';
+                        }
+
+                        if ($tagProductAsRepossessed['total'] > 0 && $productStatus == 'Sold') {
+                            $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-product-as-repossessed">Tag As Repossessed</button></li>';
+                        }
+
+                        if ($tagProductAsReturned['total'] > 0 && ($productStatus == 'Rented' || $productStatus == 'Consigned')) {
+                            $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-product-as-returned">Tag As Returned</button></li>';
+                        }
+
+                        if ($tagProductAsReturned['total'] > 0 && $productStatus == 'Repossessed') {
+                            $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-product-as-ropa">Tag As ROPA</button></li>';
+                        }
+
+                        $dropdown .= '<li><a href="print-receiving-report.php?id='. $productID .'" class="dropdown-item" type="button" target="_blank">Print Receiving Report</a></li>';
+                        $dropdown .= '<li><a href="print-incoming-checklist.php?id='. $productID .'" class="dropdown-item" type="button" target="_blank">Print Incoming Checklist</a></li>';
+                        $dropdown .= '<li><a href="print-incoming-checklist-fuso.php?id='. $productID .'" class="dropdown-item" type="button" target="_blank">Print Incoming Checklist (Fuso)</a></li>';
+                        $dropdown .= '<li><a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#product-qr-code-offcanvas" aria-controls="product-qr-code-offcanvas" id="generate-qr-code">Print QR Code</a></li>';
 
                         if ($productDeleteAccess['total'] > 0) {
                             $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-product-details">Delete Product</button></li>';
@@ -124,6 +149,34 @@ if($addProductExpense['total'] > 0){
                 <label class="btn btn-outline-secondary" for="product_other_image"><i class="ti ti-upload me-2"></i> Click to Upload</label> 
                 <input type="file" id="product_other_image" name="product_other_image" class="d-none">
                 </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group row">
+                <h5 class="col-lg-12">Product Details</h5>
+                <hr/>
+            </div>
+            <div class="form-group row">
+              <label class="col-lg-3 col-form-label">Stock Number</label>
+              <div class="col-lg-3">
+                <input type="text" class="form-control" id="stock_number" autocomplete="off" readonly>
+              </div>
+              <label class="col-lg-3 col-form-label">Product Status <span class="text-danger">*</span></label>
+              <div class="col-lg-3">
+                <input type="text" class="form-control" id="product_status" autocomplete="off" readonly>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-lg-3 col-form-label">RR Number <span class="text-danger">*</span></label>
+              <div class="col-lg-3">
+                <input type="text" class="form-control" id="rr_no" autocomplete="off" readonly>
+              </div>
+              <label class="col-lg-3 col-form-label">RR Date <span class="text-danger">*</span></label>
+              <div class="col-lg-3">
+                <input type="text" class="form-control" id="rr_date" autocomplete="off" readonly>
+              </div>
             </div>
           </div>
         </div>
@@ -575,7 +628,7 @@ if($addProductExpense['total'] > 0){
         <h5>Expense</h5>
       </div>
       <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-          <button type="button" class="d-xxl-none btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
+          <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
             Filter
           </button>
           <?php echo $addProductExpenseButton; ?>
@@ -590,13 +643,20 @@ if($addProductExpense['total'] > 0){
             <th>Date</th>
             <th class="all">Reference Type</th>
             <th class="all">Reference Number</th>
-            <th class="all">Amount</th>
             <th class="all">Particulars</th>
             <th class="all">Type</th>
+            <th class="all">Amount</th>
             <th class="all">Actions</th>
           </tr>
         </thead>
         <tbody></tbody>
+        <tfoot>
+          <tr>
+              <td class="text-end" colspan="5"><b>TOTAL</b></td>
+              <td></td> 
+              <td></td>
+          </tr>
+      </tfoot>
         </table>
     </div>
   </div>
@@ -689,11 +749,12 @@ if($addProductExpense['total'] > 0){
                 <label class="form-label">Reference Type <span class="text-danger">*</span></label>
                 <select class="form-control offcanvas-select2" name="reference_type" id="reference_type">
                   <option value="">--</option>
-                  <option value="CV">CV</option>
-                  <option value="CDV">CDV</option>
-                  <option value="I/S">I/S</option>
+                  <option value="Check Voucher">Check Voucher</option>
+                  <option value="Cash Disbursement Voucher">Cash Disbursement Voucher</option>
+                  <option value="Issuance Slip">Issuance Slip</option>
                   <option value="Contractor Report">Contractor Report</option>
                   <option value="Adjustment">Adjustment</option>
+                  <option value="Stock Transfer Advice">Stock Transfer Advice</option>
                 </select>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
@@ -767,11 +828,12 @@ if($addProductExpense['total'] > 0){
                           <div class="py-3">
                             <select class="form-control" id="reference_type_filter">
                               <option value="">--</option>
-                              <option value="CV">CV</option>
-                              <option value="CDV">CDV</option>
-                              <option value="I/S">I/S</option>
+                              <option value="Check Voucher">Check Voucher</option>
+                              <option value="Cash Disbursement Voucher">Cash Disbursement Voucher</option>
+                              <option value="Issuance Slip">Issuance Slip</option>
                               <option value="Contractor Report">Contractor Report</option>
                               <option value="Adjustment">Adjustment</option>
+                              <option value="Stock Transfer Advice">Stock Transfer Advice</option>
                             </select>
                           </div>
                         </div>
@@ -812,6 +874,28 @@ if($addProductExpense['total'] > 0){
           </div>
         </div>
 </div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="product-qr-code-offcanvas" aria-labelledby="product-qr-code-offcanvas-label">
+                  <div class="offcanvas-header">
+                    <h2 id="product-qr-code-offcanvas-label" style="margin-bottom:-0.5rem">QR Code</h2>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                  </div>
+                  <div class="offcanvas-body">
+                    <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                      This QR code serves as a secure and efficient means of identity verification and access control within our organization. Its primary purpose is to enhance the overall security and streamline various operational processes.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <div class="row mb-4 text-center">
+                      <div class="col-lg-12" id="product-qr-code-container"></div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <button class="btn btn-light-success" id="print-qr"> Print </button>
+                        <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
 <?php
   echo '<div class="row">

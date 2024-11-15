@@ -10,6 +10,18 @@
             transmittalTable('#dashboard-transmittal-table');
         }
 
+        if($('#travel-approval-form-table').length){
+            travelApprovalFormTable('#travel-approval-form-table');
+        }
+
+        if($('#dashboard-sales-proposal-for-initial-approval-table').length){
+            dashboardInitialApproval('#dashboard-sales-proposal-for-initial-approval-table');
+        }
+
+        if($('#dashboard-sales-proposal-for-final-approval-table').length){
+            dashboardFinalApproval('#dashboard-sales-proposal-for-final-approval-table');
+        }
+
         if($('#dashboard-document-table').length){
             dashboardDocumentTable('#dashboard-document-table');
         }
@@ -199,6 +211,128 @@ function transmittalTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
+function dashboardInitialApproval(datatable_name, buttons = false, show_all = false){
+    const type = 'dashboard for initial approval table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'PRODUCT_TYPE' },
+        { 'data' : 'CREATED_DATE' }
+    ];
+
+    const column_definition = [
+        { 'width': '14%', 'aTargets': 0 },
+        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '10%', 'aTargets': 2 },
+        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '10%', 'aTargets': 4 },
+        { 'width': '15%', 'type': 'date', 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 5, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function dashboardFinalApproval(datatable_name, buttons = false, show_all = false){
+    const type = 'dashboard for final approval table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'PRODUCT_TYPE' },
+        { 'data' : 'CREATED_DATE' }
+    ];
+
+    const column_definition = [
+        { 'width': '14%', 'aTargets': 0 },
+        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '10%', 'aTargets': 2 },
+        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '10%', 'aTargets': 4 },
+        { 'width': '15%', 'type': 'date', 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 5, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 function dashboardDocumentTable(datatable_name, buttons = false, show_all = false){
     const type = 'dashboard document table';
     var settings;
@@ -237,6 +371,73 @@ function dashboardDocumentTable(datatable_name, buttons = false, show_all = fals
             }
         },
         'order': [[ 3, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function travelApprovalFormTable(datatable_name, buttons = false, show_all = false){
+    const type = 'travel approval form table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'CREATED_BY' },
+        { 'data' : 'CHECKED_BY' },
+        { 'data' : 'CHECKED_DATE' },
+        { 'data' : 'RECOMMENDED_BY' },
+        { 'data' : 'RECOMMENDED_DATE' },
+        { 'data' : 'APPROVAL_BY' },
+        { 'data' : 'APPROVAL_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '15%','bSortable': false, 'aTargets': 8 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_travel_form_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 4, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

@@ -686,6 +686,226 @@
             });
         });
 
+        $(document).on('click','#tag-product-as-sold',function() {
+            const product_id = $('#product-id').text();
+            const transaction = 'tag as sold';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Product As Sold',
+                text: 'Are you sure you want to tag this product as sold?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Sold',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-warning mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/product-controller.php',
+                        dataType: 'json',
+                        data: {
+                            product_id : product_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Product As Sold Success', 'The producct has been tagged as sold successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Product As Sold Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#tag-product-as-returned',function() {
+            const product_id = $('#product-id').text();
+            const transaction = 'tag as returned';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Product As Returned',
+                text: 'Are you sure you want to tag this product as returned?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Returned',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-warning mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/product-controller.php',
+                        dataType: 'json',
+                        data: {
+                            product_id : product_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Product As Returned Success', 'The producct has been tagged as returned successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Product As Retuned Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#tag-product-as-ropa',function() {
+            const product_id = $('#product-id').text();
+            const transaction = 'tag as ROPA';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Product As ROPA',
+                text: 'Are you sure you want to tag this product as ROPA?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'ROPA',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-warning mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/product-controller.php',
+                        dataType: 'json',
+                        data: {
+                            product_id : product_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Product As ROPA Success', 'The producct has been tagged as ROPA successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Product As Retuned Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#tag-product-as-repossessed',function() {
+            const product_id = $('#product-id').text();
+            const transaction = 'tag as repossessed';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Product As Repossessed',
+                text: 'Are you sure you want to tag this product as repossessed?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Repossessed',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-warning mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/product-controller.php',
+                        dataType: 'json',
+                        data: {
+                            product_id : product_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Product As Repossessed Success', 'The producct has been tagged as repossessed successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Product As Repossessed Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('click','.delete-product-expense',function() {
             const product_expense_id = $(this).data('product-expense-id');
             const transaction = 'delete product expense';
@@ -795,6 +1015,10 @@
                     return false;
                 }
             });
+        });
+
+        $(document).on('click','#generate-qr-code',function() {
+            displayDetails('get product qr code details');
         });
 
         $(document).on('click','#discard-create',function() {
@@ -982,6 +1206,7 @@ function productTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'STOCK_NUMBER' },
         { 'data' : 'CATEGORY' },
+        { 'data' : 'PRODUCT_PRICE' },
         { 'data' : 'PRODUCT_STATUS' },
         { 'data' : 'ACTION' }
     ];
@@ -990,8 +1215,9 @@ function productTable(datatable_name, buttons = false, show_all = false){
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': '20%', 'aTargets': 1 },
         { 'width': '25%', 'aTargets': 2 },
-        { 'width': '19%', 'aTargets': 3 },
-        { 'width': '20%','bSortable': false, 'aTargets': 4 }
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '20%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1059,9 +1285,9 @@ function productExpenseTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CREATED_DATE' },
         { 'data' : 'REFERENCE_TYPE' },
         { 'data' : 'REFERENCE_NUMBER' },
-        { 'data' : 'EXPENSE_AMOUNT' },
         { 'data' : 'PARTICULARS' },
         { 'data' : 'EXPENSE_TYPE' },
+        { 'data' : 'EXPENSE_AMOUNT' },
         { 'data' : 'ACTION' }
     ];
 
@@ -1107,6 +1333,24 @@ function productExpenseTable(datatable_name, buttons = false, show_all = false){
             'searchPlaceholder': 'Search...',
             'search': '',
             'loadingRecords': 'Just a moment while we fetch your data...'
+        },
+       'footerCallback': function(row, data, start, end, display) {
+            var api = this.api();
+
+            // Calculate the total for EXPENSE_AMOUNT across all pages
+            var total = api
+                .column(5, { page: 'all' })  // Use { page: 'all' } for total of all pages
+                .data()
+                .reduce(function (a, b) {
+                    // Remove commas and parse each amount as a float
+                    return a + parseFloat(b.replace(/,/g, '') || 0);
+                }, 0);
+
+            // Format total with thousand separators
+            var formattedTotal = total.toLocaleString('en-US', { minimumFractionDigits: 2 });
+
+            // Update footer with formatted total
+            $(api.column(5).footer()).html('<b>Total: ' + formattedTotal + '</b>');
         }
     };
 
@@ -1842,9 +2086,14 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
+                        $(document).on('click','#print-qr',function() {
+                            window.open(window.open('print-product-qr-code.php?product_id='+ product_id +'&description='+response.description+'&stock_number='+ response.fullStockNumber));
+                        });
+
+                        createProductQRCode('product-qr-code-container', product_id, response.description, response.fullStockNumber);
                         $('#product_id').val(product_id);
                         $('#description').val(response.description);
-                        $('#stock_number').val(response.stockNumber);
+                        $('#stock_number').val(response.fullStockNumber);
                         $('#engine_number').val(response.engineNumber);
                         $('#chassis_number').val(response.chassisNumber);
                         $('#plate_number').val(response.plateNumber);
@@ -1863,6 +2112,7 @@ function displayDetails(transaction){
                         $('#received_from_address').val(response.receivedFromAddress);
                         $('#received_from_id_number').val(response.receivedFromIDNumber);
                         $('#unit_description').val(response.unitDescription);
+                        $('#product_status').val(response.productStatus);
                         
                         $('#rr_no').val(response.rr_no);
                         $('#ref_no').val(response.ref_no);

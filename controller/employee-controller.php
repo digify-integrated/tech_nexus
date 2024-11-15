@@ -110,6 +110,9 @@ class EmployeeController {
                 case 'grant portal access':
                     $this->grantPortalAccess();
                     break;
+                case 'archive employee':
+                    $this->archiveEmployee();
+                    break;
                 case 'revoke portal access':
                     $this->revokePortalAccess();
                     break;
@@ -2423,6 +2426,40 @@ class EmployeeController {
         }
     
         $this->employeeModel->grantPortalAccess($employeeID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    public function archiveEmployee() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $departureReasonID = htmlspecialchars($_POST['departure_reason_id'], ENT_QUOTES, 'UTF-8');
+        $detailedDepartureReason = htmlspecialchars($_POST['detailed_departure_reason'], ENT_QUOTES, 'UTF-8');
+        $offboardDate = $this->systemModel->checkDate('empty', $_POST['offboard_date'], '', 'Y-m-d', '');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkEmployeeExist = $this->employeeModel->checkEmployeeExist($employeeID);
+        $total = $checkEmployeeExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->archiveEmployee($employeeID, $offboardDate, $departureReasonID, $detailedDepartureReason, $userID);
             
         echo json_encode(['success' => true]);
         exit;

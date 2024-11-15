@@ -200,6 +200,128 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # -------------------------------------------------------------
 
         # -------------------------------------------------------------
+        case 'dashboard for initial approval table':
+            $userID = $_SESSION['user_id'];
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardForInitialApproval(:userID)');
+            $sql->bindValue(':userID', $userID, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $salesProposalID = $row['sales_proposal_id'];
+                $customerID = $row['customer_id'];
+                $salesProposalNumber = $row['sales_proposal_number'];
+                $productType = $row['product_type'];
+                $productID = $row['product_id'];
+                $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+
+                $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
+
+                $delete = '';
+                if($deleteSalesProposal['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-sales-proposal" data-sales-proposal-id="'. $salesProposalID .'" title="Delete Sales Proposal">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'SALES_PROPOSAL_NUMBER' => '<a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                                                    '. $salesProposalNumber .'
+                                                </a>',
+                    'CUSTOMER' => '<div class="col">
+                                                <h6 class="mb-0">'. $customerName .'</h6>
+                                                <p class="f-12 mb-0">'. $corporateName .'</p>
+                                            </div>',
+                    'PRODUCT_TYPE' => $productType,
+                    'PRODUCT' => $stockNumber,
+                    'CREATED_DATE' => $createdDate,
+                    'STATUS' => $salesProposalStatus,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                    '. $delete .'
+                                </div>'
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        case 'dashboard for final approval table':
+            $userID = $_SESSION['user_id'];
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardForFinalApproval(:userID)');
+            $sql->bindValue(':userID', $userID, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $salesProposalID = $row['sales_proposal_id'];
+                $customerID = $row['customer_id'];
+                $salesProposalNumber = $row['sales_proposal_number'];
+                $productType = $row['product_type'];
+                $productID = $row['product_id'];
+                $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+
+                $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
+
+                $delete = '';
+                if($deleteSalesProposal['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-sales-proposal" data-sales-proposal-id="'. $salesProposalID .'" title="Delete Sales Proposal">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'SALES_PROPOSAL_NUMBER' => '<a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                                                    '. $salesProposalNumber .'
+                                                </a>',
+                    'CUSTOMER' => '<div class="col">
+                                                <h6 class="mb-0">'. $customerName .'</h6>
+                                                <p class="f-12 mb-0">'. $corporateName .'</p>
+                                            </div>',
+                    'PRODUCT_TYPE' => $productType,
+                    'PRODUCT' => $stockNumber,
+                    'CREATED_DATE' => $createdDate,
+                    'STATUS' => $salesProposalStatus,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                    '. $delete .'
+                                </div>'
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
         #
         # Type: sales proposal change request table
         # Description:

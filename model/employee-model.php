@@ -67,6 +67,17 @@ class EmployeeModel {
         $stmt->execute();
     }
     # -------------------------------------------------------------
+    # -------------------------------------------------------------
+    public function archiveEmployee($p_contact_id, $p_offboard_date, $p_departure_reason_id , $p_detailed_departure_reason, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL archiveEmployee(:p_contact_id, :p_offboard_date, :p_departure_reason_id, :p_detailed_departure_reason, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_offboard_date', $p_offboard_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_departure_reason_id', $p_departure_reason_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_detailed_departure_reason', $p_detailed_departure_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #

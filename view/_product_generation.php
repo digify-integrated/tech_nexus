@@ -115,6 +115,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productSubategoryID = $row['product_subcategory_id'];
                     $stockNumber = $row['stock_number'];
                     $description = $row['description'];
+                    $productPrice = $row['product_price'];
                     $productStatus = $productModel->getProductStatus($row['product_status']);
                     $productImage = $systemModel->checkImage($row['product_image'], 'default');
 
@@ -160,6 +161,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                             <h5 class="mb-0 text-truncate text-primary"><b>'. $description .'</b></h5>
                                                         </div>
                                                         <p class="prod-content mb-0 text-muted">'. $stockNumber .'</p>
+                                                        <p class="prod-content mb-0 text-muted">Price (SRP): '. number_format($productPrice, 2) .'</p>
                                                     </a>
                                                 </div>
                                             </div>'
@@ -235,6 +237,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productSubategoryID = $row['product_subcategory_id'];
                     $stockNumber = $row['stock_number'];
                     $description = $row['description'];
+                    $productPrice = $row['product_price'];
                     $productStatus = $productModel->getProductStatus($row['product_status']);
                     $productImage = $systemModel->checkImage($row['product_image'], 'default');
 
@@ -265,6 +268,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         </div>
                                     </div>',
                         'CATEGORY' => $productSubcategoryName,
+                        'PRODUCT_PRICE' => number_format($productPrice,2),
                         'PRODUCT_STATUS' => $productStatus,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <a href="product.php?id='. $productIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
@@ -314,6 +318,64 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
     
                     $response[] = [
+                        'CREATED_DATE' => $createdDate,
+                        'REFERENCE_TYPE' => $reference_type,
+                        'REFERENCE_NUMBER' => $reference_number,
+                        'EXPENSE_AMOUNT' => $expense_amount,
+                        'PARTICULARS' => $particulars,
+                        'EXPENSE_TYPE' => $expenseType,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        '. $delete .'
+                                    </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        case 'product expense table2':
+            $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+            $referenceTypeFilter = htmlspecialchars($_POST['reference_type_filter'], ENT_QUOTES, 'UTF-8');
+            $expenseTypeFilter = htmlspecialchars($_POST['expense_type_filter'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateProductExpenseTable2(:referenceTypeFilter, :expenseTypeFilter)');
+                $sql->bindValue(':referenceTypeFilter', $referenceTypeFilter, PDO::PARAM_STR);
+                $sql->bindValue(':referenceTypeFilter', $referenceTypeFilter, PDO::PARAM_STR);
+                $sql->bindValue(':expenseTypeFilter', $expenseTypeFilter, PDO::PARAM_STR);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                $deleteProductExpense = $userModel->checkSystemActionAccessRights($user_id, 174);
+                
+                foreach ($options as $row) {
+                    $productID = $row['product_id'];
+                    $productExpenseID = $row['product_expense_id'];
+                    $reference_type = $row['reference_type'];
+                    $reference_number = $row['reference_number'];
+                    $expenseType = $row['expense_type'];
+                    $particulars = $row['particulars'];
+                    $expense_amount = number_format($row['expense_amount'], 2);
+
+                    $productDetails = $productModel->getProduct($productID);
+                    $stockNumber = $productDetails['stock_number'];
+                    $description = $productDetails['description'];
+
+                    $productIDEncrypted = $securityModel->encryptData($productID);
+
+                    $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+
+                    $delete = '';
+                    if($deleteProductExpense['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-product-expense" data-product-expense-id="'. $productExpenseID .'" title="Delete Product Expense">
+                                    <i class="ti ti-trash"></i>
+                                </button>';
+                    }
+    
+                    $response[] = [
+                        'PRODUCT' => ' <a href="product.php?id='. $productIDEncrypted .'"><b>' .$stockNumber . '</b><br/><small>' . $description .'</small></a>',
                         'CREATED_DATE' => $createdDate,
                         'REFERENCE_TYPE' => $reference_type,
                         'REFERENCE_NUMBER' => $reference_number,

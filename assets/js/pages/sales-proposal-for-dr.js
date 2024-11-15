@@ -261,7 +261,7 @@
             if($('#sales-proposal-tab-2').length && $('#sales-proposal-tab-3').length && $('#sales-proposal-tab-4').length){
                 $('#sales-proposal-tab-2, #sales-proposal-tab-3, #sales-proposal-tab-4').addClass('d-none');
 
-                if (productType === 'Unit' || productType === 'Rental') {
+                if (productType === 'Unit' || productType === 'Rental' || productType === 'Consignment') {
                     $('#sales-proposal-tab-2').removeClass('d-none');
                     resetModalForm('sales-proposal-unit-details-form');
                     displayDetails('get sales proposal unit details');
@@ -278,7 +278,7 @@
                 }
             }
 
-            if($(this).val() == 'Unit' || $(this).val() == 'Fuel'){
+            if(productType == 'Unit' || productType === 'Rental' || productType === 'Consignment' || productType == 'Fuel'){
                 if($('#delivery_price').length){
                     $('#delivery_price').prop('readonly', true);
                 }
@@ -289,7 +289,7 @@
                 }
             }
 
-            if($(this).val() == 'Refinancing' || $(this).val() == 'Restructure'){
+            if(productType == 'Refinancing' || productType == 'Restructure'){
                 if($('#insurance_premium').length){
                     $('#insurance_premium').prop('readonly', false);
                 }
@@ -3952,6 +3952,9 @@ function salesProposalInitalApprovalForm(){
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
                         } 
+                        else if (response.withApplication) {
+                            showNotification('For Initial Approval Error', 'The product selected already linked to another sales proposal.', 'danger');
+                        }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
@@ -6021,6 +6024,8 @@ function displayDetails(transaction){
                         $('#product_description').val(response.productDescription);
                         $('#other-details-gatepass1').text(response.productDescription);
                         $('#other-details-gatepass2').text(response.productDescription);
+                        $('#si').val(response.si);
+                        $('#di').val(response.di);
                     } 
                     else {
                         if(response.isInactive){
@@ -6180,11 +6185,15 @@ function calculatePricingComputation(){
     var cost_of_accessories = parseCurrency($('#cost_of_accessories').val());
     var reconditioning_cost = parseCurrency($('#reconditioning_cost').val());
     var downpayment = parseCurrency($('#downpayment').val());
+    var number_of_payments = parseCurrency($('#number_of_payments').val());
 
     var payment_frequency = $('#payment_frequency').val();
 
     if(payment_frequency == 'Lumpsum'){
         term_length = 1;
+    }
+    else if(payment_frequency == 'Semi-Annual' || payment_frequency == 'Quarterly'){
+        term_length = (number_of_payments);
     }
 
     var subtotal = delivery_price + cost_of_accessories + reconditioning_cost;
@@ -6202,6 +6211,14 @@ function calculatePricingComputation(){
     $('#summary-repayment-amount').text(parseCurrency(repayment_amount.toFixed(2)).toLocaleString("en-US"));
     $('#summary-outstanding-balance').text(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
     $('#summary-sub-total').text(parseCurrency(subtotal.toFixed(2)).toLocaleString("en-US"));
+
+    $('#summary-cost-of-accessories').text(parseFloat(cost_of_accessories.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-reconditioning-cost').text(parseFloat(reconditioning_cost.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-downpayment').text(parseFloat(downpayment.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-repayment-amount').text(parseFloat(repayment_amount.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-interest-rate').text(parseFloat(interest_rate.toFixed(2)).toLocaleString("en-US") + '%');
+    $('#summary-outstanding-balance').text(parseFloat(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-sub-total').text(parseFloat(subtotal.toFixed(2)).toLocaleString("en-US"));
 }
 
 function calculateRenewalAmount(){

@@ -163,6 +163,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/bootstrap-slider.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
+    <script src="./assets/js/plugins/qr/qrcode.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/pages/product.js?v=<?php echo rand(); ?>"></script>
 </body>
