@@ -1328,9 +1328,9 @@
         if($('#sales-proposal-id').length){
             displayDetails('get sales proposal basic details');
             displayDetails('get sales proposal pricing computation details');
-            displayDetails('get sales proposal other charges details');
             displayDetails('get sales proposal confirmation details');
             displayDetails('get sales proposal renewal amount details');
+            displayDetails('get sales proposal other charges details');
         }
 
         $(document).on('click','#apply-filter',function() {
@@ -5237,6 +5237,8 @@ function displayDetails(transaction){
                     else{
                         displayDetails('get sales proposal refinancing details');
                     }
+
+                    calculateTotalOtherCharges();
                 }
             });
             break;
@@ -6388,7 +6390,7 @@ function calculateRenewalAmount(){
 function calculateTotalOtherCharges(){
     var productType = $('#product_type').val();
 
-    if(productType != 'Fuel' && productType != 'Parts' && productType != 'Repair'){
+    if(productType != 'Fuel' && productType != 'Parts' && productType != 'Repair' && productType != 'Rental'){
         var amount_financed = parseCurrency($("#amount_financed").val());
         var pn_amount = parseCurrency($("#pn_amount").val());
         var product_category = $('#product_category').val();
@@ -6472,8 +6474,7 @@ function calculateTotalOtherCharges(){
         $('#summary-doc-stamp-tax').text('0.00');
         $('#summary-transaction-fee').text('0.00');
         $('#summary-other-charges-total').text('0.00');
-    }
-    
+    }    
 }
 
 function traverseTabs(direction) {

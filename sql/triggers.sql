@@ -6828,3 +6828,89 @@ BEGIN
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE TRIGGER journal_code_trigger_update
+AFTER UPDATE ON journal_code
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.company_id <> OLD.company_id THEN
+        SET audit_log = CONCAT(audit_log, "Company: ", OLD.company_id, " -> ", NEW.company_id, "<br/>");
+    END IF;
+
+    IF NEW.transaction_type <> OLD.transaction_type THEN
+        SET audit_log = CONCAT(audit_log, "Transaction Type: ", OLD.transaction_type, " -> ", NEW.transaction_type, "<br/>");
+    END IF;
+
+    IF NEW.product_type_id <> OLD.product_type_id THEN
+        SET audit_log = CONCAT(audit_log, "Product Type: ", OLD.product_type_id, " -> ", NEW.product_type_id, "<br/>");
+    END IF;
+
+    IF NEW.transaction <> OLD.transaction THEN
+        SET audit_log = CONCAT(audit_log, "Transaction: ", OLD.transaction, " -> ", NEW.transaction, "<br/>");
+    END IF;
+
+    IF NEW.item <> OLD.item THEN
+        SET audit_log = CONCAT(audit_log, "Item: ", OLD.item, " -> ", NEW.item, "<br/>");
+    END IF;
+
+    IF NEW.debit <> OLD.debit THEN
+        SET audit_log = CONCAT(audit_log, "Debit: ", OLD.debit, " -> ", NEW.debit, "<br/>");
+    END IF;
+
+    IF NEW.credit <> OLD.credit THEN
+        SET audit_log = CONCAT(audit_log, "Credit: ", OLD.credit, " -> ", NEW.credit, "<br/>");
+    END IF;
+
+    IF NEW.reference_code <> OLD.reference_code THEN
+        SET audit_log = CONCAT(audit_log, "Reference Code: ", OLD.reference_code, " -> ", NEW.reference_code, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('journal_code', NEW.journal_code_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER journal_code_trigger_insert
+AFTER INSERT ON journal_code
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Journal code created. <br/>';
+
+    IF NEW.company_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Company: ", NEW.company_id);
+    END IF;
+
+    IF NEW.transaction_type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transaction Type: ", NEW.transaction_type);
+    END IF;
+
+    IF NEW.product_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Type: ", NEW.product_type_id);
+    END IF;
+
+    IF NEW.transaction <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transaction: ", NEW.transaction);
+    END IF;
+
+    IF NEW.item <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Item: ", NEW.item);
+    END IF;
+
+    IF NEW.debit <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Debit: ", NEW.debit);
+    END IF;
+
+    IF NEW.credit <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Credit: ", NEW.credit);
+    END IF;
+
+    IF NEW.reference_code <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reference Code: ", NEW.reference_code);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('journal_code', NEW.journal_code_id, audit_log, NEW.last_log_by, NOW());
+END //

@@ -235,7 +235,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productID = $row['product_id'];
                     $productCategoryID = $row['product_category_id'];
                     $productSubategoryID = $row['product_subcategory_id'];
-                    $stockNumber = $row['stock_number'];
                     $description = $row['description'];
                     $productPrice = $row['product_price'];
                     $productStatus = $productModel->getProductStatus($row['product_status']);
@@ -246,6 +245,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
                     $productSubcategoryName = $productSubcategoryDetails['product_subcategory_name'] ?? null;
+                    $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+
+                    $stockNumber = str_replace($productSubcategoryCode, '', $row['stock_number']);
+                    $fullStockNumber = $productSubcategoryCode . $stockNumber;
                    
                     $productIDEncrypted = $securityModel->encryptData($productID);
 
@@ -263,7 +266,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <img src="'. $productImage .'" alt="user-image" class="wid-40 hei-40">
                                         </div>
                                         <div class="col">
-                                            <h6 class="mb-0">'. $stockNumber .'</h6>
+                                            <h6 class="mb-0">'. $fullStockNumber .'</h6>
                                             <p class="f-12 mb-0">'. $description .'</p>
                                         </div>
                                     </div>',

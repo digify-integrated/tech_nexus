@@ -1,0 +1,143 @@
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <h5>Journal Code</h5>
+          </div>
+          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+            <?php                            
+                $dropdown = '<div class="btn-group m-r-5">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Action
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">';
+
+                if ($journalCodeDuplicateAccess['total'] > 0) {
+                    $dropdown .= '<li><button class="dropdown-item" type="button" id="duplicate-journal-code">Duplicate Journal Code</button></li>';
+                }
+                            
+                if ($journalCodeDeleteAccess['total'] > 0) {
+                    $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-journal-code-details">Delete Journal Code</button></li>';
+                }
+                        
+                $dropdown .= '</ul>
+                            </div>';
+
+                if ($journalCodeWriteAccess['total'] > 0) {
+                    $dropdown .= '<button type="submit" form="journal-code-form" class="btn btn-success" id="submit-data">Save</button>
+                        <button type="button" id="discard-update" class="btn btn-outline-danger me-1">Discard</button>';
+                }
+
+                if ($journalCodeCreateAccess['total'] > 0) {
+                    $dropdown .= '<a class="btn btn-success m-r-5 form-details" href="journal-code.php?new">Create</a>';
+                }
+
+                echo $dropdown;
+            ?>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <?php
+          $disabled = '';
+          if($journalCodeWriteAccess['total'] == 0){
+            $disabled = 'disabled';
+          }
+        ?>
+        <form id="journal-code-form" method="post" action="#">
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled;?>>
+                <option value="">--</option>
+                <option value="1">CGMI</option>
+                <option value="2">NE TRUCK</option>
+                <option value="3">FUSO</option>
+              </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Transaction Type <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="transaction_type" id="transaction_type" <?php echo $disabled;?>>
+                <option value="">--</option>
+                <option value="1">COD</option>
+                <option value="2">INSTALLMENT SALES</option>
+                <option value="3">BANK FINANCING</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Product <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="product_type_id" id="product_type_id" <?php echo $disabled;?>>
+                    <option value="">--</option>
+                    <option value="1">UNIT</option>
+                    <option value="2">PARTS</option>
+                    <option value="3">REFINANCING</option>
+                    <option value="4">REAL ESTATE</option>
+                    <option value="5">RESTRUCTURE</option>
+                    <option value="6">RENTAL</option>
+                    <option value="7">REPAIR</option>
+                    <option value="8">FUEL</option>
+                </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Transaction <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="jtransaction" id="jtransaction" <?php echo $disabled;?>>
+                    <option value="">--</option>
+                    <option value="REL">RELEASE</option>
+                    <option value="COL">COLLECTION</option>
+                </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Item <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="item" id="item" <?php echo $disabled;?>>
+                    <option value="">--</option>
+                    <option value="PRI">PRINCIPAL</option>
+                    <option value="INT">INTEREST</option>
+                    <option value="INS">INSURANCE</option>
+                    <option value="REG">REGISTRATION</option>
+                    <option value="DOC">DOCUMENTARY STAMP</option>
+                    <option value="TRA">TRANSFER FEE</option>
+                    <option value="HAN">HANDLING FEE</option>
+                    <option value="DP">DEPOSIT/DOWNPAYMENT</option>
+                    <option value="AJO">ADDITIONAL JOB ORDER</option>
+                </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Debit <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="debit" name="debit" maxlength="500" autocomplete="off" <?php echo $disabled;?>>
+            </div>
+            <label class="col-lg-2 col-form-label">Credit <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="credit" name="credit" maxlength="500" autocomplete="off" <?php echo $disabled;?>>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<?php
+  echo '<div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-sm-6">
+                  <h5>Log Notes</h5>
+                </div>
+              </div>
+            </div>
+            <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
+              <div class="card-body p-b-0">
+                '. $userModel->generateLogNotes('journal_code', $journalCodeID) .'
+              </div>
+            </div>
+          </div>
+        </div>';
+?>
+</div>

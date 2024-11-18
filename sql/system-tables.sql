@@ -5772,3 +5772,24 @@ CREATE TABLE product_document(
 );
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE TABLE journal_code(
+	journal_code_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	company_id INT UNSIGNED NOT NULL,
+	transaction_type INT UNSIGNED NOT NULL,
+	product_type_id INT UNSIGNED NOT NULL,
+	transaction VARCHAR(100) NOT NULL,
+	item VARCHAR(100) NOT NULL,
+	debit VARCHAR(500) NOT NULL,
+	credit VARCHAR(500) NOT NULL,
+	reference_code VARCHAR(200) NOT NULL,
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+
+CREATE INDEX journal_code_index_journal_code_id ON journal_code(journal_code_id);
+CREATE INDEX journal_code_index_company_id ON journal_code(company_id);
+CREATE INDEX journal_code_index_product_type_id ON journal_code(product_type_id);
+CREATE INDEX journal_code_index_reference_code ON journal_code(reference_code);

@@ -11478,3 +11478,52 @@ BEGIN
 	SELECT * FROM product_document
     WHERE product_document_id = p_product_document_id;
 END //
+
+
+CREATE PROCEDURE checkJournalCodeExist (IN p_journal_code_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM journal_code
+    WHERE journal_code_id = p_journal_code_id;
+END //
+
+CREATE PROCEDURE insertJournalCode(IN p_company_id INT, IN p_transaction_type INT, IN p_product_type_id INT, IN p_transaction VARCHAR(100), IN p_item VARCHAR(100), IN p_debit VARCHAR(500), IN p_credit VARCHAR(500), IN p_reference_code VARCHAR(200), IN p_last_log_by INT, OUT p_journal_code_id INT)
+BEGIN
+    INSERT INTO journal_code (company_id, transaction_type, product_type_id, transaction, item, debit, credit, reference_code, last_log_by) 
+	VALUES(p_company_id, p_transaction_type, p_product_type_id, p_transaction, p_item, p_debit, p_credit, p_reference_code, p_last_log_by);
+	
+    SET p_journal_code_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateJournalCode(IN p_journal_code_id INT, IN p_company_id INT, IN p_transaction_type INT, IN p_product_type_id INT, IN p_transaction VARCHAR(100), IN p_item VARCHAR(100), IN p_debit VARCHAR(500), IN p_credit VARCHAR(500), IN p_reference_code VARCHAR(200), IN p_last_log_by INT)
+BEGIN
+	UPDATE journal_code
+    SET company_id = p_company_id,
+        transaction_type = p_transaction_type,
+        product_type_id = p_product_type_id,
+        transaction = p_transaction,
+        item = p_item,
+        debit = p_debit,
+        credit = p_credit,
+        reference_code = p_reference_code,
+    last_log_by = p_last_log_by
+    WHERE journal_code_id = p_journal_code_id;
+END //
+
+CREATE PROCEDURE deleteJournalCode(IN p_journal_code_id INT)
+BEGIN
+    DELETE FROM journal_code WHERE journal_code_id = p_journal_code_id;
+END //
+
+CREATE PROCEDURE getJournalCode(IN p_journal_code_id INT)
+BEGIN
+	SELECT * FROM journal_code
+    WHERE journal_code_id = p_journal_code_id;
+END //
+
+CREATE PROCEDURE generateJournalCodeTable()
+BEGIN
+    SELECT *
+    FROM journal_code
+    ORDER BY journal_code_id;
+END //

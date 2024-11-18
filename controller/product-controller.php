@@ -1440,7 +1440,7 @@ class ProductController {
             $productCategoryID = $productSubcategoryDetails['product_category_id'] ?? null;
 
             $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
-            $fullStockNumber = $productSubcategoryCode . $productDetails['stock_number'];
+            $fullStockNumber = $productSubcategoryCode . $stockNumber;
 
             $getBodyType = $this->bodyTypeModel->getBodyType($bodyTypeID);
             $bodyTypeName = $getBodyType['body_type_name'] ?? null;
