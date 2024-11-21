@@ -201,10 +201,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         case 'dashboard for initial approval table':
-            $userID = $_SESSION['user_id'];
+            $contactID = $_SESSION['contact_id'];
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardForInitialApproval(:userID)');
-            $sql->bindValue(':userID', $userID, PDO::PARAM_INT);
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardForInitialApproval(:contactID)');
+            $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -227,14 +227,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;
                 $corporateName = $customerDetails['corporate_name'] ?? null;
-
-                $delete = '';
-                if($deleteSalesProposal['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-sales-proposal" data-sales-proposal-id="'. $salesProposalID .'" title="Delete Sales Proposal">
-                                        <i class="ti ti-trash"></i>
-                                    </button>';
-                }
-
                 $response[] = [
                     'SALES_PROPOSAL_NUMBER' => '<a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                     '. $salesProposalNumber .'
@@ -246,13 +238,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PRODUCT_TYPE' => $productType,
                     'PRODUCT' => $stockNumber,
                     'CREATED_DATE' => $createdDate,
-                    'STATUS' => $salesProposalStatus,
-                    'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
-                                        <i class="ti ti-eye"></i>
-                                    </a>
-                                    '. $delete .'
-                                </div>'
+                    'STATUS' => $salesProposalStatus
                     ];
             }
 
@@ -262,10 +248,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         case 'dashboard for final approval table':
-            $userID = $_SESSION['user_id'];
+            $contactID = $_SESSION['contact_id'];
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardForFinalApproval(:userID)');
-            $sql->bindValue(':userID', $userID, PDO::PARAM_INT);
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardForFinalApproval(:contactID)');
+            $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -289,13 +275,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $customerName = $customerDetails['file_as'] ?? null;
                 $corporateName = $customerDetails['corporate_name'] ?? null;
 
-                $delete = '';
-                if($deleteSalesProposal['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-sales-proposal" data-sales-proposal-id="'. $salesProposalID .'" title="Delete Sales Proposal">
-                                        <i class="ti ti-trash"></i>
-                                    </button>';
-                }
-
                 $response[] = [
                     'SALES_PROPOSAL_NUMBER' => '<a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                     '. $salesProposalNumber .'
@@ -307,14 +286,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PRODUCT_TYPE' => $productType,
                     'PRODUCT' => $stockNumber,
                     'CREATED_DATE' => $createdDate,
-                    'STATUS' => $salesProposalStatus,
-                    'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
-                                        <i class="ti ti-eye"></i>
-                                    </a>
-                                    '. $delete .'
-                                </div>'
-                    ];
+                    'STATUS' => $salesProposalStatus
+                ];
             }
 
             echo json_encode($response);

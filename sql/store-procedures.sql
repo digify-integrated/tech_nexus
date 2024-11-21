@@ -7558,6 +7558,13 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
+CREATE PROCEDURE countSalesProposalOtherChargesExist (IN p_sales_proposal_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_manual_pdc_input
+    WHERE sales_proposal_id = p_sales_proposal_id AND payment_for = 'Other Charges';
+END //
+
 CREATE PROCEDURE checkSalesProposalRepaymentExist (IN p_sales_proposal_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
@@ -8243,7 +8250,9 @@ BEGIN
    SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type NOT IN ('Refinancing', 'Parts');
 END //
 
-CREATE PROCEDURE generateReleasedSalesProposalTable()
+
+
+CREATE PROCEDURE generateLoanExtractionTable()
 BEGIN
    SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Released');
 END //
@@ -9976,6 +9985,54 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateLoanExtractionTable(IN p_filter_released_date_start_date DATE, IN p_filter_released_date_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM sales_proposal';
+    SET conditionList = " WHERE sales_proposal_status IN ('Released')";
+    
+    IF p_filter_released_date_start_date IS NOT NULL AND p_filter_released_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(released_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY released_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateBorrowerExtractionTable(IN p_filter_released_date_start_date DATE, IN p_filter_released_date_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM contact';
+    SET conditionList = "";
+    
+    IF p_filter_released_date_start_date IS NOT NULL AND p_filter_released_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' WHERE (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ';');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 CREATE PROCEDURE generateCollectionReportTable(IN p_pdc_management_company VARCHAR(500), IN p_filter_transaction_date_start_date DATE, IN p_filter_transaction_date_end_date DATE, IN p_filter_payment_date_start_date DATE, IN p_filter_payment_date_end_date DATE)
 BEGIN
     DECLARE query VARCHAR(5000);
@@ -11232,7 +11289,7 @@ CREATE PROCEDURE generateTravelApprovalFormTable(IN p_contact_id INT)
 BEGIN
     SELECT travel_form_id, checked_by, checked_date, recommended_by, recommended_date, approval_by, approval_date, travel_form_status, created_by
     FROM travel_form
-    WHERE travel_form_status = 'Draft' AND (checked_by = p_contact_id OR recommended_by = p_contact_id OR approval_by = p_contact_id)
+    WHERE travel_form_status IN ('For Checking', 'For Recommendation') AND (checked_by = p_contact_id OR recommended_by = p_contact_id OR approval_by = p_contact_id)
     ORDER BY travel_form_id;
 END //
 

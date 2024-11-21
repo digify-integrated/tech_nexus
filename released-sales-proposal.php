@@ -131,7 +131,7 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Production</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="sales-proposal.php?customer=<?php echo $securityModel->encryptData($customerID); ?>"><?php echo $pageTitle; ?></a></li>
+                  <li class="breadcrumb-item" aria-current="page"><?php echo $pageTitle; ?></li>
                   <?php
                     if(!$newRecord && !empty($salesProposalID)){
                       echo '<li class="breadcrumb-item" id="sales-proposal-id">'. $salesProposalID .'</li>';

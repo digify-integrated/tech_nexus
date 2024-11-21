@@ -200,13 +200,18 @@ class ProductController {
         $preorder = $productDetails['preorder'];
         $description = $productDetails['description'];
         $totalLandedCost = $productDetails['total_landed_cost'];
+        $productPrice = $productDetails['product_price'];
 
         if($preorder == 'Yes'){
             echo json_encode(['success' => false, 'preOrder' =>  true]);
             exit;
         }
 
-        
+        if($totalLandedCost == 0 || $productPrice == 0){
+            echo json_encode(['success' => false, 'zeroCost' =>  true]);
+            exit;
+        }
+
         $rrNumber = $this->systemSettingModel->getSystemSetting(18)['value'] + 1;
         $this->productModel->updateProductStatus($productID, 'For Sale', $description, $totalLandedCost, 'Landed Cost', $userID);
         $this->productModel->updateProductRRNumber($productID, $rrNumber, $userID);

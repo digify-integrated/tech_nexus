@@ -30,7 +30,6 @@
           </div>
           <div class="card-body">
             <div class="table-responsive dt-responsive">
-              <input type="hidden" id="customer_id" value="<?php echo $customerID; ?>">
               <table id="released-sales-proposal-table" class="table table-hover nowrap w-100 text-uppercase">
                 <thead>
                   <tr>

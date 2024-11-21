@@ -1711,9 +1711,9 @@ class SalesProposalController {
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
 
         $productDetails = $this->productModel->getProduct($productID);
-        $productStatus = $productDetails['product_status'];
+        $productStatus = $productDetails['product_status'] ?? null;
 
-        if($productStatus != 'For Sale'){
+        if(!empty($productStatus) && $productStatus != 'For Sale'){
             echo json_encode(['success' => false, 'withApplication' =>  true]);
             exit;
         }
@@ -3734,6 +3734,7 @@ class SalesProposalController {
             }
     
             $salesProposalPricingComputationDetails = $this->salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
+            $total_delivery_price = $salesProposalPricingComputationDetails['total_delivery_price'] ?? 0;
 
             $response = [
                 'success' => true,

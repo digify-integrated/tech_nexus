@@ -1251,6 +1251,15 @@ class SalesProposalModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    public function countSalesProposalOtherChargesExist($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL countSalesProposalOtherChargesExist(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #
     # Function: checkSalesProposalRepaymentExist
     # Description: Checks if a sales proposal exists.

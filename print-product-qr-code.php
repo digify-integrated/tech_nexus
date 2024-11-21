@@ -8,6 +8,8 @@ require('assets/libs/tcpdf2/tcpdf.php');
 function generateProductQRCodePDF($product_id, $description, $stock_number) {
     // Initialize TCPDF object
     $pdf = new TCPDF();
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
     
     // Set document information
     $pdf->SetCreator(PDF_CREATOR);
@@ -27,30 +29,31 @@ function generateProductQRCodePDF($product_id, $description, $stock_number) {
     $qrData .= 'STOCK_NUMBER:' . $stock_number . '\r\n';
     $qrData .= 'END:VCARD';
     
+    // Position and size for QR code
+    $qrX = 20; // X position for QR code
+    $qrY = 20; // Y position for QR code
+    $qrSize = 50; // Size of the QR code
+    
     // Create the QR code image
-    $pdf->write2DBarcode($qrData, 'QRCODE,H', 80, 20, 50, 50); // Adjust the position and size as needed
+    $pdf->write2DBarcode($qrData, 'QRCODE,H', $qrX, $qrY, $qrSize, $qrSize); // Adjust the position and size as needed
     
-    // Move to the next line below the QR code to add product information
-    $pdf->Ln(60); // Adjust the distance between the QR code and the text
+    // Set the width for the description box
+    $description_width = 120;
     
-    // Set a new font for the product information
-    $pdf->SetFont('helvetica', 'B', 12); // Bold for the headers
-    $pdf->Cell(0, 10, 'Product Information', 0, 1, 'C');
+    // Position for description and stock number to the right of the QR code
+    $descriptionX = $qrX + $qrSize + 5; // X position to the right of the QR code
+    $descriptionY = $qrY + ($qrSize / 2) - 2.5; // Y position to center the text vertically with the QR code
     
-    // Set a regular font for the details
-    $pdf->SetFont('helvetica', '', 8);
+    // Set font for the description and stock number
+    $pdf->SetFont('helvetica', '', 10);
     
-    // Add the product details below the QR code
-    $pdf->Cell(0, 5, 'Product ID: ' . $product_id, 0, 1, 'C');
+    // Position and add the stock number below the description, keeping it centered
+    $pdf->SetXY($descriptionX, $descriptionY); // Set position for the description
+    $pdf->Cell(0, 5, 'Stock Number: ' . $stock_number, 0, 1, 'L');
+    // Set the description text, wrapping it inside the box
+    $pdf->SetXY($descriptionX, $pdf->GetY()); // Y position for the stock number (below the description)
+    $pdf->MultiCell($description_width, 5, 'Description: ' . $description, 0, 'L', 0, 1, '', '', true);
     
-    // Center the description with a fixed width and wrap text
-    $pdf->SetFont('helvetica', '', 8);
-    $description_width = 50;  // Set the width for the description
-    $pdf->SetXY(80, $pdf->GetY()); // Adjust X position for centering
-    $pdf->MultiCell($description_width, 5, 'Description: ' . $description, 0, 'C', 0, 1, '', '', true);
-    
-    // Add stock number below the description
-    $pdf->Cell(0, 5, 'Stock Number: ' . $stock_number, 0, 1, 'C');
     
     // Output PDF to browser
     $pdf->Output('product_qr_code.pdf', 'I'); // 'I' for inline (opens in browser), 'D' for download

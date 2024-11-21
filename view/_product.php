@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-12">
     <div class="ecom-wrapper">
-      <div class="offcanvas-xxl offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
+      <div class="offcanvas offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
         <div class="offcanvas-body p-0 sticky-xxl-top">
           <div id="ecom-filter" class="show collapse collapse-horizontal">
             <div class="ecom-filter">
@@ -190,6 +190,17 @@
                     <input type="text" class="form-control" id="product_search" placeholder="Search Product" />
                   </div>
                 </li>
+                <li class="list-inline-item">
+                  <select class="form-select d-none" id="datatable-length">
+                    <option value="-1">All</option>
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </li>
               </ul>
               <div class="col-auto">
                 <ul class="nav nav-pills nav-price" id="pills-tab" role="tablist">
@@ -212,7 +223,13 @@
                   }
                 ?>
                 <li class="list-inline-item align-bottom">
-                  <button type="button" class="d-xxl-none btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li><button class="dropdown-item" type="button" id="print-qr-code">Print QR Code</button></li>
+                    </ul>
+                </li>
+                <li class="list-inline-item align-bottom">
+                  <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                     Filter
                   </a>
                 </li>
@@ -247,6 +264,7 @@
                         <th>Stock Number</th>
                         <th>Category</th>
                         <th>Product Price (SRP)</th>
+                        <th>For Sale Date</th>
                         <th>Status</th>
                         <th>Actions</th>
                       </tr>

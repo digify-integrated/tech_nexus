@@ -1,8 +1,8 @@
 <div class="row">
   <div class="col-lg-12">
     <div class="ecom-wrapper">
-      <div class="offcanvas-xxl offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
-        <div class="offcanvas-body p-0 sticky-xxl-top">
+      <div class="offcanvas offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
+        <div class="offcanvas-body p-0">
           <div id="ecom-filter" class="show collapse collapse-horizontal">
             <div class="ecom-filter">
               <div class="card">
@@ -113,7 +113,7 @@
                     echo $action;
                   }
                 ?>
-                <button type="button" class="d-xxl-none btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
+                <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                   Filter
                 </button>
               </div>

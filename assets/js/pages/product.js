@@ -665,6 +665,9 @@
                                 else if (response.preOrder) {
                                     showNotification('Product Pre-order', 'The product is tagged as pre-order.', 'danger');
                                 }
+                                else if (response.zeroCost) {
+                                    showNotification('Product Pre-order', 'The product poduct price or cost is set to 0. Check the fields and try again.', 'danger');
+                                }
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }
@@ -1017,6 +1020,54 @@
             });
         });
 
+        $(document).on('click', '#table-view-tab', function() {
+            $('#datatable-length').removeClass('d-none');
+        });
+        
+        $(document).on('click', '#card-view-tab', function() {
+            $('#datatable-length').addClass('d-none');
+        });
+
+        $(document).on('click','#print-qr-code',function() {
+            var checkedBoxes = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('print-multiple-product-qr-code.php?id=' + checkedBoxes, '_blank');
+            }
+            else{
+                showNotification('Print QR Code Error', 'No selected product.', 'danger');
+            }
+        });
+
+        $(document).on('click','#print-qr-code-horizontal',function() {
+            var checkedBoxes = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('print-multiple-product-qr-code-horizontal.php?id=' + checkedBoxes, '_blank');
+            }
+            else{
+                showNotification('Print QR Code Error', 'No selected product.', 'danger');
+            }
+        });
+
+        $('#datatable-length').on('change', function() {
+            var table = $('#product-table').DataTable();
+            var length = $(this).val(); 
+            table.page.len(length).draw();
+        });
+
         $(document).on('click','#generate-qr-code',function() {
             displayDetails('get product qr code details');
         });
@@ -1207,6 +1258,7 @@ function productTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'STOCK_NUMBER' },
         { 'data' : 'CATEGORY' },
         { 'data' : 'PRODUCT_PRICE' },
+        { 'data' : 'FOR_SALE_DATE' },
         { 'data' : 'PRODUCT_STATUS' },
         { 'data' : 'ACTION' }
     ];
@@ -1217,7 +1269,8 @@ function productTable(datatable_name, buttons = false, show_all = false){
         { 'width': '25%', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
-        { 'width': '20%','bSortable': false, 'aTargets': 5 }
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': '20%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

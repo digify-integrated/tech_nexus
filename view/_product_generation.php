@@ -249,6 +249,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $stockNumber = str_replace($productSubcategoryCode, '', $row['stock_number']);
                     $fullStockNumber = $productSubcategoryCode . $stockNumber;
+                    $forSaleDate = $systemModel->checkDate('summary', $row['for_sale_date'], '', 'm/d/Y h:i:s A', '');
                    
                     $productIDEncrypted = $securityModel->encryptData($productID);
 
@@ -272,6 +273,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </div>',
                         'CATEGORY' => $productSubcategoryName,
                         'PRODUCT_PRICE' => number_format($productPrice,2),
+                        'FOR_SALE_DATE' => $forSaleDate,
                         'PRODUCT_STATUS' => $productStatus,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <a href="product.php?id='. $productIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
