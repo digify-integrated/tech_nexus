@@ -27,6 +27,8 @@ class EmployeeController {
     private $civilStatusModel;
     private $religionModel;
     private $bloodTypeModel;
+    private $emailSettingModel;
+    private $notificationSettingModel;
     private $systemModel;
     private $securityModel;
 
@@ -59,7 +61,7 @@ class EmployeeController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(EmployeeModel $employeeModel, UserModel $userModel, CompanyModel $companyModel, DepartmentModel $departmentModel, JobPositionModel $jobPositionModel, EmployeeTypeModel $employeeTypeModel, JobLevelModel $jobLevelModel, BranchModel $branchModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, GenderModel $genderModel, CivilStatusModel $civilStatusModel, ReligionModel $religionModel, BloodTypeModel $bloodTypeModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(EmployeeModel $employeeModel, UserModel $userModel, CompanyModel $companyModel, DepartmentModel $departmentModel, JobPositionModel $jobPositionModel, EmployeeTypeModel $employeeTypeModel, JobLevelModel $jobLevelModel, BranchModel $branchModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, GenderModel $genderModel, CivilStatusModel $civilStatusModel, ReligionModel $religionModel, BloodTypeModel $bloodTypeModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->employeeModel = $employeeModel;
         $this->userModel = $userModel;
         $this->systemSettingModel = $systemSettingModel;
@@ -75,6 +77,8 @@ class EmployeeController {
         $this->civilStatusModel = $civilStatusModel;
         $this->religionModel = $religionModel;
         $this->bloodTypeModel = $bloodTypeModel;
+        $this->emailSettingModel = $emailSettingModel;
+        $this->notificationSettingModel = $notificationSettingModel;
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
@@ -112,6 +116,9 @@ class EmployeeController {
                     break;
                 case 'archive employee':
                     $this->archiveEmployee();
+                    break;
+                case 'send welcome email':
+                    $this->sendWelcomeEmail();
                     break;
                 case 'revoke portal access':
                     $this->revokePortalAccess();
@@ -2458,13 +2465,199 @@ class EmployeeController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        $getEmployeeWorkContactInformation = $this->employeeModel->getEmployeeWorkContactInformation($employeeID);
+        $email = $getEmployeeWorkContactInformation['email'] ?? '--';
+        $mobile = $getEmployeeWorkContactInformation['mobile'] ?? '--';
+
+        $getPersonalInformation = $this->employeeModel->getPersonalInformation($employeeID);
+        $fileAs = $getPersonalInformation['file_as'] ?? '--';
+        $nickname = $getPersonalInformation['nickname'] ?? '--';
+        $contactImage = $getPersonalInformation['contact_image'] ?? '--';
+        $contactImage = str_replace('./', 'cgmids.com/', $contactImage);
+
+
+        $employeeDetails = $this->employeeModel->getEmploymentInformation($employeeID);
+        $departmentID = $employeeDetails['department_id'] ?? null;
+        $companyID = $employeeDetails['company_id'] ?? null;
+        $jobPositionID = $employeeDetails['job_position_id'] ?? null;
+        $companyName = $this->companyModel->getCompany($companyID)['company_name'] ?? '--';
+        $departmentName = $this->departmentModel->getDepartment($departmentID)['department_name'] ?? '--';
+        $jobPositionName = $this->jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
+        $onboardDate = $this->systemModel->checkDate('empty', $employeeDetails['onboard_date'] ?? null, '', 'm/d/Y', '');
+        $offboardDate2 = $this->systemModel->checkDate('empty', $offboardDate, '', 'm/d/Y', '');
+        
     
         $this->employeeModel->archiveEmployee($employeeID, $offboardDate, $departureReasonID, $detailedDepartureReason, $userID);
+        $this->sendArchiveEmail1($contactImage, $fileAs, $nickname, $companyName, $departmentName, $jobPositionName, $email, $mobile, $onboardDate, $offboardDate2);
             
         echo json_encode(['success' => true]);
         exit;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    public function sendWelcomeEmail() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkEmployeeExist = $this->employeeModel->checkEmployeeExist($employeeID);
+        $total = $checkEmployeeExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $getEmployeeWorkContactInformation = $this->employeeModel->getEmployeeWorkContactInformation($employeeID);
+        $email = $getEmployeeWorkContactInformation['email'] ?? '--';
+        $mobile = $getEmployeeWorkContactInformation['mobile'] ?? '--';
+
+        $getPersonalInformation = $this->employeeModel->getPersonalInformation($employeeID);
+        $fileAs = $getPersonalInformation['file_as'] ?? '--';
+        $nickname = $getPersonalInformation['nickname'] ?? '--';
+        $contactImage = $getPersonalInformation['contact_image'] ?? '--';
+        $contactImage = str_replace('./', 'cgmids.com/', $contactImage);
+
+
+        $employeeDetails = $this->employeeModel->getEmploymentInformation($employeeID);
+        $departmentID = $employeeDetails['department_id'] ?? null;
+        $companyID = $employeeDetails['company_id'] ?? null;
+        $jobPositionID = $employeeDetails['job_position_id'] ?? null;
+        $companyName = $this->companyModel->getCompany($companyID)['company_name'] ?? '--';
+        $departmentName = $this->departmentModel->getDepartment($departmentID)['department_name'] ?? '--';
+        $jobPositionName = $this->jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
+        $onboardDate = $this->systemModel->checkDate('empty', $employeeDetails['onboard_date'] ?? null, '', 'm/d/Y', '');
+
+        $this->sendWelcomeEmail1($contactImage, $fileAs, $nickname, $companyName, $departmentName, $jobPositionName, $email, $mobile, $onboardDate);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    public function sendWelcomeEmail1($contactImage, $fileAs, $nickname, $companyName, $departmentName, $jobPositionName, $email, $mobile, $onboardDate) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(12);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailSubject = str_replace('#{NAME}', $fileAs, $emailSubject);
+
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('#{EMPLOYEE_IMAGE}', $contactImage, $emailBody);
+        $emailBody = str_replace('#{NAME}', $fileAs, $emailBody);
+        $emailBody = str_replace('#{NICKNAME}', $nickname, $emailBody);
+        $emailBody = str_replace('#{COMPANY}', $companyName, $emailBody);
+        $emailBody = str_replace('#{DEPARTMENT}', $departmentName, $emailBody);
+        $emailBody = str_replace('#{JOB_POSITION}', $jobPositionName, $emailBody);
+        $emailBody = str_replace('#{EMAIL}', $email, $emailBody);
+        $emailBody = str_replace('#{MOBILE}', $mobile, $emailBody);
+        $emailBody = str_replace('#{HIRING_DATE}', $onboardDate, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+
+        $getEmployeeActiveWorkContactInformation = $this->employeeModel->getEmployeeActiveWorkContactInformation();
+
+        foreach ($getEmployeeActiveWorkContactInformation as $row) {
+            $mailer->addAddress($row['email']);
+        }
+        
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+
+    public function sendArchiveEmail1($contactImage, $fileAs, $nickname, $companyName, $departmentName, $jobPositionName, $email, $mobile, $onboardDate, $offboardDate) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(13);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailSubject = str_replace('#{NAME}', $fileAs, $emailSubject);
+
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('#{EMPLOYEE_IMAGE}', $contactImage, $emailBody);
+        $emailBody = str_replace('#{NAME}', $fileAs, $emailBody);
+        $emailBody = str_replace('#{NICKNAME}', $nickname, $emailBody);
+        $emailBody = str_replace('#{COMPANY}', $companyName, $emailBody);
+        $emailBody = str_replace('#{DEPARTMENT}', $departmentName, $emailBody);
+        $emailBody = str_replace('#{JOB_POSITION}', $jobPositionName, $emailBody);
+        $emailBody = str_replace('#{EMAIL}', $email, $emailBody);
+        $emailBody = str_replace('#{MOBILE}', $mobile, $emailBody);
+        $emailBody = str_replace('#{HIRING_DATE}', $onboardDate, $emailBody);
+        $emailBody = str_replace('#{RESIGNATION_DATE}', $offboardDate, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        
+        $getEmployeeActiveWorkContactInformation = $this->employeeModel->getEmployeeActiveWorkContactInformation();
+
+        foreach ($getEmployeeActiveWorkContactInformation as $row) {
+            $mailer->addAddress($row['email']);
+        }
+
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+
+    private function configureSMTP($mailer, $isHTML = true) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailHost = $emailSetting['mail_host'] ?? MAIL_HOST;
+        $smtpAuth = empty($emailSetting['smtp_auth']) ? false : true;
+        $mailUsername = $emailSetting['mail_username'] ?? MAIL_USERNAME;
+        $mailPassword = !empty($password) ? $this->securityModel->decryptData($emailSetting['mail_password']) : MAIL_PASSWORD;
+        $mailEncryption = $emailSetting['mail_encryption'] ?? MAIL_SMTP_SECURE;
+        $port = $emailSetting['port'] ?? MAIL_PORT;
+        
+        $mailer->isSMTP();
+        $mailer->isHTML(true);
+        $mailer->Host = $mailHost;
+        $mailer->SMTPAuth = $smtpAuth;
+        $mailer->Username = $mailUsername;
+        $mailer->Password = $mailPassword;
+        $mailer->SMTPSecure = $mailEncryption;
+        $mailer->Port = $port;
+    }
 
     # -------------------------------------------------------------
     #
@@ -3324,9 +3517,14 @@ require_once '../model/gender-model.php';
 require_once '../model/civil-status-model.php';
 require_once '../model/religion-model.php';
 require_once '../model/blood-type-model.php';
+require_once '../model/email-setting-model.php';
+require_once '../model/notification-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
+require '../assets/libs/PHPMailer/src/PHPMailer.php';
+require '../assets/libs/PHPMailer/src/Exception.php';
+require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new EmployeeController(new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new EmployeeTypeModel(new DatabaseModel), new JobLevelModel(new DatabaseModel), new BranchModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new GenderModel(new DatabaseModel), new CivilStatusModel(new DatabaseModel), new ReligionModel(new DatabaseModel), new BloodTypeModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new EmployeeController(new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new EmployeeTypeModel(new DatabaseModel), new JobLevelModel(new DatabaseModel), new BranchModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new GenderModel(new DatabaseModel), new CivilStatusModel(new DatabaseModel), new ReligionModel(new DatabaseModel), new BloodTypeModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

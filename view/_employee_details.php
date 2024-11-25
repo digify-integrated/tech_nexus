@@ -17,6 +17,11 @@
     $deactivateButton = '<button type="button" class="btn btn-outline-warning w-100 text-center mb-2" data-bs-toggle="offcanvas" data-bs-target="#archive-employee-offcanvas" aria-controls="archive-employee-offcanvas" id="deactivate-employee">Archive Employee</button>';
   }
 
+  $sendWelcomeEmail = '';
+  if($employmentStatus){
+    $sendWelcomeEmail = '<button type="button" class="btn btn-outline-success w-100 text-center mb-2" id="send-welcome-email">Send Welcome Email</button>';
+  }
+
   if($employeeWriteAccess['total'] > 0){
     $employeePersonalInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#personal-information-offcanvas" aria-controls="personal-information-offcanvas" id="update-personal-information"><i class="ti ti-pencil"></i></button>';
     $employeeEmploymentInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#employment-information-offcanvas" aria-controls="employment-information-offcanvas" id="update-employment-information"><i class="ti ti-pencil"></i></button>';
@@ -122,6 +127,7 @@
           <p class="mb-4" id="employee_bio"></p>
           <?php echo $portalAccessButton; ?>
           <?php echo $deactivateButton; ?>
+          <?php echo $sendWelcomeEmail; ?>
           <button type="button" class="btn btn-outline-info w-100 text-center mb-0" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-qr-code-offcanvas" aria-controls="contact-employee-qr-code-offcanvas" id="generate-employee-qr-code"><i class="ti ti-qrcode me-1"></i>QR Code</button>
         </div>
       </div>

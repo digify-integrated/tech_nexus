@@ -401,6 +401,61 @@
                 });
             });
 
+            $(document).on('click','#send-welcome-email',function() {
+                const employee_id = $('#employee-id').text();
+                const transaction = 'send welcome email';
+        
+                Swal.fire({
+                    title: 'Confirm Welcome Email Sending',
+                    text: 'Are you sure you want to send a welcome email for this employee?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Send',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                employee_id : employee_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    setNotification('Send Welcome Email Success', 'The welcome email has been sent successfully.', 'success');
+                                    window.location.reload();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Send Welcome Email Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
             $(document).on('click','#revoke-portal-access',function() {
                 const employee_id = $('#employee-id').text();
                 const transaction = 'revoke portal access';

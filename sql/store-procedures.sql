@@ -11359,6 +11359,19 @@ BEGIN
     WHERE contact_id = p_contact_id AND is_primary = 1;
 END //
 
+CREATE PROCEDURE getEmployeeWorkContactInformation(IN p_contact_id INT)
+BEGIN
+	SELECT mobile, telephone, email FROM contact_information
+    WHERE contact_id = p_contact_id AND contact_information_type_id = 2;
+END //
+
+CREATE PROCEDURE getEmployeeActiveWorkContactInformation()
+BEGIN
+	SELECT mobile, telephone, email FROM contact_information
+    WHERE contact_id IN (SELECT contact_id from employment_information WHERE employment_status = 1) AND contact_information_type_id = 2;
+END //
+
+
 /* Chart of Account Table Stored Procedures */
 
 CREATE PROCEDURE checkChartOfAccountExist (IN p_chart_of_account_id INT)
