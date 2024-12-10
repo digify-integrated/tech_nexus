@@ -23,11 +23,11 @@
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
-                                <input class="form-check-input employment-status-filter" type="radio" name="employment-status-filter" id="employment-status-all" value="all" checked />
+                                <input class="form-check-input employment-status-filter" type="radio" name="employment-status-filter" id="employment-status-all" value="all"  />
                                 <label class="form-check-label" for="employment-status-all">All</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input employment-status-filter" type="radio" name="employment-status-filter" id="employment-status-active" value="active" />
+                                <input class="form-check-input employment-status-filter" type="radio" name="employment-status-filter" id="employment-status-active" value="active" checked />
                                 <label class="form-check-label" for="employment-status-active">Active</label>
                               </div>
                               <div class="form-check my-2">

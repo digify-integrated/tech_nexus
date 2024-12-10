@@ -5995,7 +5995,7 @@ BEGIN
     END IF;
 
     IF NEW.status <> OLD.status THEN
-        SET audit_log = CONCAT(audit_log, "Number Of Hours: ", OLD.status, " -> ", NEW.status, "<br/>");
+        SET audit_log = CONCAT(audit_log, "Status: ", OLD.status, " -> ", NEW.status, "<br/>");
     END IF;
 
     IF NEW.application_date <> OLD.application_date THEN

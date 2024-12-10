@@ -294,163 +294,165 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
             exit;
         }
-    
-        $userID = $_SESSION['user_id'];
-        $contactID = $_SESSION['contact_id'] ?? 1;
-        $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
-        $customerID = $_POST['customer_id'];
-        $renewalTag = htmlspecialchars($_POST['renewal_tag'], ENT_QUOTES, 'UTF-8');
-        $applicationSourceID = htmlspecialchars($_POST['application_source_id'], ENT_QUOTES, 'UTF-8');
-        $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
-        $productType = htmlspecialchars($_POST['product_type'], ENT_QUOTES, 'UTF-8');
-        $transactionType = htmlspecialchars($_POST['transaction_type'], ENT_QUOTES, 'UTF-8');
-        $financingInstitution = htmlspecialchars($_POST['financing_institution'], ENT_QUOTES, 'UTF-8');
-        $comakerID = htmlspecialchars($_POST['comaker_id'], ENT_QUOTES, 'UTF-8');
-        $referredBy = htmlspecialchars($_POST['referred_by'], ENT_QUOTES, 'UTF-8');
-        $commissionAmount = str_replace(',', '', $_POST['commission_amount']);
-        $releaseDate = $this->systemModel->checkDate('empty', $_POST['release_date'], '', 'Y-m-d', '');
-        $startDate = $this->systemModel->checkDate('empty', $_POST['start_date'], '', 'Y-m-d', '');
-        $termLength = htmlspecialchars($_POST['term_length'], ENT_QUOTES, 'UTF-8');
-        $termType = htmlspecialchars($_POST['term_type'], ENT_QUOTES, 'UTF-8');
-        $numberOfPayments = htmlspecialchars($_POST['number_of_payments'], ENT_QUOTES, 'UTF-8');
-        $paymentFrequency = htmlspecialchars($_POST['payment_frequency'], ENT_QUOTES, 'UTF-8');
-        $firstDueDate = $this->systemModel->checkDate('empty', $_POST['first_due_date'], '', 'Y-m-d', '');
-        $initialApprovingOfficer = htmlspecialchars($_POST['initial_approving_officer'], ENT_QUOTES, 'UTF-8');
-        $finalApprovingOfficer = htmlspecialchars($_POST['final_approving_officer'], ENT_QUOTES, 'UTF-8');
-        $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
-        $total = $checkSalesProposalExist['total'] ?? 0;
-    
-        if ($total > 0) {            
-            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $userID);
-            
-            echo json_encode(['success' => true, 'insertRecord' => false, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
-            exit;
-        } 
-        else {
-            $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
-            $forRegistration = htmlspecialchars($_POST['for_registration'], ENT_QUOTES, 'UTF-8');
-            $withCR = htmlspecialchars($_POST['with_cr'], ENT_QUOTES, 'UTF-8');
-            $forTransfer = htmlspecialchars($_POST['for_transfer'], ENT_QUOTES, 'UTF-8');
-            $forChangeColor = htmlspecialchars($_POST['for_change_color'], ENT_QUOTES, 'UTF-8');
-            $newColor = htmlspecialchars($_POST['new_color'], ENT_QUOTES, 'UTF-8');
-            $forChangeBody = htmlspecialchars($_POST['for_change_body'], ENT_QUOTES, 'UTF-8');
-            $newBody = htmlspecialchars($_POST['new_body'], ENT_QUOTES, 'UTF-8');
-            $forChangeEngine = htmlspecialchars($_POST['for_change_engine'], ENT_QUOTES, 'UTF-8');
-            $newEngine = htmlspecialchars($_POST['new_engine'], ENT_QUOTES, 'UTF-8');
-            $finalOrcrName = htmlspecialchars($_POST['final_orcr_name'], ENT_QUOTES, 'UTF-8');
 
-            $dieselFuelQuantity = str_replace(',', '', $_POST['diesel_fuel_quantity']);
-            $dieselPricePerLiter = str_replace(',', '', $_POST['diesel_price_per_liter']);
-            $regularFuelQuantity = str_replace(',', '', $_POST['regular_fuel_quantity']);
-            $regularPricePerliter = str_replace(',', '', $_POST['regular_price_per_liter']);
-            $premiumFuelQuantity = str_replace(',', '', $_POST['premium_fuel_quantity']);
-            $premiumPricePerliter = str_replace(',', '', $_POST['premium_price_per_liter']);
-
-            $refEngineNo = htmlspecialchars($_POST['ref_engine_no'], ENT_QUOTES, 'UTF-8');
-            $refChassisNo = htmlspecialchars($_POST['ref_chassis_no'], ENT_QUOTES, 'UTF-8');
-            $refPlateNo = htmlspecialchars($_POST['ref_plate_no'], ENT_QUOTES, 'UTF-8');
-            $orcrNo = $_POST['orcr_no'];
-            $receivedFrom = $_POST['received_from'];
-            $receivedFromAddress = $_POST['received_from_address'];
-            $receivedFromIDType = $_POST['received_from_id_type'];
-            $receivedFromIDNumber = $_POST['received_from_id_number'];
-            $unitDescription = $_POST['unit_description'];
-            $orcrDate = $this->systemModel->checkDate('empty', $_POST['orcr_date'], '', 'Y-m-d', '');
-            $orcrExpiryDate = $this->systemModel->checkDate('empty', $_POST['orcr_expiry_date'], '', 'Y-m-d', '');
-
-            $deliverPrice = str_replace(',', '', $_POST['delivery_price']);
-            $nominalDiscount = str_replace(',', '', $_POST['nominal_discount']);
-            $addOnCharge = str_replace(',', '', $_POST['add_on_charge']);
-            $totalDeliveryPrice = str_replace(',', '', $_POST['total_delivery_price']);
-            $costOfAccessories = str_replace(',', '', $_POST['cost_of_accessories']);
-            $reconditioningCost = str_replace(',', '', $_POST['reconditioning_cost']);
-            $subtotal = str_replace(',', '', $_POST['subtotal']);
-            $downpayment = str_replace(',', '', $_POST['downpayment']);
-            $outstandingBalance = str_replace(',', '', $_POST['outstanding_balance']);
-            $amountFinanced = str_replace(',', '', $_POST['amount_financed']);
-            $pnAmount = str_replace(',', '', $_POST['pn_amount']);
-            $repaymentAmount = str_replace(',', '', $_POST['repayment_amount']);
-            $interestRate = str_replace(',', '', $_POST['interest_rate']);
-
-            $insuranceCoverage = str_replace(',', '', $_POST['insurance_coverage']);
-            $insurancePremium = str_replace(',', '', $_POST['insurance_premium']);
-            $handlingFee = str_replace(',', '', $_POST['handling_fee']);
-            $transferFee = str_replace(',', '', $_POST['transfer_fee']);
-            $registrationFee = str_replace(',', '', $_POST['registration_fee']);
-            $docStampTax = str_replace(',', '', $_POST['doc_stamp_tax']);
-            $transactionFee = str_replace(',', '', $_POST['transaction_fee']);
-            $totalOtherCharges = str_replace(',', '', $_POST['total_other_charges']);
-
-            $insurancePremiumDiscount = str_replace(',', '', $_POST['insurance_premium_discount']);
-            $insurancePremiumSubtotal = str_replace(',', '', $_POST['insurance_premium_subtotal']);
-            $handlingFeeDiscount = str_replace(',', '', $_POST['handling_fee_discount']);
-            $handlingFeeSubtotal = str_replace(',', '', $_POST['handling_fee_subtotal']);
-            $transferFeeDiscount = str_replace(',', '', $_POST['transfer_fee_discount']);
-            $transferFeeSubtotal = str_replace(',', '', $_POST['transfer_fee_subtotal']);
-            $docStampTaxDiscount = str_replace(',', '', $_POST['doc_stamp_tax_discount']);
-            $docStampTaxSubtotal = str_replace(',', '', $_POST['doc_stamp_tax_subtotal']);
-            $transactionFeeDiscount = str_replace(',', '', $_POST['transaction_fee_discount']);
-            $transactionFeeSubtotal = str_replace(',', '', $_POST['transaction_fee_subtotal']);
-
-            $registrationSecondYear = str_replace(',', '', $_POST['registration_second_year']);
-            $registrationThirdYear = str_replace(',', '', $_POST['registration_third_year']);
-            $registrationFourthYear = str_replace(',', '', $_POST['registration_fourth_year']);
-            $insuranceCoverageSecondYear = str_replace(',', '', $_POST['insurance_coverage_second_year']);
-            $insuranceCoverageThirdYear = str_replace(',', '', $_POST['insurance_coverage_third_year']);
-            $insuranceCoverageFourthYear = str_replace(',', '', $_POST['insurance_coverage_fourth_year']);
-            $insurancePremiumSecondYear = str_replace(',', '', $_POST['insurance_premium_second_year']);
-            $insurancePremiumThirdYear = str_replace(',', '', $_POST['insurance_premium_third_year']);
-            $insurancePremiumFourthYear = str_replace(',', '', $_POST['insurance_premium_fourth_year']);
-
-            $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
-
-            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $userID);
-
-            $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
-
-            if($productType == 'Unit'){
-                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, $productID, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $finalOrcrName, $userID);
-                $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
-                $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
+        if(!empty($_POST['renewal_tag']) && !empty($_POST['application_source_id']) && !empty($_POST['company_id']) && !empty($_POST['product_type']) && !empty($_POST['transaction_type']) && !empty($_POST['number_of_payments'])){
+            $userID = $_SESSION['user_id'];
+            $contactID = $_SESSION['contact_id'] ?? 1;
+            $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
+            $customerID = $_POST['customer_id'];
+            $renewalTag = htmlspecialchars($_POST['renewal_tag'], ENT_QUOTES, 'UTF-8');
+            $applicationSourceID = htmlspecialchars($_POST['application_source_id'], ENT_QUOTES, 'UTF-8');
+            $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
+            $productType = htmlspecialchars($_POST['product_type'], ENT_QUOTES, 'UTF-8');
+            $transactionType = htmlspecialchars($_POST['transaction_type'], ENT_QUOTES, 'UTF-8');
+            $financingInstitution = htmlspecialchars($_POST['financing_institution'], ENT_QUOTES, 'UTF-8');
+            $comakerID = htmlspecialchars($_POST['comaker_id'], ENT_QUOTES, 'UTF-8');
+            $referredBy = htmlspecialchars($_POST['referred_by'], ENT_QUOTES, 'UTF-8');
+            $commissionAmount = str_replace(',', '', $_POST['commission_amount']);
+            $releaseDate = $this->systemModel->checkDate('empty', $_POST['release_date'], '', 'Y-m-d', '');
+            $startDate = $this->systemModel->checkDate('empty', $_POST['start_date'], '', 'Y-m-d', '');
+            $termLength = htmlspecialchars($_POST['term_length'], ENT_QUOTES, 'UTF-8');
+            $termType = htmlspecialchars($_POST['term_type'], ENT_QUOTES, 'UTF-8');
+            $numberOfPayments = htmlspecialchars($_POST['number_of_payments'], ENT_QUOTES, 'UTF-8');
+            $paymentFrequency = htmlspecialchars($_POST['payment_frequency'], ENT_QUOTES, 'UTF-8');
+            $firstDueDate = $this->systemModel->checkDate('empty', $_POST['first_due_date'], '', 'Y-m-d', '');
+            $initialApprovingOfficer = htmlspecialchars($_POST['initial_approving_officer'], ENT_QUOTES, 'UTF-8');
+            $finalApprovingOfficer = htmlspecialchars($_POST['final_approving_officer'], ENT_QUOTES, 'UTF-8');
+            $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
+        
+            $user = $this->userModel->getUserByID($userID);
+        
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
             }
-            else if($productType == 'Fuel'){
-                $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, $dieselFuelQuantity, $dieselPricePerLiter, $regularFuelQuantity, $regularPricePerliter, $premiumFuelQuantity, $premiumPricePerliter, $userID);
-                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', $userID);
-                $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
+        
+            $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+            $total = $checkSalesProposalExist['total'] ?? 0;
+        
+            if ($total > 0) {            
+                $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $userID);
+                
+                echo json_encode(['success' => true, 'insertRecord' => false, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
+                exit;
+            } 
+            else {
+                $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+                $forRegistration = htmlspecialchars($_POST['for_registration'], ENT_QUOTES, 'UTF-8');
+                $withCR = htmlspecialchars($_POST['with_cr'], ENT_QUOTES, 'UTF-8');
+                $forTransfer = htmlspecialchars($_POST['for_transfer'], ENT_QUOTES, 'UTF-8');
+                $forChangeColor = htmlspecialchars($_POST['for_change_color'], ENT_QUOTES, 'UTF-8');
+                $newColor = htmlspecialchars($_POST['new_color'], ENT_QUOTES, 'UTF-8');
+                $forChangeBody = htmlspecialchars($_POST['for_change_body'], ENT_QUOTES, 'UTF-8');
+                $newBody = htmlspecialchars($_POST['new_body'], ENT_QUOTES, 'UTF-8');
+                $forChangeEngine = htmlspecialchars($_POST['for_change_engine'], ENT_QUOTES, 'UTF-8');
+                $newEngine = htmlspecialchars($_POST['new_engine'], ENT_QUOTES, 'UTF-8');
+                $finalOrcrName = htmlspecialchars($_POST['final_orcr_name'], ENT_QUOTES, 'UTF-8');
+
+                $dieselFuelQuantity = str_replace(',', '', $_POST['diesel_fuel_quantity']);
+                $dieselPricePerLiter = str_replace(',', '', $_POST['diesel_price_per_liter']);
+                $regularFuelQuantity = str_replace(',', '', $_POST['regular_fuel_quantity']);
+                $regularPricePerliter = str_replace(',', '', $_POST['regular_price_per_liter']);
+                $premiumFuelQuantity = str_replace(',', '', $_POST['premium_fuel_quantity']);
+                $premiumPricePerliter = str_replace(',', '', $_POST['premium_price_per_liter']);
+
+                $refEngineNo = htmlspecialchars($_POST['ref_engine_no'], ENT_QUOTES, 'UTF-8');
+                $refChassisNo = htmlspecialchars($_POST['ref_chassis_no'], ENT_QUOTES, 'UTF-8');
+                $refPlateNo = htmlspecialchars($_POST['ref_plate_no'], ENT_QUOTES, 'UTF-8');
+                $orcrNo = $_POST['orcr_no'];
+                $receivedFrom = $_POST['received_from'];
+                $receivedFromAddress = $_POST['received_from_address'];
+                $receivedFromIDType = $_POST['received_from_id_type'];
+                $receivedFromIDNumber = $_POST['received_from_id_number'];
+                $unitDescription = $_POST['unit_description'];
+                $orcrDate = $this->systemModel->checkDate('empty', $_POST['orcr_date'], '', 'Y-m-d', '');
+                $orcrExpiryDate = $this->systemModel->checkDate('empty', $_POST['orcr_expiry_date'], '', 'Y-m-d', '');
+
+                $deliverPrice = str_replace(',', '', $_POST['delivery_price']);
+                $nominalDiscount = str_replace(',', '', $_POST['nominal_discount']);
+                $addOnCharge = str_replace(',', '', $_POST['add_on_charge']);
+                $totalDeliveryPrice = str_replace(',', '', $_POST['total_delivery_price']);
+                $costOfAccessories = str_replace(',', '', $_POST['cost_of_accessories']);
+                $reconditioningCost = str_replace(',', '', $_POST['reconditioning_cost']);
+                $subtotal = str_replace(',', '', $_POST['subtotal']);
+                $downpayment = str_replace(',', '', $_POST['downpayment']);
+                $outstandingBalance = str_replace(',', '', $_POST['outstanding_balance']);
+                $amountFinanced = str_replace(',', '', $_POST['amount_financed']);
+                $pnAmount = str_replace(',', '', $_POST['pn_amount']);
+                $repaymentAmount = str_replace(',', '', $_POST['repayment_amount']);
+                $interestRate = str_replace(',', '', $_POST['interest_rate']);
+
+                $insuranceCoverage = str_replace(',', '', $_POST['insurance_coverage']);
+                $insurancePremium = str_replace(',', '', $_POST['insurance_premium']);
+                $handlingFee = str_replace(',', '', $_POST['handling_fee']);
+                $transferFee = str_replace(',', '', $_POST['transfer_fee']);
+                $registrationFee = str_replace(',', '', $_POST['registration_fee']);
+                $docStampTax = str_replace(',', '', $_POST['doc_stamp_tax']);
+                $transactionFee = str_replace(',', '', $_POST['transaction_fee']);
+                $totalOtherCharges = str_replace(',', '', $_POST['total_other_charges']);
+
+                $insurancePremiumDiscount = str_replace(',', '', $_POST['insurance_premium_discount']);
+                $insurancePremiumSubtotal = str_replace(',', '', $_POST['insurance_premium_subtotal']);
+                $handlingFeeDiscount = str_replace(',', '', $_POST['handling_fee_discount']);
+                $handlingFeeSubtotal = str_replace(',', '', $_POST['handling_fee_subtotal']);
+                $transferFeeDiscount = str_replace(',', '', $_POST['transfer_fee_discount']);
+                $transferFeeSubtotal = str_replace(',', '', $_POST['transfer_fee_subtotal']);
+                $docStampTaxDiscount = str_replace(',', '', $_POST['doc_stamp_tax_discount']);
+                $docStampTaxSubtotal = str_replace(',', '', $_POST['doc_stamp_tax_subtotal']);
+                $transactionFeeDiscount = str_replace(',', '', $_POST['transaction_fee_discount']);
+                $transactionFeeSubtotal = str_replace(',', '', $_POST['transaction_fee_subtotal']);
+
+                $registrationSecondYear = str_replace(',', '', $_POST['registration_second_year']);
+                $registrationThirdYear = str_replace(',', '', $_POST['registration_third_year']);
+                $registrationFourthYear = str_replace(',', '', $_POST['registration_fourth_year']);
+                $insuranceCoverageSecondYear = str_replace(',', '', $_POST['insurance_coverage_second_year']);
+                $insuranceCoverageThirdYear = str_replace(',', '', $_POST['insurance_coverage_third_year']);
+                $insuranceCoverageFourthYear = str_replace(',', '', $_POST['insurance_coverage_fourth_year']);
+                $insurancePremiumSecondYear = str_replace(',', '', $_POST['insurance_premium_second_year']);
+                $insurancePremiumThirdYear = str_replace(',', '', $_POST['insurance_premium_third_year']);
+                $insurancePremiumFourthYear = str_replace(',', '', $_POST['insurance_premium_fourth_year']);
+
+                $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
+
+                $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $userID);
+
+                $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
+
+                if($productType == 'Unit'){
+                    $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, $productID, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $finalOrcrName, $userID);
+                    $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
+                    $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
+                }
+                else if($productType == 'Fuel'){
+                    $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, $dieselFuelQuantity, $dieselPricePerLiter, $regularFuelQuantity, $regularPricePerliter, $premiumFuelQuantity, $premiumPricePerliter, $userID);
+                    $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', $userID);
+                    $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
+                }
+                else if($productType == 'Brand New' || $productType == 'Refinancing' || $productType == 'Restructure'){
+                    if($productType == 'Brand New'){
+                        $stockNumber = 'BN'. $salesProposalNumber;
+                    }
+                    else if($productType == 'Restructure'){
+                        $stockNumber = 'RES'. $salesProposalNumber;
+                    }
+                    else{
+                        $stockNumber = 'REF'. $salesProposalNumber;
+                    }
+
+                    $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, $stockNumber, $refEngineNo, $refChassisNo, $refPlateNo, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $unitDescription, $userID);
+                    $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', $userID);
+                    $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
+                }
+
+                $this->salesProposalModel->insertSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $amountFinanced, $pnAmount, $repaymentAmount, $interestRate, $nominalDiscount, $totalDeliveryPrice, $addOnCharge, $userID);
+
+                $this->salesProposalModel->insertSalesProposalOtherCharges($salesProposalID, $insuranceCoverage, $insurancePremium, $handlingFee, $transferFee, $registrationFee, $docStampTax, $transactionFee, $totalOtherCharges, $insurancePremiumDiscount, $insurancePremiumSubtotal, $handlingFeeDiscount, $handlingFeeSubtotal, $transferFeeDiscount, $transferFeeSubtotal, $docStampTaxDiscount, $docStampTaxSubtotal, $transactionFeeDiscount, $transactionFeeSubtotal, $userID);
+
+                $this->salesProposalModel->insertSalesProposalRenewalAmount($salesProposalID, $registrationSecondYear, $registrationThirdYear, $registrationFourthYear, $insuranceCoverageSecondYear, $insuranceCoverageThirdYear, $insuranceCoverageFourthYear, $insurancePremiumSecondYear, $insurancePremiumThirdYear, $insurancePremiumFourthYear, $userID);
+
+                echo json_encode(['success' => true, 'insertRecord' => true, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
+                exit;
             }
-            else if($productType == 'Brand New' || $productType == 'Refinancing' || $productType == 'Restructure'){
-                if($productType == 'Brand New'){
-                    $stockNumber = 'BN'. $salesProposalNumber;
-                }
-                else if($productType == 'Restructure'){
-                    $stockNumber = 'RES'. $salesProposalNumber;
-                }
-                else{
-                    $stockNumber = 'REF'. $salesProposalNumber;
-                }
-
-                $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, $stockNumber, $refEngineNo, $refChassisNo, $refPlateNo, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $unitDescription, $userID);
-                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', $userID);
-                $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
-            }
-
-            $this->salesProposalModel->insertSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $amountFinanced, $pnAmount, $repaymentAmount, $interestRate, $nominalDiscount, $totalDeliveryPrice, $addOnCharge, $userID);
-
-            $this->salesProposalModel->insertSalesProposalOtherCharges($salesProposalID, $insuranceCoverage, $insurancePremium, $handlingFee, $transferFee, $registrationFee, $docStampTax, $transactionFee, $totalOtherCharges, $insurancePremiumDiscount, $insurancePremiumSubtotal, $handlingFeeDiscount, $handlingFeeSubtotal, $transferFeeDiscount, $transferFeeSubtotal, $docStampTaxDiscount, $docStampTaxSubtotal, $transactionFeeDiscount, $transactionFeeSubtotal, $userID);
-
-            $this->salesProposalModel->insertSalesProposalRenewalAmount($salesProposalID, $registrationSecondYear, $registrationThirdYear, $registrationFourthYear, $insuranceCoverageSecondYear, $insuranceCoverageThirdYear, $insuranceCoverageFourthYear, $insurancePremiumSecondYear, $insurancePremiumThirdYear, $insurancePremiumFourthYear, $userID);
-
-            echo json_encode(['success' => true, 'insertRecord' => true, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
-            exit;
         }
     }
     # -------------------------------------------------------------
@@ -1495,14 +1497,16 @@ class SalesProposalController {
         $productType = $salesProposalDetails['product_type'];
         $productID = $salesProposalDetails['product_id'];
         $customerID = $salesProposalDetails['customer_id'];
+        $companyID = $salesProposalDetails['company_id'];
 
         $customerDetails = $this->customerModel->getPersonalInformation($customerID);
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
 
         $productDetails = $this->productModel->getProduct($productID);
         
+        
         $approverDetails = $this->userModel->getContactByContactID($inititialApprovingOfficer);
-        $approverEmail = $approverDetails['email'];
+        $approverEmail = $approverDetails['email'] ?? null;
 
         /*$forChangeEngine = $salesProposalDetails['for_change_engine'] ?? 'No';
         $newEngineStencil = $salesProposalDetails['new_engine_stencil'] ?? null;
@@ -1514,7 +1518,7 @@ class SalesProposalController {
         }*/
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Initial Approval', '', $userID);
-        //$this->sendInitialApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $fullStockNumber);
+        $this->sendInitialApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null, $companyID);
             
         echo json_encode(['success' => true]);
     }
@@ -1869,17 +1873,6 @@ class SalesProposalController {
         $setToDraftFileFileExtension = explode('.', $setToDraftFileFileName);
         $setToDraftFileActualFileExtension = strtolower(end($setToDraftFileFileExtension));
 
-        
-        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
-        $clientsetToDraftFile = !empty($salesProposalDetails['set_to_draft_file']) ? '.' . $salesProposalDetails['set_to_draft_file'] : null;
-
-        if(file_exists($clientsetToDraftFile)){
-            if (!unlink($clientsetToDraftFile)) {
-                echo json_encode(['success' => false, 'message' => 'Sales proposal file cannot be deleted due to an error.']);
-                exit;
-            }
-        }
-
         $uploadSetting = $this->uploadSettingModel->getUploadSetting(17);
         $maxFileSize = $uploadSetting['max_file_size'];
 
@@ -1916,8 +1909,8 @@ class SalesProposalController {
         $fileName = $this->securityModel->generateFileName();
         $fileNew = $fileName . '.' . $setToDraftFileActualFileExtension;
 
-        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/set_to_draft_file/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/set_to_draft_file/' . $fileNew;
+        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/set_to_draft_file/' . $salesProposalID . '/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/set_to_draft_file/' . $salesProposalID . '/' . $fileNew;
         $filePath = $directory . $fileNew;
 
         $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
@@ -2203,6 +2196,8 @@ class SalesProposalController {
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
         $productType = $salesProposalDetails['product_type'] ?? null;
         $productID = $salesProposalDetails['product_id'] ?? null;
+        $companyID = $salesProposalDetails['company_id'] ?? null;
+        $transactionType = $salesProposalDetails['transaction_type'] ?? null;
 
         $loanNumber = $salesProposalDetails['loan_number'] ?? null;
 
@@ -2214,7 +2209,52 @@ class SalesProposalController {
         else{
             $this->salesProposalModel->updateSalesProposalAsReleased($salesProposalID, $loanNumber, 'Released', $releaseRemarks, $userID);
         }
+
+        if($transactionType == 'COD'){
+            $transactionTypeCode = '1';
+        }
+        else if($transactionType == 'Installment Sales'){
+            $transactionTypeCode = '2';
+        }
+        else{
+            $transactionTypeCode = '3';
+        }
+
+        if($productType == 'Unit'){
+            $productTypeCode = '1';
+        }
+        else if($productType == 'Fuel'){
+            $productTypeCode = '8';
+        }
+        else if($productType == 'Parts'){
+            $productTypeCode = '2';
+        }
+        else if($productType == 'Repair'){
+            $productTypeCode = '7';
+        }
+        else if($productType == 'Rental'){
+            $productTypeCode = '6';
+        }
+        else if($productType == 'Brand New'){
+            $productTypeCode = '2';
+        }
+        else if($productType == 'Refinancing'){
+            $productTypeCode = '3';
+        }
+        else if($productType == 'Restructure'){
+            $productTypeCode = '5';
+        }
+        else if($productType == 'Real Estate'){
+            $productTypeCode = '4';
+        }
+        else{
+            $productTypeCode = '';
+        }
         
+        if($productType != 'Consignment'){
+            $this->salesProposalModel->create_journal_entry($companyID, $transactionTypeCode, $productTypeCode, $salesProposalID, $productID, date('Y-m-d'), $userID);
+        }
+
         if($productType == 'Unit' || $productType == 'Rental' || $productType == 'Consignment'){
             if($productType == 'Unit'){
                 $particulars = 'Sold';
@@ -4073,7 +4113,7 @@ class SalesProposalController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function sendInitialApproval($email, $sales_proposal_number, $client_name, $productType, $stock_number) {
+    public function sendInitialApproval($email, $sales_proposal_number, $client_name, $productType, $stock_number, $company_id) {
         $emailSetting = $this->emailSettingModel->getEmailSetting(1);
         $mailFromName = $emailSetting['mail_from_name'] ?? null;
         $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
@@ -4095,8 +4135,11 @@ class SalesProposalController {
         
         $mailer->setFrom($mailFromEmail, $mailFromName);
         $mailer->addAddress($email);
-        $mailer->addAddress('p.saulo@christianmotors.ph');
-        $mailer->addAddress('pm.vicente@christianmotors.ph');
+        
+        if($company_id == 3){
+            $mailer->addAddress('paolobaguisa@christianmotors.ph');
+        }
+
         $mailer->Subject = $emailSubject;
         $mailer->Body = $message;
     

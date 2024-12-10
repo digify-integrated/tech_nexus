@@ -328,22 +328,22 @@
 
     function calculateDueDate($startDate, $termLength, $frequency, $iteration) {
         $date = new DateTime($startDate);
-    switch ($frequency) {
-        case 'Monthly':
-            $date->modify("+$iteration months");
-            break;
-        case 'Quarterly':
-            $date->modify("+$iteration months")->modify('+2 months');
-            break;
-        case 'Semi-Annual':
-            $date->modify("+$iteration months")->modify('+6 months');
-            break;
-        case 'Lumpsum':
-            $date->modify("+$termLength days");
-            break;
-        default:
-            break;
-    }
-    return $date->format('d-M-Y');
+        switch ($frequency) {
+            case 'Monthly':
+                $date->modify("+$iteration months");
+                break;
+            case 'Quarterly':
+                $date->modify("+$iteration months")->modify('+2 months');
+                break;
+            case 'Semi-Annual':
+                $date->modify("+". ($iteration * 6). " months");
+                break;
+            case 'Lumpsum':
+                $date->modify("+$termLength days");
+                break;
+            default:
+                break;
+        }
+        return $date->format('d-M-Y');
     }
 ?>

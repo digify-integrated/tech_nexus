@@ -14,6 +14,10 @@
             leaveRecommendationTable('#leave-recommendation-table');
         }
 
+        if($('#leave-summary-table').length){
+            leaveSummaryTable('#leave-summary-table');
+        }
+
         if($('#leave-application-form').length){
             leaveApplicationForm();
         }
@@ -384,7 +388,13 @@
         });
 
         $(document).on('click','#apply-filter',function() {
-            leaveApplicationTable('#leave-application-table');
+            if($('#leave-application-table').length){
+                leaveApplicationTable('#leave-application-table');
+            }
+
+            if($('#leave-summary-table').length){
+                leaveSummaryTable('#leave-summary-table');
+            }            
         });
     });
 })(jQuery);
@@ -535,6 +545,84 @@ function leaveRecommendationTable(datatable_name, buttons = false, show_all = fa
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function leaveSummaryTable(datatable_name, buttons = false, show_all = false){
+    const type = 'leave summary table';
+    var leave_status_filter = $('.leave-status-filter:checked').val();
+    var filter_leave_start_date = $('#filter_leave_start_date').val();
+    var filter_leave_end_date = $('#filter_leave_end_date').val();
+    var filter_application_start_date = $('#filter_application_start_date').val();
+    var filter_application_end_date = $('#filter_application_end_date').val();
+    var filter_approval_start_date = $('#filter_approval_start_date').val();
+    var filter_approval_end_date = $('#filter_approval_end_date').val();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'FILE_AS' },
+        { 'data' : 'LEAVE_TYPE' },
+        { 'data' : 'LEAVE_DATE' },
+        { 'data' : 'APPLICATION_DATE' },
+        { 'data' : 'APPROVAL_DATE' },
+        { 'data' : 'STATUS' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_leave_application_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'leave_status_filter' : leave_status_filter,
+                'filter_leave_start_date' : filter_leave_start_date,
+                'filter_leave_end_date' : filter_leave_end_date,
+                'filter_application_start_date' : filter_application_start_date,
+                'filter_application_end_date' : filter_application_end_date,
+                'filter_approval_start_date' : filter_approval_start_date,
+                'filter_approval_end_date' : filter_approval_end_date
+            },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -764,7 +852,7 @@ function leaveApplicationCancelForm(){
 }
 
 function leaveApplicationRejectForm(){
-    $('#leave-application-cancel-form').validate({
+    $('#leave-application-reject-form').validate({
         rules: {
             rejection_reason: {
                 required: true
@@ -814,7 +902,7 @@ function leaveApplicationRejectForm(){
                 data: $(form).serialize() + '&transaction=' + transaction + '&leave_application_id=' + leave_application_id,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-leave-application-cancel');
+                    disableFormSubmitButton('submit-leave-application-reject');
                 },
                 success: function (response) {
                     if (response.success) {
@@ -838,8 +926,8 @@ function leaveApplicationRejectForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-leave-application-cancel', 'Submit');
-                    $('#leave-application-cancel-offcanvas').offcanvas('hide');
+                    enableFormSubmitButton('submit-leave-application-reject', 'Submit');
+                    $('#leave-application-reject-offcanvas').offcanvas('hide');
                 }
             });
         

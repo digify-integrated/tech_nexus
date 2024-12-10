@@ -45,8 +45,10 @@
   $importProduct = $userModel->checkSystemActionAccessRights($user_id, 98);
   $updateProductImage = $userModel->checkSystemActionAccessRights($user_id, 128);
   $viewProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
+  $viewProductLogNotes = $userModel->checkSystemActionAccessRights($user_id, 184);
   $tagForSale = $userModel->checkSystemActionAccessRights($user_id, 172);
   $addProductExpense = $userModel->checkSystemActionAccessRights($user_id, 173);
+  $printRecevingReport = $userModel->checkSystemActionAccessRights($user_id, 185);
 
   if ($productReadAccess['total'] == 0) {
     header('location: 404.php');

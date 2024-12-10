@@ -176,6 +176,7 @@
         require_once 'model/brand-model.php';
         require_once 'model/cabin-model.php';
         require_once 'model/make-model.php';
+        require_once 'model/class-model.php';
         require_once 'model/mode-of-acquisition-model.php';
     
         $databaseModel = new DatabaseModel();
@@ -193,6 +194,7 @@
         $cabinModel = new CabinModel($databaseModel);
         $makeModel = new MakeModel($databaseModel);
         $modelModel = new ModelModel($databaseModel);
+        $classModel = new ClassModel($databaseModel);
         $modeOfAcquisitionModel = new ModeOfAcquisitionModel($databaseModel);
 
         $productDetails = $productModel->getProduct($productID);
@@ -211,17 +213,18 @@
         $color_id = $productDetails['color_id'];
         $year_model = $productDetails['year_model'];
         $description = $productDetails['description'];
+        $total_landed_cost = $productDetails['total_landed_cost'];
         $arrival_date = $systemModel->checkDate('summary', $productDetails['arrival_date'], '', 'm/d/Y', '');
         $checklist_date = $systemModel->checkDate('summary', $productDetails['checklist_date'], '', 'm/d/Y', '');
 
         $brand_name = $brandModel->getBrand($brand_id)['brand_name'] ?? null;
         $cabin_name = $cabinModel->getCabin($cabin_id)['cabin_name'] ?? null;
-        $model_name = $cabinModel->getCabin($model_id)['model_name'] ?? null;
-        $make_name = $cabinModel->getCabin($make_id)['make_name'] ?? null;
-        $body_type_name = $cabinModel->getCabin($body_type_id)['body_type_name'] ?? null;
+        $model_name = $modelModel->getModel($model_id)['model_name'] ?? null;
+        $make_name = $makeModel->getMake($make_id)['make_name'] ?? null;
+        $body_type_name = $bodyTypeModel->getBodyType($body_type_id)['body_type_name'] ?? null;
         $unit_name = $unitModel->getUnit($length_unit)['short_name'] ?? null;
-        $class_name = $unitModel->getUnit($class_id)['class_name'] ?? null;
-        $color_name = $unitModel->getUnit($color_id)['color_name'] ?? null;
+        $class_name = $classModel->getClass($class_id)['class_name'] ?? null;
+        $color_name = $colorModel->getColor($color_id)['color_name'] ?? null;
         $mode_of_acquisition_name = $modeOfAcquisitionModel->getModeOfAcquisition($mode_of_acquisition_id)['mode_of_acquisition_name'] ?? null;
 
         $response = '<table border="0.5" width="100%" cellpadding="2" align="left">
@@ -249,11 +252,11 @@
                                 CHECKLIST DATE: '. $checklist_date .'<br/>
                                 PARTICULARS: '. $description .'<br/>
                             </td>
-                            <td></td>
+                            <td style="text-align:center;">'. number_format($total_landed_cost, 2) .'</td>
                         </tr>
                         <tr>
-                            <td>TOTAL</td>
-                            <td></td>
+                            <td><b>TOTAL</b></td>
+                            <td style="text-align:center;"><b>'. number_format($total_landed_cost, 2) .'</b></td>
                         </tr>
                     </tbody>
                 </table>';

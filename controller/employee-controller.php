@@ -2474,7 +2474,7 @@ class EmployeeController {
         $fileAs = $getPersonalInformation['file_as'] ?? '--';
         $nickname = $getPersonalInformation['nickname'] ?? '--';
         $contactImage = $getPersonalInformation['contact_image'] ?? '--';
-        $contactImage = str_replace('./', 'cgmids.com/', $contactImage);
+        $contactImage = str_replace('./', 'https://cgmids.com/', $contactImage);
 
 
         $employeeDetails = $this->employeeModel->getEmploymentInformation($employeeID);
@@ -2528,8 +2528,7 @@ class EmployeeController {
         $fileAs = $getPersonalInformation['file_as'] ?? '--';
         $nickname = $getPersonalInformation['nickname'] ?? '--';
         $contactImage = $getPersonalInformation['contact_image'] ?? '--';
-        $contactImage = str_replace('./', 'cgmids.com/', $contactImage);
-
+        $contactImage = str_replace('./', 'https://cgmids.com/', $contactImage);
 
         $employeeDetails = $this->employeeModel->getEmploymentInformation($employeeID);
         $departmentID = $employeeDetails['department_id'] ?? null;

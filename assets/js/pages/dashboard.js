@@ -26,6 +26,10 @@
             dashboardDocumentTable('#dashboard-document-table');
         }
 
+        if($('#leave-dashboard-approval-table').length){
+            leaveDashboardApprovalTable('#leave-dashboard-approval-table');
+        }
+
         document.querySelector('#record-attendance').addEventListener('click', async function() {
             getLocation('location');
         
@@ -150,6 +154,65 @@ function recordAttendanceForm(){
             return false;
         }
     });
+}
+
+function leaveDashboardApprovalTable(datatable_name, buttons = false, show_all = false){
+    const type = 'leave dashboard approval table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'FILE_AS' },
+        { 'data' : 'LEAVE_TYPE' },
+        { 'data' : 'LEAVE_DATE' },
+        { 'data' : 'APPLICATION_DATE' },
+        { 'data' : 'STATUS' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_leave_application_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
 }
 
 function transmittalTable(datatable_name, buttons = false, show_all = false){
@@ -393,7 +456,7 @@ function dashboardDocumentTable(datatable_name, buttons = false, show_all = fals
 }
 
 function travelApprovalFormTable(datatable_name, buttons = false, show_all = false){
-    const type = 'travel approval form table';
+    const type = 'travel form dashboard table';
     var settings;
 
     const column = [ 

@@ -5793,3 +5793,22 @@ CREATE INDEX journal_code_index_journal_code_id ON journal_code(journal_code_id)
 CREATE INDEX journal_code_index_company_id ON journal_code(company_id);
 CREATE INDEX journal_code_index_product_type_id ON journal_code(product_type_id);
 CREATE INDEX journal_code_index_reference_code ON journal_code(reference_code);
+
+CREATE TABLE journal_entry(
+	journal_entry_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	journal_entry_date DATE NOT NULL,
+	reference_code VARCHAR(1000) NOT NULL,
+	journal_id VARCHAR(500) NOT NULL,
+	journal_item VARCHAR(500) NOT NULL,
+	debit DOUBLE DEFAULT 0,
+	credit DOUBLE DEFAULT 0,
+	journal_label VARCHAR(500) NOT NULL,
+	analytic_lines VARCHAR(500) NOT NULL,
+	analytic_distribution VARCHAR(500) NOT NULL,
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX journal_entry_index_journal_entry_id ON journal_entry(journal_entry_id);
+CREATE INDEX journal_entry_index_journal_entry_date ON journal_entry(journal_entry_date);

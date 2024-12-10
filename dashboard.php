@@ -54,6 +54,7 @@
 
           $viewDashboardSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 181);
           $viewDashboardTravelForm = $userModel->checkSystemActionAccessRights($user_id, 182);
+          $viewDashboardLeaveApprovalForm = $userModel->checkSystemActionAccessRights($user_id, 183);
 
           if($viewDashboardSalesProposal['total'] > 0){
             require_once('view/_sales_proposal_dashboard.php');
@@ -61,6 +62,10 @@
 
           if($viewDashboardTravelForm['total'] > 0){
             require_once('view/_travel_form_dashboard.php');
+          }
+
+          if($viewDashboardLeaveApprovalForm['total'] > 0){
+            require_once('view/_dashboard_leave_approval.php');
           }
           
           require_once('view/_transmittal_dashboard.php');

@@ -2248,9 +2248,12 @@ function calculateConvertedAmount() {
     var total = unit_cost * fx_rate;
 
     $('#converted_amount').val(total.toFixed(2));
+
+    calculateTotalLandedCost();
 }
 
 function calculateTotalLandedCost() {
+    var converted_amount = parseFloat($('#converted_amount').val()) || 0;
     var package_deal = parseFloat($('#package_deal').val()) || 0;
     var taxes_duties = parseFloat($('#taxes_duties').val()) || 0;
     var freight = parseFloat($('#freight').val()) || 0;
@@ -2264,7 +2267,7 @@ function calculateTotalLandedCost() {
     var import_permit = parseFloat($('#import_permit').val()) || 0;
     var others = parseFloat($('#others').val()) || 0;
 
-    var total = package_deal + taxes_duties + freight + lto_registration + royalties + conversion + arrastre + wharrfage + insurance + aircon + import_permit + others;
+    var total = converted_amount + package_deal + taxes_duties + freight + lto_registration + royalties + conversion + arrastre + wharrfage + insurance + aircon + import_permit + others;
 
     $('#total_landed_cost').val(total.toFixed(2));
 }

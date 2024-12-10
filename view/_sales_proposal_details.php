@@ -436,7 +436,7 @@
                         if($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review' || $salesProposalStatus == 'For Initial Approval'){
                           echo $productModel->generateForSaleProductOptions(); 
                         }
-                        else if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'Proceed' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'On-Process' || $salesProposalStatus == 'For DR' || $salesProposalStatus == 'Read For Release' || $salesProposalStatus == 'Released'){
+                        else if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'Proceed' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'On-Process' || $salesProposalStatus == 'For DR' || $salesProposalStatus == 'Read For Release'){
                           echo $productModel->generateWithApplicationProductOptions(); 
                         }
                         else{

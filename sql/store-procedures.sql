@@ -9867,6 +9867,57 @@ BEGIN
     WHERE status = 'For Approval';
 END //
 
+CREATE PROCEDURE generateLeaveDashboardApprovalTable(IN p_contact_id INT)
+BEGIN
+    SELECT * FROM leave_application 
+    WHERE status = 'For Approval' OR (contact_id IN (SELECT contact_id FROM employment_information WHERE manager_id = p_contact_id) AND status = 'For Recommendation');
+END //
+
+CREATE PROCEDURE generateLeaveSummaryTable(IN p_leave_status VARCHAR(100), IN p_leave_start_date DATE, IN p_leave_end_date DATE, IN p_application_start_date DATE, IN p_application_end_date DATE, IN p_approval_start_date DATE, IN p_approval_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM leave_application';
+    SET conditionList = ' WHERE 1';
+
+     IF p_leave_status IS NOT NULL AND p_leave_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND status =');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_leave_status));
+    END IF;
+    
+    IF p_leave_start_date IS NOT NULL AND p_leave_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (leave_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_leave_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_leave_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_application_start_date IS NOT NULL AND p_application_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(application_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_application_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_application_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_approval_start_date IS NOT NULL AND p_approval_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(approval_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY application_date ASC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 CREATE PROCEDURE generateLeaveRecommendationTable(IN p_contact_id INT)
 BEGIN
     SELECT * FROM leave_application 
@@ -10003,6 +10054,30 @@ BEGIN
 
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY released_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateJournalEntryTable(IN p_filter_journal_entry_date_start_date DATE, IN p_filter_journal_entry_date_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM journal_entry';
+    SET conditionList = " WHERE 1";
+    
+    IF p_filter_journal_entry_date_start_date IS NOT NULL AND p_filter_journal_entry_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(journal_entry_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_journal_entry_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_journal_entry_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY journal_entry_date DESC;');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -11280,16 +11355,16 @@ END //
 
 CREATE PROCEDURE generateTravelFormTable()
 BEGIN
-    SELECT travel_form_id, checked_by, checked_date, recommended_by, recommended_date, approval_by, approval_date, travel_form_status, created_by
+    SELECT *
     FROM travel_form
     ORDER BY travel_form_id;
 END //
 
-CREATE PROCEDURE generateTravelApprovalFormTable(IN p_contact_id INT)
+CREATE PROCEDURE generateTravelDashboardTable(IN p_contact_id INT)
 BEGIN
     SELECT travel_form_id, checked_by, checked_date, recommended_by, recommended_date, approval_by, approval_date, travel_form_status, created_by
     FROM travel_form
-    WHERE travel_form_status IN ('For Checking', 'For Recommendation') AND (checked_by = p_contact_id OR recommended_by = p_contact_id OR approval_by = p_contact_id)
+    WHERE travel_form_status IN ('Recommended') AND (approval_by = p_contact_id)
     ORDER BY travel_form_id;
 END //
 
@@ -11350,6 +11425,30 @@ BEGIN
     FROM travel_itinerary
     WHERE travel_form_id = p_travel_form_id
     ORDER BY itinerary_id;
+END //
+
+CREATE PROCEDURE generateItinerarySummaryTable(IN p_itinerary_start_date DATE, IN p_itinerary_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM travel_itinerary';
+    SET conditionList = ' WHERE travel_form_id IN (SELECT travel_form_id FROM travel_form WHERE travel_form_status = "Approved")';
+    
+    IF p_itinerary_start_date IS NOT NULL AND p_itinerary_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (itinerary_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_itinerary_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_itinerary_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY itinerary_date DESC');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 
@@ -11597,3 +11696,180 @@ BEGIN
     FROM journal_code
     ORDER BY journal_code_id;
 END //
+
+
+DELIMITER //
+DROP PROCEDURE create_journal_entry//
+
+CREATE PROCEDURE create_journal_entry(
+    IN p_company_id INT,
+    IN p_transaction_type INT,
+    IN p_product_type VARCHAR(100),
+    IN p_sales_proposal_id INT,
+    IN p_product_id INT,
+    IN p_journal_entry_date DATE,
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_transaction VARCHAR(100);
+    DECLARE v_item VARCHAR(100);
+    DECLARE v_amount DOUBLE;
+    DECLARE v_debit_code VARCHAR(100);
+    DECLARE v_credit_code VARCHAR(100);
+    DECLARE v_cursor_done INT DEFAULT 0;
+
+    -- Declare variables for analytic_lines and analytic_distribution
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    
+    -- Declare reference code
+    DECLARE v_reference_code VARCHAR(200);
+
+    -- Declare cursor for fetching journal codes (debit, credit codes)
+    DECLARE cur_journal_code CURSOR FOR
+        SELECT transaction, item, debit, credit
+        FROM journal_code
+        WHERE company_id = p_company_id 
+          AND transaction_type = p_transaction_type 
+          AND product_type_id = p_product_type;
+    
+    -- Declare a handler to manage the cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_cursor_done = 1;
+
+    -- Set reference code dynamically based on journal entry date
+    SET v_reference_code = CONCAT(
+        'TO RECORD SALES FOR THE MONTH OF ', 
+        UPPER(DATE_FORMAT(p_journal_entry_date, '%M')), 
+        ' ', 
+        YEAR(p_journal_entry_date)
+    );
+
+    -- Open cursor
+    OPEN cur_journal_code;
+
+    -- Fetch first row from cursor
+    FETCH cur_journal_code INTO v_transaction, v_item, v_debit_code, v_credit_code;
+
+    -- Process each journal code
+    journal_loop: LOOP
+        IF v_cursor_done THEN
+            LEAVE journal_loop;
+        END IF;
+
+        -- Determine the amount based on the item
+        IF v_item = 'PRI' THEN
+            SELECT outstanding_balance INTO v_amount
+            FROM sales_proposal_pricing_computation
+            WHERE sales_proposal_id = p_sales_proposal_id;
+        ELSEIF v_item = 'INT' THEN
+            SELECT (pn_amount - amount_financed) INTO v_amount
+            FROM sales_proposal_pricing_computation
+            WHERE sales_proposal_id = p_sales_proposal_id;
+        ELSEIF v_item = 'INS' THEN
+            SELECT insurance_coverage INTO v_amount
+            FROM sales_proposal_other_charges
+            WHERE sales_proposal_id = p_sales_proposal_id;
+        ELSEIF v_item = 'REG' THEN
+            SELECT registration_fee INTO v_amount
+            FROM sales_proposal_other_charges
+            WHERE sales_proposal_id = p_sales_proposal_id;
+        ELSEIF v_item = 'DOC' THEN
+            SELECT doc_stamp_tax_subtotal INTO v_amount
+            FROM sales_proposal_other_charges
+            WHERE sales_proposal_id = p_sales_proposal_id;
+        ELSEIF v_item = 'TRA' THEN
+            SELECT transfer_fee_subtotal INTO v_amount
+            FROM sales_proposal_other_charges
+            WHERE sales_proposal_id = p_sales_proposal_id;
+        ELSEIF v_item = 'TRS' THEN
+            SELECT transaction_fee_subtotal INTO v_amount
+            FROM sales_proposal_other_charges
+            WHERE sales_proposal_id = p_sales_proposal_id;
+        ELSEIF v_item = 'HAN' THEN
+            SELECT handling_fee_subtotal INTO v_amount
+            FROM sales_proposal_other_charges
+            WHERE sales_proposal_id = p_sales_proposal_id;
+        ELSEIF v_item = 'DP' THEN
+            SELECT downpayment INTO v_amount
+            FROM sales_proposal_pricing_computation
+            WHERE sales_proposal_id = p_sales_proposal_id;
+        ELSEIF v_item = 'AJO' THEN
+            SELECT COALESCE(SUM(expense_amount), 0) INTO v_amount
+            FROM product_expense
+            WHERE product_id = p_product_id;
+        END IF;
+
+        -- Set analytic_lines and analytic_distribution based on p_product_type
+        IF p_product_type = 'Fuel' THEN
+            SET v_analytic_lines = 'NE FUEL';
+            SET v_analytic_distribution = '{"6": 100.0}';
+        ELSEIF p_product_type = 'Repair' THEN
+            SET v_analytic_lines = 'NE TRUCK';
+            SET v_analytic_distribution = '{"2": 100.0}';
+        ELSE
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        END IF;
+
+        -- Insert Debit Entry using the journal transaction value for debit
+        INSERT INTO journal_entry (
+            journal_entry_date, 
+            reference_code, 
+            journal_id, 
+            journal_item, 
+            debit, 
+            credit, 
+            journal_label, 
+            analytic_lines, 
+            analytic_distribution, 
+            created_date, 
+            last_log_by
+        ) VALUES (
+            p_journal_entry_date, 
+            v_reference_code, 
+            'Miscellaneous Operations', -- Use the debit account code
+            v_debit_code, -- Use the transaction as journal_item (which can be the debit reference)
+            v_amount, 
+            0, 
+            '', 
+            v_analytic_lines, 
+            v_analytic_distribution, 
+            NOW(), 
+            p_last_log_by
+        );
+
+        -- Insert Credit Entry using the journal transaction value for credit
+        INSERT INTO journal_entry (
+            journal_entry_date, 
+            reference_code, 
+            journal_id, 
+            journal_item, 
+            debit, 
+            credit, 
+            journal_label, 
+            analytic_lines, 
+            analytic_distribution, 
+            created_date, 
+            last_log_by
+        ) VALUES (
+            p_journal_entry_date, 
+            v_reference_code, 
+            'Miscellaneous Operations', -- Use the credit account code
+            v_credit_code, -- Use the transaction as journal_item (which can be the credit reference)
+            0, 
+            v_amount, 
+            '', 
+            v_analytic_lines, 
+            v_analytic_distribution, 
+            NOW(), 
+            p_last_log_by
+        );
+
+        -- Fetch the next journal code
+        FETCH cur_journal_code INTO v_transaction, v_item, v_debit_code, v_credit_code;
+    END LOOP;
+
+    -- Close cursor
+    CLOSE cur_journal_code;
+END//

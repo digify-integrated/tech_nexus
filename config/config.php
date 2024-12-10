@@ -86,22 +86,22 @@ define('DEFAULT_PLACEHOLDER_IMAGE', './assets/images/default/default-image-place
 #
 # -------------------------------------------------------------
 
-define('DEFAULT_IMAGES_FULL_PATH_FILE', '/tech_nexus/assets/images/');
+define('DEFAULT_IMAGES_FULL_PATH_FILE', '/assets/images/');
 define('DEFAULT_IMAGES_RELATIVE_PATH_FILE', './assets/images/');
-define('DEFAULT_DOCUMENT_FULL_PATH_FILE', '/tech_nexus/document/');
+define('DEFAULT_DOCUMENT_FULL_PATH_FILE', '/document/');
 define('DEFAULT_DOCUMENT_RELATIVE_PATH_FILE', './document/');
-define('DEFAULT_PRODUCT_FULL_PATH_FILE', '/tech_nexus/inventory/product/');
+define('DEFAULT_PRODUCT_FULL_PATH_FILE', '/inventory/product/');
 define('DEFAULT_PRODUCT_RELATIVE_PATH_FILE', './inventory/product/');
-define('DEFAULT_EMPLOYEE_FULL_PATH_FILE', '/tech_nexus/employee/');
+define('DEFAULT_EMPLOYEE_FULL_PATH_FILE', '/employee/');
 define('DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE', './employee/');
-define('DEFAULT_CUSTOMER_FULL_PATH_FILE', '/tech_nexus/customer/');
+define('DEFAULT_CUSTOMER_FULL_PATH_FILE', '/customer/');
 define('DEFAULT_CUSTOMER_RELATIVE_PATH_FILE', './customer/');
-define('DEFAULT_TRANSMITTAL_FULL_PATH_FILE', '/tech_nexus/transmittal/');
+define('DEFAULT_TRANSMITTAL_FULL_PATH_FILE', '/transmittal/');
 define('DEFAULT_TRANSMITTAL_RELATIVE_PATH_FILE', './transmittal/');
-define('DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE', '/tech_nexus/sales_proposal/');
-define('DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE', './sales_proposal/');
+define('DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE', '/sales_proposal');
+define('DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE', './sales_proposal');
 define('DEFAULT_LEASING_APPLICATION_RELATIVE_PATH_FILE', './leasing_application/');
-define('DEFAULT_LEASING_APPLICATION_FULL_PATH_FILE', '/tech_nexus/leasing_application/');
+define('DEFAULT_LEASING_APPLICATION_FULL_PATH_FILE', '/leasing_application/');
 define('DEFAULT_EMAIL_EXTENSION', '@encorefinancials.com');
 define('DEFAULT_PASSWORD', 'P@ssw0rd');
 

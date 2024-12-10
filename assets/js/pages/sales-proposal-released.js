@@ -5042,6 +5042,8 @@ function salesProposalReleaseForm(){
                         }
                     }
                     else{
+                        $('#sales-proposal-other-charges-form').submit();
+                        
                         window.location.reload();
                     }
                 },
@@ -5387,7 +5389,12 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#delivery_price').val(response.deliveryPrice);
+                        var productType = $('#product_type').val();
+
+                        if(productType != 'Unit' && productType != 'Rental' && productType != 'Consignment'){
+                            $('#delivery_price').val(response.deliveryPrice);
+                        }
+                        
                         $('#nominal_discount').val(response.nominalDiscount);
                         $('#add_on_charge').val(response.addOnCharge);
                         $('#cost_of_accessories').val(response.costOfAccessories);

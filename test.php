@@ -1,42 +1,16 @@
 <?php
-  require('config/_required_php_file.php');
-    echo $securityModel->decryptData('UsDpF0dYRC6M9v0tT3MHq%2BlrRJu01%2Fb95Dq%2BAeCfu2Y%3D');
+    require_once 'config/config.php';
+    require_once 'model/database-model.php';
+    require_once 'model/employee-model.php';
 
-    // Set initial variables
-/*$start_date = new DateTime('2022-01-01'); // starting date
-$term = 36; // number of payments in months
-$payment_frequency = 'monthly'; // monthly payments
-$repayment = 1000; // repayment amount
-$escalation_rate = 0.05; // 5% escalation rate
+    $databaseModel = new DatabaseModel();
+    $employeeModel = new EmployeeModel($databaseModel);
 
-// Initialize arrays for storing repayment schedule
-$dates = array();
-$amounts = array();
+    $getPersonalInformation = $employeeModel->getPersonalInformation(204);
+    $contactImage = $getPersonalInformation['contact_image'] ?? '--';
+    $contactImage = str_replace('./', 'cgmids.com/', $contactImage);
 
-// Calculate repayment schedule
-for ($i = 0; $i < $term; $i++) {
-    // Add starting date to array
-    $dates[] = $start_date->format('Y-m-d');
-
-    // Add repayment amount to array
-    $amounts[] = $repayment;
-
-    // Increase repayment amount by escalation rate every 12 months
-    if (($i + 1) % 12 == 0) {
-        $repayment *= (1 + $escalation_rate);
-    }
-
-    // Add 1 month to starting date
-    $start_date->add(new DateInterval('P1M'));
-}
-
-// Display repayment schedule
-echo "<table border='1'>\n";
-echo "<tr><th>Date</th><th>Repayment Amount</th></tr>\n";
-for ($i = 0; $i < $term; $i++) {
-    echo "<tr><td>". $dates[$i]. "</td><td>". number_format($amounts[$i], 2). "</td></tr>\n";
-}
-echo "</table>\n";*/
-
-#echo file_get_contents('email-template/default-email.html');
+    echo $contactImage;
 ?>
+
+2024-09-21

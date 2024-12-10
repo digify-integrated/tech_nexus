@@ -284,7 +284,7 @@ class LeaveApplicationController {
 
     # -------------------------------------------------------------
     #
-    # Function: leaveApplicationRejection
+    # Function: leaveApplicationReject
     # Description: 
     # Updates the existing leave application if it exists; otherwise, inserts a new leave application.
     #
@@ -293,7 +293,7 @@ class LeaveApplicationController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function leaveApplicationRejection() {
+    public function leaveApplicationReject() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }

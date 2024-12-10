@@ -267,6 +267,14 @@ class EmployeeModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
+    # -------------------------------------------------------------
+    public function getEmployeeWorkContactInformation($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getEmployeeWorkContactInformation(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
     #
     # -------------------------------------------------------------
     public function getEmployeeActiveWorkContactInformation() {

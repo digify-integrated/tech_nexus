@@ -64,10 +64,38 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $payment_frequency = $row['payment_frequency'];
                 $created_by = $row['created_by'];
                 $product_id = $row['product_id'];
-                $release_remarks = $row['release_remarks'];
 
+                $salesProposalOtherChargesDetails = $salesProposalModel->getSalesProposalOtherProductDetails($sales_proposal_id);
+                $release_remarks = $salesProposalOtherChargesDetails['product_description'] ?? null;
+
+                
                 $released_date = $systemModel->checkDate('empty', $row['released_date'], '', 'm/d/Y', '');
-                $first_due_date = $systemModel->checkDate('empty', $row['first_due_date'], '', 'm/d/Y', '');
+                $actual_start_date = $systemModel->checkDate('empty', $row['actual_start_date'], '', 'm/d/Y', '');
+
+                $date = new DateTime($actual_start_date);
+                switch ($payment_frequency) {
+                    case 'Monthly':
+                        $date->modify("+1 months");
+                        break;
+                    case 'Quarterly':
+                        $date->modify('+2 months');
+                        break;
+                    case 'Semi-Annual':
+                        $date->modify('+6 months');
+                        break;
+                    case 'Lumpsum':
+                        $date->modify("+$term_length days");
+                        break;
+                    default:
+                        break;
+                }
+
+                if($payment_frequency == 'Lumpsum'){
+                    $payment_frequency = 'Lump-sum';
+                }
+
+                
+                $first_due_date = $date->format('m/d/Y');
 
                 $salesProposalPricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($sales_proposal_id);
                 $total_delivery_price = $salesProposalPricingComputationDetails['total_delivery_price'] ?? 0;
@@ -101,8 +129,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $product_category_id  = $productDetails['product_category_id'];
                     $product_subcategory_id = $productDetails['product_subcategory_id'];
 
-                   
-
                     $productCategoryName = $productCategoryModel->getProductCategory($product_category_id)['product_category_name'];
                     $productSubcategoryName = $productSubcategoryModel->getProductSubcategory($product_subcategory_id)['product_subcategory_name'];
                     
@@ -110,7 +136,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
                 else{
                     $loan_product = $product_type;
-                    $stock_number = $product_type;
+                    $stock_number = $sales_proposal_number;
                     $productSubcategoryName = $product_type;
                 }
 
@@ -136,15 +162,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TOTAL_DELIVERY_PRICE' => $total_delivery_price,
                     'STOCK_NUMBER' => $stock_number,
                     'RELEASE_REMARKS' => $release_remarks,
-                    'CREATED_BY' => $createdByName,
-                    'PRODUCT_SUBCATEGORY' => $productSubcategoryName,
+                    'CREATED_BY' => strtoupper($createdByName),
+                    'PRODUCT_SUBCATEGORY' => strtoupper($productSubcategoryName),
                     'DOWNPAYMENT' => $downpayment,
                     'INSURANCE' => $insurance_premium_subtotal,
                     'REGISTRATION_FEE' => $registration_fee,
                     'HANDLING_FEE' => $handling_fee_subtotal,
                     'TRANSFER_FEE' => $transfer_fee_subtotal,
                     'DOC_STAMP_TAX' => $doc_stamp_tax_subtotal,
-                    'TRANSACTION_FEE' => $transfer_fee_subtotal,
+                    'TRANSACTION_FEE' => $transaction_fee_subtotal,
                     'DEPOSIT' => $downpayment,
                     'INSURANCE_SCHEDULE' => $schedule,
                     'REGISTRATION_FEE_SCHEDULE' => $schedule,

@@ -622,6 +622,7 @@ function travelFormTable(datatable_name, buttons = false, show_all = false){
 
     const column = [ 
         { 'data' : 'CREATED_BY' },
+        { 'data' : 'CREATED_DATE' },
         { 'data' : 'CHECKED_BY' },
         { 'data' : 'CHECKED_DATE' },
         { 'data' : 'RECOMMENDED_BY' },
@@ -641,7 +642,8 @@ function travelFormTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
-        { 'width': '15%','bSortable': false, 'aTargets': 8 }
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': '15%','bSortable': false, 'aTargets': 9 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -661,7 +663,7 @@ function travelFormTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 4, 'desc' ]],
+        'order': [[ 1, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

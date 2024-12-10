@@ -200,6 +200,7 @@ class ProductController {
         $preorder = $productDetails['preorder'];
         $description = $productDetails['description'];
         $totalLandedCost = $productDetails['total_landed_cost'];
+        $unitCost = $productDetails['unit_cost'];
         $productPrice = $productDetails['product_price'];
 
         if($preorder == 'Yes'){
@@ -207,7 +208,7 @@ class ProductController {
             exit;
         }
 
-        if($totalLandedCost == 0 || $productPrice == 0){
+        if($unitCost == 0 || $productPrice == 0){
             echo json_encode(['success' => false, 'zeroCost' =>  true]);
             exit;
         }
@@ -1177,10 +1178,10 @@ class ProductController {
         $productImageFileExtension = explode('.', $productImageFileName);
         $productImageActualFileExtension = strtolower(end($productImageFileExtension));
 
-        $uploadSetting = $this->uploadSettingModel->getUploadSetting(17);
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(7);
         $maxFileSize = $uploadSetting['max_file_size'];
 
-        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(17);
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(7);
         $allowedFileExtensions = [];
 
         foreach ($uploadSettingFileExtension as $row) {

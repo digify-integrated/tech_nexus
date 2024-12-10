@@ -69,15 +69,15 @@
     // Set PDF metadata
     $pdf->SetCreator('CGMI');
     $pdf->SetAuthor('CGMI');
-    $pdf->SetTitle('Receiving Report Print');
-    $pdf->SetSubject('Receiving Report Print');
+    $pdf->SetTitle('Incoming Checklist Print');
+    $pdf->SetSubject('Incoming Checklist Print');
 
     // Set margins and auto page break
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-    $pdf->SetMargins(15, 15, 15);
-    $pdf->SetHeaderMargin(5);
+    $pdf->SetMargins(15, 10, 15);
+    $pdf->SetHeaderMargin(0);
     $pdf->SetFooterMargin(10);
-    $pdf->SetAutoPageBreak(TRUE, 15);
+    $pdf->SetAutoPageBreak(TRUE, 10);
 
     // Add a page
     $pdf->SetFont('times', '', 9);

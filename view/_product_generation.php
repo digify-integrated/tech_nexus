@@ -120,7 +120,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productImage = $systemModel->checkImage($row['product_image'], 'default');
 
                     $productCategoryDetails = $productCategoryModel->getProductCategory($productCategoryID);
-                    $productCategoryName = $productCategoryDetails['product_category_name'];
+                    $productCategoryName = $productCategoryDetails['product_category_name'] ?? null;
 
                     $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
                     $productSubcategoryName = $productSubcategoryDetails['product_subcategory_name'] ?? null;
@@ -241,7 +241,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productImage = $systemModel->checkImage($row['product_image'], 'default');
 
                     $productCategoryDetails = $productCategoryModel->getProductCategory($productCategoryID);
-                    $productCategoryName = $productCategoryDetails['product_category_name'];
+                    $productCategoryName = $productCategoryDetails['product_category_name'] ?? null;
 
                     $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
                     $productSubcategoryName = $productSubcategoryDetails['product_subcategory_name'] ?? null;
@@ -408,6 +408,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->closeCursor();
 
                 $deleteProductExpense = $userModel->checkSystemActionAccessRights($user_id, 174);
+                $previewProductDocument = $userModel->checkSystemActionAccessRights($user_id, 186);
                 
                 foreach ($options as $row) {
                     $productDocumentID = $row['product_document_id'];
@@ -420,9 +421,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <i class="ti ti-trash"></i>
                                 </button>';
                     }
+
+                    if($previewProductDocument['total'] > 0){
+                        $documentType = '<a href="'. $document_path .'" target="_blank">' . $product_document_type . "</a>";
+                    }
+                    else{
+                        $documentType = $product_document_type;
+                    }
     
                     $response[] = [
-                        'DOCUMENT_TYPE' => '<a href="'. $document_path .'" target="_blank">' . $product_document_type . "</a>",
+                        'DOCUMENT_TYPE' => $documentType,
                         'ACTION' => '<div class="d-flex gap-2">
                                         '. $delete .'
                                     </div>'

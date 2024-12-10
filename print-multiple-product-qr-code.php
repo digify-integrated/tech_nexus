@@ -110,9 +110,9 @@ foreach ($productIDs as $id) {
     $productSubategoryID = $productDetails['product_subcategory_id'];
 
     $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
-    $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+    $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? '';
 
-    $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
+    $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? '');
     $fullStockNumber = $productSubcategoryCode . $stockNumber;
 
     $products[] = [

@@ -40,6 +40,7 @@
                     <thead>
                       <tr>
                         <th>Created By</th>
+                        <th>Created Date</th>
                         <th>Checked By</th>
                         <th>Checked Date</th>
                         <th>Recommended By</th>

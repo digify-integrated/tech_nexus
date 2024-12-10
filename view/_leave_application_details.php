@@ -34,7 +34,7 @@
                       $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#leave-application-reject-offcanvas" aria-controls="leave-application-reject-offcanvas" id="leave-application-reject" id="tag-leave-application-reject">Reject</button></li>';
                   }
                               
-                  if ($leaveApplicationCancel['total'] > 0 && ($status == 'Draft' || $status == 'For Approval' || ($status == 'Approved' && (strtotime($leaveDate) < strtotime(date('Y-m-d')))) )) {
+                  if ($leaveApplicationCancel['total'] > 0 && ($status == 'Draft' || $status == 'For Approval' || $status == "For Recommendation" || ($status == 'Approved' && (strtotime($leaveDate) < strtotime(date('Y-m-d')))) )) {
                       $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#leave-application-cancel-offcanvas" aria-controls="leave-application-cancel-offcanvas" id="leave-application-cancel" id="tag-leave-application-cancel">Cancel</button></li>';
                   }
                           
@@ -140,7 +140,7 @@
   <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="leave-application-cancel-offcanvas" aria-labelledby="leave-application-cancel-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="leave-application-cancel-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Sales Proposal</h2>
+        <h2 id="leave-application-cancel-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Leave</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">
@@ -168,7 +168,7 @@
   <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="leave-application-reject-offcanvas" aria-labelledby="leave-application-reject-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="leave-application-reject-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Sales Proposal</h2>
+        <h2 id="leave-application-reject-offcanvas-label" style="margin-bottom:-0.5rem">Reject Leave</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">
@@ -186,7 +186,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-leave-application-reject" form="leave-application-cancel-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-leave-application-reject" form="leave-application-reject-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

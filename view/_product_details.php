@@ -98,7 +98,11 @@ if($addProductExpense['total'] > 0){
                             $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-product-as-ropa">Tag As ROPA</button></li>';
                         }
 
-                        $dropdown .= '<li><a href="print-receiving-report.php?id='. $productID .'" class="dropdown-item" type="button" target="_blank">Print Receiving Report</a></li>';
+                        if($printRecevingReport['total'] > 0){
+                          $dropdown .= '<li><a href="print-receiving-report.php?id='. $productID .'" class="dropdown-item" type="button" target="_blank">Print Receiving Report</a></li>';
+                        }
+
+                       
                         $dropdown .= '<li><a href="print-incoming-checklist.php?id='. $productID .'" class="dropdown-item" type="button" target="_blank">Print Incoming Checklist</a></li>';
                         $dropdown .= '<li><a href="print-incoming-checklist-fuso.php?id='. $productID .'" class="dropdown-item" type="button" target="_blank">Print Incoming Checklist (Fuso)</a></li>';
                         $dropdown .= '<li><a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#product-qr-code-offcanvas" aria-controls="product-qr-code-offcanvas" id="generate-qr-code">Print QR Code</a></li>';
@@ -501,6 +505,7 @@ if($addProductExpense['total'] > 0){
 <?php
   $classHidden = 'd-none';
   $expenseHidden = 'd-none';
+
   if($viewProductCost['total'] > 0){
     $classHidden = '';
   }
@@ -510,7 +515,7 @@ if($addProductExpense['total'] > 0){
   }
 ?>
 
-<div class="row" class="<?php echo $classHidden; ?>">
+<div class="row <?php echo $classHidden; ?>">
   <div class="col-md-12">
     <div class="card">
       <div class="card-header">
@@ -542,11 +547,11 @@ if($addProductExpense['total'] > 0){
           <div class="form-group row">
             <label class="col-lg-3 col-form-label">FX Rate</label>
             <div class="col-lg-3">
-              <input type="number" class="form-control" id="fx_rate" name="fx_rate" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
+              <input type="number" class="form-control" id="fx_rate" name="fx_rate" min="0.0001" value="1" step="0.0001" <?php echo $disabledLandedCostForm; ?>>
             </div>
             <label class="col-lg-3 col-form-label">Converted Amount</label>
             <div class="col-lg-3">
-              <input type="number" class="form-control" id="converted_amount" name="converted_amount" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
+              <input type="number" class="form-control" id="converted_amount" name="converted_amount" min="0" step="0.01" readonly>
             </div>
           </div>
           <div class="form-group row">
@@ -898,22 +903,25 @@ if($addProductExpense['total'] > 0){
                 </div>
 
 <?php
+if($viewProductLogNotes['total'] > 0){
   echo '<div class="row">
-        <div class="col-lg-12">
-          <div class="card">
-            <div class="card-header">
-              <div class="row align-items-center">
-                <div class="col-sm-6">
-                  <h5>Log Notes</h5>
-                </div>
-              </div>
-            </div>
-            <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
-              <div class="card-body p-b-0">
-                '. $userModel->generateLogNotes('product', $productID) .'
-              </div>
-            </div>
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Log Notes</h5>
           </div>
         </div>
-    </div>';
+      </div>
+      <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
+        <div class="card-body p-b-0">
+          '. $userModel->generateLogNotes('product', $productID) .'
+        </div>
+      </div>
+    </div>
+  </div>
+</div>';
+}
+  
 ?>
