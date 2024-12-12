@@ -371,10 +371,10 @@ function journalCodeForm(){
                 required: 'Please choose the item'
             },
             debit: {
-                required: 'Please enter the debit'
+                required: 'Please choose the debit'
             },
             credit: {
-                required: 'Please enter the credit'
+                required: 'Please choose the credit'
             },
         },
         errorPlacement: function (error, element) {
@@ -471,14 +471,13 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#debit').val(response.debit);
-                        $('#credit').val(response.credit);
-
                         checkOptionExist('#company_id', response.companyID, '');
                         checkOptionExist('#transaction_type', response.transactionType, '');
                         checkOptionExist('#product_type_id', response.productTypeID, '');
                         checkOptionExist('#jtransaction', response.jtransaction, '');
                         checkOptionExist('#item', response.item, '');
+                        checkOptionExist('#debit', response.debit, '');
+                        checkOptionExist('#credit', response.credit, '');
                     } 
                     else {
                         if(response.isInactive){

@@ -111,11 +111,17 @@
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Debit <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="debit" name="debit" maxlength="500" autocomplete="off" <?php echo $disabled;?>>
+            <select class="form-control select2" name="debit" id="debit">
+                    <option value="">--</option>
+                    <?php echo $chartOfAccountModel->generateChartOfAccountOptions(); ?>
+                </select>
             </div>
             <label class="col-lg-2 col-form-label">Credit <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="credit" name="credit" maxlength="500" autocomplete="off" <?php echo $disabled;?>>
+            <select class="form-control select2" name="credit" id="credit">
+            <option value="">--</option>
+                  <?php echo $chartOfAccountModel->generateChartOfAccountOptions(); ?>
+                </select>
             </div>
           </div>
         </form>

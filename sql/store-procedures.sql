@@ -9921,7 +9921,7 @@ END //
 CREATE PROCEDURE generateLeaveRecommendationTable(IN p_contact_id INT)
 BEGIN
     SELECT * FROM leave_application 
-    WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE manager_id = p_contact_id) AND status = 'For Recommendation';
+    WHERE status = 'For Recommendation';
 END //
 
 CREATE PROCEDURE generatePDCManagementTable(IN p_pdc_management_status VARCHAR(500), IN p_pdc_management_company VARCHAR(500), IN p_check_start_date DATE, IN p_check_end_date DATE, IN p_redeposit_start_date DATE, IN p_redeposit_end_date DATE, IN p_onhold_start_date DATE, IN p_onhold_end_date DATE, IN p_for_deposit_start_date DATE, IN p_for_deposit_end_date DATE, IN p_deposit_start_date DATE, IN p_deposit_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_pulled_out_start_date DATE, IN p_pulled_out_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE, IN p_clear_start_date DATE, IN p_clear_end_date DATE)
@@ -11509,11 +11509,17 @@ BEGIN
     WHERE chart_of_account_id = p_chart_of_account_id;
 END //
 
-CREATE PROCEDURE generateChartOfAccountTable()
+CREATE PROCEDURE generateChartOfAccountOptions()
 BEGIN
-    SELECT chart_of_account_id, code, name, account_type
+    SELECT chart_of_account_id, code, name
     FROM chart_of_account
     ORDER BY chart_of_account_id;
+END //
+
+CREATE PROCEDURE generateUnlinkedContactOptions()
+BEGIN
+	SELECT contact_id, file_as FROM personal_information 
+    WHERE contact_id IN (SELECT contact_id FROM contact WHERE portal_access = 1 AND user_id IS NULL);
 END //
 
 CREATE PROCEDURE generateProductExpenseTable(IN p_product_id INT, IN p_reference_type VARCHAR(100), IN p_expense_type VARCHAR(100))
@@ -11656,15 +11662,15 @@ BEGIN
     WHERE journal_code_id = p_journal_code_id;
 END //
 
-CREATE PROCEDURE insertJournalCode(IN p_company_id INT, IN p_transaction_type INT, IN p_product_type_id INT, IN p_transaction VARCHAR(100), IN p_item VARCHAR(100), IN p_debit VARCHAR(500), IN p_credit VARCHAR(500), IN p_reference_code VARCHAR(200), IN p_last_log_by INT, OUT p_journal_code_id INT)
+CREATE PROCEDURE insertJournalCode(IN p_company_id INT, IN p_transaction_type INT, IN p_product_type_id INT, IN p_transaction VARCHAR(100), IN p_item VARCHAR(100), IN p_debit_id INT, IN p_credit_id INT, IN p_debit VARCHAR(500), IN p_credit VARCHAR(500), IN p_reference_code VARCHAR(200), IN p_last_log_by INT, OUT p_journal_code_id INT)
 BEGIN
-    INSERT INTO journal_code (company_id, transaction_type, product_type_id, transaction, item, debit, credit, reference_code, last_log_by) 
-	VALUES(p_company_id, p_transaction_type, p_product_type_id, p_transaction, p_item, p_debit, p_credit, p_reference_code, p_last_log_by);
+    INSERT INTO journal_code (company_id, transaction_type, product_type_id, transaction, item, debit_id, credit_id, debit, credit, reference_code, last_log_by) 
+	VALUES(p_company_id, p_transaction_type, p_product_type_id, p_transaction, p_item, p_debit_id, p_credit_id, p_debit, p_credit, p_reference_code, p_last_log_by);
 	
     SET p_journal_code_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateJournalCode(IN p_journal_code_id INT, IN p_company_id INT, IN p_transaction_type INT, IN p_product_type_id INT, IN p_transaction VARCHAR(100), IN p_item VARCHAR(100), IN p_debit VARCHAR(500), IN p_credit VARCHAR(500), IN p_reference_code VARCHAR(200), IN p_last_log_by INT)
+CREATE PROCEDURE updateJournalCode(IN p_journal_code_id INT, IN p_company_id INT, IN p_transaction_type INT, IN p_product_type_id INT, IN p_transaction VARCHAR(100), IN p_item VARCHAR(100), IN p_debit_id INT, IN p_credit_id INT, IN p_debit VARCHAR(500), IN p_credit VARCHAR(500), IN p_reference_code VARCHAR(200), IN p_last_log_by INT)
 BEGIN
 	UPDATE journal_code
     SET company_id = p_company_id,
@@ -11672,6 +11678,8 @@ BEGIN
         product_type_id = p_product_type_id,
         transaction = p_transaction,
         item = p_item,
+        debit_id = p_debit_id,
+        credit_id = p_credit_id,
         debit = p_debit,
         credit = p_credit,
         reference_code = p_reference_code,
@@ -11702,9 +11710,11 @@ DELIMITER //
 DROP PROCEDURE create_journal_entry//
 
 CREATE PROCEDURE create_journal_entry(
+    IN p_loan_number VARCHAR(100),
     IN p_company_id INT,
     IN p_transaction_type INT,
     IN p_product_type VARCHAR(100),
+    IN p_product_type_code VARCHAR(100),
     IN p_sales_proposal_id INT,
     IN p_product_id INT,
     IN p_journal_entry_date DATE,
@@ -11732,17 +11742,16 @@ BEGIN
         FROM journal_code
         WHERE company_id = p_company_id 
           AND transaction_type = p_transaction_type 
-          AND product_type_id = p_product_type;
+          AND product_type_id = p_product_type_code;
     
     -- Declare a handler to manage the cursor
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_cursor_done = 1;
 
     -- Set reference code dynamically based on journal entry date
     SET v_reference_code = CONCAT(
-        'TO RECORD SALES FOR THE MONTH OF ', 
-        UPPER(DATE_FORMAT(p_journal_entry_date, '%M')), 
-        ' ', 
-        YEAR(p_journal_entry_date)
+        'TO RECORD SALES FOR THE DAY ( ', 
+        p_loan_number, 
+        ')'
     );
 
     -- Open cursor
@@ -11759,7 +11768,7 @@ BEGIN
 
         -- Determine the amount based on the item
         IF v_item = 'PRI' THEN
-            SELECT outstanding_balance INTO v_amount
+            SELECT total_delivery_price INTO v_amount
             FROM sales_proposal_pricing_computation
             WHERE sales_proposal_id = p_sales_proposal_id;
         ELSEIF v_item = 'INT' THEN
@@ -11767,7 +11776,7 @@ BEGIN
             FROM sales_proposal_pricing_computation
             WHERE sales_proposal_id = p_sales_proposal_id;
         ELSEIF v_item = 'INS' THEN
-            SELECT insurance_coverage INTO v_amount
+            SELECT insurance_premium INTO v_amount
             FROM sales_proposal_other_charges
             WHERE sales_proposal_id = p_sales_proposal_id;
         ELSEIF v_item = 'REG' THEN
@@ -11814,6 +11823,7 @@ BEGIN
 
         -- Insert Debit Entry using the journal transaction value for debit
         INSERT INTO journal_entry (
+            loan_number, 
             journal_entry_date, 
             reference_code, 
             journal_id, 
@@ -11826,6 +11836,7 @@ BEGIN
             created_date, 
             last_log_by
         ) VALUES (
+            p_loan_number, 
             p_journal_entry_date, 
             v_reference_code, 
             'Miscellaneous Operations', -- Use the debit account code
@@ -11841,6 +11852,7 @@ BEGIN
 
         -- Insert Credit Entry using the journal transaction value for credit
         INSERT INTO journal_entry (
+            loan_number, 
             journal_entry_date, 
             reference_code, 
             journal_id, 
@@ -11853,6 +11865,7 @@ BEGIN
             created_date, 
             last_log_by
         ) VALUES (
+            p_loan_number, 
             p_journal_entry_date, 
             v_reference_code, 
             'Miscellaneous Operations', -- Use the credit account code

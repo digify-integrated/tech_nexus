@@ -189,10 +189,11 @@ class ChartOfAccountModel {
 
         $htmlOptions = '';
         foreach ($options as $row) {
-            $chartOfAccountIDID = $row['chart_of_account_id'];
-            $chartOfAccountIDName = $row['chart_of_account_name'];
+            $chartOfAccountID = $row['chart_of_account_id'];
+            $name = $row['name'];
+            $code = $row['code'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($chartOfAccountIDID, ENT_QUOTES) . '">' . htmlspecialchars($chartOfAccountIDName, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($chartOfAccountID, ENT_QUOTES) . '">' . $code . ' ' . $name .'</option>';
         }
 
         return $htmlOptions;

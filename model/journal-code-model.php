@@ -28,14 +28,16 @@ class JournalCodeModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateJournalCode($p_journal_code_id, $p_company_id, $p_transaction_type, $p_product_type_id, $p_transaction, $p_item, $p_debit, $p_credit, $p_reference_code, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateJournalCode(:p_journal_code_id, :p_company_id, :p_transaction_type, :p_product_type_id, :p_transaction, :p_item, :p_debit, :p_credit, :p_reference_code, :p_last_log_by)');
+    public function updateJournalCode($p_journal_code_id, $p_company_id, $p_transaction_type, $p_product_type_id, $p_transaction, $p_item, $p_debit_id, $p_credit_id, $p_debit, $p_credit, $p_reference_code, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateJournalCode(:p_journal_code_id, :p_company_id, :p_transaction_type, :p_product_type_id, :p_transaction, :p_item, :p_debit_id, :p_credit_id, :p_debit, :p_credit, :p_reference_code, :p_last_log_by)');
         $stmt->bindValue(':p_journal_code_id', $p_journal_code_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_transaction_type', $p_transaction_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_type_id', $p_product_type_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_transaction', $p_transaction, PDO::PARAM_STR);
         $stmt->bindValue(':p_item', $p_item, PDO::PARAM_STR);
+        $stmt->bindValue(':p_debit_id', $p_debit_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_credit_id', $p_credit_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_debit', $p_debit, PDO::PARAM_STR);
         $stmt->bindValue(':p_credit', $p_credit, PDO::PARAM_STR);
         $stmt->bindValue(':p_reference_code', $p_reference_code, PDO::PARAM_STR);
@@ -60,13 +62,15 @@ class JournalCodeModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertJournalCode($p_company_id, $p_transaction_type, $p_product_type_id, $p_transaction, $p_item, $p_debit, $p_credit, $p_reference_code, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertJournalCode(:p_company_id, :p_transaction_type, :p_product_type_id, :p_transaction, :p_item, :p_debit, :p_credit, :p_reference_code, :p_last_log_by, @p_journal_code_id)');
+    public function insertJournalCode($p_company_id, $p_transaction_type, $p_product_type_id, $p_transaction, $p_item, $p_debit_id, $p_credit_id, $p_debit, $p_credit, $p_reference_code, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertJournalCode(:p_company_id, :p_transaction_type, :p_product_type_id, :p_transaction, :p_item, :p_debit_id, :p_credit_id, :p_debit, :p_credit, :p_reference_code, :p_last_log_by, @p_journal_code_id)');
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_transaction_type', $p_transaction_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_type_id', $p_product_type_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_transaction', $p_transaction, PDO::PARAM_STR);
         $stmt->bindValue(':p_item', $p_item, PDO::PARAM_STR);
+        $stmt->bindValue(':p_debit_id', $p_debit_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_credit_id', $p_credit_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_debit', $p_debit, PDO::PARAM_STR);
         $stmt->bindValue(':p_credit', $p_credit, PDO::PARAM_STR);
         $stmt->bindValue(':p_reference_code', $p_reference_code, PDO::PARAM_STR);

@@ -18,6 +18,7 @@ function journalEntryTable(datatable_name, buttons = false, show_all = false){
     var filter_journal_entry_date_end_date = $('#filter_journal_entry_date_end_date').val();
 
     const column = [ 
+        { 'data' : 'LOAN_NUMBER' },
         { 'data' : 'JOURNAL_ENTRY_DATE' },
         { 'data' : 'REFERENCE_CODE' },
         { 'data' : 'JOURNAL_ID' },
@@ -38,7 +39,8 @@ function journalEntryTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
-        { 'width': 'auto', 'aTargets': 8 }
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

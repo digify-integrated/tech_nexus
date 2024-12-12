@@ -2252,7 +2252,7 @@ class SalesProposalController {
         }
         
         if($productType != 'Consignment'){
-            $this->salesProposalModel->create_journal_entry($companyID, $transactionTypeCode, $productTypeCode, $salesProposalID, $productID, date('Y-m-d'), $userID);
+            $this->salesProposalModel->create_journal_entry($loanNumber, $companyID, $transactionTypeCode, $productType, $productTypeCode, $salesProposalID, $productID, date('Y-m-d'), $userID);
         }
 
         if($productType == 'Unit' || $productType == 'Rental' || $productType == 'Consignment'){

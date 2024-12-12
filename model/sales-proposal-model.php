@@ -877,11 +877,13 @@ class SalesProposalModel {
     }
     # -------------------------------------------------------------
     # -------------------------------------------------------------
-    public function create_journal_entry($p_company_id, $p_transaction_type, $p_product_type, $p_sales_proposal_id, $p_product_id, $p_journal_entry_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL create_journal_entry(:p_company_id, :p_transaction_type, :p_product_type, :p_sales_proposal_id, :p_product_id, :p_journal_entry_date, :p_last_log_by)');
+    public function create_journal_entry($p_loan_number, $p_company_id, $p_transaction_type, $p_product_type, $p_product_type_code, $p_sales_proposal_id, $p_product_id, $p_journal_entry_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL create_journal_entry(:p_loan_number, :p_company_id, :p_transaction_type, :p_product_type, :p_product_type_code, :p_sales_proposal_id, :p_product_id, :p_journal_entry_date, :p_last_log_by)');
+        $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_transaction_type', $p_transaction_type, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_type', $p_product_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_type_code', $p_product_type_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_journal_entry_date', $p_journal_entry_date, PDO::PARAM_STR);

@@ -1,7 +1,9 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/journal-code-model.php');
+  require('model/journal-code-model.php');require('model/chart-of-account-model.php');
+  
+  $chartOfAccountModel = new ChartOfAccountModel($databaseModel);
   
   $journalCodeModel = new JournalCodeModel($databaseModel);
 

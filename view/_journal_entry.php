@@ -58,6 +58,7 @@
               <table id="journal-entry-table" class="table table-hover text-wrap w-100">
                 <thead>
                   <tr>
+                    <th>Loan Number</th>
                     <th>Date</th>
                     <th>Ref</th>
                     <th>Journal ID</th>

@@ -14,6 +14,7 @@ session_start();
 # -------------------------------------------------------------
 class JournalCodeController {
     private $journalCodeModel;
+    private $chartOfAccountModel;
     private $userModel;
     private $securityModel;
 
@@ -32,8 +33,9 @@ class JournalCodeController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(JournalCodeModel $journalCodeModel, UserModel $userModel, SecurityModel $securityModel) {
+    public function __construct(JournalCodeModel $journalCodeModel, ChartOfAccountModel $chartOfAccountModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->journalCodeModel = $journalCodeModel;
+        $this->chartOfAccountModel = $chartOfAccountModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
     }
@@ -107,8 +109,8 @@ class JournalCodeController {
         $product_type_id = $_POST['product_type_id'];
         $jtransaction = $_POST['jtransaction'];
         $item = $_POST['item'];
-        $debit = $_POST['debit'];
-        $credit = $_POST['credit'];
+        $debitID = $_POST['debit'];
+        $creditID = $_POST['credit'];
 
         $reference_code = $company_id . $transaction_type . $product_type_id . $jtransaction . $item;
     
@@ -118,18 +120,25 @@ class JournalCodeController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        $debitDetails = $this->chartOfAccountModel->getChartOfAccount($debitID);
+        $debit = ($debitDetails['code'] ?? null) . ' ' . ($debitDetails['name'] ?? null);
+
+        $creditDetails = $this->chartOfAccountModel->getChartOfAccount($creditID);
+        $credit = ($creditDetails['code'] ?? null) . ' ' . ($creditDetails['name'] ?? null);
+
     
         $checkJournalCodeExist = $this->journalCodeModel->checkJournalCodeExist($journalCodeID);
         $total = $checkJournalCodeExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->journalCodeModel->updateJournalCode($journalCodeID, $company_id, $transaction_type, $product_type_id, $jtransaction, $item, $debit, $credit, $reference_code, $userID);
+            $this->journalCodeModel->updateJournalCode($journalCodeID, $company_id, $transaction_type, $product_type_id, $jtransaction, $item, $debitID, $creditID, $debit, $credit, $reference_code, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'journalCodeID' => $this->securityModel->encryptData($journalCodeID)]);
             exit;
         } 
         else {
-            $journalCodeID = $this->journalCodeModel->insertJournalCode($company_id, $transaction_type, $product_type_id, $jtransaction, $item, $debit, $credit, $reference_code, $userID);
+            $journalCodeID = $this->journalCodeModel->insertJournalCode($company_id, $transaction_type, $product_type_id, $jtransaction, $item, $debitID, $creditID, $debit, $credit, $reference_code, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'journalCodeID' => $this->securityModel->encryptData($journalCodeID)]);
             exit;
@@ -302,8 +311,8 @@ class JournalCodeController {
                 'productTypeID' => $journalCodeDetails['product_type_id'],
                 'jtransaction' => $journalCodeDetails['transaction'],
                 'item' => $journalCodeDetails['item'],
-                'debit' => $journalCodeDetails['debit'],
-                'credit' => $journalCodeDetails['credit'],
+                'debit' => $journalCodeDetails['debit_id'],
+                'credit' => $journalCodeDetails['credit_id'],
             ];
 
             echo json_encode($response);
@@ -317,10 +326,11 @@ class JournalCodeController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/journal-code-model.php';
+require_once '../model/chart-of-account-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new JournalCodeController(new JournalCodeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
+$controller = new JournalCodeController(new JournalCodeModel(new DatabaseModel), new ChartOfAccountModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
 ?>

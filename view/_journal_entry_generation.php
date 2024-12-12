@@ -54,6 +54,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             foreach ($options as $row) {                
                 $journal_entry_date = $systemModel->checkDate('empty', $row['journal_entry_date'], '', 'm/d/Y', '');
+                $loan_number = $row['loan_number'];
                 $reference_code = $row['reference_code'];
                 $journal_id = $row['journal_id'];
                 $journal_item = $row['journal_item'];
@@ -64,6 +65,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $analytic_distribution = $row['analytic_distribution'];
 
                 $response[] = [
+                    'LOAN_NUMBER' => $loan_number,
                     'JOURNAL_ENTRY_DATE' => $journal_entry_date,
                     'REFERENCE_CODE' => $reference_code,
                     'JOURNAL_ID' => $journal_id,

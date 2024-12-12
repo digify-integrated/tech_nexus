@@ -789,6 +789,7 @@ if($addProductExpense['total'] > 0){
                   <option value="Registration C/O Customer">Registration C/O Customer</option>
                   <option value="Repairs & Maintenance">Repairs & Maintenance</option>
                   <option value="Supplies">Supplies</option>
+                  <option value="Journal Voucher">Journal Voucher</option>
                 </select>
               </div>
             </div>
