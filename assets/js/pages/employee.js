@@ -2208,6 +2208,9 @@ function addEmployeeForm(){
             branch_id: {
                 required: true
             },
+            leave_approver_id: {
+                required: true
+            },
             department_id: {
                 required: true
             },
@@ -2227,6 +2230,9 @@ function addEmployeeForm(){
             },
             branch_id: {
                 required: 'Please choose the branch'
+            },
+            leave_approver_id: {
+                required: 'Please choose the leave approver'
             },
             department_id: {
                 required: 'Please choose the department'
@@ -4283,12 +4289,23 @@ function displayDetails(transaction){
                         $('#job_position').text(response.jobPositionName);
 
                         checkOptionExist('#company_id', response.companyID, '');
+
+                        $(document).on('change','#company_id',function() {
+                            if($(this).val() == '2'){
+                                checkOptionExist('#leave_approver_id', '44', '');
+                            }
+                            else {
+                                checkOptionExist('#leave_approver_id', '43', '');
+                            }
+                        });
+
                         checkOptionExist('#department_id', response.departmentID, '');
                         checkOptionExist('#job_position_id', response.jobPositionID, '');
                         checkOptionExist('#employee_type_id', response.employeeTypeID, '');
                         checkOptionExist('#job_level_id', response.jobLevelID, '');
                         checkOptionExist('#branch_id', response.branchID, '');
                         checkOptionExist('#manager_id', response.managerID, '');
+                        checkOptionExist('#leave_approver_id', response.leaveApproverID, '');
                         checkOptionExist('#work_schedule_id', response.workScheduleID, '');
                     } 
                     else {

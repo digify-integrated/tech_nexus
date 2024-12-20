@@ -3,23 +3,38 @@ session_start();
 
 # -------------------------------------------------------------
 #
-# Function: CollectionsController
+# Function: DisbursementController
 # Description: 
-# The CollectionsController class handles collections related operations and interactions.
+# The DisbursementController class handles disbursement related operations and interactions.
 #
 # Parameters: None
 #
 # Returns: None
 #
 # -------------------------------------------------------------
-class CollectionsController {
-    private $collectionsModel;
+
+require_once '../config/config.php';
+require_once '../model/database-model.php';
+require_once '../model/disbursement-model.php';
+require_once '../model/user-model.php';
+require_once '../model/security-model.php';
+require_once '../model/sales-proposal-model.php';
+require_once '../model/upload-setting-model.php';
+require_once '../model/file-extension-model.php';
+require_once '../model/system-setting-model.php';
+require_once '../model/company-model.php';
+require_once '../model/system-model.php';
+
+$controller = new DisbursementController(new DisbursementModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller->handleRequest();
+
+class DisbursementController {
+    private $disbursementModel;
     private $salesProposalModel;
     private $userModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
     private $systemSettingModel;
-    private $companyModel;
     private $securityModel;
     private $systemModel;
 
@@ -27,25 +42,24 @@ class CollectionsController {
     #
     # Function: __construct
     # Description: 
-    # The constructor initializes the object with the provided CollectionsModel, UserModel and SecurityModel instances.
-    # These instances are used for collections related, user related operations and security related operations, respectively.
+    # The constructor initializes the object with the provided DisbursementModel, UserModel and SecurityModel instances.
+    # These instances are used for disbursement related, user related operations and security related operations, respectively.
     #
     # Parameters:
-    # - @param CollectionsModel $collectionsModel     The CollectionsModel instance for collections related operations.
+    # - @param DisbursementModel $disbursementModel     The DisbursementModel instance for disbursement related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(CollectionsModel $collectionsModel, SalesProposalModel $salesProposalModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, CompanyModel $companyModel, SecurityModel $securityModel, SystemModel $systemModel) {
-        $this->collectionsModel = $collectionsModel;
+    public function __construct(DisbursementModel $disbursementModel, SalesProposalModel $salesProposalModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
+        $this->disbursementModel = $disbursementModel;
         $this->salesProposalModel = $salesProposalModel;
         $this->userModel = $userModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
         $this->systemSettingModel = $systemSettingModel;
-        $this->companyModel = $companyModel;
         $this->securityModel = $securityModel;
         $this->systemModel = $systemModel;
     }
@@ -69,32 +83,32 @@ class CollectionsController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'save collections':
-                    $this->saveCollections();
+                case 'save disbursement':
+                    $this->saveDisbursement();
                     break;
-                case 'get collections details':
-                    $this->getCollectionsDetails();
+                case 'get disbursement details':
+                    $this->getDisbursementDetails();
                     break;
-                case 'delete collections':
-                    $this->deleteCollections();
+                case 'delete disbursement':
+                    $this->deleteDisbursement();
                     break;
-                case 'delete multiple collections':
-                    $this->deleteMultipleCollections();
+                case 'delete multiple disbursement':
+                    $this->deleteMultipleDisbursement();
                     break;
-                case 'tag collection as cleared':
-                    $this->tagCollectionAsCleared();
+                case 'post disbursement':
+                    $this->tagDisbursementAsPosted();
                     break;
                 case 'tag multiple collection as cleared':
                     $this->tagMultiplePDCAsCleared();
                     break;
                 case 'tag collection as cancelled':
-                    $this->tagCollectionAsCancel();
+                    $this->tagDisbursementAsCancel();
                     break;
                 case 'tag multiple pdc as cancelled':
                     $this->tagMultiplePDCAsCancel();
                     break;
                 case 'tag collection as reversed':
-                    $this->tagCollectionAsReversed();
+                    $this->tagDisbursementAsReversed();
                     break;
                 case 'tag multiple pdc as reversed':
                     $this->tagMultiplePDCAsReversed();
@@ -109,7 +123,7 @@ class CollectionsController {
 
     # -------------------------------------------------------------
     #
-    # Function: tagCollectionAsCleared
+    # Function: tagDisbursementAsPosted
     # Description: 
     # Tag the pdc as deposited if it exists; otherwise, return an error message.
     #
@@ -118,13 +132,13 @@ class CollectionsController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function tagCollectionAsCleared() {
+    public function tagDisbursementAsPosted() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -133,15 +147,15 @@ class CollectionsController {
             exit;
         }
     
-        $checkLoanCollectionExist = $this->collectionsModel->checkLoanCollectionExist($loanCollectionID);
-        $total = $checkLoanCollectionExist['total'] ?? 0;
+        $checkDisbursementExist = $this->disbursementModel->checkDisbursementExist($disbursementID);
+        $total = $checkDisbursementExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
     
-        $this->collectionsModel->updateCollectionStatus($loanCollectionID, 'Cleared', '', '', '', $userID);
+        $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -165,7 +179,7 @@ class CollectionsController {
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionIDs = $_POST['loan_collection_id'];
+        $disbursementIDs = $_POST['disbursement_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -174,8 +188,8 @@ class CollectionsController {
             exit;
         }
 
-        foreach($loanCollectionIDs as $loanCollectionID){
-            $this->collectionsModel->updateCollectionStatus($loanCollectionID, 'Cleared', '', '', '', $userID);
+        foreach($disbursementIDs as $disbursementID){
+            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Cleared', '', '', '', $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -185,7 +199,7 @@ class CollectionsController {
 
     # -------------------------------------------------------------
     #
-    # Function: tagCollectionAsCancel
+    # Function: tagDisbursementAsCancel
     # Description: 
     # Tag the pdc as deposited if it exists; otherwise, return an error message.
     #
@@ -194,13 +208,13 @@ class CollectionsController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function tagCollectionAsCancel() {
+    public function tagDisbursementAsCancel() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
         $cancellationReason = $_POST['cancellation_reason'];
     
         $user = $this->userModel->getUserByID($userID);
@@ -210,15 +224,15 @@ class CollectionsController {
             exit;
         }
     
-        $checkLoanCollectionExist = $this->collectionsModel->checkLoanCollectionExist($loanCollectionID);
-        $total = $checkLoanCollectionExist['total'] ?? 0;
+        $checkDisbursementExist = $this->disbursementModel->checkDisbursementExist($disbursementID);
+        $total = $checkDisbursementExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
     
-        $this->collectionsModel->updateCollectionStatus($loanCollectionID, 'Cancelled', $cancellationReason, '', '', $userID);
+        $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Cancelled', $cancellationReason, '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -229,7 +243,7 @@ class CollectionsController {
     #
     # Function: tagMultiplePDCAsCancel
     # Description: 
-    # Delete the selected collectionss if it exists; otherwise, skip it.
+    # Delete the selected disbursements if it exists; otherwise, skip it.
     #
     # Parameters: None
     #
@@ -242,8 +256,8 @@ class CollectionsController {
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionID = $_POST['loan_collection_id']; 
-        $loanCollectionIDs = explode(',', $loanCollectionID);
+        $disbursementID = $_POST['disbursement_id']; 
+        $disbursementIDs = explode(',', $disbursementID);
         $cancellationReason = $_POST['cancellation_reason'];
 
         $user = $this->userModel->getUserByID($userID);
@@ -253,8 +267,8 @@ class CollectionsController {
             exit;
         }
 
-        foreach($loanCollectionIDs as $loanCollectionID){
-            $this->collectionsModel->updateCollectionStatus($loanCollectionID, 'Cancelled', $cancellationReason, '', '', $userID);
+        foreach($disbursementIDs as $disbursementID){
+            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Cancelled', $cancellationReason, '', '', $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -264,7 +278,7 @@ class CollectionsController {
 
     # -------------------------------------------------------------
     #
-    # Function: tagCollectionAsReversed
+    # Function: tagDisbursementAsReversed
     # Description: 
     # Tag the pdc as deposited if it exists; otherwise, return an error message.
     #
@@ -273,13 +287,13 @@ class CollectionsController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function tagCollectionAsReversed() {
+    public function tagDisbursementAsReversed() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
         $reversalReason = $_POST['reversal_reason'];
         $reversalRemarks = $_POST['reversal_remarks'];
     
@@ -290,8 +304,8 @@ class CollectionsController {
             exit;
         }
     
-        $checkLoanCollectionExist = $this->collectionsModel->checkLoanCollectionExist($loanCollectionID);
-        $total = $checkLoanCollectionExist['total'] ?? 0;
+        $checkDisbursementExist = $this->disbursementModel->checkDisbursementExist($disbursementID);
+        $total = $checkDisbursementExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
@@ -300,9 +314,9 @@ class CollectionsController {
     
         $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
 
-        $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
-        $paymentAmount = $collectionsDetails['payment_amount'];
-        $companyID = $collectionsDetails['company_id'];
+        $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
+        $paymentAmount = $disbursementDetails['payment_amount'];
+        $companyID = $disbursementDetails['company_id'];
 
         if($companyID == 1){
             $systemSettingID = 11;
@@ -316,7 +330,7 @@ class CollectionsController {
 
         $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
 
-        $this->collectionsModel->updateCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, $referenceNumber, $userID);
+        $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalReason, $reversalRemarks, $referenceNumber, $userID);
                     
         $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
         $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
@@ -330,7 +344,7 @@ class CollectionsController {
     #
     # Function: tagMultiplePDCAsReversed
     # Description: 
-    # Delete the selected collectionss if it exists; otherwise, skip it.
+    # Delete the selected disbursements if it exists; otherwise, skip it.
     #
     # Parameters: None
     #
@@ -343,8 +357,8 @@ class CollectionsController {
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionID = $_POST['loan_collection_id']; 
-        $loanCollectionIDs = explode(',', $loanCollectionID);
+        $disbursementID = $_POST['disbursement_id']; 
+        $disbursementIDs = explode(',', $disbursementID);
         $reversalReason = $_POST['reversal_reason'];
         $reversalRemarks = $_POST['reversal_remarks'];
 
@@ -355,16 +369,16 @@ class CollectionsController {
             exit;
         }
 
-        foreach($loanCollectionIDs as $loanCollectionID){
-            $checkLoanCollectionExist = $this->collectionsModel->checkLoanCollectionExist($loanCollectionID);
-            $total = $checkLoanCollectionExist['total'] ?? 0;
+        foreach($disbursementIDs as $disbursementID){
+            $checkDisbursementExist = $this->disbursementModel->checkDisbursementExist($disbursementID);
+            $total = $checkDisbursementExist['total'] ?? 0;
 
             if($total > 0){
                 $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
 
-                $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
-                $paymentAmount = $collectionsDetails['payment_amount'];
-                $companyID = $collectionsDetails['company_id'];
+                $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
+                $paymentAmount = $disbursementDetails['payment_amount'];
+                $companyID = $disbursementDetails['company_id'];
 
                 if($companyID == 1){
                     $systemSettingID = 11;
@@ -378,7 +392,7 @@ class CollectionsController {
         
                 $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
         
-                $this->collectionsModel->updateCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, $referenceNumber, $userID);
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalReason, $reversalRemarks, $referenceNumber, $userID);
                             
                 $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
                 $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
@@ -396,38 +410,30 @@ class CollectionsController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveCollections
+    # Function: saveDisbursement
     # Description: 
-    # Updates the existing collections if it exists; otherwise, inserts a new collections.
+    # Updates the existing disbursement if it exists; otherwise, inserts a new disbursement.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveCollections() {
+    public function saveDisbursement() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionID = isset($_POST['loan_collection_id']) ? htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8') : null;
-        $modeOfPayment = htmlspecialchars($_POST['mode_of_payment'], ENT_QUOTES, 'UTF-8');
-        $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
-        $pdcType = htmlspecialchars($_POST['pdc_type'], ENT_QUOTES, 'UTF-8');
-        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
-        $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
-        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
-        $leasingID = htmlspecialchars($_POST['leasing_id'], ENT_QUOTES, 'UTF-8');
-        $paymentDetails = $_POST['payment_details'];
-        $orNumber = $_POST['or_number'];
-        $paymentAmount = $_POST['payment_amount'];
-        $referenceNumber = $_POST['reference_number'];
-        $remarks = $_POST['remarks'];
-        $depositedTo = $_POST['deposited_to'];
-        $miscellaneousClientID = $_POST['miscellaneous_client_id'];
-        $orDate = $this->systemModel->checkDate('empty', $_POST['or_date'], '', 'Y-m-d', '');
-        $paymentDate = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
+        $disbursementID = isset($_POST['disbursement_id']) ? htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8') : null;
+        $transaction_type = $_POST['transaction_type'];
+        $customer_id = $_POST['customer_id'];
+        $customer_id = $_POST['customer_id'];
+        $department_id = $_POST['department_id'];
+        $company_id = $_POST['company_id'];
+        $reference_number = $_POST['reference_number'];
+        $disbursement_amount = $_POST['disbursement_amount'];
+        $particulars = $_POST['particulars'];
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -436,74 +442,26 @@ class CollectionsController {
             exit;
         }
     
-        $checkLoanCollectionExist = $this->collectionsModel->checkLoanCollectionExist($loanCollectionID);
-        $total = $checkLoanCollectionExist['total'] ?? 0;
-
-        if($pdcType == 'Loan'){
-            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
-            $loanNumber = $salesProposalDetails['loan_number'];
-            $customerID = $salesProposalDetails['customer_id'];
-        }
-        else{
-            $loanNumber = '';
-        }
+        $checkDisbursementExist = $this->disbursementModel->checkDisbursementExist($disbursementID);
+        $total = $checkDisbursementExist['total'] ?? 0;
     
         if ($total > 0) {
-            $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
-            $paymentAmount2 = $collectionsDetails['payment_amount'];
-            $companyID2 = $collectionsDetails['company_id'];
-    
-            if($companyID2 == '1'){
-                $systemSettingID = 11;
-            }
-            else if($companyID2 == '2'){
-                $systemSettingID = 12;
-            }
-            else{
-                $systemSettingID = 13;
-            }
+            $transaction_number = $_POST['transaction_number'];
 
-            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount2;
-
-            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
-
-            if($companyID == '1'){
-                $systemSettingID = 11;
-            }
-            else if($companyID == '2'){
-                $systemSettingID = 12;
-            }
-            else{
-                $systemSettingID = 13;
-            }
+            $this->disbursementModel->updateDisbursement($disbursementID, $transaction_number, $reference_number, $customer_id, $department_id, $company_id, $transaction_type, $particulars, $disbursement_amount, $userID);
             
-            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $paymentAmount;
-
-            $this->collectionsModel->updateCollection($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $leasingID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $userID);
-                    
-            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
-            
-            echo json_encode(['success' => true, 'insertRecord' => false, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
+            echo json_encode(['success' => true, 'insertRecord' => false, 'disbursementID' => $this->securityModel->encryptData($disbursementID)]);
             exit;
         } 
         else {
-            if($companyID == '1'){
-                $systemSettingID = 11;
-            }
-            else if($companyID == '2'){
-                $systemSettingID = 12;
-            }
-            else{
-                $systemSettingID = 13;
-            }
+            $transaction_number = $this->systemSettingModel->getSystemSetting(19)['value'] + 1;
+
+            $disbursementID = $this->disbursementModel->insertDisbursement($transaction_number, $reference_number, $customer_id, $department_id, $company_id, $transaction_type, $particulars, $disbursement_amount, $userID);
+
             
-            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $paymentAmount;
+            $this->systemSettingModel->updateSystemSettingValue(19, $transaction_number, $userID);
 
-            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $leasingID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $userID);
-                    
-            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
-
-            echo json_encode(['success' => true, 'insertRecord' => true, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
+            echo json_encode(['success' => true, 'insertRecord' => true, 'disbursementID' => $this->securityModel->encryptData($disbursementID)]);
             exit;
         }
     }
@@ -515,22 +473,22 @@ class CollectionsController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteCollections
+    # Function: deleteDisbursement
     # Description: 
-    # Delete the collections if it exists; otherwise, return an error message.
+    # Delete the disbursement if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteCollections() {
+    public function deleteDisbursement() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $collectionsID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -539,33 +497,15 @@ class CollectionsController {
             exit;
         }
     
-        $checkLoanCollectionExist = $this->collectionsModel->checkLoanCollectionExist($collectionsID);
-        $total = $checkLoanCollectionExist['total'] ?? 0;
+        $checkDisbursementExist = $this->disbursementModel->checkDisbursementExist($disbursementID);
+        $total = $checkDisbursementExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
 
-        $collectionsDetails = $this->collectionsModel->getCollections($collectionsID);
-        $paymentAmount = $collectionsDetails['payment_amount'];
-        $companyID = $collectionsDetails['company_id'];
-
-            if($companyID == 1){
-                $systemSettingID = 11;
-            }
-            else if($companyID == 2){
-                $systemSettingID = 12;
-            }
-            else{
-                $systemSettingID = 13;
-            }
-
-        $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
-
-        $this->collectionsModel->deleteCollections($collectionsID);
-                    
-        $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+        $this->disbursementModel->deleteDisbursement($disbursementID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -574,22 +514,22 @@ class CollectionsController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteMultipleCollections
+    # Function: deleteMultipleDisbursement
     # Description: 
-    # Delete the selected collectionss if it exists; otherwise, skip it.
+    # Delete the selected disbursements if it exists; otherwise, skip it.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteMultipleCollections() {
+    public function deleteMultipleDisbursement() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $collectionsIDs = $_POST['loan_collection_id'];
+        $disbursementIDs = $_POST['disbursement_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -598,10 +538,10 @@ class CollectionsController {
             exit;
         }
 
-        foreach($collectionsIDs as $collectionsID){
-            $collectionsDetails = $this->collectionsModel->getCollections($collectionsID);
-            $paymentAmount = $collectionsDetails['payment_amount'];
-            $companyID = $collectionsDetails['company_id'];
+        foreach($disbursementIDs as $disbursementID){
+            $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
+            $paymentAmount = $disbursementDetails['payment_amount'];
+            $companyID = $disbursementDetails['company_id'];
 
             if($companyID == 1){
                 $systemSettingID = 11;
@@ -615,7 +555,7 @@ class CollectionsController {
     
             $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
     
-            $this->collectionsModel->deleteCollections($collectionsID);
+            $this->disbursementModel->deleteDisbursement($disbursementID);
                         
             $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
         }
@@ -631,23 +571,23 @@ class CollectionsController {
 
     # -------------------------------------------------------------
     #
-    # Function: getCollectionsDetails
+    # Function: getDisbursementDetails
     # Description: 
-    # Handles the retrieval of collections details such as collections name, etc.
+    # Handles the retrieval of disbursement details such as disbursement name, etc.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getCollectionsDetails() {
+    public function getDisbursementDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
-        if (isset($_POST['loan_collection_id']) && !empty($_POST['loan_collection_id'])) {
+        if (isset($_POST['disbursement_id']) && !empty($_POST['disbursement_id'])) {
             $userID = $_SESSION['user_id'];
-            $loanCollectionID = $_POST['loan_collection_id'];
+            $disbursementID = $_POST['disbursement_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -656,26 +596,18 @@ class CollectionsController {
                 exit;
             }
     
-            $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
+            $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
 
             $response = [
                 'success' => true,
-                'salesProposalID' => $collectionsDetails['sales_proposal_id'],
-                'productID' => $collectionsDetails['product_id'],
-                'customerID' => $collectionsDetails['customer_id'],
-                'pdcType' => $collectionsDetails['pdc_type'],
-                'paymentDetails' => $collectionsDetails['payment_details'],
-                'paymentAmount' => $collectionsDetails['payment_amount'],
-                'orNumber' => $collectionsDetails['or_number'],
-                'modeOfPayment' => $collectionsDetails['mode_of_payment'],
-                'remarks' => $collectionsDetails['remarks'],
-                'companyID' => $collectionsDetails['company_id'],
-                'leasingID' => $collectionsDetails['leasing_application_id'],
-                'referenceNumber' => $collectionsDetails['reference_number'],
-                'depositedTo' => $collectionsDetails['deposited_to'],
-                'miscellaneousClientID' => $collectionsDetails['collected_from'],
-                'orDate' =>  $this->systemModel->checkDate('empty', $collectionsDetails['or_date'], '', 'm/d/Y', ''),
-                'paymentDate' =>  $this->systemModel->checkDate('empty', $collectionsDetails['payment_date'], '', 'm/d/Y', ''),
+                'transactionNumber' => $disbursementDetails['transaction_number'],
+                'referenceNumber' => $disbursementDetails['reference_number'],
+                'disbursementAmount' => $disbursementDetails['disbursement_amount'],
+                'particulars' => $disbursementDetails['particulars'],
+                'transactionType' => $disbursementDetails['transaction_type'],
+                'customerID' => $disbursementDetails['customer_id'],
+                'departmentID' => $disbursementDetails['department_id'],
+                'companyID' => $disbursementDetails['company_id']
             ];
 
             echo json_encode($response);
@@ -686,18 +618,5 @@ class CollectionsController {
 }
 # -------------------------------------------------------------
 
-require_once '../config/config.php';
-require_once '../model/database-model.php';
-require_once '../model/collections-model.php';
-require_once '../model/user-model.php';
-require_once '../model/security-model.php';
-require_once '../model/sales-proposal-model.php';
-require_once '../model/upload-setting-model.php';
-require_once '../model/file-extension-model.php';
-require_once '../model/system-setting-model.php';
-require_once '../model/company-model.php';
-require_once '../model/system-model.php';
 
-$controller = new CollectionsController(new CollectionsModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new CompanyModel(new DatabaseModel), new SecurityModel(), new SystemModel());
-$controller->handleRequest();
 ?>

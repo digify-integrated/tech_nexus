@@ -705,6 +705,9 @@ class ProductController {
         $importPermit = $_POST['import_permit'];
         $others = $_POST['others'];
         $totalLandedCost = $_POST['total_landed_cost'];
+        $paymentRefNo = $_POST['payment_ref_no'];
+        $paymentRefDate = $this->systemModel->checkDate('empty', $_POST['payment_ref_date'], '', 'Y-m-d', '');
+        $paymentRefAmount = $_POST['payment_ref_amount'];
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -717,7 +720,7 @@ class ProductController {
         $total = $checkProductExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->productModel->updateProductLandedCost($productID, $productPrice, $fxRate, $convertedAmount, $unitCost, $packageDeal, $taxesDuties, $freight, $ltoRegistration, $royalties, $conversion, $arrastre, $wharrfage, $insurance, $aircon, $importPermit, $others, $totalLandedCost, $userID);
+            $this->productModel->updateProductLandedCost($productID, $productPrice, $fxRate, $convertedAmount, $unitCost, $packageDeal, $taxesDuties, $freight, $ltoRegistration, $royalties, $conversion, $arrastre, $wharrfage, $insurance, $aircon, $importPermit, $others, $totalLandedCost, $paymentRefNo, $paymentRefDate, $paymentRefAmount, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'productID' => $this->securityModel->encryptData($productID)]);
             exit;

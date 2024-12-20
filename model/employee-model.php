@@ -125,8 +125,8 @@ class EmployeeModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateEmploymentInformation($p_contact_id, $p_badge_id, $p_company_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_manager_id, $p_work_schedule_id, $p_kiosk_pin_code, $p_biometrics_id, $p_onboard_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateEmploymentInformation (:p_contact_id, :p_badge_id, :p_company_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_manager_id, :p_work_schedule_id, :p_kiosk_pin_code, :p_biometrics_id, :p_onboard_date, :p_last_log_by)');
+    public function updateEmploymentInformation($p_contact_id, $p_badge_id, $p_company_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_manager_id, $p_leave_approver_id, $p_work_schedule_id, $p_kiosk_pin_code, $p_biometrics_id, $p_onboard_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateEmploymentInformation (:p_contact_id, :p_badge_id, :p_company_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_manager_id, :p_leave_approver_id, :p_work_schedule_id, :p_kiosk_pin_code, :p_biometrics_id, :p_onboard_date, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_badge_id', $p_badge_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
@@ -136,6 +136,7 @@ class EmployeeModel {
         $stmt->bindValue(':p_job_level_id', $p_job_level_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_branch_id', $p_branch_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_manager_id', $p_manager_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leave_approver_id', $p_leave_approver_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_kiosk_pin_code', $p_kiosk_pin_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_biometrics_id', $p_biometrics_id, PDO::PARAM_STR);
@@ -987,8 +988,8 @@ class EmployeeModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertEmploymentInformation($p_contact_id, $p_badge_id, $p_company_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_manager_id, $p_work_schedule_id, $p_kiosk_pin_code, $p_onboard_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertEmploymentInformation(:p_contact_id, :p_badge_id, :p_company_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_manager_id, :p_work_schedule_id, :p_kiosk_pin_code, :p_biometrics_id, :p_onboard_date, :p_last_log_by)');
+    public function insertEmploymentInformation($p_contact_id, $p_badge_id, $p_company_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_manager_id, $p_leave_approver_id, $p_work_schedule_id, $p_kiosk_pin_code, $p_biometrics_id, $p_onboard_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertEmploymentInformation(:p_contact_id, :p_badge_id, :p_company_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_manager_id, :p_leave_approver_id, :p_work_schedule_id, :p_kiosk_pin_code, :p_biometrics_id, :p_onboard_date, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_badge_id', $p_badge_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
@@ -998,6 +999,7 @@ class EmployeeModel {
         $stmt->bindValue(':p_job_level_id', $p_job_level_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_branch_id', $p_branch_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_manager_id', $p_manager_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leave_approver_id', $p_leave_approver_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_kiosk_pin_code', $p_kiosk_pin_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_biometrics_id', $p_biometrics_id, PDO::PARAM_STR);

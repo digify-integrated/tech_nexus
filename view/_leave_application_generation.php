@@ -105,7 +105,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $leaveTypeDetails = $leaveTypeModel->getLeaveType($leaveTypeID);
                 $leaveTypeName = $leaveTypeDetails['leave_type_name'] ?? null;
 
+                $employeeDetails = $employeeModel->getPersonalInformation($contact_id);
+                $fileAs = $employeeDetails['file_as'] ?? '';
+
                 $response[] = [
+                    'FILE_AS' => '<a href="leave-recommendation.php?id='. $leaveApplicationIDEncrypted .'">'. $fileAs . '</a>',
                     'LEAVE_TYPE' => $leaveTypeName,
                     'LEAVE_DATE' => ' <div class="col">
                                         <h6 class="mb-0">'. $leaveDate .'</h6>
@@ -146,7 +150,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $leaveTypeDetails = $leaveTypeModel->getLeaveType($leaveTypeID);
                 $leaveTypeName = $leaveTypeDetails['leave_type_name'] ?? null;
 
+                $employeeDetails = $employeeModel->getPersonalInformation($contact_id);
+                $fileAs = $employeeDetails['file_as'] ?? '';
+
                 $response[] = [
+                    'FILE_AS' => '<a href="leave-approval.php?id='. $leaveApplicationIDEncrypted .'">'. $fileAs . '</a>',
                     'LEAVE_TYPE' => $leaveTypeName,
                     'LEAVE_DATE' => ' <div class="col">
                                         <h6 class="mb-0">'. $leaveDate .'</h6>

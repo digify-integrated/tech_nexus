@@ -266,23 +266,32 @@
 
     function generatePrint3($productID){
 
+        $databaseModel = new DatabaseModel();
+        $systemModel = new SystemModel();
+        $productModel = new ProductModel($databaseModel);
+
+        $productDetails = $productModel->getProduct($productID);
+        $payment_ref_no = $productDetails['payment_ref_no'] ?? '';
+        $payment_ref_amount = $productDetails['payment_ref_amount'] ?? 0;
+        $payment_ref_date = $systemModel->checkDate('summary', $productDetails['payment_ref_date'], '', 'm/d/Y', '');
+
         $response = '<table border="0.5" width="100%" cellpadding="2" align="left">
                         <tbody>
                         <tr>
                             <td width="20%">REF NO.</td>
-                            <td width="40%"></td>
+                            <td width="40%">'. $payment_ref_no .'</td>
                             <td width="20%">PREPARED BY: </td>
                             <td width="20%"></td>
                         </tr>
                         <tr>
                             <td width="20%">REF DATE</td>
-                            <td width="40%"></td>
+                            <td width="40%">'. $payment_ref_date .'</td>
                             <td width="20%">CHECKED BY: </td>
                             <td width="20%"></td>
                         </tr>
                         <tr>
                             <td width="20%">REF AMOUNT</td>
-                            <td width="40%"></td>
+                            <td width="40%">'. number_format($payment_ref_amount, 2) .'</td>
                             <td width="20%">NOTED BY: </td>
                             <td width="20%"></td>
                         </tr>

@@ -6914,3 +6914,113 @@ BEGIN
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('journal_code', NEW.journal_code_id, audit_log, NEW.last_log_by, NOW());
 END //
+
+CREATE TRIGGER disbursement_trigger_update
+AFTER UPDATE ON disbursement
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.transaction_date <> OLD.transaction_date THEN
+        SET audit_log = CONCAT(audit_log, "Transaction Date: ", OLD.transaction_date, " -> ", NEW.transaction_date, "<br/>");
+    END IF;
+
+    IF NEW.transaction_number <> OLD.transaction_number THEN
+        SET audit_log = CONCAT(audit_log, "Transaction Number: ", OLD.transaction_number, " -> ", NEW.transaction_number, "<br/>");
+    END IF;
+
+    IF NEW.reference_number <> OLD.reference_number THEN
+        SET audit_log = CONCAT(audit_log, "Reference Number: ", OLD.reference_number, " -> ", NEW.reference_number, "<br/>");
+    END IF;
+
+    IF NEW.customer_id <> OLD.customer_id THEN
+        SET audit_log = CONCAT(audit_log, "Customer ID: ", OLD.customer_id, " -> ", NEW.customer_id, "<br/>");
+    END IF;
+
+    IF NEW.department_id <> OLD.department_id THEN
+        SET audit_log = CONCAT(audit_log, "Department ID: ", OLD.department_id, " -> ", NEW.department_id, "<br/>");
+    END IF;
+
+    IF NEW.company_id <> OLD.company_id THEN
+        SET audit_log = CONCAT(audit_log, "Company ID: ", OLD.company_id, " -> ", NEW.company_id, "<br/>");
+    END IF;
+
+    IF NEW.transaction_type <> OLD.transaction_type THEN
+        SET audit_log = CONCAT(audit_log, "Transaction Type: ", OLD.transaction_type, " -> ", NEW.transaction_type, "<br/>");
+    END IF;
+
+    IF NEW.particulars <> OLD.particulars THEN
+        SET audit_log = CONCAT(audit_log, "Particulars: ", OLD.particulars, " -> ", NEW.particulars, "<br/>");
+    END IF;
+
+    IF NEW.disbursement_amount <> OLD.disbursement_amount THEN
+        SET audit_log = CONCAT(audit_log, "Disbursement Amount: ", OLD.disbursement_amount, " -> ", NEW.disbursement_amount, "<br/>");
+    END IF;
+
+    IF NEW.disburse_status <> OLD.disburse_status THEN
+        SET audit_log = CONCAT(audit_log, "Disburse Status: ", OLD.disburse_status, " -> ", NEW.disburse_status, "<br/>");
+    END IF;
+
+    IF NEW.posted_date <> OLD.posted_date THEN
+        SET audit_log = CONCAT(audit_log, "Posted Date: ", OLD.posted_date, " -> ", NEW.posted_date, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('disbursement', NEW.disbursement_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER disbursement_trigger_insert
+AFTER INSERT ON disbursement
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Disbursement created. <br/>';
+
+    IF NEW.transaction_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transaction Date: ", NEW.transaction_date);
+    END IF;
+
+    IF NEW.transaction_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transaction Number: ", NEW.transaction_number);
+    END IF;
+
+    IF NEW.reference_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reference Number: ", NEW.reference_number);
+    END IF;
+
+    IF NEW.customer_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Customer ID: ", NEW.customer_id);
+    END IF;
+
+    IF NEW.department_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Department ID: ", NEW.department_id);
+    END IF;
+
+    IF NEW.company_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Company ID: ", NEW.company_id);
+    END IF;
+
+    IF NEW.transaction_type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transaction Type: ", NEW.transaction_type);
+    END IF;
+
+    IF NEW.particulars <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Particulars: ", NEW.particulars);
+    END IF;
+
+    IF NEW.disbursement_amount <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Disbursement Amount: ", NEW.disbursement_amount);
+    END IF;
+
+    IF NEW.disburse_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Disburse Status: ", NEW.disburse_status);
+    END IF;
+
+    IF NEW.posted_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Posted Date: ", NEW.posted_date);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('disbursement', NEW.disbursement_id, audit_log, NEW.last_log_by, NOW());
+END //

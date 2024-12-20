@@ -387,6 +387,7 @@ class EmployeeController {
         $employeeTypeID = htmlspecialchars($_POST['employee_type_id'], ENT_QUOTES, 'UTF-8');
         $branchID = htmlspecialchars($_POST['branch_id'], ENT_QUOTES, 'UTF-8');
         $managerID = htmlspecialchars($_POST['manager_id'], ENT_QUOTES, 'UTF-8');
+        $leaveApproverID = htmlspecialchars($_POST['leave_approver_id'], ENT_QUOTES, 'UTF-8');
         $workScheduleID = htmlspecialchars($_POST['work_schedule_id'], ENT_QUOTES, 'UTF-8');
         $biometricsID = htmlspecialchars($_POST['biometrics_id'], ENT_QUOTES, 'UTF-8');
         $kioskPinCode = $this->securityModel->encryptData($_POST['kiosk_pin_code']);
@@ -403,13 +404,13 @@ class EmployeeController {
         $total = $checkEmploymentInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $kioskPinCode, $biometricsID, $onboardDate, $userID);
+            $this->employeeModel->updateEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $leaveApproverID, $workScheduleID, $kioskPinCode, $biometricsID, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $kioskPinCode, $biometricsID, $onboardDate, $userID);
+            $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $leaveApproverID, $workScheduleID, $kioskPinCode, $biometricsID, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -555,7 +556,7 @@ class EmployeeController {
         $total = $checkContactIdentificationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateContactIdentification($contactIdentificationID, $employeeID, $idTypeID, $idNumber, $userID);
+            $this->employeeModel->updateContactIdentification($contactIdentificationID, $contactID, $idTypeID, $idNumber, $userID);
 
             if(!empty($idImageFileName)){
                 $contactIdentificationDetails = $this->employeeModel->getContactIdentification($contactIdentificationID);
@@ -627,7 +628,7 @@ class EmployeeController {
             exit;
         } 
         else {
-            $contactIdentificationID = $this->employeeModel->insertContactIdentification($employeeID, $idTypeID, $idNumber, $userID);
+            $contactIdentificationID = $this->employeeModel->insertContactIdentification($contactID, $idTypeID, $idNumber, $userID);
 
             if(empty($idImageFileName)){
                 echo json_encode(['success' => false, 'message' => 'Please choose the ID image.']);
@@ -2808,6 +2809,7 @@ class EmployeeController {
             $jobLevelID = $employeeDetails['job_level_id'] ?? null;
             $branchID = $employeeDetails['branch_id'] ?? null;
             $managerID = $employeeDetails['manager_id'] ?? null;
+            $leaveApproverID = $employeeDetails['leave_approver_id'] ?? null;
             $workScheduleID = $employeeDetails['work_schedule_id'] ?? null;
             $kioskPinCode = !empty($employeeDetails['kiosk_pin_code']) ? $this->securityModel->decryptData($employeeDetails['kiosk_pin_code']) : null;
             $biometricsID = $employeeDetails['biometrics_id'] ?? null;
@@ -2836,6 +2838,7 @@ class EmployeeController {
                 'jobLevelName' => $jobLevelName,
                 'branchID' => $branchID,
                 'managerID' => $managerID,
+                'leaveApproverID' => $leaveApproverID,
                 'workScheduleID' => $workScheduleID,
                 'kioskPinCode' => $kioskPinCode,
                 'biometricsID' => $biometricsID,

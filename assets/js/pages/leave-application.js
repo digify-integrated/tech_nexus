@@ -15,7 +15,7 @@
         }
 
         if($('#leave-summary-table').length){
-            leaveSummaryTable('#leave-summary-table');
+            leaveSummaryTable('#leave-summary-table', true, true);
         }
 
         if($('#leave-application-form').length){
@@ -393,7 +393,7 @@
             }
 
             if($('#leave-summary-table').length){
-                leaveSummaryTable('#leave-summary-table');
+                leaveSummaryTable('#leave-summary-table', true, true);
             }            
         });
     });
@@ -463,6 +463,7 @@ function leaveApprovalTable(datatable_name, buttons = false, show_all = false){
     var settings;
 
     const column = [ 
+        { 'data' : 'FILE_AS' },
         { 'data' : 'LEAVE_TYPE' },
         { 'data' : 'LEAVE_DATE' },
         { 'data' : 'APPLICATION_DATE' },
@@ -475,7 +476,8 @@ function leaveApprovalTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -522,6 +524,7 @@ function leaveRecommendationTable(datatable_name, buttons = false, show_all = fa
     var settings;
 
     const column = [ 
+        { 'data' : 'FILE_AS' },
         { 'data' : 'LEAVE_TYPE' },
         { 'data' : 'LEAVE_DATE' },
         { 'data' : 'APPLICATION_DATE' },
@@ -534,7 +537,8 @@ function leaveRecommendationTable(datatable_name, buttons = false, show_all = fa
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -588,7 +592,7 @@ function leaveSummaryTable(datatable_name, buttons = false, show_all = false){
 
     var settings;
 
-    const column = [ 
+    const column = [
         { 'data' : 'FILE_AS' },
         { 'data' : 'LEAVE_TYPE' },
         { 'data' : 'LEAVE_DATE' },

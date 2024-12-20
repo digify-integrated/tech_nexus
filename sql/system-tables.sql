@@ -5812,3 +5812,29 @@ CREATE TABLE journal_entry(
 
 CREATE INDEX journal_entry_index_journal_entry_id ON journal_entry(journal_entry_id);
 CREATE INDEX journal_entry_index_journal_entry_date ON journal_entry(journal_entry_date);
+
+DROP TABLE disbursement;
+CREATE TABLE disbursement(
+	disbursement_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	transaction_date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	transaction_number VARCHAR(100) NOT NULL,
+	reference_number VARCHAR(100),
+    customer_id INT UNSIGNED,
+    department_id INT UNSIGNED,
+    company_id INT UNSIGNED,
+    transaction_type VARCHAR(100) NOT NULL,
+    particulars VARCHAR(2000),
+    disbursement_amount DOUBLE,
+    disburse_status VARCHAR(100) NOT NULL DEFAULT 'Posted',
+    reversal_date DATETIME,
+    reversal_reason VARCHAR(500),
+    cancellation_date DATETIME,
+    cancellation_reason VARCHAR(500),
+    posted_date DATETIME,
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX disbursement_index_disbursement_id ON disbursement(disbursement_id);
+CREATE INDEX disbursement_index_transaction_date ON disbursement(transaction_date);

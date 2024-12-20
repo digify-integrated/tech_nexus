@@ -345,6 +345,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $jobLevelID = $row['job_level_id'];
                     $branchID = $row['branch_id'];
                     $managerID = $row['manager_id'];
+                    $leaveApproverID = $row['leave_approver_id'];
                     $workScheduleID = $row['work_schedule_id'];
                     $biometricsID = $row['biometrics_id'];
                     $onboardDate = $systemModel->checkDate('summary', $row['onboard_date'], '', 'F d, Y', '');
@@ -369,6 +370,21 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $managerName = str_replace('{first_name}', $firstName, $managerName);
                         $managerName = str_replace('{suffix}', $suffix, $managerName);
                         $managerName = str_replace('{middle_name}', $middleName, $managerName);
+                    }
+
+                    $leaveApproverName = '--';
+                    if(!empty($leaveApproverID)){
+                        $employeeDetails = $employeeModel->getPersonalInformation($leaveApproverID);
+                        $firstName = $employeeDetails['first_name'];
+                        $middleName = $employeeDetails['middle_name'];
+                        $lastName = $employeeDetails['last_name'];
+                        $suffix = $employeeDetails['suffix'];
+    
+                        $leaveApproverName = $systemSettingModel->getSystemSetting(4)['value'];
+                        $leaveApproverName = str_replace('{last_name}', $lastName, $leaveApproverName);
+                        $leaveApproverName = str_replace('{first_name}', $firstName, $leaveApproverName);
+                        $leaveApproverName = str_replace('{suffix}', $suffix, $leaveApproverName);
+                        $leaveApproverName = str_replace('{middle_name}', $middleName, $leaveApproverName);
                     }
                    
 
@@ -410,6 +426,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <div class="col-md-12">
                                                 <p class="mb-1 text-primary"><b>Manager</b></p>
                                                 <p class="mb-0">'. $managerName .'</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item px-0">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <p class="mb-1 text-primary"><b>Leave Approver</b></p>
+                                                <p class="mb-0">'. $leaveApproverName .'</p>
                                             </div>
                                         </div>
                                     </li>

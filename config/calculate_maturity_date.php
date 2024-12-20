@@ -1,21 +1,24 @@
-<?php
+<?php 
+// Set timezone to a valid identifier
+date_default_timezone_set('Asia/Manila');
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $start_date = $_POST["start_date"];
     $payment_frequency = $_POST["payment_frequency"];
     $term_type = $_POST["term_type"];
     $term_length = $_POST["term_length"];
 
-    if(empty($payment_frequency)){
+    if (empty($payment_frequency)) {
         echo null;
         exit;
     }
 
-    if(empty($term_type)){
+    if (empty($term_type)) {
         echo null;
         exit;
     }
 
-    if($term_length == 0){
+    if ($term_length == 0) {
         echo null;
         exit;
     }

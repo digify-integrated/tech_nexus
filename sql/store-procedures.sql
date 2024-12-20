@@ -4263,13 +4263,13 @@ BEGIN
 	VALUES(p_contact_id, p_company_id, p_department_id, p_job_position_id, p_branch_id, p_last_log_by);
 END //
 
-CREATE PROCEDURE insertEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_manager_id INT, IN p_work_schedule_id INT, IN p_kiosk_pin_code VARCHAR(255), IN p_biometrics_id VARCHAR(500), IN p_onboard_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE insertEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_manager_id INT, IN p_leave_approver_id INT, IN p_work_schedule_id INT, IN p_kiosk_pin_code VARCHAR(255), IN p_biometrics_id VARCHAR(500), IN p_onboard_date DATE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO employment_information (contact_id, badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, manager_id, work_schedule_id, kiosk_pin_code, biometrics_id, onboard_date, last_log_by) 
-	VALUES(p_contact_id, p_badge_id, p_company_id, p_employee_type_id, p_department_id, p_job_position_id, p_job_level_id, p_branch_id, p_manager_id, p_work_schedule_id, p_kiosk_pin_code, p_biometrics_id, p_onboard_date, p_last_log_by);
+    INSERT INTO employment_information (contact_id, badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, manager_id, leave_approver_id, work_schedule_id, kiosk_pin_code, biometrics_id, onboard_date, last_log_by) 
+	VALUES(p_contact_id, p_badge_id, p_company_id, p_employee_type_id, p_department_id, p_job_position_id, p_job_level_id, p_branch_id, p_manager_id, p_leave_approver_id, p_work_schedule_id, p_kiosk_pin_code, p_biometrics_id, p_onboard_date, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_manager_id INT, IN p_work_schedule_id INT, IN p_kiosk_pin_code VARCHAR(255), IN p_biometrics_id VARCHAR(500), IN p_onboard_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_manager_id INT, IN p_leave_approver_id INT, IN p_work_schedule_id INT, IN p_kiosk_pin_code VARCHAR(255), IN p_biometrics_id VARCHAR(500), IN p_onboard_date DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE employment_information
     SET badge_id = p_badge_id,
@@ -4280,6 +4280,7 @@ BEGIN
     job_level_id = p_job_level_id,
     branch_id = p_branch_id,
     manager_id = p_manager_id,
+    leave_approver_id = p_leave_approver_id,
     work_schedule_id = p_work_schedule_id,
     kiosk_pin_code = p_kiosk_pin_code,
     biometrics_id = p_biometrics_id,
@@ -6835,7 +6836,7 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
-CREATE PROCEDURE updateProductLandedCost(IN p_product_id INT, IN p_product_price DOUBLE, IN p_fx_rate DOUBLE, IN p_converted_amount DOUBLE, IN p_unit_cost DOUBLE, IN p_package_deal DOUBLE, IN p_taxes_duties DOUBLE, IN p_freight DOUBLE, IN p_lto_registration DOUBLE, IN p_royalties DOUBLE, IN p_conversion DOUBLE, IN p_arrastre DOUBLE, IN p_wharrfage DOUBLE, IN p_insurance DOUBLE, IN p_aircon DOUBLE, IN p_import_permit DOUBLE, IN p_others DOUBLE, IN p_total_landed_cost DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateProductLandedCost(IN p_product_id INT, IN p_product_price DOUBLE, IN p_fx_rate DOUBLE, IN p_converted_amount DOUBLE, IN p_unit_cost DOUBLE, IN p_package_deal DOUBLE, IN p_taxes_duties DOUBLE, IN p_freight DOUBLE, IN p_lto_registration DOUBLE, IN p_royalties DOUBLE, IN p_conversion DOUBLE, IN p_arrastre DOUBLE, IN p_wharrfage DOUBLE, IN p_insurance DOUBLE, IN p_aircon DOUBLE, IN p_import_permit DOUBLE, IN p_others DOUBLE, IN p_total_landed_cost DOUBLE, IN p_payment_ref_no VARCHAR(100), IN p_payment_ref_date DATE, IN p_payment_ref_amount DOUBLE, IN p_last_log_by INT)
 BEGIN
 	UPDATE product
     SET product_price = p_product_price,
@@ -6855,6 +6856,9 @@ BEGIN
     import_permit = p_import_permit,
     others = p_others,
     total_landed_cost = p_total_landed_cost,
+    payment_ref_no = p_payment_ref_no,
+    payment_ref_date = p_payment_ref_date,
+    payment_ref_amount = p_payment_ref_amount,
     last_log_by = p_last_log_by
     WHERE product_id = p_product_id;
 END //
@@ -7829,6 +7833,8 @@ BEGIN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
         for_ci_date = NOW(),
+        ci_status = null,
+        ci_completion_date = null,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
     ELSEIF p_sales_proposal_status = 'Rejected' THEN
@@ -9861,10 +9867,10 @@ BEGIN
     SELECT * FROM leave_application WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE generateLeaveApprovalTable()
+CREATE PROCEDURE generateLeaveApprovalTable(IN p_contact_id INT)
 BEGIN
     SELECT * FROM leave_application 
-    WHERE status = 'For Approval';
+    WHERE status = 'For Approval' AND contact_id IN (SELECT contact_id FROM employment_information WHERE leave_approver_id = p_contact_id);
 END //
 
 CREATE PROCEDURE generateLeaveDashboardApprovalTable(IN p_contact_id INT)
@@ -11886,3 +11892,86 @@ BEGIN
     -- Close cursor
     CLOSE cur_journal_code;
 END//
+
+
+CREATE PROCEDURE checkDisbursementExist (IN p_disbursement_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM disbursement
+    WHERE disbursement_id = p_disbursement_id;
+END //
+
+CREATE PROCEDURE insertDisbursement(IN p_transaction_number VARCHAR(100), IN p_reference_number VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_type VARCHAR(100), IN p_particulars VARCHAR(2000), IN p_disbursement_amount DOUBLE, IN p_last_log_by INT, OUT p_disbursement_id INT)
+BEGIN
+    INSERT INTO disbursement (transaction_number, reference_number, customer_id, department_id, company_id, transaction_type, particulars, disbursement_amount, created_by, last_log_by) 
+	VALUES(p_transaction_number, p_reference_number, p_customer_id, p_department_id, p_company_id, p_transaction_type, p_particulars, p_disbursement_amount, p_last_log_by, p_last_log_by);
+	
+    SET p_disbursement_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateDisbursement(IN p_disbursement_id INT, IN p_transaction_number VARCHAR(100), IN p_reference_number VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_type VARCHAR(100), IN p_particulars VARCHAR(2000), IN p_disbursement_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE disbursement
+    SET transaction_number = p_transaction_number,
+        reference_number = p_reference_number,
+        customer_id = p_customer_id,
+        department_id = p_department_id,
+        company_id = p_company_id,
+        transaction_type = p_transaction_type,
+        particulars = p_particulars,
+        disbursement_amount = p_disbursement_amount,
+        last_log_by = p_last_log_by
+    WHERE disbursement_id = p_disbursement_id;
+END //
+
+CREATE PROCEDURE deleteDisbursement(IN p_disbursement_id INT)
+BEGIN
+    DELETE FROM disbursement WHERE disbursement_id = p_disbursement_id;
+END //
+
+CREATE PROCEDURE getDisbursement(IN p_disbursement_id INT)
+BEGIN
+	SELECT * FROM disbursement
+    WHERE disbursement_id = p_disbursement_id;
+END //
+
+CREATE PROCEDURE generateDisbursementTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM disbursement';
+    SET conditionList = ' WHERE 1';
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY transaction_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+
+CREATE PROCEDURE updateDisbursementStatus(IN p_disbursement_id INT, IN p_disburse_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    IF p_disburse_status = 'Posted' THEN
+        UPDATE disbursement
+        SET disburse_status = p_disburse_status,
+        posted_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE disbursement_id = p_disbursement_id AND disburse_status IN('Draft');
+    ELSE
+        UPDATE disbursement
+        SET disburse_status = p_disburse_status,
+        last_log_by = p_last_log_by
+        WHERE disbursement_id = p_disbursement_id;
+    END IF;
+END //

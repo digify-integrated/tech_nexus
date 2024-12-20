@@ -163,8 +163,8 @@ class ProductModel {
         $stmt->execute();
     }
 
-    public function updateProductLandedCost($p_product_id, $p_product_price, $p_fx_rate, $p_converted_amount, $p_unit_cost, $p_package_deal, $p_taxes_duties, $p_freight, $p_lto_registration, $p_royalties, $p_conversion, $p_arrastre, $p_wharrfage, $p_insurance, $p_aircon, $p_import_permit, $p_others, $p_total_landed_cost, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateProductLandedCost(:p_product_id, :p_product_price, :p_fx_rate, :p_converted_amount, :p_unit_cost, :p_package_deal, :p_taxes_duties, :p_freight, :p_lto_registration, :p_royalties, :p_conversion, :p_arrastre, :p_wharrfage, :p_insurance, :p_aircon, :p_import_permit, :p_others, :p_total_landed_cost, :p_last_log_by)');
+    public function updateProductLandedCost($p_product_id, $p_product_price, $p_fx_rate, $p_converted_amount, $p_unit_cost, $p_package_deal, $p_taxes_duties, $p_freight, $p_lto_registration, $p_royalties, $p_conversion, $p_arrastre, $p_wharrfage, $p_insurance, $p_aircon, $p_import_permit, $p_others, $p_total_landed_cost, $p_payment_ref_no, $p_payment_ref_date, $p_payment_ref_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateProductLandedCost(:p_product_id, :p_product_price, :p_fx_rate, :p_converted_amount, :p_unit_cost, :p_package_deal, :p_taxes_duties, :p_freight, :p_lto_registration, :p_royalties, :p_conversion, :p_arrastre, :p_wharrfage, :p_insurance, :p_aircon, :p_import_permit, :p_others, :p_total_landed_cost, :p_payment_ref_no, :p_payment_ref_date, :p_payment_ref_amount, :p_last_log_by)');
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_price', $p_product_price, PDO::PARAM_STR);
         $stmt->bindValue(':p_fx_rate', $p_fx_rate, PDO::PARAM_STR);
@@ -183,6 +183,9 @@ class ProductModel {
         $stmt->bindValue(':p_import_permit', $p_import_permit, PDO::PARAM_STR);
         $stmt->bindValue(':p_others', $p_others, PDO::PARAM_STR);
         $stmt->bindValue(':p_total_landed_cost', $p_total_landed_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_ref_no', $p_payment_ref_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_ref_date', $p_payment_ref_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_ref_amount', $p_payment_ref_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
