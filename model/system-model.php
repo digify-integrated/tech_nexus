@@ -143,7 +143,7 @@ class SystemModel {
                 return $time;
             }
             else{
-                return $current_time;
+                return $systemTime;
             }
         }
     }

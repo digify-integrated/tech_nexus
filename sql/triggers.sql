@@ -6929,32 +6929,16 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Transaction Number: ", OLD.transaction_number, " -> ", NEW.transaction_number, "<br/>");
     END IF;
 
-    IF NEW.reference_number <> OLD.reference_number THEN
-        SET audit_log = CONCAT(audit_log, "Reference Number: ", OLD.reference_number, " -> ", NEW.reference_number, "<br/>");
-    END IF;
-
-    IF NEW.customer_id <> OLD.customer_id THEN
-        SET audit_log = CONCAT(audit_log, "Customer ID: ", OLD.customer_id, " -> ", NEW.customer_id, "<br/>");
-    END IF;
-
-    IF NEW.department_id <> OLD.department_id THEN
-        SET audit_log = CONCAT(audit_log, "Department ID: ", OLD.department_id, " -> ", NEW.department_id, "<br/>");
-    END IF;
-
-    IF NEW.company_id <> OLD.company_id THEN
-        SET audit_log = CONCAT(audit_log, "Company ID: ", OLD.company_id, " -> ", NEW.company_id, "<br/>");
-    END IF;
-
     IF NEW.transaction_type <> OLD.transaction_type THEN
         SET audit_log = CONCAT(audit_log, "Transaction Type: ", OLD.transaction_type, " -> ", NEW.transaction_type, "<br/>");
     END IF;
 
-    IF NEW.particulars <> OLD.particulars THEN
-        SET audit_log = CONCAT(audit_log, "Particulars: ", OLD.particulars, " -> ", NEW.particulars, "<br/>");
+    IF NEW.fund_source <> OLD.fund_source THEN
+        SET audit_log = CONCAT(audit_log, "Fund Source: ", OLD.fund_source, " -> ", NEW.fund_source, "<br/>");
     END IF;
 
-    IF NEW.disbursement_amount <> OLD.disbursement_amount THEN
-        SET audit_log = CONCAT(audit_log, "Disbursement Amount: ", OLD.disbursement_amount, " -> ", NEW.disbursement_amount, "<br/>");
+    IF NEW.particulars <> OLD.particulars THEN
+        SET audit_log = CONCAT(audit_log, "Particulars: ", OLD.particulars, " -> ", NEW.particulars, "<br/>");
     END IF;
 
     IF NEW.disburse_status <> OLD.disburse_status THEN
@@ -6963,6 +6947,22 @@ BEGIN
 
     IF NEW.posted_date <> OLD.posted_date THEN
         SET audit_log = CONCAT(audit_log, "Posted Date: ", OLD.posted_date, " -> ", NEW.posted_date, "<br/>");
+    END IF;
+
+    IF NEW.reversal_date <> OLD.reversal_date THEN
+        SET audit_log = CONCAT(audit_log, "Reversal Date: ", OLD.reversal_date, " -> ", NEW.reversal_date, "<br/>");
+    END IF;
+
+    IF NEW.reversal_reason <> OLD.reversal_reason THEN
+        SET audit_log = CONCAT(audit_log, "Reversal Reason: ", OLD.reversal_reason, " -> ", NEW.reversal_reason, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_date <> OLD.cancellation_date THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Date: ", OLD.cancellation_date, " -> ", NEW.cancellation_date, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_reason <> OLD.cancellation_reason THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Reason: ", OLD.cancellation_reason, " -> ", NEW.cancellation_reason, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -6985,8 +6985,94 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Transaction Number: ", NEW.transaction_number);
     END IF;
 
-    IF NEW.reference_number <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Reference Number: ", NEW.reference_number);
+    IF NEW.transaction_type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transaction Type: ", NEW.transaction_type);
+    END IF;
+
+    IF NEW.fund_source <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Fund Source: ", NEW.fund_source);
+    END IF;
+
+    IF NEW.particulars <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Particulars: ", NEW.particulars);
+    END IF;
+
+    IF NEW.disburse_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Disburse Status: ", NEW.disburse_status);
+    END IF;
+
+    IF NEW.reversal_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reversal Date: ", NEW.reversal_date);
+    END IF;
+
+    IF NEW.reversal_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reversal Reason: ", NEW.reversal_reason);
+    END IF;
+
+    IF NEW.cancellation_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cancellation Date: ", NEW.cancellation_date);
+    END IF;
+
+    IF NEW.cancellation_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cancellation Reason: ", NEW.cancellation_reason);
+    END IF;
+
+    IF NEW.posted_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Posted Date: ", NEW.posted_date);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('disbursement_particulars', NEW.disbursement_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER disbursement_particulars_trigger_update
+AFTER UPDATE ON disbursement_particulars
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.chart_of_account_id <> OLD.chart_of_account_id THEN
+        SET audit_log = CONCAT(audit_log, "Chart of Account ID: ", OLD.chart_of_account_id, " -> ", NEW.chart_of_account_id, "<br/>");
+    END IF;
+
+    IF NEW.remarks <> OLD.remarks THEN
+        SET audit_log = CONCAT(audit_log, "Remarks: ", OLD.remarks, " -> ", NEW.remarks, "<br/>");
+    END IF;
+
+    IF NEW.customer_id <> OLD.customer_id THEN
+        SET audit_log = CONCAT(audit_log, "Customer ID: ", OLD.customer_id, " -> ", NEW.customer_id, "<br/>");
+    END IF;
+
+    IF NEW.department_id <> OLD.department_id THEN
+        SET audit_log = CONCAT(audit_log, "Department ID: ", OLD.department_id, " -> ", NEW.department_id, "<br/>");
+    END IF;
+
+    IF NEW.company_id <> OLD.company_id THEN
+        SET audit_log = CONCAT(audit_log, "Company ID: ", OLD.company_id, " -> ", NEW.company_id, "<br/>");
+    END IF;
+
+    IF NEW.particulars_amount <> OLD.particulars_amount THEN
+        SET audit_log = CONCAT(audit_log, "Particulars Amount: ", OLD.particulars_amount, " -> ", NEW.particulars_amount, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('disbursement', NEW.disbursement_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER disbursement_particulars_trigger_insert
+AFTER INSERT ON disbursement_particulars
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Disbursement particulars created. <br/>';
+
+    IF NEW.chart_of_account_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Chart of Account ID: ", NEW.chart_of_account_id);
+    END IF;
+
+    IF NEW.remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Remarks: ", NEW.remarks);
     END IF;
 
     IF NEW.customer_id <> '' THEN
@@ -7001,26 +7087,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Company ID: ", NEW.company_id);
     END IF;
 
-    IF NEW.transaction_type <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Transaction Type: ", NEW.transaction_type);
-    END IF;
-
-    IF NEW.particulars <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Particulars: ", NEW.particulars);
-    END IF;
-
-    IF NEW.disbursement_amount <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Disbursement Amount: ", NEW.disbursement_amount);
-    END IF;
-
-    IF NEW.disburse_status <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Disburse Status: ", NEW.disburse_status);
-    END IF;
-
-    IF NEW.posted_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Posted Date: ", NEW.posted_date);
+    IF NEW.particulars_amount <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Particulars Amount: ", NEW.particulars_amount);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('disbursement', NEW.disbursement_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('disbursement_particulars', NEW.disbursement_id, audit_log, NEW.last_log_by, NOW());
 END //

@@ -6,6 +6,7 @@
   require('model/customer-model.php');
   require('model/product-model.php');
   require('model/company-model.php');
+  require('model/chart-of-account-model.php');
 
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $disbursementModel = new DisbursementModel($databaseModel);
@@ -13,6 +14,7 @@
   $customerModel = new CustomerModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
   $departmentModel = new DepartmentModel($databaseModel);
+  $chartOfAccountModel = new ChartOfAccountModel($databaseModel);
 
   $pageTitle = 'Disbursement';
     
@@ -22,6 +24,8 @@
   $disbursementDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 124, 'delete');
 
   $postDisbursement = $userModel->checkSystemActionAccessRights($user_id, 187);
+  $cancelDisbursement = $userModel->checkSystemActionAccessRights( $user_id, 188);
+  $reverseDisbursement = $userModel->checkSystemActionAccessRights($user_id, 189);
 
   if ($disbursementReadAccess['total'] == 0) {
     header('location: 404.php');

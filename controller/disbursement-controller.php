@@ -86,11 +86,20 @@ class DisbursementController {
                 case 'save disbursement':
                     $this->saveDisbursement();
                     break;
+                case 'save particulars':
+                    $this->saveParticulars();
+                    break;
                 case 'get disbursement details':
                     $this->getDisbursementDetails();
                     break;
+                case 'get disbursement particulars details':
+                    $this->getDisbursementParticularsDetails();
+                    break;
                 case 'delete disbursement':
                     $this->deleteDisbursement();
+                    break;
+                case 'delete disbursement particulars':
+                    $this->deleteDisbursementParticulars();
                     break;
                 case 'delete multiple disbursement':
                     $this->deleteMultipleDisbursement();
@@ -98,20 +107,11 @@ class DisbursementController {
                 case 'post disbursement':
                     $this->tagDisbursementAsPosted();
                     break;
-                case 'tag multiple collection as cleared':
-                    $this->tagMultiplePDCAsCleared();
-                    break;
-                case 'tag collection as cancelled':
+                case 'tag disbursement as cancelled':
                     $this->tagDisbursementAsCancel();
                     break;
-                case 'tag multiple pdc as cancelled':
-                    $this->tagMultiplePDCAsCancel();
-                    break;
-                case 'tag collection as reversed':
+                case 'tag disbursement as reversed':
                     $this->tagDisbursementAsReversed();
-                    break;
-                case 'tag multiple pdc as reversed':
-                    $this->tagMultiplePDCAsReversed();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -155,41 +155,36 @@ class DisbursementController {
             exit;
         }
     
-        $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
+        $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
+        $fund_source = $disbursementDetails['fund_source'];
 
-    # -------------------------------------------------------------
-    #
-    # Function: tagMultiplePDCAsCleared
-    # Description: 
-    # Delete the selected pdc managements if it exists; otherwise, skip it.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function tagMultiplePDCAsCleared() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $disbursementIDs = $_POST['disbursement_id'];
-
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
+        $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
+        
+        if($disbursementTotal === 0){
+            echo json_encode(['success' => false, 'disbursementZero' => true]);
             exit;
         }
 
-        foreach($disbursementIDs as $disbursementID){
-            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Cleared', '', '', '', $userID);
+        if($fund_source == 'Petty Cash'){
+            $systemSettingID = 20;
+
+            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $disbursementTotal;
+        
+            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                        
+            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+        }
+        else if($fund_source == 'Revolving Fund'){
+            $systemSettingID = 21;
+
+            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $disbursementTotal;
+        
+            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                        
+            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+        }
+        else{
+            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -232,44 +227,7 @@ class DisbursementController {
             exit;
         }
     
-        $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Cancelled', $cancellationReason, '', '', $userID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: tagMultiplePDCAsCancel
-    # Description: 
-    # Delete the selected disbursements if it exists; otherwise, skip it.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function tagMultiplePDCAsCancel() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $disbursementID = $_POST['disbursement_id']; 
-        $disbursementIDs = explode(',', $disbursementID);
-        $cancellationReason = $_POST['cancellation_reason'];
-
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-
-        foreach($disbursementIDs as $disbursementID){
-            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Cancelled', $cancellationReason, '', '', $userID);
-        }
+        $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Cancelled', $cancellationReason, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -293,8 +251,7 @@ class DisbursementController {
         }
     
         $userID = $_SESSION['user_id'];
-        $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
-        $reversalReason = $_POST['reversal_reason'];
+        $disbursementID = htmlspecialchars( $_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
         $reversalRemarks = $_POST['reversal_remarks'];
     
         $user = $this->userModel->getUserByID($userID);
@@ -311,94 +268,33 @@ class DisbursementController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
-    
-        $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
 
         $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
-        $paymentAmount = $disbursementDetails['payment_amount'];
-        $companyID = $disbursementDetails['company_id'];
+        $fund_source = $disbursementDetails['fund_source'];
 
-        if($companyID == 1){
-            $systemSettingID = 11;
+        if($fund_source == 'Petty Cash'){
+            $systemSettingID = 20;
+            $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
+
+            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $disbursementTotal;
+        
+            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
+                        
+            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
         }
-        else if($companyID == 2){
-            $systemSettingID = 12;
+        else if($fund_source == 'Revolving Fund'){
+            $systemSettingID = 21;
+            $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
+
+            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $disbursementTotal;
+        
+            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
+                        
+            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
         }
         else{
-            $systemSettingID = 13;
-        }        
-
-        $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
-
-        $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalReason, $reversalRemarks, $referenceNumber, $userID);
-                    
-        $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
-        $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: tagMultiplePDCAsReversed
-    # Description: 
-    # Delete the selected disbursements if it exists; otherwise, skip it.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function tagMultiplePDCAsReversed() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $disbursementID = $_POST['disbursement_id']; 
-        $disbursementIDs = explode(',', $disbursementID);
-        $reversalReason = $_POST['reversal_reason'];
-        $reversalRemarks = $_POST['reversal_remarks'];
-
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-
-        foreach($disbursementIDs as $disbursementID){
-            $checkDisbursementExist = $this->disbursementModel->checkDisbursementExist($disbursementID);
-            $total = $checkDisbursementExist['total'] ?? 0;
-
-            if($total > 0){
-                $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
-
-                $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
-                $paymentAmount = $disbursementDetails['payment_amount'];
-                $companyID = $disbursementDetails['company_id'];
-
-                if($companyID == 1){
-                    $systemSettingID = 11;
-                }
-                else if($companyID == 2){
-                    $systemSettingID = 12;
-                }
-                else{
-                    $systemSettingID = 13;
-                }
-        
-                $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
-        
-                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalReason, $reversalRemarks, $referenceNumber, $userID);
-                            
-                $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
-                $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
-            }
-        }
-            
+            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
+        }            
         echo json_encode(['success' => true]);
         exit;
     }
@@ -427,12 +323,7 @@ class DisbursementController {
         $userID = $_SESSION['user_id'];
         $disbursementID = isset($_POST['disbursement_id']) ? htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8') : null;
         $transaction_type = $_POST['transaction_type'];
-        $customer_id = $_POST['customer_id'];
-        $customer_id = $_POST['customer_id'];
-        $department_id = $_POST['department_id'];
-        $company_id = $_POST['company_id'];
-        $reference_number = $_POST['reference_number'];
-        $disbursement_amount = $_POST['disbursement_amount'];
+        $fund_source = $_POST['fund_source'];
         $particulars = $_POST['particulars'];
     
         $user = $this->userModel->getUserByID($userID);
@@ -448,7 +339,7 @@ class DisbursementController {
         if ($total > 0) {
             $transaction_number = $_POST['transaction_number'];
 
-            $this->disbursementModel->updateDisbursement($disbursementID, $transaction_number, $reference_number, $customer_id, $department_id, $company_id, $transaction_type, $particulars, $disbursement_amount, $userID);
+            $this->disbursementModel->updateDisbursement($disbursementID, $transaction_number, $transaction_type, $fund_source, $particulars, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'disbursementID' => $this->securityModel->encryptData($disbursementID)]);
             exit;
@@ -456,12 +347,50 @@ class DisbursementController {
         else {
             $transaction_number = $this->systemSettingModel->getSystemSetting(19)['value'] + 1;
 
-            $disbursementID = $this->disbursementModel->insertDisbursement($transaction_number, $reference_number, $customer_id, $department_id, $company_id, $transaction_type, $particulars, $disbursement_amount, $userID);
+            $disbursementID = $this->disbursementModel->insertDisbursement($transaction_number, $transaction_type, $fund_source, $particulars, $userID);
 
             
             $this->systemSettingModel->updateSystemSettingValue(19, $transaction_number, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'disbursementID' => $this->securityModel->encryptData($disbursementID)]);
+            exit;
+        }
+    }
+    public function saveParticulars() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $disbursement_particulars_id = isset($_POST['disbursement_particulars_id']) ? htmlspecialchars($_POST['disbursement_particulars_id'], ENT_QUOTES, 'UTF-8') : null;
+        $disbursement_id = $_POST['disbursement_id'];
+        $customer_id = $_POST['customer_id'];
+        $department_id = $_POST['department_id'];
+        $company_id = $_POST['company_id'];
+        $chart_of_account_id = $_POST['chart_of_account_id'];
+        $particulars_amount = $_POST['particulars_amount'];
+        $remarks = $_POST['remarks'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDisbursementExist = $this->disbursementModel->checkDisbursementParticularsExist($disbursement_particulars_id);
+        $total = $checkDisbursementExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->disbursementModel->updateDisbursementParticulars($disbursement_particulars_id, $disbursement_id, $chart_of_account_id, $remarks, $customer_id, $department_id, $company_id, $particulars_amount, $userID);
+            
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            $this->disbursementModel->insertDisbursementParticulars($disbursement_id, $chart_of_account_id, $remarks, $customer_id, $department_id, $company_id, $particulars_amount, $userID);
+
+            echo json_encode(['success' => true]);
             exit;
         }
     }
@@ -506,6 +435,35 @@ class DisbursementController {
         }
 
         $this->disbursementModel->deleteDisbursement($disbursementID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function deleteDisbursementParticulars() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $disbursement_particulars_id = htmlspecialchars($_POST['disbursement_particulars_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDisbursementParticularsExist = $this->disbursementModel->checkDisbursementParticularsExist($disbursement_particulars_id);
+        $total = $checkDisbursementParticularsExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $this->disbursementModel->deleteDisbursementParticulars($disbursement_particulars_id);
             
         echo json_encode(['success' => true]);
         exit;
@@ -601,13 +559,42 @@ class DisbursementController {
             $response = [
                 'success' => true,
                 'transactionNumber' => $disbursementDetails['transaction_number'],
-                'referenceNumber' => $disbursementDetails['reference_number'],
-                'disbursementAmount' => $disbursementDetails['disbursement_amount'],
                 'particulars' => $disbursementDetails['particulars'],
                 'transactionType' => $disbursementDetails['transaction_type'],
+                'fundSource' => $disbursementDetails['fund_source']
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+
+    public function getDisbursementParticularsDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['disbursement_particulars_id']) && !empty($_POST['disbursement_particulars_id'])) {
+            $userID = $_SESSION['user_id'];
+            $disbursement_particulars_id = $_POST['disbursement_particulars_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $disbursementDetails = $this->disbursementModel->getDisbursementParticulars($disbursement_particulars_id);
+
+            $response = [
+                'success' => true,
+                'chartOfAccountID' => $disbursementDetails['chart_of_account_id'],
+                'remarks' => $disbursementDetails['remarks'],
                 'customerID' => $disbursementDetails['customer_id'],
                 'departmentID' => $disbursementDetails['department_id'],
-                'companyID' => $disbursementDetails['company_id']
+                'companyID' => $disbursementDetails['company_id'],
+                'particularsAmount' => $disbursementDetails['particulars_amount']
             ];
 
             echo json_encode($response);

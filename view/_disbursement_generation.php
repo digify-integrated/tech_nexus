@@ -12,6 +12,8 @@ require_once '../model/miscellaneous-client-model.php';
 require_once '../model/system-model.php';
 require_once '../model/department-model.php';
 require_once '../model/company-model.php';
+require_once '../model/chart-of-account-model.php';
+require_once '../model/disbursement-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -22,6 +24,8 @@ $productModel = new ProductModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $departmentModel = new DepartmentModel($databaseModel);
 $companyModel = new CompanyModel($databaseModel);
+$chartOfAccountModel = new ChartOfAccountModel($databaseModel);
+$disbursementModel = new DisbursementModel($databaseModel);
 $securityModel = new SecurityModel();
 $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 
@@ -61,6 +65,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $department_id = $row['department_id'];
                 $company_id = $row['company_id'];
                 $transaction_type = $row['transaction_type'];
+                $fund_source = $row['fund_source'];
                 $particulars = $row['particulars'];
                 $disbursement_amount = $row['disbursement_amount'];
 
@@ -79,21 +84,76 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $disbursementID .'">',
                     'TRANSACTION_DATE' => $transaction_date,
                     'TRANSACTION_NUMBER' => $transaction_number,
-                    'CUSTOMER' => '<a href="disbursement.php?id='. $disbursementIDEncrypted .'" title="View Details"><div class="col">
-                                                    <h6 class="mb-0">'. $customerName .'</h6>
-                                                </div></a>',
                     'TRANSACTION_TYPE' => $transaction_type,
-                    'DEPARTMENT' => $departmentName,
-                    'COMPANY' => $companyName,
+                    'FUND_SOURCE' => $fund_source,
                     'PARTICULARS' => $particulars,
-                    'DISBURSMENT_AMOUNT' => number_format($disbursement_amount, 2),
-                    'REFERENCE_NUMBER' => $reference_number,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="disbursement.php?id='. $disbursementIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
                     ];
+            }
+
+            echo json_encode($response);
+        break;
+
+        case 'particulars table':
+            $disbursement_id = $_POST['disbursement_id'];
+
+            $disbursementDetails = $disbursementModel->getDisbursement($disbursement_id);
+            $disburse_status = $disbursementDetails['disburse_status'] ?? '';
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementParticularsTable(:disbursement_id)');
+            $sql->bindValue(':disbursement_id', $disbursement_id, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $disbursement_particulars_id = $row['disbursement_particulars_id'];
+                $chart_of_account_id = $row['chart_of_account_id'];
+                $customer_id = $row['customer_id'];
+                $department_id = $row['department_id'];
+                $company_id = $row['company_id'];
+                $remarks = $row['remarks'];
+                $particulars_amount = $row['particulars_amount'];
+
+                $chartOfAccountDetails = $chartOfAccountModel->getChartOfAccount($chart_of_account_id);
+                $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                $customerName = $customerDetails['file_as'] ?? null;
+
+                $departmentDetails = $departmentModel->getDepartment($department_id);
+                $departmentName = $departmentDetails['department_name'] ?? null;
+
+                $companyDetails = $companyModel->getCompany($company_id);
+                $companyName = $companyDetails['company_name'] ?? null;
+
+                $action = '';
+                if($disburse_status == 'Draft'){
+                    $action = '<div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-icon btn-success update-disbursement-particulars" data-bs-toggle="offcanvas" data-bs-target="#particulars-offcanvas" aria-controls="particulars-offcanvas" data-disbursement-particulars-id="'. $disbursement_particulars_id .'" title="Update Particular">
+                                        <i class="ti ti-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-icon btn-danger delete-disbursement-particulars" data-disbursement-particulars-id="'. $disbursement_particulars_id .'" title="Delete Particular">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </div>';
+                }
+
+                $disbursement_particulars_id_enc = $securityModel->encryptData($disbursement_particulars_id);
+
+                $response[] = [
+                    'PARTICULARS' => $chartOfAccountName,
+                    'CUSTOMER_NAME' => $customerName,
+                    'DEPARTMENT_NAME' => $departmentName,
+                    'COMPANY_NAME' => $companyName,
+                    'PARTICULAR_AMOUNT' => number_format($particulars_amount, 2),
+                    'REMARKS' => $remarks,
+                    'ACTION' => $action
+                ];
             }
 
             echo json_encode($response);

@@ -5818,19 +5818,16 @@ CREATE TABLE disbursement(
 	disbursement_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	transaction_date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	transaction_number VARCHAR(100) NOT NULL,
-	reference_number VARCHAR(100),
-    customer_id INT UNSIGNED,
-    department_id INT UNSIGNED,
-    company_id INT UNSIGNED,
     transaction_type VARCHAR(100) NOT NULL,
-    particulars VARCHAR(2000),
-    disbursement_amount DOUBLE,
-    disburse_status VARCHAR(100) NOT NULL DEFAULT 'Posted',
+    fund_source VARCHAR(100) NOT NULL,
+    particulars VARCHAR(5000),
+    disburse_status VARCHAR(100) NOT NULL DEFAULT 'Draft',
     reversal_date DATETIME,
     reversal_reason VARCHAR(500),
     cancellation_date DATETIME,
     cancellation_reason VARCHAR(500),
     posted_date DATETIME,
+    created_by INT UNSIGNED NOT NULL,
 	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
@@ -5838,3 +5835,22 @@ CREATE TABLE disbursement(
 
 CREATE INDEX disbursement_index_disbursement_id ON disbursement(disbursement_id);
 CREATE INDEX disbursement_index_transaction_date ON disbursement(transaction_date);
+
+DROP TABLE disbursement_particulars;
+CREATE TABLE disbursement_particulars(
+	disbursement_particulars_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	disbursement_id INT UNSIGNED NOT NULL,
+    chart_of_account_id INT UNSIGNED,
+    remarks VARCHAR(5000),
+	customer_id INT UNSIGNED,
+	department_id INT UNSIGNED,
+	company_id INT UNSIGNED,
+    particulars_amount DOUBLE,
+    created_by INT UNSIGNED NOT NULL,
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX particulars_index_disbursement_particulars_id ON disbursement_particulars(disbursement_particulars_id);
+CREATE INDEX particulars_index_disbursement_id ON disbursement_particulars(disbursement_id);

@@ -111,13 +111,9 @@
                     </th>
                     <th>CDV Date</th>
                     <th>Transaction No.</th>
-                    <th>Customer</th>
                     <th>Transaction Type</th>
-                    <th>Department</th>
-                    <th>Company</th>
+                    <th>Fund Source</th>
                     <th>Particulars</th>
-                    <th>Amount</th>
-                    <th>Reference No.</th>
                     <th>Actions</th>
                   </tr>
                 </thead>

@@ -11522,6 +11522,14 @@ BEGIN
     ORDER BY chart_of_account_id;
 END //
 
+CREATE PROCEDURE generateChartOfAccountDisbursementOptions()
+BEGIN
+    SELECT chart_of_account_id, code, name
+    FROM chart_of_account
+    WHERE account_type NOT IN ('Equity')
+    ORDER BY chart_of_account_id;
+END //
+
 CREATE PROCEDURE generateUnlinkedContactOptions()
 BEGIN
 	SELECT contact_id, file_as FROM personal_information 
@@ -11894,6 +11902,7 @@ BEGIN
 END//
 
 
+
 CREATE PROCEDURE checkDisbursementExist (IN p_disbursement_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
@@ -11901,27 +11910,50 @@ BEGIN
     WHERE disbursement_id = p_disbursement_id;
 END //
 
-CREATE PROCEDURE insertDisbursement(IN p_transaction_number VARCHAR(100), IN p_reference_number VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_type VARCHAR(100), IN p_particulars VARCHAR(2000), IN p_disbursement_amount DOUBLE, IN p_last_log_by INT, OUT p_disbursement_id INT)
+CREATE PROCEDURE checkDisbursementParticularsExist (IN p_disbursement_particulars_id INT)
 BEGIN
-    INSERT INTO disbursement (transaction_number, reference_number, customer_id, department_id, company_id, transaction_type, particulars, disbursement_amount, created_by, last_log_by) 
-	VALUES(p_transaction_number, p_reference_number, p_customer_id, p_department_id, p_company_id, p_transaction_type, p_particulars, p_disbursement_amount, p_last_log_by, p_last_log_by);
+	SELECT COUNT(*) AS total
+    FROM disbursement_particulars
+    WHERE disbursement_particulars_id = p_disbursement_particulars_id;
+END //
+
+CREATE PROCEDURE insertDisbursement(IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT, OUT p_disbursement_id INT)
+BEGIN
+    INSERT INTO disbursement (transaction_number, transaction_type, fund_source, particulars, created_by, last_log_by) 
+	VALUES(p_transaction_number, p_transaction_type, p_fund_source, p_particulars, p_last_log_by, p_last_log_by);
 	
     SET p_disbursement_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateDisbursement(IN p_disbursement_id INT, IN p_transaction_number VARCHAR(100), IN p_reference_number VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_type VARCHAR(100), IN p_particulars VARCHAR(2000), IN p_disbursement_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertDisbursementParticulars(IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_remarks VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO disbursement_particulars (disbursement_id, chart_of_account_id, remarks, customer_id, department_id, company_id, particulars_amount, created_by, last_log_by) 
+	VALUES(p_disbursement_id, p_chart_of_account_id, p_remarks, p_customer_id, p_department_id, p_company_id, p_particulars_amount, p_last_log_by, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateDisbursement(IN p_disbursement_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
 	UPDATE disbursement
     SET transaction_number = p_transaction_number,
-        reference_number = p_reference_number,
+        transaction_type = p_transaction_type,
+        fund_source = p_fund_source,
+        particulars = p_particulars,
+        last_log_by = p_last_log_by
+    WHERE disbursement_id = p_disbursement_id;
+END //
+
+CREATE PROCEDURE updateDisbursementParticulars(IN p_disbursement_particulars_id INT, IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_remarks VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+    UPDATE disbursement_particulars
+    SET disbursement_id = p_disbursement_id,
+        chart_of_account_id = p_chart_of_account_id,
+        remarks = p_remarks,
         customer_id = p_customer_id,
         department_id = p_department_id,
         company_id = p_company_id,
-        transaction_type = p_transaction_type,
-        particulars = p_particulars,
-        disbursement_amount = p_disbursement_amount,
+        particulars_amount = p_particulars_amount,
         last_log_by = p_last_log_by
-    WHERE disbursement_id = p_disbursement_id;
+    WHERE disbursement_particulars_id = p_disbursement_particulars_id;
 END //
 
 CREATE PROCEDURE deleteDisbursement(IN p_disbursement_id INT)
@@ -11929,9 +11961,26 @@ BEGIN
     DELETE FROM disbursement WHERE disbursement_id = p_disbursement_id;
 END //
 
+CREATE PROCEDURE deleteDisbursementParticulars(IN p_disbursement_particulars_id INT)
+BEGIN
+    DELETE FROM disbursement_particulars WHERE disbursement_particulars_id = p_disbursement_particulars_id;
+END //
+
 CREATE PROCEDURE getDisbursement(IN p_disbursement_id INT)
 BEGIN
 	SELECT * FROM disbursement
+    WHERE disbursement_id = p_disbursement_id;
+END //
+
+CREATE PROCEDURE getDisbursementParticulars(IN p_disbursement_particulars_id INT)
+BEGIN
+	SELECT * FROM disbursement_particulars
+    WHERE disbursement_particulars_id = p_disbursement_particulars_id;
+END //
+
+CREATE PROCEDURE getDisbursementTotal(IN p_disbursement_id INT)
+BEGIN
+	SELECT SUM(particulars_amount) AS total FROM disbursement_particulars
     WHERE disbursement_id = p_disbursement_id;
 END //
 
@@ -11959,6 +12008,11 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateDisbursementParticularsTable( IN p_disbursement_id INT)
+BEGIN
+    SELECT * FROM disbursement_particulars WHERE 
+    disbursement_id = p_disbursement_id;
+END //
 
 CREATE PROCEDURE updateDisbursementStatus(IN p_disbursement_id INT, IN p_disburse_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_last_log_by INT)
 BEGIN
@@ -11968,6 +12022,20 @@ BEGIN
         posted_date = NOW(),
         last_log_by = p_last_log_by
         WHERE disbursement_id = p_disbursement_id AND disburse_status IN('Draft');
+    ELSEIF p_disburse_status = 'Cancelled' THEN
+        UPDATE disbursement
+        SET disburse_status = p_disburse_status,
+        cancellation_date = NOW(),
+        cancellation_reason = p_reason,
+        last_log_by = p_last_log_by
+        WHERE disbursement_id = p_disbursement_id AND disburse_status IN('Draft');
+    ELSEIF p_disburse_status = 'Reversed' THEN
+        UPDATE disbursement
+        SET disburse_status = p_disburse_status,
+        reversal_date = NOW(),
+        reversal_reason = p_reason,
+        last_log_by = p_last_log_by
+        WHERE disbursement_id = p_disbursement_id AND disburse_status IN('Posted');
     ELSE
         UPDATE disbursement
         SET disburse_status = p_disburse_status,

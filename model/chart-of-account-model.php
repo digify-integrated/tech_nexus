@@ -199,5 +199,22 @@ class ChartOfAccountModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+    public function generateChartOfAccountDisbursementOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateChartOfAccountDisbursementOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $chartOfAccountID = $row['chart_of_account_id'];
+            $name = $row['name'];
+            $code = $row['code'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($chartOfAccountID, ENT_QUOTES) . '">' . $name .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

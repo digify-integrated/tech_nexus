@@ -16,7 +16,19 @@
                  <li><a href="print-disbursement-voucher.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print Voucher</a></li>';
              
                     if ($postDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
-                        $dropdown .= '<li><button class="dropdown-item" type="button" id="post-disbursement">Post Disbursement</button></li>';
+                      $dropdown .= '<li><button class="dropdown-item" type="button" id="post-disbursement">Post Disbursement</button></li>';
+                    }
+             
+                    if ($postDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
+                      $dropdown .= '<li><button class="dropdown-item" type="button" id="post-disbursement">Post Disbursement</button></li>';
+                    }
+             
+                    if ($cancelDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
+                      $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-disbursement-offcanvas" aria-controls="cancel-disbursement-offcanvas" id="cancel-disbursement">Cancel Disbursement</button></li>';
+                    }
+             
+                    if ($reverseDisbursement['total'] > 0 && $disbursementStatus == 'Posted') {
+                      $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#reverse-disbursement-offcanvas" aria-controls="reverse-disbursement-offcanvas" id="reverse-disbursement">Reverse Disbursement</button></li>';
                     }
              
                     if ($disbursementDeleteAccess['total'] > 0) {
@@ -43,67 +55,35 @@
       </div>
       <div class="card-body">
         <form id="disbursement-form" method="post" action="#">
-            <?php
-                $disabled = 'disabled';
-                if ($disbursementWriteAccess['total'] > 0 && $disbursementStatus == 'Draft') {
-                    $disabled = '';
-                }
-            ?>
-            <div class="form-group row">
-              <label class="col-lg-2 col-form-label">CDV Number <span class="text-danger">*</span></label>
-              <div class="col-lg-4">
-                <input type="text" class="form-control" id="transaction_number" name="transaction_number" maxlength="200" autocomplete="off" readonly>
-              </div>
-              <label class="col-lg-2 col-form-label">Reference Number</label>
-              <div class="col-lg-4">
-                <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
-              </div>
-            </div>
-            <div class="form-group row">
-              <label class="col-lg-2 col-form-label">Transaction Type <span class="text-danger">*</span></label>
-              <div class="col-lg-4">
-                <select class="form-control select2" name="transaction_type" id="transaction_type" <?php echo $disabled; ?>>
-                  <option value="">--</option>
-                  <option value="Fund Encashment">Fund Encashment</option>
-                  <option value="Fund Replenishment">Fund Replenishment</option>
-                  <option value="Replenishment">Replenishment</option>
-                  <option value="Encashment">Encashment</option>
-                  <option value="Disbursement">Disbursement</option>
-                  <option value="Liquidation">Liquidation</option>
-                  <option value="Liquidation RF">Liquidation RF</option>
-                  <option value="Disbursement - Liquidation">Disbursement - Liquidation</option>
-                  <option value="Disbursement - Liquidation RF">Disbursement - Liquidation</option>
-                  <option value="Disbursement - Noncash">Disbursement - Noncash</option>
-                </select>
-              </div>
-              <label class="col-lg-2 col-form-label">Customer</label>
-              <div class="col-lg-4">
-                <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
-                  <option value="">--</option>
-                  <?php echo $customerModel->generateAllContactsOptions(); ?>
-                </select>
-              </div>
-            </div>
+          <?php
+            $disabled = 'disabled';
+            if ($disbursementWriteAccess['total'] > 0 && $disbursementStatus == 'Draft') {
+              $disabled = '';
+            }
+          ?>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Department</label>
-            <div class="col-lg-4">
-              <select class="form-control select2" name="department_id" id="department_id" <?php echo $disabled; ?>>
-                <option value="">--</option>
-                <?php echo $departmentModel->generateDepartmentOptions(); ?>
-               </select>
-            </div>
-            <label class="col-lg-2 col-form-label">Company</label>
-            <div class="col-lg-4">
-              <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
-                <option value="">--</option>
-                <?php echo $companyModel->generateCompanyOptions(); ?>
-               </select>
+            <label class="col-lg-2 col-form-label">CDV Number <span class="text-danger">*</span></label>
+            <div class="col-lg-10">
+              <input type="text" class="form-control" id="transaction_number" name="transaction_number" maxlength="200" autocomplete="off" readonly>
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Payment Amount <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Transaction Type <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-                <input type="number" class="form-control" id="disbursement_amount" name="disbursement_amount" min="0" step="0.01" <?php echo $disabled; ?>>
+              <select class="form-control select2" name="transaction_type" id="transaction_type" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <option value="Replenishment">Replenishment</option>
+                <option value="Disbursement">Disbursement</option>
+               </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Fund Source <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="fund_source" id="fund_source" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <option value="Petty Cash">Petty Cash</option>
+                <option value="Revolving Fund">Revolving Fund</option>
+                <option value="Check">Check</option>
+               </select>
             </div>
           </div>
           <div class="form-group row">
@@ -115,18 +95,53 @@
         </form>
       </div>
     </div>
+
+    <div class="card table-card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Particulars</h5>
+          </div>
+          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+              <?php 
+                if ($disbursementWriteAccess['total'] > 0 && $disbursementStatus == 'Draft') {
+                  echo '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#particulars-offcanvas" aria-controls="particulars-offcanvas" id="add-particulars">Add Particulars</button>';
+                }
+              ?>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="dt-responsive table-responsive">
+          <table id="particulars-table" class="table table-hover nowrap w-100 dataTable">
+            <thead>
+              <tr>
+                <th>Particulars</th>
+                <th class="all">Customer</th>
+                <th class="all">Department</th>
+                <th class="all">Company</th>
+                <th class="all">Amount</th>
+                <th class="all">Remarks</th>
+                <th class="all">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="disbursement-cancel-offcanvas" aria-labelledby="disbursement-cancel-offcanvas-label">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cancel-disbursement-offcanvas" aria-labelledby="cancel-disbursement-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="disbursement-cancel-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Disbursement</h2>
+        <h2 id="cancel-disbursement-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Disbursement</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="disbursement-cancel-form" method="post" action="#">
+          <form id="cancel-disbursement-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Cancellation Reason <span class="text-danger">*</span></label>
@@ -138,7 +153,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-disbursement-cancel" form="disbursement-cancel-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-cancel-disbursement" form="cancel-disbursement-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
@@ -146,15 +161,86 @@
   </div>
 
   <div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="disbursement-reverse-offcanvas" aria-labelledby="disbursement-reverse-offcanvas-label">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="particulars-offcanvas" aria-labelledby="particulars-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="disbursement-reverse-offcanvas-label" style="margin-bottom:-0.5rem">Reverse Disbursement</h2>
+        <h2 id="particulars-offcanvas-label" style="margin-bottom:-0.5rem">Particulars</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="disbursement-reverse-form" method="post" action="#">
+          <form id="particulars-form" method="post" action="#">
+            <input type="hidden" id="disbursement_particulars_id" name="disbursement_particulars_id">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Customer</label>
+                <select class="form-control offcanvas-select2" name="customer_id" id="customer_id">
+                  <option value="">--</option>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Department</label>
+                <select class="form-control offcanvas-select2" name="department_id" id="department_id">
+                  <option value="">--</option>
+                  <?php echo $departmentModel->generateDepartmentOptions(); ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Company</label>
+                <select class="form-control offcanvas-select2" name="company_id" id="company_id">
+                  <option value="">--</option>
+                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Particulars <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="chart_of_account_id" id="chart_of_account_id">
+                  <option value="">--</option>
+                  <?php echo $chartOfAccountModel->generateChartOfAccountDisbursementOptions(); ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Amount <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="particulars_amount" name="particulars_amount" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Remarks</label>
+                <textarea class="form-control" id="remarks" name="remarks" maxlength="5000"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-particulars" form="particulars-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="reverse-disbursement-offcanvas" aria-labelledby="reverse-disbursement-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="reverse-disbursement-offcanvas-label" style="margin-bottom:-0.5rem">Reverse Disbursement</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="reverse-disbursement-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Reversal Remarks <span class="text-danger">*</span></label>
@@ -166,7 +252,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-disbursement-reverse" form="disbursement-reverse-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-reverse-disbursement" form="reverse-disbursement-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

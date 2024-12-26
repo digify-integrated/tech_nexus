@@ -104,6 +104,8 @@
         $disbursement_amount = $disbursementDetails['disbursement_amount'];
         $customer_id = $disbursementDetails['customer_id'];
 
+        $disbursementTotal = $disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
+
         $customerDetails = $customerModel->getPersonalInformation($customer_id);
 
         $customerName = strtoupper($customerDetails['file_as']) ?? null;
@@ -126,7 +128,7 @@
                         </tr>
                         <tr>
                             <td colspan="3" style="text-align: left">'. $particulars .'<br/><br/><br/><br/><br/><br/><br/><br/><br/></td>
-                            <td style="text-align: center">'. number_format($disbursement_amount, 2) .'</td>
+                            <td style="text-align: center">'. number_format($disbursementTotal, 2) .'</td>
                         </tr>
                         <tr>
                             <td style="text-align: left"><b>Prepared by:</b><br/>'. $createdByName .'</td>
