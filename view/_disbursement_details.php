@@ -19,10 +19,6 @@
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="post-disbursement">Post Disbursement</button></li>';
                     }
              
-                    if ($postDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
-                      $dropdown .= '<li><button class="dropdown-item" type="button" id="post-disbursement">Post Disbursement</button></li>';
-                    }
-             
                     if ($cancelDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
                       $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-disbursement-offcanvas" aria-controls="cancel-disbursement-offcanvas" id="cancel-disbursement">Cancel Disbursement</button></li>';
                     }
