@@ -3,6 +3,7 @@
   $employmentStatus = $employmentDetails['employment_status'];
 
   $deactivateEmployee = $userModel->checkSystemActionAccessRights($user_id, 180);
+  $activateEmployee = $userModel->checkSystemActionAccessRights($user_id, 190);
   $portalAccessButton = '';
   if($grantPortalAccess['total'] > 0 && !$portalAccess){
     $portalAccessButton = '<button type="button" class="btn btn-outline-success w-100 text-center mb-2" id="grant-portal-access">Grant Portal Access</button>';
@@ -15,6 +16,10 @@
   $deactivateButton = '';
   if($deactivateEmployee['total'] > 0 && $employmentStatus){
     $deactivateButton = '<button type="button" class="btn btn-outline-warning w-100 text-center mb-2" data-bs-toggle="offcanvas" data-bs-target="#archive-employee-offcanvas" aria-controls="archive-employee-offcanvas" id="deactivate-employee">Archive Employee</button>';
+  }
+
+  if($activateEmployee['total'] > 0 && !$employmentStatus){
+    $deactivateButton = '<button type="button" class="btn btn-outline-warning w-100 text-center mb-2" data-bs-toggle="offcanvas" data-bs-target="#unarchive-employee-offcanvas" aria-controls="unarchive-employee-offcanvas" id="activate-employee">Unarchive Employee</button>';
   }
 
   $sendWelcomeEmail = '';
@@ -1553,6 +1558,38 @@
                             <div class="row">
                               <div class="col-lg-12">
                                 <button type="submit" class="btn btn-primary" id="submit-archive-employee" form="archive-employee-form">Submit</button>
+                                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="unarchive-employee-offcanvas" aria-labelledby="unarchive-employee-offcanvas-label">
+                          <div class="offcanvas-header">
+                            <h2 id="unarchive-employee-offcanvas-label" style="margin-bottom:-0.5rem">Unarchive Employee</h2>
+                            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                          </div>
+                          <div class="offcanvas-body">
+                            <div class="row">
+                              <div class="col-lg-12">
+                                <form id="unarchive-employee-form" method="post" action="#">
+                                  <div class="form-group row">
+                                    <div class="col-lg-12 mt-3 mt-lg-0">
+                                      <label class="form-label">Onboard Date <span class="text-danger">*</span></label>
+                                      <div class="input-group date">
+                                        <input type="text" class="form-control regular-datepicker" id="onboard_date" name="onboard_date" autocomplete="off">
+                                        <span class="input-group-text">
+                                          <i class="feather icon-calendar"></i>
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-lg-12">
+                                <button type="submit" class="btn btn-primary" id="submit-unarchive-employee" form="unarchive-employee-form">Submit</button>
                                 <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                               </div>
                             </div>

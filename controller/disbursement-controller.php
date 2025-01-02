@@ -157,6 +157,8 @@ class DisbursementController {
     
         $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
         $fund_source = $disbursementDetails['fund_source'];
+        $transaction_type = $disbursementDetails['transaction_type'];
+        $transaction_number = $disbursementDetails['transaction_number'];
 
         $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
         
@@ -165,27 +167,55 @@ class DisbursementController {
             exit;
         }
 
-        if($fund_source == 'Petty Cash'){
-            $systemSettingID = 20;
-
-            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $disbursementTotal;
-        
-            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
-                        
-            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
-        }
-        else if($fund_source == 'Revolving Fund'){
-            $systemSettingID = 21;
-
-            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $disbursementTotal;
-        
-            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
-                        
-            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+        if($transaction_type === 'Disbursement'){
+            if($fund_source == 'Petty Cash'){
+                $systemSettingID = 20;
+    
+                $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $disbursementTotal;
+            
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                            
+                $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+            }
+            else if($fund_source == 'Revolving Fund'){
+                $systemSettingID = 21;
+    
+                $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $disbursementTotal;
+            
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                            
+                $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+            }
+            else{
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+            }
         }
         else{
-            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+            if($fund_source == 'Petty Cash'){
+                $systemSettingID = 20;
+    
+                $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $disbursementTotal;
+            
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                            
+                $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+            }
+            else if($fund_source == 'Revolving Fund'){
+                $systemSettingID = 21;
+    
+                $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $disbursementTotal;
+            
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                            
+                $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+            }
+            else{
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+            }
         }
+
+        $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $userID);
+        $this->disbursementModel->createLiquidation($disbursementID, $userID, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -271,30 +301,62 @@ class DisbursementController {
 
         $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
         $fund_source = $disbursementDetails['fund_source'];
+        $transaction_type = $disbursementDetails['transaction_type'];
+        $transaction_number = $disbursementDetails['transaction_number'];
 
-        if($fund_source == 'Petty Cash'){
-            $systemSettingID = 20;
-            $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
-
-            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $disbursementTotal;
-        
-            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
-                        
-            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
-        }
-        else if($fund_source == 'Revolving Fund'){
-            $systemSettingID = 21;
-            $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
-
-            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $disbursementTotal;
-        
-            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
-                        
-            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+        if ($transaction_type === 'Disbursement') {
+            if($fund_source == 'Petty Cash'){
+                $systemSettingID = 20;
+                $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
+    
+                $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $disbursementTotal;
+            
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
+                            
+                $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+            }
+            else if($fund_source == 'Revolving Fund'){
+                $systemSettingID = 21;
+                $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
+    
+                $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $disbursementTotal;
+            
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
+                            
+                $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+            }
+            else{
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
+            }    
         }
         else{
-            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
-        }            
+            if($fund_source == 'Petty Cash'){
+                $systemSettingID = 20;
+                $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
+    
+                $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $disbursementTotal;
+            
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
+                            
+                $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+            }
+            else if($fund_source == 'Revolving Fund'){
+                $systemSettingID = 21;
+                $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
+    
+                $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $disbursementTotal;
+            
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
+                            
+                $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+            }
+            else{
+                $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Reversed', $reversalRemarks, $userID);
+            }    
+        }
+
+        $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'reversed', $userID);
+                
         echo json_encode(['success' => true]);
         exit;
     }
@@ -325,6 +387,9 @@ class DisbursementController {
         $transaction_type = $_POST['transaction_type'];
         $fund_source = $_POST['fund_source'];
         $particulars = $_POST['particulars'];
+        $customer_id = $_POST['customer_id'];
+        $department_id = $_POST['department_id'];
+        $company_id = $_POST['company_id'];
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -339,7 +404,7 @@ class DisbursementController {
         if ($total > 0) {
             $transaction_number = $_POST['transaction_number'];
 
-            $this->disbursementModel->updateDisbursement($disbursementID, $transaction_number, $transaction_type, $fund_source, $particulars, $userID);
+            $this->disbursementModel->updateDisbursement($disbursementID, $customer_id, $department_id, $company_id, $transaction_number, $transaction_type, $fund_source, $particulars, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'disbursementID' => $this->securityModel->encryptData($disbursementID)]);
             exit;
@@ -347,7 +412,7 @@ class DisbursementController {
         else {
             $transaction_number = $this->systemSettingModel->getSystemSetting(19)['value'] + 1;
 
-            $disbursementID = $this->disbursementModel->insertDisbursement($transaction_number, $transaction_type, $fund_source, $particulars, $userID);
+            $disbursementID = $this->disbursementModel->insertDisbursement($customer_id, $department_id, $company_id, $transaction_number, $transaction_type, $fund_source, $particulars, $userID);
 
             
             $this->systemSettingModel->updateSystemSettingValue(19, $transaction_number, $userID);
@@ -364,9 +429,6 @@ class DisbursementController {
         $userID = $_SESSION['user_id'];
         $disbursement_particulars_id = isset($_POST['disbursement_particulars_id']) ? htmlspecialchars($_POST['disbursement_particulars_id'], ENT_QUOTES, 'UTF-8') : null;
         $disbursement_id = $_POST['disbursement_id'];
-        $customer_id = $_POST['customer_id'];
-        $department_id = $_POST['department_id'];
-        $company_id = $_POST['company_id'];
         $chart_of_account_id = $_POST['chart_of_account_id'];
         $particulars_amount = $_POST['particulars_amount'];
         $remarks = $_POST['remarks'];
@@ -382,13 +444,13 @@ class DisbursementController {
         $total = $checkDisbursementExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->disbursementModel->updateDisbursementParticulars($disbursement_particulars_id, $disbursement_id, $chart_of_account_id, $remarks, $customer_id, $department_id, $company_id, $particulars_amount, $userID);
+            $this->disbursementModel->updateDisbursementParticulars($disbursement_particulars_id, $disbursement_id, $chart_of_account_id, $remarks, $particulars_amount, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->disbursementModel->insertDisbursementParticulars($disbursement_id, $chart_of_account_id, $remarks, $customer_id, $department_id, $company_id, $particulars_amount, $userID);
+            $this->disbursementModel->insertDisbursementParticulars($disbursement_id, $chart_of_account_id, $remarks, $particulars_amount, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -561,6 +623,9 @@ class DisbursementController {
                 'transactionNumber' => $disbursementDetails['transaction_number'],
                 'particulars' => $disbursementDetails['particulars'],
                 'transactionType' => $disbursementDetails['transaction_type'],
+                'customerID' => $disbursementDetails['customer_id'],
+                'departmentID' => $disbursementDetails['department_id'],
+                'companyID' => $disbursementDetails['company_id'],
                 'fundSource' => $disbursementDetails['fund_source']
             ];
 
@@ -591,9 +656,6 @@ class DisbursementController {
                 'success' => true,
                 'chartOfAccountID' => $disbursementDetails['chart_of_account_id'],
                 'remarks' => $disbursementDetails['remarks'],
-                'customerID' => $disbursementDetails['customer_id'],
-                'departmentID' => $disbursementDetails['department_id'],
-                'companyID' => $disbursementDetails['company_id'],
                 'particularsAmount' => $disbursementDetails['particulars_amount']
             ];
 

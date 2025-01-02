@@ -317,7 +317,8 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    window.location = '404.php';
+                                    showNotification('Delete Disbursement Particulars Error', 'The disbursement particulars does not exists.', 'danger');
+                                    reloadDatatable('#particulars-table');
                                 }
                                 else {
                                     showNotification('Delete Disbursement Particulars Error', response.message, 'danger');
@@ -376,6 +377,9 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
     const column = [
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'TRANSACTION_DATE' },
+        { 'data' : 'CUSTOMER_NAME' },
+        { 'data' : 'DEPARTMENT_NAME' },
+        { 'data' : 'COMPANY_NAME' },
         { 'data' : 'TRANSACTION_NUMBER' },
         { 'data' : 'TRANSACTION_TYPE' },
         { 'data' : 'FUND_SOURCE' },
@@ -390,7 +394,10 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': '15%','bSortable': false, 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': '15%','bSortable': false, 'aTargets': 9 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -443,9 +450,6 @@ function particularsTable(datatable_name, buttons = false, show_all = false){
 
     const column = [
         { 'data' : 'PARTICULARS' },
-        { 'data' : 'CUSTOMER_NAME' },
-        { 'data' : 'DEPARTMENT_NAME' },
-        { 'data' : 'COMPANY_NAME' },
         { 'data' : 'PARTICULAR_AMOUNT' },
         { 'data' : 'REMARKS' },
         { 'data' : 'ACTION' }
@@ -455,10 +459,7 @@ function particularsTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
-        { 'width': 'auto', 'aTargets': 4 },
-        { 'width': 'auto', 'aTargets': 5 },
-        { 'width': '15%','bSortable': false, 'aTargets': 6 },
+        { 'width': '15%','bSortable': false, 'aTargets': 3 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -505,6 +506,12 @@ function particularsTable(datatable_name, buttons = false, show_all = false){
 function disbursementForm(){
     $('#disbursement-form').validate({
         rules: {
+            customer_id: {
+                required: true
+            },
+            company_id: {
+                required: true
+            },
             transaction_type: {
                 required: true
             },
@@ -519,6 +526,12 @@ function disbursementForm(){
             }
         },
         messages: {
+            customer_id: {
+                required: 'Please choose the customer'
+            },
+            company_id: {
+                required: 'Please choose the company'
+            },
             transaction_type: {
                 required: 'Please choose the mode of payment'
             },
@@ -903,6 +916,9 @@ function displayDetails(transaction){
 
                         checkOptionExist('#transaction_type', response.transactionType, '');
                         checkOptionExist('#fund_source', response.fundSource, '');
+                        checkOptionExist('#customer_id', response.customerID, '');
+                        checkOptionExist('#department_id', response.departmentID, '');
+                        checkOptionExist('#company_id', response.companyID, '');
                     } 
                     else {
                         if(response.isInactive){
@@ -939,9 +955,7 @@ function displayDetails(transaction){
                         $('#particulars_amount').val(response.particularsAmount);
                         $('#remarks').val(response.remarks);
 
-                        checkOptionExist('#customer_id', response.customerID, '');
-                        checkOptionExist('#department_id', response.departmentID, '');
-                        checkOptionExist('#company_id', response.companyID, '');
+                       
                         checkOptionExist('#chart_of_account_id', response.chartOfAccountID, '');
                     } 
                     else {

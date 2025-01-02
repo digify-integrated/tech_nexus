@@ -194,6 +194,10 @@
             archiveEmployeeForm();
         }
 
+        if($('#unarchive-employee-form').length){
+            unarchiveEmployeeForm();
+        }
+
         if($('#employment-information-form').length){
             employmentInformationForm();
         }
@@ -2409,6 +2413,94 @@ function archiveEmployeeForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-archive-employee', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function unarchiveEmployeeForm(){
+    $('#unarchive-employee-form').validate({
+        rules: {
+            onboard_date: {
+                required: true
+            },
+        },
+        messages: {
+            onboard_date: {
+                required: 'Please choose the onboard date'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'unarchive employee';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-unarchive-employee');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Unarchive Employee Success';
+                        const notificationDescription = 'The employee has been unarchived successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-unarchive-employee', 'Save');
                 }
             });
         

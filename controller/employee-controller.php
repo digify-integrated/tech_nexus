@@ -21,6 +21,7 @@ class EmployeeController {
     private $jobPositionModel;
     private $employeeTypeModel;
     private $jobLevelModel;
+    private $branchModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
     private $genderModel;
@@ -116,6 +117,9 @@ class EmployeeController {
                     break;
                 case 'archive employee':
                     $this->archiveEmployee();
+                    break;
+                case 'unarchive employee':
+                    $this->unarchiveEmployee();
                     break;
                 case 'send welcome email':
                     $this->sendWelcomeEmail();
@@ -2491,6 +2495,38 @@ class EmployeeController {
     
         $this->employeeModel->archiveEmployee($employeeID, $offboardDate, $departureReasonID, $detailedDepartureReason, $userID);
         $this->sendArchiveEmail1($contactImage, $fileAs, $nickname, $companyName, $departmentName, $jobPositionName, $email, $mobile, $onboardDate, $offboardDate2);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    public function unarchiveEmployee() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $onboardDate = $this->systemModel->checkDate('empty', $_POST['onboard_date'], '', 'Y-m-d', '');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkEmployeeExist = $this->employeeModel->checkEmployeeExist($employeeID);
+        $total = $checkEmployeeExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+        
+        $this->employeeModel->unarchiveEmployee($employeeID, $onboardDate, $userID);
             
         echo json_encode(['success' => true]);
         exit;

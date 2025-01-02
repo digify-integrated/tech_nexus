@@ -60,14 +60,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $disbursementID = $row['disbursement_id'];
                 $transaction_date = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y', '');
                 $transaction_number = $row['transaction_number'];
-                $reference_number = $row['reference_number'];
-                $customer_id = $row['customer_id'];
-                $department_id = $row['department_id'];
-                $company_id = $row['company_id'];
                 $transaction_type = $row['transaction_type'];
                 $fund_source = $row['fund_source'];
                 $particulars = $row['particulars'];
-                $disbursement_amount = $row['disbursement_amount'];
+                $customer_id = $row['customer_id'];
+                $department_id = $row['department_id'];
+                $company_id = $row['company_id'];
+
+                $disbursementIDEncrypted = $securityModel->encryptData($disbursementID);
 
                 $customerDetails = $customerModel->getPersonalInformation($customer_id);
                 $customerName = $customerDetails['file_as'] ?? null;
@@ -78,11 +78,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $companyDetails = $companyModel->getCompany($company_id);
                 $companyName = $companyDetails['company_name'] ?? null;
 
-                $disbursementIDEncrypted = $securityModel->encryptData($disbursementID);
-
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $disbursementID .'">',
                     'TRANSACTION_DATE' => $transaction_date,
+                    'CUSTOMER_NAME' => $customerName,
+                    'DEPARTMENT_NAME' => $departmentName,
+                    'COMPANY_NAME' => $companyName,
                     'TRANSACTION_NUMBER' => $transaction_number,
                     'TRANSACTION_TYPE' => $transaction_type,
                     'FUND_SOURCE' => $fund_source,
@@ -92,7 +93,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
-                    ];
+                ];
             }
 
             echo json_encode($response);
@@ -113,23 +114,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             foreach ($options as $row) {
                 $disbursement_particulars_id = $row['disbursement_particulars_id'];
                 $chart_of_account_id = $row['chart_of_account_id'];
-                $customer_id = $row['customer_id'];
-                $department_id = $row['department_id'];
-                $company_id = $row['company_id'];
                 $remarks = $row['remarks'];
                 $particulars_amount = $row['particulars_amount'];
 
                 $chartOfAccountDetails = $chartOfAccountModel->getChartOfAccount($chart_of_account_id);
                 $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
-
-                $customerDetails = $customerModel->getPersonalInformation($customer_id);
-                $customerName = $customerDetails['file_as'] ?? null;
-
-                $departmentDetails = $departmentModel->getDepartment($department_id);
-                $departmentName = $departmentDetails['department_name'] ?? null;
-
-                $companyDetails = $companyModel->getCompany($company_id);
-                $companyName = $companyDetails['company_name'] ?? null;
 
                 $action = '';
                 if($disburse_status == 'Draft'){
@@ -147,9 +136,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'PARTICULARS' => $chartOfAccountName,
-                    'CUSTOMER_NAME' => $customerName,
-                    'DEPARTMENT_NAME' => $departmentName,
-                    'COMPANY_NAME' => $companyName,
                     'PARTICULAR_AMOUNT' => number_format($particulars_amount, 2),
                     'REMARKS' => $remarks,
                     'ACTION' => $action

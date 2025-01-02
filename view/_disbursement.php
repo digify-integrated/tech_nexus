@@ -110,6 +110,9 @@
                       </div>
                     </th>
                     <th>CDV Date</th>
+                    <th>Customer</th>
+                    <th>Department</th>
+                    <th>Company</th>
                     <th>Transaction No.</th>
                     <th>Transaction Type</th>
                     <th>Fund Source</th>

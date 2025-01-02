@@ -19,6 +19,29 @@
       <div class="card-body">
         <form id="disbursement-form" method="post" action="#">
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="customer_id" id="customer_id">
+                  <option value="">--</option>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
+                </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Department</label>
+            <div class="col-lg-4">
+            <select class="form-control select2" name="department_id" id="department_id">
+                  <option value="">--</option>
+                  <?php echo $departmentModel->generateDepartmentOptions(); ?>
+                </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+            <select class="form-control select2" name="company_id" id="company_id">
+                  <option value="">--</option>
+                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                </select>
+            </div>
             <label class="col-lg-2 col-form-label">Transaction Type <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="transaction_type" id="transaction_type">
@@ -27,6 +50,8 @@
                 <option value="Disbursement">Disbursement</option>
                </select>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Fund Source <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="fund_source" id="fund_source">

@@ -64,14 +64,39 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="customer_id" id="customer_id">
+                  <option value="">--</option>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
+                </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Department</label>
+            <div class="col-lg-4">
+            <select class="form-control select2" name="department_id" id="department_id">
+                  <option value="">--</option>
+                  <?php echo $departmentModel->generateDepartmentOptions(); ?>
+                </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+            <select class="form-control select2" name="company_id" id="company_id">
+                  <option value="">--</option>
+                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                </select>
+            </div>
             <label class="col-lg-2 col-form-label">Transaction Type <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <select class="form-control select2" name="transaction_type" id="transaction_type" <?php echo $disabled; ?>>
+              <select class="form-control select2" name="transaction_type" id="transaction_type">
                 <option value="">--</option>
                 <option value="Replenishment">Replenishment</option>
                 <option value="Disbursement">Disbursement</option>
                </select>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Fund Source <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="fund_source" id="fund_source" <?php echo $disabled; ?>>
@@ -113,9 +138,6 @@
             <thead>
               <tr>
                 <th>Particulars</th>
-                <th class="all">Customer</th>
-                <th class="all">Department</th>
-                <th class="all">Company</th>
                 <th class="all">Amount</th>
                 <th class="all">Remarks</th>
                 <th class="all">Actions</th>
@@ -167,33 +189,6 @@
         <div class="col-lg-12">
           <form id="particulars-form" method="post" action="#">
             <input type="hidden" id="disbursement_particulars_id" name="disbursement_particulars_id">
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Customer</label>
-                <select class="form-control offcanvas-select2" name="customer_id" id="customer_id">
-                  <option value="">--</option>
-                  <?php echo $customerModel->generateAllContactsOptions(); ?>
-                </select>
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Department</label>
-                <select class="form-control offcanvas-select2" name="department_id" id="department_id">
-                  <option value="">--</option>
-                  <?php echo $departmentModel->generateDepartmentOptions(); ?>
-                </select>
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Company</label>
-                <select class="form-control offcanvas-select2" name="company_id" id="company_id">
-                  <option value="">--</option>
-                  <?php echo $companyModel->generateCompanyOptions(); ?>
-                </select>
-              </div>
-            </div>
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Particulars <span class="text-danger">*</span></label>

@@ -337,7 +337,7 @@ class PDCManagementController {
             $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
             $checkDate = date('m-d-Y', strtotime($pdcManagementDetails['check_date']));
 
-            if($checkDate <= $currentDate){
+            if(strtotime($checkDate) <= strtotime($currentDate)){
                 $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', '', '', $userID);
             }
         }
