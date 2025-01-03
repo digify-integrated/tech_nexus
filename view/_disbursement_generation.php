@@ -66,11 +66,32 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $customer_id = $row['customer_id'];
                 $department_id = $row['department_id'];
                 $company_id = $row['company_id'];
+                $disburse_status = $row['disburse_status'];
+                $payable_type = $row['payable_type'];
+
+                if($disburse_status === 'Draft'){
+                    $disburse_status = '<span class="badge bg-secondary">' . $disburse_status . '</span>';
+                }
+                else if($disburse_status === 'Cancelled'){
+                    $disburse_status = '<span class="badge bg-warning">' . $disburse_status . '</span>';
+                }
+                else if($disburse_status === 'Reversed'){
+                    $disburse_status = '<span class="badge bg-danger">' . $disburse_status . '</span>';
+                }
+                else{
+                    $disburse_status = '<span class="badge bg-success">' . $disburse_status . '</span>';
+                }
+
+                if($payable_type === 'Customer'){
+                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                    $customerName = $customerDetails['file_as'] ?? null;
+                }
+                else{
+                    $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+                    $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+                }
 
                 $disbursementIDEncrypted = $securityModel->encryptData($disbursementID);
-
-                $customerDetails = $customerModel->getPersonalInformation($customer_id);
-                $customerName = $customerDetails['file_as'] ?? null;
 
                 $departmentDetails = $departmentModel->getDepartment($department_id);
                 $departmentName = $departmentDetails['department_name'] ?? null;
@@ -81,13 +102,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $disbursementID .'">',
                     'TRANSACTION_DATE' => $transaction_date,
-                    'CUSTOMER_NAME' => $customerName,
+                    'CUSTOMER_NAME' => '<a href="disbursement.php?id='. $disbursementIDEncrypted .'" title="View Details">
+                                        '. $customerName .'
+                                    </a>',
                     'DEPARTMENT_NAME' => $departmentName,
                     'COMPANY_NAME' => $companyName,
                     'TRANSACTION_NUMBER' => $transaction_number,
                     'TRANSACTION_TYPE' => $transaction_type,
                     'FUND_SOURCE' => $fund_source,
                     'PARTICULARS' => $particulars,
+                    'STATUS' => $disburse_status,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="disbursement.php?id='. $disbursementIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>

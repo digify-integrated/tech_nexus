@@ -23,6 +23,10 @@
                       $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-disbursement-offcanvas" aria-controls="cancel-disbursement-offcanvas" id="cancel-disbursement">Cancel Disbursement</button></li>';
                     }
              
+                    if ($replenishmentDisbursement['total'] > 0 && $disbursementStatus == 'Posted') {
+                      $dropdown .= '<li><button class="dropdown-item" type="button" id="replenish-disbursement-details">Replenish Disbursement</button></li>';
+                    }
+             
                     if ($reverseDisbursement['total'] > 0 && $disbursementStatus == 'Posted') {
                       $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#reverse-disbursement-offcanvas" aria-controls="reverse-disbursement-offcanvas" id="reverse-disbursement">Reverse Disbursement</button></li>';
                     }
@@ -64,39 +68,52 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Payable Type <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-                <select class="form-control select2" name="customer_id" id="customer_id">
+                <select class="form-control select2" name="payable_type" id="payable_type" <?php echo $disabled; ?>>
+                  <option value="Customer" selected>Customer</option>
+                  <option value="Miscellaneous">Miscellaneous</option>
+                </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
+            <div class="col-lg-4" id="customer-select">
+                <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
             </div>
-            <label class="col-lg-2 col-form-label">Department</label>
-            <div class="col-lg-4">
-            <select class="form-control select2" name="department_id" id="department_id">
+            <div class="col-lg-4 d-none" id="misc-select">
+                <select class="form-control select2" name="misc_id" id="misc_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
-                  <?php echo $departmentModel->generateDepartmentOptions(); ?>
+                  <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>
                 </select>
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Department</label>
+            <div class="col-lg-4">
+            <select class="form-control select2" name="department_id" id="department_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $departmentModel->generateDepartmentOptions(); ?>
+                </select>
+            </div>
             <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-            <select class="form-control select2" name="company_id" id="company_id">
+            <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $companyModel->generateCompanyOptions(); ?>
                 </select>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Transaction Type <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <select class="form-control select2" name="transaction_type" id="transaction_type">
+              <select class="form-control select2" name="transaction_type" id="transaction_type" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <option value="Replenishment">Replenishment</option>
                 <option value="Disbursement">Disbursement</option>
                </select>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Fund Source <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="fund_source" id="fund_source" <?php echo $disabled; ?>>

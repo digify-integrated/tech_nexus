@@ -5871,7 +5871,8 @@ CREATE INDEX liquidation_index_disbursement_particulars_id ON liquidation(disbur
 CREATE INDEX liquidation_index_disbursement_id ON liquidation(disbursement_id);
 
 CREATE TABLE liquidation_particulars(
-	liquidation_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	liquidation_particulars_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	liquidation_id INT UNSIGNED NOT NULL,
 	particulars VARCHAR(500) NOT NULL,
     particulars_amount DOUBLE,
 	reference_type VARCHAR(100) NOT NULL,
@@ -5883,4 +5884,5 @@ CREATE TABLE liquidation_particulars(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
-CREATE INDEX liquidation_index_liquidation_particulars_id ON liquidation_particulars(liquidation_id);
+CREATE INDEX liquidation_index_liquidation_particulars_id ON liquidation_particulars(liquidation_particulars_id);
+CREATE INDEX liquidation_index_liquidation_id ON liquidation_particulars(liquidation_id);

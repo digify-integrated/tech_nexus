@@ -152,6 +152,73 @@
                 showNotification('Deletion Multiple Disbursement Error', 'Please select the disbursement you wish to delete.', 'danger');
             }
         });
+        
+        $(document).on('click','#replenish-disbursement',function() {
+            let disbursement_id = [];
+            const transaction = 'replenish multiple disbursement';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    disbursement_id.push(element.value);
+                }
+            });
+    
+            if(disbursement_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple Deposit Replenishment',
+                    text: 'Are you sure you want to replenish these disbursement?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Replenish',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/disbursement-controller.php',
+                            dataType: 'json',
+                            data: {
+                                disbursement_id: disbursement_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Replenish Deposits Success', 'The selected disbursement have been replenished successfully.', 'success');
+                                    reloadDatatable('#disbursement-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Replenish Deposits Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Deletion Multiple Deposits Error', 'Please select the deposits you wish to delete.', 'danger');
+            }
+        });
 
         $(document).on('click','#delete-disbursement-details',function() {
             const disbursement_id = $('#disbursement-id').text();
@@ -192,6 +259,61 @@
                                 }
                                 else {
                                     showNotification('Delete Disbursement Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#replenish-disbursement-details',function() {
+            const disbursement_id = $('#disbursement-id').text();
+            const transaction = 'replenish disbursement';
+    
+            Swal.fire({
+                title: 'Confirm Disbursement Replenishment',
+                text: 'Are you sure you want to replenish this disbursement?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Replenish',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/disbursement-controller.php',
+                        dataType: 'json',
+                        data: {
+                            disbursement_id : disbursement_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Replenish Disbursement Success', 'The disbursement has been replenished successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Replenish Disbursement Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -272,6 +394,20 @@
 
         $(document).on('click','#add-particulars',function() {
             resetModalForm('particulars-form');
+        });
+
+        $(document).on('change','#payable_type',function() {
+            checkOptionExist('#customer_id', '', '');
+            checkOptionExist('#misc_id', '', '');
+
+            if($(this).val() === 'Customer'){
+                $('#misc-select').addClass('d-none');
+                $('#customer-select').removeClass('d-none');
+            }
+            else{
+                $('#customer-select').addClass('d-none');
+                $('#misc-select').removeClass('d-none');
+            }
         });
 
         $(document).on('click','.update-disbursement-particulars',function() {
@@ -384,6 +520,7 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'TRANSACTION_TYPE' },
         { 'data' : 'FUND_SOURCE' },
         { 'data' : 'PARTICULARS' },
+        { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -397,7 +534,8 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
         { 'width': 'auto', 'aTargets': 8 },
-        { 'width': '15%','bSortable': false, 'aTargets': 9 }
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': '15%','bSortable': false, 'aTargets': 10 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -507,7 +645,18 @@ function disbursementForm(){
     $('#disbursement-form').validate({
         rules: {
             customer_id: {
-                required: true
+                required: {
+                    depends: function(element) {
+                        return $("select[name='payable_type']").val() === 'Customer';
+                    }
+                }
+            },
+            misc_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='payable_type']").val() === 'Miscellaneous';
+                    }
+                }
             },
             company_id: {
                 required: true
@@ -527,6 +676,9 @@ function disbursementForm(){
         },
         messages: {
             customer_id: {
+                required: 'Please choose the customer'
+            },
+            misc_id: {
                 required: 'Please choose the customer'
             },
             company_id: {
@@ -914,11 +1066,18 @@ function displayDetails(transaction){
                         $('#transaction_number').val(response.transactionNumber);
                         $('#particulars').val(response.particulars);
 
+                        checkOptionExist('#payable_type', response.payableType, '');
                         checkOptionExist('#transaction_type', response.transactionType, '');
                         checkOptionExist('#fund_source', response.fundSource, '');
-                        checkOptionExist('#customer_id', response.customerID, '');
                         checkOptionExist('#department_id', response.departmentID, '');
                         checkOptionExist('#company_id', response.companyID, '');
+
+                        if(response.payableType === 'Customer'){
+                            checkOptionExist('#customer_id', response.customerID, '');
+                        }
+                        else{
+                            checkOptionExist('#misc_id', response.customerID, '');
+                        }
                     } 
                     else {
                         if(response.isInactive){

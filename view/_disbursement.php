@@ -1,3 +1,94 @@
+<?php
+  $pettyCashFundUnreplenished = $disbursementModel->getUnreplishedDisbursement('Petty Cash')['total'] ?? 0;
+  $revolvingFundUnreplenished = $disbursementModel->getUnreplishedDisbursement('Revolving Fund')['total'] ?? 0;
+
+  $pettyCashFund = $systemSettingModel->getSystemSetting(20)['value'] ?? 0;
+  $revolvingFund = $systemSettingModel->getSystemSetting(21)['value'] ?? 0;
+
+  $maxPettyCashFund = $systemSettingModel->getSystemSetting(22)['value'] ?? 0;
+  $maxRevolvingFund = $systemSettingModel->getSystemSetting(23)['value'] ?? 0;
+
+  $pettyCashFundPercent = ($pettyCashFundUnreplenished / $maxPettyCashFund) * 100;
+  $revolvingFundPercent = ($revolvingFundUnreplenished / $maxRevolvingFund) * 100;
+?>
+
+<div class="row">
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-12">
+            <h3 class="mb-1"><?php echo number_format($pettyCashFund, 2); ?> Php</h3>
+            <p class="text-muted mb-0">Petty Cash Fund</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-12">
+            <h3 class="mb-1"><?php echo number_format($pettyCashFundUnreplenished, 2); ?> Php</h3>
+            <p class="text-muted mb-0">Unreplenished Petty Cash Fund</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>   
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-12">
+            <h3 class="mb-1"><?php echo number_format($pettyCashFundPercent, 2); ?> %</h3>
+            <p class="text-muted mb-0">Replenishment Percentage</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-12">
+            <h3 class="mb-1"><?php echo number_format($revolvingFund, 2); ?> Php</h3>
+            <p class="text-muted mb-0">Revolving Fund</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>  
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-12">
+            <h3 class="mb-1"><?php echo number_format($revolvingFundUnreplenished, 2); ?> Php</h3>
+            <p class="text-muted mb-0">Unreplenished Revolving Fund</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>   
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-12">
+            <h3 class="mb-1"><?php echo number_format($revolvingFundPercent, 2); ?> %</h3>
+            <p class="text-muted mb-0">Replenishment Percentage</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>   
+</div>
+
 <div class="row">
   <div class="col-lg-12">
     <div class="ecom-wrapper">
@@ -79,6 +170,10 @@
                                       <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                       <ul class="dropdown-menu dropdown-menu-end">';
                                   
+                    if($replenishmentDisbursement['total'] > 0){
+                      $action .= '<li><button class="dropdown-item" type="button" id="replenish-disbursement">Replenish Disbursement</button></li>';
+                    }
+                                  
                     if($disbursementDeleteAccess['total'] > 0){
                       $action .= '<li><button class="dropdown-item" type="button" id="delete-disbursement">Delete Disbursement</button></li>';
                     }
@@ -113,10 +208,11 @@
                     <th>Customer</th>
                     <th>Department</th>
                     <th>Company</th>
-                    <th>Transaction No.</th>
+                    <th>CDV No.</th>
                     <th>Transaction Type</th>
                     <th>Fund Source</th>
                     <th>Particulars</th>
+                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>

@@ -21,16 +21,18 @@ require_once '../model/security-model.php';
 require_once '../model/sales-proposal-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
+require_once '../model/chart-of-account-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/company-model.php';
 require_once '../model/system-model.php';
 
-$controller = new DisbursementController(new DisbursementModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new DisbursementController(new DisbursementModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new ChartOfAccountModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 
 class DisbursementController {
     private $disbursementModel;
     private $salesProposalModel;
+    private $chartOfAccountModel;
     private $userModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
@@ -53,8 +55,9 @@ class DisbursementController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(DisbursementModel $disbursementModel, SalesProposalModel $salesProposalModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(DisbursementModel $disbursementModel, SalesProposalModel $salesProposalModel, ChartOfAccountModel $chartOfAccountModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->disbursementModel = $disbursementModel;
+        $this->chartOfAccountModel = $chartOfAccountModel;
         $this->salesProposalModel = $salesProposalModel;
         $this->userModel = $userModel;
         $this->uploadSettingModel = $uploadSettingModel;
@@ -89,20 +92,38 @@ class DisbursementController {
                 case 'save particulars':
                     $this->saveParticulars();
                     break;
+                case 'save liquidation particulars':
+                    $this->saveLiquidationParticulars();
+                    break;
                 case 'get disbursement details':
                     $this->getDisbursementDetails();
+                    break;
+                case 'get liquidation details':
+                    $this->getLiquidationDetails();
                     break;
                 case 'get disbursement particulars details':
                     $this->getDisbursementParticularsDetails();
                     break;
-                case 'delete disbursement':
-                    $this->deleteDisbursement();
+                case 'get liquidation particulars details':
+                    $this->getLiquidationParticularsDetails();
                     break;
                 case 'delete disbursement particulars':
                     $this->deleteDisbursementParticulars();
                     break;
+                case 'delete liquidation particulars':
+                    $this->deleteLiquidationParticulars();
+                    break;
+                case 'delete disbursement':
+                    $this->deleteDisbursement();
+                    break;
                 case 'delete multiple disbursement':
                     $this->deleteMultipleDisbursement();
+                    break;
+                case 'replenish disbursement':
+                    $this->replenishDisbursement();
+                    break;
+                case 'replenish multiple disbursement':
+                    $this->replenishMultipleDisbursement();
                     break;
                 case 'post disbursement':
                     $this->tagDisbursementAsPosted();
@@ -216,6 +237,58 @@ class DisbursementController {
 
         $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $userID);
         $this->disbursementModel->createLiquidation($disbursementID, $userID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function replenishDisbursement() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDisbursementExist = $this->disbursementModel->checkDisbursementExist($disbursementID);
+        $total = $checkDisbursementExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Replenished', '', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function replenishMultipleDisbursement() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $disbursementIDs = $_POST['disbursement_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($disbursementIDs as $disbursementID){
+            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Replenished', '', $userID);
+        }
             
         echo json_encode(['success' => true]);
         exit;
@@ -384,12 +457,19 @@ class DisbursementController {
     
         $userID = $_SESSION['user_id'];
         $disbursementID = isset($_POST['disbursement_id']) ? htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8') : null;
+        $payable_type = $_POST['payable_type'];
         $transaction_type = $_POST['transaction_type'];
         $fund_source = $_POST['fund_source'];
         $particulars = $_POST['particulars'];
-        $customer_id = $_POST['customer_id'];
         $department_id = $_POST['department_id'];
         $company_id = $_POST['company_id'];
+
+        if($payable_type === 'Customer'){
+            $customer_id = $_POST['customer_id'];
+        }
+        else{
+            $customer_id = $_POST['misc_id'];
+        }
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -404,7 +484,7 @@ class DisbursementController {
         if ($total > 0) {
             $transaction_number = $_POST['transaction_number'];
 
-            $this->disbursementModel->updateDisbursement($disbursementID, $customer_id, $department_id, $company_id, $transaction_number, $transaction_type, $fund_source, $particulars, $userID);
+            $this->disbursementModel->updateDisbursement($disbursementID, $payable_type, $customer_id, $department_id, $company_id, $transaction_number, $transaction_type, $fund_source, $particulars, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'disbursementID' => $this->securityModel->encryptData($disbursementID)]);
             exit;
@@ -412,7 +492,7 @@ class DisbursementController {
         else {
             $transaction_number = $this->systemSettingModel->getSystemSetting(19)['value'] + 1;
 
-            $disbursementID = $this->disbursementModel->insertDisbursement($customer_id, $department_id, $company_id, $transaction_number, $transaction_type, $fund_source, $particulars, $userID);
+            $disbursementID = $this->disbursementModel->insertDisbursement($payable_type, $customer_id, $department_id, $company_id, $transaction_number, $transaction_type, $fund_source, $particulars, $userID);
 
             
             $this->systemSettingModel->updateSystemSettingValue(19, $transaction_number, $userID);
@@ -421,6 +501,7 @@ class DisbursementController {
             exit;
         }
     }
+    
     public function saveParticulars() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -451,6 +532,45 @@ class DisbursementController {
         } 
         else {
             $this->disbursementModel->insertDisbursementParticulars($disbursement_id, $chart_of_account_id, $remarks, $particulars_amount, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        }
+    }
+
+    public function saveLiquidationParticulars() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $liquidation_particulars_id = isset($_POST['liquidation_particulars_id']) ? htmlspecialchars($_POST['liquidation_particulars_id'], ENT_QUOTES, 'UTF-8') : null;
+        $liquidation_id = $_POST['liquidation_id'];
+        $particulars = $_POST['particulars'];
+        $particulars_amount = $_POST['particulars_amount'];
+        $reference_type = $_POST['reference_type'];
+        $reference_number = $_POST['reference_number'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDisbursementExist = $this->disbursementModel->checkLiquidationParticularsExist($liquidation_particulars_id);
+        $total = $checkDisbursementExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->disbursementModel->updateLiquidationParticulars($liquidation_particulars_id, $liquidation_id, $particulars, $particulars_amount, $reference_type, $reference_number, $userID);
+            
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            $this->disbursementModel->insertLiquidationParticulars($liquidation_id, $particulars, $particulars_amount, $reference_type, $reference_number, $userID);
+
+            $this->disbursementModel->updateLiquidationBalance($liquidation_id, $particulars_amount, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -526,6 +646,41 @@ class DisbursementController {
         }
 
         $this->disbursementModel->deleteDisbursementParticulars($disbursement_particulars_id);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function deleteLiquidationParticulars() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $liquidation_particulars_id = htmlspecialchars($_POST['liquidation_particulars_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDisbursementParticularsExist = $this->disbursementModel->checkLiquidationParticularsExist($liquidation_particulars_id);
+        $total = $checkDisbursementParticularsExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $liquidationParticularsDetails = $this->disbursementModel->getLiquidationParticulars($liquidation_particulars_id);
+        $liquidation_id = $liquidationParticularsDetails['liquidation_id'];
+        $particulars_amount = $liquidationParticularsDetails['particulars_amount'];
+        
+        $this->disbursementModel->deleteLiquidationBalance($liquidation_id, $particulars_amount, $userID);
+
+        $this->disbursementModel->deleteLiquidationParticulars($liquidation_particulars_id);
             
         echo json_encode(['success' => true]);
         exit;
@@ -620,6 +775,53 @@ class DisbursementController {
 
             $response = [
                 'success' => true,
+                'payableType' => $disbursementDetails['payable_type'],
+                'transactionNumber' => $disbursementDetails['transaction_number'],
+                'particulars' => $disbursementDetails['particulars'],
+                'transactionType' => $disbursementDetails['transaction_type'],
+                'customerID' => $disbursementDetails['customer_id'],
+                'departmentID' => $disbursementDetails['department_id'],
+                'companyID' => $disbursementDetails['company_id'],
+                'fundSource' => $disbursementDetails['fund_source']
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+
+    public function getLiquidationDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['liquidation_id']) && !empty($_POST['liquidation_id'])) {
+            $userID = $_SESSION['user_id'];
+            $liquidation_id = $_POST['liquidation_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $liquidationDetails = $this->disbursementModel->getLiquidation($liquidation_id);
+            $disbursementID = $liquidationDetails['disbursement_id'];
+            $disbursement_particulars_id = $liquidationDetails['disbursement_particulars_id'];
+
+            $disbursementParticularsDetails = $this->disbursementModel->getDisbursementParticulars($disbursement_particulars_id);
+            $chart_of_account_id = $disbursementParticularsDetails['chart_of_account_id'];
+
+            $chartOfAccountDetails = $this->chartOfAccountModel->getChartOfAccount($chart_of_account_id);
+            $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
+
+            $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
+
+            $response = [
+                'success' => true,
+                'remainingBalance' => $liquidationDetails['remaining_balance'],
+                'payableType' => $disbursementDetails['payable_type'],
                 'transactionNumber' => $disbursementDetails['transaction_number'],
                 'particulars' => $disbursementDetails['particulars'],
                 'transactionType' => $disbursementDetails['transaction_type'],
@@ -657,6 +859,37 @@ class DisbursementController {
                 'chartOfAccountID' => $disbursementDetails['chart_of_account_id'],
                 'remarks' => $disbursementDetails['remarks'],
                 'particularsAmount' => $disbursementDetails['particulars_amount']
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+
+    public function getLiquidationParticularsDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['liquidation_particulars_id']) && !empty($_POST['liquidation_particulars_id'])) {
+            $userID = $_SESSION['user_id'];
+            $liquidation_particulars_id = $_POST['liquidation_particulars_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $disbursementDetails = $this->disbursementModel->getLiquidationParticulars($liquidation_particulars_id);
+
+            $response = [
+                'success' => true,
+                'particulars' => $disbursementDetails['particulars'],
+                'reference_type' => $disbursementDetails['reference_type'],
+                'reference_number' => $disbursementDetails['reference_number'],
+                'particulars_amount' => $disbursementDetails['particulars_amount']
             ];
 
             echo json_encode($response);

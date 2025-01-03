@@ -7,6 +7,8 @@
   require('model/product-model.php');
   require('model/company-model.php');
   require('model/chart-of-account-model.php');
+  require('model/miscellaneous-client-model.php');
+  require('model/system-setting-model.php');
 
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $disbursementModel = new DisbursementModel($databaseModel);
@@ -15,6 +17,8 @@
   $companyModel = new CompanyModel($databaseModel);
   $departmentModel = new DepartmentModel($databaseModel);
   $chartOfAccountModel = new ChartOfAccountModel($databaseModel);
+  $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
+  $systemSettingModel = new SystemSettingModel($databaseModel);
 
   $pageTitle = 'Disbursement';
     
@@ -26,6 +30,7 @@
   $postDisbursement = $userModel->checkSystemActionAccessRights($user_id, 187);
   $cancelDisbursement = $userModel->checkSystemActionAccessRights( $user_id, 188);
   $reverseDisbursement = $userModel->checkSystemActionAccessRights($user_id, 189);
+  $replenishmentDisbursement = $userModel->checkSystemActionAccessRights($user_id, 191);
 
   if ($disbursementReadAccess['total'] == 0) {
     header('location: 404.php');

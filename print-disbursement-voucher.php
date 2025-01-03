@@ -66,11 +66,6 @@
 
     $pdf->SetFont('times', '', 11);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
-    
-    $pdf->Cell(140, 8, '', 0, 0, 'L');
-    $pdf->Cell(22, 8, 'CDV NO.', 0, 0, 'L');
-    $pdf->SetFont('times', 'U', 11);
-    $pdf->Cell(60, 8, $transaction_number, 0, 0, 'L');
 
     // Output the PDF to the browser
     $pdf->Output('cash-disbursement-voucher.pdf', 'I');
@@ -88,6 +83,7 @@
         require_once 'model/job-position-model.php';
         require_once 'model/travel-form-model.php';
         require_once 'model/disbursement-model.php';
+        require_once 'model/chart-of-account-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -97,12 +93,13 @@
         $departmentModel = new DepartmentModel($databaseModel);
         $customerModel = new CustomerModel($databaseModel);
         $jobPositionModel = new JobPositionModel($databaseModel);
+        $chartOfAccountModel = new ChartOfAccountModel($databaseModel);
         
         $disbursementDetails = $disbursementModel->getDisbursement($disbursementID);
         $createdBy = $disbursementDetails['created_by'];
         $particulars = $disbursementDetails['particulars'];
-        $disbursement_amount = $disbursementDetails['disbursement_amount'];
         $customer_id = $disbursementDetails['customer_id'];
+        $transaction_number = $disbursementDetails['transaction_number'];
 
         $disbursementTotal = $disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
 
@@ -116,28 +113,51 @@
         $createdByContactID = $contactDetails['contact_id'] ?? null;
         $createdByName = !empty($createdByContactID) ? ($employeeModel->getPersonalInformation($createdByContactID)['file_as'] ?? '--') : '--';
 
+        $list = '';
+        $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementParticularsTable(:disbursement_id)');
+        $sql->bindValue(':disbursement_id', $disbursementID, PDO::PARAM_INT);
+        $sql->execute();
+        $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+        $sql->closeCursor();
+            
+        foreach ($options as $row) {
+            $disbursement_particulars_id = $row['disbursement_particulars_id'];
+            $chart_of_account_id = $row['chart_of_account_id'];
+            $remarks = $row['remarks'];
+            $particulars_amount = $row['particulars_amount'];
+
+            $chartOfAccountDetails = $chartOfAccountModel->getChartOfAccount($chart_of_account_id);
+            $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
+
+            $list .= trim($chartOfAccountName) . ' (' . number_format($particulars_amount, 2) . ')';
+        }
+
         $response = '<table border="2" width="100%" cellpadding="5" align="left">
                         <tbody>
-                        <tr>
-                            <td colspan="3" style="text-align: left"><b>PAYEE</b><br/>'. $customerName .'</td>
-                            <td style="text-align: center"><b>DATE</b><br/>'. $transaction_date .'</td>
-                        </tr>
-                        <tr>
-                            <td colspan="3" style="text-align: center"><b>PARTICULARS</b></td>
-                            <td style="text-align: center"><b>AMOUNT</b></td>
-                        </tr>
-                        <tr>
-                            <td colspan="3" style="text-align: left">'. $particulars .'<br/><br/><br/><br/><br/><br/><br/><br/><br/></td>
-                            <td style="text-align: center">'. number_format($disbursementTotal, 2) .'</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align: left"><b>Prepared by:</b><br/>'. $createdByName .'</td>
-                            <td style="text-align: left"><b>Checked by:</b><br/></td>
-                            <td style="text-align: left"><b>Approved by:</b><br/></td>
-                            <td style="text-align: left"><b>Received by:</b><br/></td>
-                        </tr>
-                    </tbody>
-            </table>';
+                            <tr>
+                                <td colspan="2" style="text-align: left"><b>PAYEE</b><br/>'. $customerName .'</td>
+                                <td style="text-align: center"><b>CDV NO.</b><br/>'. $transaction_number .'</td>
+                                <td style="text-align: center"><b>DATE</b><br/>'. $transaction_date .'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="text-align: center"><b>PARTICULARS</b></td>
+                                <td style="text-align: center"><b>AMOUNT</b></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="text-align: left">
+                                    '. $list .'
+                                    <br/><br/><br/>'. $particulars .'
+                                </td>
+                                <td style="text-align: center">'. number_format($disbursementTotal, 2) .'</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left"><b>Prepared by:</b><br/>'. $createdByName .'</td>
+                                <td style="text-align: left"><b>Checked by:</b><br/></td>
+                                <td style="text-align: left"><b>Approved by:</b><br/></td>
+                                <td style="text-align: left"><b>Received by:</b><br/></td>
+                            </tr>
+                        </tbody>
+                    </table>';
 
         return $response;
     }

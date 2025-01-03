@@ -12101,10 +12101,17 @@ BEGIN
     WHERE disbursement_particulars_id = p_disbursement_particulars_id;
 END //
 
-CREATE PROCEDURE insertDisbursement(IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT, OUT p_disbursement_id INT)
+CREATE PROCEDURE checkLiquidationParticularsExist (IN p_liquidation_particulars_id INT)
 BEGIN
-    INSERT INTO disbursement (customer_id, department_id, company_id, transaction_number, transaction_type, fund_source, particulars, created_by, last_log_by) 
-	VALUES(p_customer_id, p_department_id, p_company_id, p_transaction_number, p_transaction_type, p_fund_source, p_particulars, p_last_log_by, p_last_log_by);
+	SELECT COUNT(*) AS total
+    FROM liquidation_particulars
+    WHERE liquidation_particulars_id = p_liquidation_particulars_id;
+END //
+
+CREATE PROCEDURE insertDisbursement(IN p_payable_type VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT, OUT p_disbursement_id INT)
+BEGIN
+    INSERT INTO disbursement (payable_type, customer_id, department_id, company_id, transaction_number, transaction_type, fund_source, particulars, created_by, last_log_by) 
+	VALUES(p_payable_type, p_customer_id, p_department_id, p_company_id, p_transaction_number, p_transaction_type, p_fund_source, p_particulars, p_last_log_by, p_last_log_by);
 	
     SET p_disbursement_id = LAST_INSERT_ID();
 END //
@@ -12115,10 +12122,11 @@ BEGIN
 	VALUES(p_disbursement_id, p_chart_of_account_id, p_remarks, p_particulars_amount, p_last_log_by, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateDisbursement(IN p_disbursement_id INT, IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updateDisbursement(IN p_disbursement_id INT, IN p_payable_type VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
 	UPDATE disbursement
-    SET customer_id = p_customer_id,
+    SET payable_type = p_payable_type,
+        customer_id = p_customer_id,
         department_id = p_department_id,
         company_id = p_company_id,
         transaction_number = p_transaction_number,
@@ -12140,6 +12148,22 @@ BEGIN
     WHERE disbursement_particulars_id = p_disbursement_particulars_id;
 END //
 
+CREATE PROCEDURE updateLiquidationBalance(IN p_liquidation_id INT, IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+    UPDATE liquidation
+    SET remaining_balance = (remaining_balance - p_particulars_amount),
+        last_log_by = p_last_log_by
+    WHERE liquidation_id = p_liquidation_id;
+END //
+
+CREATE PROCEDURE deleteLiquidationBalance(IN p_liquidation_id INT, IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+    UPDATE liquidation
+    SET remaining_balance = (remaining_balance + p_particulars_amount),
+        last_log_by = p_last_log_by
+    WHERE liquidation_id = p_liquidation_id;
+END //
+
 CREATE PROCEDURE deleteDisbursement(IN p_disbursement_id INT)
 BEGIN
     DELETE FROM disbursement WHERE disbursement_id = p_disbursement_id;
@@ -12150,10 +12174,21 @@ BEGIN
     DELETE FROM disbursement_particulars WHERE disbursement_particulars_id = p_disbursement_particulars_id;
 END //
 
+CREATE PROCEDURE deleteLiquidationParticulars(IN p_liquidation_particulars_id INT)
+BEGIN
+    DELETE FROM liquidation_particulars WHERE liquidation_particulars_id = p_liquidation_particulars_id;
+END //
+
 CREATE PROCEDURE getDisbursement(IN p_disbursement_id INT)
 BEGIN
 	SELECT * FROM disbursement
     WHERE disbursement_id = p_disbursement_id;
+END //
+
+CREATE PROCEDURE getLiquidation(IN p_liquidation_id INT)
+BEGIN
+	SELECT * FROM liquidation
+    WHERE liquidation_id = p_liquidation_id;
 END //
 
 CREATE PROCEDURE getDisbursementParticulars(IN p_disbursement_particulars_id INT)
@@ -12162,10 +12197,22 @@ BEGIN
     WHERE disbursement_particulars_id = p_disbursement_particulars_id;
 END //
 
+CREATE PROCEDURE getLiquidationParticulars(IN p_liquidation_particulars_id INT)
+BEGIN
+	SELECT * FROM liquidation_particulars
+    WHERE liquidation_particulars_id = p_liquidation_particulars_id;
+END //
+
 CREATE PROCEDURE getDisbursementTotal(IN p_disbursement_id INT)
 BEGIN
 	SELECT SUM(particulars_amount) AS total FROM disbursement_particulars
     WHERE disbursement_id = p_disbursement_id;
+END //
+
+CREATE PROCEDURE getUnreplishedDisbursement(IN p_fund_source VARCHAR(100))
+BEGIN
+	SELECT SUM(particulars_amount) AS total FROM disbursement_particulars
+    WHERE disbursement_id IN (SELECT disbursement_id FROM disbursement WHERE fund_source = p_fund_source AND disburse_status = 'Posted');
 END //
 
 CREATE PROCEDURE generateDisbursementTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE)
@@ -12198,6 +12245,18 @@ BEGIN
     disbursement_id = p_disbursement_id;
 END //
 
+CREATE PROCEDURE generateLiquidationParticularsTable( IN p_liquidation_id INT)
+BEGIN
+    SELECT * FROM liquidation_particulars WHERE 
+    liquidation_id = p_liquidation_id AND reference_type NOT IN ('OR', 'CDV');
+END //
+
+CREATE PROCEDURE generateLiquidationAddOnParticularsTable(IN p_liquidation_id INT)
+BEGIN
+    SELECT * FROM liquidation_particulars WHERE 
+    liquidation_id = p_liquidation_id AND reference_type IN ('OR', 'CDV');
+END //
+
 CREATE PROCEDURE updateDisbursementStatus(IN p_disbursement_id INT, IN p_disburse_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_last_log_by INT)
 BEGIN
     IF p_disburse_status = 'Posted' THEN
@@ -12218,6 +12277,12 @@ BEGIN
         SET disburse_status = p_disburse_status,
         reversal_date = NOW(),
         reversal_reason = p_reason,
+        last_log_by = p_last_log_by
+        WHERE disbursement_id = p_disbursement_id AND disburse_status IN('Posted');
+    ELSEIF p_disburse_status = 'Replenished' THEN
+        UPDATE disbursement
+        SET disburse_status = p_disburse_status,
+        replenishment_date = NOW(),
         last_log_by = p_last_log_by
         WHERE disbursement_id = p_disbursement_id AND disburse_status IN('Posted');
     ELSE
@@ -12479,4 +12544,27 @@ BEGIN
     END LOOP;
 
     CLOSE cur;
+END //
+
+CREATE PROCEDURE generateLiquidationTable()
+BEGIN
+    SELECT * FROM liquidation;
+END //
+
+CREATE PROCEDURE insertLiquidationParticulars(IN p_liquidation_id INT, IN p_particulars VARCHAR(500), IN p_particulars_amount DOUBLE, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO liquidation_particulars (liquidation_id, particulars, particulars_amount, reference_type, reference_number, created_by, last_log_by) 
+	VALUES(p_liquidation_id, p_particulars, p_particulars_amount, p_reference_type, p_reference_number, p_last_log_by, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateLiquidationParticulars(IN p_liquidation_particulars_id INT, IN p_liquidation_id INT, IN p_particulars VARCHAR(500), IN p_particulars_amount DOUBLE, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    UPDATE liquidation_particulars
+    SET liquidation_id = p_liquidation_id,
+        particulars = p_particulars,
+        particulars_amount = p_particulars_amount,
+        reference_type = p_reference_type,
+        reference_number = p_reference_number,
+        last_log_by = p_last_log_by
+    WHERE liquidation_particulars_id = p_liquidation_particulars_id;
 END //

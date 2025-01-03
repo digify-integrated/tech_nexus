@@ -3,9 +3,15 @@
   require('config/_check_user_active.php');
   require('model/sales-proposal-model.php');
   require('model/disbursement-model.php');
+  require('model/miscellaneous-client-model.php');
+  require('model/customer-model.php');
+  require('model/company-model.php');
 
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $disbursementModel = new DisbursementModel($databaseModel);
+  $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
+  $customerModel = new CustomerModel($databaseModel);
+  $companyModel = new CompanyModel($databaseModel);
 
   $pageTitle = 'Liquidation';
     
@@ -27,7 +33,7 @@
 
     $liquidationID = $securityModel->decryptData($_GET['id']);
 
-    $checkDisbursementExist = $liquidationModel->checkDisbursementExist($liquidationID);
+    $checkDisbursementExist = $disbursementModel->checkDisbursementExist($liquidationID);
     $total = $checkDisbursementExist['total'] ?? 0;
 
     if($total == 0){
@@ -35,7 +41,7 @@
       exit;
     }
 
-    $liquidationDetails = $liquidationModel->getDisbursement($liquidationID);
+    $liquidationDetails = $disbursementModel->getDisbursement($liquidationID);
   }
   else{
     $liquidationID = null;
@@ -94,10 +100,7 @@
           </div>
         </div>
         <?php
-          if($newRecord && $liquidationCreateAccess['total'] > 0){
-            require_once('view/_liquidation_new.php');
-          }
-          else if(!empty($liquidationID) && $liquidationWriteAccess['total'] > 0){
+          if(!empty($liquidationID) && $liquidationWriteAccess['total'] > 0){
             require_once('view/_liquidation_details.php');
           }
           else{
