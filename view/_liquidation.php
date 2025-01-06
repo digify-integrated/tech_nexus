@@ -17,6 +17,8 @@
                   <tr>
                     <th>Particulars</th>
                     <th>CDV Number</th>
+                    <th>Customer</th>
+                    <th>Transaction Date</th>
                     <th>Balance</th>
                     <th>Actions</th>
                   </tr>

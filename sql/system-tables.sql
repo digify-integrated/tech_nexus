@@ -5873,12 +5873,15 @@ CREATE INDEX liquidation_index_disbursement_id ON liquidation(disbursement_id);
 CREATE TABLE liquidation_particulars(
 	liquidation_particulars_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	liquidation_id INT UNSIGNED NOT NULL,
-	particulars VARCHAR(500) NOT NULL,
+	chart_of_account_id INT UNSIGNED,
+    remarks VARCHAR(5000),
     particulars_amount DOUBLE,
+    liquidation_particulars_status VARCHAR(100) NOT NULL DEFAULT 'Draft',
 	reference_type VARCHAR(100) NOT NULL,
 	reference_number VARCHAR(100) NOT NULL,
-    remarks VARCHAR(5000),
     created_by INT UNSIGNED NOT NULL,
+	posted_date DATETIME,
+	reversal_date DATETIME,
 	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)

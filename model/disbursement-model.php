@@ -66,6 +66,14 @@ class DisbursementModel {
         $stmt->execute();
     }
 
+    public function updateLiquidationParticularsStatus($p_liquidation_particulars_id, $p_liquidation_particulars_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLiquidationParticularsStatus(:p_liquidation_particulars_id, :p_liquidation_particulars_status, :p_last_log_by)');
+        $stmt->bindValue(':p_liquidation_particulars_id', $p_liquidation_particulars_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_liquidation_particulars_status', $p_liquidation_particulars_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function updateDisbursementParticulars($p_disbursement_particulars_id, $p_disbursement_id, $p_chart_of_account_id, $p_remarks, $p_particulars_amount, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateDisbursementParticulars(:p_disbursement_particulars_id, :p_disbursement_id, :p_chart_of_account_id, :p_remarks, :p_particulars_amount, :p_last_log_by)');
         $stmt->bindValue(':p_disbursement_particulars_id', $p_disbursement_particulars_id, PDO::PARAM_INT);
@@ -77,14 +85,15 @@ class DisbursementModel {
         $stmt->execute();
     }
 
-    public function updateLiquidationParticulars($p_liquidation_particulars_id, $p_liquidation_id, $p_particulars, $p_particulars_amount, $p_reference_type, $p_reference_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateLiquidationParticulars(:p_liquidation_particulars_id, :p_liquidation_id, :p_particulars, :p_particulars_amount, :p_reference_type, :p_reference_number, :p_last_log_by)');
+    public function updateLiquidationParticulars($p_liquidation_particulars_id, $p_liquidation_id, $p_particulars, $p_particulars_amount, $p_reference_type, $p_reference_number, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLiquidationParticulars(:p_liquidation_particulars_id, :p_liquidation_id, :p_particulars, :p_particulars_amount, :p_reference_type, :p_reference_number, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_liquidation_particulars_id', $p_liquidation_particulars_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_liquidation_id', $p_liquidation_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_particulars', $p_particulars, PDO::PARAM_STR);
         $stmt->bindValue(':p_particulars_amount', $p_particulars_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_reference_type', $p_reference_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -143,13 +152,14 @@ class DisbursementModel {
         $stmt->execute();
     }
 
-    public function insertLiquidationParticulars($p_liquidation_id, $p_particulars, $p_particulars_amount, $p_reference_type, $p_reference_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertLiquidationParticulars(:p_liquidation_id, :p_particulars, :p_particulars_amount, :p_reference_type, :p_reference_number, :p_last_log_by)');
+    public function insertLiquidationParticulars($p_liquidation_id, $p_particulars, $p_particulars_amount, $p_reference_type, $p_reference_number, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertLiquidationParticulars(:p_liquidation_id, :p_particulars, :p_particulars_amount, :p_reference_type, :p_reference_number, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_liquidation_id', $p_liquidation_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_particulars', $p_particulars, PDO::PARAM_STR);
         $stmt->bindValue(':p_particulars_amount', $p_particulars_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_reference_type', $p_reference_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -160,6 +170,17 @@ class DisbursementModel {
         $stmt->bindValue(':p_transaction_number', $p_transaction_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_fund_source', $p_fund_source, PDO::PARAM_STR);
         $stmt->bindValue(':p_entry_type', $p_entry_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function createLiquidationParticularsEntry($p_liquidation_particulars_id, $p_transaction_number, $p_company_id, $p_chart_of_account_id, $p_transaction_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createLiquidationParticularsEntry(:p_liquidation_particulars_id, :p_transaction_number, :p_company_id, :p_chart_of_account_id, :p_transaction_type, :p_last_log_by)');
+        $stmt->bindValue(':p_liquidation_particulars_id', $p_liquidation_particulars_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transaction_number', $p_transaction_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_chart_of_account_id', $p_chart_of_account_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_type', $p_transaction_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -198,6 +219,13 @@ class DisbursementModel {
     public function checkDisbursementParticularsExist($p_disbursement_particulars_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkDisbursementParticularsExist(:p_disbursement_particulars_id)');
         $stmt->bindValue(':p_disbursement_particulars_id', $p_disbursement_particulars_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function checkLiquidationExist($p_liquidation_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkLiquidationExist(:p_liquidation_id)');
+        $stmt->bindValue(':p_liquidation_id', $p_liquidation_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

@@ -10082,7 +10082,7 @@ BEGIN
     DECLARE conditionList VARCHAR(1000);
 
     SET query = 'SELECT * FROM journal_entry';
-    SET conditionList = " WHERE 1";
+    SET conditionList = " WHERE ((debit > 0 AND credit = 0) OR (debit = 0 AND credit > 0))";
     
     IF p_filter_journal_entry_date_start_date IS NOT NULL AND p_filter_journal_entry_date_end_date IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND (DATE(journal_entry_date) BETWEEN ');
@@ -12108,6 +12108,13 @@ BEGIN
     WHERE liquidation_particulars_id = p_liquidation_particulars_id;
 END //
 
+CREATE PROCEDURE checkLiquidationExist (IN p_liquidation_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM liquidation
+    WHERE liquidation_id = p_liquidation_id;
+END //
+
 CREATE PROCEDURE insertDisbursement(IN p_payable_type VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT, OUT p_disbursement_id INT)
 BEGIN
     INSERT INTO disbursement (payable_type, customer_id, department_id, company_id, transaction_number, transaction_type, fund_source, particulars, created_by, last_log_by) 
@@ -12512,7 +12519,7 @@ BEGIN
     DECLARE cur CURSOR FOR 
         SELECT disbursement_particulars_id, particulars_amount
         FROM disbursement_particulars 
-        WHERE chart_of_account_id = 565
+        WHERE chart_of_account_id IN (565, 567, 452)
         AND disbursement_id IN (SELECT disbursement_id FROM disbursement WHERE disbursement_id = p_disbursement_id AND disburse_status = 'Posted');
 
     -- Handler to exit the loop
@@ -12551,20 +12558,240 @@ BEGIN
     SELECT * FROM liquidation;
 END //
 
-CREATE PROCEDURE insertLiquidationParticulars(IN p_liquidation_id INT, IN p_particulars VARCHAR(500), IN p_particulars_amount DOUBLE, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE insertLiquidationParticulars(IN p_liquidation_id INT, IN p_chart_of_account_id INT, IN p_particulars_amount DOUBLE, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO liquidation_particulars (liquidation_id, particulars, particulars_amount, reference_type, reference_number, created_by, last_log_by) 
-	VALUES(p_liquidation_id, p_particulars, p_particulars_amount, p_reference_type, p_reference_number, p_last_log_by, p_last_log_by);
+    INSERT INTO liquidation_particulars (liquidation_id, chart_of_account_id, particulars_amount, reference_type, reference_number, remarks, created_by, last_log_by) 
+	VALUES(p_liquidation_id, p_chart_of_account_id, p_particulars_amount, p_reference_type, p_reference_number, p_remarks, p_last_log_by, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateLiquidationParticulars(IN p_liquidation_particulars_id INT, IN p_liquidation_id INT, IN p_particulars VARCHAR(500), IN p_particulars_amount DOUBLE, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updateLiquidationParticulars(IN p_liquidation_particulars_id INT, IN p_liquidation_id INT, IN p_chart_of_account_id INT, IN p_particulars_amount DOUBLE, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
     UPDATE liquidation_particulars
     SET liquidation_id = p_liquidation_id,
-        particulars = p_particulars,
+        chart_of_account_id = p_chart_of_account_id,
         particulars_amount = p_particulars_amount,
         reference_type = p_reference_type,
         reference_number = p_reference_number,
+        remarks = p_remarks,
         last_log_by = p_last_log_by
     WHERE liquidation_particulars_id = p_liquidation_particulars_id;
 END //
+
+CREATE PROCEDURE updateLiquidationParticularsStatus(IN p_liquidation_particulars_id INT, IN p_liquidation_particulars_status VARCHAR(50), IN p_last_log_by INT)
+BEGIN
+    IF p_liquidation_particulars_status = 'Posted' THEN
+        UPDATE liquidation_particulars
+        SET liquidation_particulars_status = p_liquidation_particulars_status,
+        posted_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE liquidation_particulars_id = p_liquidation_particulars_id AND liquidation_particulars_status IN('Draft');
+    ELSEIF p_liquidation_particulars_status = 'Reversed' THEN
+        UPDATE liquidation_particulars
+        SET liquidation_particulars_status = p_liquidation_particulars_status,
+        reversal_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE liquidation_particulars_id = p_liquidation_particulars_id AND liquidation_particulars_status IN('Posted');
+    ELSE
+        UPDATE liquidation_particulars
+        SET liquidation_particulars_status = p_liquidation_particulars_status,
+        last_log_by = p_last_log_by
+        WHERE liquidation_particulars_id = p_liquidation_particulars_id;
+    END IF;
+END //
+
+DROP PROCEDURE IF EXISTS createLiquidationParticularsEntry //
+CREATE PROCEDURE createLiquidationParticularsEntry(
+    IN p_liquidation_particulars_id INT,
+    IN p_transaction_number VARCHAR(100),
+    IN p_company_id INT,
+    IN p_chart_of_account_id INT,
+    IN p_transaction_type VARCHAR(100), -- Added transaction type
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_credit VARCHAR(500);
+    DECLARE v_chart_item VARCHAR(600);
+    DECLARE v_particulars_amount DOUBLE;
+    DECLARE v_done INT DEFAULT 0;
+
+    -- Cursor for disbursement particulars
+    DECLARE cur_particulars CURSOR FOR
+        SELECT dp.particulars_amount, 
+               CONCAT(ca.code, ' ', ca.name) AS chart_item
+        FROM liquidation_particulars dp
+        JOIN chart_of_account ca ON dp.chart_of_account_id = ca.chart_of_account_id
+        WHERE dp.liquidation_particulars_id = p_liquidation_particulars_id;
+
+    -- Continue handler for cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = 1;
+
+    CASE p_company_id
+        WHEN 1 THEN
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_analytic_lines = 'NE TRUCK';
+            SET v_analytic_distribution = '{"2": 100.0}';
+        WHEN 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"5": 100.0}';
+        WHEN 4 THEN
+            SET v_analytic_lines = 'PCG PROPERTY';
+            SET v_analytic_distribution = '{"4": 100.0}';
+        WHEN 5 THEN
+            SET v_analytic_lines = 'GCB PROPERTY';
+            SET v_analytic_distribution = '{"3": 100.0}';
+        ELSE
+            SET v_analytic_lines = 'DEFAULT';
+            SET v_analytic_distribution = '{"0": 0.0}';
+    END CASE;
+
+    -- Determine credit account based on fund source
+    CASE p_chart_of_account_id
+        WHEN 567 THEN
+            SET v_credit = '19901030 Advances to Contractors';
+        WHEN 565 THEN
+            SET v_credit = '19901020 Advances to Employee';
+        ELSE
+            SET v_credit = '10303990 Other Receivable';
+    END CASE;
+
+    -- Open cursor
+    OPEN cur_particulars;
+
+    read_loop: LOOP
+        FETCH cur_particulars INTO v_particulars_amount, v_chart_item;
+
+        -- Exit loop if cursor is done
+        IF v_done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Insert the 2 journal entries per particular
+        IF p_transaction_type = 'posted' THEN
+            -- Insert debit entry
+            INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_liquidation_particulars_id, 
+                NOW(), 
+                p_transaction_number, 
+                'Liquidation Operations', 
+                v_chart_item, 
+                v_particulars_amount, 
+                0, 
+                '', 
+                v_analytic_lines, 
+                v_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+
+            -- Insert credit entry
+            INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_liquidation_particulars_id, 
+                NOW(), 
+                p_transaction_number, 
+                'Liquidation Operations', 
+                v_credit, 
+                0, 
+                v_particulars_amount, 
+                '', 
+                v_analytic_lines, 
+                v_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+
+        ELSE
+            -- Insert debit entry
+            INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_liquidation_particulars_id, 
+                NOW(), 
+                p_transaction_number, 
+                'Liquidation Operations', 
+                v_chart_item, 
+                0, 
+                v_particulars_amount, 
+                '', 
+                v_analytic_lines, 
+                v_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+
+            -- Insert credit entry
+            INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_liquidation_particulars_id, 
+                NOW(), 
+                p_transaction_number, 
+                'Liquidation Operations', 
+                v_credit, 
+                v_particulars_amount, 
+                0, 
+                '', 
+                v_analytic_lines, 
+                v_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+        END IF;
+
+    END LOOP;
+
+    -- Close cursor
+    CLOSE cur_particulars;
+END//

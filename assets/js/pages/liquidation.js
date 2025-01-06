@@ -23,12 +23,16 @@
         }
 
         $(document).on('click','#add-particulars',function() {
+            resetModalForm('particulars-form');
             $('.addon-hidden').addClass('d-none');
+            $('.particulars-hidden').removeClass('d-none');
             $('#liquidation_type').val('particulars');
         });
 
         $(document).on('click','#add-excess',function() {
+            resetModalForm('particulars-form');
             $('.addon-hidden').removeClass('d-none');
+            $('.particulars-hidden').addClass('d-none');
             $('#liquidation_type').val('add-on');
         });
 
@@ -210,16 +214,252 @@
             });
         });
 
-        $(document).on('click','#add-particulars',function() {
-            resetModalForm('particulars-form');
-        });
-
         $(document).on('click','.update-liquidation-particulars',function() {
             const liquidation_particulars_id = $(this).data('liquidation-particulars-id');
     
             sessionStorage.setItem('liquidation_particulars_id', liquidation_particulars_id);
+
+            $('.addon-hidden').addClass('d-none');
+            $('.particulars-hidden').removeClass('d-none');
+            $('#liquidation_type').val('particulars');
             
             displayDetails('get liquidation particulars details');
+        });
+
+        $(document).on('click','.update-liquidation-particulars-addon',function() {
+            const liquidation_particulars_id = $(this).data('liquidation-particulars-id');
+    
+            sessionStorage.setItem('liquidation_particulars_id', liquidation_particulars_id);
+
+            $('.addon-hidden').removeClass('d-none');
+            $('.particulars-hidden').addClass('d-none');
+            $('#liquidation_type').val('add-on');
+            
+            displayDetails('get liquidation particulars details');
+        });
+
+        $(document).on('click','.post-liquidation-particulars',function() {
+            const liquidation_particulars_id = $(this).data('liquidation-particulars-id');
+            const transaction = 'post liquidation particulars';
+    
+            Swal.fire({
+                title: 'Confirm Liquidation Particular Posting',
+                text: 'Are you sure you want to post this liquidation particular?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Post',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/disbursement-controller.php',
+                        dataType: 'json',
+                        data: {
+                            liquidation_particulars_id : liquidation_particulars_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Post Liquidation Particular Success', 'The liquidation particular has been posted successfully.', 'success');
+                                reloadDatatable('#particulars-table');
+                                displayDetails('get liquidation details');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Post Liquidation Particular Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.post-liquidation-particulars-addon',function() {
+            const liquidation_particulars_id = $(this).data('liquidation-particulars-id');
+            const transaction = 'post liquidation particulars addon';
+    
+            Swal.fire({
+                title: 'Confirm Liquidation Particular Posting',
+                text: 'Are you sure you want to post this liquidation particular?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Post',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/disbursement-controller.php',
+                        dataType: 'json',
+                        data: {
+                            liquidation_particulars_id : liquidation_particulars_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Post Liquidation Particular Success', 'The liquidation particular has been posted successfully.', 'success');
+                                reloadDatatable('#addon-table');
+                                displayDetails('get liquidation details');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Post Liquidation Particular Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.reverse-liquidation-particulars',function() {
+            const liquidation_particulars_id = $(this).data('liquidation-particulars-id');
+            const transaction = 'reverse liquidation particulars';
+    
+            Swal.fire({
+                title: 'Confirm Liquidation Particular Reverse',
+                text: 'Are you sure you want to reverse this liquidation particular?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Reverse',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/disbursement-controller.php',
+                        dataType: 'json',
+                        data: {
+                            liquidation_particulars_id : liquidation_particulars_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Post Liquidation Reverse Success', 'The liquidation reverse has been posted successfully.', 'success');
+                                reloadDatatable('#particulars-table');
+                                displayDetails('get liquidation details');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Post Liquidation Reverse Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.reverse-liquidation-particulars-addon',function() {
+            const liquidation_particulars_id = $(this).data('liquidation-particulars-id');
+            const transaction = 'reverse liquidation particulars addon';
+    
+            Swal.fire({
+                title: 'Confirm Liquidation Reverse Posting',
+                text: 'Are you sure you want to reverse this liquidation particular?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Reverse',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/disbursement-controller.php',
+                        dataType: 'json',
+                        data: {
+                            liquidation_particulars_id : liquidation_particulars_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Post Liquidation Reverse Success', 'The liquidation reverse has been posted successfully.', 'success');
+                                reloadDatatable('#addon-table');
+                                displayDetails('get liquidation details');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Post Liquidation Reverse Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
         });
 
         $(document).on('click','.delete-liquidation-particulars',function() {
@@ -279,6 +519,63 @@
             });
         });
 
+        $(document).on('click','.delete-liquidation-particulars-addon',function() {
+            const liquidation_particulars_id = $(this).data('liquidation-particulars-id');
+            const transaction = 'delete liquidation particulars';
+    
+            Swal.fire({
+                title: 'Confirm Liquidation Particulars Deletion',
+                text: 'Are you sure you want to delete this liquidation particulars?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/disbursement-controller.php',
+                        dataType: 'json',
+                        data: {
+                            liquidation_particulars_id : liquidation_particulars_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Liquidation Particulars Success', 'The liquidation particulars has been deleted successfully.', 'success');
+                                reloadDatatable('#addon-table');
+                                displayDetails('get liquidation details');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Liquidation Particulars Error', 'The liquidation particulars does not exists.', 'danger');
+                                    reloadDatatable('#particulars-table');
+                                }
+                                else {
+                                    showNotification('Delete Liquidation Particulars Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('change','#payable_type',function() {
             checkOptionExist('#customer_id', '', '');
             checkOptionExist('#misc_id', '', '');
@@ -304,6 +601,8 @@ function liquidationTable(datatable_name, buttons = false, show_all = false){
     const column = [
         { 'data' : 'PARTICULARS' },
         { 'data' : 'TRANSACTION_NUNMBER' },
+        { 'data' : 'CUSTOMER_NAME' },
+        { 'data' : 'CREATED_DATE' },
         { 'data' : 'REMAINING_BALANCE' },
         { 'data' : 'ACTION' }
     ];
@@ -312,7 +611,9 @@ function liquidationTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
-        { 'width': '15%','bSortable': false, 'aTargets': 3 }
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -365,13 +666,17 @@ function particularsTable(datatable_name, buttons = false, show_all = false){
     const column = [
         { 'data' : 'PARTICULARS' },
         { 'data' : 'PARTICULAR_AMOUNT' },
+        { 'data' : 'REMARKS' },
+        { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': 'auto', 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
-        { 'width': '15%','bSortable': false, 'aTargets': 2 }
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': '15%','bSortable': false, 'aTargets': 4 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -426,6 +731,7 @@ function addOnTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'REFERENCE_TYPE' },
         { 'data' : 'REFERENCE_NUMBER' },
         { 'data' : 'PARTICULAR_AMOUNT' },
+        { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -434,7 +740,8 @@ function addOnTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -481,8 +788,12 @@ function addOnTable(datatable_name, buttons = false, show_all = false){
 function particularsForm(){
     $('#particulars-form').validate({
         rules: {
-            particulars: {
-                required: true
+            chart_of_account_id: {
+                required: {
+                    depends: function(element) {
+                        return $("input[name='liquidation_type']").val() != 'add-on';
+                    }
+                }
             },
             particulars_amount: {
                 required: true
@@ -504,10 +815,17 @@ function particularsForm(){
                     }
                 }
             },
+            remarks: {
+                required: {
+                    depends: function(element) {
+                        return $("input[name='liquidation_type']").val() === 'add-on';
+                    }
+                }
+            },
         },
         messages: {
-            particulars: {
-                required: 'Please enter the particulars'
+            chart_of_account_id: {
+                required: 'Please choose the particulars'
             },
             particulars_amount: {
                 required: 'Please enter the liquidation amount'
@@ -517,6 +835,9 @@ function particularsForm(){
             },
             reference_number: {
                 required: 'Please choose the reference number'
+            },
+            remarks: {
+                required: 'Please enter the remarks'
             },
         },
         errorPlacement: function (error, element) {
@@ -569,7 +890,6 @@ function particularsForm(){
 
                         particularsTable('#particulars-table');
                         addOnTable('#addon-table');
-                        displayDetails('get liquidation details');
                         $('#particulars-offcanvas').offcanvas('hide');
                     }
                     else {
@@ -669,8 +989,9 @@ function displayDetails(transaction){
                         $('#particulars').val(response.particulars);
                         $('#particulars_amount').val(response.particulars_amount);
                         $('#reference_number').val(response.reference_number);
+                        $('#remarks').val(response.remarks);
 
-                       
+                        checkOptionExist('#chart_of_account_id', response.chart_of_account_id, '');
                         checkOptionExist('#reference_type', response.reference_type, '');
                     } 
                     else {

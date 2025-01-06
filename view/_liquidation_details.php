@@ -128,6 +128,8 @@
               <tr>
                 <th>Liquidation Details</th>
                 <th>Amount</th>
+                <th>Remarks</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -161,6 +163,7 @@
                 <th>Reference Type</th>
                 <th>Reference Number</th>
                 <th>Amount</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -183,10 +186,19 @@
           <form id="particulars-form" method="post" action="#">
             <input type="hidden" id="liquidation_type" name="liquidation_type">
             <input type="hidden" id="liquidation_particulars_id" name="liquidation_particulars_id">
+            <div class="form-group row particulars-hidden d-none">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Particulars <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="chart_of_account_id" id="chart_of_account_id">
+                  <option value="">--</option>
+                  <?php echo $chartOfAccountModel->generateChartOfAccountDisbursementOptions(); ?>
+                </select>
+              </div>
+            </div>
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Particulars</label>
-                <textarea class="form-control" id="particulars" name="particulars" maxlength="500"></textarea>
+                <label class="form-label">Remarks</label>
+                <textarea class="form-control" id="remarks" name="remarks" maxlength="500"></textarea>
               </div>
             </div>
             <div class="form-group row">

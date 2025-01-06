@@ -6,12 +6,14 @@
   require('model/miscellaneous-client-model.php');
   require('model/customer-model.php');
   require('model/company-model.php');
+  require('model/chart-of-account-model.php');
 
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $disbursementModel = new DisbursementModel($databaseModel);
   $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
+  $chartOfAccountModel = new ChartOfAccountModel($databaseModel);
 
   $pageTitle = 'Liquidation';
     
@@ -33,7 +35,7 @@
 
     $liquidationID = $securityModel->decryptData($_GET['id']);
 
-    $checkDisbursementExist = $disbursementModel->checkDisbursementExist($liquidationID);
+    $checkDisbursementExist = $disbursementModel->checkLiquidationExist($liquidationID);
     $total = $checkDisbursementExist['total'] ?? 0;
 
     if($total == 0){
