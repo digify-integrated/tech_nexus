@@ -2847,7 +2847,6 @@ class SalesProposalController {
             case 'Daily':
                 $date->modify("+$iteration days");
                 break;
-                break;
             default:
                 break;
         }

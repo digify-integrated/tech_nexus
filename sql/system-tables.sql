@@ -5855,6 +5855,29 @@ CREATE TABLE disbursement_particulars(
 CREATE INDEX particulars_index_disbursement_particulars_id ON disbursement_particulars(disbursement_particulars_id);
 CREATE INDEX particulars_index_disbursement_id ON disbursement_particulars(disbursement_id);
 
+DROP TABLE disbursement_check;
+CREATE TABLE disbursement_check(
+	disbursement_check_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	disbursement_id INT UNSIGNED NOT NULL,
+    bank_branch VARCHAR(100),
+    check_number VARCHAR(100),
+    check_date DATE,
+    check_amount DOUBLE,
+    reversal_date DATETIME,
+    reversal_reason VARCHAR(500),
+    check_status VARCHAR(100) NOT NULL DEFAULT 'Draft',
+    transmitted_date DATETIME,
+    outstanding_date DATETIME,
+    negotiated_date DATETIME,
+    created_by INT UNSIGNED NOT NULL,
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX particulars_index_disbursement_particulars_id ON disbursement_particulars(disbursement_particulars_id);
+CREATE INDEX particulars_index_disbursement_id ON disbursement_particulars(disbursement_id);
+
 CREATE TABLE liquidation(
 	liquidation_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	disbursement_particulars_id INT UNSIGNED NOT NULL,

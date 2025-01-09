@@ -9,6 +9,10 @@
         if($('#particulars-table').length){
             particularsTable('#particulars-table');
         }
+        
+        if($('#check-table').length){
+            checkTable('#check-table');
+        }
 
         if($('#disbursement-form').length){
             disbursementForm();
@@ -24,6 +28,10 @@
 
         if($('#particulars-form').length){
             particularsForm();
+        }
+
+        if($('#check-form').length){
+            checkForm();
         }
 
         if($('#disbursement-id').length){
@@ -367,6 +375,12 @@
                                 else if (response.disbursementZero) {
                                     showNotification('Post Disbursement Error', 'The particulars cannot be zero.', 'danger');
                                 }
+                                else if (response.checkZero) {
+                                    showNotification('Post Disbursement Error', 'The check cannot be zero.', 'danger');
+                                }
+                                else if (response.checkNotEqual) {
+                                    showNotification('Post Disbursement Error', 'The check amount total and particulars is not equal.', 'danger');
+                                }
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }
@@ -408,6 +422,10 @@
                 $('#customer-select').addClass('d-none');
                 $('#misc-select').removeClass('d-none');
             }
+        });
+
+        $(document).on('click','#add-check',function() {
+            resetModalForm('check-form');
         });
 
         $(document).on('click','.update-disbursement-particulars',function() {
@@ -458,6 +476,244 @@
                                 }
                                 else {
                                     showNotification('Delete Disbursement Particulars Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.update-disbursement-check',function() {
+            const disbursement_check_id = $(this).data('disbursement-check-id');
+    
+            sessionStorage.setItem('disbursement_check_id', disbursement_check_id);
+            
+            displayDetails('get disbursement check details');
+        });
+
+        $(document).on('click','.delete-disbursement-check',function() {
+            const disbursement_check_id = $(this).data('disbursement-check-id');
+            const transaction = 'delete disbursement check';
+    
+            Swal.fire({
+                title: 'Confirm Disbursement Check Deletion',
+                text: 'Are you sure you want to delete this disbursement check?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/disbursement-controller.php',
+                        dataType: 'json',
+                        data: {
+                            disbursement_check_id : disbursement_check_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Disbursement Check Success', 'The disbursement check has been deleted successfully.', 'success');
+                                reloadDatatable('#check-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Disbursement Check Error', 'The disbursement check does not exists.', 'danger');
+                                    reloadDatatable('#check-table');
+                                }
+                                else {
+                                    showNotification('Delete Disbursement Check Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.transmit-disbursement-check',function() {
+            const disbursement_check_id = $(this).data('disbursement-check-id');
+            const transaction = 'transmit disbursement check';
+    
+            Swal.fire({
+                title: 'Confirm Check Transmittal',
+                text: 'Are you sure you want to transmit this check?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Transmit',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/disbursement-controller.php',
+                        dataType: 'json',
+                        data: {
+                            disbursement_check_id : disbursement_check_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Transmit Check Success', 'The check has been transmitted successfully.', 'success');
+                                checkTable('#check-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.disbursementZero) {
+                                    showNotification('Transmit Disbursement Error', 'The check amount cannot be zero.', 'danger');
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Transmit Disbursement Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.outstanding-disbursement-check',function() {
+            const disbursement_check_id = $(this).data('disbursement-check-id');
+            const transaction = 'outstanding disbursement check';
+    
+            Swal.fire({
+                title: 'Confirm Check Outstanding',
+                text: 'Are you sure you want to tag this check as outstanding?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Outstanding',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/disbursement-controller.php',
+                        dataType: 'json',
+                        data: {
+                            disbursement_check_id : disbursement_check_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Outstanding Check Success', 'The check has been tagged as outstanding successfully.', 'success');
+                                checkTable('#check-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.disbursementZero) {
+                                    showNotification('Outstanding Disbursement Error', 'The check amount cannot be zero.', 'danger');
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Outstanding Disbursement Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.negotiated-disbursement-check',function() {
+            const disbursement_check_id = $(this).data('disbursement-check-id');
+            const transaction = 'negotiated disbursement check';
+    
+            Swal.fire({
+                title: 'Confirm Check Negotiated',
+                text: 'Are you sure you want to tag this check as negotiated?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Negotiated',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/disbursement-controller.php',
+                        dataType: 'json',
+                        data: {
+                            disbursement_check_id : disbursement_check_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Negotiated Check Success', 'The check has been tagged as negotiated successfully.', 'success');
+                                checkTable('#check-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.disbursementZero) {
+                                    showNotification('Negotiated Disbursement Error', 'The check amount cannot be zero.', 'danger');
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Negotiated Disbursement Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -598,6 +854,71 @@ function particularsTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': '15%','bSortable': false, 'aTargets': 3 },
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_disbursement_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 
+                'disbursement_id' : disbursement_id
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function checkTable(datatable_name, buttons = false, show_all = false){
+    const type = 'check table';
+    const disbursement_id = $('#disbursement-id').text();
+
+    var settings;
+
+    const column = [
+        { 'data' : 'BANK_BRANCH' },
+        { 'data' : 'CHECK_DATE' },
+        { 'data' : 'CHECK_NUMBER' },
+        { 'data' : 'CHECK_AMOUNT' },
+        { 'data' : 'CHECK_STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -869,6 +1190,108 @@ function particularsForm(){
     });
 }
 
+function checkForm(){
+    $('#check-form').validate({
+        rules: {
+            bank_branch: {
+                required: true
+            },
+            check_date: {
+                required: true
+            },
+            check_amount: {
+                required: true
+            },
+        },
+        messages: {
+            bank_branch: {
+                required: 'Please choose the bank/branch'
+            },
+            check_date: {
+                required: 'Please choose the check date'
+            },
+            check_amount: {
+                required: 'Please enter the check amount'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const disbursement_id = $('#disbursement-id').text();
+            const transaction = 'save check';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/disbursement-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&disbursement_id=' + disbursement_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-check');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Check Success' : 'Update Check Success';
+                        const notificationDescription = response.insertRecord ? 'The check has been inserted successfully.' : 'The has has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+
+                        checkTable('#check-table');
+                        $('#check-offcanvas').offcanvas('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-check', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function cancelDisbursementForm(){
     $('#cancel-disbursement-form').validate({
         rules: {
@@ -1123,6 +1546,44 @@ function displayDetails(transaction){
                         }
                         else{
                             showNotification('Get Disbursement Particulars Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get disbursement check details':
+            var disbursement_check_id = sessionStorage.getItem('disbursement_check_id');
+                    
+            $.ajax({
+                url: 'controller/disbursement-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    disbursement_check_id : disbursement_check_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#disbursement_check_id').val(disbursement_check_id);
+                        $('#check_number').val(response.checkNumber);
+                        $('#check_date').val(response.checkDate);
+                        $('#check_amount').val(response.checkAmount);
+
+                        checkOptionExist('#bank_branch', response.bankBranch, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Disbursement Check Details Error', response.message, 'danger');
                         }
                     }
                 },

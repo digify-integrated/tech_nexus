@@ -168,6 +168,89 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        case 'check table':
+            $disbursement_id = $_POST['disbursement_id'];
+
+            $disbursementDetails = $disbursementModel->getDisbursement($disbursement_id);
+            $disburse_status = $disbursementDetails['disburse_status'] ?? '';
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementCheckTable(:disbursement_id)');
+            $sql->bindValue(':disbursement_id', $disbursement_id, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $disbursement_check_id = $row['disbursement_check_id'];
+                $bank_branch = $row['bank_branch'];
+                $check_number = $row['check_number'];
+                $check_date = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
+                $check_amount = $row['check_amount'];
+                $check_status = $row['check_status'];
+
+                $action = '';
+                if($check_status == 'Draft'){
+                    $action .= '<button type="button" class="btn btn-icon btn-success transmit-disbursement-check" data-disbursement-check-id="'. $disbursement_check_id .'" title="Transmit Check">
+                                        <i class="ti ti-check"></i>
+                                    </button>';
+                }
+
+                if($check_status == 'Transmitted'){
+                    $action .= '<button type="button" class="btn btn-icon btn-success outstanding-disbursement-check" data-disbursement-check-id="'. $disbursement_check_id .'" title="Outstanding Check">
+                                        <i class="ti ti-check"></i>
+                                    </button>';
+                }
+
+                if($check_status == 'Outstanding'){
+                    $action .= '<button type="button" class="btn btn-icon btn-success negotiated-disbursement-check" data-disbursement-check-id="'. $disbursement_check_id .'" title="Negotiated Check">
+                                        <i class="ti ti-check"></i>
+                                    </button>';
+                }
+
+                if($check_status == 'Draft'){
+                    $action .= '<button type="button" class="btn btn-icon btn-success update-disbursement-check" data-bs-toggle="offcanvas" data-bs-target="#check-offcanvas" aria-controls="check-offcanvas" data-disbursement-check-id="'. $disbursement_check_id .'" title="Update Check">
+                                        <i class="ti ti-edit"></i>
+                                    </button>';
+                }
+
+                if($disburse_status == 'Draft' && $check_status == 'Draft'){
+                    $action .= '<button type="button" class="btn btn-icon btn-danger delete-disbursement-check" data-disbursement-check-id="'. $disbursement_check_id .'" title="Delete Check">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                if($check_status === 'Draft'){
+                    $check_status = '<span class="badge bg-secondary">' . $check_status . '</span>';
+                }
+                else if($check_status === 'Transmitted'){
+                    $check_status = '<span class="badge bg-warning">' . $check_status . '</span>';
+                }
+                else if($check_status === 'Outstanding'){
+                    $check_status = '<span class="badge bg-info">' . $check_status . '</span>';
+                }
+                else if($check_status === 'Negotiated'){
+                    $check_status = '<span class="badge bg-success">' . $check_status . '</span>';
+                }
+                else{
+                    $check_status = '<span class="badge bg-danger">' . $check_status . '</span>';
+                }
+
+                $disbursement_check_id_enc = $securityModel->encryptData($disbursement_check_id);
+
+                $response[] = [
+                    'BANK_BRANCH' => $bank_branch,
+                    'CHECK_DATE' => $check_date,
+                    'CHECK_NUMBER' => $check_number,
+                    'CHECK_AMOUNT' => number_format($check_amount, 2),
+                    'CHECK_STATUS' => $check_status,
+                    'ACTION' => '<div class="d-flex gap-2">'. 
+                                    $action . 
+                                '</div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
         # -------------------------------------------------------------
     }
 }

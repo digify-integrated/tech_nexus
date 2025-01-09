@@ -12101,6 +12101,13 @@ BEGIN
     WHERE disbursement_particulars_id = p_disbursement_particulars_id;
 END //
 
+CREATE PROCEDURE checkDisbursementCheckExist (IN p_disbursement_check_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM disbursement_check
+    WHERE disbursement_check_id = p_disbursement_check_id;
+END //
+
 CREATE PROCEDURE checkLiquidationParticularsExist (IN p_liquidation_particulars_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
@@ -12129,6 +12136,12 @@ BEGIN
 	VALUES(p_disbursement_id, p_chart_of_account_id, p_remarks, p_particulars_amount, p_last_log_by, p_last_log_by);
 END //
 
+CREATE PROCEDURE insertDisbursementCheck(IN p_disbursement_id INT, IN p_bank_branch VARCHAR(100), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_check_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO disbursement_check (disbursement_id, bank_branch, check_number, check_date, check_amount, created_by, last_log_by) 
+	VALUES(p_disbursement_id, p_bank_branch, p_check_number, p_check_date, p_check_amount, p_last_log_by, p_last_log_by);
+END //
+
 CREATE PROCEDURE updateDisbursement(IN p_disbursement_id INT, IN p_payable_type VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
 	UPDATE disbursement
@@ -12153,6 +12166,18 @@ BEGIN
         particulars_amount = p_particulars_amount,
         last_log_by = p_last_log_by
     WHERE disbursement_particulars_id = p_disbursement_particulars_id;
+END //
+
+CREATE PROCEDURE updateDisbursementCheck(IN p_disbursement_check_id INT, IN p_disbursement_id INT, IN p_bank_branch VARCHAR(100), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_check_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+    UPDATE disbursement_check
+    SET disbursement_id = p_disbursement_id,
+        bank_branch = p_bank_branch,
+        check_number = p_check_number,
+        check_date = p_check_date,
+        check_amount = p_check_amount,
+        last_log_by = p_last_log_by
+    WHERE disbursement_check_id = p_disbursement_check_id;
 END //
 
 CREATE PROCEDURE updateLiquidationBalance(IN p_liquidation_id INT, IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
@@ -12181,6 +12206,11 @@ BEGIN
     DELETE FROM disbursement_particulars WHERE disbursement_particulars_id = p_disbursement_particulars_id;
 END //
 
+CREATE PROCEDURE deleteDisbursementCheck(IN p_disbursement_check_id INT)
+BEGIN
+    DELETE FROM disbursement_check WHERE disbursement_check_id = p_disbursement_check_id;
+END //
+
 CREATE PROCEDURE deleteLiquidationParticulars(IN p_liquidation_particulars_id INT)
 BEGIN
     DELETE FROM liquidation_particulars WHERE liquidation_particulars_id = p_liquidation_particulars_id;
@@ -12204,6 +12234,12 @@ BEGIN
     WHERE disbursement_particulars_id = p_disbursement_particulars_id;
 END //
 
+CREATE PROCEDURE getDisbursementCheck(IN p_disbursement_check_id INT)
+BEGIN
+	SELECT * FROM disbursement_check
+    WHERE disbursement_check_id = p_disbursement_check_id;
+END //
+
 CREATE PROCEDURE getLiquidationParticulars(IN p_liquidation_particulars_id INT)
 BEGIN
 	SELECT * FROM liquidation_particulars
@@ -12213,6 +12249,12 @@ END //
 CREATE PROCEDURE getDisbursementTotal(IN p_disbursement_id INT)
 BEGIN
 	SELECT SUM(particulars_amount) AS total FROM disbursement_particulars
+    WHERE disbursement_id = p_disbursement_id;
+END //
+
+CREATE PROCEDURE getDisbursementCheckTotal(IN p_disbursement_id INT)
+BEGIN
+	SELECT SUM(check_amount) AS total FROM disbursement_check
     WHERE disbursement_id = p_disbursement_id;
 END //
 
@@ -12249,6 +12291,12 @@ END //
 CREATE PROCEDURE generateDisbursementParticularsTable( IN p_disbursement_id INT)
 BEGIN
     SELECT * FROM disbursement_particulars WHERE 
+    disbursement_id = p_disbursement_id;
+END //
+
+CREATE PROCEDURE generateDisbursementCheckTable( IN p_disbursement_id INT)
+BEGIN
+    SELECT * FROM disbursement_check WHERE 
     disbursement_id = p_disbursement_id;
 END //
 
@@ -12297,6 +12345,36 @@ BEGIN
         SET disburse_status = p_disburse_status,
         last_log_by = p_last_log_by
         WHERE disbursement_id = p_disbursement_id;
+    END IF;
+END //
+
+CREATE PROCEDURE updateDisbursementCheckStatus(IN p_disbursement_check_id INT, IN p_check_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    IF p_check_status = 'Transmitted' THEN
+        UPDATE disbursement_check
+        SET check_status = p_check_status,
+        transmitted_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE disbursement_check_id = p_disbursement_check_id AND check_status IN ('Draft');
+    ELSEIF p_check_status = 'Outstanding' THEN
+        UPDATE disbursement_check
+        SET check_status = p_check_status,
+        outstanding_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE disbursement_check_id = p_disbursement_check_id AND check_status IN ('Transmitted');
+    ELSEIF p_check_status = 'Negotiated' THEN
+        UPDATE disbursement_check
+        SET check_status = p_check_status,
+        negotiated_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE disbursement_check_id = p_disbursement_check_id AND check_status IN ('Outstanding');
+    ELSE
+        UPDATE disbursement_check
+        SET check_status = p_check_status,
+        reversal_date = NOW(),
+        reversal_reason = p_reason,
+        last_log_by = p_last_log_by
+        WHERE disbursement_check_id = p_disbursement_check_id AND check_status IN ('Draft', 'Transmitted', 'Outstanding');
     END IF;
 END //
 

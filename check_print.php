@@ -87,7 +87,7 @@ foreach ($loanCollectionIDs as $loanCollectionID) {
 
     // Positioning variables (adjust based on your check layout)
     $checkX = 20;
-    $checkY = 5;
+    $checkY = 8;
 
     // Print date (numeric format)
     $pdf->SetXY($checkX + 145, $checkY);

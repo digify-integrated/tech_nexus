@@ -56,6 +56,7 @@
     $disbursementDetails = $disbursementModel->getDisbursement($disbursementID);
     $disbursementStatus = $disbursementDetails['disburse_status'];
     $transactionDate = $disbursementDetails['transaction_date'];
+    $fund_source = $disbursementDetails['fund_source'];
   }
   else{
     $disbursementID = null;

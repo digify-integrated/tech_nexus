@@ -13,7 +13,15 @@
                      Action
                  </button>
                  <ul class="dropdown-menu dropdown-menu-end">
-                 <li><a href="print-disbursement-voucher.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print Voucher</a></li>';
+                 ';
+             
+                    if ($disbursementStatus == 'Posted' && $fund_source != 'Check') {
+                      $dropdown .= '<li><a href="print-disbursement-voucher.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print Voucher</a></li>';
+                    }
+             
+                    if ($disbursementStatus == 'Posted' && $fund_source === 'Check') {
+                      $dropdown .= '<li><a href="print-cv-disbursement-voucher.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print Voucher</a></li>';
+                    }
              
                     if ($postDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="post-disbursement">Post Disbursement</button></li>';
@@ -165,6 +173,47 @@
         </div>
       </div>
     </div>
+
+    <?php
+      $check_hidden = 'd-none';
+      if($fund_source === 'Check'){
+        $check_hidden = '';
+      }
+    ?>
+
+    <div class="card table-card <?php echo $check_hidden; ?>">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Issued Check</h5>
+          </div>
+          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+              <?php 
+                if ($disbursementWriteAccess['total'] > 0 && $disbursementStatus === 'Draft') {
+                  echo '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#check-offcanvas" aria-controls="check-offcanvas" id="add-check">Add Check</button>';
+                }
+              ?>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="dt-responsive table-responsive">
+          <table id="check-table" class="table table-hover nowrap w-100 dataTable">
+            <thead>
+              <tr>
+                <th>Bank/Branch</th>
+                <th class="all">Check Date</th>
+                <th class="all">Check No.</th>
+                <th class="all">Check Amount</th>
+                <th class="all">Check Status</th>
+                <th class="all">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div>
@@ -233,6 +282,55 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-particulars" form="particulars-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="check-offcanvas" aria-labelledby="check-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="check-offcanvas-label" style="margin-bottom:-0.5rem">Check</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="check-form" method="post" action="#">
+            <input type="hidden" id="disbursement_check_id" name="disbursement_check_id">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Bank/Branch <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="bank_branch" id="bank_branch">
+                  <option value="">--</option>
+                  <option value="BPI-MELENCIO">BPI-MELENCIO</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Check Date <span class="text-danger">*</span></label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="check_date" name="check_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Amount <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="check_amount" name="check_amount" min="0" step="0.01">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-check" form="check-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
