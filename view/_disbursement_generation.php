@@ -123,6 +123,85 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
 
+        case 'disbursement check monitoring table':
+            $filterCheckDateStartDate = $systemModel->checkDate('empty', $_POST['filter_check_date_start_date'], '', 'Y-m-d', '');
+            $filterCheckDateEndDate = $systemModel->checkDate('empty', $_POST['filter_check_date_end_date'], '', 'Y-m-d', '');
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementCheckMonitoringTable(:filterCheckDateStartDate, :filterCheckDateEndDate)');
+            $sql->bindValue(':filterCheckDateStartDate', $filterCheckDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterCheckDateEndDate', $filterCheckDateEndDate, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $disbursementID = $row['disbursement_id'];
+                $transaction_date = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y', '');
+                $transaction_number = $row['transaction_number'];
+                $transaction_type = $row['transaction_type'];
+                $fund_source = $row['fund_source'];
+                $particulars = $row['particulars'];
+                $customer_id = $row['customer_id'];
+                $department_id = $row['department_id'];
+                $company_id = $row['company_id'];
+                $payable_type = $row['payable_type'];
+                $check_number = $row['check_number'];
+                $check_date = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
+                $check_amount = $row['check_amount'];
+                $check_status = $row['check_status'];
+
+                if($check_status === 'Draft'){
+                    $check_status = '<span class="badge bg-secondary">' . $check_status . '</span>';
+                }
+                else if($check_status === 'Transmitted'){
+                    $check_status = '<span class="badge bg-warning">' . $check_status . '</span>';
+                }
+                else if($check_status === 'Outstanding'){
+                    $check_status = '<span class="badge bg-info">' . $check_status . '</span>';
+                }
+                else if($check_status === 'Negotiated'){
+                    $check_status = '<span class="badge bg-success">' . $check_status . '</span>';
+                }
+                else{
+                    $check_status = '<span class="badge bg-danger">' . $check_status . '</span>';
+                }
+
+                if($payable_type === 'Customer'){
+                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                    $customerName = $customerDetails['file_as'] ?? null;
+                }
+                else{
+                    $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+                    $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+                }
+
+                $disbursementIDEncrypted = $securityModel->encryptData($disbursementID);
+
+                $departmentDetails = $departmentModel->getDepartment($department_id);
+                $departmentName = $departmentDetails['department_name'] ?? null;
+
+                $companyDetails = $companyModel->getCompany($company_id);
+                $companyName = $companyDetails['company_name'] ?? null;
+
+                $response[] = [
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $disbursementID .'">',
+                    'TRANSACTION_DATE' => $transaction_date,
+                    'CUSTOMER_NAME' => '<a href="disbursement.php?id='. $disbursementIDEncrypted .'" title="View Details">
+                                        '. $customerName .'
+                                    </a>',
+                    'DEPARTMENT_NAME' => $departmentName,
+                    'COMPANY_NAME' => $companyName,
+                    'TRANSACTION_NUMBER' => $transaction_number,
+                    'CHECK_DATE' => $check_date,
+                    'CHECK_NUMBER' => $check_number,
+                    'CHECK_AMOUNT' => number_format($check_amount, 2),
+                    'CHECK_STATUS' => $check_status
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+
         case 'particulars table':
             $disbursement_id = $_POST['disbursement_id'];
 
@@ -205,6 +284,18 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $action .= '<button type="button" class="btn btn-icon btn-success negotiated-disbursement-check" data-disbursement-check-id="'. $disbursement_check_id .'" title="Negotiated Check">
                                         <i class="ti ti-check"></i>
                                     </button>';
+                }
+
+                if($check_status == 'Outstanding' || $check_status == 'Draft' || $check_status == 'Transmitted'){
+                    $action .= '<button type="button" class="btn btn-icon btn-danger cancel-disbursement-check" data-bs-toggle="offcanvas" data-bs-target="#cancel-disbursement-check-offcanvas" aria-controls="cancel-disbursement-check-offcanvas" data-disbursement-check-id="'. $disbursement_check_id .'" title="Cancel Check">
+                                        <i class="ti ti-x"></i>
+                                    </button>';
+                }
+
+                if($disburse_status == 'Posted' && $check_status == 'Draft'){
+                    $action .= '<a href="print-disbursement-check.php?id='. $disbursement_check_id .'" class="btn btn-icon btn-warning" title="Print Check" target="_blank">
+                                        <i class="ti ti-printer"></i>
+                                    </a>';
                 }
 
                 if($check_status == 'Draft'){

@@ -152,6 +152,9 @@ class DisbursementController {
                 case 'tag disbursement as cancelled':
                     $this->tagDisbursementAsCancel();
                     break;
+                case 'tag disbursement check as cancelled':
+                    $this->tagDisbursementCheckAsCancel();
+                    break;
                 case 'tag disbursement as reversed':
                     $this->tagDisbursementAsReversed();
                     break;
@@ -453,8 +456,49 @@ class DisbursementController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
+        $fund_source = $disbursementDetails['fund_source'];
+
+        $disbursementNegotiatedCheckTotal = $this->disbursementModel->getDisbursementNegotiatedCheckTotal($disbursementID)['total'] ?? 0;
+        
+        if($disbursementNegotiatedCheckTotal > 0 && $fund_source == 'Check'){
+            echo json_encode(['success' => false, 'hasNegotiatedCheck' => true]);
+            exit;
+        }
     
         $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Cancelled', $cancellationReason, $userID);
+        $this->disbursementModel->cancelAllDisbursementCheck($disbursementID,$cancellationReason, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function tagDisbursementCheckAsCancel() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $disbursement_check_id = htmlspecialchars($_POST['disbursement_check_id'], ENT_QUOTES, 'UTF-8');
+        $cancellationReason = $_POST['check_cancellation_reason'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDisbursementExist = $this->disbursementModel->checkDisbursementCheckExist($disbursement_check_id);
+        $total = $checkDisbursementExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $this->disbursementModel->updateDisbursementCheckStatus($disbursement_check_id, 'Cancelled', $cancellationReason, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -500,6 +544,13 @@ class DisbursementController {
         $fund_source = $disbursementDetails['fund_source'];
         $transaction_type = $disbursementDetails['transaction_type'];
         $transaction_number = $disbursementDetails['transaction_number'];
+
+        $disbursementNegotiatedCheckTotal = $this->disbursementModel->getDisbursementNegotiatedCheckTotal($disbursementID)['total'] ?? 0;
+        
+        if($disbursementNegotiatedCheckTotal > 0 && $fund_source == 'Check'){
+            echo json_encode(['success' => false, 'hasNegotiatedCheck' => true]);
+            exit;
+        }
 
         if ($transaction_type === 'Disbursement') {
             if($fund_source == 'Petty Cash'){
@@ -553,6 +604,8 @@ class DisbursementController {
         }
 
         $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'reversed', $userID);
+        
+        $this->disbursementModel->cancelAllDisbursementCheck($disbursementID,$reversalRemarks, $userID);
                 
         echo json_encode(['success' => true]);
         exit;

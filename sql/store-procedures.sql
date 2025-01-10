@@ -12180,6 +12180,16 @@ BEGIN
     WHERE disbursement_check_id = p_disbursement_check_id;
 END //
 
+CREATE PROCEDURE cancelAllDisbursementCheck(IN p_disbursement_id INT, IN p_reason VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    UPDATE disbursement_check
+    SET reversal_date = NOW(),
+        check_status = 'Cancelled',
+        reversal_reason = p_reason,
+        last_log_by = p_last_log_by
+    WHERE disbursement_id = p_disbursement_id;
+END //
+
 CREATE PROCEDURE updateLiquidationBalance(IN p_liquidation_id INT, IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
 BEGIN
     UPDATE liquidation
@@ -12255,7 +12265,13 @@ END //
 CREATE PROCEDURE getDisbursementCheckTotal(IN p_disbursement_id INT)
 BEGIN
 	SELECT SUM(check_amount) AS total FROM disbursement_check
-    WHERE disbursement_id = p_disbursement_id;
+    WHERE disbursement_id = p_disbursement_id AND check_status NOT IN ('Cancelled');
+END //
+
+CREATE PROCEDURE getDisbursementNegotiatedCheckTotal(IN p_disbursement_id INT)
+BEGIN
+	SELECT SUM(check_amount) AS total FROM disbursement_check
+    WHERE disbursement_id = p_disbursement_id AND check_status = 'Negotiated';
 END //
 
 CREATE PROCEDURE getUnreplishedDisbursement(IN p_fund_source VARCHAR(100))
@@ -12282,6 +12298,31 @@ BEGIN
 
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY transaction_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateDisbursementCheckMonitoringTable( IN p_check_start_date DATE, IN p_check_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM disbursement_check 
+    JOIN disbursement ON disbursement.disbursement_id = disbursement_check.disbursement_id';
+    SET conditionList = ' WHERE 1';
+    
+    IF p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (check_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_check_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_check_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY check_date DESC;');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -12455,124 +12496,248 @@ BEGIN
             LEAVE read_loop;
         END IF;
 
-        -- Insert the 2 journal entries per particular
-        IF p_transaction_type = 'posted' THEN
-            -- Insert debit entry
-            INSERT INTO journal_entry (
-                loan_number, 
-                journal_entry_date, 
-                reference_code, 
-                journal_id, 
-                journal_item, 
-                debit, 
-                credit, 
-                journal_label, 
-                analytic_lines, 
-                analytic_distribution, 
-                created_date, 
-                last_log_by
-            ) VALUES (
-                p_disbursement_id, 
-                NOW(), 
-                p_transaction_number, 
-                'Disbursement Operations', 
-                v_chart_item, 
-                v_particulars_amount, 
-                0, 
-                '', 
-                v_analytic_lines, 
-                v_analytic_distribution, 
-                NOW(), 
-                p_last_log_by
-            );
+        IF v_particulars_amount > 0 THEN
+            -- Insert the 2 journal entries per particular
+            IF p_transaction_type = 'posted' THEN
+                -- Insert debit entry
+                INSERT INTO journal_entry (
+                    loan_number, 
+                    journal_entry_date, 
+                    reference_code, 
+                    journal_id, 
+                    journal_item, 
+                    debit, 
+                    credit, 
+                    journal_label, 
+                    analytic_lines, 
+                    analytic_distribution, 
+                    created_date, 
+                    last_log_by
+                ) VALUES (
+                    p_disbursement_id, 
+                    NOW(), 
+                    p_transaction_number, 
+                    'Disbursement Operations', 
+                    v_chart_item, 
+                    v_particulars_amount, 
+                    0, 
+                    '', 
+                    v_analytic_lines, 
+                    v_analytic_distribution, 
+                    NOW(), 
+                    p_last_log_by
+                );
 
-            -- Insert credit entry
-            INSERT INTO journal_entry (
-                loan_number, 
-                journal_entry_date, 
-                reference_code, 
-                journal_id, 
-                journal_item, 
-                debit, 
-                credit, 
-                journal_label, 
-                analytic_lines, 
-                analytic_distribution, 
-                created_date, 
-                last_log_by
-            ) VALUES (
-                p_disbursement_id, 
-                NOW(), 
-                p_transaction_number, 
-                'Disbursement Operations', 
-                v_credit, 
-                0, 
-                v_particulars_amount, 
-                '', 
-                v_analytic_lines, 
-                v_analytic_distribution, 
-                NOW(), 
-                p_last_log_by
-            );
+                -- Insert credit entry
+                INSERT INTO journal_entry (
+                    loan_number, 
+                    journal_entry_date, 
+                    reference_code, 
+                    journal_id, 
+                    journal_item, 
+                    debit, 
+                    credit, 
+                    journal_label, 
+                    analytic_lines, 
+                    analytic_distribution, 
+                    created_date, 
+                    last_log_by
+                ) VALUES (
+                    p_disbursement_id, 
+                    NOW(), 
+                    p_transaction_number, 
+                    'Disbursement Operations', 
+                    v_credit, 
+                    0, 
+                    v_particulars_amount, 
+                    '', 
+                    v_analytic_lines, 
+                    v_analytic_distribution, 
+                    NOW(), 
+                    p_last_log_by
+                );
 
+            ELSE
+                -- Insert debit entry
+                INSERT INTO journal_entry (
+                    loan_number, 
+                    journal_entry_date, 
+                    reference_code, 
+                    journal_id, 
+                    journal_item, 
+                    debit, 
+                    credit, 
+                    journal_label, 
+                    analytic_lines, 
+                    analytic_distribution, 
+                    created_date, 
+                    last_log_by
+                ) VALUES (
+                    p_disbursement_id, 
+                    NOW(), 
+                    p_transaction_number, 
+                    'Disbursement Operations', 
+                    v_chart_item, 
+                    0, 
+                    v_particulars_amount, 
+                    '', 
+                    v_analytic_lines, 
+                    v_analytic_distribution, 
+                    NOW(), 
+                    p_last_log_by
+                );
+
+                -- Insert credit entry
+                INSERT INTO journal_entry (
+                    loan_number, 
+                    journal_entry_date, 
+                    reference_code, 
+                    journal_id, 
+                    journal_item, 
+                    debit, 
+                    credit, 
+                    journal_label, 
+                    analytic_lines, 
+                    analytic_distribution, 
+                    created_date, 
+                    last_log_by
+                ) VALUES (
+                    p_disbursement_id, 
+                    NOW(), 
+                    p_transaction_number, 
+                    'Disbursement Operations', 
+                    v_credit, 
+                    v_particulars_amount, 
+                    0, 
+                    '', 
+                    v_analytic_lines, 
+                    v_analytic_distribution, 
+                    NOW(), 
+                    p_last_log_by
+                );
+            END IF;
         ELSE
-            -- Insert debit entry
-            INSERT INTO journal_entry (
-                loan_number, 
-                journal_entry_date, 
-                reference_code, 
-                journal_id, 
-                journal_item, 
-                debit, 
-                credit, 
-                journal_label, 
-                analytic_lines, 
-                analytic_distribution, 
-                created_date, 
-                last_log_by
-            ) VALUES (
-                p_disbursement_id, 
-                NOW(), 
-                p_transaction_number, 
-                'Disbursement Operations', 
-                v_chart_item, 
-                0, 
-                v_particulars_amount, 
-                '', 
-                v_analytic_lines, 
-                v_analytic_distribution, 
-                NOW(), 
-                p_last_log_by
-            );
+        -- Insert the 2 journal entries per particular
+            IF p_transaction_type = 'posted' THEN
+                -- Insert debit entry
+                INSERT INTO journal_entry (
+                    loan_number, 
+                    journal_entry_date, 
+                    reference_code, 
+                    journal_id, 
+                    journal_item, 
+                    debit, 
+                    credit, 
+                    journal_label, 
+                    analytic_lines, 
+                    analytic_distribution, 
+                    created_date, 
+                    last_log_by
+                ) VALUES (
+                    p_disbursement_id, 
+                    NOW(), 
+                    p_transaction_number, 
+                    'Disbursement Operations', 
+                    v_chart_item, 
+                    0, 
+                    ABS(v_particulars_amount), 
+                    '', 
+                    v_analytic_lines, 
+                    v_analytic_distribution, 
+                    NOW(), 
+                    p_last_log_by
+                );
 
-            -- Insert credit entry
-            INSERT INTO journal_entry (
-                loan_number, 
-                journal_entry_date, 
-                reference_code, 
-                journal_id, 
-                journal_item, 
-                debit, 
-                credit, 
-                journal_label, 
-                analytic_lines, 
-                analytic_distribution, 
-                created_date, 
-                last_log_by
-            ) VALUES (
-                p_disbursement_id, 
-                NOW(), 
-                p_transaction_number, 
-                'Disbursement Operations', 
-                v_credit, 
-                v_particulars_amount, 
-                0, 
-                '', 
-                v_analytic_lines, 
-                v_analytic_distribution, 
-                NOW(), 
-                p_last_log_by
-            );
+                -- Insert credit entry
+                INSERT INTO journal_entry (
+                    loan_number, 
+                    journal_entry_date, 
+                    reference_code, 
+                    journal_id, 
+                    journal_item, 
+                    debit, 
+                    credit, 
+                    journal_label, 
+                    analytic_lines, 
+                    analytic_distribution, 
+                    created_date, 
+                    last_log_by
+                ) VALUES (
+                    p_disbursement_id, 
+                    NOW(), 
+                    p_transaction_number, 
+                    'Disbursement Operations', 
+                    v_credit, 
+                    ABS(v_particulars_amount), 
+                    0, 
+                    '', 
+                    v_analytic_lines, 
+                    v_analytic_distribution, 
+                    NOW(), 
+                    p_last_log_by
+                );
+
+            ELSE
+            -- Insert debit entry
+                INSERT INTO journal_entry (
+                    loan_number, 
+                    journal_entry_date, 
+                    reference_code, 
+                    journal_id, 
+                    journal_item, 
+                    debit, 
+                    credit, 
+                    journal_label, 
+                    analytic_lines, 
+                    analytic_distribution, 
+                    created_date, 
+                    last_log_by
+                ) VALUES (
+                    p_disbursement_id, 
+                    NOW(), 
+                    p_transaction_number, 
+                    'Disbursement Operations', 
+                    v_chart_item, 
+                    ABS(v_particulars_amount), 
+                    0, 
+                    '', 
+                    v_analytic_lines, 
+                    v_analytic_distribution, 
+                    NOW(), 
+                    p_last_log_by
+                );
+
+                -- Insert credit entry
+                INSERT INTO journal_entry (
+                    loan_number, 
+                    journal_entry_date, 
+                    reference_code, 
+                    journal_id, 
+                    journal_item, 
+                    debit, 
+                    credit, 
+                    journal_label, 
+                    analytic_lines, 
+                    analytic_distribution, 
+                    created_date, 
+                    last_log_by
+                ) VALUES (
+                    p_disbursement_id, 
+                    NOW(), 
+                    p_transaction_number, 
+                    'Disbursement Operations', 
+                    v_credit, 
+                    0, 
+                    ABS(v_particulars_amount), 
+                    '', 
+                    v_analytic_lines, 
+                    v_analytic_distribution, 
+                    NOW(), 
+                    p_last_log_by
+                );
+
+                
+            END IF;
         END IF;
 
     END LOOP;

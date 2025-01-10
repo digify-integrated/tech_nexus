@@ -22,6 +22,10 @@
             cancelDisbursementForm();
         }
 
+        if($('#cancel-disbursement-check-form').length){
+            cancelDisbursementCheckForm();
+        }
+
         if($('#reverse-disbursement-form').length){
             reverseDisbursementForm();
         }
@@ -423,11 +427,6 @@
                 $('#misc-select').removeClass('d-none');
             }
         });
-
-        $(document).on('click','#add-check',function() {
-            resetModalForm('check-form');
-        });
-
         $(document).on('click','.update-disbursement-particulars',function() {
             const disbursement_particulars_id = $(this).data('disbursement-particulars-id');
     
@@ -492,12 +491,30 @@
             });
         });
 
+        $(document).on('click','#add-check',function() {
+            resetModalForm('check-form');
+
+            document.querySelectorAll('.update-hidden').forEach(function(element) {
+                element.classList.remove('d-none');
+            });
+        });
+
         $(document).on('click','.update-disbursement-check',function() {
             const disbursement_check_id = $(this).data('disbursement-check-id');
     
             sessionStorage.setItem('disbursement_check_id', disbursement_check_id);
+
+            document.querySelectorAll('.update-hidden').forEach(function(element) {
+                element.classList.add('d-none');
+            });
             
             displayDetails('get disbursement check details');
+        });
+
+        $(document).on('click','.cancel-disbursement-check',function() {
+            const disbursement_check_id = $(this).data('disbursement-check-id');
+    
+            sessionStorage.setItem('disbursement_check_id', disbursement_check_id);
         });
 
         $(document).on('click','.delete-disbursement-check',function() {
@@ -1358,6 +1375,98 @@ function cancelDisbursementForm(){
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
                         }
+                        else if (response.hasNegotiatedCheck) {
+                            showNotification('Cancel Disbursement Error', 'Cannot cancel disbursement. There is a negotiated check.', 'danger');
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-cancel-disbursement', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function cancelDisbursementCheckForm(){
+    $('#cancel-disbursement-check-form').validate({
+        rules: {
+            check_cancellation_reason: {
+                required: true
+            },
+        },
+        messages: {
+            check_cancellation_reason: {
+                required: 'Please enter the cancellation reason'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            let disbursement_check_id = sessionStorage.getItem('disbursement_check_id');
+            const transaction = 'tag disbursement check as cancelled';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/disbursement-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&disbursement_check_id=' + disbursement_check_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-cancel-disbursement');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Cancel Check Success';
+                        const notificationDescription = 'The check has been tag as cancelled successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                        checkTable('#check-table');
+                        $('#cancel-disbursement-check-offcanvas').offcanvas('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
@@ -1445,6 +1554,9 @@ function reverseDisbursementForm(){
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
+                        }
+                        else if (response.hasNegotiatedCheck) {
+                            showNotification('Reverse Disbursement Error', 'Cannot reverse disbursement. There is a negotiated check.', 'danger');
                         }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');

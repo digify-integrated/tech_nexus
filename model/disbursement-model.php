@@ -65,10 +65,19 @@ class DisbursementModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+    
     public function updateDisbursementCheckStatus($p_disbursement_check_id, $p_disburse_status, $p_reason, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateDisbursementCheckStatus(:p_disbursement_check_id, :p_disburse_status, :p_reason, :p_last_log_by)');
         $stmt->bindValue(':p_disbursement_check_id', $p_disbursement_check_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_disburse_status', $p_disburse_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reason', $p_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function cancelAllDisbursementCheck($p_disbursement_id, $p_reason, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL cancelAllDisbursementCheck(:p_disbursement_id, :p_reason, :p_last_log_by)');
+        $stmt->bindValue(':p_disbursement_id', $p_disbursement_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_reason', $p_reason, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -363,6 +372,13 @@ class DisbursementModel {
 
     public function getDisbursementCheckTotal($p_disbursement_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getDisbursementCheckTotal(:p_disbursement_id)');
+        $stmt->bindValue(':p_disbursement_id', $p_disbursement_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getDisbursementNegotiatedCheckTotal($p_disbursement_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getDisbursementNegotiatedCheckTotal(:p_disbursement_id)');
         $stmt->bindValue(':p_disbursement_id', $p_disbursement_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);

@@ -245,6 +245,34 @@
   </div>
 
   <div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cancel-disbursement-check-offcanvas" aria-labelledby="cancel-disbursement-check-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="cancel-disbursement-check-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Check</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="cancel-disbursement-check-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Cancellation Reason <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="check_cancellation_reason" name="check_cancellation_reason" maxlength="500"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-cancel-disbursement-check" form="cancel-disbursement-check-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="particulars-offcanvas" aria-labelledby="particulars-offcanvas-label">
       <div class="offcanvas-header">
         <h2 id="particulars-offcanvas-label" style="margin-bottom:-0.5rem">Particulars</h2>
@@ -267,7 +295,7 @@
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="particulars_amount" name="particulars_amount" min="0" step="0.01">
+                <input type="number" class="form-control" id="particulars_amount" name="particulars_amount" step="0.01">
               </div>
             </div>
             <div class="form-group row">
@@ -299,7 +327,7 @@
         <div class="col-lg-12">
           <form id="check-form" method="post" action="#">
             <input type="hidden" id="disbursement_check_id" name="disbursement_check_id">
-            <div class="form-group row">
+            <div class="form-group row update-hidden">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Bank/Branch <span class="text-danger">*</span></label>
                 <select class="form-control offcanvas-select2" name="bank_branch" id="bank_branch">
@@ -319,7 +347,7 @@
                 </div>
               </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group row update-hidden">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Amount <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="check_amount" name="check_amount" min="0" step="0.01">

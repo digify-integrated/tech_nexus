@@ -94,6 +94,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             foreach ($options as $row) {
                 $leaveApplicationID = $row['leave_application_id'];
                 $status = $row['status'];
+                $employeeID = $row['contact_id'];
                 $leaveTypeID = $row['leave_type_id'];
                 $leaveDate = $systemModel->checkDate('empty', $row['leave_date'], '', 'm/d/Y', '');
                 $leaveStartTime = $systemModel->checkDate('empty', $row['leave_start_time'], '', 'h:i a', '');
@@ -105,7 +106,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $leaveTypeDetails = $leaveTypeModel->getLeaveType($leaveTypeID);
                 $leaveTypeName = $leaveTypeDetails['leave_type_name'] ?? null;
 
-                $employeeDetails = $employeeModel->getPersonalInformation($contact_id);
+                $employeeDetails = $employeeModel->getPersonalInformation($employeeID);
                 $fileAs = $employeeDetails['file_as'] ?? '';
 
                 $response[] = [
