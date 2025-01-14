@@ -331,13 +331,14 @@ class PDCManagementController {
             exit;
         }
 
-        $currentDate = date('m-d-Y');
-        foreach($loanCollectionIDs as $loanCollectionID){
+        $currentDate = date('Y-m-d'); // Current date in m-d-Y format
 
+        foreach ($loanCollectionIDs as $loanCollectionID) {
             $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
-            $checkDate = date('m-d-Y', strtotime($pdcManagementDetails['check_date']));
-
-            if(strtotime($checkDate) <= strtotime($currentDate)){
+            
+            $checkDate = $pdcManagementDetails['check_date'];
+        
+            if (strtotime( $checkDate) <= strtotime($currentDate)) {
                 $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', '', '', $userID);
             }
         }

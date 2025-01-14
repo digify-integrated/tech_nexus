@@ -1010,7 +1010,10 @@ function disbursementForm(){
             },
             particulars: {
                 required: true
-            }
+            },
+            transaction_date: {
+                required: true
+            },
         },
         messages: {
             customer_id: {
@@ -1033,6 +1036,9 @@ function disbursementForm(){
             },
             particulars: {
                 required: 'Please enter the particulars'
+            },
+            transaction_date: {
+                required: 'Please choose the transaction date'
             }
         },
         errorPlacement: function (error, element) {
@@ -1600,6 +1606,7 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#transaction_number').val(response.transactionNumber);
                         $('#particulars').val(response.particulars);
+                        $('#transaction_date').val(response.transactionDate);
 
                         checkOptionExist('#payable_type', response.payableType, '');
                         checkOptionExist('#transaction_type', response.transactionType, '');

@@ -27,13 +27,22 @@
                       
                   echo $dropdown;
 
-                  if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))) {
+                  if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))  && $paymentAdvice == 'No') {
                     echo '<button type="submit" form="collections-form" class="btn btn-success" id="submit-data">Save</button>
                           <button type="button" id="discard-create" class="btn btn-outline-danger me-2">Discard</button>';
                   }
 
-                  if ($collectionsCreateAccess['total'] > 0) {
+                  if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d')) && $paymentAdvice == 'Yes') {
+                    echo '<button type="submit" form="collections-form" class="btn btn-success" id="submit-data">Save</button>
+                          <button type="button" id="discard-payment-advice-create" class="btn btn-outline-danger me-2">Discard</button>';
+                  }
+
+                  if ($collectionsCreateAccess['total'] > 0 && $paymentAdvice == 'No') {
                       echo '<a class="btn btn-success m-r-5 form-details" href="collections.php?new">Create</a>';
+                  }
+
+                  if ($collectionsCreateAccess['total'] > 0 && $paymentAdvice == 'Yes') {
+                      echo '<a class="btn btn-success m-r-5 form-details" href="payment-advice.php?new">Create</a>';
                   }
             ?>
           </div>
@@ -41,6 +50,7 @@
       </div>
       <div class="card-body">
         <form id="collections-form" method="post" action="#">
+          <input type="hidden" name="payment_advice" value="<?php echo $paymentAdvice; ?>">
             <?php
                 $disabled = 'disabled';
                 if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))) {
@@ -143,6 +153,8 @@
                     <option value="Registration Renewal">Registration Renewal</option>
                     <option value="Transaction Fee">Transaction Fee</option>
                     <option value="Transfer Fee">Transfer Fee</option>
+                    <option value="Pull-out Fee">Pull-out Fee</option>
+                    <option value="Collection Fee">Collection Fee</option>
                     <option value="Rental">Rental</option>
                 </select>
             </div>

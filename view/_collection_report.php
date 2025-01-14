@@ -67,6 +67,29 @@
                         </div>
                       </li>
                       <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#payment-advice-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Payment Advice
+                        </a>
+                        <div class="collapse " id="payment-advice-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <div class="form-check my-2">
+                                <input class="form-check-input payment-advice-filter" type="radio" name="payment-advice-filter" id="payment-advice-all" value=""/>
+                                <label class="form-check-label" for="payment-advice-all">All</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input payment-advice-filter" type="radio" name="payment-advice-filter" id="payment-advice-posted" value="Yes" />
+                                <label class="form-check-label" for="payment-advice-posted">True</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input payment-advice-filter" type="radio" name="payment-advice-filter" id="payment-advice-reversed" value="No" checked/>
+                                <label class="form-check-label" for="payment-advice-reversed">False</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
                         <button type="button" class="btn btn-light-success w-100" id="apply-filter">Apply</a>
                       </li>
                     </ul>

@@ -76,6 +76,17 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Transaction Date <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <div class="input-group date">
+                    <input type="text" class="form-control future-date-restricted-datepicker" id="transaction_date" name="transaction_date" autocomplete="off" value="<?php echo date('m/d/Y'); ?>">
+                    <span class="input-group-text">
+                        <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Particulars <span class="text-danger">*</span></label>
             <div class="col-lg-10">
               <textarea class="form-control" id="particulars" name="particulars" maxlength="500"></textarea>

@@ -5,6 +5,9 @@
         if($('#collections-table').length){
             collectionsTable('#collections-table');
         }
+        if($('#payment-advice-table').length){
+            paymentAdviceTable('#payment-advice-table');
+        }
 
         if($('#transaction-history-table').length){
             transactionHistoryTable('#transaction-history-table');
@@ -265,6 +268,10 @@
             discardCreate('collections.php');
         });
 
+        $(document).on('click','#discard-payment-advice-create',function() {
+            discardCreate('payment-advice.php');
+        });
+
         $(document).on('click','#edit-form',function() {
             displayDetails('get Collection management details');
 
@@ -418,6 +425,113 @@
 
 function collectionsTable(datatable_name, buttons = false, show_all = false){
     const type = 'collections table';
+    var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
+    var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
+
+    var filter_or_date_start_date = $('#filter_or_date_start_date').val();
+    var filter_or_date_end_date = $('#filter_or_date_end_date').val();
+
+    var filter_payment_date_start_date = $('#filter_payment_date_start_date').val();
+    var filter_payment_date_end_date = $('#filter_payment_date_end_date').val();
+
+    var filter_reversed_date_start_date = $('#filter_reversed_date_start_date').val();
+    var filter_reversed_date_end_date = $('#filter_reversed_date_end_date').val();
+
+    var filter_cancellation_date_start_date = $('#filter_cancellation_date_start_date').val();
+    var filter_cancellation_date_end_date = $('#filter_cancellation_date_end_date').val();
+
+    var filter_collections_status = $('.collections-status-filter:checked').val();
+    var filter_payment_advice = $('.payment-advice-filter:checked').val();
+    var settings;
+
+    const column = [ 
+        { 'data' : 'CHECK_BOX' },
+        { 'data' : 'ACTION' },
+        { 'data' : 'PAYMENT_DATE' },
+        { 'data' : 'TRANSACTION_DATE' },
+        { 'data' : 'MODE_OF_PAYMENT' },
+        { 'data' : 'PAYMENT_AMOUNT' },
+        { 'data' : 'OR_NUMBER' },
+        { 'data' : 'OR_DATE' },
+        { 'data' : 'PAYMENT_DETAILS' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'PAYMENT_ADVICE_BADGE' },
+        { 'data' : 'LOAN_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'COLLECTED_FROM' },
+    ];
+
+    const column_definition = [
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
+        { 'width': '15%','bSortable': false, 'aTargets': 1 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 10 },
+        { 'width': 'auto', 'aTargets': 11 },
+        { 'width': 'auto', 'aTargets': 12 },
+        { 'width': 'auto', 'aTargets': 13 },
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_collections_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 
+                'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
+                'filter_transaction_date_end_date' : filter_transaction_date_end_date, 
+                'filter_or_date_start_date' : filter_or_date_start_date, 
+                'filter_or_date_end_date' : filter_or_date_end_date, 
+                'filter_payment_date_start_date' : filter_payment_date_start_date, 
+                'filter_payment_date_end_date' : filter_payment_date_end_date, 
+                'filter_reversed_date_start_date' : filter_reversed_date_start_date, 
+                'filter_reversed_date_end_date' : filter_reversed_date_end_date, 
+                'filter_cancellation_date_start_date' : filter_cancellation_date_start_date, 
+                'filter_cancellation_date_end_date' : filter_cancellation_date_end_date, 
+                'filter_collections_status' : filter_collections_status,
+                'filter_payment_advice' : filter_payment_advice
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 3, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function paymentAdviceTable(datatable_name, buttons = false, show_all = false){
+    const type = 'payment advice table';
     var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
 

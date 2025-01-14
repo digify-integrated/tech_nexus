@@ -7032,7 +7032,9 @@ CREATE PROCEDURE generateProductCard(
     IN p_product_cost_max DOUBLE, 
     IN p_product_price_min DOUBLE, 
     IN p_product_price_max DOUBLE, 
-    IN p_product_status VARCHAR(100)
+    IN p_product_status VARCHAR(100),
+    IN p_created_start_date DATE,
+    IN p_created_end_date DATE
 )
 BEGIN
     DECLARE sql_query LONGTEXT;
@@ -7055,6 +7057,14 @@ BEGIN
     -- Additional filters
     IF p_product_category IS NOT NULL AND p_product_category <> '' THEN
         SET sql_query = CONCAT(sql_query, ' AND product_category_id IN (', p_product_category, ')');
+    END IF;
+
+    IF p_created_start_date IS NOT NULL AND p_created_end_date IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND (created_date BETWEEN ');
+        SET sql_query = CONCAT(sql_query, QUOTE(p_created_start_date));
+        SET sql_query = CONCAT(sql_query, ' AND ');
+        SET sql_query = CONCAT(sql_query, QUOTE(p_created_end_date));
+        SET sql_query = CONCAT(sql_query, ')');
     END IF;
 
     IF p_product_subcategory IS NOT NULL AND p_product_subcategory <> '' THEN
@@ -7131,7 +7141,9 @@ CREATE PROCEDURE generateProductTable(
     IN p_product_cost_max DOUBLE, 
     IN p_product_price_min DOUBLE, 
     IN p_product_price_max DOUBLE,
-    IN p_product_status VARCHAR(100)
+    IN p_product_status VARCHAR(100),
+    IN p_created_start_date DATE,
+    IN p_created_end_date DATE
 )
 BEGIN
     DECLARE sql_query LONGTEXT;
@@ -7144,6 +7156,14 @@ BEGIN
         SET sql_query = CONCAT(sql_query, ' AND product_status = ', QUOTE(p_product_status));
     ELSE
         SET sql_query = CONCAT(sql_query, ' AND product_status != "Sold"');
+    END IF;
+
+    IF p_created_start_date IS NOT NULL AND p_created_end_date IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND (created_date BETWEEN ');
+        SET sql_query = CONCAT(sql_query, QUOTE(p_created_start_date));
+        SET sql_query = CONCAT(sql_query, ' AND ');
+        SET sql_query = CONCAT(sql_query, QUOTE(p_created_end_date));
+        SET sql_query = CONCAT(sql_query, ')');
     END IF;
 
     -- Apply search filter
@@ -7636,12 +7656,12 @@ BEGIN
     SET p_loan_collection_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE insertCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_last_log_by INT, OUT p_loan_collection_id INT)
+CREATE PROCEDURE insertCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_payment_advice VARCHAR(5), IN p_last_log_by INT, OUT p_loan_collection_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, leasing_application_id, pdc_type, mode_of_payment, or_number, or_date, payment_date, payment_amount, reference_number, payment_details, company_id, deposited_to, remarks, transaction_date, collection_status, collected_from, last_log_by) 
-	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_leasing_application_id, p_pdc_type, p_mode_of_payment, p_or_number, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), 'Posted', p_collected_from, p_last_log_by);
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, leasing_application_id, pdc_type, mode_of_payment, or_number, or_date, payment_date, payment_amount, reference_number, payment_details, company_id, deposited_to, remarks, transaction_date, collection_status, collected_from, payment_advice, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_leasing_application_id, p_pdc_type, p_mode_of_payment, p_or_number, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), 'Posted', p_collected_from, p_payment_advice, p_last_log_by);
 
     SET p_loan_collection_id = LAST_INSERT_ID();
 
@@ -7649,7 +7669,7 @@ BEGIN
     VALUES(p_loan_collection_id, p_mode_of_payment, NOW(), 'Posted', p_or_number, p_or_date, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_last_log_by INT)
+CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_payment_advice VARCHAR(5), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
@@ -7671,6 +7691,7 @@ BEGIN
     deposited_to = p_deposited_to,
     collected_from = p_collected_from,
     remarks = p_remarks,
+    payment_advice = p_payment_advice,
     last_log_by = p_last_log_by
     WHERE loan_collection_id = p_loan_collection_id;
 END //
@@ -10124,13 +10145,20 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateCollectionReportTable(IN p_pdc_management_company VARCHAR(500), IN p_filter_transaction_date_start_date DATE, IN p_filter_transaction_date_end_date DATE, IN p_filter_payment_date_start_date DATE, IN p_filter_payment_date_end_date DATE)
+CREATE PROCEDURE generateCollectionReportTable(IN p_pdc_management_company VARCHAR(500), IN p_filter_transaction_date_start_date DATE, IN p_filter_transaction_date_end_date DATE, IN p_filter_payment_date_start_date DATE, IN p_filter_payment_date_end_date DATE, IN p_payment_advice VARCHAR(5))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
 
     SET query = 'SELECT * FROM loan_collections';
     SET conditionList = ' WHERE 1';
+
+    IF p_payment_advice IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND payment_advice = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_payment_advice));
+    ELSE
+        SET conditionList = CONCAT(conditionList, ' AND payment_advice IN ("Yes", "No")');
+    END IF;
     
     IF p_filter_transaction_date_start_date IS NOT NULL AND p_filter_transaction_date_end_date IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
@@ -10162,13 +10190,82 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateCollectionsTable(IN p_pdc_management_status VARCHAR(50), IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_payment_start_date DATE, IN p_payment_end_date DATE, IN p_or_start_date DATE, IN p_or_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE)
+CREATE PROCEDURE generateCollectionsTable(IN p_pdc_management_status VARCHAR(50), IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_payment_start_date DATE, IN p_payment_end_date DATE, IN p_or_start_date DATE, IN p_or_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE, IN p_payment_advice VARCHAR(5))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
 
     SET query = 'SELECT * FROM loan_collections';
     SET conditionList = ' WHERE mode_of_payment != "Check"';
+    
+    IF p_payment_advice IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND payment_advice = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_payment_advice));
+    ELSE
+        SET conditionList = CONCAT(conditionList, ' AND payment_advice IN ("Yes", "No")');
+    END IF;
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_or_start_date IS NOT NULL AND p_or_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (or_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_or_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_or_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_payment_start_date IS NOT NULL AND p_payment_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (payment_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_payment_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_payment_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_reversed_start_date IS NOT NULL AND p_reversed_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (reversal_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_reversed_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_reversed_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_cancellation_start_date IS NOT NULL AND p_cancellation_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (cancellation_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_cancellation_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_cancellation_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_pdc_management_status IS NOT NULL AND p_pdc_management_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND collection_status IN (');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_pdc_management_status));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY loan_number ASC, payment_date ASC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generatePaymentAdviceTable(IN p_pdc_management_status VARCHAR(50), IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_payment_start_date DATE, IN p_payment_end_date DATE, IN p_or_start_date DATE, IN p_or_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM loan_collections';
+    SET conditionList = ' WHERE mode_of_payment != "Check" AND payment_advice = "Yes"';
     
     IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
@@ -12122,10 +12219,10 @@ BEGIN
     WHERE liquidation_id = p_liquidation_id;
 END //
 
-CREATE PROCEDURE insertDisbursement(IN p_payable_type VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT, OUT p_disbursement_id INT)
+CREATE PROCEDURE insertDisbursement(IN p_payable_type VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_transaction_date DATE, IN p_last_log_by INT, OUT p_disbursement_id INT)
 BEGIN
-    INSERT INTO disbursement (payable_type, customer_id, department_id, company_id, transaction_number, transaction_type, fund_source, particulars, created_by, last_log_by) 
-	VALUES(p_payable_type, p_customer_id, p_department_id, p_company_id, p_transaction_number, p_transaction_type, p_fund_source, p_particulars, p_last_log_by, p_last_log_by);
+    INSERT INTO disbursement (payable_type, customer_id, department_id, company_id, transaction_number, transaction_type, fund_source, particulars, transaction_date, created_by, last_log_by) 
+	VALUES(p_payable_type, p_customer_id, p_department_id, p_company_id, p_transaction_number, p_transaction_type, p_fund_source, p_particulars, p_transaction_date, p_last_log_by, p_last_log_by);
 	
     SET p_disbursement_id = LAST_INSERT_ID();
 END //
@@ -12142,7 +12239,7 @@ BEGIN
 	VALUES(p_disbursement_id, p_bank_branch, p_check_number, p_check_date, p_check_amount, p_last_log_by, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateDisbursement(IN p_disbursement_id INT, IN p_payable_type VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updateDisbursement(IN p_disbursement_id INT, IN p_payable_type VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_transaction_date DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE disbursement
     SET payable_type = p_payable_type,
@@ -12153,6 +12250,7 @@ BEGIN
         transaction_type = p_transaction_type,
         fund_source = p_fund_source,
         particulars = p_particulars,
+        transaction_date = p_transaction_date,
         last_log_by = p_last_log_by
     WHERE disbursement_id = p_disbursement_id;
 END //
@@ -12358,7 +12456,7 @@ BEGIN
     IF p_disburse_status = 'Posted' THEN
         UPDATE disbursement
         SET disburse_status = p_disburse_status,
-        posted_date = NOW(),
+        posted_date = (SELECT transaction_date FROM disbursement WHERE disbursement_id = p_disbursement_id),
         last_log_by = p_last_log_by
         WHERE disbursement_id = p_disbursement_id AND disburse_status IN('Draft');
     ELSEIF p_disburse_status = 'Cancelled' THEN
@@ -12426,7 +12524,8 @@ CREATE PROCEDURE createDisbursementEntry(
     IN p_disbursement_id INT,
     IN p_transaction_number VARCHAR(100),
     IN p_fund_source VARCHAR(100),
-    IN p_transaction_type VARCHAR(100), -- Added transaction type
+    IN p_transaction_type VARCHAR(100),
+    IN p_transaction_date DATE,
     IN p_last_log_by INT
 )
 BEGIN
@@ -12635,7 +12734,7 @@ BEGIN
                     last_log_by
                 ) VALUES (
                     p_disbursement_id, 
-                    NOW(), 
+                    p_transaction_date, 
                     p_transaction_number, 
                     'Disbursement Operations', 
                     v_chart_item, 
@@ -12664,7 +12763,7 @@ BEGIN
                     last_log_by
                 ) VALUES (
                     p_disbursement_id, 
-                    NOW(), 
+                    p_transaction_date, 
                     p_transaction_number, 
                     'Disbursement Operations', 
                     v_credit, 
@@ -12694,7 +12793,7 @@ BEGIN
                     last_log_by
                 ) VALUES (
                     p_disbursement_id, 
-                    NOW(), 
+                    p_transaction_date, 
                     p_transaction_number, 
                     'Disbursement Operations', 
                     v_chart_item, 
@@ -12723,7 +12822,7 @@ BEGIN
                     last_log_by
                 ) VALUES (
                     p_disbursement_id, 
-                    NOW(), 
+                    p_transaction_date, 
                     p_transaction_number, 
                     'Disbursement Operations', 
                     v_credit, 

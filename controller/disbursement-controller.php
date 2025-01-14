@@ -213,6 +213,7 @@ class DisbursementController {
         $fund_source = $disbursementDetails['fund_source'];
         $transaction_type = $disbursementDetails['transaction_type'];
         $transaction_number = $disbursementDetails['transaction_number'];
+        $transaction_date = $disbursementDetails['transaction_date'];
 
         $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
         $disbursementCheckTotal = $this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0;
@@ -279,7 +280,7 @@ class DisbursementController {
             }
         }
 
-        $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $userID);
+        $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
         $this->disbursementModel->createLiquidation($disbursementID, $userID, $userID);
             
         echo json_encode(['success' => true]);
@@ -603,7 +604,7 @@ class DisbursementController {
             }    
         }
 
-        $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'reversed', $userID);
+        $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'reversed', date('Y-m-d'), $userID);
         
         $this->disbursementModel->cancelAllDisbursementCheck($disbursementID,$reversalRemarks, $userID);
                 
@@ -810,6 +811,7 @@ class DisbursementController {
         $particulars = $_POST['particulars'];
         $department_id = $_POST['department_id'];
         $company_id = $_POST['company_id'];
+        $transaction_date = $this->systemModel->checkDate('empty', $_POST['transaction_date'], '', 'Y-m-d', '');
 
         if($payable_type === 'Customer'){
             $customer_id = $_POST['customer_id'];
@@ -831,7 +833,7 @@ class DisbursementController {
         if ($total > 0) {
             $transaction_number = $_POST['transaction_number'];
 
-            $this->disbursementModel->updateDisbursement($disbursementID, $payable_type, $customer_id, $department_id, $company_id, $transaction_number, $transaction_type, $fund_source, $particulars, $userID);
+            $this->disbursementModel->updateDisbursement($disbursementID, $payable_type, $customer_id, $department_id, $company_id, $transaction_number, $transaction_type, $fund_source, $particulars, $transaction_date, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'disbursementID' => $this->securityModel->encryptData($disbursementID)]);
             exit;
@@ -846,7 +848,7 @@ class DisbursementController {
             }
             
 
-            $disbursementID = $this->disbursementModel->insertDisbursement($payable_type, $customer_id, $department_id, $company_id, $transaction_number, $transaction_type, $fund_source, $particulars, $userID);
+            $disbursementID = $this->disbursementModel->insertDisbursement($payable_type, $customer_id, $department_id, $company_id, $transaction_number, $transaction_type, $fund_source, $particulars, $transaction_date, $userID);
 
             if($fund_source == 'Check'){
                 $this->systemSettingModel->updateSystemSettingValue(24, $transaction_number, $userID);
@@ -1209,7 +1211,8 @@ class DisbursementController {
                 'customerID' => $disbursementDetails['customer_id'],
                 'departmentID' => $disbursementDetails['department_id'],
                 'companyID' => $disbursementDetails['company_id'],
-                'fundSource' => $disbursementDetails['fund_source']
+                'fundSource' => $disbursementDetails['fund_source'],
+                'transactionDate' =>  $this->systemModel->checkDate('empty', $disbursementDetails['transaction_date'], '', 'm/d/Y', '')
             ];
 
             echo json_encode($response);

@@ -71,9 +71,18 @@
           ?>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">CDV Number <span class="text-danger">*</span></label>
-            <div class="col-lg-10">
+            <div class="col-lg-4">
               <input type="text" class="form-control" id="transaction_number" name="transaction_number" maxlength="200" autocomplete="off" readonly>
             </div>
+            <label class="col-lg-2 col-form-label">Transaction Date <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <div class="input-group date">
+                    <input type="text" class="form-control future-date-restricted-datepicker" id="transaction_date" name="transaction_date" autocomplete="off" value="<?php echo date('m/d/Y'); ?>" <?php echo $disabled; ?>>
+                    <span class="input-group-text">
+                        <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+            </div>div>
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Payable Type <span class="text-danger">*</span></label>

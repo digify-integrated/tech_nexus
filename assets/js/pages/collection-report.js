@@ -18,6 +18,7 @@ function collectionReportTable(datatable_name, buttons = false, show_all = false
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
     var filter_payment_date_start_date = $('#filter_payment_date_start_date').val();
     var filter_payment_date_end_date = $('#filter_payment_date_end_date').val();
+    var filter_payment_advice = $('.payment-advice-filter:checked').val();
     var collection_report_filter_values_company = [];
 
     $('.company-checkbox:checked').each(function() {
@@ -69,7 +70,8 @@ function collectionReportTable(datatable_name, buttons = false, show_all = false
                 'filter_transaction_date_end_date' : filter_transaction_date_end_date, 
                 'filter_payment_date_start_date' : filter_payment_date_start_date, 
                 'filter_payment_date_end_date' : filter_payment_date_end_date, 
-                'filter_collection_report_company' : filter_collection_report_company
+                'filter_collection_report_company' : filter_collection_report_company,
+                'filter_payment_advice' : filter_payment_advice
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {

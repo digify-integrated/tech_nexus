@@ -28,8 +28,8 @@ class DisbursementModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateDisbursement($p_disbursement_id, $p_payable_type, $p_customer_id, $p_department_id, $p_company_id, $p_transaction_number, $p_transaction_type, $p_fund_source, $p_particulars, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateDisbursement(:p_disbursement_id, :p_payable_type, :p_customer_id, :p_department_id, :p_company_id, :p_transaction_number, :p_transaction_type, :p_fund_source, :p_particulars, :p_last_log_by)');
+    public function updateDisbursement($p_disbursement_id, $p_payable_type, $p_customer_id, $p_department_id, $p_company_id, $p_transaction_number, $p_transaction_type, $p_fund_source, $p_particulars, $p_transaction_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateDisbursement(:p_disbursement_id, :p_payable_type, :p_customer_id, :p_department_id, :p_company_id, :p_transaction_number, :p_transaction_type, :p_fund_source, :p_particulars, :p_transaction_date, :p_last_log_by)');
         $stmt->bindValue(':p_disbursement_id', $p_disbursement_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_payable_type', $p_payable_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_STR);
@@ -39,6 +39,7 @@ class DisbursementModel {
         $stmt->bindValue(':p_transaction_type', $p_transaction_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_fund_source', $p_fund_source, PDO::PARAM_STR);
         $stmt->bindValue(':p_particulars', $p_particulars, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_date',  $p_transaction_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -152,8 +153,8 @@ class DisbursementModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertDisbursement($p_payable_type, $p_customer_id, $p_department_id, $p_company_id, $p_transaction_number, $p_transaction_type, $p_fund_source, $p_particulars, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertDisbursement(:p_payable_type, :p_customer_id, :p_department_id, :p_company_id, :p_transaction_number, :p_transaction_type, :p_fund_source, :p_particulars, :p_last_log_by, @p_disbursement_id)');
+    public function insertDisbursement($p_payable_type, $p_customer_id, $p_department_id, $p_company_id, $p_transaction_number, $p_transaction_type, $p_fund_source, $p_particulars, $p_transaction_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertDisbursement(:p_payable_type, :p_customer_id, :p_department_id, :p_company_id, :p_transaction_number, :p_transaction_type, :p_fund_source, :p_particulars, :p_transaction_date, :p_last_log_by, @p_disbursement_id)');
         $stmt->bindValue(':p_payable_type', $p_payable_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_department_id', $p_department_id, PDO::PARAM_STR);
@@ -162,6 +163,7 @@ class DisbursementModel {
         $stmt->bindValue(':p_transaction_type', $p_transaction_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_fund_source', $p_fund_source, PDO::PARAM_STR);
         $stmt->bindValue(':p_particulars', $p_particulars, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_date', $p_transaction_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -204,12 +206,13 @@ class DisbursementModel {
         $stmt->execute();
     }
 
-    public function createDisbursementEntry($p_disbursement_id, $p_transaction_number, $p_fund_source, $p_entry_type, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL createDisbursementEntry(:p_disbursement_id, :p_transaction_number, :p_fund_source, :p_entry_type, :p_last_log_by)');
+    public function createDisbursementEntry($p_disbursement_id, $p_transaction_number, $p_fund_source, $p_entry_type, $p_transaction_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createDisbursementEntry(:p_disbursement_id, :p_transaction_number, :p_fund_source, :p_entry_type, :p_transaction_date, :p_last_log_by)');
         $stmt->bindValue(':p_disbursement_id', $p_disbursement_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_transaction_number', $p_transaction_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_fund_source', $p_fund_source, PDO::PARAM_STR);
-        $stmt->bindValue(':p_entry_type', $p_entry_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_entry_type',  $p_entry_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_date', $p_transaction_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

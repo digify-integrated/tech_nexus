@@ -39,29 +39,6 @@
                         </div>
                       </li>
                       <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#payment-advice-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Payment Advice
-                        </a>
-                        <div class="collapse " id="payment-advice-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <div class="form-check my-2">
-                                <input class="form-check-input payment-advice-filter" type="radio" name="payment-advice-filter" id="payment-advice-all" value=""/>
-                                <label class="form-check-label" for="payment-advice-all">All</label>
-                              </div>
-                              <div class="form-check my-2">
-                                <input class="form-check-input payment-advice-filter" type="radio" name="payment-advice-filter" id="payment-advice-posted" value="Yes" />
-                                <label class="form-check-label" for="payment-advice-posted">True</label>
-                              </div>
-                              <div class="form-check my-2">
-                                <input class="form-check-input payment-advice-filter" type="radio" name="payment-advice-filter" id="payment-advice-reversed" value="No" checked/>
-                                <label class="form-check-label" for="payment-advice-reversed">False</label>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#transaction-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Transaction Date
                         </a>
@@ -159,7 +136,7 @@
                                     </div>';
 
                     if($collectionsCreateAccess['total'] > 0){
-                      $action .= '<a href="collections.php?new" class="btn btn-success">Create</a>';
+                      $action .= '<a href="payment-advice.php?new" class="btn btn-success">Create</a>';
                     }
                                   
                     echo $action;
@@ -176,7 +153,7 @@
           </div>
           <div class="card-body">
             <div class="table-responsive dt-responsive">
-              <table id="collections-table" class="table table-hover text-wrap w-100 text-uppercase">
+              <table id="payment-advice-table" class="table table-hover text-wrap w-100 text-uppercase">
                 <thead>
                   <tr>
                     <th class="all">
@@ -193,7 +170,6 @@
                     <th>OR Date</th>
                     <th>Payment Details</th>
                     <th>Status</th>
-                    <th>Payment Advice</th>
                     <th>Loan Number</th>
                     <th>Customer</th>
                     <th>Collected From</th>

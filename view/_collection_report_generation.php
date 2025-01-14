@@ -47,6 +47,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $filter_payment_date_end_date = $systemModel->checkDate('empty', $_POST['filter_payment_date_end_date'], '', 'Y-m-d', '');
             
             $values_company = $_POST['filter_collection_report_company'];
+            $filter_payment_advice = $_POST['filter_payment_advice'];
+
+            if(empty($_POST['filter_payment_advice'])){
+                $filter_payment_advice = null;
+            }
 
             if(!empty($values_company)){
                 $values_array = explode(', ', $values_company);
@@ -63,12 +68,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filterPDCManagementCompany = null;
             }
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateCollectionReportTable(:filterPDCManagementCompany, :filter_transaction_date_start_date, :filter_transaction_date_end_date, :filter_payment_date_start_date, :filter_payment_date_end_date)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generateCollectionReportTable(:filterPDCManagementCompany, :filter_transaction_date_start_date, :filter_transaction_date_end_date, :filter_payment_date_start_date, :filter_payment_date_end_date, :filter_payment_advice)');
             $sql->bindValue(':filterPDCManagementCompany', $filterPDCManagementCompany, PDO::PARAM_STR);
             $sql->bindValue(':filter_transaction_date_start_date', $filter_transaction_date_start_date, PDO::PARAM_STR);
             $sql->bindValue(':filter_transaction_date_end_date', $filter_transaction_date_end_date, PDO::PARAM_STR);
             $sql->bindValue(':filter_payment_date_start_date', $filter_payment_date_start_date, PDO::PARAM_STR);
             $sql->bindValue(':filter_payment_date_end_date', $filter_payment_date_end_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_payment_advice', $filter_payment_advice, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();

@@ -7,10 +7,17 @@
             <h5>Collections</h5>
           </div>
           <?php
-            if ($collectionsCreateAccess['total'] > 0) {
+            if ($collectionsCreateAccess['total'] > 0  && $paymentAdvice == 'No') {
                echo '<div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                       <button type="submit" form="collections-form" class="btn btn-success form-edit" id="submit-data">Save</button>
                       <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>
+                    </div>';
+            }
+            
+            if ($collectionsCreateAccess['total'] > 0  && $paymentAdvice == 'Yes') {
+               echo '<div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                      <button type="submit" form="collections-form" class="btn btn-success form-edit" id="submit-data">Save</button>
+                      <button type="button" id="discard-payment-advice-create" class="btn btn-outline-danger form-edit">Discard</button>
                     </div>';
             }
           ?>
@@ -18,6 +25,7 @@
       </div>
       <div class="card-body">
         <form id="collections-form" method="post" action="#">
+            <input type="hidden" name="payment_advice" value="<?php echo $paymentAdvice; ?>">
             <div class="form-group row">
             <label class="col-lg-2 col-form-label">Mode of Payment <span class="text-danger">*</span></label>
             <div class="col-lg-4">
@@ -114,6 +122,8 @@
                     <option value="Registration Renewal">Registration Renewal</option>
                     <option value="Transaction Fee">Transaction Fee</option>
                     <option value="Transfer Fee">Transfer Fee</option>
+                    <option value="Pull-out Fee">Pull-out Fee</option>
+                    <option value="Collection Fee">Collection Fee</option>
                     <option value="Rental">Rental</option>
                 </select>
             </div>

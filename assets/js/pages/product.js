@@ -24,7 +24,10 @@
             var filter_product_cost_max = $('#filter_product_cost_max').val();
             var filter_product_price_min = $('#filter_product_price_min').val();
             var filter_product_price_max = $('#filter_product_price_max').val();
+            var filter_created_date_start_date = $('#filter_created_date_start_date').val();
+            var filter_created_date_end_date = $('#filter_created_date_end_date').val();
             var product_status_filter = $('.product-status-filter:checked').val();
+            
             var company_filter_values = [];
             var product_category_filter_values = [];
             var product_subcategory_filter_values = [];
@@ -90,6 +93,8 @@
                     filter_product_cost_max: filter_product_cost_max,
                     filter_product_price_min: filter_product_price_min,
                     filter_product_price_max: filter_product_price_max,
+                    filter_created_date_start_date: filter_created_date_start_date,
+                    filter_created_date_end_date: filter_created_date_end_date,
                     product_status_filter: product_status_filter,
                     color_filter: color_filter,
                     type: type
@@ -1214,6 +1219,8 @@ function productTable(datatable_name, buttons = false, show_all = false){
     var filter_product_price_min = $('#filter_product_price_min').val();
     var filter_product_price_max = $('#filter_product_price_max').val();
     var product_status_filter = $('.product-status-filter:checked').val();
+    var filter_created_date_start_date = $('#filter_created_date_start_date').val();
+    var filter_created_date_end_date = $('#filter_created_date_end_date').val();
     var company_filter_values = [];
     var product_category_filter_values = [];
     var product_subcategory_filter_values = [];
@@ -1287,6 +1294,8 @@ function productTable(datatable_name, buttons = false, show_all = false){
                 'filter_product_cost_max' : filter_product_cost_max,
                 'filter_product_price_min' : filter_product_price_min,
                 'filter_product_price_max' : filter_product_price_max,
+                'filter_created_date_start_date' : filter_created_date_start_date,
+                'filter_created_date_end_date' : filter_created_date_end_date,
                 'product_status_filter' : product_status_filter,
                 'company_filter' : company_filter,
                 'product_category_filter' : product_category_filter,

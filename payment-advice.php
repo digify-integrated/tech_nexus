@@ -20,14 +20,14 @@
   $leasingApplicationModel = new LeasingApplicationModel($databaseModel);
 
 
-  $pageTitle = 'Collections';
+  $pageTitle = 'Payment Advice';
     
-  $collectionsReadAccess = $userModel->checkMenuItemAccessRights($user_id, 97, 'read');
-  $collectionsCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 97, 'create');
-  $collectionsWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 97, 'write');
-  $collectionsDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 97, 'delete');
+  $collectionsReadAccess = $userModel->checkMenuItemAccessRights($user_id,  127, 'read');
+  $collectionsCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 127, 'create');
+  $collectionsWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 127, 'write');
+  $collectionsDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 127, 'delete');
 
-  $tagCollectionAsCleared = $userModel->checkSystemActionAccessRights($user_id, 154);
+  $tagCollectionAsCleared = $userModel->checkSystemActionAccessRights($user_id, p_system_action_id: 154);
   $tagCollectionOnHold = $userModel->checkSystemActionAccessRights($user_id, 155);
   $tagCollectionAsReversed = $userModel->checkSystemActionAccessRights($user_id, 156);
   $tagCollectionAsCancelled = $userModel->checkSystemActionAccessRights($user_id, 157);
@@ -69,7 +69,7 @@
   }
 
   $newRecord = isset($_GET['new']);
-  $paymentAdvice = 'No';
+  $paymentAdvice = 'Yes';
 
   require('config/_interface_settings.php');
   require('config/_user_account_details.php');
@@ -129,7 +129,7 @@
             require_once('view/_collections_details.php');
           }
           else{
-            require_once('view/_collections.php');
+            require_once('view/_payment_advice.php');
           }
         ?>
       </div>
