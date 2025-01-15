@@ -165,6 +165,73 @@
             }
         });
         
+        $(document).on('click','#post-disbursement',function() {
+            let disbursement_id = [];
+            const transaction = 'post multiple disbursement';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    disbursement_id.push(element.value);
+                }
+            });
+    
+            if(disbursement_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple Deposit Post',
+                    text: 'Are you sure you want to post these disbursement?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Post',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/disbursement-controller.php',
+                            dataType: 'json',
+                            data: {
+                                disbursement_id: disbursement_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Post Deposits Success', 'The selected disbursement have been posted successfully.', 'success');
+                                    reloadDatatable('#disbursement-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Post Deposits Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Post Multiple Deposits Error', 'Please select the deposits you wish to post.', 'danger');
+            }
+        });
+        
         $(document).on('click','#replenish-disbursement',function() {
             let disbursement_id = [];
             const transaction = 'replenish multiple disbursement';
@@ -228,7 +295,7 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Deposits Error', 'Please select the deposits you wish to delete.', 'danger');
+                showNotification('Replenish Multiple Deposits Error', 'Please select the deposits you wish to replenish.', 'danger');
             }
         });
 
@@ -342,7 +409,7 @@
             });
         });
 
-        $(document).on('click','#post-disbursement',function() {
+        $(document).on('click','#post-disbursement-details',function() {
             const disbursement_id = $('#disbursement-id').text();
             const transaction = 'post disbursement';
     
@@ -780,6 +847,7 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
     const type = 'disbursement table';
     var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
+    var fund_source_filter = $('.fund-source-filter:checked').val();
 
     var settings;
 
@@ -820,7 +888,8 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
             'dataType': 'json',
             'data': {'type' : type, 
                 'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
-                'filter_transaction_date_end_date' : filter_transaction_date_end_date
+                'filter_transaction_date_end_date' : filter_transaction_date_end_date,
+                'fund_source_filter' : fund_source_filter,
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
@@ -861,6 +930,7 @@ function particularsTable(datatable_name, buttons = false, show_all = false){
 
     const column = [
         { 'data' : 'PARTICULARS' },
+        { 'data' : 'COMPANY' },
         { 'data' : 'PARTICULAR_AMOUNT' },
         { 'data' : 'REMARKS' },
         { 'data' : 'ACTION' }
@@ -870,7 +940,8 @@ function particularsTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
-        { 'width': '15%','bSortable': false, 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': '15%','bSortable': false, 'aTargets': 4 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1126,6 +1197,9 @@ function particularsForm(){
             disbursement_amount: {
                 required: true
             },
+            particulars_company_id: {
+                required: true
+            },
         },
         messages: {
             chart_of_account_id: {
@@ -1133,6 +1207,9 @@ function particularsForm(){
             },
             disbursement_amount: {
                 required: 'Please enter the disbursement amount'
+            },
+            particulars_company_id: {
+                required: 'Please choose the company'
             },
         },
         errorPlacement: function (error, element) {

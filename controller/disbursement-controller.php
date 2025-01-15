@@ -137,6 +137,9 @@ class DisbursementController {
                 case 'post disbursement':
                     $this->tagDisbursementAsPosted();
                     break;
+                case 'post multiple disbursement':
+                    $this->postMultipleDisbursement();
+                    break;
                 case 'post liquidation particulars':
                     $this->tagLiquidationParticularsAsPosted();
                     break;
@@ -416,6 +419,81 @@ class DisbursementController {
 
         foreach($disbursementIDs as $disbursementID){
             $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Replenished', '', $userID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function postMultipleDisbursement() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $disbursementIDs = $_POST['disbursement_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($disbursementIDs as $disbursementID) {
+            $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
+            $fund_source = $disbursementDetails['fund_source'];
+            $transaction_type = $disbursementDetails['transaction_type'];
+            $transaction_number = $disbursementDetails['transaction_number'];
+            $transaction_date = $disbursementDetails['transaction_date'];
+        
+            $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
+            $disbursementCheckTotal = $this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0;
+        
+            if ($disbursementTotal === 0) {
+                continue;
+            }
+        
+            if ($fund_source === 'Check' && $disbursementCheckTotal == 0) {
+                continue;
+            }
+        
+            if ($fund_source === 'Check' && $disbursementCheckTotal != $disbursementTotal) {
+                continue; 
+            }
+        
+            if ($transaction_type === 'Disbursement') {
+                if ($fund_source == 'Petty Cash') {
+                    $systemSettingID = 20;
+                    $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $disbursementTotal;
+                    $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                    $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+                } else if ($fund_source == 'Revolving Fund') {
+                    $systemSettingID = 21;
+                    $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $disbursementTotal;
+                    $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                    $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+                } else {
+                    $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                }
+            } else {
+                if ($fund_source == 'Petty Cash') {
+                    $systemSettingID = 20;
+                    $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $disbursementTotal;
+                    $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                    $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+                } else if ($fund_source == 'Revolving Fund') {
+                    $systemSettingID = 21;
+                    $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $disbursementTotal;
+                    $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                    $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+                } else {
+                    $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Posted', '', $userID);
+                }
+            }
+        
+            $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
+            $this->disbursementModel->createLiquidation($disbursementID, $userID, $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -872,6 +950,7 @@ class DisbursementController {
         $disbursement_id = $_POST['disbursement_id'];
         $chart_of_account_id = $_POST['chart_of_account_id'];
         $particulars_amount = $_POST['particulars_amount'];
+        $company_id = $_POST['particulars_company_id'];
         $remarks = $_POST['remarks'];
     
         $user = $this->userModel->getUserByID($userID);
@@ -885,13 +964,13 @@ class DisbursementController {
         $total = $checkDisbursementExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->disbursementModel->updateDisbursementParticulars($disbursement_particulars_id, $disbursement_id, $chart_of_account_id, $remarks, $particulars_amount, $userID);
+            $this->disbursementModel->updateDisbursementParticulars($disbursement_particulars_id, $disbursement_id, $chart_of_account_id, $company_id, $remarks, $particulars_amount, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->disbursementModel->insertDisbursementParticulars($disbursement_id, $chart_of_account_id, $remarks, $particulars_amount, $userID);
+            $this->disbursementModel->insertDisbursementParticulars($disbursement_id, $chart_of_account_id, $company_id, $remarks, $particulars_amount, $userID);
 
             echo json_encode(['success' => true]);
             exit;

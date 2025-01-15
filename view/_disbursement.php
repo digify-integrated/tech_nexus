@@ -118,7 +118,34 @@
                             </div>
                           </div>
                         </div>
-                        </li>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#fund-source-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Fund Source
+                        </a>
+                        <div class="collapse" id="fund-source-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <div class="form-check my-2">
+                                <input class="form-check-input fund-source-filter" type="radio" name="fund-source-filter" id="fund-source-all" value="" checked />
+                                <label class="form-check-label" for="fund-source-all">All</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input fund-source-filter" type="radio" name="fund-source-filter" id="fund-source-petty-cash" value="Petty Cash" />
+                                <label class="form-check-label" for="fund-source-petty-cash">Petty Cash</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input fund-source-filter" type="radio" name="fund-source-filter" id="fund-source-revolving-fund" value="Revolving Fund" />
+                                <label class="form-check-label" for="fund-source-revolving-fund">Revolving Fund</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input fund-source-filter" type="radio" name="fund-source-filter" id="fund-source-check" value="Check" />
+                                <label class="form-check-label" for="fund-source-check">Check</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
                       <!--<li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#reversed-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Reversed Date
@@ -168,10 +195,15 @@
                   if($disbursementCreateAccess['total'] > 0 || $disbursementDeleteAccess['total'] > 0 || $disbursementCreateAccess['total'] > 0){
                     $action = '<div class="btn-group m-r-10">
                                       <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
-                                      <ul class="dropdown-menu dropdown-menu-end">';
+                                      <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a href="print-cv-disbursement-voucher.php" class="dropdown-item" target="_blank">Print Voucher</a></li>';
                                   
                     if($replenishmentDisbursement['total'] > 0){
                       $action .= '<li><button class="dropdown-item" type="button" id="replenish-disbursement">Replenish Disbursement</button></li>';
+                    }
+
+                    if ($postDisbursement['total'] > 0) {
+                      $action .= '<li><button class="dropdown-item" type="button" id="post-disbursement">Post Disbursement</button></li>';
                     }
                                   
                     if($disbursementDeleteAccess['total'] > 0){

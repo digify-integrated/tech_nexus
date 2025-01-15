@@ -12034,7 +12034,7 @@ BEGIN
     -- Declare cursor for fetching journal codes (debit, credit codes)
     DECLARE cur_journal_code CURSOR FOR
         SELECT transaction, item, debit, credit
-        FROM journal_code
+        FROM `journal_code`
         WHERE company_id = p_company_id 
           AND transaction_type = p_transaction_type 
           AND product_type_id = p_product_type_code;
@@ -12227,10 +12227,10 @@ BEGIN
     SET p_disbursement_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE insertDisbursementParticulars(IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertDisbursementParticulars(IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_company_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO disbursement_particulars (disbursement_id, chart_of_account_id, remarks, particulars_amount, created_by, last_log_by) 
-	VALUES(p_disbursement_id, p_chart_of_account_id, p_remarks, p_particulars_amount, p_last_log_by, p_last_log_by);
+    INSERT INTO disbursement_particulars (disbursement_id, chart_of_account_id, company_id, remarks, particulars_amount, created_by, last_log_by) 
+	VALUES(p_disbursement_id, p_chart_of_account_id, p_company_id, p_remarks, p_particulars_amount, p_last_log_by, p_last_log_by);
 END //
 
 CREATE PROCEDURE insertDisbursementCheck(IN p_disbursement_id INT, IN p_bank_branch VARCHAR(100), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_check_amount DOUBLE, IN p_last_log_by INT)
@@ -12255,11 +12255,12 @@ BEGIN
     WHERE disbursement_id = p_disbursement_id;
 END //
 
-CREATE PROCEDURE updateDisbursementParticulars(IN p_disbursement_particulars_id INT, IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateDisbursementParticulars(IN p_disbursement_particulars_id INT, IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_company_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
 BEGIN
     UPDATE disbursement_particulars
     SET disbursement_id = p_disbursement_id,
         chart_of_account_id = p_chart_of_account_id,
+        company_id = p_company_id,
         remarks = p_remarks,
         particulars_amount = p_particulars_amount,
         last_log_by = p_last_log_by
@@ -12366,6 +12367,12 @@ BEGIN
     WHERE disbursement_id = p_disbursement_id AND check_status NOT IN ('Cancelled');
 END //
 
+CREATE PROCEDURE getDisbursementCheckCount(IN p_disbursement_id INT)
+BEGIN
+	SELECT COUNT(disbursement_check_id) AS total FROM disbursement_check
+    WHERE disbursement_id = p_disbursement_id AND check_status NOT IN ('Cancelled');
+END //
+
 CREATE PROCEDURE getDisbursementNegotiatedCheckTotal(IN p_disbursement_id INT)
 BEGIN
 	SELECT SUM(check_amount) AS total FROM disbursement_check
@@ -12378,13 +12385,18 @@ BEGIN
     WHERE disbursement_id IN (SELECT disbursement_id FROM disbursement WHERE fund_source = p_fund_source AND disburse_status = 'Posted');
 END //
 
-CREATE PROCEDURE generateDisbursementTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE)
+CREATE PROCEDURE generateDisbursementTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_fund_source_filter VARCHAR(100))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
 
     SET query = 'SELECT * FROM disbursement';
     SET conditionList = ' WHERE 1';
+
+    IF p_fund_source_filter IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND fund_source = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_fund_source_filter));
+    END IF;
     
     IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
@@ -12535,11 +12547,12 @@ BEGIN
     DECLARE v_credit VARCHAR(500);
     DECLARE v_chart_item VARCHAR(600);
     DECLARE v_particulars_amount DOUBLE;
+    DECLARE v_company_id INT;
     DECLARE v_done INT DEFAULT 0;
 
     -- Cursor for disbursement particulars
     DECLARE cur_particulars CURSOR FOR
-        SELECT dp.particulars_amount, 
+        SELECT dp.particulars_amount, dp.company_id,
                CONCAT(ca.code, ' ', ca.name) AS chart_item
         FROM disbursement_particulars dp
         JOIN chart_of_account ca ON dp.chart_of_account_id = ca.chart_of_account_id
@@ -12547,32 +12560,6 @@ BEGIN
 
     -- Continue handler for cursor
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = 1;
-
-    -- Determine analytic_lines and analytic_distribution based on company_id
-    SELECT d.company_id INTO @company_id
-    FROM disbursement d
-    WHERE d.disbursement_id = p_disbursement_id;
-
-    CASE @company_id
-        WHEN 1 THEN
-            SET v_analytic_lines = 'CGMI';
-            SET v_analytic_distribution = '{"1": 100.0}';
-        WHEN 2 THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
-        WHEN 3 THEN
-            SET v_analytic_lines = 'FUSO';
-            SET v_analytic_distribution = '{"5": 100.0}';
-        WHEN 4 THEN
-            SET v_analytic_lines = 'PCG PROPERTY';
-            SET v_analytic_distribution = '{"4": 100.0}';
-        WHEN 5 THEN
-            SET v_analytic_lines = 'GCB PROPERTY';
-            SET v_analytic_distribution = '{"3": 100.0}';
-        ELSE
-            SET v_analytic_lines = 'DEFAULT';
-            SET v_analytic_distribution = '{"0": 0.0}';
-    END CASE;
 
     -- Determine credit account based on fund source
     CASE p_fund_source
@@ -12588,7 +12575,28 @@ BEGIN
     OPEN cur_particulars;
 
     read_loop: LOOP
-        FETCH cur_particulars INTO v_particulars_amount, v_chart_item;
+        FETCH cur_particulars INTO v_particulars_amount, v_company_id, v_chart_item;
+
+        CASE v_company_id
+            WHEN 1 THEN
+                SET v_analytic_lines = 'CGMI';
+                SET v_analytic_distribution = '{"1": 100.0}';
+            WHEN 2 THEN
+                SET v_analytic_lines = 'NE TRUCK';
+                SET v_analytic_distribution = '{"2": 100.0}';
+            WHEN 3 THEN
+                SET v_analytic_lines = 'FUSO';
+                SET v_analytic_distribution = '{"5": 100.0}';
+            WHEN 4 THEN
+                SET v_analytic_lines = 'PCG PROPERTY';
+                SET v_analytic_distribution = '{"4": 100.0}';
+            WHEN 5 THEN
+                SET v_analytic_lines = 'GCB PROPERTY';
+                SET v_analytic_distribution = '{"3": 100.0}';
+            ELSE
+                SET v_analytic_lines = 'DEFAULT';
+                SET v_analytic_distribution = '{"0": 0.0}';
+        END CASE;
 
         -- Exit loop if cursor is done
         IF v_done THEN

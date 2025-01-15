@@ -24,7 +24,7 @@
                     }
              
                     if ($postDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
-                      $dropdown .= '<li><button class="dropdown-item" type="button" id="post-disbursement">Post Disbursement</button></li>';
+                      $dropdown .= '<li><button class="dropdown-item" type="button" id="post-disbursement-details">Post Disbursement</button></li>';
                     }
              
                     if ($cancelDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
@@ -82,7 +82,7 @@
                         <i class="feather icon-calendar"></i>
                     </span>
                 </div>
-            </div>div>
+            </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Payable Type <span class="text-danger">*</span></label>
@@ -172,6 +172,7 @@
             <thead>
               <tr>
                 <th>Particulars</th>
+                <th class="all">Company</th>
                 <th class="all">Amount</th>
                 <th class="all">Remarks</th>
                 <th class="all">Actions</th>
@@ -298,6 +299,15 @@
                 <select class="form-control offcanvas-select2" name="chart_of_account_id" id="chart_of_account_id">
                   <option value="">--</option>
                   <?php echo $chartOfAccountModel->generateChartOfAccountDisbursementOptions(); ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Company <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="particulars_company_id" id="particulars_company_id">
+                  <option value="">--</option>
+                  <?php echo $companyModel->generateCompanyOptions(); ?>
                 </select>
               </div>
             </div>

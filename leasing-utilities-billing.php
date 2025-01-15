@@ -153,7 +153,7 @@
         $repaymentIDs = is_array($repaymentID) ? $repaymentID : explode(',', $repaymentID);
         sort($repaymentIDs);
 
-        $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
+        /*$response = '<table border="0.5" width="100%" cellpadding="2" align="center">
                         <tbody>
                         <tr>
                             <td rowspan="2">TYPE</td>
@@ -166,6 +166,21 @@
                         <tr>
                             <td>FROM</td>
                             <td>TO</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>';*/
+
+        $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
+                        <tbody>
+                        <tr>
+                            <td rowspan="2">TYPE</td>
+                            <td rowspan="2">REFERRENCE</td>
+                            <td rowspan="2">BILLED AMOUNT</td>
+                            <td rowspan="2">DUE PAID</td>
+                            <td rowspan="2">DUE AMOUNT</td>
+                        </tr>
+                        <tr>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -197,11 +212,18 @@
                 $to = date('m/d/Y', strtotime($coverageEndDate));
 
                 if(number_format($dueAmount, 2, '.', '') > 0){
-                    $response .= ' <tr>
+                    /*$response .= ' <tr>
                             <td>'. strtoupper($otherChargesType) .'</td>
                             <td>'. strtoupper($referenceNumber) .'</td>
                             <td>'. $from .'</td>
                             <td>'. $to .'</td>
+                            <td>'. number_format($total, 2) .'</td>
+                            <td>'. number_format($duePaid, 2) .'</td>
+                            <td>'. number_format($dueAmount, 2) .'</td>
+                        </tr>';*/
+                    $response .= ' <tr>
+                            <td>'. strtoupper($otherChargesType) .'</td>
+                            <td>'. strtoupper($referenceNumber) .'</td>
                             <td>'. number_format($total, 2) .'</td>
                             <td>'. number_format($duePaid, 2) .'</td>
                             <td>'. number_format($dueAmount, 2) .'</td>
@@ -211,7 +233,7 @@
         }
 
         $response .= ' <tr>
-                            <td colspan="6" align="right"><b>TOTAL</b></td>
+                            <td colspan="4" align="right"><b>TOTAL</b></td>
                             <td><b>'. number_format($totalAmount, 2) .'</b></td>
                         </tr>';
 

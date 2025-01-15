@@ -14,7 +14,9 @@
     require_once 'model/customer-model.php';
     require_once 'model/product-model.php';
     require_once 'model/sales-proposal-model.php';
+    require_once 'model/miscellaneous-client-model.php';
     require_once 'model/user-model.php';
+    require_once 'model/miscellaneous-client-model.php';
 
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
@@ -23,6 +25,7 @@
     $productModel = new ProductModel($databaseModel);
     $salesProposalModel = new SalesProposalModel($databaseModel);
     $userModel = new UserModel($databaseModel, $systemModel);
+    $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
     
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
@@ -113,6 +116,7 @@
         require_once 'model/product-model.php';
         require_once 'model/sales-proposal-model.php';
         require_once 'model/bank-model.php';
+        require_once 'model/miscellaneous-client-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -121,6 +125,7 @@
         $productModel = new ProductModel($databaseModel);
         $salesProposalModel = new SalesProposalModel($databaseModel);
         $bankModel = new BankModel($databaseModel);
+        $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 
         $loanCollectionIDs = is_array($loanCollectionID) ? $loanCollectionID : explode(',', $loanCollectionID);
         sort($loanCollectionIDs);
@@ -142,6 +147,7 @@
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>MODE OF PAYMENT</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>COLLECTION STATUS</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>REMARKS</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>PAYMENT ADVICE</b></td>
                             </tr>
                         </thead>
                         <tbody style="font-weight: normal;">';
@@ -166,11 +172,15 @@
             $pdc_type = $pdcManagementDetails['pdc_type'];
             $collected_from = $pdcManagementDetails['collected_from'];
             $deposited_to = $pdcManagementDetails['deposited_to'];
+            $payment_advice = $pdcManagementDetails['payment_advice'];
             $payment_date = $systemModel->checkDate('empty', $pdcManagementDetails['payment_date'], '', 'm/d/Y', '');
             $transaction_date = $systemModel->checkDate('empty', $pdcManagementDetails['transaction_date'], '', 'm/d/Y', '');
 
             $getBankDetails = $bankModel->getBank($deposited_to);
             $bank_name = $getBankDetails['bank_name'];
+
+            $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($collected_from);
+            $customerName2 = $miscellaneousClientDetails['client_name'] ?? null;
 
             $customerDetails = $customerModel->getPersonalInformation($customer_id);
             $customerName = $customerDetails['file_as'] ?? null;
@@ -210,12 +220,13 @@
                                 <td>'. $customerName .'</td>
                                 <td>'. $stockNumber .'</td>
                                 <td>'. $loan_number .'</td>
-                                <td>'. $collected_from .'</td>
+                                <td>'. $customerName2 .'</td>
                                 <td>'. $bank_name .'</td>
                                 <td>'. $payment_details .'</td>
                                 <td>'. $mode_of_payment .'</td>
                                 <td>'. $collection_status .'</td>
                                 <td>'. $remarks .'</td>
+                                <td>'. $payment_advice .'</td>
                             </tr>';
             $i++;
         }

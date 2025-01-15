@@ -48,10 +48,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         case 'disbursement table':
             $filterTransactionDateStartDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_start_date'], '', 'Y-m-d', '');
             $filterTransactionDateEndDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_end_date'], '', 'Y-m-d', '');
+            $fund_source_filter = $_POST['fund_source_filter'];
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementTable(:filterTransactionDateStartDate, :filterTransactionDateEndDate)');
+            if(empty($_POST['fund_source_filter'])){
+                $fund_source_filter = null;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementTable(:filterTransactionDateStartDate, :filterTransactionDateEndDate, :fund_source_filter)');
             $sql->bindValue(':filterTransactionDateStartDate', $filterTransactionDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateEndDate', $filterTransactionDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':fund_source_filter', $fund_source_filter, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -217,8 +223,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             foreach ($options as $row) {
                 $disbursement_particulars_id = $row['disbursement_particulars_id'];
                 $chart_of_account_id = $row['chart_of_account_id'];
+                $company_id = $row['company_id'];
                 $remarks = $row['remarks'];
                 $particulars_amount = $row['particulars_amount'];
+
+                $companyDetails = $companyModel->getCompany($company_id);
+                $companyName = $companyDetails['company_name'] ?? null;
 
                 $chartOfAccountDetails = $chartOfAccountModel->getChartOfAccount($chart_of_account_id);
                 $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
@@ -239,6 +249,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'PARTICULARS' => $chartOfAccountName,
+                    'COMPANY' => $companyName,
                     'PARTICULAR_AMOUNT' => number_format($particulars_amount, 2),
                     'REMARKS' => $remarks,
                     'ACTION' => $action
