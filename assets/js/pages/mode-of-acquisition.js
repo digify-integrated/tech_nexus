@@ -266,7 +266,7 @@ function modeOfAcquisitionTable(datatable_name, buttons = false, show_all = fals
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'BANK_ACCOUNT_TYPE_NAME' },
+        { 'data' : 'MODE_OF_ACQUISITION_NAME' },
         { 'data' : 'ACTION' }
     ];
 

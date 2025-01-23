@@ -10327,7 +10327,7 @@ BEGIN
     DECLARE conditionList VARCHAR(1000);
 
     SET query = 'SELECT * FROM loan_collections';
-    SET conditionList = ' WHERE mode_of_payment != "Check"';
+    SET conditionList = ' WHERE mode_of_payment != "Check" AND payment_advice = "No"';
     
     IF p_or_date IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND (or_date = ');
@@ -10355,7 +10355,7 @@ BEGIN
     DECLARE conditionList VARCHAR(1000);
 
     SET query = 'SELECT company_id, SUM(payment_amount) AS payment_amount FROM loan_collections';
-    SET conditionList = ' WHERE mode_of_payment != "Check"';
+    SET conditionList = ' WHERE mode_of_payment != "Check" AND payment_advice = "No"';
     
     IF p_or_date IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND (or_date = ');
@@ -12382,10 +12382,10 @@ END //
 CREATE PROCEDURE getUnreplishedDisbursement(IN p_fund_source VARCHAR(100))
 BEGIN
 	SELECT SUM(particulars_amount) AS total FROM disbursement_particulars
-    WHERE disbursement_id IN (SELECT disbursement_id FROM disbursement WHERE fund_source = p_fund_source AND disburse_status = 'Posted');
+    WHERE disbursement_id IN (SELECT disbursement_id FROM disbursement WHERE fund_source = p_fund_source AND disburse_status = 'Posted' AND transaction_type != 'Replenishment');
 END //
 
-CREATE PROCEDURE generateDisbursementTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_fund_source_filter VARCHAR(100))
+CREATE PROCEDURE generateDisbursementTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(100), IN p_transaction_type VARCHAR(100))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -12396,6 +12396,16 @@ BEGIN
     IF p_fund_source_filter IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND fund_source = ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_fund_source_filter));
+    END IF;
+
+    IF p_disbursement_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND disburse_status = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_disbursement_status));
+    END IF;
+
+    IF p_transaction_type IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND transaction_type = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_type));
     END IF;
     
     IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
@@ -12408,6 +12418,46 @@ BEGIN
 
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY transaction_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE getDisbursementTableTotal( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(100), IN p_transaction_type VARCHAR(100))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT SUM(particulars_amount) AS total FROM disbursement_particulars
+    WHERE disbursement_id IN (SELECT disbursement_id FROM disbursement';
+    SET conditionList = ' WHERE 1';
+
+    IF p_fund_source_filter IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND fund_source = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_fund_source_filter));
+    END IF;
+
+    IF p_disbursement_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND disburse_status = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_disbursement_status));
+    END IF;
+
+    IF p_transaction_type IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND transaction_type = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_type));
+    END IF;
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ')');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -12488,6 +12538,7 @@ BEGIN
     ELSEIF p_disburse_status = 'Replenished' THEN
         UPDATE disbursement
         SET disburse_status = p_disburse_status,
+        replenishment_batch = p_reason,
         replenishment_date = NOW(),
         last_log_by = p_last_log_by
         WHERE disbursement_id = p_disbursement_id AND disburse_status IN('Posted');
@@ -12857,6 +12908,7 @@ DELIMITER //
 DROP PROCEDURE createLiquidation//
 CREATE PROCEDURE createLiquidation(
     IN p_disbursement_id INT,
+    IN p_transaction_date DATE,
     IN p_last_log_by INT,
     IN p_created_by INT
 )
@@ -12888,6 +12940,7 @@ BEGIN
             disbursement_particulars_id, 
             disbursement_id, 
             remaining_balance, 
+            transaction_date, 
             created_by, 
             last_log_by
         )
@@ -12895,6 +12948,7 @@ BEGIN
             v_disbursement_particulars_id,
             p_disbursement_id,
             v_particulars_amount,
+            p_transaction_date,
             p_created_by,
             p_last_log_by
         );

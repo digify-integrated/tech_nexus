@@ -52,7 +52,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $cabinID .'">',
-                    'BRAND_NAME' => $cabinName,
+                    'CABIN_NAME' => $cabinName,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="cabin.php?id='. $cabinIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>

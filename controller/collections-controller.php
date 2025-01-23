@@ -429,7 +429,7 @@ class CollectionsController {
         $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
         $leasingID = htmlspecialchars($_POST['leasing_id'], ENT_QUOTES, 'UTF-8');
         $paymentDetails = $_POST['payment_details'];
-        $orNumber = $_POST['or_number'];
+        
         $paymentAmount = $_POST['payment_amount'];
         $referenceNumber = $_POST['reference_number'];
         $remarks = $_POST['remarks'];
@@ -438,6 +438,13 @@ class CollectionsController {
         $payment_advice = $_POST['payment_advice'];
         $orDate = $this->systemModel->checkDate('empty', $_POST['or_date'], '', 'Y-m-d', '');
         $paymentDate = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
+
+        if($payment_advice == 'No'){
+            $orNumber = $_POST['or_number'];
+        }
+        else{
+            $orNumber = $this->systemSettingModel->getSystemSetting(26)['value'] + 1;
+        }
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -517,6 +524,10 @@ class CollectionsController {
                     
             if($payment_advice == 'No'){
                 $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+            }
+                    
+            if($payment_advice == 'Yes'){
+                $this->systemSettingModel->updateSystemSettingValue(26, $orNumber, $userID);
             }
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);

@@ -5,7 +5,7 @@
   
   $modeOfAcquisitionModel = new ModeOfAcquisitionModel($databaseModel);
 
-  $pageTitle = 'Bank Account Type';
+  $pageTitle = 'Mode of Acquisition';
     
   $modeOfAcquisitionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 104, 'read');
   $modeOfAcquisitionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 104, 'create');

@@ -215,6 +215,10 @@
                 <th class="all">Check Date</th>
                 <th class="all">Check No.</th>
                 <th class="all">Check Amount</th>
+                    <th>Reversal Date</th>
+                    <th>Transmitted Date</th>
+                    <th>Outstanding Date</th>
+                    <th>Negotiated Date</th>
                 <th class="all">Check Status</th>
                 <th class="all">Actions</th>
               </tr>

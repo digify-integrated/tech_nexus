@@ -703,7 +703,11 @@ function collectionsForm(){
                 required: true
             },
             or_number: {
-                required: true
+                required: {
+                    depends: function(element) {
+                        return $("#payment_advice").val() === 'No';
+                    }
+                }
             },
             or_date: {
                 required: true
@@ -845,6 +849,7 @@ function collectionsForm(){
         },
         submitHandler: function(form) {
             const loan_collection_id = $('#loan-collection-id').text();
+            const payment_advice = $('#payment_advice').val();
             const transaction = 'save collections';
         
             $.ajax({
@@ -861,7 +866,14 @@ function collectionsForm(){
                         const notificationDescription = response.insertRecord ? 'The Collection management has been inserted successfully.' : 'The Collection management has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'collections.php?id=' + response.loanCollectionID;
+                       
+
+                        if(payment_advice === 'No'){
+                            window.location = 'collections.php?id=' + response.loanCollectionID;
+                        }
+                        else{
+                            window.location = 'payment-advice.php?id=' + response.loanCollectionID;
+                        }
                     }
                     else {
                         if (response.isInactive) {

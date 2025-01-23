@@ -49,15 +49,27 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $filterTransactionDateStartDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_start_date'], '', 'Y-m-d', '');
             $filterTransactionDateEndDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_end_date'], '', 'Y-m-d', '');
             $fund_source_filter = $_POST['fund_source_filter'];
+            $disbursement_status_filter = $_POST['disbursement_status_filter'];
+            $transaction_type_filter = $_POST['transaction_type_filter'];
 
             if(empty($_POST['fund_source_filter'])){
                 $fund_source_filter = null;
             }
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementTable(:filterTransactionDateStartDate, :filterTransactionDateEndDate, :fund_source_filter)');
+            if(empty($_POST['disbursement_status_filter'])){
+                $disbursement_status_filter = null;
+            }
+
+            if(empty($_POST['transaction_type_filter'])){
+                $transaction_type_filter = null;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementTable(:filterTransactionDateStartDate, :filterTransactionDateEndDate, :fund_source_filter, :disbursement_status_filter, :transaction_type_filter)');
             $sql->bindValue(':filterTransactionDateStartDate', $filterTransactionDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateEndDate', $filterTransactionDateEndDate, PDO::PARAM_STR);
             $sql->bindValue(':fund_source_filter', $fund_source_filter, PDO::PARAM_STR);
+            $sql->bindValue(':disbursement_status_filter', $disbursement_status_filter, PDO::PARAM_STR);
+            $sql->bindValue(':transaction_type_filter', $transaction_type_filter, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -99,6 +111,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $disbursementIDEncrypted = $securityModel->encryptData($disbursementID);
 
+                $disbursementDetails = $disbursementModel->getDisbursementTotal($disbursementID);
+                $disbursementTotal = $disbursementDetails['total'] ?? 0;
+
                 $departmentDetails = $departmentModel->getDepartment($department_id);
                 $departmentName = $departmentDetails['department_name'] ?? null;
 
@@ -118,6 +133,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'FUND_SOURCE' => $fund_source,
                     'PARTICULARS' => $particulars,
                     'STATUS' => $disburse_status,
+                    'TOTAL_AMOUNT' => number_format($disbursementTotal, 2),
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="disbursement.php?id='. $disbursementIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
@@ -153,6 +169,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $payable_type = $row['payable_type'];
                 $check_number = $row['check_number'];
                 $check_date = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
+                $reversal_date = $systemModel->checkDate('empty', $row['reversal_date'], '', 'm/d/Y', '');
+                $transmitted_date = $systemModel->checkDate('empty', $row['transmitted_date'], '', 'm/d/Y', '');
+                $outstanding_date = $systemModel->checkDate('empty', $row['outstanding_date'], '', 'm/d/Y', '');
+                $negotiated_date = $systemModel->checkDate('empty', $row['negotiated_date'], '', 'm/d/Y', '');
                 $check_amount = $row['check_amount'];
                 $check_status = $row['check_status'];
 
@@ -201,6 +221,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CHECK_DATE' => $check_date,
                     'CHECK_NUMBER' => $check_number,
                     'CHECK_AMOUNT' => number_format($check_amount, 2),
+                    'REVERSAL_DATE' => $reversal_date,
+                    'TRANSMITTED_DATE' => $transmitted_date,
+                    'OUTSTANDING_DATE' => $outstanding_date,
+                    'NEGOTIATED_DATE' => $negotiated_date,
                     'CHECK_STATUS' => $check_status
                 ];
             }
@@ -275,6 +299,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $bank_branch = $row['bank_branch'];
                 $check_number = $row['check_number'];
                 $check_date = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
+                $reversal_date = $systemModel->checkDate('empty', $row['reversal_date'], '', 'm/d/Y', '');
+                $transmitted_date = $systemModel->checkDate('empty', $row['transmitted_date'], '', 'm/d/Y', '');
+                $outstanding_date = $systemModel->checkDate('empty', $row['outstanding_date'], '', 'm/d/Y', '');
+                $negotiated_date = $systemModel->checkDate('empty', $row['negotiated_date'], '', 'm/d/Y', '');
                 $check_amount = $row['check_amount'];
                 $check_status = $row['check_status'];
 
@@ -345,6 +373,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CHECK_NUMBER' => $check_number,
                     'CHECK_AMOUNT' => number_format($check_amount, 2),
                     'CHECK_STATUS' => $check_status,
+                    'REVERSAL_DATE' => $reversal_date,
+                    'TRANSMITTED_DATE' => $transmitted_date,
+                    'OUTSTANDING_DATE' => $outstanding_date,
+                    'NEGOTIATED_DATE' => $negotiated_date,
                     'ACTION' => '<div class="d-flex gap-2">'. 
                                     $action . 
                                 '</div>'

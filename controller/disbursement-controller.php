@@ -113,6 +113,9 @@ class DisbursementController {
                 case 'get liquidation particulars details':
                     $this->getLiquidationParticularsDetails();
                     break;
+                case 'get disbursement total':
+                    $this->getDisbursementTotal();
+                    break;
                 case 'delete disbursement particulars':
                     $this->deleteDisbursementParticulars();
                     break;
@@ -284,7 +287,7 @@ class DisbursementController {
         }
 
         $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
-        $this->disbursementModel->createLiquidation($disbursementID, $userID, $userID);
+        $this->disbursementModel->createLiquidation($disbursementID, $transaction_date, $userID, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -395,8 +398,13 @@ class DisbursementController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        $replenishmentBatch = 'RPLNSH-';
     
-        $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Replenished', '', $userID);
+        $uniqueId = time() . '-' . rand(1000, 9999);
+        $batchID = $replenishmentBatch . $uniqueId;
+    
+        $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Replenished', $batchID, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -418,7 +426,12 @@ class DisbursementController {
         }
 
         foreach($disbursementIDs as $disbursementID){
-            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Replenished', '', $userID);
+            $replenishmentBatch = 'RPLNSH-';
+    
+            $uniqueId = time() . '-' . rand(1000, 9999);
+            $batchID = $replenishmentBatch . $uniqueId;
+        
+            $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Replenished', $batchID, $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -493,7 +506,7 @@ class DisbursementController {
             }
         
             $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
-            $this->disbursementModel->createLiquidation($disbursementID, $userID, $userID);
+            $this->disbursementModel->createLiquidation($disbursementID, $transaction_date, $userID, $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -1436,6 +1449,40 @@ class DisbursementController {
             echo json_encode($response);
             exit;
         }
+    }
+
+    public function getDisbursementTotal() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $filterTransactionDateStartDate = $this->systemModel->checkDate('empty', $_POST['filter_transaction_date_start_date'], '', 'Y-m-d', '');
+        $filterTransactionDateEndDate = $this->systemModel->checkDate('empty', $_POST['filter_transaction_date_end_date'], '', 'Y-m-d', '');
+        $fund_source_filter = $_POST['fund_source_filter'];
+        $disbursement_status_filter = $_POST['disbursement_status_filter'];
+        $transaction_type_filter = $_POST['transaction_type_filter'];
+
+        if(empty($_POST['fund_source_filter'])){
+            $fund_source_filter = null;
+        }
+
+        if(empty($_POST['disbursement_status_filter'])){
+            $disbursement_status_filter = null;
+        }
+
+        if(empty($_POST['transaction_type_filter'])){
+            $transaction_type_filter = null;
+        }
+
+        $disbursementDetails = $this->disbursementModel->getDisbursementTableTotal($filterTransactionDateStartDate, $filterTransactionDateEndDate, $fund_source_filter, $disbursement_status_filter, $transaction_type_filter);
+
+        $response = [
+            'success' => true,
+            'total' => number_format($disbursementDetails['total'] ?? 0, 2) . ' Php'
+        ];
+
+        echo json_encode($response);
+        exit;
     }
     # -------------------------------------------------------------
 }

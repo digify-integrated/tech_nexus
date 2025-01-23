@@ -47,6 +47,7 @@
                     <option value="Fuel">Fuel</option>
                     <option value="Repair">Repair</option>
                     <option value="Parts">Parts</option>
+                    <option value="Tools">Tools</option>
                 </select>
             </div>
           </div>

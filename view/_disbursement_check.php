@@ -80,6 +80,10 @@
                     <th>Check Number</th>
                     <th>Check Date</th>
                     <th>Check Amount</th>
+                    <th>Reversal Date</th>
+                    <th>Transmitted Date</th>
+                    <th>Outstanding Date</th>
+                    <th>Negotiated Date</th>
                     <th>Check Status</th>
                   </tr>
                 </thead>

@@ -266,7 +266,7 @@ function classTable(datatable_name, buttons = false, show_all = false){
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'MAKE_NAME' },
+        { 'data' : 'CLASS_NAME' },
         { 'data' : 'ACTION' }
     ];
 

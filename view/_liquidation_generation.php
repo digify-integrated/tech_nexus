@@ -56,7 +56,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $disbursement_particulars_id = $row['disbursement_particulars_id'];
                 $disbursement_id = $row['disbursement_id'];
                 $remaining_balance = $row['remaining_balance'];
-                $created_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
+                $created_date = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y', '');
 
                 $disbursementDetails = $disbursementModel->getDisbursement($disbursement_id);
                 $transaction_number = $disbursementDetails['transaction_number'] ?? '';

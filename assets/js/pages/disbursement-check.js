@@ -28,6 +28,10 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CHECK_NUMBER' },
         { 'data' : 'CHECK_DATE' },
         { 'data' : 'CHECK_AMOUNT' },
+        { 'data' : 'REVERSAL_DATE' },
+        { 'data' : 'TRANSMITTED_DATE' },
+        { 'data' : 'OUTSTANDING_DATE' },
+        { 'data' : 'NEGOTIATED_DATE' },
         { 'data' : 'CHECK_STATUS' }
     ];
 
@@ -40,7 +44,11 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
-        { 'width': 'auto', 'aTargets': 8 }
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 10 },
+        { 'width': 'auto', 'aTargets': 11 },
+        { 'width': 'auto', 'aTargets': 12 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

@@ -90,7 +90,7 @@ foreach ($loanCollectionIDs as $loanCollectionID) {
     $checkY = 8;
 
     // Print date (numeric format)
-    $pdf->SetXY($checkX + 145, $checkY);
+    $pdf->SetXY($checkX + 145, $checkY - 3);
     $pdf->Cell(5, 10, $month, 0, 0, 'L');
     $pdf->Cell(5, 10, '-', 0, 0, 'C');
     $pdf->Cell(5, 10, $day, 0, 0, 'L');

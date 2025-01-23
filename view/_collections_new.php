@@ -139,10 +139,16 @@
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="200" autocomplete="off">
             </div>
           </div>
+          <?php
+            $readonly = '';
+            if($paymentAdvice === 'Yes'){
+              $readonly = 'readonly';
+            }
+          ?>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">OR Number <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="or_number" name="or_number" maxlength="100" autocomplete="off">
+              <input type="text" class="form-control" id="or_number" name="or_number" maxlength="100" autocomplete="off" <?php echo $readonly; ?>>
             </div>
             <label class="col-lg-2 col-form-label">OR Date <span class="text-danger">*</span></label>
             <div class="col-lg-4">

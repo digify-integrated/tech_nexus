@@ -230,12 +230,24 @@ class DisbursementModel {
         $stmt->execute();
     }
 
-    public function createLiquidation($p_disbursement_id, $p_last_log_by, $p_created_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL createLiquidation(:p_disbursement_id, :p_last_log_by, :p_created_by)');
+    public function createLiquidation($p_disbursement_id, $p_transaction_date, $p_last_log_by, $p_created_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createLiquidation(:p_disbursement_id, :p_transaction_date, :p_last_log_by, :p_created_by)');
         $stmt->bindValue(':p_disbursement_id', $p_disbursement_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transaction_date', $p_transaction_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
         $stmt->execute();
+    }
+
+    public function getDisbursementTableTotal($p_transaction_start_date, $p_transaction_end_date, $p_fund_source_filter, $p_disbursement_status, $p_transaction_type) {
+        $stmt = $this->db->getConnection()->prepare('CALL getDisbursementTableTotal(:p_transaction_start_date, :p_transaction_end_date, :p_fund_source_filter, :p_disbursement_status, :p_transaction_type)');
+        $stmt->bindValue(':p_transaction_start_date', $p_transaction_start_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_end_date', $p_transaction_end_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_fund_source_filter', $p_fund_source_filter, PDO::PARAM_STR);
+        $stmt->bindValue(':p_disbursement_status', $p_disbursement_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_type', $p_transaction_type, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
 
