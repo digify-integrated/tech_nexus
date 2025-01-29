@@ -2654,6 +2654,7 @@ class SalesProposalController {
         $productDescription = $_POST['product_description'];
         $drNumber = htmlspecialchars($_POST['dr_number'], ENT_QUOTES, 'UTF-8');
         $businessStyle = $_POST['business_style'];
+        $invoice_number = $_POST['invoice_number'];
         $si = $_POST['si'];
         $di = $_POST['di'];
         $startDate = $this->systemModel->checkDate('empty', $_POST['actual_start_date'], '', 'Y-m-d', '');
@@ -2671,13 +2672,13 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalActualStartDate($salesProposalID, $drNumber, $releaseTo, $startDate, $userID);
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $userID);
+            $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $invoice_number, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->salesProposalModel->insertSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $userID);
+            $this->salesProposalModel->insertSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $invoice_number, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -3959,6 +3960,7 @@ class SalesProposalController {
                 'make' => $salesProposalOtherChargesDetails['make'] ?? null,
                 'productDescription' => $salesProposalOtherChargesDetails['product_description'] ?? null,
                 'businessStyle' => $salesProposalOtherChargesDetails['business_style'] ?? null,
+                'invoiceNumber' => $salesProposalOtherChargesDetails['invoice_number'] ?? null,
                 'si' => $salesProposalOtherChargesDetails['si'] ?? null,
                 'di' => $salesProposalOtherChargesDetails['di'] ?? null,
             ];

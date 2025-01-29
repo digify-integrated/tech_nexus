@@ -8792,13 +8792,13 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE insertSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_si DOUBLE, IN p_di DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_si DOUBLE, IN p_di DOUBLE, IN p_invoice_number VARCHAR(100), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO sales_proposal_other_product_details (sales_proposal_id, year_model, cr_no, mv_file_no, make, product_description, business_style, si, di, last_log_by) 
-	VALUES(p_sales_proposal_id, p_year_model, p_cr_no, p_mv_file_no, p_make, p_product_description, p_business_style, p_si, p_di, p_last_log_by);
+    INSERT INTO sales_proposal_other_product_details (sales_proposal_id, year_model, cr_no, mv_file_no, make, product_description, business_style, si, di, invoice_number, last_log_by) 
+	VALUES(p_sales_proposal_id, p_year_model, p_cr_no, p_mv_file_no, p_make, p_product_description, p_business_style, p_si, p_di, p_invoice_number, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_si DOUBLE, IN p_di DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_si DOUBLE, IN p_di DOUBLE, IN p_invoice_number VARCHAR(100), IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_other_product_details
     SET year_model = p_year_model,
@@ -8809,6 +8809,7 @@ BEGIN
     business_style = p_business_style,
     si = p_si,
     di = p_di,
+    invoice_number = p_invoice_number,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
@@ -12391,7 +12392,7 @@ BEGIN
     DECLARE conditionList VARCHAR(1000);
 
     SET query = 'SELECT * FROM disbursement';
-    SET conditionList = ' WHERE 1';
+    SET conditionList = ' WHERE fund_source != "Check"';
 
     IF p_fund_source_filter IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND fund_source = ');
@@ -12424,7 +12425,41 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE getDisbursementTableTotal( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(100), IN p_transaction_type VARCHAR(100))
+CREATE PROCEDURE generateCheckDisbursementTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(100), IN p_transaction_type VARCHAR(100))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM disbursement';
+    SET conditionList = ' WHERE fund_source = "Check"';
+
+    IF p_disbursement_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND disburse_status = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_disbursement_status));
+    END IF;
+
+    IF p_transaction_type IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND transaction_type = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_type));
+    END IF;
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY transaction_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE getDisbursementTableTotal( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_disbursement_category VARCHAR(100))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -12433,11 +12468,18 @@ BEGIN
     WHERE disbursement_id IN (SELECT disbursement_id FROM disbursement';
     SET conditionList = ' WHERE 1';
 
-    IF p_fund_source_filter IS NOT NULL THEN
+    IF p_disbursement_category = 'disbursement petty cash' THEN
+        IF p_fund_source_filter IS NOT NULL THEN
+            SET conditionList = CONCAT(conditionList, ' AND fund_source = ');
+            SET conditionList = CONCAT(conditionList, QUOTE(p_fund_source_filter));
+        ELSE
+            SET conditionList = CONCAT(conditionList, ' AND fund_source != "Check"');
+        END IF;
+    ELSE
         SET conditionList = CONCAT(conditionList, ' AND fund_source = ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_fund_source_filter));
     END IF;
-
+    
     IF p_disbursement_status IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND disburse_status = ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_disbursement_status));
@@ -12495,6 +12537,27 @@ BEGIN
     disbursement_id = p_disbursement_id;
 END //
 
+CREATE PROCEDURE generateDisbursementParticularsEntryTable(IN p_disbursement_id VARCHAR(5000))
+BEGIN
+    SET @sql = CONCAT('
+        SELECT journal_item, SUM(debit) AS debit, SUM(credit) AS credit 
+        FROM journal_entry 
+        WHERE loan_number IN (
+            SELECT disbursement_id 
+            FROM disbursement 
+            WHERE disbursement_id IN (', p_disbursement_id, ') 
+            AND fund_source = ''Petty Cash'' 
+            AND (disburse_status = ''Posted'' OR disburse_status = ''Replenished'')
+        )  
+        AND journal_id = ''Disbursement Operations'' 
+        GROUP BY journal_item
+    ');
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 CREATE PROCEDURE generateDisbursementCheckTable( IN p_disbursement_id INT)
 BEGIN
     SELECT * FROM disbursement_check WHERE 
@@ -12541,7 +12604,7 @@ BEGIN
         replenishment_batch = p_reason,
         replenishment_date = NOW(),
         last_log_by = p_last_log_by
-        WHERE disbursement_id = p_disbursement_id AND disburse_status IN('Posted');
+        WHERE disbursement_id = p_disbursement_id AND transaction_type != 'Replenishment' AND disburse_status IN('Posted');
     ELSE
         UPDATE disbursement
         SET disburse_status = p_disburse_status,
@@ -12595,6 +12658,7 @@ BEGIN
     -- Declare variables
     DECLARE v_analytic_lines VARCHAR(500);
     DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_journal_id VARCHAR(500);
     DECLARE v_credit VARCHAR(500);
     DECLARE v_chart_item VARCHAR(600);
     DECLARE v_particulars_amount DOUBLE;
@@ -12616,10 +12680,13 @@ BEGIN
     CASE p_fund_source
         WHEN 'Petty Cash' THEN
             SET v_credit = '10101030 Petty Cash Fund';
+            SET v_journal_id = 'Disbursement Operations';
         WHEN 'Revolving Fund' THEN
             SET v_credit = '10101020 Revolving Fund';
+            SET v_journal_id = 'Disbursement Operations';
         ELSE
             SET v_credit = '10102060 Cash in Bank - Checking BPI CGMI';
+            SET v_journal_id = 'Check Disbursement Operations';
     END CASE;
 
     -- Open cursor
@@ -12675,7 +12742,7 @@ BEGIN
                     p_disbursement_id, 
                     NOW(), 
                     p_transaction_number, 
-                    'Disbursement Operations', 
+                    v_journal_id, 
                     v_chart_item, 
                     v_particulars_amount, 
                     0, 
@@ -12704,7 +12771,7 @@ BEGIN
                     p_disbursement_id, 
                     NOW(), 
                     p_transaction_number, 
-                    'Disbursement Operations', 
+                    v_journal_id, 
                     v_credit, 
                     0, 
                     v_particulars_amount, 
@@ -12734,7 +12801,7 @@ BEGIN
                     p_disbursement_id, 
                     NOW(), 
                     p_transaction_number, 
-                    'Disbursement Operations', 
+                    v_journal_id, 
                     v_chart_item, 
                     0, 
                     v_particulars_amount, 
@@ -12763,7 +12830,7 @@ BEGIN
                     p_disbursement_id, 
                     NOW(), 
                     p_transaction_number, 
-                    'Disbursement Operations', 
+                    v_journal_id, 
                     v_credit, 
                     v_particulars_amount, 
                     0, 
@@ -12795,7 +12862,7 @@ BEGIN
                     p_disbursement_id, 
                     p_transaction_date, 
                     p_transaction_number, 
-                    'Disbursement Operations', 
+                    v_journal_id, 
                     v_chart_item, 
                     0, 
                     ABS(v_particulars_amount), 
@@ -12824,7 +12891,7 @@ BEGIN
                     p_disbursement_id, 
                     p_transaction_date, 
                     p_transaction_number, 
-                    'Disbursement Operations', 
+                    v_journal_id, 
                     v_credit, 
                     ABS(v_particulars_amount), 
                     0, 
@@ -12854,7 +12921,7 @@ BEGIN
                     p_disbursement_id, 
                     p_transaction_date, 
                     p_transaction_number, 
-                    'Disbursement Operations', 
+                    v_journal_id, 
                     v_chart_item, 
                     ABS(v_particulars_amount), 
                     0, 
@@ -12883,7 +12950,7 @@ BEGIN
                     p_disbursement_id, 
                     p_transaction_date, 
                     p_transaction_number, 
-                    'Disbursement Operations', 
+                    v_journal_id, 
                     v_credit, 
                     0, 
                     ABS(v_particulars_amount), 

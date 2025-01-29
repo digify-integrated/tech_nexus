@@ -63,6 +63,7 @@
   }
 
   $newRecord = isset($_GET['new']);
+  $disbursementCategory = 'disbursement petty cash';
 
   require('config/_interface_settings.php');
   require('config/_user_account_details.php');
@@ -104,6 +105,7 @@
                             echo '<li class="breadcrumb-item">New</li>';
                         }
                     ?>
+                    <input type="hidden" id="disbursement_category" name="disbursement_category" value="<?php echo $disbursementCategory; ?>">
                 </ul>
               </div>
               <div class="col-md-12">

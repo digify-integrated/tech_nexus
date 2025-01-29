@@ -20,9 +20,17 @@
   $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
   $systemSettingModel = new SystemSettingModel($databaseModel);
 
-  $pageTitle = 'Disbursement Check';
+  $pageTitle = 'Check Disbursement';
     
-  $disbursementReadAccess = $userModel->checkMenuItemAccessRights($user_id, 126, 'read');
+  $disbursementReadAccess = $userModel->checkMenuItemAccessRights($user_id, 128, 'read');
+  $disbursementCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 128, 'create');
+  $disbursementWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 128, 'write');
+  $disbursementDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 128, 'delete');
+
+  $postDisbursement = $userModel->checkSystemActionAccessRights($user_id, 187);
+  $cancelDisbursement = $userModel->checkSystemActionAccessRights( $user_id, 188);
+  $reverseDisbursement = $userModel->checkSystemActionAccessRights($user_id, 189);
+  $replenishmentDisbursement = $userModel->checkSystemActionAccessRights($user_id, 191);
 
   if ($disbursementReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -31,15 +39,31 @@
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: disbursement-check.php');
+      header('location: disbursement.php');
       exit;
     }
+
+    $disbursementID = $securityModel->decryptData($_GET['id']);
+
+    $checkDisbursementExist = $disbursementModel->checkDisbursementExist($disbursementID);
+    $total = $checkDisbursementExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
+    }
+
+    $disbursementDetails = $disbursementModel->getDisbursement($disbursementID);
+    $disbursementStatus = $disbursementDetails['disburse_status'];
+    $transactionDate = $disbursementDetails['transaction_date'];
+    $fund_source = $disbursementDetails['fund_source'];
   }
   else{
     $disbursementID = null;
   }
 
   $newRecord = isset($_GET['new']);
+  $disbursementCategory = 'disbursement check';
 
   require('config/_interface_settings.php');
   require('config/_user_account_details.php');
@@ -71,7 +95,17 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Operations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="disbursement-check.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="disbursement.php"><?php echo $pageTitle; ?></a></li>
+                    <?php
+                        if(!$newRecord && !empty($disbursementID)){
+                            echo '<li class="breadcrumb-item" id="disbursement-id">'. $disbursementID .'</li>';
+                        }
+
+                        if($newRecord){
+                            echo '<li class="breadcrumb-item">New</li>';
+                        }
+                    ?>
+                   <input type="hidden" id="disbursement_category" name="disbursement_category" value="<?php echo $disbursementCategory; ?>">
                 </ul>
               </div>
               <div class="col-md-12">
@@ -83,7 +117,15 @@
           </div>
         </div>
         <?php
-          require_once('view/_disbursement_check.php');
+          if($newRecord && $disbursementCreateAccess['total'] > 0){
+            require_once('view/_disbursement_new.php');
+          }
+          else if(!empty($disbursementID) && $disbursementWriteAccess['total'] > 0){
+            require_once('view/_disbursement_details.php');
+          }
+          else{
+            require_once('view/_check_disbursement.php');
+          }
         ?>
       </div>
     </section>
@@ -101,7 +143,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/disbursement-check.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/disbursement.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

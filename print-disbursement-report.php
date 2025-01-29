@@ -45,7 +45,7 @@
             $disburse_status = $disbursementDetails['disburse_status'];
             $fund_source = $disbursementDetails['fund_source'];
 
-            if($fund_source == 'Petty Cash' && $disburse_status == 'Posted') {
+            if($fund_source == 'Petty Cash' && ($disburse_status == 'Posted' || $disburse_status == 'Replenished')) {
                 $disbursementDetails = $disbursementModel->getDisbursementTotal($disbursementID);
                 $disbursementTotal = $disbursementTotal + $disbursementDetails['total'] ?? 0;
             }
@@ -56,6 +56,8 @@
     $summaryTable2 = generatePrint2($createdByName);
     $summaryTable3 = generatePrint3();
     $summaryTable4 = generatePrint4($pettyCashFund, $disbursementTotal);
+    
+    $summaryTable5 = generatePrint5($disbursementIDs);
 
     ob_start();
 
@@ -97,21 +99,23 @@
 
     // First table (2 columns)
     $pdf->SetXY(15, $y);
-    $pdf->SetFillColor(255, 255, 255);
     $pdf->writeHTML($summaryTable2, true, false, true, false, '');
 
     // Second table (3 columns)
     $pdf->SetXY(15 + $tableWidth1 + 25, $y);
-    $pdf->SetFillColor(255, 255, 255);
     $pdf->writeHTML($summaryTable3, true, false, true, false, '');
 
     // Second table (3 columns)
     $pdf->SetXY(15 + $tableWidth1 + 120, $y);
-    $pdf->SetFillColor(255, 255, 255);
     $pdf->writeHTML($summaryTable4, true, false, true, false, '');
 
     $pdf->Ln(0);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
+
+    
+    $pdf->AddPage('L');
+    $pdf->writeHTML($summaryTable5, true, false, true, false, '');
+
 
     // Output the PDF to the browser
     $pdf->Output('cash-disbursement-voucher.pdf', 'I');
@@ -173,7 +177,7 @@
             $departmentDetails = $departmentModel->getDepartment($department_id);
             $departmentName = $departmentDetails['department_name'] ?? null;
 
-            if($fund_source == 'Petty Cash' && $disburse_status == 'Posted') {
+            if($fund_source == 'Petty Cash' && ($disburse_status == 'Posted' || $disburse_status == 'Replenished')) {
                 $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementParticularsTable(:disbursementID)');
                 $sql->bindValue(':disbursementID', $disbursementID, PDO::PARAM_INT);
                 $sql->execute();
@@ -199,7 +203,7 @@
                         <td>'. $companyName .'</td>
                         <td>'. $particulars .'</td>
                         <td>'. $chartOfAccountName .'</td>
-                        <td>'. number_format($disbursementTotal, 2) .'</td>
+                        <td>'. number_format($particulars_amount, 2) .'</td>
                         <td>0.00</td>
                     </tr>
                     <tr>
@@ -209,7 +213,7 @@
                         <td>'. $particulars .'</td>
                         <td>Petty Cash Fund</td>
                         <td>0.00</td>
-                        <td>'. number_format($disbursementTotal, 2) .'</td>
+                        <td>'. number_format($particulars_amount, 2) .'</td>
                     </tr>';
                 }
             }
@@ -346,6 +350,60 @@
                             <tr>
                                 <td><b>FUND BALANCE - ENDING</b></td>
                                 <td>'. number_format($pettyCashFund, 2) .'</td>
+                            </tr>
+                        </tbody>
+                    </table>';
+
+        return $response;
+    }
+
+    function generatePrint5($disbursementIDs){     
+        
+        $formattedIDs = "'" . implode("', '", $disbursementIDs) . "'";
+        
+        require_once 'model/database-model.php';
+
+        $databaseModel = new DatabaseModel();
+
+        $list = '';
+
+        $totalDebit = 0;
+        $totalCredit = 0;
+
+        $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementParticularsEntryTable(:formattedIDs)');
+        $sql->bindValue(':formattedIDs', $formattedIDs, PDO::PARAM_STR);
+        $sql->execute();
+        $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+        $sql->closeCursor();
+
+        foreach ($options as $row) {
+            $journal_item = $row['journal_item'];
+            $debit = $row['debit'];
+            $credit = $row['credit'];
+
+            $totalDebit = $totalDebit + $debit;
+            $totalCredit = $totalCredit + $credit;
+
+            $list .= '<tr>
+                <td>'. $journal_item .'</td>
+                <td style="text-align: center;">'. number_format($debit, 2) .'</td>
+                <td style="text-align: center;">'. number_format($credit, 2) .'</td>
+            </tr>';
+        }
+
+        $response = '<table border="1" width="100%" cellpadding="5" align="left">
+                        <tbody>
+                            <tr>
+                                <td width="50%" style="text-align: center; background-color: #92CDDC;"><b>Journal Item</b></td>
+                                <td width="25%" style="text-align: center; background-color: #92CDDC;"><b>Debit</b></td>
+                                <td width="25%" style="text-align: center; background-color: #92CDDC;"><b>Credit</b></td>
+                            </tr>
+                            '. $list .'
+                            
+                            <tr>
+                                <td style="text-align: right;"><b>Total</b></td>
+                                <td style="text-align: center;"><b>'. number_format($totalDebit, 2) .'</b></td>
+                                <td style="text-align: center;"><b>'. number_format($totalCredit, 2) .'</b></td>
                             </tr>
                         </tbody>
                     </table>';

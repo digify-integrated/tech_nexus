@@ -63,6 +63,8 @@
       </div>
       <div class="card-body">
         <form id="disbursement-form" method="post" action="#">
+          
+        <input type="hidden" id="disbursement_category" name="disbursement_category" value="<?php echo $disbursementCategory; ?>">
           <?php
             $disabled = 'disabled';
             if ($disbursementWriteAccess['total'] > 0 && $disbursementStatus == 'Draft') {
@@ -135,9 +137,15 @@
             <div class="col-lg-4">
               <select class="form-control select2" name="fund_source" id="fund_source" <?php echo $disabled; ?>>
                 <option value="">--</option>
-                <option value="Petty Cash">Petty Cash</option>
-                <option value="Revolving Fund">Revolving Fund</option>
-                <option value="Check">Check</option>
+                <?php
+                  if($disbursementCategory === 'disbursement petty cash'){
+                    echo ' <option value="Petty Cash">Petty Cash</option>
+                    <option value="Revolving Fund">Revolving Fund</option>';
+                  }
+                  else{
+                    echo ' <option value="Check">Check</option>';
+                  }
+                ?>
                </select>
             </div>
           </div>
@@ -184,6 +192,23 @@
       </div>
     </div>
 
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-9">
+                <h3 class="mb-1 text-end">Total Particulars:</h3>
+              </div>
+              <div class="col-3">
+                <h3 class="mb-1 text-end" id="total-particulars">0.00 Php</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <?php
       $check_hidden = 'd-none';
       if($fund_source === 'Check'){
@@ -225,6 +250,23 @@
             </thead>
             <tbody></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row <?php echo $check_hidden; ?>">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-9">
+                <h3 class="mb-1 text-end">Total Check:</h3>
+              </div>
+              <div class="col-3">
+                <h3 class="mb-1 text-end" id="total-check">0.00 Php</h3>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

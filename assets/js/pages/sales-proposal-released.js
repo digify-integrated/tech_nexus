@@ -5882,6 +5882,7 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#year_model').val(response.yearModel);
                         $('#insurance_year_model').text(response.yearModel);
+                        $('#invoice_number').text(response.invoiceNumber);
                         $('#cr_no').val(response.crNo);
                         $('#cr_no_label').text(response.crNo);
                         $('#mv_file_no').val(response.mvFileNo);

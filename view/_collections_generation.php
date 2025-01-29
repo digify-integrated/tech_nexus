@@ -270,7 +270,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PAYMENT_AMOUNT' => number_format($paymentAmount, 2),
                     'STATUS' => $badge,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="collections.php?id='. $loanCollectionIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="payment-advice.php?id='. $loanCollectionIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

@@ -98,9 +98,7 @@
 
         $customerName = strtoupper($customerDetails['file_as']) ?? null;
         $tin = strtoupper($customerDetails['tin'] ?? '');
-    
-        $comakerDetails = $customerModel->getPersonalInformation($comakerID);
-        $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
+
     
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
         $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
@@ -122,6 +120,7 @@
         $otherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
         $productDescription = $otherProductDetails['product_description'] ?? null;
         $businessStyle = $otherProductDetails['business_style'] ?? null;
+        $invoice_number = $otherProductDetails['invoice_number'] ?? null;
 
         if($productType == 'Unit'){
             $productDetails = $productModel->getProduct($productID);
@@ -176,14 +175,16 @@
     $pdf->AddPage();
 
     // Add content
-    $pdf->SetFont('times', 'B', 10.5);
-    $pdf->Cell(155, 8, 'CHRISTIAN GENERAL MOTORS INCORPORATED'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'SALES INVOICE', 0, 0, 'L');
+    $pdf->SetFont('times', 'B', 13.5);
+    $pdf->Cell(145, 8, 'CHRISTIAN GENERAL MOTORS INCORPORATED'  , 0, 0, 'L');
+    $html = '<span style="background-color:black;color:white; border-radius: 4px">&nbsp;SALES INVOICE&nbsp;</span>';
+    $pdf->writeHTML($html, true, false, true, false, '');
+    $pdf->SetFont('times', '', 9);
+    $pdf->Cell(145, 8, 'Sta. Rosa Road, San Jose City of Tarlac 2300, Tarlac, Philippines'  , 0, 0, 'L');
+    $pdf->SetFont('times', '', 13.5);
+    $pdf->Cell(32, 8, 'No. ' . $invoice_number, 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->SetFont('times', '', 9);
-    $pdf->Cell(155, 8, 'Sta. Rosa Road, San Jose City of Tarlac 2300, Tarlac, Philippines'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'No.', 0, 0, 'L');
-    $pdf->Ln(5);
     $pdf->Cell(155, 8, 'VAT Reg. TIN: 479-157-216-00001'  , 0, 0, 'L');
     $pdf->SetFont('times', '', 10.5);
     $pdf->Ln(10);
@@ -199,7 +200,7 @@
     $pdf->Cell(20, 8, 'Terms:'  , 0, 0, 'L', 0, '', 0, false, 'T', 'B');
     $pdf->Cell(36, 8, '', 'B', 0, 'L', 0, '', 0, false, 'T', 'B');
     $pdf->Ln(8);
-    $pdf->Cell(30, 8, 'ADDRESS:'  , 0, 0, 'L', 0, '', 0, false, 'T', 'B');
+    $pdf->Cell(30, 8, 'Address:'  , 0, 0, 'L', 0, '', 0, false, 'T', 'B');
     $pdf->Cell(156, 8, strtoupper($customerAddress), 'B', 0, 'L', 0, '', 0, false, 'T', 'B');
     $pdf->Ln(8);
     $pdf->Cell(30, 8, 'Business Style:'  , 0, 0, 'L', 0, '', 0, false, 'T', 'B');
@@ -239,10 +240,10 @@
                         <tr>
                             <td width="12.5%">Unit Number</td>
                             <td width="22%">Description</td>
-                            <td width="12.5%">Engine No</td>
-                            <td width="12.5%">Chassis No</td>
-                            <td width="12.5%">Plate No</td>
-                            <td width="6.5%">Qty</td>
+                            <td width="12.5%">Engine No.</td>
+                            <td width="12.5%">Chassis No.</td>
+                            <td width="12.5%">Plate No.</td>
+                            <td width="6.5%">Qty.</td>
                             <td width="11%">Unit Price</td>
                             <td width="11%">Total Price</td>
                         </tr>

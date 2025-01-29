@@ -47,7 +47,7 @@
     ob_start();
 
     // Create TCPDF instance
-    $pdf = new TCPDF('P', 'mm', array(330.2, 215.9), true, 'UTF-8', false);
+    $pdf = new TCPDF('P', 'mm', array(330, 216), true, 'UTF-8', false);
 
    // Disable header and footer
     $pdf->setPrintHeader(false);
@@ -62,7 +62,7 @@
 
     // Set margins and auto page break
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-    $pdf->SetMargins(15, 15, 15);
+    $pdf->SetMargins(10, 10, 10);
     $pdf->SetHeaderMargin(5);
     $pdf->SetFooterMargin(10);
     $pdf->SetAutoPageBreak(TRUE, 15);
@@ -70,24 +70,61 @@
     // Add a page
     $pdf->AddPage();
 
-    $pdf->SetFont('times', '', 10);
-    $pdf->writeHTML($summaryTable, true, false, true, false, '');
-    $pdf->Cell(90, 4, 'NO. OF CHECKS ISSUED: ' . $checkCount, '', 0 , 'C');
-    $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
-    $pdf->Cell(90, 4, 'TOTAL CHECKS ISSUED: ' . number_format($checkTotal, 2), '', 0, 'C');
-    $pdf->Ln(10);
-    $pdf->writeHTML($summaryTable2, true, false, true, false, '');
-    // Add a page
-    $pdf->AddPage();
+    // Set up PDF
+$pdf->SetFont('times', '', 10);
 
-    $pdf->SetFont('times', '', 10);
-    $pdf->writeHTML($summaryTable3, true, false, true, false, '');
-    $pdf->SetFillColor(255, 255, 197); // Light yellow
-    $pdf->Cell(90, 4, 'NO. OF CHECKS ISSUED: ' . $checkCount, '', 0 , 'C');
-    $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
-    $pdf->Cell(90, 4, 'TOTAL CHECKS ISSUED: ' . number_format($checkTotal, 2), '', 0, 'C');
-    $pdf->Ln(10);
-    $pdf->writeHTML($summaryTable4, true, false, true, false, '');
+// Get page height and set the Y position for the tear line (middle of the page)
+$pageHeight = $pdf->getPageHeight();
+$tearLineY = $pageHeight / 2;
+
+// Add the first table above the tear line (top section)
+$pdf->writeHTML($summaryTable, true, false, true, false, '');
+
+// Add a cell with spacing for NO. OF CHECKS ISSUED, centered above the tear line
+$pdf->Cell(90, 4, 'NO. OF CHECKS ISSUED: ' . $checkCount, '', 0 , 'C');
+$pdf->Cell(10, 4, '     ', 0, 0 , 'L');
+$pdf->Cell(90, 4, 'TOTAL CHECKS ISSUED: ' . number_format($checkTotal, 2), '', 0, 'C');
+$pdf->Ln(10);
+$pdf->writeHTML($summaryTable2, true, false, true, false, '');
+
+// Calculate remaining space and add a page break if needed (before the tear line)
+$currentY = $pdf->GetY(); // Get current vertical position after adding content
+$remainingSpaceAboveTear = $tearLineY - $currentY; // Space left above the tear line
+
+// If space above the tear line is too small, add a new page
+if ($remainingSpaceAboveTear < 10) {
+    $pdf->AddPage();
+    // Reprint the content on the new page to ensure equal spacing
+    $pdf->writeHTML($summaryTable, true, false, true, false, '');
+    $pdf->writeHTML($summaryTable2, true, false, true, false, '');
+}
+
+// Draw the tear line (middle of the page)
+$pdf->Line(10, $tearLineY, $pdf->getPageWidth() - 10, $tearLineY); // Draw the line across the page
+
+// Move to the next section (below the tear line)
+$pdf->SetY($tearLineY + 10); // Start the content just below the tear line
+
+// Add the second table below the tear line (bottom section)
+$pdf->writeHTML($summaryTable3, true, false, true, false, '');
+
+// Add a cell with spacing for NO. OF CHECKS ISSUED, centered below the tear line
+$pdf->SetFillColor(255, 255, 197); // Light yellow
+$pdf->Cell(90, 4, 'NO. OF CHECKS ISSUED: ' . $checkCount, '', 0 , 'C');
+$pdf->Cell(10, 4, '     ', 0, 0 , 'L');
+$pdf->Cell(90, 4, 'TOTAL CHECKS ISSUED: ' . number_format($checkTotal, 2), '', 0, 'C');
+$pdf->Ln(10);
+$pdf->writeHTML($summaryTable4, true, false, true, false, '');
+
+// Add a page break after the second part if needed
+$currentY = $pdf->GetY(); // Get the current Y position after the second section
+$pageHeight = $pdf->getPageHeight(); // Get the total page height
+$remainingSpaceBelowTear = $pageHeight - $currentY - $pdf->getBreakMargin(); // Remaining space after the second section
+
+// If there’s too little space for the next content, add a new page
+if ($remainingSpaceBelowTear < 10) {
+    $pdf->AddPage();
+}
     
 
     // Output the PDF to the browser

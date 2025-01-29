@@ -5,6 +5,10 @@
         if($('#disbursement-table').length){
             disbursementTable('#disbursement-table');
         }
+
+        if($('#check-disbursement-table').length){
+            checkDisbursementTable('#check-disbursement-table');
+        }
         
         if($('#particulars-table').length){
             particularsTable('#particulars-table');
@@ -46,6 +50,14 @@
             getDisbursementTotal();
         }
 
+        if($('#total-particulars').length){
+            getDisbursementParticularsTotal();
+        }
+
+        if($('#total-check').length){
+            getDisbursementCheckTotal();
+        }
+
         $(document).on('click','.delete-disbursement',function() {
             const disbursement_id = $(this).data('disbursement-id');
             const transaction = 'delete disbursement';
@@ -74,6 +86,7 @@
                             if (response.success) {
                                 showNotification('Delete Disbursement Success', 'The disbursement has been deleted successfully.', 'success');
                                 reloadDatatable('#disbursement-table');
+                                reloadDatatable('#check-disbursement-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -83,6 +96,7 @@
                                 else if (response.notExist) {
                                     showNotification('Delete Disbursement Error', 'The disbursement does not exist.', 'danger');
                                     reloadDatatable('#disbursement-table');
+                                    reloadDatatable('#check-disbursement-table');
                                 }
                                 else {
                                     showNotification('Delete Disbursement Error', response.message, 'danger');
@@ -137,6 +151,7 @@
                                 if (response.success) {
                                     showNotification('Delete Disbursement Success', 'The selected disbursement have been deleted successfully.', 'success');
                                         reloadDatatable('#disbursement-table');
+                                        reloadDatatable('#check-disbursement-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -204,6 +219,7 @@
                                 if (response.success) {
                                     showNotification('Post Disbursements Success', 'The selected disbursement have been posted successfully.', 'success');
                                     reloadDatatable('#disbursement-table');
+                                    reloadDatatable('#check-disbursement-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -271,6 +287,7 @@
                                 if (response.success) {
                                     showNotification('Replenish Disbursements Success', 'The selected disbursement have been replenished successfully.', 'success');
                                     reloadDatatable('#disbursement-table');
+                                    reloadDatatable('#check-disbursement-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -305,6 +322,7 @@
 
         $(document).on('click','#delete-disbursement-details',function() {
             const disbursement_id = $('#disbursement-id').text();
+            const disbursement_category = $('#disbursement_category').val();
             const transaction = 'delete disbursement';
     
             Swal.fire({
@@ -330,7 +348,14 @@
                         success: function (response) {
                             if (response.success) {
                                 setNotification('Deleted Disbursement Success', 'The disbursement has been deleted successfully.', 'success');
-                                window.location = 'disbursement.php';
+                                
+
+                                if(disbursement_category == 'disbursement petty cash'){
+                                    window.location = 'disbursement.php';
+                                }
+                                else{
+                                    window.location = 'check-disbursement.php';
+                                }
                             }
                             else {
                                 if (response.isInactive) {
@@ -450,6 +475,9 @@
                                 else if (response.disbursementZero) {
                                     showNotification('Post Disbursement Error', 'The particulars cannot be zero.', 'danger');
                                 }
+                                else if (response.disbursementGreater) {
+                                    showNotification('Post Disbursement Error', 'The particulars cannot be greater than PHP 5,000.', 'danger');
+                                }
                                 else if (response.checkZero) {
                                     showNotification('Post Disbursement Error', 'The check cannot be zero.', 'danger');
                                 }
@@ -478,7 +506,14 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('disbursement.php');
+            const disbursement_category = $('#disbursement_category').val();
+
+            if(disbursement_category == 'disbursement petty cash'){
+                discardCreate('disbursement.php');
+            }
+            else{
+                discardCreate('check-disbursement.php');
+            }
         });
 
         $(document).on('click','#add-particulars',function() {
@@ -844,6 +879,7 @@
 
         $(document).on('click','#apply-filter',function() {
             disbursementTable('#disbursement-table');
+            checkDisbursementTable('#check-disbursement-table');
             getDisbursementTotal();
         });
 
@@ -868,6 +904,91 @@
 
 function disbursementTable(datatable_name, buttons = false, show_all = false){
     const type = 'disbursement table';
+    var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
+    var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
+    var fund_source_filter = $('.fund-source-filter:checked').val();
+    var disbursement_status_filter = $('.disbursement-status-filter:checked').val();
+    var transaction_type_filter = $('.transaction-type-filter:checked').val();
+
+    var settings;
+
+    const column = [
+        { 'data' : 'CHECK_BOX' },
+        { 'data' : 'TRANSACTION_DATE' },
+        { 'data' : 'CUSTOMER_NAME' },
+        { 'data' : 'COMPANY_NAME' },
+        { 'data' : 'TRANSACTION_NUMBER' },
+        { 'data' : 'TOTAL_AMOUNT' },
+        { 'data' : 'TRANSACTION_TYPE' },
+        { 'data' : 'PARTICULARS' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'DEPARTMENT_NAME' },
+        { 'data' : 'FUND_SOURCE' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 10 },
+        { 'width': '15%','bSortable': false, 'aTargets': 11 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_disbursement_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 
+                'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
+                'filter_transaction_date_end_date' : filter_transaction_date_end_date,
+                'fund_source_filter' : fund_source_filter,
+                'disbursement_status_filter' : disbursement_status_filter,
+                'transaction_type_filter' : transaction_type_filter,
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function checkDisbursementTable(datatable_name, buttons = false, show_all = false){
+    const type = 'check disbursement table';
     var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
     var fund_source_filter = $('.fund-source-filter:checked').val();
@@ -1186,6 +1307,7 @@ function disbursementForm(){
         },
         submitHandler: function(form) {
             const disbursement_id = $('#disbursement-id').text();
+            const disbursement_category = $('#disbursement_category').val();
             const transaction = 'save disbursement';
         
             $.ajax({
@@ -1202,7 +1324,13 @@ function disbursementForm(){
                         const notificationDescription = response.insertRecord ? 'The disbursement has been inserted successfully.' : 'The disbursement  has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'disbursement.php?id=' + response.disbursementID;
+
+                        if(disbursement_category == 'disbursement petty cash'){
+                            window.location = 'disbursement.php?id=' + response.disbursementID;
+                        }
+                        else{
+                            window.location = 'check-disbursement.php?id=' + response.disbursementID;
+                        }
                     }
                     else {
                         if (response.isInactive) {
@@ -1713,6 +1841,7 @@ function getDisbursementTotal(){
     var fund_source_filter = $('.fund-source-filter:checked').val();
     var disbursement_status_filter = $('.disbursement-status-filter:checked').val();
     var transaction_type_filter = $('.transaction-type-filter:checked').val();
+    const disbursement_category = $('#disbursement_category').val();
         
     $.ajax({
         type: 'POST',
@@ -1722,11 +1851,62 @@ function getDisbursementTotal(){
         '&filter_transaction_date_end_date=' + filter_transaction_date_end_date +
         '&fund_source_filter=' + fund_source_filter +
         '&disbursement_status_filter=' + disbursement_status_filter +
-        '&transaction_type_filter=' + transaction_type_filter,
+        '&transaction_type_filter=' + transaction_type_filter +
+        '&disbursement_category=' + disbursement_category,
         dataType: 'json',
         success: function (response) {
             if (response.success) {
                 $('#total-disbursement').text(response.total);
+            }
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function getDisbursementParticularsTotal(){
+    const transaction = 'get disbursement particulars total';
+    const disbursement_id = $('#disbursement-id').text();
+        
+    $.ajax({
+        type: 'POST',
+        url: 'controller/disbursement-controller.php',
+        data: 'transaction=' + transaction + 
+        '&disbursement_id=' + disbursement_id,
+        dataType: 'json',
+        success: function (response) {
+            if (response.success) {
+                $('#total-particulars').text(response.total);
+            }
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function getDisbursementCheckTotal(){
+    const transaction = 'get disbursement check total';
+    const disbursement_id = $('#disbursement-id').text();
+        
+    $.ajax({
+        type: 'POST',
+        url: 'controller/disbursement-controller.php',
+        data: 'transaction=' + transaction + 
+        '&disbursement_id=' + disbursement_id,
+        dataType: 'json',
+        success: function (response) {
+            if (response.success) {
+                $('#total-check').text(response.total);
             }
         },
         error: function(xhr, status, error) {

@@ -116,6 +116,12 @@ class DisbursementController {
                 case 'get disbursement total':
                     $this->getDisbursementTotal();
                     break;
+                case 'get disbursement particulars total':
+                    $this->getDisbursementParticularsTotal();
+                    break;
+                case 'get disbursement check total':
+                    $this->getDisbursementCheckTotal();
+                    break;
                 case 'delete disbursement particulars':
                     $this->deleteDisbursementParticulars();
                     break;
@@ -223,6 +229,11 @@ class DisbursementController {
 
         $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
         $disbursementCheckTotal = $this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0;
+
+        if( $transaction_type == 'Disbursement' && $disbursementTotal > 5000){
+            echo json_encode(['success' => false, 'disbursementGreater' => true]);
+            exit;
+        }
         
         if($disbursementTotal === 0){
             echo json_encode(['success' => false, 'disbursementZero' => true]);
@@ -935,7 +946,12 @@ class DisbursementController {
                 $transaction_number = $this->systemSettingModel->getSystemSetting(24)['value'] + 1;
             }
             else{
-                $transaction_number = $this->systemSettingModel->getSystemSetting(19)['value'] + 1;
+                if($transaction_type == 'Disbursement'){
+                    $transaction_number = $this->systemSettingModel->getSystemSetting(19)['value'] + 1;
+                }
+                else{
+                    $transaction_number = $this->systemSettingModel->getSystemSetting(27)['value'] + 1;
+                }
             }
             
 
@@ -945,7 +961,13 @@ class DisbursementController {
                 $this->systemSettingModel->updateSystemSettingValue(24, $transaction_number, $userID);
             }
             else{
-                $this->systemSettingModel->updateSystemSettingValue(19, $transaction_number, $userID);
+                
+                if($transaction_type == 'Disbursement'){
+                    $this->systemSettingModel->updateSystemSettingValue(19, $transaction_number, $userID);
+                }
+                else{
+                    $this->systemSettingModel->updateSystemSettingValue(27, $transaction_number, $userID);
+                }
             }
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'disbursementID' => $this->securityModel->encryptData($disbursementID)]);
@@ -1461,6 +1483,7 @@ class DisbursementController {
         $fund_source_filter = $_POST['fund_source_filter'];
         $disbursement_status_filter = $_POST['disbursement_status_filter'];
         $transaction_type_filter = $_POST['transaction_type_filter'];
+        $disbursement_category = $_POST['disbursement_category'];
 
         if(empty($_POST['fund_source_filter'])){
             $fund_source_filter = null;
@@ -1474,11 +1497,45 @@ class DisbursementController {
             $transaction_type_filter = null;
         }
 
-        $disbursementDetails = $this->disbursementModel->getDisbursementTableTotal($filterTransactionDateStartDate, $filterTransactionDateEndDate, $fund_source_filter, $disbursement_status_filter, $transaction_type_filter);
+        $disbursementDetails = $this->disbursementModel->getDisbursementTableTotal($filterTransactionDateStartDate, $filterTransactionDateEndDate, $fund_source_filter, $disbursement_status_filter, $transaction_type_filter, $disbursement_category);
 
         $response = [
             'success' => true,
             'total' => number_format($disbursementDetails['total'] ?? 0, 2) . ' Php'
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function getDisbursementParticularsTotal() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $disbursementID = $_POST['disbursement_id'];
+        $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
+
+        $response = [
+            'success' => true,
+            'total' => number_format($disbursementTotal, 2) . ' Php'
+        ];
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function getDisbursementCheckTotal() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $disbursementID = $_POST['disbursement_id'];
+        $disbursementCheckTotal = $this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0;
+
+        $response = [
+            'success' => true,
+            'total' => number_format($disbursementCheckTotal, 2) . ' Php'
         ];
 
         echo json_encode($response);

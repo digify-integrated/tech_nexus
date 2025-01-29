@@ -13,83 +13,6 @@
 ?>
 
 <div class="row">
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-12">
-            <h3 class="mb-1"><?php echo number_format($pettyCashFund, 2); ?> Php</h3>
-            <p class="text-muted mb-0">Petty Cash Fund</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-12">
-            <h3 class="mb-1"><?php echo number_format($pettyCashFundUnreplenished, 2); ?> Php</h3>
-            <p class="text-muted mb-0">Unreplenished Petty Cash Fund</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>   
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-12">
-            <h3 class="mb-1"><?php echo number_format($pettyCashFundPercent, 2); ?> %</h3>
-            <p class="text-muted mb-0">Replenishment Percentage</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-12">
-            <h3 class="mb-1"><?php echo number_format($revolvingFund, 2); ?> Php</h3>
-            <p class="text-muted mb-0">Revolving Fund</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>  
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-12">
-            <h3 class="mb-1"><?php echo number_format($revolvingFundUnreplenished, 2); ?> Php</h3>
-            <p class="text-muted mb-0">Unreplenished Revolving Fund</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>   
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-12">
-            <h3 class="mb-1"><?php echo number_format($revolvingFundPercent, 2); ?> %</h3>
-            <p class="text-muted mb-0">Replenishment Percentage</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>   
-</div>
-
-<div class="row">
   <div class="col-lg-12">
     <div class="ecom-wrapper">
       <div class="offcanvas offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
@@ -127,16 +50,8 @@
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
-                                <input class="form-check-input fund-source-filter" type="radio" name="fund-source-filter" id="fund-source-all" value="" checked />
-                                <label class="form-check-label" for="fund-source-all">All</label>
-                              </div>
-                              <div class="form-check my-2">
-                                <input class="form-check-input fund-source-filter" type="radio" name="fund-source-filter" id="fund-source-petty-cash" value="Petty Cash" />
-                                <label class="form-check-label" for="fund-source-petty-cash">Petty Cash</label>
-                              </div>
-                              <div class="form-check my-2">
-                                <input class="form-check-input fund-source-filter" type="radio" name="fund-source-filter" id="fund-source-revolving-fund" value="Revolving Fund" />
-                                <label class="form-check-label" for="fund-source-revolving-fund">Revolving Fund</label>
+                                <input class="form-check-input fund-source-filter" type="radio" name="fund-source-filter" id="fund-source-check" value="Check" checked />
+                                <label class="form-check-label" for="fund-source-check">Check</label>
                               </div>
                             </div>
                           </div>
@@ -241,8 +156,8 @@
                     $action .= '</ul>
                                     </div>';
 
-                    if($disbursementCreateAccess['total'] > 0 ){
-                      $action .= '<a href="disbursement.php?new" class="btn btn-success">Create</a>';
+                    if($disbursementCreateAccess['total'] > 0){
+                      $action .= '<a href="check-disbursement.php?new" class="btn btn-success">Create</a>';
                     }
                                   
                     echo $action;
@@ -253,11 +168,11 @@
                 </button>
               </div>
             </div>
-            
           </div>
           <div class="card-body">
+            
             <div class="table-responsive dt-responsive">
-              <table id="disbursement-table" class="table table-hover text-wrap w-100 text-uppercase">
+              <table id="check-disbursement-table" class="table table-hover text-wrap w-100 text-uppercase">
                 <thead>
                   <tr>
                     <th class="all">

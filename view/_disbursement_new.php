@@ -18,6 +18,7 @@
       </div>
       <div class="card-body">
         <form id="disbursement-form" method="post" action="#">
+        <input type="hidden" id="disbursement_category" name="disbursement_category" value="<?php echo $disbursementCategory; ?>">
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Payable Type <span class="text-danger">*</span></label>
             <div class="col-lg-4">
@@ -69,9 +70,15 @@
             <div class="col-lg-4">
               <select class="form-control select2" name="fund_source" id="fund_source">
                 <option value="">--</option>
-                <option value="Petty Cash">Petty Cash</option>
-                <option value="Revolving Fund">Revolving Fund</option>
-                <option value="Check">Check</option>
+                <?php
+                  if($disbursementCategory === 'disbursement petty cash'){
+                    echo ' <option value="Petty Cash">Petty Cash</option>
+                    <option value="Revolving Fund">Revolving Fund</option>';
+                  }
+                  else{
+                    echo ' <option value="Check">Check</option>';
+                  }
+                ?>
                </select>
             </div>
           </div>

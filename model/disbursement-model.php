@@ -239,13 +239,14 @@ class DisbursementModel {
         $stmt->execute();
     }
 
-    public function getDisbursementTableTotal($p_transaction_start_date, $p_transaction_end_date, $p_fund_source_filter, $p_disbursement_status, $p_transaction_type) {
-        $stmt = $this->db->getConnection()->prepare('CALL getDisbursementTableTotal(:p_transaction_start_date, :p_transaction_end_date, :p_fund_source_filter, :p_disbursement_status, :p_transaction_type)');
+    public function getDisbursementTableTotal($p_transaction_start_date, $p_transaction_end_date, $p_fund_source_filter, $p_disbursement_status, $p_transaction_type, $p_disbursement_category) {
+        $stmt = $this->db->getConnection()->prepare('CALL getDisbursementTableTotal(:p_transaction_start_date, :p_transaction_end_date, :p_fund_source_filter, :p_disbursement_status, :p_transaction_type, :p_disbursement_category)');
         $stmt->bindValue(':p_transaction_start_date', $p_transaction_start_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_transaction_end_date', $p_transaction_end_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_fund_source_filter', $p_fund_source_filter, PDO::PARAM_STR);
         $stmt->bindValue(':p_disbursement_status', $p_disbursement_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_transaction_type', $p_transaction_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_disbursement_category', $p_disbursement_category, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

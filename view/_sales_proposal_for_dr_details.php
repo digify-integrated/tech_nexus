@@ -1394,6 +1394,12 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label class="col-lg-5 col-form-label">Invoice No :</label>
+                                <div class="col-lg-7">
+                                    <input type="text" class="form-control text-uppercase" id="invoice_number" name="invoice_number" maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label class="col-lg-5 col-form-label">Business Style :</label>
                                 <div class="col-lg-7">
                                     <textarea class="form-control text-uppercase" id="business_style" name="business_style" maxlength="500"></textarea>
@@ -1555,7 +1561,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--<div class="col-lg-6">
+                            <div class="col-lg-6">
                                 <div class="card price-card">
                                     <div class="card-body">
                                         <div class="price-head">
@@ -1574,7 +1580,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>-->
+                            </div>
                             <?php
                                 if($salesProposalStatus == 'Released'){
                                     echo '<div class="col-lg-6">
