@@ -20,7 +20,7 @@
   $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
   $systemSettingModel = new SystemSettingModel($databaseModel);
 
-  $pageTitle = 'Disbursement Check';
+  $pageTitle = 'Check Monitoring';
     
   $disbursementReadAccess = $userModel->checkMenuItemAccessRights($user_id, 126, 'read');
 

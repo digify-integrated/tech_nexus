@@ -234,7 +234,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'STATUS' => $disburse_status,
                     'TOTAL_AMOUNT' => number_format($disbursementTotal, 2),
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="disbursement.php?id='. $disbursementIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="check-disbursement.php?id='. $disbursementIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
@@ -311,7 +311,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $disbursementID .'">',
                     'TRANSACTION_DATE' => $transaction_date,
-                    'CUSTOMER_NAME' => '<a href="disbursement.php?id='. $disbursementIDEncrypted .'" title="View Details">
+                    'CUSTOMER_NAME' => '<a href="check-disbursement.php?id='. $disbursementIDEncrypted .'" title="View Details">
                                         '. $customerName .'
                                     </a>',
                     'DEPARTMENT_NAME' => $departmentName,

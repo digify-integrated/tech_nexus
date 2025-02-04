@@ -65,14 +65,6 @@
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
-                                <input class="form-check-input transaction-type-filter" type="radio" name="transaction-type-filter" id="transaction-type-all" value="" />
-                                <label class="form-check-label" for="transaction-type-all">All</label>
-                              </div>
-                              <div class="form-check my-2">
-                                <input class="form-check-input transaction-type-filter" type="radio" name="transaction-type-filter" id="transaction-type-petty-cash" value="Replenishment" />
-                                <label class="form-check-label" for="transaction-type-petty-cash">Replenishment</label>
-                              </div>
-                              <div class="form-check my-2">
                                 <input class="form-check-input transaction-type-filter" type="radio" name="transaction-type-filter" id="transaction-type-revolving-fund" value="Disbursement" checked />
                                 <label class="form-check-label" for="transaction-type-revolving-fund">Disbursement</label>
                               </div>
@@ -141,9 +133,6 @@
                                       <ul class="dropdown-menu dropdown-menu-end">
                                         <li><a href="javascript:void(0);" id="print-report" class="dropdown-item" target="_blank" id="">Print Report</a></li>';
                                   
-                    if($replenishmentDisbursement['total'] > 0){
-                      $action .= '<li><button class="dropdown-item" type="button" id="replenish-disbursement">Replenish Disbursement</button></li>';
-                    }
 
                     if ($postDisbursement['total'] > 0) {
                       $action .= '<li><button class="dropdown-item" type="button" id="post-disbursement">Post Disbursement</button></li>';

@@ -87,6 +87,8 @@ $pdf->Cell(90, 4, 'TOTAL CHECKS ISSUED: ' . number_format($checkTotal, 2), '', 0
 $pdf->Ln(10);
 $pdf->writeHTML($summaryTable2, true, false, true, false, '');
 
+
+/*
 // Calculate remaining space and add a page break if needed (before the tear line)
 $currentY = $pdf->GetY(); // Get current vertical position after adding content
 $remainingSpaceAboveTear = $tearLineY - $currentY; // Space left above the tear line
@@ -125,7 +127,10 @@ $remainingSpaceBelowTear = $pageHeight - $currentY - $pdf->getBreakMargin(); // 
 if ($remainingSpaceBelowTear < 10) {
     $pdf->AddPage();
 }
-    
+    */
+
+
+
 
     // Output the PDF to the browser
     $pdf->Output('cash-disbursement-voucher.pdf', 'I');
@@ -144,6 +149,7 @@ if ($remainingSpaceBelowTear < 10) {
         require_once 'model/travel-form-model.php';
         require_once 'model/disbursement-model.php';
         require_once 'model/chart-of-account-model.php';
+        require_once 'model/miscellaneous-client-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -154,18 +160,26 @@ if ($remainingSpaceBelowTear < 10) {
         $customerModel = new CustomerModel($databaseModel);
         $jobPositionModel = new JobPositionModel($databaseModel);
         $chartOfAccountModel = new ChartOfAccountModel($databaseModel);
+        $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
         
         $disbursementDetails = $disbursementModel->getDisbursement($disbursementID);
         $createdBy = $disbursementDetails['created_by'];
         $particulars = $disbursementDetails['particulars'];
         $customer_id = $disbursementDetails['customer_id'];
         $transaction_number = $disbursementDetails['transaction_number'];
+        $payable_type = $disbursementDetails['payable_type'];
 
         $disbursementTotal = $disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
 
-        $customerDetails = $customerModel->getPersonalInformation($customer_id);
+        if($payable_type === 'Customer'){
+            $customerDetails = $customerModel->getPersonalInformation($customer_id);
+            $customerName = $customerDetails['file_as'] ?? null;
+        }
+        else{
+            $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+            $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+        }
 
-        $customerName = strtoupper($customerDetails['file_as']) ?? null;
         $transaction_date = $systemModel->checkDate('summary', $disbursementDetails['transaction_date'], '', 'm/d/Y', '');
 
         // Created By
@@ -322,6 +336,7 @@ if ($remainingSpaceBelowTear < 10) {
         require_once 'model/travel-form-model.php';
         require_once 'model/disbursement-model.php';
         require_once 'model/chart-of-account-model.php';
+        require_once 'model/miscellaneous-client-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -332,18 +347,25 @@ if ($remainingSpaceBelowTear < 10) {
         $customerModel = new CustomerModel($databaseModel);
         $jobPositionModel = new JobPositionModel($databaseModel);
         $chartOfAccountModel = new ChartOfAccountModel($databaseModel);
+        $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
         
         $disbursementDetails = $disbursementModel->getDisbursement($disbursementID);
         $createdBy = $disbursementDetails['created_by'];
         $particulars = $disbursementDetails['particulars'];
         $customer_id = $disbursementDetails['customer_id'];
-        $transaction_number = $disbursementDetails['transaction_number'];
+        $transaction_number = $disbursementDetails['transaction_number'];$payable_type = $disbursementDetails['payable_type'];
 
         $disbursementTotal = $disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
 
-        $customerDetails = $customerModel->getPersonalInformation($customer_id);
-
-        $customerName = strtoupper($customerDetails['file_as']) ?? null;
+        if($payable_type === 'Customer'){
+            $customerDetails = $customerModel->getPersonalInformation($customer_id);
+            $customerName = $customerDetails['file_as'] ?? null;
+        }
+        else{
+            $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+            $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+        }
+        
         $transaction_date = $systemModel->checkDate('summary', $disbursementDetails['transaction_date'], '', 'm/d/Y', '');
 
         // Created By

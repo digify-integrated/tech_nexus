@@ -39,7 +39,6 @@
                   <table id="leave-application-table" class="table table-hover nowrap w-100 text-uppercase">
                     <thead>
                       <tr>
-                        <th>Employee</th>
                         <th>Leave Type</th>
                         <th>Leave Date</th>
                         <th>Application Date</th>

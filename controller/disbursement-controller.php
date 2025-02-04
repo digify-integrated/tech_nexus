@@ -230,7 +230,7 @@ class DisbursementController {
         $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
         $disbursementCheckTotal = $this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0;
 
-        if( $transaction_type == 'Disbursement' && $disbursementTotal > 5000){
+        if( $transaction_type == 'Disbursement' && $fund_source != 'Check' && $disbursementTotal > 5000){
             echo json_encode(['success' => false, 'disbursementGreater' => true]);
             exit;
         }
@@ -1048,6 +1048,7 @@ class DisbursementController {
 
             $this->disbursementModel->insertDisbursementCheck($disbursement_id, $bank_branch, $check_number, $check_date, $check_amount, $userID);
 
+            $this->systemSettingModel->updateSystemSettingValue(25, $check_number, $userID);
             echo json_encode(['success' => true]);
             exit;
         }

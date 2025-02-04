@@ -3255,8 +3255,6 @@ class SalesProposalController {
                 'approvalByName' => $approvalByName,
                 'productName' => $stockNumber . ' - ' . $productDescription,
                 'drNumber' => $salesProposalDetails['dr_number'],
-                'si' => $salesProposalDetails['si'],
-                'di' => $salesProposalDetails['di'],
                 'releaseTo' => $salesProposalDetails['release_to'],
                 'actualStartDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['actual_start_date'], '', 'm/d/Y', ''),
                 'referredBy' => $salesProposalDetails['referred_by'],

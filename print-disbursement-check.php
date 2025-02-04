@@ -14,6 +14,7 @@
     require_once 'model/product-model.php';
     ob_start();
     require_once 'model/customer-model.php';
+    require_once 'model/miscellaneous-client-model.php';
     ob_end_clean();
     
     $databaseModel = new DatabaseModel();
@@ -21,6 +22,7 @@
     $disbursementModel = new DisbursementModel($databaseModel);    
     $customerModel = new CustomerModel($databaseModel);
     $productModel = new ProductModel($databaseModel);
+    $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
     
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
@@ -47,9 +49,23 @@ $pdcManagementDetails = $disbursementModel->getDisbursementCheck($_GET['id']);
     $check_amount = $pdcManagementDetails['check_amount'] ?? '';
     $check_date = $pdcManagementDetails['check_date'] ?? '';
     $check_number = $pdcManagementDetails['check_number'] ?? 0;
+    $disbursement_id = $pdcManagementDetails['disbursement_id'] ?? 0;
     $amountInWords = new NumberFormatter("en", NumberFormatter::SPELLOUT);
 
     $date = new DateTime($check_date);
+
+    $disbursementDetails = $disbursementModel->getDisbursement($disbursement_id);
+    $customer_id = $disbursementDetails['customer_id'];
+    $payable_type = $disbursementDetails['payable_type'];
+
+    if($payable_type === 'Customer'){
+        $customerDetails = $customerModel->getPersonalInformation($customer_id);
+        $customerName = $customerDetails['file_as'] ?? null;
+    }
+    else{
+        $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+        $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+    }
 
     // Extract month, day, and year
     $month = $date->format('m');
@@ -81,7 +97,7 @@ $pdcManagementDetails = $disbursementModel->getDisbursementCheck($_GET['id']);
     // Print payee and amount aligned horizontally
     $pdf->SetXY($checkX, 15);
     $pdf->Cell(10, 10,  '', 0, 0, 'L');
-    $pdf->Cell(140, 10,  'CHRISTIAN GENERAL MOTORS INC', 0, 0, 'L');
+    $pdf->Cell(140, 10,  strtoupper($customerName), 0, 0, 'L');
     $pdf->Cell(40, 10, number_format($check_amount,2), 0, 0, 'L');
 
     // Print amount in 30

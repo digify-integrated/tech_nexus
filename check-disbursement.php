@@ -20,7 +20,7 @@
   $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
   $systemSettingModel = new SystemSettingModel($databaseModel);
 
-  $pageTitle = 'Check Disbursement';
+  $pageTitle = 'Check Voucher';
     
   $disbursementReadAccess = $userModel->checkMenuItemAccessRights($user_id, 128, 'read');
   $disbursementCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 128, 'create');
@@ -95,7 +95,7 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Operations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="disbursement.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="check-disbursement.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($disbursementID)){
                             echo '<li class="breadcrumb-item" id="disbursement-id">'. $disbursementID .'</li>';

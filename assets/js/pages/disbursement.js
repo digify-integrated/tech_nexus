@@ -1534,6 +1534,7 @@ function checkForm(){
                         showNotification(notificationMessage, notificationDescription, 'success');
 
                         checkTable('#check-table');
+                        getDisbursementCheckTotal();
                         $('#check-offcanvas').offcanvas('hide');
                     }
                     else {

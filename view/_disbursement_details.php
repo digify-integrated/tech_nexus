@@ -31,7 +31,7 @@
                       $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-disbursement-offcanvas" aria-controls="cancel-disbursement-offcanvas" id="cancel-disbursement">Cancel Disbursement</button></li>';
                     }
              
-                    if ($replenishmentDisbursement['total'] > 0 && $disbursementStatus == 'Posted') {
+                    if ($replenishmentDisbursement['total'] > 0 && $disbursementStatus == 'Posted'  && $fund_source != 'Check') {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="replenish-disbursement-details">Replenish Disbursement</button></li>';
                     }
              
@@ -54,8 +54,12 @@
                           <button type="button" id="discard-create" class="btn btn-outline-danger me-2">Discard</button>';
                   }
 
-                  if ($disbursementCreateAccess['total'] > 0) {
+                  if ($disbursementCreateAccess['total'] > 0 && $disbursementCategory == 'disbursement petty cash') {
                       echo '<a class="btn btn-success m-r-5 form-details" href="disbursement.php?new">Create</a>';
+                  }
+
+                  if ($disbursementCreateAccess['total'] > 0 && $disbursementCategory == 'disbursement check') {
+                      echo '<a class="btn btn-success m-r-5 form-details" href="check-disbursement.php?new">Create</a>';
                   }
             ?>
           </div>
@@ -412,7 +416,7 @@
                 </div>
               </div>
             </div>
-            <div class="form-group row update-hidden">
+            <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Amount <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="check_amount" name="check_amount" min="0" step="0.01">
