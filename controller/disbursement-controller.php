@@ -173,11 +173,20 @@ class DisbursementController {
                 case 'transmit disbursement check':
                     $this->tagDisbursementCheckAsTransmitted();
                     break;
+                case 'transmit multiple disbursement check':
+                    $this->tagMultipleDisbursementCheckAsTransmitted();
+                    break;
                 case 'outstanding disbursement check':
                     $this->tagDisbursementCheckAsOutstanding();
                     break;
+                case 'outstanding multiple disbursement check':
+                    $this->tagMultipleDisbursementCheckAsOutstanding();
+                    break;
                 case 'negotiated disbursement check':
                     $this->tagDisbursementCheckAsNegotiated();
+                    break;
+                case 'negotiated multiple disbursement check':
+                    $this->tagMultipleDisbursementCheckAsNegotiated();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -227,8 +236,8 @@ class DisbursementController {
         $transaction_number = $disbursementDetails['transaction_number'];
         $transaction_date = $disbursementDetails['transaction_date'];
 
-        $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
-        $disbursementCheckTotal = $this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0;
+        $disbursementTotal = number_format($this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0, 2, '.', '');
+        $disbursementCheckTotal = number_format($this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0, 2, '.', '');
 
         if( $transaction_type == 'Disbursement' && $fund_source != 'Check' && $disbursementTotal > 5000){
             echo json_encode(['success' => false, 'disbursementGreater' => true]);
@@ -743,6 +752,34 @@ class DisbursementController {
         exit;
     }
 
+    public function tagMultipleDisbursementCheckAsTransmitted() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $disbursement_check_ids = $_POST['disbursement_check_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($disbursement_check_ids as $disbursement_check_id) {
+            $checkDisbursementExist = $this->disbursementModel->checkDisbursementCheckExist($disbursement_check_id);
+            $total = $checkDisbursementExist['total'] ?? 0;
+
+            if($total > 0){
+                $this->disbursementModel->updateDisbursementCheckStatus($disbursement_check_id, 'Transmitted', '', $userID);
+            }
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     public function tagDisbursementCheckAsOutstanding() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -772,6 +809,34 @@ class DisbursementController {
         exit;
     }
 
+    public function tagMultipleDisbursementCheckAsOutstanding() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $disbursement_check_ids = $_POST['disbursement_check_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($disbursement_check_ids as $disbursement_check_id) {
+            $checkDisbursementExist = $this->disbursementModel->checkDisbursementCheckExist($disbursement_check_id);
+            $total = $checkDisbursementExist['total'] ?? 0;
+
+            if($total > 0){
+                $this->disbursementModel->updateDisbursementCheckStatus($disbursement_check_id, 'Outstanding', '', $userID);
+            }
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     public function tagDisbursementCheckAsNegotiated() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -797,6 +862,34 @@ class DisbursementController {
 
         $this->disbursementModel->updateDisbursementCheckStatus($disbursement_check_id, 'Negotiated', '', $userID);
                 
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function tagMultipleDisbursementCheckAsNegotiated() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $disbursement_check_ids = $_POST['disbursement_check_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($disbursement_check_ids as $disbursement_check_id) {
+            $checkDisbursementExist = $this->disbursementModel->checkDisbursementCheckExist($disbursement_check_id);
+            $total = $checkDisbursementExist['total'] ?? 0;
+
+            if($total > 0){
+                $this->disbursementModel->updateDisbursementCheckStatus($disbursement_check_id, 'Negotiated', '', $userID);
+            }
+        }
+            
         echo json_encode(['success' => true]);
         exit;
     }

@@ -3315,6 +3315,9 @@ function salesProposalOtherChargesForm(){
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
                         }
+                        else if (response.negativeAmount) {
+                            showNotification('Transaction Error', 'Kindly check the other charges amount. The subtotal cannot be negative.', 'danger');
+                        }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }

@@ -150,7 +150,8 @@
         $engine_number = $productDetails['engine_number'];
         $chassis_number = $productDetails['chassis_number'];
         $plate_number = $productDetails['plate_number'];
-        $description = $productDetails['description'];
+        #$description = $productDetails['description'];
+        $description = $productDetails['remarks'];
 
         $supplierName = $supplierModel->getSupplier($supplier_id)['supplier_name'] ?? null;
         $className = $classModel->getClass($class_id)['class_name'] ?? null;

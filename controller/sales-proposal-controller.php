@@ -2590,18 +2590,24 @@ class SalesProposalController {
         $registrationFee = str_replace(',', '', $_POST['registration_fee']);
         $docStampTax = str_replace(',', '', $_POST['doc_stamp_tax']);
         $transactionFee = str_replace(',', '', $_POST['transaction_fee']);
-        $totalOtherCharges = str_replace(',', '', $_POST['total_other_charges']);
 
         $insurancePremiumDiscount = str_replace(',', '', $_POST['insurance_premium_discount']);
-        $insurancePremiumSubtotal = str_replace(',', '', $_POST['insurance_premium_subtotal']);
+        $insurancePremiumSubtotal = $insurancePremium - $insurancePremiumDiscount;
         $handlingFeeDiscount = str_replace(',', '', $_POST['handling_fee_discount']);
-        $handlingFeeSubtotal = str_replace(',', '', $_POST['handling_fee_subtotal']);
+        $handlingFeeSubtotal = $handlingFee - $handlingFeeDiscount;
         $transferFeeDiscount = str_replace(',', '', $_POST['transfer_fee_discount']);
-        $transferFeeSubtotal = str_replace(',', '', $_POST['transfer_fee_subtotal']);
+        $transferFeeSubtotal = $transferFee - $transferFeeDiscount;
         $docStampTaxDiscount = str_replace(',', '', $_POST['doc_stamp_tax_discount']);
-        $docStampTaxSubtotal = str_replace(',', '', $_POST['doc_stamp_tax_subtotal']);
+        $docStampTaxSubtotal = $docStampTax - $docStampTaxDiscount;
         $transactionFeeDiscount = str_replace(',', '', $_POST['transaction_fee_discount']);
-        $transactionFeeSubtotal = str_replace(',', '', $_POST['transaction_fee_subtotal']);
+        $transactionFeeSubtotal = $transactionFee - $transactionFeeDiscount;
+
+        $totalOtherCharges = $insurancePremiumSubtotal + $handlingFeeSubtotal + $transferFeeSubtotal + $docStampTaxSubtotal + $transactionFeeSubtotal + $registrationFee;
+
+        if($insurancePremiumSubtotal < 0 || $handlingFeeSubtotal < 0 || $transferFeeSubtotal < 0 || $docStampTaxSubtotal < 0 || $transactionFeeSubtotal < 0 || $registrationFee < 0){
+            echo json_encode(['success' => false, 'negativeAmount' => true]);
+            exit;
+        }
     
         $user = $this->userModel->getUserByID($userID);
     

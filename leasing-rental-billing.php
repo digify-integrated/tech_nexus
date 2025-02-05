@@ -90,8 +90,8 @@
     // Set PDF metadata
     $pdf->SetCreator('CGMI');
     $pdf->SetAuthor('CGMI');
-    $pdf->SetTitle('Sales Proposal');
-    $pdf->SetSubject('Sales Proposal');
+    $pdf->SetTitle('Leasing Rental Billing');
+    $pdf->SetSubject('Leasing Rental Billing');
 
     // Set margins and auto page break
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
@@ -213,6 +213,7 @@
                         <tr>
                             <td rowspan="2">BILLING MONTH</td>
                             <td colspan="2">COVERED PERIOD</td>
+                            <td rowspan="2">DUE DATE</td>
                             <td rowspan="2">MONTHLY RENTAL</td>
                             <td rowspan="2">VAT</td>
                             <td rowspan="2">W/TAX</td>
@@ -223,6 +224,7 @@
                         <tr>
                             <td>FROM</td>
                             <td>TO</td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -249,6 +251,8 @@
             $unpaidRental = $leasingApplicationRepaymentDetails['unpaid_rental'];
             $paidRental = $leasingApplicationRepaymentDetails['paid_rental'];
             $totalRental = $paidRental + $unpaidRental;
+            
+            $due = strtoupper(date('m/d/Y', strtotime($dueDate))); 
 
             if($vat == 'Yes' && $witholdingTax == 'Yes'){
                 $baseTotalRental = $totalRental / (1.07);
@@ -285,6 +289,7 @@
                         <td>'. $month .'-'. $year .'</td>
                         <td>'. $from .'</td>
                         <td>'. $to .'</td>
+                        <td>'. $due .'</td>
                         <td>'. number_format($baseTotalRental, 2) .'</td>
                         <td>'. number_format($vatAmount, 2) .'</td>
                         <td>'. number_format($witholdingTaxAmount, 2) .'</td>
@@ -296,7 +301,7 @@
         }
 
         $response .= ' <tr>
-                            <td colspan="8" align="right"><b>TOTAL</b></td>
+                            <td colspan="9" align="right"><b>TOTAL</b></td>
                             <td><b>'. number_format($totalAmount, 2) .'</b></td>
                         </tr>';
 

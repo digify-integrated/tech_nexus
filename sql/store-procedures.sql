@@ -11898,7 +11898,7 @@ BEGIN
             FROM sales_proposal_pricing_computation
             WHERE sales_proposal_id = p_sales_proposal_id;
         ELSEIF v_item = 'INS' THEN
-            SELECT insurance_premium INTO v_amount
+            SELECT insurance_premium_subtotal INTO v_amount
             FROM sales_proposal_other_charges
             WHERE sales_proposal_id = p_sales_proposal_id;
         ELSEIF v_item = 'REG' THEN
@@ -11926,9 +11926,9 @@ BEGIN
             FROM sales_proposal_pricing_computation
             WHERE sales_proposal_id = p_sales_proposal_id;
         ELSEIF v_item = 'AJO' THEN
-            SELECT COALESCE(SUM(expense_amount), 0) INTO v_amount
-            FROM product_expense
-            WHERE product_id = p_product_id;
+            SELECT COALESCE(SUM(cost), 0) INTO v_amount
+            FROM sales_proposal_additional_job_order
+            WHERE sales_proposal_id = p_sales_proposal_id;
         END IF;
 
         -- Set analytic_lines and analytic_distribution based on p_product_type
@@ -12506,7 +12506,7 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateDisbursementCheckMonitoringTable( IN p_check_start_date DATE, IN p_check_end_date DATE)
+CREATE PROCEDURE generateDisbursementCheckMonitoringTable(IN p_check_start_date DATE, IN p_check_end_date DATE, IN p_transmitted_date_start_date DATE, IN p_transmitted_date_end_date DATE, IN p_outstanding_date_start_date DATE, IN p_outstanding_date_end_date DATE, IN p_negotiated_date_start_date DATE, IN p_negotiated_date_end_date DATE, IN p_check_status VARCHAR(100))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -12514,12 +12514,41 @@ BEGIN
     SET query = 'SELECT * FROM disbursement_check 
     JOIN disbursement ON disbursement.disbursement_id = disbursement_check.disbursement_id';
     SET conditionList = ' WHERE 1';
+
+    IF p_check_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND check_status = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_check_status));
+    END IF;
     
     IF p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND (check_date BETWEEN ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_check_start_date));
         SET conditionList = CONCAT(conditionList, ' AND ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_check_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_transmitted_date_start_date IS NOT NULL AND p_transmitted_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (transmitted_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transmitted_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transmitted_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_outstanding_date_start_date IS NOT NULL AND p_outstanding_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (outstanding_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_outstanding_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_outstanding_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_negotiated_date_start_date IS NOT NULL AND p_negotiated_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (negotiated_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_negotiated_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_negotiated_date_end_date));
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
 

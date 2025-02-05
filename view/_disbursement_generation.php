@@ -247,15 +247,34 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         case 'disbursement check monitoring table':
             $filterCheckDateStartDate = $systemModel->checkDate('empty', $_POST['filter_check_date_start_date'], '', 'Y-m-d', '');
             $filterCheckDateEndDate = $systemModel->checkDate('empty', $_POST['filter_check_date_end_date'], '', 'Y-m-d', '');
+            $filter_transmitted_date_start_date = $systemModel->checkDate('empty', $_POST['filter_transmitted_date_start_date'], '', 'Y-m-d', '');
+            $filter_transmitted_date_end_date = $systemModel->checkDate('empty', $_POST['filter_transmitted_date_end_date'], '', 'Y-m-d', '');
+            $filter_outstanding_date_start_date = $systemModel->checkDate('empty', $_POST['filter_outstanding_date_start_date'], '', 'Y-m-d', '');
+            $filter_outstanding_date_end_date = $systemModel->checkDate('empty', $_POST['filter_outstanding_date_end_date'], '', 'Y-m-d', '');
+            $filter_negotiated_date_start_date = $systemModel->checkDate('empty', $_POST['filter_negotiated_date_start_date'], '', 'Y-m-d', '');
+            $filter_negotiated_date_end_date = $systemModel->checkDate('empty', $_POST['filter_negotiated_date_end_date'], '', 'Y-m-d', '');
+            $filter_check_status = $_POST['filter_check_status'];
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementCheckMonitoringTable(:filterCheckDateStartDate, :filterCheckDateEndDate)');
+            if(empty($_POST['filter_check_status'])){
+                $filter_check_status = null;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementCheckMonitoringTable(:filterCheckDateStartDate, :filterCheckDateEndDate, :filter_transmitted_date_start_date, :filter_transmitted_date_end_date, :filter_outstanding_date_start_date, :filter_outstanding_date_end_date, :filter_negotiated_date_start_date, :filter_negotiated_date_end_date, :filter_check_status)');
             $sql->bindValue(':filterCheckDateStartDate', $filterCheckDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterCheckDateEndDate', $filterCheckDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filter_transmitted_date_start_date', $filter_transmitted_date_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_transmitted_date_end_date', $filter_transmitted_date_end_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_outstanding_date_start_date', $filter_outstanding_date_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_outstanding_date_end_date', $filter_outstanding_date_end_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_negotiated_date_start_date', $filter_negotiated_date_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_negotiated_date_end_date', $filter_negotiated_date_end_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_check_status', $filter_check_status, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             foreach ($options as $row) {
+                $disbursement_check_id  = $row['disbursement_check_id'];
                 $disbursementID = $row['disbursement_id'];
                 $transaction_date = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y', '');
                 $transaction_number = $row['transaction_number'];
@@ -309,7 +328,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $companyName = $companyDetails['company_name'] ?? null;
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $disbursementID .'">',
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $disbursement_check_id .'">',
                     'TRANSACTION_DATE' => $transaction_date,
                     'CUSTOMER_NAME' => '<a href="check-disbursement.php?id='. $disbursementIDEncrypted .'" title="View Details">
                                         '. $customerName .'
@@ -436,7 +455,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </a>';
                 }
 
-                if($check_status == 'Draft'){
+                if($disburse_status == 'Posted' && $check_status == 'Draft'){
                     $action .= '<button type="button" class="btn btn-icon btn-success update-disbursement-check" data-bs-toggle="offcanvas" data-bs-target="#check-offcanvas" aria-controls="check-offcanvas" data-disbursement-check-id="'. $disbursement_check_id .'" title="Update Check">
                                         <i class="ti ti-edit"></i>
                                     </button>';
