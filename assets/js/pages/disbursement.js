@@ -1143,6 +1143,7 @@ function checkTable(datatable_name, buttons = false, show_all = false){
 
     const column = [
         { 'data' : 'BANK_BRANCH' },
+        { 'data' : 'CHECK_NAME' },
         { 'data' : 'CHECK_DATE' },
         { 'data' : 'CHECK_NUMBER' },
         { 'data' : 'CHECK_AMOUNT' },
@@ -1164,7 +1165,8 @@ function checkTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
         { 'width': 'auto', 'aTargets': 8 },
-        { 'width': '15%','bSortable': false, 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': '15%','bSortable': false, 'aTargets': 10 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -2027,6 +2029,7 @@ function displayDetails(transaction){
                         $('#disbursement_check_id').val(disbursement_check_id);
                         $('#check_number').val(response.checkNumber);
                         $('#check_date').val(response.checkDate);
+                        $('#check_name').val(response.checkName);
                         $('#check_amount').val(response.checkAmount);
 
                         checkOptionExist('#bank_branch', response.bankBranch, '');

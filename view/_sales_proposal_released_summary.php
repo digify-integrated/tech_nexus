@@ -1445,6 +1445,26 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-lg-6 align-items-stretch">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Promissory Note V2 (For Validation Do Not Use)</div>
+                                            <div class="d-grid"><a href="pn-dr-print2.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Disclosure V2 (For Validation Do Not Use)</div>
+                                            <div class="d-grid"><a href="disclosure-dr-print2.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-lg-6">
                                 <div class="card price-card">
                                     <div class="card-body">

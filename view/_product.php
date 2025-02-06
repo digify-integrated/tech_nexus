@@ -15,6 +15,30 @@
                 <div class="scroll-block">
                   <div class="card-body">
                     <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0 py-2">
+                            <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-category-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                                Product Category
+                            </a>
+                            <div class="collapse " id="product-category-filter-collapse">
+                                <div class="py-3">
+                                    <?php
+                                        echo $productCategoryModel->generateProductCategoryCheckBox();
+                                    ?>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item px-0 py-2">
+                            <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-subcategory-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                                Product Subcategory
+                            </a>
+                            <div class="collapse " id="product-subcategory-filter-collapse">
+                                <div class="py-3">
+                                    <?php
+                                        echo $productSubcategoryModel->generateProductSubcategoryCheckBox();
+                                    ?>
+                                </div>
+                            </div>
+                        </li>
                     <li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Product Status
@@ -70,7 +94,7 @@
                           </div>
                         </div>
                       </li>
-                      <li class="list-group-item px-0 py-2">
+                      <li class="list-group-item px-0 py-2 d-none">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#company-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Company
                         </a>
@@ -82,31 +106,7 @@
                           </div>
                         </div>
                       </li>
-                        <li class="list-group-item px-0 py-2">
-                            <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-category-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                                Product Category
-                            </a>
-                            <div class="collapse " id="product-category-filter-collapse">
-                                <div class="py-3">
-                                    <?php
-                                        echo $productCategoryModel->generateProductCategoryCheckBox();
-                                    ?>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="list-group-item px-0 py-2">
-                            <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-subcategory-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                                Product Subcategory
-                            </a>
-                            <div class="collapse " id="product-subcategory-filter-collapse">
-                                <div class="py-3">
-                                    <?php
-                                        echo $productSubcategoryModel->generateProductSubcategoryCheckBox();
-                                    ?>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="list-group-item px-0 py-2">
+                        <li class="list-group-item px-0 py-2 d-none">
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#warehouse-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                                 Warehouse
                             </a>
@@ -155,7 +155,7 @@
                                 </div>
                             </div>
                         </li>
-                        <li class="list-group-item px-0 py-2">
+                        <li class="list-group-item px-0 py-2 d-none">
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-price-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                                 Product Price
                             </a>
@@ -168,7 +168,7 @@
                                 </div>
                             </div>
                         </li>
-                        <li class="list-group-item px-0 py-2">
+                        <li class="list-group-item px-0 py-2 d-none">
                           <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#created-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                             Transaction Date
                           </a>
@@ -204,7 +204,7 @@
                   </div>
                 </li>
                 <li class="list-inline-item">
-                  <select class="form-select d-none" id="datatable-length">
+                  <select class="form-select" id="datatable-length">
                     <option value="-1">All</option>
                     <option value="5">5</option>
                     <option value="10" selected>10</option>
@@ -217,11 +217,11 @@
               </ul>
               <div class="col-auto">
                 <ul class="nav nav-pills nav-price" id="pills-tab" role="tablist">
+                  <!--<li class="nav-item" role="presentation">
+                    <button class="nav-link" id="card-view-tab" data-bs-toggle="pill" data-bs-target="#card-view" type="button" role="tab" aria-controls="card-view" aria-selected="true"><i data-feather="grid"></i></button>
+                  </li>-->
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="card-view-tab" data-bs-toggle="pill" data-bs-target="#card-view" type="button" role="tab" aria-controls="card-view" aria-selected="true"><i data-feather="grid"></i></button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="table-view-tab" data-bs-toggle="pill" data-bs-target="#table-view" type="button" role="tab" aria-controls="table-view" aria-selected="false"><i data-feather="align-justify"></i></button>
+                    <button class="nav-link active" id="table-view-tab" data-bs-toggle="pill" data-bs-target="#table-view" type="button" role="tab" aria-controls="table-view" aria-selected="false"><i data-feather="align-justify"></i></button>
                   </li>
                 </ul>
               </div>
@@ -251,7 +251,7 @@
           </div>
         </div>
         <div class="tab-content" id="pills-tabContent">
-          <div class="tab-pane fade show active" id="card-view" role="tabpanel" aria-labelledby="card-view-tab" tabindex="0">
+          <!--<div class="tab-pane fade" id="card-view" role="tabpanel" aria-labelledby="card-view-tab" tabindex="0">
             <div class="row" id="product-card"></div>
               <div class="row" class="d-none" id="load-content">
                 <div class="col-lg-12 text-center">
@@ -261,8 +261,8 @@
                 </div>
               </div>
             </div>  
-          </div>
-          <div class="tab-pane fade" id="table-view" role="tabpanel" aria-labelledby="table-view-tab" tabindex="0">
+          </div>-->
+          <div class="tab-pane fade show active" id="table-view" role="tabpanel" aria-labelledby="table-view-tab" tabindex="0">
             <div class="card table-card">
               <div class="card-body">
                 <div class="table-responsive dt-responsive">
@@ -274,10 +274,15 @@
                             <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                           </div>
                         </th>
-                        <th>Stock Number</th>
+                        <th>Image</th>
+                        <th>Stock No.</th>
                         <th>Category</th>
-                        <th>Product Price (SRP)</th>
-                        <th>For Sale Date</th>
+                        <th>Engine No.</th>
+                        <th>Chassis No.</th>
+                        <th>Body Type</th>
+                        <th>Color</th>
+                        <th>Location</th>
+                        <th>Price</th>
                         <th>Status</th>
                         <th>Actions</th>
                       </tr>

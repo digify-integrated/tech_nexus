@@ -104,11 +104,12 @@ class DisbursementModel {
         $stmt->execute();
     }
 
-    public function updateDisbursementCheck($p_disbursement_check_id, $p_disbursement_id, $p_bank_branch, $p_check_number, $p_check_date, $p_check_amount, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateDisbursementCheck(:p_disbursement_check_id, :p_disbursement_id, :p_bank_branch, :p_check_number, :p_check_date, :p_check_amount, :p_last_log_by)');
+    public function updateDisbursementCheck($p_disbursement_check_id, $p_disbursement_id, $p_bank_branch, $p_check_name, $p_check_number, $p_check_date, $p_check_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateDisbursementCheck(:p_disbursement_check_id, :p_disbursement_id, :p_bank_branch, :p_check_name, :p_check_number, :p_check_date, :p_check_amount, :p_last_log_by)');
         $stmt->bindValue(':p_disbursement_check_id', $p_disbursement_check_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_disbursement_id', $p_disbursement_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_bank_branch', $p_bank_branch, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_name', $p_check_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_number', $p_check_number, type: PDO::PARAM_STR);
         $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_amount', $p_check_amount, PDO::PARAM_STR);
@@ -185,10 +186,11 @@ class DisbursementModel {
         $stmt->execute();
     }
 
-    public function insertDisbursementCheck($p_disbursement_id, $p_bank_branch, $p_check_number, $p_check_date, $p_check_amount, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertDisbursementCheck(:p_disbursement_id, :p_bank_branch, :p_check_number, :p_check_date, :p_check_amount, :p_last_log_by)');
+    public function insertDisbursementCheck($p_disbursement_id, $p_bank_branch, $p_check_name, $p_check_number, $p_check_date, $p_check_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertDisbursementCheck(:p_disbursement_id, :p_bank_branch, :p_check_name, :p_check_number, :p_check_date, :p_check_amount, :p_last_log_by)');
         $stmt->bindValue(':p_disbursement_id', $p_disbursement_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_bank_branch',  $p_bank_branch, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_name',  $p_check_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_number', $p_check_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_amount', $p_check_amount, PDO::PARAM_STR);

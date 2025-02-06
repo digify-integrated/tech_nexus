@@ -166,23 +166,23 @@
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; FOR VALUE RECEIVED, I/We jointly and severally promise to pay without need of demand to the order of <b>CHRISTIAN GENERAL MOTORS INCORPORATED</b> (“CGMI” for brevity), at its office at <b>KM 112 MAHARLIKA HIGHWAY BARANGAY HERMOGENES CONCEPCION CABANATUAN CITY, NUEVA ECIJA, PHILIPPINES</b>, the sum of PESOS: <b>'. strtoupper($amountInWords->format($totalPn)) .' (Php '. number_format($totalPn, 2) .')</b> payable as follows: ', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, 'Initial Payment'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'Php 40,000.00 payable upon signing of this note' , 0, 0, 'L');
+    $pdf->Cell(80, 8, 'Downpayment/Initial Payment'  , 0, 0, 'L');
+    $pdf->Cell(32, 8, 'Php '. number_format($downpayment, 2) .' payable upon signing of this note' , 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, 'Monthly Installment'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'Php 120,960.00 per month payable every 1st day of the month' , 0, 0, 'L');
+    $pdf->Cell(32, 8, 'Php '. number_format($repaymentAmount, 2) .' per month payable every 1st day of the month' , 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, ''  , 0, 0, 'L');
     $pdf->Cell(32, 8, 'starting on 01 March 2025 until fully and completely paid' , 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, 'Transaction Fee'  , 0, 0, 'L');
+    $pdf->Cell(80, 8, 'Other Charges'  , 0, 0, 'L');
     $pdf->Cell(32, 8, 'Php 5,000.00 per month payable upon signing on this note' , 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, 'Insurance Renewal'  , 0, 0, 'L');
+    $pdf->Cell(80, 8, 'Registartion Renewal'  , 0, 0, 'L');
     $pdf->Cell(32, 8, 'Php86,101.00 payable on 24 June 2025 and P70,444.00 payable' , 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
@@ -193,7 +193,7 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; I/We hereby waive notice of demand for payment and agree that any legal action which may arise in relation to this note may be instituted in the proper court of Cabanatuan City.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; In all applicable cases, I/We jointly and severally waive and renounce presentment for acceptance, notice of dishonor and/or protest and notice of non – payment of this promissory note. Acceptance by the holder thereof of payment of any installment or any part thereof after due date shall not be considered as extending the time for the payment of this note or any installment thereof, nor shall be it construed as a renunciation or any right which may have already accrued in favor of the holder nor an amendment or modification of any of the terms herein stipulated.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; In case of non - payment of this note or any installment thereof on its due date, I/We hereby authorize CGMI to hold as security for this note any real or personal properties which may be in its possession or control by virtue of any contract.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; This note shall likewise be subjected to the following terms and conditions:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
@@ -232,7 +232,7 @@
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; 5.	The Maker(s) shall abide by all the applicable policies the CGMI may promulgate from time to time such as but not limited to increases in penalty rate, collection fees, other charges and interest rate;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; 6.	I/We hereby waive our rights over the properties exempted from execution under the provisions of Rule 39, Section 13 of the Rules of Court, as amended.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; 6.	In case of judicial execution of this oblication or any part thereof, I/We waive our rights under the provision of Rule 39, Secion 13 of the 1997 Rules of Civil Procedure.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; 7.	By virtue of this Note and the assignment of assets to CGMI, I/We hereby waive my/our rights under existing laws in relation to confidentiality of accounts and privacy of credit and other data or information and hereby consent and authorize CGMI, its subsidiaries or affiliates, to gather, collect, share, report or disclose basic credit data and other information pertaining to me/us or my/our accounts as may be necessary or for CGMI to comply with RA 9510 (Credit Information System Act), RA 10173 (Data Privacy Act) and their implementing rules and regulations as well as other pertinent laws and issuances.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);

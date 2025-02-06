@@ -157,7 +157,7 @@
     $pdf->Cell(40, 8, 'ADDRESS', 0, 0, 'L');
     $pdf->Cell(130, 8, strtoupper($customerAddress), 0, 0, 'L', 0, '', 1);
     $pdf->Ln(10);
-    $pdf->Cell(130, 8, '1. RESTRUCTURED AMOUNT', 0, 0, 'L');
+    $pdf->Cell(130, 8, '1. RESTRUCTURED AMOUNT / DELIVERY PRICE / AMOUNT GRANTED', 0, 0, 'L');
     $pdf->Cell(20, 8, 'P   ', 0, 0, 'L');
     $pdf->Cell(70, 8,  number_format($totalPn, 2), 0, 0, 'L');
     $pdf->Ln(8);
@@ -206,10 +206,10 @@
     $pdf->Cell(70, 8, '', 0, 0, 'L');
     $pdf->Ln(8);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(100, 8, 'a. Additional interest equivalent to FIVE PERCENT (5%) of the unpaid amount per month of delay to be computed from the date due until full payment thereof.' , 0, 0, 'L');
-    $pdf->Ln(5);
+    $pdf->Cell(100, 8, 'a. Additional interest equivalent to FIVE PERCENT (5%) of the unpaid amount per month of delay to be computed ' , 0, 0, 'L');
+    $pdf->Ln(4);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, "entire month." , 0, 0, 'L', '', 1);
+    $pdf->Cell(100, 8, 'from the date of due until full payment thereof. A fraction of a month being deemed to be an entire month.' , 0, 0, 'L');
     $pdf->Ln(8);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, "b. Attorney's fee - 20% of total amount due which shall not be less than P5,000.00" , 0, 0, 'L', '', 1);
@@ -250,7 +250,7 @@
     $pdf->writeHTML($amortSched, true, false, true, false, '');
     $pdf->Ln(2);
     $pdf->MultiCell(0, 0, "<b>I ACKNOWLEDGE RECEIPT OF A COPY OF THIS STATEMENT PRIOR TO THE CONSUMMATION OF THE LOANS AND CREDIT TRANSACTION AND THAT I UNDERSTAND AND FULLY AGREE TO THE TERMS AND CONDITIONS THEREOF.</b>", 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(10);
+    $pdf->Ln(5);
     $pdf->Cell(185, 4, '', 'B', 0 , 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
     $pdf->Ln(5);

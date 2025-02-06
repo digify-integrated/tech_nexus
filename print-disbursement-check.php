@@ -50,6 +50,7 @@ $pdcManagementDetails = $disbursementModel->getDisbursementCheck($_GET['id']);
     $check_date = $pdcManagementDetails['check_date'] ?? '';
     $check_number = $pdcManagementDetails['check_number'] ?? 0;
     $disbursement_id = $pdcManagementDetails['disbursement_id'] ?? 0;
+    $check_name = $pdcManagementDetails['check_name'] ?? null;
     $amountInWords = new NumberFormatter("en", NumberFormatter::SPELLOUT);
 
     $date = new DateTime($check_date);
@@ -58,13 +59,18 @@ $pdcManagementDetails = $disbursementModel->getDisbursementCheck($_GET['id']);
     $customer_id = $disbursementDetails['customer_id'];
     $payable_type = $disbursementDetails['payable_type'];
 
-    if($payable_type === 'Customer'){
-        $customerDetails = $customerModel->getPersonalInformation($customer_id);
-        $customerName = $customerDetails['file_as'] ?? null;
+    if(!empty($check_name)){
+        $customerName = $check_name;
     }
     else{
-        $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
-        $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+        if($payable_type === 'Customer'){
+            $customerDetails = $customerModel->getPersonalInformation($customer_id);
+            $customerName = $customerDetails['file_as'] ?? null;
+        }
+        else{
+            $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+            $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+        }
     }
 
     // Extract month, day, and year

@@ -144,15 +144,10 @@
 
         if (productCard.length) {
             loadProductCard(page, is_loading, true);
-            productSearch.on('keyup', function() {
+            /*productSearch.on('keyup', function() {
                 debounceAndReset();
                 productTable('#product-table');
-            });
-
-            $(document).on('click','#apply-filter',function() {
-                debounceAndReset();
-                productTable('#product-table');
-            });
+            });*/
 
             $(window).scroll(function () {
                 if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
@@ -163,6 +158,10 @@
                 }
             });
         }
+
+        productSearch.on('keyup', function() {
+            productTable('#product-table');
+        });
 
         productSearch.val(lastSearchValue);
 
@@ -1082,7 +1081,15 @@
         });
 
         $(document).on('click','#apply-filter',function() {
-            productExpenseTable('#product-expense-table');
+            //debounceAndReset();
+
+            if($('#product-expense-table').length){
+                productExpenseTable('#product-expense-table');
+            }
+
+            if($('#product-table').length){
+                productTable('#product-table');
+            }
         });
     });
 })(jQuery);
@@ -1262,22 +1269,32 @@ function productTable(datatable_name, buttons = false, show_all = false){
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
+        { 'data' : 'IMAGE' },
         { 'data' : 'STOCK_NUMBER' },
         { 'data' : 'CATEGORY' },
+        { 'data' : 'ENGINE_NUMBER' },
+        { 'data' : 'CHASSIS_NUMBER' },
+        { 'data' : 'BODY_TYPE' },
+        { 'data' : 'COLOR' },
+        { 'data' : 'WAREHOUSE' },
         { 'data' : 'PRODUCT_PRICE' },
-        { 'data' : 'FOR_SALE_DATE' },
         { 'data' : 'PRODUCT_STATUS' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '20%', 'aTargets': 1 },
-        { 'width': '25%', 'aTargets': 2 },
+        { 'width': '1%','bSortable': false, 'aTargets': 1 },
+        { 'width': '40%', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': '20%','bSortable': false, 'aTargets': 6 }
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 10 },
+        { 'width': '10%','bSortable': false, 'aTargets': 11 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1314,7 +1331,7 @@ function productTable(datatable_name, buttons = false, show_all = false){
             }
         },
         'dom': 'Brtip',
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 2, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

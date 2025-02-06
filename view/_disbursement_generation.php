@@ -286,6 +286,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $company_id = $row['company_id'];
                 $payable_type = $row['payable_type'];
                 $check_number = $row['check_number'];
+                $check_name = $row['check_name'];
                 $check_date = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
                 $reversal_date = $systemModel->checkDate('empty', $row['reversal_date'], '', 'm/d/Y', '');
                 $transmitted_date = $systemModel->checkDate('empty', $row['transmitted_date'], '', 'm/d/Y', '');
@@ -298,7 +299,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $check_status = '<span class="badge bg-secondary">' . $check_status . '</span>';
                 }
                 else if($check_status === 'Transmitted'){
-                    $check_status = '<span class="badge bg-warning">' . $check_status . '</span>';
+                    $check_status = '<span class="badge bg-warning">Unreleased</span>';
                 }
                 else if($check_status === 'Outstanding'){
                     $check_status = '<span class="badge bg-info">' . $check_status . '</span>';
@@ -309,14 +310,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 else{
                     $check_status = '<span class="badge bg-danger">' . $check_status . '</span>';
                 }
-
-                if($payable_type === 'Customer'){
-                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
-                    $customerName = $customerDetails['file_as'] ?? null;
+                
+                if(!empty($check_name)){
+                    $customerName = $check_name;
                 }
                 else{
-                    $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
-                    $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+                    if($payable_type === 'Customer'){
+                        $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                        $customerName = $customerDetails['file_as'] ?? null;
+                    }
+                    else{
+                        $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+                        $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+                    }
                 }
 
                 $disbursementIDEncrypted = $securityModel->encryptData($disbursementID);
@@ -338,7 +344,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TRANSACTION_NUMBER' => $transaction_number,
                     'CHECK_DATE' => $check_date,
                     'CHECK_NUMBER' => $check_number,
-                    'CHECK_AMOUNT' => number_format($check_amount, 2),
+                    'CHECK_AMOUNT' => '<p class="text-end m-0">'. number_format($check_amount, 2) . '</p>',
                     'REVERSAL_DATE' => $reversal_date,
                     'TRANSMITTED_DATE' => $transmitted_date,
                     'OUTSTANDING_DATE' => $outstanding_date,
@@ -416,6 +422,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $disbursement_check_id = $row['disbursement_check_id'];
                 $bank_branch = $row['bank_branch'];
                 $check_number = $row['check_number'];
+                $check_name = $row['check_name'];
                 $check_date = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
                 $reversal_date = $systemModel->checkDate('empty', $row['reversal_date'], '', 'm/d/Y', '');
                 $transmitted_date = $systemModel->checkDate('empty', $row['transmitted_date'], '', 'm/d/Y', '');
@@ -455,7 +462,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </a>';
                 }
 
-                if($disburse_status == 'Posted' && $check_status == 'Draft'){
+                if($disburse_status == 'Draft' && $check_status == 'Draft'){
                     $action .= '<button type="button" class="btn btn-icon btn-success update-disbursement-check" data-bs-toggle="offcanvas" data-bs-target="#check-offcanvas" aria-controls="check-offcanvas" data-disbursement-check-id="'. $disbursement_check_id .'" title="Update Check">
                                         <i class="ti ti-edit"></i>
                                     </button>';
@@ -471,7 +478,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $check_status = '<span class="badge bg-secondary">' . $check_status . '</span>';
                 }
                 else if($check_status === 'Transmitted'){
-                    $check_status = '<span class="badge bg-warning">' . $check_status . '</span>';
+                    $check_status = '<span class="badge bg-warning">Unreleased</span>';
                 }
                 else if($check_status === 'Outstanding'){
                     $check_status = '<span class="badge bg-info">' . $check_status . '</span>';
@@ -487,6 +494,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'BANK_BRANCH' => $bank_branch,
+                    'CHECK_NAME' => $check_name,
                     'CHECK_DATE' => $check_date,
                     'CHECK_NUMBER' => $check_number,
                     'CHECK_AMOUNT' => number_format($check_amount, 2),

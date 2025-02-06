@@ -1115,6 +1115,7 @@ class DisbursementController {
         $disbursement_id = $_POST['disbursement_id'];
         $bank_branch = $_POST['bank_branch'];
         $check_amount = $_POST['check_amount'];
+        $check_name = $_POST['check_name'];
         $check_date = $this->systemModel->checkDate('empty', $_POST['check_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
@@ -1131,7 +1132,7 @@ class DisbursementController {
             $disbursementDetails = $this->disbursementModel->getDisbursementCheck($disbursement_check_id);
             $check_number = $disbursementDetails['check_number'] ?? null;
 
-            $this->disbursementModel->updateDisbursementCheck($disbursement_check_id, $disbursement_id, $bank_branch, $check_number, $check_date, $check_amount, $userID);
+            $this->disbursementModel->updateDisbursementCheck($disbursement_check_id, $disbursement_id, $bank_branch, $check_name, $check_number, $check_date, $check_amount, $userID);
             
             echo json_encode(['success' => true]);
             exit;
@@ -1139,7 +1140,7 @@ class DisbursementController {
         else {
             $check_number = $this->systemSettingModel->getSystemSetting(25)['value'] + 1;
 
-            $this->disbursementModel->insertDisbursementCheck($disbursement_id, $bank_branch, $check_number, $check_date, $check_amount, $userID);
+            $this->disbursementModel->insertDisbursementCheck($disbursement_id, $bank_branch, $check_name, $check_number, $check_date, $check_amount, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(25, $check_number, $userID);
             echo json_encode(['success' => true]);
@@ -1527,6 +1528,7 @@ class DisbursementController {
                 'bankBranch' => $disbursementDetails['bank_branch'],
                 'checkNumber' => $disbursementDetails['check_number'],
                 'checkAmount' => $disbursementDetails['check_amount'],
+                'checkName' => $disbursementDetails['check_name'],
                 'checkDate' =>  $this->systemModel->checkDate('empty', $disbursementDetails['check_date'], '', 'm/d/Y', '')
             ];
 

@@ -231,17 +231,16 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'TRANSACTION_DATE' },
         { 'data' : 'CUSTOMER_NAME' },
-        { 'data' : 'DEPARTMENT_NAME' },
-        { 'data' : 'COMPANY_NAME' },
+        { 'data' : 'CHECK_STATUS' },
         { 'data' : 'TRANSACTION_NUMBER' },
         { 'data' : 'CHECK_NUMBER' },
         { 'data' : 'CHECK_DATE' },
         { 'data' : 'CHECK_AMOUNT' },
-        { 'data' : 'REVERSAL_DATE' },
         { 'data' : 'TRANSMITTED_DATE' },
         { 'data' : 'OUTSTANDING_DATE' },
         { 'data' : 'NEGOTIATED_DATE' },
-        { 'data' : 'CHECK_STATUS' }
+        { 'data' : 'DEPARTMENT_NAME' },
+        { 'data' : 'COMPANY_NAME' }
     ];
 
     const column_definition = [
@@ -251,14 +250,13 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
-        { 'width': 'auto', 'aTargets': 8 },
-        { 'width': 'auto', 'aTargets': 9 },
-        { 'width': 'auto', 'aTargets': 10 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
         { 'width': 'auto', 'aTargets': 11 },
         { 'width': 'auto', 'aTargets': 12 },
-        { 'width': 'auto', 'aTargets': 13 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

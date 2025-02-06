@@ -98,7 +98,7 @@
                               </div>
                               <div class="form-check my-2">
                                 <input class="form-check-input check-status-filter" type="radio" name="check-status-filter" id="check-status-transmitted" value="Transmitted" />
-                                <label class="form-check-label" for="check-status-transmitted">Transmitted</label>
+                                <label class="form-check-label" for="check-status-transmitted">Unreleased</label>
                               </div>
                               <div class="form-check my-2">
                                 <input class="form-check-input check-status-filter" type="radio" name="check-status-filter" id="check-status-outstanding" value="Outstanding" />
@@ -157,17 +157,16 @@
                     </th>
                     <th>CDV Date</th>
                     <th>Customer</th>
-                    <th>Department</th>
-                    <th>Company</th>
+                    <th>Check Status</th>
                     <th>CDV No.</th>
                     <th>Check Number</th>
                     <th>Check Date</th>
                     <th>Check Amount</th>
-                    <th>Reversal Date</th>
                     <th>Transmitted Date</th>
                     <th>Outstanding Date</th>
                     <th>Negotiated Date</th>
-                    <th>Check Status</th>
+                    <th>Department</th>
+                    <th>Company</th>
                   </tr>
                 </thead>
                 <tbody></tbody>

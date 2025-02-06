@@ -241,13 +241,14 @@
             <thead>
               <tr>
                 <th>Bank/Branch</th>
+                <th>Check Name</th>
                 <th class="all">Check Date</th>
                 <th class="all">Check No.</th>
                 <th class="all">Check Amount</th>
-                    <th>Reversal Date</th>
-                    <th>Transmitted Date</th>
-                    <th>Outstanding Date</th>
-                    <th>Negotiated Date</th>
+                <th>Reversal Date</th>
+                <th>Transmitted Date</th>
+                <th>Outstanding Date</th>
+                <th>Negotiated Date</th>
                 <th class="all">Check Status</th>
                 <th class="all">Actions</th>
               </tr>
@@ -403,6 +404,12 @@
                   <option value="">--</option>
                   <option value="BPI-MELENCIO">BPI-MELENCIO</option>
                 </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Check Name</label>
+                <input type="text" class="form-control" id="check_name" name="check_name" maxlength="5000" autocomplete="off">
               </div>
             </div>
             <div class="form-group row">

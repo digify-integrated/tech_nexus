@@ -12234,10 +12234,10 @@ BEGIN
 	VALUES(p_disbursement_id, p_chart_of_account_id, p_company_id, p_remarks, p_particulars_amount, p_last_log_by, p_last_log_by);
 END //
 
-CREATE PROCEDURE insertDisbursementCheck(IN p_disbursement_id INT, IN p_bank_branch VARCHAR(100), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_check_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertDisbursementCheck(IN p_disbursement_id INT, IN p_bank_branch VARCHAR(100), IN p_check_name VARCHAR(5000), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_check_amount DOUBLE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO disbursement_check (disbursement_id, bank_branch, check_number, check_date, check_amount, created_by, last_log_by) 
-	VALUES(p_disbursement_id, p_bank_branch, p_check_number, p_check_date, p_check_amount, p_last_log_by, p_last_log_by);
+    INSERT INTO disbursement_check (disbursement_id, bank_branch, check_name, check_number, check_date, check_amount, created_by, last_log_by) 
+	VALUES(p_disbursement_id, p_bank_branch, p_check_name, p_check_number, p_check_date, p_check_amount, p_last_log_by, p_last_log_by);
 END //
 
 CREATE PROCEDURE updateDisbursement(IN p_disbursement_id INT, IN p_payable_type VARCHAR(100), IN p_customer_id INT, IN p_department_id INT, IN p_company_id INT, IN p_transaction_number VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_fund_source VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_transaction_date DATE, IN p_last_log_by INT)
@@ -12268,11 +12268,12 @@ BEGIN
     WHERE disbursement_particulars_id = p_disbursement_particulars_id;
 END //
 
-CREATE PROCEDURE updateDisbursementCheck(IN p_disbursement_check_id INT, IN p_disbursement_id INT, IN p_bank_branch VARCHAR(100), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_check_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateDisbursementCheck(IN p_disbursement_check_id INT, IN p_disbursement_id INT, IN p_bank_branch VARCHAR(100), IN p_check_name VARCHAR(5000), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_check_amount DOUBLE, IN p_last_log_by INT)
 BEGIN
     UPDATE disbursement_check
     SET disbursement_id = p_disbursement_id,
         bank_branch = p_bank_branch,
+        check_name = p_check_name,
         check_number = p_check_number,
         check_date = p_check_date,
         check_amount = p_check_amount,

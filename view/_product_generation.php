@@ -193,8 +193,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filterProductCostMin = null;
                 $filterProductCostMax = null;
                 
-               
-
                 if(empty($_POST['product_status_filter'])){
                     $productStatusFilter = null;
                 }
@@ -243,8 +241,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productSubategoryID = $row['product_subcategory_id'];
                     $description = $row['description'];
                     $productPrice = $row['product_price'];
+                    $engine_number = $row['engine_number'];
+                    $chassis_number = $row['chassis_number'];
+                    $body_type_id = $row['body_type_id'];
+                    $color_id  = $row['color_id'];
+                    $warehouseID = $row['warehouse_id'];
                     $productStatus = $productModel->getProductStatus($row['product_status']);
                     $productImage = $systemModel->checkImage($row['product_image'], 'default');
+
+                    $bodyTypeDetails = $bodyTypeModel->getBodyType($body_type_id);
+                    $bodyTypeName = $bodyTypeDetails['body_type_name'] ?? null;
 
                     $productCategoryDetails = $productCategoryModel->getProductCategory($productCategoryID);
                     $productCategoryName = $productCategoryDetails['product_category_name'] ?? null;
@@ -256,6 +262,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $stockNumber = str_replace($productSubcategoryCode, '', $row['stock_number']);
                     $fullStockNumber = $productSubcategoryCode . $stockNumber;
                     $forSaleDate = $systemModel->checkDate('summary', $row['for_sale_date'], '', 'm/d/Y h:i:s A', '');
+
+                    
+                    $colorDetails = $colorModel->getColor($color_id );
+                    $colorName = $colorDetails['color_name'] ?? null;
+
+                    $warehouseDetails = $warehouseModel->getWarehouse($warehouseID);
+                    $warehouseName = $warehouseDetails['warehouse_name'] ?? null;
                    
                     $productIDEncrypted = $securityModel->encryptData($productID);
 
@@ -268,18 +281,20 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
                     $response[] = [
                         'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $productID .'">',
+                        'IMAGE' => '<a href="'. $productImage .'" target="_blank">View Image</a>',
                         'STOCK_NUMBER' => '<div class="row">
-                                        <div class="col-auto pe-0">
-                                            <img src="'. $productImage .'" alt="user-image" class="wid-40 hei-40">
-                                        </div>
                                         <div class="col">
                                             <h6 class="mb-0">'. $fullStockNumber .'</h6>
-                                            <p class="f-12 mb-0">'. $description .'</p>
+                                            <p class="f-12 mb-0 text-wrap">'. $description .'</p>
                                         </div>
                                     </div>',
-                        'CATEGORY' => $productSubcategoryName,
+                        'CATEGORY' => $productCategoryName . ' <br/>(' . $productSubcategoryName . ')',
+                        'ENGINE_NUMBER' => $engine_number,
+                        'CHASSIS_NUMBER' => $chassis_number,
+                        'BODY_TYPE' => $bodyTypeName,
+                        'COLOR' => $colorName,
+                        'WAREHOUSE' => $warehouseName,
                         'PRODUCT_PRICE' => number_format($productPrice,2),
-                        'FOR_SALE_DATE' => $forSaleDate,
                         'PRODUCT_STATUS' => $productStatus,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <a href="product.php?id='. $productIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
