@@ -307,6 +307,8 @@ class SalesProposalController {
             $transactionType = htmlspecialchars($_POST['transaction_type'], ENT_QUOTES, 'UTF-8');
             $financingInstitution = htmlspecialchars($_POST['financing_institution'], ENT_QUOTES, 'UTF-8');
             $comakerID = htmlspecialchars($_POST['comaker_id'], ENT_QUOTES, 'UTF-8');
+            $additional_maker_id = htmlspecialchars($_POST['additional_maker_id'], ENT_QUOTES, 'UTF-8');
+            $comaker_id2 = htmlspecialchars($_POST['comaker_id2'], ENT_QUOTES, 'UTF-8');
             $referredBy = htmlspecialchars($_POST['referred_by'], ENT_QUOTES, 'UTF-8');
             $commissionAmount = str_replace(',', '', $_POST['commission_amount']);
             $releaseDate = $this->systemModel->checkDate('empty', $_POST['release_date'], '', 'Y-m-d', '');
@@ -331,7 +333,7 @@ class SalesProposalController {
             $total = $checkSalesProposalExist['total'] ?? 0;
         
             if ($total > 0) {            
-                $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $userID);
+                $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $additional_maker_id, $comaker_id2, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $userID);
                 
                 echo json_encode(['success' => true, 'insertRecord' => false, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
                 exit;
@@ -414,7 +416,7 @@ class SalesProposalController {
 
                 $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
 
-                $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $userID);
+                $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $additional_maker_id, $comaker_id2, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $userID);
 
                 $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
@@ -3255,6 +3257,8 @@ class SalesProposalController {
                 'setToDraftReason' => $salesProposalDetails['set_to_draft_reason'] ?? null,
                 'releaseRemarks' => $salesProposalDetails['release_remarks'] ?? null,
                 'comakerID' => $salesProposalDetails['comaker_id'] ?? null,
+                'additionalMakerID' => $salesProposalDetails['additional_maker_id'] ?? null,
+                'comakerID2' => $salesProposalDetails['comaker_id2'] ?? null,
                 'initialApprovalByName' => $initialApprovalByName,
                 'initialApprovingOfficerName' => $initialApprovingOfficerName,
                 'finalApprovingOfficerName' => $finalApprovingOfficerName,

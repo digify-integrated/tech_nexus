@@ -46,6 +46,8 @@
         $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID); 
         $customerID = $salesProposalDetails['customer_id'];
         $comakerID = $salesProposalDetails['comaker_id'] ?? null;
+        $additional_maker_id = $salesProposalDetails['additional_maker_id'] ?? null;
+        $comaker_id2 = $salesProposalDetails['comaker_id2'] ?? null;
         $productID = $salesProposalDetails['product_id'] ?? null;
         $productType = $salesProposalDetails['product_type'] ?? null;
         $salesProposalNumber = $salesProposalDetails['sales_proposal_number'] ?? null;
@@ -57,6 +59,9 @@
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
+
+        $day = date('j', strtotime($startDate)); // Get the day without leading zeros
+        $ordinal = getOrdinal($day); // Get the ordinal suffix
     
         $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
         $downpayment = $pricingComputationDetails['downpayment'] ?? 0;
@@ -86,6 +91,8 @@
         $totalCharges = $insurancePremium + $handlingFee + $transferFee + $registrationFee + $transactionFee + $docStampTax;
         
         $totalDeposit = $salesProposalModel->getSalesProposalAmountOfDepositTotal($salesProposalID);
+        $totalOtherChargesPDC = $salesProposalModel->getPDCManualInputOtherChargesTotal($salesProposalID);
+        $getSalesProposalRenewalPDCManualInputDetails = $salesProposalModel->getSalesProposalRenewalPDCManualInputDetails($salesProposalID);
 
         $totalPn = $pnAmount + $totalCharges;
     
@@ -98,6 +105,12 @@
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
     
+        $addcomakerDetails = $customerModel->getPersonalInformation($additional_maker_id);
+        $addcomakerName = strtoupper($addcomakerDetails['file_as']) ?? null;    
+    
+        $comaker2Details = $customerModel->getPersonalInformation($comaker_id2);
+        $comaker2Name = strtoupper($comaker2Details['file_as']) ?? null;    
+    
         $customerPrimaryID = $customerModel->getCustomerPrimaryContactIdentification($customerID);
         $customeridTypeID = $customerPrimaryID['id_type_name'] ?? '';
         $customeridNumber = $customerPrimaryID['id_number'] ?? '';
@@ -106,6 +119,8 @@
         $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
     
         $comakerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($comakerID);
+        $addcomakerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($additional_maker_id);
+        $comaker2PrimaryAddress = $customerModel->getCustomerPrimaryAddress($comaker_id2);
     
         $comakerPrimaryID = $customerModel->getCustomerPrimaryContactIdentification($comakerID);
         $comakeridTypeID = $comakerPrimaryID['id_type_name'] ?? '';
@@ -123,6 +138,20 @@
         }
         else{
           $comakerAddress = '';
+        }
+    
+        if(!empty($addcomakerPrimaryAddress['address'])){
+          $addcomakerAddress = $addcomakerPrimaryAddress['address'] . ', ' . $addcomakerPrimaryAddress['city_name'] . ', ' . $addcomakerPrimaryAddress['state_name'] . ', ' . $addcomakerPrimaryAddress['country_name'];
+        }
+        else{
+          $addcomakerAddress = '';
+        }
+    
+        if(!empty($comaker2PrimaryAddress['address'])){
+          $comaker2Address = $comaker2PrimaryAddress['address'] . ', ' . $comaker2PrimaryAddress['city_name'] . ', ' . $comaker2PrimaryAddress['state_name'] . ', ' . $comaker2PrimaryAddress['country_name'];
+        }
+        else{
+          $comaker2Address = '';
         }
         
         $customerContactInformation = $customerModel->getCustomerPrimaryContactInformation($customerID);
@@ -171,7 +200,7 @@
     $pdf->Ln(10);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, 'Monthly Installment'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'Php '. number_format($repaymentAmount, 2) .' per month payable every 1st day of the month' , 0, 0, 'L');
+    $pdf->Cell(32, 8, 'Php '. number_format($repaymentAmount, 2) .' per month payable every '. $ordinal .' day of the month' , 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, ''  , 0, 0, 'L');
@@ -179,15 +208,11 @@
     $pdf->Ln(10);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, 'Other Charges'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'Php 5,000.00 per month payable upon signing on this note' , 0, 0, 'L');
+    $pdf->Cell(32, 8, 'Php '. number_format($totalOtherChargesPDC['total'] ?? 0, 2) .' per month payable upon signing on this note' , 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, 'Registartion Renewal'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'Php86,101.00 payable on 24 June 2025 and P70,444.00 payable' , 0, 0, 'L');
-    $pdf->Ln(5);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, ''  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'on 24 June 2026' , 0, 0, 'L');
+    $pdf->Cell(32, 8, $getSalesProposalRenewalPDCManualInputDetails , 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; I/We further agree JOINTLY and SEVERALLY that for late payment in the amount above written or any portion thereof, as when the same becomes due and payable, we shall pay penalty charge equivalent to FIVE PERCENT (5%) of the unpaid amount per month of delay to be computed from the date due until full payment thereof.  A fraction of a month being deemed to be an entire month.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
@@ -252,7 +277,7 @@
     $pdf->Ln(10);
     $pdf->Cell(90, 4, strtoupper($customerName), 'B', 0 , 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
-    $pdf->Cell(90, 4, strtoupper($comakerName), 'B', 0, 'C');
+    $pdf->Cell(90, 4, strtoupper($addcomakerName), 'B', 0, 'C');
     $pdf->Ln(5);
     $pdf->Cell(90, 8, 'MAKER', 0, 0, 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
@@ -261,19 +286,19 @@
     $pdf->Ln(15);
     $pdf->Cell(90, 4, strtoupper($customerAddress), 'B', 0, 'L', 0, '', 1);
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
-    $pdf->Cell(90, 4, strtoupper($comakerAddress), 'B', 0, 'L', 0, '', 1);
+    $pdf->Cell(90, 4, strtoupper($addcomakerAddress), 'B', 0, 'L', 0, '', 1);
     $pdf->Ln(5);
     $pdf->Cell(90, 8, 'ADDRESS', 0, 0, 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(90, 8, 'ADDRESS', 0, 0, 'C');
     $pdf->Ln(15);
-    $pdf->MultiCell(0, 0, 'NAME AND SIGNATURE OF CO-MAKER: __________________________________________', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'NAME AND SIGNATURE OF CO-MAKER: '. strtoupper($comakerName), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'ADDRESS: __________________________________________', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'ADDRESS: '. strtoupper($comakerAddress), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(15);
-    $pdf->MultiCell(0, 0, 'NAME AND SIGNATURE OF CO-MAKER: __________________________________________', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'NAME AND SIGNATURE OF CO-MAKER: '. strtoupper($comaker2Name), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'ADDRESS: __________________________________________', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'ADDRESS: '. strtoupper($comaker2Address), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
 
     $pdf->Ln(15);
 
@@ -287,4 +312,17 @@
     // Output the PDF to the browser
     $pdf->Output('pn.pdf', 'I');
     ob_end_flush();
+
+    function getOrdinal($number) {
+      if ($number % 100 >= 11 && $number % 100 <= 13) {
+          return $number . 'th';
+      }
+  
+      switch ($number % 10) {
+          case 1: return $number . 'st';
+          case 2: return $number . 'nd';
+          case 3: return $number . 'rd';
+          default: return $number . 'th';
+      }
+  }
 ?>

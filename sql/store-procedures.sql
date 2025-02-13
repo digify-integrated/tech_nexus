@@ -8506,8 +8506,14 @@ END //
 
 CREATE PROCEDURE getSalesProposalAmountOfDepositTotal(IN p_sales_proposal_id INT)
 BEGIN
-	SELECT SUM(deposit_amount) AS total FROM sales_proposal_deposit_amount
+	SELECT SUM(gross_amount) AS total FROM sales_proposal_deposit_amount
     WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE getPDCManualInputOtherChargesTotal(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT SUM(gross_amount) AS total FROM sales_proposal_manual_pdc_input
+    WHERE sales_proposal_id = p_sales_proposal_id AND payment_for = 'Other Charges';
 END //
 
 CREATE PROCEDURE generateSalesProposalAdditionalJobOrderTable(IN p_sales_proposal_id INT)
@@ -8818,6 +8824,12 @@ CREATE PROCEDURE getSalesProposalOtherProductDetails(IN p_sales_proposal_id INT)
 BEGIN
 	SELECT * FROM sales_proposal_other_product_details
     WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE getSalesProposalRenewalPDCManualInputDetails(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT * FROM sales_proposal_manual_pdc_input
+    WHERE sales_proposal_id = p_sales_proposal_id AND payment_for = 'Insurance Renewal';
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -13296,3 +13308,84 @@ BEGIN
     -- Close cursor
     CLOSE cur_particulars;
 END//
+
+
+CREATE PROCEDURE getInventoryReportClosed()
+BEGIN
+    SELECT count(product_inventory_id) AS total FROM product_inventory WHERE `open_date` is not null and `close_date` is null;
+END //
+
+CREATE PROCEDURE generateProductInventoryReport()
+BEGIN
+    SELECT * FROM product_inventory;
+END //
+
+CREATE PROCEDURE generateProductInventoryReportBatch(IN p_product_inventory_id INT)
+BEGIN
+    SELECT * FROM product_inventory_batch WHERE product_inventory_id = p_product_inventory_id;
+END //
+
+DELIMITER //
+
+CREATE PROCEDURE openProductInventoryReport(IN p_last_log_by INT)
+BEGIN
+    DECLARE new_product_inventory_id INT;
+    DECLARE new_batch_number INT;
+    
+    SET time_zone = '+08:00';
+    
+    -- Get the next product_inventory_batch number
+    SELECT COALESCE(MAX(product_inventory_batch), 0) + 1 INTO new_batch_number FROM product_inventory;
+
+    -- Insert into product_inventory
+    INSERT INTO product_inventory (
+        product_inventory_batch, 
+        open_date, 
+        open_by, 
+        last_log_by
+    ) VALUES (
+        new_batch_number, 
+        NOW(), 
+        p_last_log_by, 
+        p_last_log_by
+    );
+
+    -- Get the last inserted product_inventory_id
+    SET new_product_inventory_id = LAST_INSERT_ID();
+
+    -- Insert into product_inventory_batch for products that are not 'Draft' or 'Sold'
+    INSERT INTO product_inventory_batch (
+        product_inventory_id, 
+        product_id, 
+        last_log_by
+    )
+    SELECT 
+        new_product_inventory_id, 
+        product_id, 
+        p_last_log_by
+    FROM product
+    WHERE product_status NOT IN ('Draft', 'Sold');
+
+END //
+
+CREATE PROCEDURE closeProductInventoryReport(IN p_last_log_by INT)
+BEGIN
+SET time_zone = '+08:00';
+    UPDATE product_inventory
+        SET close_date = NOW(),
+        close_by = p_last_log_by,
+        last_log_by = p_last_log_by
+        WHERE close_date IS NULL;
+END //
+
+CREATE PROCEDURE scanProduct(IN p_product_inventory_id INT, IN p_product_id INT, IN p_last_log_by INT)
+BEGIN
+SET time_zone = '+08:00';
+
+    UPDATE product_inventory_batch
+        SET scanned_date = NOW(),
+        product_inventory_status = 'Scanned',
+        scanned_by = p_last_log_by,
+        last_log_by = p_last_log_by
+        WHERE product_inventory_id = p_product_inventory_id AND product_id = p_product_id AND product_inventory_status = 'For Scanning';
+END //

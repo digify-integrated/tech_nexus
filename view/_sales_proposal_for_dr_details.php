@@ -206,6 +206,24 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label class="col-lg-5 col-form-label">Additional Maker :</label>
+                                <div class="col-lg-7">
+                                <select class="form-control select2" name="additional_maker_id" id="additional_maker_id">
+                                    <option value="">--</option>
+                                    <?php echo $customerModel->generateComakerOptions($customerID); ?>
+                                </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-5 col-form-label">Additional Co-Maker 2 :</label>
+                                <div class="col-lg-7">
+                                <select class="form-control select2" name="comaker_id2" id="comaker_id2">
+                                    <option value="">--</option>
+                                    <?php echo $customerModel->generateComakerOptions($customerID); ?>
+                                </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label class="col-lg-5 col-form-label">Referred By :</label>
                                 <div class="col-lg-7">
                                 <input type="text" class="form-control text-uppercase" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">

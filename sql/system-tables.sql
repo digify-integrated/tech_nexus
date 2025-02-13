@@ -5912,3 +5912,37 @@ CREATE TABLE liquidation_particulars(
 
 CREATE INDEX liquidation_index_liquidation_particulars_id ON liquidation_particulars(liquidation_particulars_id);
 CREATE INDEX liquidation_index_liquidation_id ON liquidation_particulars(liquidation_id);
+
+CREATE TABLE product_inventory(
+	product_inventory_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	product_inventory_batch INT UNSIGNED NOT NULL,
+	open_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    open_by INT UNSIGNED NOT NULL,
+    close_date DATETIME NOT NULL,
+    close_by INT UNSIGNED,
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX product_inventory_index_product_inventor_batch ON product_inventory(product_inventor_batch);
+CREATE INDEX product_inventory_index_open_by ON product_inventory(open_by);
+CREATE INDEX product_inventory_index_close_by ON product_inventory(close_by);
+
+CREATE TABLE product_inventory_batch(
+	product_inventory_batch_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	product_inventory_id INT NOT NULL,
+	product_id INT NOT NULL,
+	product_inventory_status VARCHAR(100) DEFAULT 'For Scanning',
+	scanned_date DATETIME,
+    scanned_by INT UNSIGNED,
+    remarks VARCHAR(500),
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX product_inventory_batch_index_product_inventory_id ON product_inventory_batch(product_inventory_id);
+CREATE INDEX product_inventory_batch_index_product_inventor_batch ON product_inventory_batch(product_id);
+CREATE INDEX product_inventory_batch_index_product_inventory_status ON product_inventory_batch(product_inventory_status);
+CREATE INDEX product_inventory_batch_index_scanned_by ON product_inventory_batch(scanned_by);

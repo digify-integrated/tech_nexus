@@ -5250,6 +5250,8 @@ function displayDetails(transaction){
                         checkOptionExist('#product_type', response.productType, '');
                         checkOptionExist('#transaction_type', response.transactionType, '');
                         checkOptionExist('#comaker_id', response.comakerID, '');
+                        checkOptionExist('#additional_maker_id', response.additionalMakerID, '');
+                        checkOptionExist('#comaker_id2', response.comakerID2, '');
                         checkOptionExist('#term_type', response.termType, '');
                         checkOptionExist('#payment_frequency', response.paymentFrequency, '');
                         checkOptionExist('#initial_approving_officer', response.initialApprovingOfficer, '');
