@@ -4918,7 +4918,7 @@ function salesProposalPDCManualInputForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-sales-proposal-pdc-manual-input', 'Submit');
-                    $('#sales-proposal-pdc-manual-input-offcanvas').offcanvas('hide');
+                    $('#generate-pdc-offcanvas').offcanvas('hide');
                     salesProposalSummaryPDCManualInputTable();
                 }
             });

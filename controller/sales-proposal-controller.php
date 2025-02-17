@@ -1523,6 +1523,7 @@ class SalesProposalController {
         $this->sendInitialApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null, $companyID);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -1586,6 +1587,7 @@ class SalesProposalController {
         $this->sendForReview('', $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -1627,6 +1629,7 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For CI', '', $userID);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -1667,6 +1670,7 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalCIStatus($salesProposalID, 'Completed', $userID);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -1732,6 +1736,7 @@ class SalesProposalController {
         
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -1774,6 +1779,7 @@ class SalesProposalController {
         
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -1829,6 +1835,7 @@ class SalesProposalController {
         $this->sendProceed('', $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -1932,6 +1939,7 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Draft', $setToDraftReason, $userID);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -2033,6 +2041,7 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalOtherDocument($salesProposalID, $filePath, $userID);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -2074,6 +2083,7 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'On-Process', '', $userID);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -2115,6 +2125,7 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Ready For Release', '', $userID);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -2156,6 +2167,7 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For DR', '', $userID);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -2279,6 +2291,7 @@ class SalesProposalController {
         }
 
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -2321,6 +2334,7 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Cancelled', $cancellationReason, $userID);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -2363,6 +2377,7 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Rejected', $rejectionReason, $userID);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -2411,6 +2426,7 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesInstallmentStatus($salesProposalID, 'Approved', $installmentSalesApprovalRemarks, $userID);
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -3179,6 +3195,7 @@ class SalesProposalController {
         }
             
         echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 

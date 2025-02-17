@@ -64,6 +64,9 @@
       exit;
     }
   }
+  else{
+    $customerID = null;
+  }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
@@ -82,7 +85,7 @@
     }
 
     $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID); 
-    $customerID = $salesProposalDetails['customer_id'];
+    $customerID = $salesProposalDetails['customer_id'] ?? null;
     $comakerID = $salesProposalDetails['comaker_id'] ?? null;
     $productID = $salesProposalDetails['product_id'] ?? null;
     $productType = $salesProposalDetails['product_type'] ?? null;

@@ -61,6 +61,9 @@
       exit;
     }
   }
+  else{
+    $customerID = '';
+  }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
