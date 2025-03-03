@@ -136,7 +136,6 @@
                   <ul class="dropdown-menu dropdown-menu-end">
                     <li><button class="dropdown-item" type="button" id="transmit-disbursement-check">Transmit Check</button></li>
                     <li><button class="dropdown-item" type="button" id="outstanding-disbursement-check">Outstanding Check</button></li>
-                    <li><button class="dropdown-item" type="button" id="negotiated-disbursement-check">Negotiated Check</button></li>
                   </ul>
                 </div>
                 <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">

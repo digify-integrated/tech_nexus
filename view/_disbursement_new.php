@@ -13,6 +13,8 @@
                       <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>
                     </div>';
             }
+
+            
           ?>
         </div>
       </div>
@@ -23,18 +25,18 @@
             <label class="col-lg-2 col-form-label">Payable Type <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <select class="form-control select2" name="payable_type" id="payable_type">
-                  <option value="Customer" selected>Customer</option>
-                  <option value="Miscellaneous">Miscellaneous</option>
+                  <option value="Customer" <?php echo $payableClient; ?>>Customer</option>
+                  <option value="Miscellaneous" <?php echo $payableMisc; ?>>Miscellaneous</option>
                 </select>
             </div>
             <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
-            <div class="col-lg-4" id="customer-select">
+            <div class="col-lg-4 d-none" id="customer-select">
                 <select class="form-control select2" name="customer_id" id="customer_id">
                   <option value="">--</option>
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
             </div>
-            <div class="col-lg-4 d-none" id="misc-select">
+            <div class="col-lg-4" id="misc-select">
                 <select class="form-control select2" name="misc_id" id="misc_id">
                   <option value="">--</option>
                   <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>

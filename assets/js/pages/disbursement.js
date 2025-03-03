@@ -30,6 +30,10 @@
             cancelDisbursementCheckForm();
         }
 
+        if($('#negotiated-disbursement-check-form').length){
+            negotiatedDisbursementCheckForm();
+        }
+
         if($('#reverse-disbursement-form').length){
             reverseDisbursementForm();
         }
@@ -738,120 +742,138 @@
             });
         });
 
-        $(document).on('click','.outstanding-disbursement-check',function() {
-            const disbursement_check_id = $(this).data('disbursement-check-id');
-            const transaction = 'outstanding disbursement check';
-    
-            Swal.fire({
-                title: 'Confirm Check Outstanding',
-                text: 'Are you sure you want to tag this check as outstanding?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Outstanding',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-success mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/disbursement-controller.php',
-                        dataType: 'json',
-                        data: {
-                            disbursement_check_id : disbursement_check_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification('Outstanding Check Success', 'The check has been tagged as outstanding successfully.', 'success');
-                                checkTable('#check-table');
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.disbursementZero) {
-                                    showNotification('Outstanding Disbursement Error', 'The check amount cannot be zero.', 'danger');
-                                }
-                                else if (response.notExist) {
-                                    window.location = '404.php';
-                                }
-                                else {
-                                    showNotification('Outstanding Disbursement Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
+        $(document).on('click','#outstanding-disbursement-check',function() {
+            let disbursement_check_id = [];
+            const transaction = 'outstanding multiple disbursement check';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    disbursement_check_id.push(element.value);
                 }
             });
+    
+            if(disbursement_check_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple Outstanding Check',
+                    text: 'Are you sure you want to tag these as outstanding check?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Outstanding',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/disbursement-controller.php',
+                            dataType: 'json',
+                            data: {
+                                disbursement_check_id: disbursement_check_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Outstanding Check Success', 'The selected disbursement checks have been tagged as outstanding check successfully.', 'success');
+                                    disbursementTable('#disbursement-check-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Outstanding Check Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Outstanding Check Error', 'Please select the disbursement checks you wish to outstanding.', 'danger');
+            }
         });
 
-        $(document).on('click','.negotiated-disbursement-check',function() {
-            const disbursement_check_id = $(this).data('disbursement-check-id');
-            const transaction = 'negotiated disbursement check';
-    
-            Swal.fire({
-                title: 'Confirm Check Negotiated',
-                text: 'Are you sure you want to tag this check as negotiated?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Negotiated',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-success mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/disbursement-controller.php',
-                        dataType: 'json',
-                        data: {
-                            disbursement_check_id : disbursement_check_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification('Negotiated Check Success', 'The check has been tagged as negotiated successfully.', 'success');
-                                checkTable('#check-table');
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.disbursementZero) {
-                                    showNotification('Negotiated Disbursement Error', 'The check amount cannot be zero.', 'danger');
-                                }
-                                else if (response.notExist) {
-                                    window.location = '404.php';
-                                }
-                                else {
-                                    showNotification('Negotiated Disbursement Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
+        $(document).on('click','#outstanding-disbursement-pdc',function() {
+            let disbursement_check_id = [];
+            const transaction = 'outstanding multiple disbursement pdc';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    disbursement_check_id.push(element.value);
                 }
             });
+    
+            if(disbursement_check_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple Outstanding PDC',
+                    text: 'Are you sure you want to tag these as outstanding PDC?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Outstanding',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/disbursement-controller.php',
+                            dataType: 'json',
+                            data: {
+                                disbursement_check_id: disbursement_check_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Outstanding PDC Success', 'The selected disbursement checks have been tagged as outstanding PDC successfully.', 'success');
+                                    disbursementTable('#disbursement-check-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Outstanding PDC Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Outstanding PDC Error', 'Please select the disbursement checks you wish to outstanding.', 'danger');
+            }
         });
 
         $(document).on('click','#edit-form',function() {
@@ -1738,6 +1760,95 @@ function cancelDisbursementCheckForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-cancel-disbursement', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function negotiatedDisbursementCheckForm(){
+    $('#negotiated-disbursement-check-form').validate({
+        rules: {
+            negotiated_date: {
+                required: true
+            },
+        },
+        messages: {
+            negotiated_date: {
+                required: 'Please choose the negotiated date'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            let disbursement_check_id = sessionStorage.getItem('disbursement_check_id');
+            const transaction = 'negotiated disbursement check';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/disbursement-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&disbursement_check_id=' + disbursement_check_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-negotiated-disbursement');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Negotiated Check Success';
+                        const notificationDescription = 'The check has been tag as negotiated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                        checkTable('#check-table');
+                        $('#negotiated-disbursement-check-offcanvas').offcanvas('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-negotiated-disbursement', 'Submit');
                 }
             });
         

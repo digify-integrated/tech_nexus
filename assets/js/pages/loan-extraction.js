@@ -51,7 +51,8 @@ function loanExtractionTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'TRANSFER_FEE_SCHEDULE' },
         { 'data' : 'DOC_STAMP_TAX_SCHEDULE' },
         { 'data' : 'TRANSACTION_FEE_SCHEDULE' },
-        { 'data' : 'DEPOSIT_SCHEDULE' }
+        { 'data' : 'DEPOSIT_SCHEDULE' },
+        { 'data' : 'PRODUCT_COST' },
     ];
 
     const column_definition = [
@@ -88,7 +89,8 @@ function loanExtractionTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 30 },
         { 'width': 'auto', 'aTargets': 31 },
         { 'width': 'auto', 'aTargets': 32 },
-        { 'width': 'auto', 'aTargets': 33 }
+        { 'width': 'auto', 'aTargets': 33 },
+        { 'width': 'auto', 'aTargets': 34 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

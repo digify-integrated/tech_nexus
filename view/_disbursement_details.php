@@ -94,18 +94,18 @@
             <label class="col-lg-2 col-form-label">Payable Type <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <select class="form-control select2" name="payable_type" id="payable_type" <?php echo $disabled; ?>>
-                  <option value="Customer" selected>Customer</option>
-                  <option value="Miscellaneous">Miscellaneous</option>
+                  <option value="Customer" <?php echo $payableClient; ?>>Customer</option>
+                  <option value="Miscellaneous" <?php echo $payableMisc; ?>>Miscellaneous</option>
                 </select>
             </div>
-            <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
+            <label class="col-lg-2 d-none col-form-label">Customer <span class="text-danger">*</span></label>
             <div class="col-lg-4" id="customer-select">
                 <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
             </div>
-            <div class="col-lg-4 d-none" id="misc-select">
+            <div class="col-lg-4" id="misc-select">
                 <select class="form-control select2" name="misc_id" id="misc_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>
@@ -327,6 +327,39 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-cancel-disbursement-check" form="cancel-disbursement-check-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="negotiated-disbursement-check-offcanvas" aria-labelledby="negotiated-disbursement-check-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="negotiated-disbursement-check-offcanvas-label" style="margin-bottom:-0.5rem">Negotiated Check</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="negotiated-disbursement-check-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Negotiated Date <span class="text-danger">*</span></label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="negotiated_date" name="negotiated_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-negotiated-disbursement-check" form="negotiated-disbursement-check-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

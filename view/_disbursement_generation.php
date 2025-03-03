@@ -302,6 +302,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $check_status = '<span class="badge bg-warning">Unreleased</span>';
                 }
                 else if($check_status === 'Outstanding'){
+                    $check_status = '<span class="badge bg-info">Outstanding Check</span>';
+                }
+                else if($check_status === 'Outstanding PDC'){
                     $check_status = '<span class="badge bg-info">' . $check_status . '</span>';
                 }
                 else if($check_status === 'Negotiated'){
@@ -382,7 +385,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
 
                 $action = '';
-                if($disburse_status == 'Draft'){
+                if($disburse_status === 'Draft'){
                     $action = '<div class="d-flex gap-2">
                                     <button type="button" class="btn btn-icon btn-success update-disbursement-particulars" data-bs-toggle="offcanvas" data-bs-target="#particulars-offcanvas" aria-controls="particulars-offcanvas" data-disbursement-particulars-id="'. $disbursement_particulars_id .'" title="Update Particular">
                                         <i class="ti ti-edit"></i>
@@ -432,43 +435,46 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $check_status = $row['check_status'];
 
                 $action = '';
-                if($check_status == 'Draft'){
+                if($check_status === 'Draft'){
                     $action .= '<button type="button" class="btn btn-icon btn-success transmit-disbursement-check" data-disbursement-check-id="'. $disbursement_check_id .'" title="Transmit Check">
                                         <i class="ti ti-check"></i>
                                     </button>';
                 }
 
-                if($check_status == 'Transmitted'){
+                if($check_status === 'Transmitted'){
                     $action .= '<button type="button" class="btn btn-icon btn-success outstanding-disbursement-check" data-disbursement-check-id="'. $disbursement_check_id .'" title="Outstanding Check">
                                         <i class="ti ti-check"></i>
-                                    </button>';
-                }
-
-                if($check_status == 'Outstanding'){
-                    $action .= '<button type="button" class="btn btn-icon btn-success negotiated-disbursement-check" data-disbursement-check-id="'. $disbursement_check_id .'" title="Negotiated Check">
+                                    </button>
+                                    <button type="button" class="btn btn-icon btn-success outstanding-disbursement-pdc" data-disbursement-check-id="'. $disbursement_check_id .'" title="Outstanding PDC">
                                         <i class="ti ti-check"></i>
                                     </button>';
                 }
 
-                if($check_status == 'Outstanding' || $check_status == 'Draft' || $check_status == 'Transmitted'){
+                if($check_status === 'Outstanding'){
+                    $action .= '<button type="button" class="btn btn-icon btn-success" data-bs-toggle="offcanvas" data-bs-target="#negotiated-disbursement-check-offcanvas" aria-controls="negotiated-disbursement-check-offcanvas" data-disbursement-check-id="'. $disbursement_check_id .'" title="Negotiated Check">
+                                        <i class="ti ti-check"></i>
+                                    </button>';
+                }
+
+                if($check_status === 'Outstanding' || $check_status === 'Draft' || $check_status === 'Transmitted'){
                     $action .= '<button type="button" class="btn btn-icon btn-danger cancel-disbursement-check" data-bs-toggle="offcanvas" data-bs-target="#cancel-disbursement-check-offcanvas" aria-controls="cancel-disbursement-check-offcanvas" data-disbursement-check-id="'. $disbursement_check_id .'" title="Cancel Check">
                                         <i class="ti ti-x"></i>
                                     </button>';
                 }
 
-                if($disburse_status == 'Posted' && $check_status == 'Draft'){
+                if($disburse_status === 'Posted' && $check_status === 'Draft'){
                     $action .= '<a href="print-disbursement-check.php?id='. $disbursement_check_id .'" class="btn btn-icon btn-warning" title="Print Check" target="_blank">
                                         <i class="ti ti-printer"></i>
                                     </a>';
                 }
 
-                if($disburse_status == 'Draft' && $check_status == 'Draft'){
+                if($disburse_status === 'Draft' && $check_status === 'Draft'){
                     $action .= '<button type="button" class="btn btn-icon btn-success update-disbursement-check" data-bs-toggle="offcanvas" data-bs-target="#check-offcanvas" aria-controls="check-offcanvas" data-disbursement-check-id="'. $disbursement_check_id .'" title="Update Check">
                                         <i class="ti ti-edit"></i>
                                     </button>';
                 }
 
-                if($disburse_status == 'Draft' && $check_status == 'Draft'){
+                if($disburse_status === 'Draft' && $check_status === 'Draft'){
                     $action .= '<button type="button" class="btn btn-icon btn-danger delete-disbursement-check" data-disbursement-check-id="'. $disbursement_check_id .'" title="Delete Check">
                                         <i class="ti ti-trash"></i>
                                     </button>';
@@ -481,6 +487,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $check_status = '<span class="badge bg-warning">Unreleased</span>';
                 }
                 else if($check_status === 'Outstanding'){
+                    $check_status = '<span class="badge bg-info">Outstanding Check</span>';
+                }
+                else if($check_status === 'Outstanding PDC'){
                     $check_status = '<span class="badge bg-info">' . $check_status . '</span>';
                 }
                 else if($check_status === 'Negotiated'){

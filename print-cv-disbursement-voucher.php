@@ -222,8 +222,8 @@ if ($remainingSpaceBelowTear < 10) {
                             </tr>
                             <tr>
                                 <td colspan="3" style="text-align: left">
-                                    '. $list .'
-                                    <br/><br/><br/>'. $particulars .'
+                                    '. $particulars .'
+                                    <br/><br/><br/>'. $list .'
                                 </td>
                                 <td style="text-align: center"></td>
                             </tr>

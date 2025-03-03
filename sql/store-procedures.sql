@@ -12722,7 +12722,7 @@ BEGIN
     END IF;
 END //
 
-CREATE PROCEDURE updateDisbursementCheckStatus(IN p_disbursement_check_id INT, IN p_check_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updateDisbursementCheckStatus(IN p_disbursement_check_id INT, IN p_check_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_negotiated_date DATETIME, IN p_last_log_by INT)
 BEGIN
     IF p_check_status = 'Transmitted' THEN
         UPDATE disbursement_check
@@ -12736,19 +12736,25 @@ BEGIN
         outstanding_date = NOW(),
         last_log_by = p_last_log_by
         WHERE disbursement_check_id = p_disbursement_check_id AND check_status IN ('Transmitted');
+    ELSEIF p_check_status = 'Outstanding PDC' THEN
+        UPDATE disbursement_check
+        SET check_status = p_check_status,
+        outstanding_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE disbursement_check_id = p_disbursement_check_id AND check_status IN ('Transmitted');
     ELSEIF p_check_status = 'Negotiated' THEN
         UPDATE disbursement_check
         SET check_status = p_check_status,
-        negotiated_date = NOW(),
+        negotiated_date = p_negotiated_date,
         last_log_by = p_last_log_by
-        WHERE disbursement_check_id = p_disbursement_check_id AND check_status IN ('Outstanding');
+        WHERE disbursement_check_id = p_disbursement_check_id AND check_status IN ('Outstanding', 'Outstanding PDC');
     ELSE
         UPDATE disbursement_check
         SET check_status = p_check_status,
         reversal_date = NOW(),
         reversal_reason = p_reason,
         last_log_by = p_last_log_by
-        WHERE disbursement_check_id = p_disbursement_check_id AND check_status IN ('Draft', 'Transmitted', 'Outstanding');
+        WHERE disbursement_check_id = p_disbursement_check_id AND check_status IN ('Draft', 'Transmitted', 'Outstanding', 'Outstanding PDC');
     END IF;
 END //
 

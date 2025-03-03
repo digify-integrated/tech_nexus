@@ -92,6 +92,7 @@
                     <th>Doc. Stamp Tax Schedule</th>
                     <th>Transfer Fee Schedule</th>
                     <th>Deposit Schedule</th>
+                    <th>Product Cost</th>
                   </tr>
                 </thead>
                 <tbody></tbody>

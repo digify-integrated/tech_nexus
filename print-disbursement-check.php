@@ -103,11 +103,11 @@ $pdcManagementDetails = $disbursementModel->getDisbursementCheck($_GET['id']);
     // Print payee and amount aligned horizontally
     $pdf->SetXY($checkX, 15);
     $pdf->Cell(10, 10,  '', 0, 0, 'L');
-    $pdf->Cell(140, 10,  strtoupper($customerName), 0, 0, 'L');
+    $pdf->Cell(120, 10,  strtoupper($customerName), 0, 0, 'L');
     $pdf->Cell(40, 10, number_format($check_amount,2), 0, 0, 'L');
 
     // Print amount in 30
-    $pdf->SetXY($checkX,24);
+    $pdf->SetXY(($checkX - 8),24);
     $pdf->Cell(10, 10,  '', 0, 0, 'L');
     $pdf->Cell(150, 10, strtoupper($amountInWords->format($check_amount)) . ' ONLY', 0, 0, 'L');
 

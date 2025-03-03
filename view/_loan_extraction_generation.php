@@ -129,6 +129,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $product_category_id  = $productDetails['product_category_id'];
                     $product_subcategory_id = $productDetails['product_subcategory_id'];
 
+                    $productCost = $productModel->getTotalProductCost($product_id)['expense_amount'] ?? 0;
+
                     $productCategoryName = $productCategoryModel->getProductCategory($product_category_id)['product_category_name'];
                     $productSubcategoryName = $productSubcategoryModel->getProductSubcategory($product_subcategory_id)['product_subcategory_name'];
                     
@@ -138,11 +140,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $loan_product = $product_type;
                     $stock_number = $sales_proposal_number;
                     $productSubcategoryName = $product_type;
+                    $productCost = 0;
                 }
 
                 $customerDetails = $customerModel->getPersonalInformation($customer_id);
                 $getCustomerDetails = $customerModel->getCustomer($customer_id);
-                $customer_id = $getCustomerDetails['customer_id'];                
+                $customer_id = $getCustomerDetails['customer_id'];
+
+                
 
                 $response[] = [
                     'CUSTOMER_ID' => $customer_id,
@@ -178,7 +183,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TRANSFER_FEE_SCHEDULE' => $schedule,
                     'DOC_STAMP_TAX_SCHEDULE' => $schedule,
                     'TRANSACTION_FEE_SCHEDULE' => $schedule,
-                    'DEPOSIT_SCHEDULE' => 'Charge Fee on the Released Date'
+                    'DEPOSIT_SCHEDULE' => 'Charge Fee on the Released Date',
+                    'PRODUCT_COST' => number_format($productCost, 2),
                 ];
             }
 

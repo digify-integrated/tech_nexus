@@ -65,6 +65,15 @@
   $newRecord = isset($_GET['new']);
   $disbursementCategory = 'disbursement petty cash';
 
+  if($disbursementCategory === 'disbursement check'){
+    $payableClient = '';
+    $payableMisc = 'selected';
+  }
+  else{
+    $payableClient = 'selected';
+    $payableMisc = '';
+  }
+
   require('config/_interface_settings.php');
   require('config/_user_account_details.php');
 ?>

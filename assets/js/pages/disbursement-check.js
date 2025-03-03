@@ -89,8 +89,8 @@
     
             if(disbursement_check_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Disbursement Check Outstanding',
-                    text: 'Are you sure you want to outstanding these disbursement check?',
+                    title: 'Confirm Multiple Outstanding Check',
+                    text: 'Are you sure you want to tag these as outstanding check?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Outstanding',
@@ -110,7 +110,7 @@
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Outstanding Disbursement Checks Success', 'The selected disbursement checks have been outstanding successfully.', 'success');
+                                    showNotification('Outstanding Check Success', 'The selected disbursement checks have been tagged as outstanding check successfully.', 'success');
                                     disbursementTable('#disbursement-check-table');
                                 }
                                 else {
@@ -119,7 +119,7 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else {
-                                        showNotification('Outstanding Disbursement Checks Error', response.message, 'danger');
+                                        showNotification('Outstanding Check Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -140,13 +140,13 @@
                 });
             }
             else{
-                showNotification('Outstanding Disbursement Checks Error', 'Please select the disbursement checks you wish to outstanding.', 'danger');
+                showNotification('Outstanding Check Error', 'Please select the disbursement checks you wish to outstanding.', 'danger');
             }
         });
 
-        $(document).on('click','#negotiated-disbursement-check',function() {
+        $(document).on('click','#outstanding-disbursement-pdc',function() {
             let disbursement_check_id = [];
-            const transaction = 'negotiated multiple disbursement check';
+            const transaction = 'outstanding multiple disbursement pdc';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
@@ -156,11 +156,11 @@
     
             if(disbursement_check_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Disbursement Check Negotiated',
-                    text: 'Are you sure you want to negotiated these disbursement check?',
+                    title: 'Confirm Multiple Outstanding PDC',
+                    text: 'Are you sure you want to tag these as outstanding PDC?',
                     icon: 'warning',
                     showCancelButton: !0,
-                    confirmButtonText: 'Negotiated',
+                    confirmButtonText: 'Outstanding',
                     cancelButtonText: 'Cancel',
                     confirmButtonClass: 'btn btn-success mt-2',
                     cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
@@ -177,7 +177,7 @@
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Negotiated Disbursement Checks Success', 'The selected disbursement checks have been negotiated successfully.', 'success');
+                                    showNotification('Outstanding PDC Success', 'The selected disbursement checks have been tagged as outstanding PDC successfully.', 'success');
                                     disbursementTable('#disbursement-check-table');
                                 }
                                 else {
@@ -186,7 +186,7 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else {
-                                        showNotification('Negotiated Disbursement Checks Error', response.message, 'danger');
+                                        showNotification('Outstanding PDC Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -207,7 +207,7 @@
                 });
             }
             else{
-                showNotification('Negotiated Disbursement Checks Error', 'Please select the disbursement checks you wish to negotiated.', 'danger');
+                showNotification('Outstanding PDC Error', 'Please select the disbursement checks you wish to outstanding.', 'danger');
             }
         });
     });

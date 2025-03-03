@@ -2868,41 +2868,105 @@ class SalesProposalController {
 
     private function calculateDueDate($startDate, $frequency, $iteration) {
         $date = new DateTime($startDate);
+    
         switch ($frequency) {
             case 'Monthly':
-                $date->modify("+$iteration months");
+                // Check if the start date is the last day of the month
+                $lastDayOfMonth = $date->format('t'); // Get last day of the month
+                if ($date->format('d') == $lastDayOfMonth) {
+                    for ($i = 0; $i < $iteration; $i++) {
+                        $date->modify('last day of next month');
+                    }
+                } else {
+                    $date->modify("+$iteration months");
+                }
                 break;
+    
             case 'Yearly':
-                $date->modify("+$iteration years");
+                $year = (int) $date->format('Y');
+                $month = (int) $date->format('m');
+                $day = (int) $date->format('d');
+    
+                // Add years
+                $year += $iteration;
+    
+                // Handle leap year case for Feb 29
+                if ($month == 2 && $day == 29 && !checkdate(2, 29, $year)) {
+                    $day = 28; // Move to Feb 28 if not a leap year
+                }
+    
+                $date->setDate($year, $month, $day);
                 break;
+    
             case 'Daily':
                 $date->modify("+$iteration days");
                 break;
+    
             default:
                 break;
         }
+    
+        // If due date falls on a weekend, move it to the next Monday
+        $dayOfWeek = $date->format('N'); // 6 = Saturday, 7 = Sunday
+        if ($dayOfWeek == 6) {
+            $date->modify('+2 days'); // Move to Monday
+        } elseif ($dayOfWeek == 7) {
+            $date->modify('+1 day'); // Move to Monday
+        }
+    
         return $date->format('Y-m-d');
     }
-
+    
     private function calculateDueDate2($startDate, $frequency, $iteration, $term) {
         $date = new DateTime($startDate);
+    
         switch ($frequency) {
             case 'Monthly':
-                $date->modify("+$iteration months");
+                $lastDayOfMonth = $date->format('t');
+                if ($date->format('d') == $lastDayOfMonth) {
+                    for ($i = 0; $i < $iteration; $i++) {
+                        $date->modify('last day of next month');
+                    }
+                } else {
+                    $date->modify("+$iteration months");
+                }
                 break;
+    
             case 'Yearly':
-                $date->modify("+$iteration years");
+                $year = (int) $date->format('Y');
+                $month = (int) $date->format('m');
+                $day = (int) $date->format('d');
+    
+                $year += $iteration;
+                if ($month == 2 && $day == 29 && !checkdate(2, 29, $year)) {
+                    $day = 28;
+                }
+    
+                $date->setDate($year, $month, $day);
                 break;
+    
             case 'Daily':
                 $date->modify("+$iteration days");
+                break;
+    
             case 'Lumpsum':
                 $date->modify("+$term days");
-                break;
+                break; // Added missing break statement to prevent fall-through
+    
             default:
                 break;
         }
+    
+        // Weekend Adjustment
+        $dayOfWeek = $date->format('N');
+        if ($dayOfWeek == 6) {
+            $date->modify('+2 days'); // Move to Monday
+        } elseif ($dayOfWeek == 7) {
+            $date->modify('+1 day'); // Move to Monday
+        }
+    
         return $date->format('Y-m-d');
-    }
+    }    
     
     # -------------------------------------------------------------
     #   Delete methods
