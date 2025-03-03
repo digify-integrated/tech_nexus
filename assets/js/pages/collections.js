@@ -761,6 +761,14 @@ function collectionsForm(){
                     }
                 }
             },
+            reference_number: {
+                required: {
+                    depends: function(element) {
+                        var modeOfPayment = $("select[name='mode_of_payment']").val();
+                        return modeOfPayment === 'GCash' || modeOfPayment === 'Online Deposit';
+                    }
+                }
+            },
             payment_details: {
                 required: true
             },
@@ -813,6 +821,9 @@ function collectionsForm(){
             },
             deposited_to: {
                 required: 'Please choose the deposited to'
+            },
+            reference_number: {
+                required: 'Please enter the online reference number'
             },
             bank_branch: {
                 required: 'Please enter the bank/branch'
@@ -880,8 +891,11 @@ function collectionsForm(){
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
                         }
+                        else if (response.referenceExist) {
+                            showNotification('Collection Management Error', 'The online reference number already exist.', 'danger');
+                        }
                         else if (response.checkConflict) {
-                            showNotification('Insert Collection Management Error', 'The check number you entered conflicts to the existing check number on this loan.', 'danger');
+                            showNotification('Collection Management Error', 'The check number you entered conflicts to the existing check number on this loan.', 'danger');
                         }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');

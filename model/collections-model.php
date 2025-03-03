@@ -146,6 +146,12 @@ class CollectionsModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function checkLoanCollectionReferenceExist($p_reference_number) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkLoanCollectionReferenceExist(:p_reference_number)');
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

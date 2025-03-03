@@ -91,14 +91,17 @@ class ProductInventoryReportController {
                 case 'scan inventory report':
                     $this->scanInventoryReport();
                     break;
+                case 'tag as missing':
+                    $this->tagAsMissing();
+                    break;
                 case 'get property details':
                     $this->getPropertyDetails();
                     break;
-                case 'delete property':
-                    $this->deleteProperty();
+                case 'save inventory report scan additional':
+                    $this->saveInventoryReportScanAdditional();
                     break;
-                case 'delete multiple property':
-                    $this->deleteMultipleProperty();
+                case 'delete inventory report scan additional':
+                    $this->deleteInventoryReportScanAdditional();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -165,6 +168,62 @@ class ProductInventoryReportController {
     }
     # -------------------------------------------------------------
 
+    public function saveInventoryReportScanAdditional() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $product_inventory_scan_additional_id = htmlspecialchars($_POST['product_inventory_scan_additional_id'], ENT_QUOTES, 'UTF-8');
+        $product_inventory_id = htmlspecialchars($_POST['product_inventory_id'], ENT_QUOTES, 'UTF-8');
+        $stock_number = htmlspecialchars($_POST['stock_number'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkProductInventoryScanAdditionalExist = $this->productInventoryReportModel->checkProductInventoryScanAdditionalExist($product_inventory_scan_additional_id);
+        $total = $checkProductInventoryScanAdditionalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->productInventoryReportModel->updateProductInventoryScanAdditional($product_inventory_scan_additional_id, $product_inventory_id, $stock_number, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->productInventoryReportModel->insertProductInventoryScanAdditional($product_inventory_id, $stock_number, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+
+    public function tagAsMissing() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $product_inventory_batch_id = htmlspecialchars($_POST['product_inventory_batch_id'], ENT_QUOTES, 'UTF-8');
+        $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->productInventoryReportModel->productInventoryTagAsMissing($product_inventory_batch_id, $remarks, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+    }
+
     # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
@@ -218,47 +277,31 @@ class ProductInventoryReportController {
         echo json_encode(['success' => true]);
         exit;
     }
-    # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    #
-    # Function: deleteMultipleProperty
-    # Description: 
-    # Delete the selected propertys if it exists; otherwise, skip it.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function deleteMultipleProperty() {
+    public function deleteInventoryReportScanAdditional() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $propertyIDs = $_POST['property_id'];
-
+        $product_inventory_scan_additional_id = htmlspecialchars($_POST['product_inventory_scan_additional_id'], ENT_QUOTES, 'UTF-8');
+    
         $user = $this->userModel->getUserByID($userID);
     
         if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+    
+        $checkProductInventoryScanAdditionalExist = $this->productInventoryReportModel->checkProductInventoryScanAdditionalExist($product_inventory_scan_additional_id);
+        $total = $checkProductInventoryScanAdditionalExist['total'] ?? 0;
 
-        foreach($propertyIDs as $propertyID){
-            $propertyDetails = $this->propertyModel->getProperty($propertyID);
-            $propertyLogo = !empty($propertyDetails['property_logo']) ? '.' . $propertyDetails['property_logo'] : null;
-
-            if(file_exists($propertyLogo)){
-                if (!unlink($propertyLogo)) {
-                    echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
-                    exit;
-                }
-            }
-            
-            $this->propertyModel->deleteProperty($propertyID);
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
         }
+    
+        $this->productInventoryReportModel->deleteProductInventoryScanAdditional($product_inventory_scan_additional_id);
             
         echo json_encode(['success' => true]);
         exit;
@@ -285,9 +328,9 @@ class ProductInventoryReportController {
             return;
         }
     
-        if (isset($_POST['property_id']) && !empty($_POST['property_id'])) {
+        if (isset($_POST['product_inventory_scan_additional_id']) && !empty($_POST['product_inventory_scan_additional_id'])) {
             $userID = $_SESSION['user_id'];
-            $propertyID = $_POST['property_id'];
+            $product_inventory_scan_additional_id = htmlspecialchars($_POST['product_inventory_scan_additional_id'], ENT_QUOTES, 'UTF-8');
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -296,32 +339,11 @@ class ProductInventoryReportController {
                 exit;
             }
     
-            $propertyDetails = $this->propertyModel->getProperty($propertyID);
-            $companyID = $propertyDetails['company_id'];
-            $cityID = $propertyDetails['city_id'];
-
-            $companyDetails = $this->companyModel->getCompany($companyID);
-            $companyName = $companyDetails['company_name'] ?? null;
-
-            $cityDetails = $this->cityModel->getCity($cityID);
-            $cityName = $cityDetails['city_name'];
-            $stateID = $cityDetails['state_id'];
-
-            $stateDetails = $this->stateModel->getState($stateID);
-            $stateName = $stateDetails['state_name'];
-            $countryID = $stateDetails['country_id'];
-
-            $countryName = $this->countryModel->getCountry($countryID)['country_name'];
-            $cityName = $cityDetails['city_name'] . ', ' . $stateName . ', ' . $countryName;
+            $propertyDetails = $this->productInventoryReportModel->getProductInventoryScanAdditional($product_inventory_scan_additional_id);
 
             $response = [
                 'success' => true,
-                'propertyName' => $propertyDetails['property_name'],
-                'address' => $propertyDetails['address'],
-                'cityID' => $cityID,
-                'cityName' => $cityName,
-                'companyID' => $companyID,
-                'companyName' => $companyName
+                'stockNumber' => $propertyDetails['stock_number'],
             ];
 
             echo json_encode($response);

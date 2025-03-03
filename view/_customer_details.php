@@ -212,31 +212,31 @@ if($addCustomerComaker['total'] > 0){
                     <div class="form-group row">
                       <div class="col-lg-6">
                         <label class="form-label">First Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="first_name" name="first_name" maxlength="300" autocomplete="off">
+                        <input type="text" class="form-control text-uppercase" id="first_name" name="first_name" maxlength="300" autocomplete="off">
                       </div>
                       <div class="col-lg-6 mt-3 mt-lg-0">
                         <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="last_name" name="last_name" maxlength="300" autocomplete="off">
+                        <input type="text" class="form-control text-uppercase" id="last_name" name="last_name" maxlength="300" autocomplete="off">
                       </div>
                     </div>
                     <div class="form-group row">
                       <div class="col-lg-6">
                         <label class="form-label">Middle Name</label>
-                        <input type="text" class="form-control" id="middle_name" name="middle_name" maxlength="300" autocomplete="off">
+                        <input type="text" class="form-control text-uppercase" id="middle_name" name="middle_name" maxlength="300" autocomplete="off">
                       </div>
                       <div class="col-lg-6 mt-3 mt-lg-0">
                         <label class="form-label">Suffix</label>
-                        <input type="text" class="form-control" id="suffix" name="suffix" maxlength="10" autocomplete="off">
+                        <input type="text" class="form-control text-uppercase" id="suffix" name="suffix" maxlength="10" autocomplete="off">
                       </div>
                     </div>
                     <div class="form-group row">
                       <div class="col-lg-6">
                         <label class="form-label">Business/Corporate Name</label>
-                        <input type="text" class="form-control" id="corporate_name" name="corporate_name" maxlength="300" autocomplete="off">
+                        <input type="text" class="form-control text-uppercase" id="corporate_name" name="corporate_name" maxlength="300" autocomplete="off">
                       </div>
                       <div class="col-lg-6">
                         <label class="form-label">Nickname</label>
-                        <input type="text" class="form-control" id="nickname" name="nickname" maxlength="100" autocomplete="off">
+                        <input type="text" class="form-control text-uppercase" id="nickname" name="nickname" maxlength="100" autocomplete="off">
                       </div>
                     </div>
                     <div class="form-group row">
@@ -251,7 +251,7 @@ if($addCustomerComaker['total'] > 0){
                       </div>
                       <div class="col-lg-6">
                         <label class="form-label">Birth Place</label>
-                        <input type="text" class="form-control" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
+                        <input type="text" class="form-control text-uppercase" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
                       </div>
                     </div>
                     <div class="form-group row">
@@ -305,7 +305,7 @@ if($addCustomerComaker['total'] > 0){
                       <div class="form-group row">
                         <div class="col-lg-6">
                           <label class="form-label">TIN</label>
-                          <input type="text" class="form-control" id="tin" name="tin" maxlength="50" autocomplete="off">
+                          <input type="text" class="form-control text-uppercase" id="tin" name="tin" maxlength="50" autocomplete="off">
                         </div>
                       </div>
                     </div>
@@ -354,7 +354,7 @@ if($addCustomerComaker['total'] > 0){
                             <div class="form-group row">
                               <div class="col-lg-12">
                                 <label class="form-label" for="contact_information_facebook">Facebook <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="contact_information_facebook" name="contact_information_facebook" maxlength="300" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="contact_information_facebook" name="contact_information_facebook" maxlength="300" autocomplete="off">
                               </div>
                             </div>
                             <div class="form-group row">
@@ -366,11 +366,11 @@ if($addCustomerComaker['total'] > 0){
                             <div class="form-group row">
                               <div class="col-lg-6">
                                 <label class="form-label" for="contact_information_mobile">Mobile</label>
-                                <input type="text" class="form-control" id="contact_information_mobile" name="contact_information_mobile" maxlength="11" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="contact_information_mobile" name="contact_information_mobile" maxlength="11" autocomplete="off">
                               </div>
                               <div class="col-lg-6 mt-3 mt-lg-0">
                                 <label class="form-label" for="contact_information_telephone">Telephone</label>
-                                <input type="text" class="form-control" id="contact_information_telephone" name="contact_information_telephone" maxlength="20" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="contact_information_telephone" name="contact_information_telephone" maxlength="20" autocomplete="off">
                               </div>
                             </div>
                           </form>
@@ -413,7 +413,7 @@ if($addCustomerComaker['total'] > 0){
                             <div class="form-group row">
                               <div class="col-lg-12">
                                 <label class="form-label" for="contact_address">Address <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="contact_address" name="contact_address" maxlength="1000" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="contact_address" name="contact_address" maxlength="1000" autocomplete="off">
                               </div>
                             </div>
                             <div class="form-group row">
@@ -466,7 +466,7 @@ if($addCustomerComaker['total'] > 0){
                             <div class="form-group row">
                               <div class="col-lg-12">
                                 <label class="form-label" for="id_number">ID Number <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="id_number" name="id_number" maxlength="100" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="id_number" name="id_number" maxlength="100" autocomplete="off">
                               </div>
                             </div>
                             <div class="form-group row">
@@ -506,7 +506,7 @@ if($addCustomerComaker['total'] > 0){
                               <div class="col-lg-12">
                                 <label class="form-label" for="family_name">Family Name <span class="text-danger">*</span></label>
                                 <input type="hidden" id="contact_family_background_id" name="contact_family_background_id">
-                                <input type="text" class="form-control" id="family_name" name="family_name" maxlength="500" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="family_name" name="family_name" maxlength="500" autocomplete="off">
                               </div>
                             </div>
                             <div class="form-group row">
@@ -536,11 +536,11 @@ if($addCustomerComaker['total'] > 0){
                             <div class="form-group row">
                               <div class="col-lg-6">
                                 <label class="form-label" for="family_background_mobile">Mobile</label>
-                                <input type="text" class="form-control" id="family_background_mobile" name="family_background_mobile" maxlength="20" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="family_background_mobile" name="family_background_mobile" maxlength="20" autocomplete="off">
                               </div>
                               <div class="col-lg-6 mt-3 mt-lg-0">
                                 <label class="form-label" for="family_background_telephone">Telephone</label>
-                                <input type="text" class="form-control" id="family_background_telephone" name="family_background_telephone" maxlength="20" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="family_background_telephone" name="family_background_telephone" maxlength="20" autocomplete="off">
                               </div>
                             </div>
                           </form>
@@ -569,11 +569,11 @@ if($addCustomerComaker['total'] > 0){
                             <div class="form-group row">
                               <div class="col-lg-6">
                                 <label class="form-label" for="comaker_first_name">First Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="comaker_first_name" name="comaker_first_name" maxlength="100" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="comaker_first_name" name="comaker_first_name" maxlength="100" autocomplete="off">
                               </div>
                               <div class="col-lg-6">
                                 <label class="form-label" for="comaker_last_name">Last Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="comaker_last_name" name="comaker_last_name" maxlength="100" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="comaker_last_name" name="comaker_last_name" maxlength="100" autocomplete="off">
                               </div>
                             </div>
                           </form>

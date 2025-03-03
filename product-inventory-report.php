@@ -25,14 +25,14 @@
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: property.php');
+      header('location: product-inventory-report.php');
       exit;
     }
 
-    $propertyID = $securityModel->decryptData($_GET['id']);
+    $productInventoryID = $securityModel->decryptData($_GET['id']);
 
-    $checkPropertyExist = $propertyModel->checkPropertyExist($propertyID);
-    $total = $checkPropertyExist['total'] ?? 0;
+    $checkProductInventoryExist = $productInventoryReportModel->checkProductInventoryExist($productInventoryID);
+    $total = $checkProductInventoryExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
@@ -40,7 +40,7 @@
     }
   }
   else{
-    $propertyID = null;
+    $productInventoryID = null;
   }
 
   $getInventoryReportClosed = $productInventoryReportModel->getInventoryReportClosed();
@@ -56,6 +56,7 @@
     <?php include_once('config/_title.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
     <?php include_once('config/_required_css.php'); ?>
+    <link rel="stylesheet" href="./assets/css/plugins/buttons.bootstrap5.min.css" />
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
 
@@ -76,10 +77,10 @@
                 <ul class="breadcrumb">
                 <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="product.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="product-inventory-report.php"><?php echo $pageTitle; ?></a></li>
                   <?php
-                    if(!$newRecord && !empty($propertyID)){
-                      echo '<li class="breadcrumb-item" id="product-inventory-id">'. $propertyID .'</li>';
+                    if(!$newRecord && !empty($productInventoryID)){
+                      echo '<li class="breadcrumb-item" id="product-inventory-id">'. $productInventoryID .'</li>';
                     }
                   ?>
                 </ul>
@@ -93,7 +94,7 @@
           </div>
         </div>
         <?php
-          if(!empty($propertyID)){
+          if(!empty($productInventoryID)){
             require_once('view/_product_inventory_details.php');
           }
           else{
@@ -111,8 +112,16 @@
         include_once('config/_customizer.php'); 
     ?>
     <script src="./assets/js/plugins/bootstrap-maxlength.min.js"></script>
-    <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
+    <script src="./assets/js/plugins/dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
+    <script src="./assets/js/plugins/buttons.colVis.min.js"></script>
+    <script src="./assets/js/plugins/buttons.print.min.js"></script>
+    <script src="./assets/js/plugins/pdfmake.min.js"></script>
+    <script src="./assets/js/plugins/jszip.min.js"></script>
+    <script src="./assets/js/plugins/dataTables.buttons.min.js"></script>
+    <script src="./assets/js/plugins/vfs_fonts.js"></script>
+    <script src="./assets/js/plugins/buttons.html5.min.js"></script>
+    <script src="./assets/js/plugins/buttons.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/pages/product-inventory-report.js?v=<?php echo rand(); ?>"></script>

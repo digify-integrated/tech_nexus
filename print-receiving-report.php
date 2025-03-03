@@ -214,6 +214,7 @@
         $year_model = $productDetails['year_model'];
         $description = $productDetails['description'];
         $total_landed_cost = $productDetails['total_landed_cost'];
+        $remarks = $productDetails['remarks'];
         $arrival_date = $systemModel->checkDate('summary', $productDetails['arrival_date'], '', 'm/d/Y', '');
         $checklist_date = $systemModel->checkDate('summary', $productDetails['checklist_date'], '', 'm/d/Y', '');
 
@@ -250,7 +251,7 @@
                                 YEAR MODEL: '. $year_model .'<br/>
                                 ARRIVAL DATE: '. $arrival_date .'<br/>
                                 CHECKLIST DATE: '. $checklist_date .'<br/>
-                                PARTICULARS: '. $description .'<br/>
+                                PARTICULARS: '. $remarks .'<br/>
                             </td>
                             <td style="text-align:center;">'. number_format($total_landed_cost, 2) .'</td>
                         </tr>

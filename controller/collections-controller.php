@@ -456,6 +456,16 @@ class CollectionsController {
         $checkLoanCollectionExist = $this->collectionsModel->checkLoanCollectionExist($loanCollectionID);
         $total = $checkLoanCollectionExist['total'] ?? 0;
 
+        if($modeOfPayment === 'GCash' || $modeOfPayment === 'Online Deposit'){
+            $checkLoanCollectionReferenceExist = $this->collectionsModel->checkLoanCollectionReferenceExist($referenceNumber);
+            $total = $checkLoanCollectionReferenceExist['total'] ?? 0;
+
+            if($total > 0){
+                echo json_encode(['success' => false, 'referenceExist' => true]);
+                exit;
+            }
+        }
+
         if($pdcType == 'Loan'){
             $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
             $loanNumber = $salesProposalDetails['loan_number'];

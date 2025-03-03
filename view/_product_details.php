@@ -105,7 +105,11 @@ if($addProductExpense['total'] > 0){
                        
                         $dropdown .= '<li><a href="print-incoming-checklist.php?id='. $productID .'" class="dropdown-item" type="button" target="_blank">Print Incoming Checklist</a></li>';
                         $dropdown .= '<li><a href="print-incoming-checklist-fuso.php?id='. $productID .'" class="dropdown-item" type="button" target="_blank">Print Incoming Checklist (Fuso)</a></li>';
-                        $dropdown .= '<li><a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#product-qr-code-offcanvas" aria-controls="product-qr-code-offcanvas" id="generate-qr-code">Print QR Code</a></li>';
+
+                        if($getInventoryReportClosed['total'] > 0){
+                          $dropdown .= '<li><a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#product-qr-code-offcanvas" aria-controls="product-qr-code-offcanvas" id="generate-qr-code">Print QR Code</a></li>';
+                        }
+                        
 
                         if ($productDeleteAccess['total'] > 0) {
                             $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-product-details">Delete Product</button></li>';

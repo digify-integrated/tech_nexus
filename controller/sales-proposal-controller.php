@@ -266,6 +266,12 @@ class SalesProposalController {
                 case 'generate PDC':
                     $this->generatePDC();
                     break;
+                case 'save sales proposal progress job order':
+                    $this->saveJobOrderProgress();
+                    break;
+                case 'save sales proposal progress additional job order':
+                    $this->saveAdditionalJobOrderProgress();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -2982,6 +2988,21 @@ class SalesProposalController {
         echo json_encode(['success' => true]);
         exit;
     }
+    
+    public function saveJobOrderProgress() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $progress = htmlspecialchars($_POST['job_order_progress'], ENT_QUOTES, 'UTF-8');
+    
+        $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $progress, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -3019,6 +3040,22 @@ class SalesProposalController {
         }
     
         $this->salesProposalModel->deleteSalesProposalAdditionalJobOrder($salesProposalAdditionalJobOrderID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function saveAdditionalJobOrderProgress() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalAdditionalJobOrderID = htmlspecialchars($_POST['sales_proposal_additional_job_order_id'], ENT_QUOTES, 'UTF-8');
+    
+        $progress = htmlspecialchars($_POST['additional_job_order_progress'], ENT_QUOTES, 'UTF-8');
+    
+        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $progress, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -3256,6 +3293,9 @@ class SalesProposalController {
             $finalApprovingOfficerDetails = $this->customerModel->getPersonalInformation($finalApprovingOfficer);
             $finalApprovingOfficerName = strtoupper($finalApprovingOfficerDetails['file_as'] ?? null);
 
+            $salesProposalAdditionalJobOrderTotalDetails = $this->salesProposalModel->getSalesProposalAdditionalJobOrderTotal($salesProposalID);
+            $progress = $this->salesProposalModel->getJobOrderMonitoringTotalProgress($salesProposalID)['total_progress_percentage'] ?? 0;
+
             $response = [
                 'success' => true,
                 'salesProposalNumber' => $salesProposalDetails['sales_proposal_number'],
@@ -3280,9 +3320,11 @@ class SalesProposalController {
                 'initialApprovingOfficerName' => $initialApprovingOfficerName,
                 'finalApprovingOfficerName' => $finalApprovingOfficerName,
                 'approvalByName' => $approvalByName,
+                'jobOrderProgress' => number_format($progress,2) . '%',
                 'productName' => $stockNumber . ' - ' . $productDescription,
                 'drNumber' => $salesProposalDetails['dr_number'],
                 'releaseTo' => $salesProposalDetails['release_to'],
+                'totalAdditionalJobOrder' => '<b class="text-sm">Total Additional Job Order : &nbsp; &nbsp; &nbsp; &nbsp;' . number_format($salesProposalAdditionalJobOrderTotalDetails['total'] ?? 0, 2) . '</b>',
                 'actualStartDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['actual_start_date'], '', 'm/d/Y', ''),
                 'referredBy' => $salesProposalDetails['referred_by'],
                 'releaseDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', ''),
@@ -3639,7 +3681,8 @@ class SalesProposalController {
             $response = [
                 'success' => true,
                 'jobOrder' => $salesProposalJobOrderDetails['job_order'],
-                'cost' => $salesProposalJobOrderDetails['cost']
+                'cost' => $salesProposalJobOrderDetails['cost'],
+                'progress' => $salesProposalJobOrderDetails['progress'],
             ];
 
             echo json_encode($response);
@@ -3722,7 +3765,8 @@ class SalesProposalController {
                 'jobOrderNumber' => $salesProposalAdditionalJobOrderDetails['job_order_number'],
                 'jobOrderDate' =>  $this->systemModel->checkDate('empty', $salesProposalAdditionalJobOrderDetails['job_order_date'], '', 'm/d/Y', ''),
                 'particulars' =>  $salesProposalAdditionalJobOrderDetails['particulars'],
-                'cost' => $salesProposalAdditionalJobOrderDetails['cost']
+                'cost' => $salesProposalAdditionalJobOrderDetails['cost'],
+                'progress' => $salesProposalAdditionalJobOrderDetails['progress']
             ];
 
             echo json_encode($response);

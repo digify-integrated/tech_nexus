@@ -142,7 +142,10 @@
         require_once 'model/system-model.php';
         require_once 'model/customer-model.php';
         require_once 'model/product-model.php';
+        require_once 'model/leasing-application-model.php';
+        require_once 'model/miscellaneous-client-model.php';
         require_once 'model/sales-proposal-model.php';
+        require_once 'model/tenant-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -150,6 +153,9 @@
         $customerModel = new CustomerModel($databaseModel);
         $productModel = new ProductModel($databaseModel);
         $salesProposalModel = new SalesProposalModel($databaseModel);
+        $leasingApplicationModel = new LeasingApplicationModel($databaseModel);
+        $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
+        $tenantModel = new TenantModel($databaseModel);
 
         $loanCollectionIDs = is_array($loanCollectionID) ? $loanCollectionID : explode(',', $loanCollectionID);
         sort($loanCollectionIDs);
@@ -193,6 +199,7 @@
             $check_number = $pdcManagementDetails['check_number'];
             $remarks = $pdcManagementDetails['remarks'];
             $pdc_type = $pdcManagementDetails['pdc_type'];
+            $leasing_application_id = $pdcManagementDetails['leasing_application_id'];
             $new_deposit_date = $systemModel->checkDate('empty', $pdcManagementDetails['new_deposit_date'], '', 'm/d/Y', '');
             $for_deposit_date = $systemModel->checkDate('empty', $pdcManagementDetails['for_deposit_date'], '', 'm/d/Y', '');
             $deposit_date = $systemModel->checkDate('empty', $pdcManagementDetails['deposit_date'], '', 'm/d/Y', '');
@@ -213,6 +220,16 @@
 
                 $productDetails = $productModel->getProduct($product_id);
                 $stockNumber = $productDetails['stock_number'] ?? null;
+            }
+            else if($pdc_type == 'Leasing'){
+                $leasingApplicationDetails = $leasingApplicationModel->getLeasingApplication($leasing_application_id);
+
+                $loan_number = $leasingApplicationDetails['leasing_application_number'];
+                $tenant_id = $leasingApplicationDetails['tenant_id'];
+
+                $tenantDetails = $tenantModel->getTenant($tenant_id);
+                $customerName = strtoupper($tenantDetails['tenant_name'] ?? '');
+                $stockNumber = '';
             }
             else{
                 $stockNumber = '';

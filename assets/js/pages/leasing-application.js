@@ -548,6 +548,7 @@ function leasingSummaryTable(datatable_name, buttons = false, show_all = false){
     var settings;
 
     const column = [ 
+        { 'data' : 'LEASING_APPLICATION_NUMBER' },
         { 'data' : 'TENANT_NAME' },
         { 'data' : 'PROPERTY_NAME' },
         { 'data' : 'OUTSTANDING_BALANCE' },
@@ -580,7 +581,8 @@ function leasingSummaryTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 11 },
         { 'width': 'auto', 'aTargets': 12 },
         { 'width': 'auto', 'aTargets': 13 },
-        { 'width': 'auto', 'aTargets': 14 }
+        { 'width': 'auto', 'aTargets': 14 },
+        { 'width': 'auto', 'aTargets': 15 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -857,10 +859,13 @@ function leasingRepaymentOtherChargesTable(datatable_name, buttons = false, show
 
 function leasingRepaymentCollectionsTable(datatable_name, buttons = false, show_all = false){
     const leasing_application_id = $('#leasing-application-id').text();
+    const leasing_application_repayment_id = $('#leasing-application-repayment-id').text();
     const type = 'leasing repayment collections table';
     var settings;
 
     const column = [ 
+        { 'data' : 'REFERENCE' },
+        { 'data' : 'DUE_DATE' },
         { 'data' : 'PAYMENT_FOR' },
         { 'data' : 'REFERENCE_NUMBER' },
         { 'data' : 'PAYMENT_MODE' },
@@ -875,7 +880,9 @@ function leasingRepaymentCollectionsTable(datatable_name, buttons = false, show_
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
-        { 'width': '10%','bSortable': false, 'aTargets': 5 }
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': '10%','bSortable': false, 'aTargets': 7 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -887,7 +894,8 @@ function leasingRepaymentCollectionsTable(datatable_name, buttons = false, show_
             'dataType': 'json',
             'data': {
                 'type' : type,
-                'leasing_application_id' : leasing_application_id
+                'leasing_application_id' : leasing_application_id,
+                'leasing_application_repayment_id' : leasing_application_repayment_id,
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {

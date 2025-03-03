@@ -299,6 +299,14 @@
             displayDetails('get comaker details');
         });
 
+        $(document).on('change','#additional_maker_id',function() {
+            displayDetails('get additional maker details');
+        });
+
+        $(document).on('change','#comaker_id2',function() {
+            displayDetails('get comaker2 details');
+        });
+
         $(document).on('change','#term_type',function() {
             $('#payment_frequency').empty().append(new Option('--', '', false, false));
 
@@ -1325,6 +1333,14 @@
 
             window.print();
         });
+
+        if($('#sales-proposal-additional-job-order-form').length){
+            salesProposalAdditionalJobOrderProgressForm();
+        }
+
+        if($('#sales-proposal-job-order-progress-form').length){
+            salesProposalJobOrderProgressForm();
+        }
     });
 })(jQuery);
 
@@ -1475,13 +1491,15 @@ function salesProposalJobOrderTable(datatable_name, buttons = false, show_all = 
     const column = [ 
         { 'data' : 'JOB_ORDER' },
         { 'data' : 'COST' },
+        { 'data' : 'PROGRESS' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '42%', 'aTargets': 0 },
-        { 'width': '42%', 'aTargets': 1 },
-        { 'width': '16%','bSortable': false, 'aTargets': 2 }
+        { 'width': '28%', 'aTargets': 0 },
+        { 'width': '28%', 'aTargets': 1 },
+        { 'width': '28%', 'aTargets': 2 },
+        { 'width': '16%','bSortable': false, 'aTargets': 3 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1591,6 +1609,7 @@ function salesProposalAdditionalJobOrderTable(datatable_name, buttons = false, s
         { 'data' : 'JOB_ORDER_DATE' },
         { 'data' : 'PARTICULARS' },
         { 'data' : 'COST' },
+        { 'data' : 'PROGRESS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -1598,8 +1617,9 @@ function salesProposalAdditionalJobOrderTable(datatable_name, buttons = false, s
         { 'width': '25%', 'aTargets': 0 },
         { 'width': '15%', 'type': 'date', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
-        { 'width': '30%', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '15%', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -2062,6 +2082,7 @@ function approvedSalesProposalTable(datatable_name, buttons = false, show_all = 
         { 'data' : 'PRODUCT_TYPE' },
         { 'data' : 'PRODUCT' },
         { 'data' : 'PROCEED_DATE' },
+        { 'data' : 'PROGRESS' },
         { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
@@ -2071,9 +2092,10 @@ function approvedSalesProposalTable(datatable_name, buttons = false, show_all = 
         { 'width': '15%', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
+        { 'width': '15%', 'type': 'date', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
+        { 'width': '10%', 'aTargets': 6 },
+        { 'width': '10%','bSortable': false, 'aTargets': 7 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -2398,7 +2420,6 @@ function salesProposalSummaryPDCManualInputTable(){
         }
     });
 }
-
 
 function salesProposalForm(){
     $('#sales-proposal-form').validate({
@@ -2987,6 +3008,178 @@ function salesProposalJobOrderForm(){
                     reloadDatatable('#sales-proposal-job-order-table');
                     resetModalForm('sales-proposal-job-order-form');
                     salesProposalSummaryJobOrderTable();
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalJobOrderProgressForm(){
+    $('#sales-proposal-job-order-progress-form').validate({
+        rules: {
+            job_order_progress: {
+                required: true
+            }
+        },
+        messages: {
+            job_order_progress: {
+                required: 'Please enter the progress'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal progress job order';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-job-order-progress');
+                },
+                success: function (response) {
+                    if (response.success) {                        
+                        showNotification('Update Job Order Progress Success', 'The job order progress has been updated successfully', 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-job-order-progress', 'Submit');
+                    $('#update-sales-proposal-job-order-progress-offcanvas').offcanvas('hide');
+                    reloadDatatable('#sales-proposal-job-order-table');
+                    resetModalForm('sales-proposal-job-order-progress-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalAdditionalJobOrderProgressForm(){
+    $('#sales-proposal-additional-job-order-progress-form').validate({
+        rules: {
+            additional_job_order_progress: {
+                required: true
+            }
+        },
+        messages: {
+            additional_job_order_progress: {
+                required: 'Please enter the progress'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal progress additional job order';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-additional-job-order-progress');
+                },
+                success: function (response) {
+                    if (response.success) {                        
+                        showNotification('Update Additional Job Order Progress Success', 'The additional job order progress has been updated successfully', 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-additional-job-order-progress', 'Submit');
+                    $('#update-sales-proposal-additional-job-order-progress-offcanvas').offcanvas('hide');
+                    reloadDatatable('#sales-proposal-additional-job-order-table');
+                    resetModalForm('sales-proposa-additionall-job-order-progress-form');
                 }
             });
         
@@ -5698,41 +5891,111 @@ function displayDetails(transaction){
                 }
             });
             break;
-        case 'get comaker details':
-            var comaker_id = $('#comaker_id').val();
-                
-            $.ajax({
-                url: 'controller/customer-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    comaker_id : comaker_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {    
-                        $('#summary-comaker-name').text(response.comakerName);
-                        $('#summary-comaker-address').text(response.comakerAddress);
-                        $('#summary-comaker-mobile').text(response.comakerMobile);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
+            case 'get comaker details':
+                var comaker_id = $('#comaker_id').val();
+                    
+                $.ajax({
+                    url: 'controller/customer-controller.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        comaker_id : comaker_id, 
+                        transaction : transaction
+                    },
+                    success: function(response) {
+                        if (response.success) {    
+                            $('#summary-comaker-name').text(response.comakerName);
+                            $('#summary-comaker-address').text(response.comakerAddress);
+                            $('#summary-comaker-mobile').text(response.comakerMobile);
+                        } 
+                        else {
+                            if(response.isInactive){
+                                window.location = 'logout.php?logout';
+                            }
+                            else{
+                                showNotification('Get Co-Maker Details Error', response.message, 'danger');
+                            }
                         }
-                        else{
-                            showNotification('Get Co-Maker Details Error', response.message, 'danger');
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                        if (xhr.responseText) {
+                            fullErrorMessage += ', Response: ${xhr.responseText}';
                         }
+                        showErrorDialog(fullErrorMessage);
                     }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                });
+                break;
+            case 'get additional maker details':
+                var comaker_id = $('#additional_maker_id').val();
+                    
+                $.ajax({
+                    url: 'controller/customer-controller.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        comaker_id : comaker_id, 
+                        transaction : transaction
+                    },
+                    success: function(response) {
+                        if (response.success) {    
+                            $('#summary-additional-maker-name').text(response.comakerName);
+                            $('#summary-additional-maker-address').text(response.comakerAddress);
+                            $('#summary-additional-maker-mobile').text(response.comakerMobile);
+                        } 
+                        else {
+                            if(response.isInactive){
+                                window.location = 'logout.php?logout';
+                            }
+                            else{
+                                showNotification('Get Co-Maker Details Error', response.message, 'danger');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                        if (xhr.responseText) {
+                            fullErrorMessage += ', Response: ${xhr.responseText}';
+                        }
+                        showErrorDialog(fullErrorMessage);
                     }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
+                });
+                break;
+            case 'get comaker2 details':
+                var comaker_id = $('#comaker_id2').val();
+                    
+                $.ajax({
+                    url: 'controller/customer-controller.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        comaker_id : comaker_id, 
+                        transaction : transaction
+                    },
+                    success: function(response) {
+                        if (response.success) {    
+                            $('#summary-additional-comaker-name').text(response.comakerName);
+                            $('#summary-additional-comaker-address').text(response.comakerAddress);
+                            $('#summary-additional-comaker-mobile').text(response.comakerMobile);
+                        } 
+                        else {
+                            if(response.isInactive){
+                                window.location = 'logout.php?logout';
+                            }
+                            else{
+                                showNotification('Get Co-Maker Details Error', response.message, 'danger');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                        if (xhr.responseText) {
+                            fullErrorMessage += ', Response: ${xhr.responseText}';
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    }
+                });
+                break;
         case 'get product details':
             var product_id;
     

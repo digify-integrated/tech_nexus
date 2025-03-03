@@ -39,6 +39,7 @@
                     <th>Product Type</th>
                     <th>Stock</th>
                     <th>Proceed Date</th>
+                    <th>Job Order Progress</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>

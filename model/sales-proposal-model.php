@@ -233,6 +233,22 @@ class SalesProposalModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    public function updateSalesProposalJobOrderProgress($p_sales_proposal_job_order_id, $p_progress, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalJobOrderProgress(:p_sales_proposal_job_order_id, :p_progress, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_job_order_id', $p_sales_proposal_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_progress', $p_progress, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateSalesProposalAdditionalJobOrderProgress($sales_proposal_additional_job_order_id, $p_progress, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderProgress(:sales_proposal_additional_job_order_id, :p_progress, :p_last_log_by)');
+        $stmt->bindValue(':sales_proposal_additional_job_order_id', $sales_proposal_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_progress', $p_progress, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -1641,6 +1657,13 @@ class SalesProposalModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function getJobOrderMonitoringTotalProgress($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getJobOrderMonitoringTotalProgress(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -1987,6 +2010,31 @@ class SalesProposalModel {
 
     public function getSalesProposalRenewalPDCManualInputDetails($p_sales_proposal_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getSalesProposalRenewalPDCManualInputDetails(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        $formattedEntries = [];
+    
+        foreach ($options as $row) {
+            $check_date = $row['check_date'];
+            $formattedDate = date('j F Y', strtotime($check_date)); // Example: 24 June 2025
+            $gross_amount = $row['gross_amount'];
+    
+            $formattedEntries[] = 'Php ' . number_format($gross_amount, 2) . ' payable on ' . $formattedDate;
+        }
+    
+        // Format the output with commas and "and" before the last item
+        if (count($formattedEntries) > 1) {
+            $lastEntry = array_pop($formattedEntries);
+            return implode(', ', $formattedEntries) . ' and ' . $lastEntry;
+        }
+    
+        return $formattedEntries[0] ?? ''; // Return the single entry or empty string if no data
+    }
+
+    public function getSalesProposalRegistrationRenewalPDCManualInputDetails($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getSalesProposalRegistrationRenewalPDCManualInputDetails(:p_sales_proposal_id)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);

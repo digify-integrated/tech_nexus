@@ -249,6 +249,8 @@
                 <table id="repayment-collections-table" class="table table-hover nowrap w-100 text-uppercase">
                 <thead>
                   <tr>
+                    <th>Reference</th>
+                    <th>Due Date</th>
                     <th>Payment For</th>
                     <th>Reference Number</th>
                     <th>Payment Mode</th>

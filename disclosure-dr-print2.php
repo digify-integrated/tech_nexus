@@ -242,10 +242,10 @@
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(100, 8, "f. Courier fee of no less than P500.00 per mail" , 0, 0, 'L');
     $pdf->Ln(10);
-    #$pdf->Cell(130, 8, '6. OTHER CHARGES', 0, 0, 'L');
-    #$pdf->Ln(8);
-    #$pdf->writeHTML($othercharges, true, false, true, false, '');
-    $pdf->Cell(130, 8, '6. SCHEDULE OF PAYMENTS', 0, 0, 'L');
+    $pdf->Cell(130, 8, '6. OTHER CHARGES', 0, 0, 'L');
+    $pdf->Ln(8);
+    $pdf->writeHTML($othercharges, true, false, true, false, '');
+    $pdf->Cell(130, 8, '7. SCHEDULE OF PAYMENTS', 0, 0, 'L');
     $pdf->Ln(8);
     $pdf->writeHTML($amortSched, true, false, true, false, '');
     $pdf->Ln(2);

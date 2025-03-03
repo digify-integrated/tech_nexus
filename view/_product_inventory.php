@@ -25,7 +25,7 @@
         </div>
       </div>
       <div class="card-body">
-        <div class="table-responsive dt-responsive">
+        <div class="table-responsive dt-responsive w-100">
           <table id="inventory-report-table" class="table table-hover nowrap w-100">
             <thead>
               <tr>

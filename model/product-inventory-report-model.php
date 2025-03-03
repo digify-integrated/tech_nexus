@@ -100,6 +100,31 @@ class ProductInventoryReportModel {
         $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    public function updateProductInventoryScanAdditional($p_product_inventory_scan_additional_id, $p_product_inventory_id, $p_stock_number, $p_created_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateProductInventoryScanAdditional(:p_product_inventory_scan_additional_id, :p_product_inventory_id, :p_stock_number, :p_created_by)');
+        $stmt->bindValue(':p_product_inventory_scan_additional_id', $p_product_inventory_scan_additional_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_inventory_id', $p_product_inventory_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_INT);
+        $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function productInventoryTagAsMissing($p_product_inventory_batch_id, $p_remarks, $p_created_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL productInventoryTagAsMissing(:p_product_inventory_batch_id, :p_remarks, :p_created_by)');
+        $stmt->bindValue(':p_product_inventory_batch_id', $p_product_inventory_batch_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function insertProductInventoryScanAdditional($p_product_inventory_id, $p_stock_number, $p_created_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertProductInventoryScanAdditional(:p_product_inventory_id, :p_stock_number, :p_created_by)');
+        $stmt->bindValue(':p_product_inventory_id', $p_product_inventory_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_INT);
+        $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -108,7 +133,7 @@ class ProductInventoryReportModel {
 
     # -------------------------------------------------------------
     #
-    # Function: checkPropertyExist
+    # Function: checkProductInventoryExist
     # Description: Checks if a property exists.
     #
     # Parameters:
@@ -117,9 +142,16 @@ class ProductInventoryReportModel {
     # Returns: The result of the query as an associative array.
     #
     # -------------------------------------------------------------
-    public function checkPropertyExist($p_property_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL checkPropertyExist(:p_property_id)');
-        $stmt->bindValue(':p_property_id', $p_property_id, PDO::PARAM_INT);
+    public function checkProductInventoryExist($p_product_inventory_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkProductInventoryExist(:p_product_inventory_id)');
+        $stmt->bindValue(':p_product_inventory_id', $p_product_inventory_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function checkProductInventoryScanAdditionalExist($p_product_inventory_scan_additional_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkProductInventoryScanAdditionalExist(:p_product_inventory_scan_additional_id)');
+        $stmt->bindValue(':p_product_inventory_scan_additional_id', $p_product_inventory_scan_additional_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -145,6 +177,11 @@ class ProductInventoryReportModel {
         $stmt->bindValue(':p_property_id', $p_property_id, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function deleteProductInventoryScanAdditional($p_product_inventory_scan_additional_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteProductInventoryScanAdditional(:p_product_inventory_scan_additional_id)');
+        $stmt->bindValue(':p_product_inventory_scan_additional_id', $p_product_inventory_scan_additional_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -165,6 +202,19 @@ class ProductInventoryReportModel {
     # -------------------------------------------------------------
     public function getInventoryReportClosed() {
         $stmt = $this->db->getConnection()->prepare('CALL getInventoryReportClosed()');
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+    public function getProductInventory($p_product_inventory_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getProductInventory(:p_product_inventory_id)');
+        $stmt->bindValue(':p_product_inventory_id', $p_product_inventory_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getProductInventoryScanAdditional($p_product_inventory_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getProductInventoryScanAdditional(:p_product_inventory_id)');
+        $stmt->bindValue(':p_product_inventory_id', $p_product_inventory_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

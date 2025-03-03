@@ -239,7 +239,8 @@ class DisbursementController {
         $disbursementTotal = number_format($this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0, 2, '.', '');
         $disbursementCheckTotal = number_format($this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0, 2, '.', '');
 
-        if( $transaction_type == 'Disbursement' && $fund_source != 'Check' && $disbursementTotal > 5000){
+        //if( $transaction_type == 'Disbursement' && $fund_source != 'Check' && $disbursementTotal > 5000){
+        if( $transaction_type == 'Disbursement' && $fund_source != 'Check'){
             echo json_encode(['success' => false, 'disbursementGreater' => true]);
             exit;
         }
@@ -1038,6 +1039,9 @@ class DisbursementController {
             if($fund_source == 'Check'){
                 $transaction_number = $this->systemSettingModel->getSystemSetting(24)['value'] + 1;
             }
+            else if($fund_source == 'Revolving Fund'){
+                $transaction_number = 'R-'.$this->systemSettingModel->getSystemSetting(29)['value'] + 1;
+            }
             else{
                 if($transaction_type == 'Disbursement'){
                     $transaction_number = $this->systemSettingModel->getSystemSetting(19)['value'] + 1;
@@ -1050,12 +1054,15 @@ class DisbursementController {
 
             $disbursementID = $this->disbursementModel->insertDisbursement($payable_type, $customer_id, $department_id, $company_id, $transaction_number, $transaction_type, $fund_source, $particulars, $transaction_date, $userID);
 
-            if($fund_source == 'Check'){
+            if($fund_source === 'Check'){
                 $this->systemSettingModel->updateSystemSettingValue(24, $transaction_number, $userID);
+            }
+            else if($fund_source === 'Revolving Fund'){
+                $this->systemSettingModel->updateSystemSettingValue(29, $transaction_number, $userID);
             }
             else{
                 
-                if($transaction_type == 'Disbursement'){
+                if($transaction_type === 'Disbursement'){
                     $this->systemSettingModel->updateSystemSettingValue(19, $transaction_number, $userID);
                 }
                 else{

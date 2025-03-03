@@ -31,31 +31,31 @@
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">First Name <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-                <input type="text" class="form-control" id="first_name" name="first_name" maxlength="300" autocomplete="off">
+                <input type="text" class="form-control text-uppercase" id="first_name" name="first_name" maxlength="300" autocomplete="off">
             </div>
             <label class="col-lg-2 col-form-label">Middle Name</label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="middle_name" name="middle_name" maxlength="300" autocomplete="off">
+              <input type="text" class="form-control text-uppercase" id="middle_name" name="middle_name" maxlength="300" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Last Name <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="last_name" name="last_name" maxlength="300" autocomplete="off">
+              <input type="text" class="form-control text-uppercase" id="last_name" name="last_name" maxlength="300" autocomplete="off">
             </div>
             <label class="col-lg-2 col-form-label">Suffix</label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="suffix" name="suffix" maxlength="10" autocomplete="off">
+              <input type="text" class="form-control text-uppercase" id="suffix" name="suffix" maxlength="10" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Business/Corporate Name</label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="corporate_name" name="corporate_name" maxlength="300" autocomplete="off">
+              <input type="text" class="form-control text-uppercase" id="corporate_name" name="corporate_name" maxlength="300" autocomplete="off">
             </div>
             <label class="col-lg-2 col-form-label">Nickname</label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="nickname" name="nickname" maxlength="100" autocomplete="off">
+              <input type="text" class="form-control text-uppercase" id="nickname" name="nickname" maxlength="100" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">
@@ -70,7 +70,7 @@
             </div>
             <label class="col-lg-2 col-form-label">Birth Place</label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
+              <input type="text" class="form-control text-uppercase" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">
@@ -124,7 +124,7 @@
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">TIN</label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="tin" name="tin" maxlength="50" autocomplete="off">
+              <input type="text" class="form-control text-uppercase" id="tin" name="tin" maxlength="50" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">

@@ -305,6 +305,14 @@
             displayDetails('get comaker details');
         });
 
+        $(document).on('change','#additional_maker_id',function() {
+            displayDetails('get additional maker details');
+        });
+
+        $(document).on('change','#comaker_id2',function() {
+            displayDetails('get comaker2 details');
+        });
+
         $(document).on('change','#term_type',function() {
             $('#payment_frequency').empty().append(new Option('--', '', false, false));
 
@@ -1457,13 +1465,15 @@ function salesProposalJobOrderTable(datatable_name, buttons = false, show_all = 
     const column = [ 
         { 'data' : 'JOB_ORDER' },
         { 'data' : 'COST' },
+        { 'data' : 'PROGRESS' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '42%', 'aTargets': 0 },
-        { 'width': '42%', 'aTargets': 1 },
-        { 'width': '16%','bSortable': false, 'aTargets': 2 }
+        { 'width': '28%', 'aTargets': 0 },
+        { 'width': '28%', 'aTargets': 1 },
+        { 'width': '28%', 'aTargets': 2 },
+        { 'width': '16%','bSortable': false, 'aTargets': 3 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1573,6 +1583,7 @@ function salesProposalAdditionalJobOrderTable(datatable_name, buttons = false, s
         { 'data' : 'JOB_ORDER_DATE' },
         { 'data' : 'PARTICULARS' },
         { 'data' : 'COST' },
+        { 'data' : 'PROGRESS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -1580,8 +1591,9 @@ function salesProposalAdditionalJobOrderTable(datatable_name, buttons = false, s
         { 'width': '25%', 'aTargets': 0 },
         { 'width': '15%', 'type': 'date', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
-        { 'width': '30%', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '15%', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -5285,6 +5297,10 @@ function displayDetails(transaction){
                         $('#cancellation_reason_label').text(response.cancellationReason);
                         $('#set_to_draft_reason_label').text(response.setToDraftReason);
                         $('#release_remarks_label').text(response.releaseRemarks);
+
+                        $('#summary-total-job-order-progress').text(response.jobOrderProgress);
+
+                        document.getElementById('summary-total-additional-job-order').innerHTML = response.totalAdditionalJobOrder;
                     } 
                     else {
                         if(response.isInactive){
@@ -5908,41 +5924,111 @@ function displayDetails(transaction){
                 }
             });
             break;
-        case 'get comaker details':
-            var comaker_id = $('#comaker_id').val();
-                
-            $.ajax({
-                url: 'controller/customer-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    comaker_id : comaker_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {    
-                        $('#summary-comaker-name').text(response.comakerName);
-                        $('#summary-comaker-address').text(response.comakerAddress);
-                        $('#summary-comaker-mobile').text(response.comakerMobile);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
+            case 'get comaker details':
+                var comaker_id = $('#comaker_id').val();
+                    
+                $.ajax({
+                    url: 'controller/customer-controller.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        comaker_id : comaker_id, 
+                        transaction : transaction
+                    },
+                    success: function(response) {
+                        if (response.success) {    
+                            $('#summary-comaker-name').text(response.comakerName);
+                            $('#summary-comaker-address').text(response.comakerAddress);
+                            $('#summary-comaker-mobile').text(response.comakerMobile);
+                        } 
+                        else {
+                            if(response.isInactive){
+                                window.location = 'logout.php?logout';
+                            }
+                            else{
+                                showNotification('Get Co-Maker Details Error', response.message, 'danger');
+                            }
                         }
-                        else{
-                            showNotification('Get Co-Maker Details Error', response.message, 'danger');
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                        if (xhr.responseText) {
+                            fullErrorMessage += ', Response: ${xhr.responseText}';
                         }
+                        showErrorDialog(fullErrorMessage);
                     }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                });
+                break;
+            case 'get additional maker details':
+                var comaker_id = $('#additional_maker_id').val();
+                    
+                $.ajax({
+                    url: 'controller/customer-controller.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        comaker_id : comaker_id, 
+                        transaction : transaction
+                    },
+                    success: function(response) {
+                        if (response.success) {    
+                            $('#summary-additional-maker-name').text(response.comakerName);
+                            $('#summary-additional-maker-address').text(response.comakerAddress);
+                            $('#summary-additional-maker-mobile').text(response.comakerMobile);
+                        } 
+                        else {
+                            if(response.isInactive){
+                                window.location = 'logout.php?logout';
+                            }
+                            else{
+                                showNotification('Get Co-Maker Details Error', response.message, 'danger');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                        if (xhr.responseText) {
+                            fullErrorMessage += ', Response: ${xhr.responseText}';
+                        }
+                        showErrorDialog(fullErrorMessage);
                     }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
+                });
+                break;
+            case 'get comaker2 details':
+                var comaker_id = $('#comaker_id2').val();
+                    
+                $.ajax({
+                    url: 'controller/customer-controller.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        comaker_id : comaker_id, 
+                        transaction : transaction
+                    },
+                    success: function(response) {
+                        if (response.success) {    
+                            $('#summary-additional-comaker-name').text(response.comakerName);
+                            $('#summary-additional-comaker-address').text(response.comakerAddress);
+                            $('#summary-additional-comaker-mobile').text(response.comakerMobile);
+                        } 
+                        else {
+                            if(response.isInactive){
+                                window.location = 'logout.php?logout';
+                            }
+                            else{
+                                showNotification('Get Co-Maker Details Error', response.message, 'danger');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                        if (xhr.responseText) {
+                            fullErrorMessage += ', Response: ${xhr.responseText}';
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    }
+                });
+                break;
         case 'get product details':
             var product_id;
     

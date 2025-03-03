@@ -4251,10 +4251,14 @@ BEGIN
     IF NEW.cost <> OLD.cost THEN
         SET audit_log = CONCAT(audit_log, "Cost: ", OLD.cost, " -> ", NEW.cost, "<br/>");
     END IF;
+
+    IF NEW.progress <> OLD.progress THEN
+        SET audit_log = CONCAT(audit_log, "Progress: ", OLD.progress, " -> ", NEW.progress, "<br/>");
+    END IF;
     
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('sales_proposal', NEW.sales_proposal_id, audit_log, NEW.last_log_by, NOW());
+        VALUES ('sales_proposal_additional_job_order', NEW.sales_proposal_additional_job_order_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
@@ -4262,7 +4266,7 @@ CREATE TRIGGER sales_proposal_additional_job_order_trigger_insert
 AFTER INSERT ON sales_proposal_additional_job_order
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Additional Job Order created. <br/>';
+    DECLARE audit_log TEXT DEFAULT 'Additional job order created. <br/>';
 
     IF NEW.job_order_number <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Job Order Number: ", NEW.job_order_number);
@@ -4280,8 +4284,58 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Cost: ", NEW.cost);
     END IF;
 
+    IF NEW.progress <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Progress: ", NEW.progress);
+    END IF;
+
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('sales_proposal', NEW.sales_proposal_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('sales_proposal_additional_job_order', NEW.sales_proposal_additional_job_order_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER sales_proposal_job_order_trigger_update
+AFTER UPDATE ON sales_proposal_job_order
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.job_order <> OLD.job_order THEN
+        SET audit_log = CONCAT(audit_log, "Job Order Number: ", OLD.job_order, " -> ", NEW.job_order, "<br/>");
+    END IF;
+
+    IF NEW.cost <> OLD.cost THEN
+        SET audit_log = CONCAT(audit_log, "Cost: ", OLD.cost, " -> ", NEW.cost, "<br/>");
+    END IF;
+
+    IF NEW.progress <> OLD.progress THEN
+        SET audit_log = CONCAT(audit_log, "Progress: ", OLD.progress, " -> ", NEW.progress, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('sales_proposal_job_order', NEW.sales_proposal_job_order_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER sales_proposal_job_order_trigger_insert
+AFTER INSERT ON sales_proposal_job_order
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Job order created. <br/>';
+
+    IF NEW.job_order <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Job Order Number: ", NEW.job_order);
+    END IF;
+
+    IF NEW.cost <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cost: ", NEW.cost);
+    END IF;
+
+    IF NEW.progress <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Progress: ", NEW.progress);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('sales_proposal_job_order', NEW.sales_proposal_job_order_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

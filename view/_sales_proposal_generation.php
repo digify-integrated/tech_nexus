@@ -751,6 +751,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $productType = $row['product_type'];
                 $productID = $row['product_id'];
                 $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+                $progress = $salesProposalModel->getJobOrderMonitoringTotalProgress($salesProposalID)['total_progress_percentage'] ?? 0;
 
                 $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
 
@@ -776,9 +777,59 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PRODUCT_TYPE' => $productType,
                     'PRODUCT' => $stockNumber,
                     'PROCEED_DATE' => $proceedDate,
+                    'PROGRESS' => number_format($progress,2) . '%',
                     'STATUS' => $salesProposalStatus,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="approved-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'job order monitoring table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateJobOrderMonitoringTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $salesProposalID = $row['sales_proposal_id'];
+                $customerID = $row['customer_id'];
+                $salesProposalNumber = $row['sales_proposal_number'];
+                $productType = $row['product_type'];
+                $productID = $row['product_id'];
+                $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+                $progress = $salesProposalModel->getJobOrderMonitoringTotalProgress($salesProposalID)['total_progress_percentage'] ?? 0;
+
+                $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
+
+                $proceedDate = $systemModel->checkDate('summary', $row['approval_date'], '', 'm/d/Y h:i:s A', '');
+
+                $response[] = [
+                    'SALES_PROPOSAL_NUMBER' => '<a href="job-order-monitoring.php?id='. $salesProposalIDEncrypted .'">
+                                                    '. $salesProposalNumber .'
+                                                </a>',
+                    'CUSTOMER' => '<div class="col">
+                                                <h6 class="mb-0">'. $customerName .'</h6>
+                                                <p class="f-12 mb-0">'. $corporateName .'</p>
+                                            </div>',
+                    'PRODUCT_TYPE' => $productType,
+                    'PRODUCT' => $stockNumber,
+                    'PROGRESS' => number_format($progress,2) . '%',
+                    'STATUS' => $salesProposalStatus,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="job-order-monitoring.php?id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
@@ -1039,6 +1090,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 foreach ($options as $row) {
                     $salesProposalJobOrderID = $row['sales_proposal_job_order_id'];
                     $jobOrder = $row['job_order'];
+                    $progress = $row['progress'];
                     $cost = number_format($row['cost'], 2);
 
                     $action = '';
@@ -1056,7 +1108,49 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $response[] = [
                         'JOB_ORDER' => $jobOrder,
                         'COST' => $cost,
-                        'ACTION' => $action
+                        'PROGRESS' => number_format($progress, 2) . '%',
+                        'ACTION' => '<div class="d-flex gap-2">'.
+                                    $action . 
+                                    '</div>'
+                        ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+
+        case 'sales proposal job order monitoring table':
+            if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
+                $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+
+                $updateJobOrderProgress = $userModel->checkSystemActionAccessRights($user_id, 197);
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalJobOrderTable(:salesProposalID)');
+                $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $salesProposalJobOrderID = $row['sales_proposal_job_order_id'];
+                    $jobOrder = $row['job_order'];
+                    $progress = $row['progress'];
+                    $cost = number_format($row['cost'], 2);
+
+                    $action = '';
+                    if($updateJobOrderProgress['total'] > 0){
+                        $action = '<button type="button" class="btn btn-icon btn-success update-sales-proposal-job-order-monitoring" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-monitoring-offcanvas" aria-controls="sales-proposal-job-order-monitoring-offcanvas" data-sales-proposal-job-order-id="'. $salesProposalJobOrderID .'" title="Update Job Order Progress">
+                            <i class="ti ti-edit"></i>
+                        </button>';
+                    }
+
+                    $response[] = [
+                        'JOB_ORDER' => $jobOrder,
+                        'COST' => $cost,
+                        'PROGRESS' => number_format($progress, 2) . '%',
+                        'ACTION' => '<div class="d-flex gap-2">'.
+                                    $action . 
+                                    '</div>'
                         ];
                 }
 
@@ -1092,9 +1186,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 foreach ($options as $row) {
                     $jobOrder = strtoupper($row['job_order']);
                     $cost = number_format($row['cost'], 2);
+                    $progress = number_format($row['progress'], 2);
 
                     $table .= '<tr>
                                 <td class="text-wrap">'. $jobOrder .'</td>
+                                <td class="text-wrap">'. $progress .'%</td>
                                 <td class="text-wrap">'. $cost .'</td>
                             </tr>';
                 }
@@ -1139,19 +1235,18 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $jobOrderNumber = $row['job_order_number'];
                     $jobOrderDate = $systemModel->checkDate('summary', $row['job_order_date'], '', 'F d, Y', '');
                     $particulars = $row['particulars'];
+                    $progress = $row['progress'];
                     $cost = number_format($row['cost'], 2);
 
 
                     $action = '';
                     if($salesProposalStatus != 'For DR'){
-                        $action = '<div class="d-flex gap-2">
-                        <button type="button" class="btn btn-icon btn-success update-sales-proposal-additional-job-order" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Update Additional Job Order">
+                        $action = '<button type="button" class="btn btn-icon btn-success update-sales-proposal-additional-job-order" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Update Additional Job Order">
                             <i class="ti ti-edit"></i>
                         </button>
                         <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-additional-job-order" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Delete Additional Job Order">
                             <i class="ti ti-trash"></i>
-                        </button>
-                    </div>';
+                        </button>';
                     }
 
                     $response[] = [
@@ -1159,7 +1254,54 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'JOB_ORDER_DATE' => $jobOrderDate,
                         'PARTICULARS' => $particulars,
                         'COST' => $cost,
-                        'ACTION' => $action
+                        'PROGRESS' => number_format($progress, 2) . '%',
+                        'ACTION' => '<div class="d-flex gap-2">'.
+                                    $action . 
+                                    '</div>'
+                        ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+
+        case 'sales proposal additional job order monitoring table':
+            if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
+                $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+
+                $updateJobOrderProgress = $userModel->checkSystemActionAccessRights($user_id, 197);
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalAdditionalJobOrderTable(:salesProposalID)');
+                $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $salesProposalAdditionalJobOrderID = $row['sales_proposal_additional_job_order_id'];
+                    $jobOrderNumber = $row['job_order_number'];
+                    $jobOrderDate = $systemModel->checkDate('summary', $row['job_order_date'], '', 'F d, Y', '');
+                    $particulars = $row['particulars'];
+                    $progress = $row['progress'];
+                    $cost = number_format($row['cost'], 2);
+
+
+                    $action = '';
+                    if($updateJobOrderProgress['total'] > 0){
+                        $action = '<button type="button" class="btn btn-icon btn-success update-sales-proposal-additional-job-order-monitoring" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-monitoring-offcanvas" aria-controls="sales-proposal-additional-job-order-monitoring-offcanvas" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Update Additional Job Order Progress">
+                            <i class="ti ti-edit"></i>
+                        </button>';
+                    }
+
+                    $response[] = [
+                        'JOB_ORDER_NUMBER' => $jobOrderNumber,
+                        'JOB_ORDER_DATE' => $jobOrderDate,
+                        'PARTICULARS' => $particulars,
+                        'COST' => $cost,
+                        'PROGRESS' => number_format($progress, 2) . '%',
+                        'ACTION' => '<div class="d-flex gap-2">'.
+                                    $action . 
+                                    '</div>'
                         ];
                 }
 
@@ -1184,13 +1326,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
 
                 $table = '<table class="table table-bordered text-sm">
-                <tbody>
-                <tr>
-                    <td style="text-align: center !important;"><small><b>JO NO.</b></small></td>
-                    <td style="text-align: center !important;"><small><b>JO DATE</b></small></td>
-                    <td style="text-align: center !important;"><small><b>PARTICULARS</b></small></td>
-                    <td style="text-align: center !important;"><small><b>AMT CHARGED</b></small></td>
-                </tr>';
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: center !important;"><small><b>JO NO.</b></small></td>
+                                    <td style="text-align: center !important;"><small><b>JO DATE</b></small></td>
+                                    <td style="text-align: center !important;"><small><b>PARTICULARS</b></small></td>
+                                    <td style="text-align: center !important;"><small><b>PROGRESS</b></small></td>
+                                    <td style="text-align: center !important;"><small><b>AMT CHARGED</b></small></td>
+                                </tr>';
 
                 $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalAdditionalJobOrderTable(:salesProposalID)');
                 $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
@@ -1205,18 +1348,20 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $jobOrderDate = $systemModel->checkDate('summary', $row['job_order_date'], '', 'F d, Y', '');
                         $particulars = $row['particulars'];
                         $cost = number_format($row['cost'], 2);
+                        $progress = number_format($row['progress'], 2);
     
                         $table .= '<tr>
                             <td style="text-align: center !important;" class="text-wrap">'. $jobOrderNumber .'</td>
                             <td style="text-align: center !important;" class="text-wrap">'. $jobOrderDate .'</td>
                             <td style="text-align: center !important;" class="text-wrap">'. $particulars .'</td>
+                            <td style="text-align: center !important;" class="text-wrap">'. $progress .'%</td>
                             <td style="text-align: center !important;" class="text-wrap">'. $cost .'</td>
                         </tr>';
                     }
                 }
                 else{
                     $table .= '<tr>
-                            <td colspan="4"></td>
+                            <td colspan="5"></td>
                         </tr>';
                 }                
 
@@ -1261,6 +1406,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $referenceNumber = $row['reference_number'];
                     $depositAmount = number_format($row['deposit_amount'], 2);
 
+                    $action = '';
+
                     if($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For DR'){
                         $action = '<div class="d-flex gap-2">
                         <button type="button" class="btn btn-icon btn-success update-sales-proposal-deposit-amount" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" data-sales-proposal-deposit-amount-id="'. $salesProposalDepositAmountID .'" title="Update Amount of Deposit">
@@ -1271,9 +1418,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </button>
                     </div>';
                     }
-                    else{
-                        $action = '';
-                    }
+
+                   
 
                     $response[] = [
                         'DEPOSIT_DATE' => $depositDate,

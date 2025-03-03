@@ -299,7 +299,7 @@
                             <td width="25%">49 BUMPER BRACKET</td>
                             <td width="3%" border="0.5"></td>
                             <td width="25%">97 MUFFLER</td>
-                            <td width="16%" border="0.5" rowspan="28"><span style="color:red"><b>JOB ORDER TO BE DONE</b></span></td>
+                            <td width="16%" border="0.5" rowspan="28"><span style="color:red"></span></td>
                         </tr>
                         <tr>
                             <td width="3%" border="0.5"></td>
@@ -524,7 +524,7 @@
                             <td width="25%">77 LINKAGE</td>
                             <td width="3%" border="0.5"></td>
                             <td width="25%">125 1 SET RIM</td>
-                            <td width="16%" border="0.5" rowspan="4"><b>JOB ORDER APPROVED BY:</b></td>
+                            <td width="16%" border="0.5" rowspan="4"><b>PREPARED BY:</b></td>
                         </tr>
                         <tr>
                             <td width="3%" border="0.5"></td>
@@ -590,7 +590,7 @@
                             <td width="25%">85 U-VOLT REAR</td>
                             <td width="3%" border="0.5"></td>
                             <td width="25%">133 DUMP HOIST</td>
-                            <td width="16%" border="0.5" rowspan="4"><b>DATE:</b></td>
+                            <td width="16%" border="0.5" rowspan="4"><b>NOTED BY:</b></td>
                         </tr>
                         <tr>
                             <td width="3%" border="0.5"></td>
@@ -623,7 +623,7 @@
                             <td width="25%">89 SHOCK BRACKET</td>
                             <td width="3%" border="0.5"></td>
                             <td width="25%">137 OTHERS (PLS SPECIFY)</td>
-                            <td width="16%" border="0.5" rowspan="4"><b>NOTED BY:</b></td>
+                            <td width="16%" border="0.5" rowspan="4"></td>
                         </tr>
                         <tr>
                             <td width="3%" border="0.5"></td>
@@ -656,7 +656,7 @@
                             <td width="25%">93 FUEL TANK BRACKET</td>
                             <td width="3%" border="0.5"></td>
                             <td width="25%">_________________________________</td>
-                            <td width="16%" border="0.5" rowspan="4"><b>DATE:</b></td>
+                            <td width="16%" border="0.5" rowspan="4"></td>
                         </tr>
                         <tr>
                             <td width="3%" border="0.5"></td>

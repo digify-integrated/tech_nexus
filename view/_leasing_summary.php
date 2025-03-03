@@ -17,6 +17,7 @@
                   <table id="leasing-summary-table" class="table table-hover nowrap w-100 text-uppercase">
                     <thead>
                       <tr>
+                        <th>Application Number</th>
                         <th>Tenant</th>
                         <th>Property</th>
                         <th>Total Amount Due</th>
@@ -31,7 +32,7 @@
                         <th>Security Deposit</th>
                         <th>Esc. Rate</th>
                         <th>Status</th>
-                        <th>Initial Basic Rental</th>
+                        <th>Outstanding Balance</th>
                       </tr>
                     </thead>
                     <tbody></tbody>

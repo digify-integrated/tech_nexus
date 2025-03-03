@@ -7727,6 +7727,13 @@ BEGIN
     WHERE loan_collection_id = p_loan_collection_id;
 END //
 
+CREATE PROCEDURE checkLoanCollectionReferenceExist (IN p_reference_number VARCHAR(200))
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM loan_collections
+    WHERE reference_number = p_reference_number;
+END //
+
 
 CREATE PROCEDURE checkLoanCollectionConflict (IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_check_number VARCHAR(100))
 BEGIN
@@ -7996,6 +8003,22 @@ BEGIN
     SET sales_proposal_status = 'For Final Approval',
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id AND sales_proposal_status = 'For CI';
+END //
+
+CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_progress DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_job_order
+    SET progress = p_progress,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_progress DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_additional_job_order
+    SET progress = p_progress,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
 END //
 
 CREATE PROCEDURE updateSalesProposalChangeRequestStatus(IN p_sales_proposal_id INT, IN p_change_request_status VARCHAR(100), IN p_last_log_by INT)
@@ -8285,6 +8308,44 @@ END //
 CREATE PROCEDURE generateApprovedSalesProposalTable()
 BEGIN
    SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type NOT IN ('Refinancing', 'Parts');
+END //
+
+CREATE PROCEDURE generateJobOrderMonitoringTable()
+BEGIN
+    SELECT * 
+    FROM sales_proposal 
+    WHERE 
+        (
+            sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') 
+            OR 
+            (sales_proposal_status = 'Released' AND DATE(released_date) >= '2025-03-01')
+        )
+        AND product_type NOT IN ('Refinancing', 'Parts') 
+        AND sales_proposal_id IN (
+            SELECT sales_proposal_id FROM sales_proposal_job_order 
+            UNION 
+            SELECT sales_proposal_id FROM sales_proposal_additional_job_order
+        );
+END //
+
+CREATE PROCEDURE getJobOrderMonitoringTotalProgress(IN p_sales_proposal_id INT) 
+BEGIN
+    DECLARE total_progress DECIMAL(10,2);
+    DECLARE total_count INT;
+
+    -- Calculate the total progress sum
+    SELECT 
+        IFNULL(SUM(spjo.progress), 0) + IFNULL(SUM(spajo.progress), 0),
+        IFNULL(COUNT(spjo.sales_proposal_job_order_id), 0) + IFNULL(COUNT(spajo.sales_proposal_additional_job_order_id), 0)
+    INTO total_progress, total_count
+    FROM sales_proposal sp
+    LEFT JOIN sales_proposal_job_order spjo ON sp.sales_proposal_id = spjo.sales_proposal_id
+    LEFT JOIN sales_proposal_additional_job_order spajo ON sp.sales_proposal_id = spajo.sales_proposal_id
+    WHERE sp.sales_proposal_id = p_sales_proposal_id;
+
+    -- Return the calculated progress percentage
+    SELECT 
+        IF(total_count > 0, total_progress / total_count, 0) AS total_progress_percentage;
 END //
 
 
@@ -8830,6 +8891,12 @@ CREATE PROCEDURE getSalesProposalRenewalPDCManualInputDetails(IN p_sales_proposa
 BEGIN
 	SELECT * FROM sales_proposal_manual_pdc_input
     WHERE sales_proposal_id = p_sales_proposal_id AND payment_for = 'Insurance Renewal';
+END //
+
+CREATE PROCEDURE getSalesProposalRegistrationRenewalPDCManualInputDetails(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT * FROM sales_proposal_manual_pdc_input
+    WHERE sales_proposal_id = p_sales_proposal_id AND payment_for = 'Registration Renewal';
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -13376,6 +13443,11 @@ SET time_zone = '+08:00';
         close_by = p_last_log_by,
         last_log_by = p_last_log_by
         WHERE close_date IS NULL;
+
+    UPDATE product_inventory_batch
+        SET product_inventory_status = 'Unscanned',
+        last_log_by = p_last_log_by
+        WHERE product_inventory_status = 'For Scanning';
 END //
 
 CREATE PROCEDURE scanProduct(IN p_product_inventory_id INT, IN p_product_id INT, IN p_last_log_by INT)
@@ -13388,4 +13460,118 @@ SET time_zone = '+08:00';
         scanned_by = p_last_log_by,
         last_log_by = p_last_log_by
         WHERE product_inventory_id = p_product_inventory_id AND product_id = p_product_id AND product_inventory_status = 'For Scanning';
+
+    INSERT INTO product_inventory_scan_history (
+                product_inventory_id, 
+                product_id, 
+                scanned_date, 
+                scanned_by,
+                last_log_by
+            ) VALUES (
+                p_product_inventory_id,
+                p_product_id,
+                NOW(),
+                p_last_log_by,
+                p_last_log_by
+            );
+
+    INSERT INTO product_inventory_scan_excess (
+                product_inventory_id, 
+                product_id, 
+                scanned_date, 
+                scanned_by,
+                last_log_by
+            ) VALUES (
+                p_product_inventory_id,
+                p_product_id,
+                NOW(),
+                p_last_log_by,
+                p_last_log_by
+            );
+END //
+
+CREATE PROCEDURE generateProductInventoryReportScanHistory(IN p_product_inventory_id INT)
+BEGIN
+    SELECT * FROM product_inventory_scan_history WHERE product_inventory_id = p_product_inventory_id;
+END //
+
+CREATE PROCEDURE generateProductInventoryReportScanExcess(IN p_product_inventory_id INT)
+BEGIN
+    SELECT * FROM product_inventory_scan_excess WHERE product_inventory_id = p_product_inventory_id;
+END //
+
+CREATE PROCEDURE generateProductInventoryReportScanAdditional(IN p_product_inventory_id INT)
+BEGIN
+    SELECT * FROM product_inventory_scan_additional WHERE product_inventory_id = p_product_inventory_id;
+END //
+
+CREATE PROCEDURE checkProductInventoryExist (IN p_product_inventory_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_inventory
+    WHERE product_inventory_id = p_product_inventory_id;
+END //
+
+CREATE PROCEDURE getProductInventory(IN p_product_inventory_id INT)
+BEGIN
+	SELECT * FROM product_inventory
+    WHERE product_inventory_id = p_product_inventory_id;
+END //
+
+CREATE PROCEDURE checkProductInventoryScanAdditionalExist (IN p_product_inventory_scan_additional_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_inventory_scan_additional
+    WHERE product_inventory_scan_additional_id = p_product_inventory_scan_additional_id;
+END //
+
+
+CREATE PROCEDURE updateProductInventoryScanAdditional(IN p_product_inventory_scan_additional_id INT, IN p_product_inventory_id INT, IN p_stock_number VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+SET time_zone = '+08:00';
+
+    UPDATE product_inventory_scan_additional
+        SET product_inventory_id = p_product_inventory_id,
+        stock_number = p_stock_number,
+        last_log_by = p_last_log_by
+        WHERE product_inventory_scan_additional_id = p_product_inventory_scan_additional_id;
+END //
+
+CREATE PROCEDURE productInventoryTagAsMissing(IN p_product_inventory_batch_id INT, IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+SET time_zone = '+08:00';
+
+    UPDATE product_inventory_batch
+        SET product_inventory_status = 'Missing',
+        remarks = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE product_inventory_batch_id = p_product_inventory_batch_id AND product_inventory_status = 'For Scanning';
+END //
+
+CREATE PROCEDURE insertProductInventoryScanAdditional(IN p_product_inventory_id INT, IN p_stock_number VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+SET time_zone = '+08:00';
+
+    INSERT INTO product_inventory_scan_additional (
+                product_inventory_id, 
+                stock_number, 
+                added_by, 
+                last_log_by
+            ) VALUES (
+                p_product_inventory_id,
+                p_stock_number,
+                p_last_log_by,
+                p_last_log_by
+            );
+END //
+
+CREATE PROCEDURE getProductInventoryScanAdditional(IN p_product_inventory_scan_additional_id INT)
+BEGIN
+	SELECT * FROM product_inventory_scan_additional
+    WHERE product_inventory_scan_additional_id = p_product_inventory_scan_additional_id;
+END //
+
+CREATE PROCEDURE deleteProductInventoryScanAdditional(IN p_product_inventory_scan_additional_id INT)
+BEGIN
+    DELETE FROM product_inventory_scan_additional WHERE product_inventory_scan_additional_id = p_product_inventory_scan_additional_id;
 END //

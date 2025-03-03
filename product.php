@@ -17,6 +17,7 @@
   require('model/make-model.php');
   require('model/class-model.php');
   require('model/mode-of-acquisition-model.php');
+  require('model/product-inventory-report-model.php');
   
   $productModel = new ProductModel($databaseModel);
   $productCategoryModel = new ProductCategoryModel($databaseModel);
@@ -34,6 +35,7 @@
   $makeModel = new MakeModel($databaseModel);
   $classModel = new ClassModel($databaseModel);
   $modeOfAcquisitionModel = new ModeOfAcquisitionModel($databaseModel);
+  $productInventoryReportModel = new ProductInventoryReportModel($databaseModel);
 
   $pageTitle = 'Product';
     
@@ -79,6 +81,8 @@
 
   $importRecord = isset($_GET['import']);
   $newRecord = isset($_GET['new']);
+
+  $getInventoryReportClosed = $productInventoryReportModel->getInventoryReportClosed();
 
   require('config/_interface_settings.php');
   require('config/_user_account_details.php');

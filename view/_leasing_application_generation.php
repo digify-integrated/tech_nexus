@@ -120,6 +120,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $unpaidWater = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Water')['total'];
                     $unpaidOtherCharges = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Other Charges')['total'];
                     $outstandingBalance = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Outstanding Balance')['total'];
+                    $totaloutstandingBalance = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, null, 'Total Outstanding Balance')['total'];
 
                     if($unpaidRental <= 0){
                         $unpaidRental = 0;
@@ -142,6 +143,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $response[] = [
+                        'LEASING_APPLICATION_NUMBER' => '<a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'">
+                                         <div class="row">
+                                        <div class="col">
+                                        <h6 class="mb-0">'. $leasingApplicationNumber .'</h6>
+                                        </div>
+                                    </div>
+                        </a>',
                         'TENANT_NAME' => '<a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'">
                                          <div class="row">
                                         <div class="col">
@@ -163,7 +171,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'SECURITY_DEPOSIT' => number_format($securityDeposit, 2),
                         'ESCALATION_RATE' => number_format($escalationRate, 2) . '%',
                         'STATUS' => $leasingApplicationStatus,
-                        'INITIAL_BASIC_RENTAL' => number_format($initialBasicRental, 2)
+                        'INITIAL_BASIC_RENTAL' => number_format($totaloutstandingBalance, 2)
                     ];
                 }
 
@@ -431,12 +439,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 foreach ($options as $row) {
                     $leasingCollectionsID = $row['leasing_collections_id'];
+                    $leasing_application_repayment_id = $row['leasing_application_repayment_id'];
                     $paymentFor = $row['payment_for'];
                     $referenceNumber = $row['reference_number'];
                     $paymentMode = $row['payment_mode'];
                     $paymentAmount = number_format($row['payment_amount'], 2);
                     $paymentDate = $systemModel->checkDate('summary', $row['payment_date'], '', 'm/d/Y', '');
 
+                    $leasingApplicationRepaymentDetails = $leasingApplicationModel->getLeasingApplicationRepayment($leasing_application_repayment_id);
+                    $dueDate =  $systemModel->checkDate('empty', $leasingApplicationRepaymentDetails['due_date'] ?? 0, '', 'm/d/Y', '');
+                    $reference = $leasingApplicationRepaymentDetails['reference'];
+                    
                     $delete = '';
                     if($applicationStatus != 'Closed'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-leasing-collections" data-leasing-collections-id="'. $leasingCollectionsID .'" title="Delete Collections">
@@ -445,6 +458,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $response[] = [
+                        'REFERENCE' => $reference,
+                        'DUE_DATE' => $dueDate,
                         'PAYMENT_FOR' => $paymentFor,
                         'REFERENCE_NUMBER' => $referenceNumber,
                         'PAYMENT_MODE' => $paymentMode,

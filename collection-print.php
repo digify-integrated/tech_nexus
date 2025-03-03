@@ -117,10 +117,14 @@
         require_once 'model/sales-proposal-model.php';
         require_once 'model/bank-model.php';
         require_once 'model/miscellaneous-client-model.php';
-
+        require_once 'model/leasing-application-model.php';
+        require_once 'model/tenant-model.php';
+        
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
         $pdcManagementModel = new PDCManagementModel($databaseModel);
+        $tenantModel = new TenantModel($databaseModel);
+        $leasingApplicationModel = new LeasingApplicationModel($databaseModel);
         $customerModel = new CustomerModel($databaseModel);
         $productModel = new ProductModel($databaseModel);
         $salesProposalModel = new SalesProposalModel($databaseModel);
@@ -173,6 +177,7 @@
             $collected_from = $pdcManagementDetails['collected_from'];
             $deposited_to = $pdcManagementDetails['deposited_to'];
             $payment_advice = $pdcManagementDetails['payment_advice'];
+            $leasing_application_id = $pdcManagementDetails['leasing_application_id'];
             $payment_date = $systemModel->checkDate('empty', $pdcManagementDetails['payment_date'], '', 'm/d/Y', '');
             $transaction_date = $systemModel->checkDate('empty', $pdcManagementDetails['transaction_date'], '', 'm/d/Y', '');
 
@@ -197,6 +202,16 @@
 
                 $productDetails = $productModel->getProduct($product_id);
                 $stockNumber = $productDetails['stock_number'] ?? null;
+            }
+            else if($pdc_type == 'Leasing'){
+                $leasingApplicationDetails = $leasingApplicationModel->getLeasingApplication($leasing_application_id);
+
+                $loan_number = $leasingApplicationDetails['leasing_application_number'];
+                $tenant_id = $leasingApplicationDetails['tenant_id'];
+
+                $tenantDetails = $tenantModel->getTenant($tenant_id);
+                $customerName = strtoupper($tenantDetails['tenant_name'] ?? '');
+                $stockNumber = '';
             }
             else{
                 $stockNumber = '';

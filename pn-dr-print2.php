@@ -54,6 +54,7 @@
         $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
         $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
         $startDate = $salesProposalDetails['actual_start_date'] ?? null;
+        $termLength = $salesProposalDetails['term_length'] ?? null;
         $drNumber = $salesProposalDetails['dr_number'] ?? null;
         $releaseTo = $salesProposalDetails['release_to'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
@@ -62,6 +63,8 @@
 
         $day = date('j', strtotime($startDate)); // Get the day without leading zeros
         $ordinal = getOrdinal($day); // Get the ordinal suffix
+
+        $dueDate = calculateDueDate($startDate, $termLength, $paymentFrequency, 1);
     
         $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
         $downpayment = $pricingComputationDetails['downpayment'] ?? 0;
@@ -93,6 +96,7 @@
         $totalDeposit = $salesProposalModel->getSalesProposalAmountOfDepositTotal($salesProposalID);
         $totalOtherChargesPDC = $salesProposalModel->getPDCManualInputOtherChargesTotal($salesProposalID);
         $getSalesProposalRenewalPDCManualInputDetails = $salesProposalModel->getSalesProposalRenewalPDCManualInputDetails($salesProposalID);
+        $getSalesProposalRegistrationRenewalPDCManualInputDetails = $salesProposalModel->getSalesProposalRegistrationRenewalPDCManualInputDetails($salesProposalID);
 
         $totalPn = $pnAmount + $totalCharges;
     
@@ -125,6 +129,13 @@
         $comakerPrimaryID = $customerModel->getCustomerPrimaryContactIdentification($comakerID);
         $comakeridTypeID = $comakerPrimaryID['id_type_name'] ?? '';
         $comakeridNumber = $comakerPrimaryID['id_number'] ?? '';
+
+        $addcomakerPrimaryID = $customerModel->getCustomerPrimaryContactIdentification($additional_maker_id);
+        $addcomakerPrimaryIDNumber = $addcomakerPrimaryID['id_number'] ?? '';
+
+        $comaker2PrimaryID = $customerModel->getCustomerPrimaryContactIdentification($comaker_id2);
+        $comaker2PrimaryIDNumber = $comaker2PrimaryID['id_number'] ?? '';
+
 
         if(!empty($comakerID)){
           $comakerIDNumber = $comakeridTypeID . ' - ' . $comakeridNumber;
@@ -204,21 +215,27 @@
     $pdf->Ln(5);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, ''  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'starting on 01 March 2025 until fully and completely paid' , 0, 0, 'L');
+    $pdf->Cell(32, 8, 'starting on '. $dueDate .' until fully and completely paid' , 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, 'Other Charges'  , 0, 0, 'L');
     $pdf->Cell(32, 8, 'Php '. number_format($totalOtherChargesPDC['total'] ?? 0, 2) .' per month payable upon signing on this note' , 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, 'Registartion Renewal'  , 0, 0, 'L');
+    $pdf->Cell(80, 8, 'Insurance Renewal'  , 0, 0, 'L');
     $pdf->Cell(32, 8, $getSalesProposalRenewalPDCManualInputDetails , 0, 0, 'L');
+    $pdf->Ln(10);
+    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
+    $pdf->Cell(80, 8, 'Registration Renewal'  , 0, 0, 'L');
+    $pdf->Cell(32, 8, $getSalesProposalRegistrationRenewalPDCManualInputDetails , 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; I/We further agree JOINTLY and SEVERALLY that for late payment in the amount above written or any portion thereof, as when the same becomes due and payable, we shall pay penalty charge equivalent to FIVE PERCENT (5%) of the unpaid amount per month of delay to be computed from the date due until full payment thereof.  A fraction of a month being deemed to be an entire month.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; I/We hereby waive notice of demand for payment and agree that any legal action which may arise in relation to this note may be instituted in the proper court of Cabanatuan City.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; In case of non - payment of this note or any installment thereof on its due date, I/We hereby authorize CGMI to hold as security for this note any real or personal properties which may be in its possession or control by virtue of any contract.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; In all applicable cases, I/We jointly and severally waive and renounce presentment for acceptance, notice of dishonor and/or protest and notice of non-payment of this promissory note. Acceptance by the holder thereof of payment of any installment or any part thereof after due date shall not be considered as extending the time for the payment of this note or any installment thereof, nor shall be in construed as a renunciation or any right which may have already accrued in favor of the holder nor an amendment or modification of any of the terms herein stipulated.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; This note shall likewise be subjected to the following terms and conditions:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
@@ -257,7 +274,7 @@
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; 5.	The Maker(s) shall abide by all the applicable policies the CGMI may promulgate from time to time such as but not limited to increases in penalty rate, collection fees, other charges and interest rate;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; 6.	In case of judicial execution of this oblication or any part thereof, I/We waive our rights under the provision of Rule 39, Secion 13 of the 1997 Rules of Civil Procedure.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; 6.	I/We hereby waive our rights over the properties exempted from execution under the provisions of Rule 39, Section 13 of the Rules of Court, as amended.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; 7.	By virtue of this Note and the assignment of assets to CGMI, I/We hereby waive my/our rights under existing laws in relation to confidentiality of accounts and privacy of credit and other data or information and hereby consent and authorize CGMI, its subsidiaries or affiliates, to gather, collect, share, report or disclose basic credit data and other information pertaining to me/us or my/our accounts as may be necessary or for CGMI to comply with RA 9510 (Credit Information System Act), RA 10173 (Data Privacy Act) and their implementing rules and regulations as well as other pertinent laws and issuances.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
@@ -291,14 +308,27 @@
     $pdf->Cell(90, 8, 'ADDRESS', 0, 0, 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(90, 8, 'ADDRESS', 0, 0, 'C');
+    
+    $pdf->Ln(15);
+    $pdf->Cell(90, 4, strtoupper($customeridNumber), 'B', 0, 'L', 0, '', 1);
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(90, 4, strtoupper($addcomakerPrimaryIDNumber), 'B', 0, 'L', 0, '', 1);
+    $pdf->Ln(5);
+    $pdf->Cell(90, 8, 'ID NUMBER', 0, 0, 'C');
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(90, 8, 'ID NUMBER', 0, 0, 'C');
     $pdf->Ln(15);
     $pdf->MultiCell(0, 0, 'NAME AND SIGNATURE OF CO-MAKER: '. strtoupper($comakerName), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'ADDRESS: '. strtoupper($comakerAddress), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, 'ID NUMBER: '. strtoupper($comakeridNumber), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(15);
     $pdf->MultiCell(0, 0, 'NAME AND SIGNATURE OF CO-MAKER: '. strtoupper($comaker2Name), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'ADDRESS: '. strtoupper($comaker2Address), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, 'ID NUMBER: '. strtoupper($comaker2PrimaryIDNumber), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
 
     $pdf->Ln(15);
 
@@ -324,5 +354,26 @@
           case 3: return $number . 'rd';
           default: return $number . 'th';
       }
+    }
+
+    function calculateDueDate($startDate, $termLength, $frequency, $iteration) {
+      $date = new DateTime($startDate);
+      switch ($frequency) {
+          case 'Monthly':
+              $date->modify("+$iteration months");
+              break;
+          case 'Quarterly':
+              $date->modify("+$iteration months")->modify('+2 months');
+              break;
+          case 'Semi-Annual':
+              $date->modify("+". ($iteration * 6). " months");
+              break;
+          case 'Lumpsum':
+              $date->modify("+$termLength days");
+              break;
+          default:
+              break;
+      }
+      return $date->format('d M Y');
   }
 ?>

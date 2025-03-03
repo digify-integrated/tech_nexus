@@ -74,7 +74,7 @@
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
-                                <input class="form-check-input payment-advice-filter" type="radio" name="payment-advice-filter" id="payment-advice-all" value=""/>
+                                <input class="form-check-input payment-advice-filter" type="radio" name="payment-advice-filter" id="payment-advice-all" value="" checked/>
                                 <label class="form-check-label" for="payment-advice-all">All</label>
                               </div>
                               <div class="form-check my-2">
@@ -82,7 +82,7 @@
                                 <label class="form-check-label" for="payment-advice-posted">True</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input payment-advice-filter" type="radio" name="payment-advice-filter" id="payment-advice-reversed" value="No" checked/>
+                                <input class="form-check-input payment-advice-filter" type="radio" name="payment-advice-filter" id="payment-advice-reversed" value="No"/>
                                 <label class="form-check-label" for="payment-advice-reversed">False</label>
                               </div>
                             </div>

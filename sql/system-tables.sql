@@ -5946,3 +5946,35 @@ CREATE INDEX product_inventory_batch_index_product_inventory_id ON product_inven
 CREATE INDEX product_inventory_batch_index_product_inventor_batch ON product_inventory_batch(product_id);
 CREATE INDEX product_inventory_batch_index_product_inventory_status ON product_inventory_batch(product_inventory_status);
 CREATE INDEX product_inventory_batch_index_scanned_by ON product_inventory_batch(scanned_by);
+
+CREATE TABLE product_inventory_scan_history(
+	product_inventory_scan_history_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	product_inventory_id INT NOT NULL,
+	product_id INT NOT NULL,
+	scanned_date DATETIME,
+    scanned_by INT UNSIGNED,
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE product_inventory_scan_excess(
+	product_inventory_scan_excess_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	product_inventory_id INT NOT NULL,
+	product_id INT NOT NULL,
+	scanned_date DATETIME,
+    scanned_by INT UNSIGNED,
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE product_inventory_scan_additional(
+	product_inventory_scan_additional_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	product_inventory_id INT NOT NULL,
+	stock_number VARCHAR(100) NOT NULL,
+    added_by INT UNSIGNED,
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);

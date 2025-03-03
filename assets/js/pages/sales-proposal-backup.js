@@ -297,6 +297,14 @@
             displayDetails('get comaker details');
         });
 
+        $(document).on('change','#additional_maker_id',function() {
+            displayDetails('get additional maker details');
+        });
+
+        $(document).on('change','#comaker_id2',function() {
+            displayDetails('get comaker2 details');
+        });
+
         $(document).on('change','#term_type',function() {
             $('#payment_frequency').empty().append(new Option('--', '', false, false));
 
@@ -1344,13 +1352,15 @@ function salesProposalJobOrderTable(datatable_name, buttons = false, show_all = 
     const column = [ 
         { 'data' : 'JOB_ORDER' },
         { 'data' : 'COST' },
+        { 'data' : 'PROGRESS' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '42%', 'aTargets': 0 },
-        { 'width': '42%', 'aTargets': 1 },
-        { 'width': '16%','bSortable': false, 'aTargets': 2 }
+        { 'width': '28%', 'aTargets': 0 },
+        { 'width': '28%', 'aTargets': 1 },
+        { 'width': '28%', 'aTargets': 2 },
+        { 'width': '16%','bSortable': false, 'aTargets': 3 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1460,6 +1470,7 @@ function salesProposalAdditionalJobOrderTable(datatable_name, buttons = false, s
         { 'data' : 'JOB_ORDER_DATE' },
         { 'data' : 'PARTICULARS' },
         { 'data' : 'COST' },
+        { 'data' : 'PROGRESS' },
         { 'data' : 'ACTION' }
     ];
 
