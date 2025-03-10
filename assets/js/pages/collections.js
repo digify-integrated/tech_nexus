@@ -48,21 +48,24 @@
                     $('#loan_field').removeClass('d-none');
                     checkOptionExist('#product_id', '', '');
                     checkOptionExist('#customer_id', '', '');
-                    checkOptionExist('#leasing_id', '', '');
+                    checkOptionExist('#leasing_repayment_id', '', '');
+                    checkOptionExist('#payment_for', '', '');
                     $('#collected_from').val('');
                     break;
                 case 'Product':
                     $('#product_field').removeClass('d-none');
                     checkOptionExist('#sales_proposal_id', '', '');
                     checkOptionExist('#customer_id', '', '');
-                    checkOptionExist('#leasing_id', '', '');
+                    checkOptionExist('#leasing_repayment_id', '', '');
+                    checkOptionExist('#payment_for', '', '');
                     $('#collected_from').val('');
                     break;
                 case 'Customer':
                     $('#customer_field').removeClass('d-none');
                     checkOptionExist('#sales_proposal_id', '', '');
                     checkOptionExist('#product_id', '', '');
-                    checkOptionExist('#leasing_id', '', '');
+                    checkOptionExist('#leasing_repayment_id', '', '');
+                    checkOptionExist('#payment_for', '', '');
                     $('#collected_from').val('');
                     break;
                 case 'Miscellaneous':
@@ -70,13 +73,25 @@
                     checkOptionExist('#sales_proposal_id', '', '');
                     checkOptionExist('#product_id', '', '');
                     checkOptionExist('#customer_id', '', '');
-                    checkOptionExist('#leasing_id', '', '');
+                    checkOptionExist('#leasing_repayment_id', '', '');
+                    checkOptionExist('#leasing_other_charges_id', '', '');
+                    checkOptionExist('#payment_for', '', '');
                     break;
                 case 'Leasing':
-                    $('#leasing_field').removeClass('d-none');
+                    $('#leasing_rental_field').removeClass('d-none');
                     checkOptionExist('#sales_proposal_id', '', '');
                     checkOptionExist('#product_id', '', '');
                     checkOptionExist('#customer_id', '', '');
+                    checkOptionExist('#leasing_other_charges_id', '', '');
+                    checkOptionExist('#payment_for', '', '');
+                    $('#collected_from').val('');
+                    break;
+                case 'Leasing Other':
+                    $('#leasing_other_charges_field').removeClass('d-none');
+                    checkOptionExist('#sales_proposal_id', '', '');
+                    checkOptionExist('#product_id', '', '');
+                    checkOptionExist('#customer_id', '', '');
+                    checkOptionExist('#leasing_repayment_id', '', '');
                     $('#collected_from').val('');
                     break;
             }
@@ -746,10 +761,24 @@ function collectionsForm(){
                     }
                 }
             },
-            leasing_id: {
+            leasing_repayment_id: {
                 required: {
                     depends: function(element) {
                         return $("select[name='pdc_type']").val() === 'Leasing';
+                    }
+                }
+            },
+            leasing_other_charges_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='pdc_type']").val() === 'Leasing Other';
+                    }
+                }
+            },
+            payment_for: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='pdc_type']").val() === 'Leasing Other';
                     }
                 }
             },
@@ -890,6 +919,9 @@ function collectionsForm(){
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
+                        }
+                        else if (response.overPayment) {
+                            showNotification('Collection Management Error', 'The payment amount exceeds the amount due.', 'danger');
                         }
                         else if (response.referenceExist) {
                             showNotification('Collection Management Error', 'The online reference number already exist.', 'danger');
@@ -1324,10 +1356,13 @@ function displayDetails(transaction){
                         checkOptionExist('#sales_proposal_id', response.salesProposalID, '');
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#customer_id', response.customerID, '');
-                        checkOptionExist('#leasing_id', response.leasingID, '');
+                        checkOptionExist('#payment_for', response.paymentFor, '');
                         checkOptionExist('#payment_details', response.paymentDetails, '');
                         checkOptionExist('#deposited_to', response.depositedTo, '');
                         checkOptionExist('#miscellaneous_client_id', response.miscellaneousClientID, '');
+                        
+                        checkOptionExist('#leasing_repayment_id', response.leasingRepaymentID, '');
+                        checkOptionExist('#leasing_other_charges_id', response.leasingOtherChargesID, '');
                     } 
                     else {
                         if(response.isInactive){

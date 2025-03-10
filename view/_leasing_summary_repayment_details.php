@@ -21,13 +21,17 @@
             <div class="d-flex">
               <?php
                 if($applicationStatus != 'Closed'){
-                  echo '<div class="previous me-2" id="leasing-repayment-rental-button">
+                  echo '<div class="previous me-2" id="leasing-repayment-other-charges-button">
+                    <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#leasing-application-other-charges-offcanvas" aria-controls="leasing-repayment-other-charges-offcanvas" id="leasing-repayment-other-charges">Other Charges</button>
+                </div>';
+                
+                  /*echo '<div class="previous me-2" id="leasing-repayment-rental-button">
                     <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#leasing-application-rental-offcanvas" aria-controls="leasing-repayment-rental-offcanvas" id="leasing-repayment-other-charges">Rental</button>
                 </div>
 
                 <div class="previous me-2" id="leasing-repayment-other-charges-button">
                     <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#leasing-application-other-charges-offcanvas" aria-controls="leasing-repayment-other-charges-offcanvas" id="leasing-repayment-other-charges">Other Charges</button>
-                </div>';
+                </div>';*/
                 }
               ?>
 
@@ -462,9 +466,6 @@
                         </span>
                     </div>
                 </div>
-            </div>
-            <div class="form-group row">
-               
             </div>
           </form>
         </div>

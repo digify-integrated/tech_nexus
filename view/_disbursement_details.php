@@ -15,12 +15,12 @@
                  <ul class="dropdown-menu dropdown-menu-end">
                  ';
              
-                    if ($disbursementStatus == 'Posted' && $fund_source != 'Check') {
-                      $dropdown .= '<li><a href="print-disbursement-voucher.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print Voucher</a></li>';
+                    if (($disbursementStatus == 'Draft' || $disbursementStatus == 'Posted')  && $fund_source != 'Check') {
+                      $dropdown .= '<li><button class="dropdown-item print" target="_blank">Print Voucher</button></li>';
                     }
              
-                    if ($disbursementStatus == 'Posted' && $fund_source === 'Check') {
-                      $dropdown .= '<li><a href="print-cv-disbursement-voucher.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print Voucher</a></li>';
+                    if (($disbursementStatus == 'Draft' || $disbursementStatus == 'Posted') && $fund_source === 'Check') {
+                      $dropdown .= '<li><button class="dropdown-item print" target="_blank">Print Voucher</button></li>';
                     }
              
                     if ($postDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
@@ -98,15 +98,26 @@
                   <option value="Miscellaneous" <?php echo $payableMisc; ?>>Miscellaneous</option>
                 </select>
             </div>
-            <label class="col-lg-2 d-none col-form-label">Customer <span class="text-danger">*</span></label>
-            <div class="col-lg-4" id="customer-select">
-                <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
+            <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
+            <?php
+                  if($disbursementCategory === 'disbursement petty cash'){
+                   $customerhide = 'd-none';
+                   $mischide = '';
+                  }
+                  else{
+                  
+                    $customerhide = '';
+                    $mischide = 'd-none';
+                  }
+                ?>
+            <div class="col-lg-4 <?php echo $customerhide; ?>" id="customer-select">
+                <select class="form-control select2" name="customer_id" id="customer_id">
                   <option value="">--</option>
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
             </div>
-            <div class="col-lg-4" id="misc-select">
-                <select class="form-control select2" name="misc_id" id="misc_id" <?php echo $disabled; ?>>
+            <div class="col-lg-4 <?php echo $mischide; ?>" id="misc-select">
+                <select class="form-control select2" name="misc_id" id="misc_id">
                   <option value="">--</option>
                   <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>
                 </select>
@@ -134,7 +145,7 @@
               <select class="form-control select2" name="transaction_type" id="transaction_type" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <option value="Replenishment">Replenishment</option>
-                <option value="Disbursement">Disbursement</option>
+                <option value="Disbursement" selected>Disbursement</option>
                </select>
             </div>
             <label class="col-lg-2 col-form-label">Fund Source <span class="text-danger">*</span></label>
@@ -143,11 +154,11 @@
                 <option value="">--</option>
                 <?php
                   if($disbursementCategory === 'disbursement petty cash'){
-                    echo ' <option value="Petty Cash">Petty Cash</option>
+                    echo ' <option value="Petty Cash" selected>Petty Cash</option>
                     <option value="Revolving Fund">Revolving Fund</option>';
                   }
                   else{
-                    echo ' <option value="Check">Check</option>';
+                    echo ' <option value="Check" selected>Check</option>';
                   }
                 ?>
                </select>

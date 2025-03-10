@@ -379,18 +379,18 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $status = $leasingApplicationModel->getLoanApplicationRepaymentStatus($row['payment_status']);
 
                     $payment = '';
-                    if($row['outstanding_balance'] > 0 && $applicationStatus != 'Closed'){
+                    /*if($row['outstanding_balance'] > 0 && $applicationStatus != 'Closed'){
                         $payment = '<button type="button" class="btn btn-icon btn-success pay-leasing-other-charges" data-leasing-other-charges-id="'. $leasingOtherChargesID .'" data-leasing-other-charges-type="'. $otherChargesType .'" data-bs-toggle="offcanvas" data-bs-target="#leasing-other-charges-payment-offcanvas" aria-controls="leasing-other-charges-payment-offcanvas" title="Pay Other Charges">
                             <i class="ti ti-check"></i>
                         </button>';
-                    }
+                    }*/
 
                     $delete = '';
-                    if($row['due_paid'] == 0 && $applicationStatus != 'Closed'){
+                    /*if($row['due_paid'] == 0 && $applicationStatus != 'Closed'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-leasing-other-charges" data-leasing-other-charges-id="'. $leasingOtherChargesID .'" title="Delete Other Charges">
                             <i class="ti ti-trash"></i>
                         </button>';
-                    }
+                    }*/
 
                     $response[] = [
                         'OTHER_CHARGES_TYPE' => $otherChargesType,
@@ -451,11 +451,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $reference = $leasingApplicationRepaymentDetails['reference'];
                     
                     $delete = '';
-                    if($applicationStatus != 'Closed'){
+                    /*if($applicationStatus != 'Closed'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-leasing-collections" data-leasing-collections-id="'. $leasingCollectionsID .'" title="Delete Collections">
                         <i class="ti ti-trash"></i>
                         </button>';
-                    }
+                    }*/
 
                     $response[] = [
                         'REFERENCE' => $reference,

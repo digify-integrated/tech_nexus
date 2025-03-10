@@ -765,12 +765,10 @@ class DocumentController {
         $mailer->addAddress('k.baguisa@christianmotors.ph');
         $mailer->addAddress('mdsoniga.fuso@christianmotors.ph');
         $mailer->addAddress('i.bernabe@christianmotors.ph');
-        $mailer->addAddress('j.dechavez@christianmotors.ph');
-        $mailer->addAddress('j.dechavez@christianmotors.ph');
         $mailer->addAddress('paolobaguisa@christianmotors.ph');
         $mailer->addAddress('ma.garsula@christianmotors.ph');
         $mailer->addAddress('j.delacorte@christianmotors.ph');
-        $mailer->addAddress('isabelledama@christianmotors.ph');
+        $mailer->addAddress('a.devera@christianmotors.ph');
         $mailer->addAddress('k.magiwe@christianmotors.ph');
         $mailer->addAddress('j.galicia@christianmotors.ph');
         $mailer->Subject = $emailSubject;

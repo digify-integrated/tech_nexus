@@ -490,9 +490,7 @@ class ProductController {
 
         $description = implode(' ', $descriptionParts);
     
-        $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, '', $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $userID);
-
-        
+        $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, '', $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $userID);        
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'productID' => $this->securityModel->encryptData($productID)]);
         exit;
@@ -574,6 +572,7 @@ class ProductController {
             $stockNumberLatest = $this->systemSettingModel->getSystemSetting(17)['value'] + 1;
             $stockNumber = $productSubcategoryCode . date('my') . $stockNumberLatest;
             $this->systemSettingModel->updateSystemSettingValue(17, $stockNumberLatest, $userID);
+            $this->productModel->updateRRDate($productID, $userID);
         }
 
         $unitDetails = $this->unitModel->getUnit($lengthUnit);

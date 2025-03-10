@@ -1594,7 +1594,7 @@ function productDetailsForm(){
                 data: $(form).serialize() + '&transaction=' + transaction + '&product_id=' + product_id,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-data');
+                    disableFormSubmitButton('submit-product-details-data');
                 },
                 success: function (response) {
                     if (response.success) {
@@ -1621,7 +1621,7 @@ function productDetailsForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-data', 'Save');
+                    enableFormSubmitButton('submit-product-details-data', 'Save');
                 }
             });
         

@@ -29,14 +29,25 @@
                   <option value="Miscellaneous" <?php echo $payableMisc; ?>>Miscellaneous</option>
                 </select>
             </div>
+            <?php
+                  if($disbursementCategory === 'disbursement petty cash'){
+                   $customerhide = 'd-none';
+                   $mischide = '';
+                  }
+                  else{
+                  
+                    $customerhide = '';
+                    $mischide = 'd-none';
+                  }
+                ?>
             <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
-            <div class="col-lg-4 d-none" id="customer-select">
+            <div class="col-lg-4 <?php echo $customerhide; ?>" id="customer-select">
                 <select class="form-control select2" name="customer_id" id="customer_id">
                   <option value="">--</option>
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
             </div>
-            <div class="col-lg-4" id="misc-select">
+            <div class="col-lg-4 <?php echo $mischide; ?>" id="misc-select">
                 <select class="form-control select2" name="misc_id" id="misc_id">
                   <option value="">--</option>
                   <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>
@@ -65,7 +76,7 @@
               <select class="form-control select2" name="transaction_type" id="transaction_type">
                 <option value="">--</option>
                 <option value="Replenishment">Replenishment</option>
-                <option value="Disbursement">Disbursement</option>
+                <option value="Disbursement" selected>Disbursement</option>
                </select>
             </div>
             <label class="col-lg-2 col-form-label">Fund Source <span class="text-danger">*</span></label>
@@ -74,11 +85,11 @@
                 <option value="">--</option>
                 <?php
                   if($disbursementCategory === 'disbursement petty cash'){
-                    echo ' <option value="Petty Cash">Petty Cash</option>
+                    echo ' <option value="Petty Cash" selected>Petty Cash</option>
                     <option value="Revolving Fund">Revolving Fund</option>';
                   }
                   else{
-                    echo ' <option value="Check">Check</option>';
+                    echo ' <option value="Check" selected>Check</option>';
                   }
                 ?>
                </select>

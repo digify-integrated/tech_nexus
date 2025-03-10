@@ -28,14 +28,17 @@ class CollectionsModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateCollection($p_loan_collection_id, $p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_leasing_application_id, $p_pdc_type, $p_mode_of_payment, $p_or_number, $p_or_date, $p_payment_date, $p_payment_amount, $p_reference_number, $p_payment_details, $p_company_id, $p_deposited_to, $p_remarks, $p_collected_from, $p_payment_advice, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateCollection(:p_loan_collection_id, :p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_leasing_application_id, :p_pdc_type, :p_mode_of_payment, :p_or_number, :p_or_date, :p_payment_date, :p_payment_amount, :p_reference_number, :p_payment_details, :p_company_id, :p_deposited_to, :p_remarks, :p_collected_from, :p_payment_advice, :p_last_log_by)');
+    public function updateCollection($p_loan_collection_id, $p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_leasing_application_id, $p_leasing_application_repayment_id, $p_leasing_other_charges_id, $p_payment_for, $p_pdc_type, $p_mode_of_payment, $p_or_number, $p_or_date, $p_payment_date, $p_payment_amount, $p_reference_number, $p_payment_details, $p_company_id, $p_deposited_to, $p_remarks, $p_collected_from, $p_payment_advice, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateCollection(:p_loan_collection_id, :p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_leasing_application_id, :p_leasing_application_repayment_id, :p_leasing_other_charges_id, :p_payment_for, :p_pdc_type, :p_mode_of_payment, :p_or_number, :p_or_date, :p_payment_date, :p_payment_amount, :p_reference_number, :p_payment_details, :p_company_id, :p_deposited_to, :p_remarks, :p_collected_from, :p_payment_advice, :p_last_log_by)');
         $stmt->bindValue(':p_loan_collection_id', $p_loan_collection_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leasing_other_charges_id', $p_leasing_other_charges_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_payment_for', $p_payment_for, PDO::PARAM_STR);
         $stmt->bindValue(':p_pdc_type', $p_pdc_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_mode_of_payment', $p_mode_of_payment, PDO::PARAM_STR);
         $stmt->bindValue(':p_or_number', $p_or_number, PDO::PARAM_STR);
@@ -95,13 +98,17 @@ class CollectionsModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertCollection($p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_leasing_application_id, $p_pdc_type, $p_mode_of_payment, $p_or_number, $p_or_date, $p_payment_date, $p_payment_amount, $p_reference_number, $p_payment_details, $p_company_id, $p_deposited_to, $p_remarks, $p_collected_from, $p_payment_advice, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertCollection(:p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_leasing_application_id, :p_pdc_type, :p_mode_of_payment, :p_or_number, :p_or_date, :p_payment_date, :p_payment_amount, :p_reference_number, :p_payment_details, :p_company_id, :p_deposited_to, :p_remarks, :p_collected_from, :p_payment_advice, :p_last_log_by, @p_loan_collection_id)');
+    public function insertCollection($p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_leasing_application_id, $p_leasing_application_repayment_id, $p_leasing_other_charges_id, $p_leasing_collections_id, $p_payment_for, $p_pdc_type, $p_mode_of_payment, $p_or_number, $p_or_date, $p_payment_date, $p_payment_amount, $p_reference_number, $p_payment_details, $p_company_id, $p_deposited_to, $p_remarks, $p_collected_from, $p_payment_advice, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertCollection(:p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_leasing_application_id, :p_leasing_application_repayment_id, :p_leasing_other_charges_id, :p_leasing_collections_id, :p_payment_for, :p_pdc_type, :p_mode_of_payment, :p_or_number, :p_or_date, :p_payment_date, :p_payment_amount, :p_reference_number, :p_payment_details, :p_company_id, :p_deposited_to, :p_remarks, :p_collected_from, :p_payment_advice, :p_last_log_by, @p_loan_collection_id)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leasing_other_charges_id', $p_leasing_other_charges_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leasing_collections_id', $p_leasing_collections_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_payment_for', $p_payment_for, PDO::PARAM_STR);
         $stmt->bindValue(':p_pdc_type', $p_pdc_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_mode_of_payment', $p_mode_of_payment, PDO::PARAM_STR);
         $stmt->bindValue(':p_or_number', $p_or_number, PDO::PARAM_STR);

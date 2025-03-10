@@ -2008,6 +2008,31 @@ class SalesProposalModel {
         return $htmlOptions;
     }
 
+    public function getSalesProposalOtherChargesPDCManualInputDetails($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getSalesProposalOtherChargesPDCManualInputDetails(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        $formattedEntries = [];
+    
+        foreach ($options as $row) {
+            $check_date = $row['check_date'];
+            $formattedDate = date('j F Y', strtotime($check_date)); // Example: 24 June 2025
+            $gross_amount = $row['gross_amount'];
+    
+            $formattedEntries[] = 'Php ' . number_format($gross_amount, 2) . ' payable on ' . $formattedDate;
+        }
+    
+        // Format the output with commas and "and" before the last item
+        if (count($formattedEntries) > 1) {
+            $lastEntry = array_pop($formattedEntries);
+            return implode(', ', $formattedEntries) . ' and ' . $lastEntry;
+        }
+    
+        return $formattedEntries[0] ?? ''; // Return the single entry or empty string if no data
+    }
+
     public function getSalesProposalRenewalPDCManualInputDetails($p_sales_proposal_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getSalesProposalRenewalPDCManualInputDetails(:p_sales_proposal_id)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);

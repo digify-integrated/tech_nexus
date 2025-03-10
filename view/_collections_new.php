@@ -25,7 +25,7 @@
       </div>
       <div class="card-body">
         <form id="collections-form" method="post" action="#">
-            <input type="hidden" name="payment_advice" value="<?php echo $paymentAdvice; ?>">
+            <input type="hidden" id="payment_advice" name="payment_advice" value="<?php echo $paymentAdvice; ?>">
             <div class="form-group row">
             <label class="col-lg-2 col-form-label">Mode of Payment <span class="text-danger">*</span></label>
             <div class="col-lg-4">
@@ -43,7 +43,8 @@
                 <option value="Loan">Loan</option>
                 <option value="Product">Product</option>
                 <option value="Customer">Customer</option>
-                <option value="Leasing">Leasing</option>
+                <option value="Leasing">Leasing Rental</option>
+                <option value="Leasing Other">Leasing Other Charges</option>
                 <option value="Miscellaneous">Miscellaneous</option>
                </select>
             </div>
@@ -84,14 +85,33 @@
                 </select>
               </div>
             </div>
-            <div id="leasing_field" class="form-group row field d-none">
-              <label class="col-lg-2 col-form-label">Leasing Application <span class="text-danger">*</span></label>
-              <div class="col-lg-10">
-                <select class="form-control select2" name="leasing_id" id="leasing_id">
-                <option value="">--</option>
-                  <?php echo $leasingApplicationModel->generateLeasingApplicationOptions(); ?>
-                </select>
-              </div>
+            <div id="leasing_rental_field" class="form-group row field d-none">
+              <label class="col-lg-2 col-form-label">Leasing Repayment <span class="text-danger">*</span></label>
+                <div class="col-lg-10">
+                  <select class="form-control select2" name="leasing_repayment_id" id="leasing_repayment_id">
+                  <option value="">--</option>
+                    <?php echo $leasingApplicationModel->generateLeasingApplicationUnpaidRepaymentOptions(); ?>
+                  </select>
+                </div>
+            </div>
+            <div id="leasing_other_charges_field" class="form-group row field d-none">
+            <label class="col-lg-2 col-form-label">Leasing Repayment <span class="text-danger">*</span></label>
+                <div class="col-lg-4">
+                  <select class="form-control select2" name="leasing_other_charges_id" id="leasing_other_charges_id">
+                  <option value="">--</option>
+                    <?php echo $leasingApplicationModel->generateLeasingApplicationUnpaidOtherChargesOptions(); ?>
+                  </select>
+                </div>
+              <label class="col-lg-2 col-form-label">Payment For <span class="text-danger">*</span></label>
+                <div class="col-lg-4">
+                  <select class="form-control select2" name="payment_for" id="payment_for">
+                    <option value="">--</option>
+                    <option value="Electricity">Electricity</option>
+                    <option value="Water">Water</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Others">Others</option>
+                  </select>
+                </div>
             </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>

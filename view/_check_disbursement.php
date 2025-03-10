@@ -169,10 +169,10 @@
                         <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                       </div>
                     </th>
-                    <th>CDV Date</th>
+                    <th>CV Date</th>
                     <th>Customer</th>
                     <th>Company</th>
-                    <th>CDV No.</th>
+                    <th>CV No.</th>
                     <th>Amount</th>
                     <th>Transaction Type</th>
                     <th>Particulars</th>

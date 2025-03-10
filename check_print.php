@@ -90,7 +90,7 @@ foreach ($loanCollectionIDs as $loanCollectionID) {
     $checkY = 8;
 
     // Print date (numeric format)
-    $pdf->SetXY($checkX + 145, $checkY - 3);
+    $pdf->SetXY($checkX + 145, $checkY);
     $pdf->Cell(5, 10, $month, 0, 0, 'L');
     $pdf->Cell(5, 10, '-', 0, 0, 'C');
     $pdf->Cell(5, 10, $day, 0, 0, 'L');
@@ -98,7 +98,7 @@ foreach ($loanCollectionIDs as $loanCollectionID) {
     $pdf->Cell(5, 10, $year, 0, 0, 'L');
 
     // Print payee and amount aligned horizontally
-    $pdf->SetXY($checkX, 15);
+    $pdf->SetXY($checkX, 16);
     $pdf->Cell(10, 10,  '', 0, 0, 'L');
     $pdf->Cell(140, 10,  'CHRISTIAN GENERAL MOTORS INC', 0, 0, 'L');
     $pdf->Cell(40, 10, number_format($payment_amount,2), 0, 0, 'L');

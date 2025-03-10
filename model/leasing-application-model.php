@@ -274,7 +274,7 @@ class LeasingApplicationModel {
     #
     # -------------------------------------------------------------
     public function insertLeasingRentalPayment($p_leasing_application_repayment_id, $p_leasing_application_id, $p_payment_for, $p_payment_id, $p_reference_number, $p_payment_mode, $p_payment_date, $p_payment_amount, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingRentalPayment(:p_leasing_application_repayment_id, :p_leasing_application_id, :p_payment_for, :p_payment_id, :p_reference_number, :p_payment_mode, :p_payment_date, :p_payment_amount, :p_last_log_by)');
+        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingRentalPayment(:p_leasing_application_repayment_id, :p_leasing_application_id, :p_payment_for, :p_payment_id, :p_reference_number, :p_payment_mode, :p_payment_date, :p_payment_amount, :p_last_log_by, @p_leasing_collections_id)');
         $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_payment_for', $p_payment_for, PDO::PARAM_STR);
@@ -285,6 +285,11 @@ class LeasingApplicationModel {
         $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
+
+        $result = $this->db->getConnection()->query("SELECT @p_leasing_collections_id AS p_leasing_collections_id");
+        $p_leasing_collections_id = $result->fetch(PDO::FETCH_ASSOC)['p_leasing_collections_id'];
+
+        return $p_leasing_collections_id;
     }
     # -------------------------------------------------------------
 
@@ -301,7 +306,7 @@ class LeasingApplicationModel {
     #
     # -------------------------------------------------------------
     public function insertLeasingOtherChargesPayment($p_leasing_application_repayment_id, $p_leasing_application_id, $p_payment_for, $p_payment_id, $p_reference_number, $p_payment_mode, $p_payment_date, $p_payment_amount, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingOtherChargesPayment(:p_leasing_application_repayment_id, :p_leasing_application_id, :p_payment_for, :p_payment_id, :p_reference_number, :p_payment_mode, :p_payment_date, :p_payment_amount, :p_last_log_by)');
+        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingOtherChargesPayment(:p_leasing_application_repayment_id, :p_leasing_application_id, :p_payment_for, :p_payment_id, :p_reference_number, :p_payment_mode, :p_payment_date, :p_payment_amount, :p_last_log_by, @p_leasing_collections_id)');
         $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_payment_for', $p_payment_for, PDO::PARAM_STR);
@@ -312,6 +317,11 @@ class LeasingApplicationModel {
         $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
+        
+        $result = $this->db->getConnection()->query("SELECT @p_leasing_collections_id AS p_leasing_collections_id");
+        $p_leasing_collections_id = $result->fetch(PDO::FETCH_ASSOC)['p_leasing_collections_id'];
+
+        return $p_leasing_collections_id;
     }
     # -------------------------------------------------------------
 
@@ -685,6 +695,45 @@ class LeasingApplicationModel {
             $tenant_name = $row['tenant_name'];
 
             $htmlOptions .= '<option value="' . htmlspecialchars($leasing_application_id, ENT_QUOTES) . '">' . htmlspecialchars($leasing_application_number, ENT_QUOTES) .' - '. $tenant_name .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+
+    public function generateLeasingApplicationUnpaidRepaymentOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateLeasingApplicationUnpaidRepaymentOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $leasing_application_repayment_id = $row['leasing_application_repayment_id'];
+            $reference = $row['reference'];
+            $tenant_name = $row['tenant_name'];
+            $due_date = $row['due_date'];
+            $formatted_due_date = date("F d, Y", strtotime($due_date));
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($leasing_application_repayment_id, ENT_QUOTES) . '">' . $tenant_name . ' - ' . htmlspecialchars($reference, ENT_QUOTES) .' (Due Date: '. $formatted_due_date .')</option>';
+        }
+
+        return $htmlOptions;
+    }
+
+    public function generateLeasingApplicationUnpaidOtherChargesOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateLeasingApplicationUnpaidOtherChargesOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $leasing_other_charges_id = $row['leasing_other_charges_id'];
+            $reference = $row['reference'];
+            $tenant_name = $row['tenant_name'];
+            $other_charges_type = $row['other_charges_type'];
+            $due_date = $row['due_date'];
+            $formatted_due_date = date("F d, Y", strtotime($due_date));
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($leasing_other_charges_id, ENT_QUOTES) . '">' . $tenant_name . ' - ' . htmlspecialchars($reference, ENT_QUOTES). ' - ' . $other_charges_type .' (Due Date: '. $formatted_due_date .')</option>';
         }
 
         return $htmlOptions;

@@ -509,6 +509,64 @@
             });
         });
 
+        $(document).on('click','.print',function() {
+            const disbursement_id = $('#disbursement-id').text();
+            const transaction = 'print disbursement';
+            const disbursement_category = $('#disbursement_category').val();
+    
+            $.ajax({
+                type: 'POST',
+                url: 'controller/disbursement-controller.php',
+                dataType: 'json',
+                data: {
+                    disbursement_id : disbursement_id, 
+                    transaction : transaction
+                },
+                success: function (response) {
+                    if (response.success) {
+                        if(disbursement_category === 'disbursement check'){
+                            window.location = 'print-cv-disbursement-voucher.php?id=' + disbursement_id;
+                        }
+                        else{
+                            window.location = 'print-disbursement-voucher.php?id=' + disbursement_id;
+                        }
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else if (response.disbursementZero) {
+                            showNotification('Print Disbursement Error', 'The particulars cannot be zero.', 'danger');
+                        }
+                        else if (response.disbursementGreater) {
+                            showNotification('Print Disbursement Error', 'The particulars cannot be greater than PHP 5,000.', 'danger');
+                        }
+                        else if (response.checkZero) {
+                            showNotification('Print Disbursement Error', 'The check cannot be zero.', 'danger');
+                        }
+                        else if (response.checkNotEqual) {
+                            showNotification('Print Disbursement Error', 'The check amount total and particulars is not equal.', 'danger');
+                        }
+                        else if (response.notExist) {
+                            window.location = '404.php';
+                        }
+                        else {
+                            showNotification('Print Disbursement Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            return false;
+        });
+
         $(document).on('click','#discard-create',function() {
             const disbursement_category = $('#disbursement_category').val();
 
@@ -892,7 +950,8 @@
             });
 
             if(checkedBoxes != ''){
-                window.open('print-disbursement-report.php?id=' + checkedBoxes, '_blank');
+                const disbursement_category = $('#disbursement_category').val();
+                window.open('print-disbursement-report.php?id=' + checkedBoxes + '&type=' + disbursement_category, '_blank');
             }
             else{
                 showNotification('Print Report Error', 'No selected disbursement.', 'danger');
@@ -1072,7 +1131,7 @@ function checkDisbursementTable(datatable_name, buttons = false, show_all = fals
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'desc' ]],
+        'order': [[ 4, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

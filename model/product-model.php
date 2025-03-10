@@ -310,6 +310,12 @@ class ProductModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function updateRRDate($p_product_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateRRDate(:p_product_id, :p_last_log_by)');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
     
     # -------------------------------------------------------------

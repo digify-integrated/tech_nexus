@@ -16,6 +16,7 @@ class LeasingApplicationController {
     private $leasingApplicationModel;
     private $userModel;
     private $securityModel;
+    private $systemSettingModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
     private $systemModel;

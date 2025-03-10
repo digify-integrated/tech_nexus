@@ -274,12 +274,12 @@ class CustomerController {
     
         $userID = $_SESSION['user_id'];
         $customerID = isset($_POST['customer_id']) ? htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8') : null;
-        $firstName = htmlspecialchars($_POST['first_name'], ENT_QUOTES, 'UTF-8');
-        $middleName = htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8');
-        $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
-        $suffix = htmlspecialchars($_POST['suffix'], ENT_QUOTES, 'UTF-8');
-        $corporateName = htmlspecialchars($_POST['corporate_name'], ENT_QUOTES, 'UTF-8');
-        $nickname = htmlspecialchars($_POST['nickname'], ENT_QUOTES, 'UTF-8');
+        $firstName = htmlspecialchars( strtoupper($_POST['first_name']), ENT_QUOTES, 'UTF-8');
+        $middleName = htmlspecialchars( strtoupper($_POST['middle_name']), ENT_QUOTES, 'UTF-8');
+        $lastName = htmlspecialchars( strtoupper($_POST['last_name']), ENT_QUOTES, 'UTF-8');
+        $suffix = htmlspecialchars( strtoupper($_POST['suffix']), ENT_QUOTES, 'UTF-8');
+        $nickname = htmlspecialchars(strtoupper($_POST['nickname']), ENT_QUOTES, 'UTF-8');
+        $corporateName = htmlspecialchars(strtoupper($_POST['corporate_name']), ENT_QUOTES, 'UTF-8');
         $bio = htmlspecialchars($_POST['bio'], ENT_QUOTES, 'UTF-8');
         $civilStatus = htmlspecialchars($_POST['civil_status'], ENT_QUOTES, 'UTF-8');
         $gender = htmlspecialchars($_POST['gender'], ENT_QUOTES, 'UTF-8');
@@ -1296,12 +1296,12 @@ class CustomerController {
     
         $userID = $_SESSION['user_id'];
         $contactType = htmlspecialchars($_POST['contact_type'], ENT_QUOTES, 'UTF-8');
-        $firstName = htmlspecialchars($_POST['first_name'], ENT_QUOTES, 'UTF-8');
-        $middleName = htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8');
-        $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
-        $suffix = htmlspecialchars($_POST['suffix'], ENT_QUOTES, 'UTF-8');
-        $nickname = htmlspecialchars($_POST['nickname'], ENT_QUOTES, 'UTF-8');
-        $corporateName = htmlspecialchars($_POST['corporate_name'], ENT_QUOTES, 'UTF-8');
+        $firstName = htmlspecialchars( strtoupper($_POST['first_name']), ENT_QUOTES, 'UTF-8');
+        $middleName = htmlspecialchars( strtoupper($_POST['middle_name']), ENT_QUOTES, 'UTF-8');
+        $lastName = htmlspecialchars( strtoupper($_POST['last_name']), ENT_QUOTES, 'UTF-8');
+        $suffix = htmlspecialchars( strtoupper($_POST['suffix']), ENT_QUOTES, 'UTF-8');
+        $nickname = htmlspecialchars(strtoupper($_POST['nickname']), ENT_QUOTES, 'UTF-8');
+        $corporateName = htmlspecialchars(strtoupper($_POST['corporate_name']), ENT_QUOTES, 'UTF-8');
         $bio = htmlspecialchars($_POST['bio'], ENT_QUOTES, 'UTF-8');
         $civilStatus = htmlspecialchars($_POST['civil_status'], ENT_QUOTES, 'UTF-8');
         $gender = htmlspecialchars($_POST['gender'], ENT_QUOTES, 'UTF-8');

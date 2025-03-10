@@ -27,12 +27,12 @@
                       
                   echo $dropdown;
 
-                  if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))  && $paymentAdvice == 'No') {
+                  if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))  && $paymentAdvice == 'No' && ($pdc_type != 'Leasing' && $pdc_type != 'Leasing Other')) {
                     echo '<button type="submit" form="collections-form" class="btn btn-success" id="submit-data">Save</button>
                           <button type="button" id="discard-create" class="btn btn-outline-danger me-2">Discard</button>';
                   }
 
-                  if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d')) && $paymentAdvice == 'Yes') {
+                  if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d')) && $paymentAdvice == 'Yes' && ($pdc_type != 'Leasing' && $pdc_type != 'Leasing Other')) {
                     echo '<button type="submit" form="collections-form" class="btn btn-success" id="submit-data">Save</button>
                           <button type="button" id="discard-payment-advice-create" class="btn btn-outline-danger me-2">Discard</button>';
                   }
@@ -53,7 +53,7 @@
           <input type="hidden" name="payment_advice" value="<?php echo $paymentAdvice; ?>">
             <?php
                 $disabled = 'disabled';
-                if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))) {
+                if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))  && ($pdc_type != 'Leasing' && $pdc_type != 'Leasing Other')) {
                     $disabled = '';
                 }
             ?>
@@ -74,7 +74,8 @@
                 <option value="Loan">Loan</option>
                 <option value="Product">Product</option>
                 <option value="Customer">Customer</option>
-                <option value="Leasing">Leasing</option>
+                <option value="Leasing">Leasing Rental</option>
+                <option value="Leasing Other">Leasing Other Charges</option>
                 <option value="Miscellaneous">Miscellaneous</option>
                </select>
             </div>
@@ -106,14 +107,33 @@
                 </select>
               </div>
             </div>
-            <div id="leasing_field" class="form-group row field d-none">
-              <label class="col-lg-2 col-form-label">Leasing Application <span class="text-danger">*</span></label>
-              <div class="col-lg-10">
-                <select class="form-control select2" name="leasing_id" id="leasing_id">
-                <option value="">--</option>
-                  <?php echo $leasingApplicationModel->generateLeasingApplicationOptions(); ?>
-                </select>
-              </div>
+            <div id="leasing_rental_field" class="form-group row field d-none">
+              <label class="col-lg-2 col-form-label">Leasing Repayment <span class="text-danger">*</span></label>
+                <div class="col-lg-10">
+                  <select class="form-control select2" name="leasing_repayment_id" id="leasing_repayment_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                    <?php echo $leasingApplicationModel->generateLeasingApplicationUnpaidRepaymentOptions(); ?>
+                  </select>
+                </div>
+            </div>
+            <div id="leasing_other_charges_field" class="form-group row field d-none">
+            <label class="col-lg-2 col-form-label">Leasing Repayment <span class="text-danger">*</span></label>
+                <div class="col-lg-4">
+                  <select class="form-control select2" name="leasing_other_charges_id" id="leasing_other_charges_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                    <?php echo $leasingApplicationModel->generateLeasingApplicationUnpaidOtherChargesOptions(); ?>
+                  </select>
+                </div>
+              <label class="col-lg-2 col-form-label">Payment For <span class="text-danger">*</span></label>
+                <div class="col-lg-4">
+                  <select class="form-control select2" name="payment_for" id="payment_for" <?php echo $disabled; ?>>
+                    <option value="">--</option>
+                    <option value="Electricity">Electricity</option>
+                    <option value="Water">Water</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Others">Others</option>
+                  </select>
+                </div>
             </div>
             <div id="miscellaneous_field" class="form-group row field d-none">
               <label class="col-lg-2 col-form-label">Collected From <span class="text-danger">*</span></label>
@@ -127,7 +147,7 @@
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
               <div class="col-lg-4">
-                <select class="form-control select2" name="company_id" id="company_id">
+                <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <option value="1" selected>Christian General Motors Inc.</option>
                   <option value="2">NE Truck Builders</option>

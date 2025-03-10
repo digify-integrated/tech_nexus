@@ -63,6 +63,7 @@
     $collectionsDetails = $collectionsModel->getCollections($collectionsID);
     $collectionStatus = $collectionsDetails['collection_status'];
     $transactionDate = $collectionsDetails['transaction_date'];
+    $pdc_type = $collectionsDetails['pdc_type'];
   }
   else{
     $collectionsID = null;

@@ -146,6 +146,9 @@ class DisbursementController {
                 case 'post disbursement':
                     $this->tagDisbursementAsPosted();
                     break;
+                case 'print disbursement':
+                    $this->printDisbursement();
+                    break;
                 case 'post multiple disbursement':
                     $this->postMultipleDisbursement();
                     break;
@@ -313,6 +316,61 @@ class DisbursementController {
         $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
         $this->disbursementModel->createLiquidation($disbursementID, $transaction_date, $userID, $userID);
             
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function printDisbursement () {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDisbursementExist = $this->disbursementModel->checkDisbursementExist($disbursementID);
+        $total = $checkDisbursementExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
+        $fund_source = $disbursementDetails['fund_source'];
+        $transaction_type = $disbursementDetails['transaction_type'];
+
+        $disbursementTotal = number_format($this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0, 2, '.', '');
+        $disbursementCheckTotal = number_format($this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0, 2, '.', '');
+
+        //if( $transaction_type == 'Disbursement' && $fund_source != 'Check' && $disbursementTotal > 5000){
+        if( $transaction_type == 'Disbursement' && $fund_source != 'Check'){
+            echo json_encode(['success' => false, 'disbursementGreater' => true]);
+            exit;
+        }
+        
+        if($disbursementTotal === 0){
+            echo json_encode(['success' => false, 'disbursementZero' => true]);
+            exit;
+        }
+
+        if($fund_source === 'Check' && $disbursementCheckTotal == 0){
+            echo json_encode(['success' => false, 'checkZero' => true]);
+            exit;
+        }
+
+        if($fund_source === 'Check' && $disbursementCheckTotal != $disbursementTotal){
+            echo json_encode(['success' => false, 'checkNotEqual' => true]);
+            exit;
+        }
+
         echo json_encode(['success' => true]);
         exit;
     }

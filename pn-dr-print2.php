@@ -95,6 +95,7 @@
         
         $totalDeposit = $salesProposalModel->getSalesProposalAmountOfDepositTotal($salesProposalID);
         $totalOtherChargesPDC = $salesProposalModel->getPDCManualInputOtherChargesTotal($salesProposalID);
+        $getSalesProposalOtherChargesPDCManualInputDetails = $salesProposalModel->getSalesProposalOtherChargesPDCManualInputDetails($salesProposalID);
         $getSalesProposalRenewalPDCManualInputDetails = $salesProposalModel->getSalesProposalRenewalPDCManualInputDetails($salesProposalID);
         $getSalesProposalRegistrationRenewalPDCManualInputDetails = $salesProposalModel->getSalesProposalRegistrationRenewalPDCManualInputDetails($salesProposalID);
 
@@ -219,16 +220,16 @@
     $pdf->Ln(10);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, 'Other Charges'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'Php '. number_format($totalOtherChargesPDC['total'] ?? 0, 2) .' per month payable upon signing on this note' , 0, 0, 'L');
-    $pdf->Ln(10);
+    $pdf->MultiCell(100, 8, $getSalesProposalOtherChargesPDCManualInputDetails, 0, 'L');
+    $pdf->Ln(3);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, 'Insurance Renewal'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, $getSalesProposalRenewalPDCManualInputDetails , 0, 0, 'L');
-    $pdf->Ln(10);
+    $pdf->MultiCell(100, 8, $getSalesProposalRenewalPDCManualInputDetails, 0, 'L');
+    $pdf->Ln(3);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, 'Registration Renewal'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, $getSalesProposalRegistrationRenewalPDCManualInputDetails , 0, 0, 'L');
-    $pdf->Ln(10);
+    $pdf->MultiCell(100, 8, $getSalesProposalRegistrationRenewalPDCManualInputDetails, 0, 'L');
+    $pdf->Ln(3);
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; I/We further agree JOINTLY and SEVERALLY that for late payment in the amount above written or any portion thereof, as when the same becomes due and payable, we shall pay penalty charge equivalent to FIVE PERCENT (5%) of the unpaid amount per month of delay to be computed from the date due until full payment thereof.  A fraction of a month being deemed to be an entire month.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '&nbsp; &nbsp; &nbsp; I/We hereby waive notice of demand for payment and agree that any legal action which may arise in relation to this note may be instituted in the proper court of Cabanatuan City.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
@@ -310,9 +311,9 @@
     $pdf->Cell(90, 8, 'ADDRESS', 0, 0, 'C');
     
     $pdf->Ln(15);
-    $pdf->Cell(90, 4, strtoupper($customeridNumber), 'B', 0, 'L', 0, '', 1);
+    $pdf->Cell(90, 4, strtoupper($customeridNumber), 'B', 0, 'C', 0, '', 1);
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
-    $pdf->Cell(90, 4, strtoupper($addcomakerPrimaryIDNumber), 'B', 0, 'L', 0, '', 1);
+    $pdf->Cell(90, 4, strtoupper($addcomakerPrimaryIDNumber), 'B', 0, 'C', 0, '', 1);
     $pdf->Ln(5);
     $pdf->Cell(90, 8, 'ID NUMBER', 0, 0, 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);

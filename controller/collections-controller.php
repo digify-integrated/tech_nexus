@@ -20,6 +20,7 @@ class CollectionsController {
     private $fileExtensionModel;
     private $systemSettingModel;
     private $companyModel;
+    private $leasingApplicationModel;
     private $securityModel;
     private $systemModel;
 
@@ -38,7 +39,7 @@ class CollectionsController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(CollectionsModel $collectionsModel, SalesProposalModel $salesProposalModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, CompanyModel $companyModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(CollectionsModel $collectionsModel, SalesProposalModel $salesProposalModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, CompanyModel $companyModel, LeasingApplicationModel $leasingApplicationModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->collectionsModel = $collectionsModel;
         $this->salesProposalModel = $salesProposalModel;
         $this->userModel = $userModel;
@@ -46,6 +47,7 @@ class CollectionsController {
         $this->fileExtensionModel = $fileExtensionModel;
         $this->systemSettingModel = $systemSettingModel;
         $this->companyModel = $companyModel;
+        $this->leasingApplicationModel = $leasingApplicationModel;
         $this->securityModel = $securityModel;
         $this->systemModel = $systemModel;
     }
@@ -304,6 +306,8 @@ class CollectionsController {
         $paymentAmount = $collectionsDetails['payment_amount'];
         $companyID = $collectionsDetails['company_id'];
         $payment_advice = $collectionsDetails['payment_advice'];
+        $pdc_type = $collectionsDetails['pdc_type'];
+        $leasing_collections_id = $collectionsDetails['leasing_collections_id'] ?? null;
 
         if($companyID == 1){
             $systemSettingID = 11;
@@ -313,14 +317,26 @@ class CollectionsController {
         }
         else{
             $systemSettingID = 13;
-        }        
+        }
+
+        if(($pdc_type == 'Leasing' || $pdc_type == 'Leasing Other') && !empty($leasing_collections_id)){
+            $leasingCollectionDetails = $this->leasingApplicationModel->getLeasingCollections($leasing_collections_id);
+            $leasingApplicationRepaymentID = $leasingCollectionDetails['leasing_application_repayment_id'];
+            $paymentFor = $leasingCollectionDetails['payment_for'];
+            $paymentID = $leasingCollectionDetails['payment_id'];
+            $paymentAmount = $leasingCollectionDetails['payment_amount'];
+    
+        
+            $this->leasingApplicationModel->deleteLeasingCollections($leasing_collections_id, $leasingApplicationRepaymentID, $paymentFor, $paymentID, $paymentAmount);
+            $this->leasingApplicationModel->updateLeasingOtherChargesStatus();
+            $this->leasingApplicationModel->updateLeasingApplicationRepaymentStatus();
+        }
 
         $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
 
         $this->collectionsModel->updateCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, $referenceNumber, $userID);
                     
         $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
-
         
         if($payment_advice == 'No'){
             $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
@@ -371,6 +387,8 @@ class CollectionsController {
                 $paymentAmount = $collectionsDetails['payment_amount'];
                 $companyID = $collectionsDetails['company_id'];
                 $payment_advice = $collectionsDetails['payment_advice'];
+                $pdc_type = $collectionsDetails['pdc_type'];
+                $leasing_collections_id = $collectionsDetails['leasing_collections_id'] ?? null;
 
                 if($companyID == 1){
                     $systemSettingID = 11;
@@ -380,6 +398,18 @@ class CollectionsController {
                 }
                 else{
                     $systemSettingID = 13;
+                }
+
+                if(($pdc_type == 'Leasing' || $pdc_type == 'Leasing Other') && !empty($leasing_collections_id)){
+                    $leasingCollectionDetails = $this->leasingApplicationModel->getLeasingCollections($leasing_collections_id);
+                    $leasingApplicationRepaymentID = $leasingCollectionDetails['leasing_application_repayment_id'];
+                    $paymentFor = $leasingCollectionDetails['payment_for'];
+                    $paymentID = $leasingCollectionDetails['payment_id'];
+                    $paymentAmount = $leasingCollectionDetails['payment_amount'];            
+                
+                    $this->leasingApplicationModel->deleteLeasingCollections($leasing_collections_id, $leasingApplicationRepaymentID, $paymentFor, $paymentID, $paymentAmount);
+                    $this->leasingApplicationModel->updateLeasingOtherChargesStatus();
+                    $this->leasingApplicationModel->updateLeasingApplicationRepaymentStatus();
                 }
         
                 $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
@@ -427,7 +457,9 @@ class CollectionsController {
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
         $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
-        $leasingID = htmlspecialchars($_POST['leasing_id'], ENT_QUOTES, 'UTF-8');
+        $leasing_repayment_id = htmlspecialchars($_POST['leasing_repayment_id'], ENT_QUOTES, 'UTF-8');
+        $leasing_other_charges_id = htmlspecialchars($_POST['leasing_other_charges_id'], ENT_QUOTES, 'UTF-8');
+        $payment_for = htmlspecialchars($_POST['payment_for'], ENT_QUOTES, 'UTF-8');
         $paymentDetails = $_POST['payment_details'];
         
         $paymentAmount = $_POST['payment_amount'];
@@ -474,6 +506,22 @@ class CollectionsController {
         else{
             $loanNumber = '';
         }
+
+        if($pdcType == 'Leasing' || $pdcType == 'Leasing Other'){
+
+            if($pdcType == 'Leasing'){
+                $leasingApplicationRepaymentDetails = $this->leasingApplicationModel->getLeasingApplicationRepayment($leasing_repayment_id);
+                $leasing_application_id = $leasingApplicationRepaymentDetails['leasing_application_id'];
+            }
+            else{
+                $leasingApplicationRepaymentDetails = $this->leasingApplicationModel->getLeasingOtherCharges($leasing_other_charges_id);
+                $leasing_application_id = $leasingApplicationRepaymentDetails['leasing_application_id'];
+                $leasing_repayment_id = $leasingApplicationRepaymentDetails['leasing_application_repayment_id'];
+            }
+        }
+        else{
+            $leasing_application_id = '';
+        }
     
         if ($total > 0) {
             $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
@@ -508,7 +556,7 @@ class CollectionsController {
             
             $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $paymentAmount;
 
-            $this->collectionsModel->updateCollection( $loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $leasingID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $payment_advice, $userID);
+            $this->collectionsModel->updateCollection( $loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $leasing_application_id, $leasing_repayment_id, $leasing_other_charges_id, $payment_for, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $payment_advice, $userID);
                     
             if($payment_advice == 'No'){
                 $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
@@ -528,9 +576,39 @@ class CollectionsController {
                 $systemSettingID = 13;
             }
             
+            if($pdcType === 'Leasing'){
+                $leasingApplicationRepaymentDetails = $this->leasingApplicationModel->getLeasingApplicationRepayment($leasing_repayment_id);
+                $unpaidRental = $leasingApplicationRepaymentDetails['unpaid_rental'] ?? 0;
+    
+                if($paymentAmount <= $unpaidRental){
+                    $leasing_collections_id = $this->leasingApplicationModel->insertLeasingRentalPayment($leasing_repayment_id, $leasing_application_id, 'Rent', '', $referenceNumber, $modeOfPayment, $paymentDate, $paymentAmount, $userID);
+                    $this->leasingApplicationModel->updateLeasingOtherChargesStatus();
+                    $this->leasingApplicationModel->updateLeasingApplicationRepaymentStatus();
+                }
+                else{
+                    echo json_encode(['success' => false, 'overPayment' => true]);
+                }               
+            }
+            else if($pdcType === 'Leasing Other'){
+                $leasingApplicationOtherChargesDetails = $this->leasingApplicationModel->getLeasingOtherCharges($leasing_other_charges_id);
+                    $dueAmount = $leasingApplicationOtherChargesDetails['due_amount'] ?? 0;
+            
+                    if($paymentAmount <= $dueAmount){
+                        $leasing_collections_id = $this->leasingApplicationModel->insertLeasingOtherChargesPayment($leasing_repayment_id, $leasing_application_id, $payment_for, $leasing_other_charges_id, $referenceNumber, $modeOfPayment, $paymentDate, $paymentAmount, $userID);
+                        $this->leasingApplicationModel->updateLeasingOtherChargesStatus();
+                        $this->leasingApplicationModel->updateLeasingApplicationRepaymentStatus();
+                    }
+                    else{
+                        echo json_encode(['success' => false, 'overPayment' => true]);
+                    }
+            }
+            else{
+                $leasing_collections_id = '';
+            }
+
             $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $paymentAmount;
 
-            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $leasingID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $payment_advice, $userID);
+            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $leasing_application_id, $leasing_repayment_id, $leasing_other_charges_id, $leasing_collections_id, $payment_for, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $payment_advice, $userID);
                     
             if($payment_advice == 'No'){
                 $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
@@ -713,7 +791,9 @@ class CollectionsController {
                 'modeOfPayment' => $collectionsDetails['mode_of_payment'],
                 'remarks' => $collectionsDetails['remarks'],
                 'companyID' => $collectionsDetails['company_id'],
-                'leasingID' => $collectionsDetails['leasing_application_id'],
+                'leasingRepaymentID' => $collectionsDetails['leasing_application_repayment_id'],
+                'leasingOtherChargesID' => $collectionsDetails['leasing_other_charges_id'],
+                'paymentFor' => $collectionsDetails['payment_for'],
                 'referenceNumber' => $collectionsDetails['reference_number'],
                 'depositedTo' => $collectionsDetails['deposited_to'],
                 'miscellaneousClientID' => $collectionsDetails['collected_from'],
@@ -739,8 +819,9 @@ require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/company-model.php';
+require_once '../model/leasing-application-model.php';
 require_once '../model/system-model.php';
 
-$controller = new CollectionsController(new CollectionsModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new CompanyModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new CollectionsController(new CollectionsModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new CompanyModel(new DatabaseModel), new LeasingApplicationModel(new DatabaseModel()), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

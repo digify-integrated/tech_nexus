@@ -1089,6 +1089,25 @@ BEGIN
 	ORDER BY tenant_name;
 END //
 
+CREATE PROCEDURE generateLeasingApplicationUnpaidRepaymentOptions()
+BEGIN
+	SELECT leasing_application_repayment_id, reference, due_date, tenant_name FROM leasing_application_repayment
+    LEFT OUTER JOIN leasing_application ON leasing_application.leasing_application_id = leasing_application_repayment.leasing_application_id
+    LEFT OUTER JOIN tenant ON tenant.tenant_id = leasing_application.tenant_id
+    WHERE application_status = 'Active' AND outstanding_balance > 0 AND (repayment_status = 'Unpaid' OR repayment_status = 'Partially Paid')
+	ORDER BY reference;
+END //
+
+CREATE PROCEDURE generateLeasingApplicationUnpaidOtherChargesOptions()
+BEGIN
+	SELECT leasing_other_charges_id, reference, other_charges_type, leasing_other_charges.due_date AS due_date, tenant_name FROM leasing_other_charges
+    LEFT OUTER JOIN leasing_application_repayment ON leasing_application_repayment.leasing_application_repayment_id = leasing_other_charges.leasing_application_repayment_id
+    LEFT OUTER JOIN leasing_application ON leasing_application.leasing_application_id = leasing_other_charges.leasing_application_id
+    LEFT OUTER JOIN tenant ON tenant.tenant_id = leasing_application.tenant_id
+    WHERE application_status = 'Active' AND leasing_other_charges.outstanding_balance > 0 AND (payment_status = 'Unpaid' OR payment_status = 'Partially Paid')
+	ORDER BY reference;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /*  Table Stored Procedures */
@@ -7001,6 +7020,14 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
+CREATE PROCEDURE updateRRDate(IN p_product_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE product
+    SET rr_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE product_id = p_product_id;
+END //
+
 CREATE PROCEDURE deleteProductImage(IN p_product_image_id INT)
 BEGIN
     DELETE FROM product_image WHERE product_image_id = p_product_image_id;
@@ -7656,12 +7683,12 @@ BEGIN
     SET p_loan_collection_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE insertCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_payment_advice VARCHAR(5), IN p_last_log_by INT, OUT p_loan_collection_id INT)
+CREATE PROCEDURE insertCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_leasing_application_repayment_id INT, IN p_leasing_other_charges_id INT, IN p_leasing_collections_id INT, IN p_payment_for VARCHAR(50), IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_payment_advice VARCHAR(5), IN p_last_log_by INT, OUT p_loan_collection_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, leasing_application_id, pdc_type, mode_of_payment, or_number, or_date, payment_date, payment_amount, reference_number, payment_details, company_id, deposited_to, remarks, transaction_date, collection_status, collected_from, payment_advice, last_log_by) 
-	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_leasing_application_id, p_pdc_type, p_mode_of_payment, p_or_number, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), 'Posted', p_collected_from, p_payment_advice, p_last_log_by);
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, leasing_application_id, leasing_application_repayment_id, leasing_other_charges_id, leasing_collections_id, payment_for, pdc_type, mode_of_payment, or_number, or_date, payment_date, payment_amount, reference_number, payment_details, company_id, deposited_to, remarks, transaction_date, collection_status, collected_from, payment_advice, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, leasing_application_id, p_leasing_application_repayment_id, p_leasing_other_charges_id, p_leasing_collections_id, p_payment_for, p_pdc_type, p_mode_of_payment, p_or_number, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), 'Posted', p_collected_from, p_payment_advice, p_last_log_by);
 
     SET p_loan_collection_id = LAST_INSERT_ID();
 
@@ -7669,7 +7696,7 @@ BEGIN
     VALUES(p_loan_collection_id, p_mode_of_payment, NOW(), 'Posted', p_or_number, p_or_date, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_payment_advice VARCHAR(5), IN p_last_log_by INT)
+CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_leasing_application_repayment_id INT, IN p_leasing_other_charges_id INT, IN p_payment_for VARCHAR(50), IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_payment_advice VARCHAR(5), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
@@ -7679,6 +7706,9 @@ BEGIN
     product_id = p_product_id,
     customer_id = p_customer_id,
     leasing_application_id = p_leasing_application_id,
+    leasing_application_repayment_id = p_leasing_application_repayment_id,
+    leasing_other_charges_id = p_leasing_other_charges_id,
+    payment_for = p_payment_for,
     pdc_type = p_pdc_type,
     mode_of_payment = p_mode_of_payment,
     or_number = p_or_number,
@@ -8893,6 +8923,12 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id AND payment_for = 'Insurance Renewal';
 END //
 
+CREATE PROCEDURE getSalesProposalOtherChargesPDCManualInputDetails(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT * FROM sales_proposal_manual_pdc_input
+    WHERE sales_proposal_id = p_sales_proposal_id AND payment_for = 'Other Charges';
+END //
+
 CREATE PROCEDURE getSalesProposalRegistrationRenewalPDCManualInputDetails(IN p_sales_proposal_id INT)
 BEGIN
 	SELECT * FROM sales_proposal_manual_pdc_input
@@ -9371,7 +9407,7 @@ BEGIN
     WHERE leasing_collections_id = p_leasing_collections_id;
 END //
 
-CREATE PROCEDURE insertLeasingRentalPayment(IN p_leasing_application_repayment_id INT, IN p_leasing_application_id INT, IN p_payment_for VARCHAR(50), IN p_payment_id INT, IN p_reference_number VARCHAR(500), IN p_payment_mode VARCHAR(50), IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertLeasingRentalPayment(IN p_leasing_application_repayment_id INT, IN p_leasing_application_id INT, IN p_payment_for VARCHAR(50), IN p_payment_id INT, IN p_reference_number VARCHAR(500), IN p_payment_mode VARCHAR(50), IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_last_log_by INT, OUT p_leasing_collections_id INT)
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -9390,10 +9426,12 @@ BEGIN
 	INSERT INTO leasing_collections (leasing_application_repayment_id, leasing_application_id, payment_for, payment_id, reference_number, payment_mode, payment_date, payment_amount, last_log_by) 
 	VALUES(p_leasing_application_repayment_id, p_leasing_application_id, p_payment_for, p_payment_id, p_reference_number, p_payment_mode, p_payment_date, p_payment_amount, p_last_log_by);
 
+    SET p_leasing_collections_id = LAST_INSERT_ID();
+
     COMMIT;
 END //
 
-CREATE PROCEDURE insertLeasingOtherChargesPayment(IN p_leasing_application_repayment_id INT, IN p_leasing_application_id INT, IN p_payment_for VARCHAR(50), IN p_payment_id INT, IN p_reference_number VARCHAR(500), IN p_payment_mode VARCHAR(50), IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertLeasingOtherChargesPayment(IN p_leasing_application_repayment_id INT, IN p_leasing_application_id INT, IN p_payment_for VARCHAR(50), IN p_payment_id INT, IN p_reference_number VARCHAR(500), IN p_payment_mode VARCHAR(50), IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_last_log_by INT, OUT p_leasing_collections_id INT)
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -9445,6 +9483,8 @@ BEGIN
 
 	INSERT INTO leasing_collections (leasing_application_repayment_id, leasing_application_id, payment_for, payment_id, reference_number, payment_mode, payment_date, payment_amount, last_log_by) 
 	VALUES(p_leasing_application_repayment_id, p_leasing_application_id, p_payment_for, p_payment_id, p_reference_number, p_payment_mode, p_payment_date, p_payment_amount, p_last_log_by);
+
+    SET p_leasing_collections_id = LAST_INSERT_ID();
 
     COMMIT;
 END //

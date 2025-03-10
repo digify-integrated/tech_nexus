@@ -31,6 +31,8 @@
           header('location: dashboard.php');
           exit;
         }
+
+        
         
         $disbursementIDs = explode(',', $_GET['id']);
 
@@ -51,13 +53,15 @@
             }
         }
     }
+    $type = $_GET['type'] ?? '';
 
-    $summaryTable = generatePrint($disbursementIDs);
+    $summaryTable = generatePrint($disbursementIDs, $type);
     $summaryTable2 = generatePrint2($createdByName);
     $summaryTable3 = generatePrint3();
     $summaryTable4 = generatePrint4($pettyCashFund, $disbursementTotal);
     
     $summaryTable5 = generatePrint5($disbursementIDs);
+
 
     ob_start();
 
@@ -97,17 +101,21 @@
     // Set the starting Y position
     $y = $pdf->GetY();
 
-    // First table (2 columns)
-    $pdf->SetXY(15, $y);
-    $pdf->writeHTML($summaryTable2, true, false, true, false, '');
+    if($type != 'disbursement check'){
+        // First table (2 columns)
+        $pdf->SetXY(15, $y);
+        $pdf->writeHTML($summaryTable2, true, false, true, false, '');
 
-    // Second table (3 columns)
-    $pdf->SetXY(15 + $tableWidth1 + 25, $y);
-    $pdf->writeHTML($summaryTable3, true, false, true, false, '');
+        // Second table (3 columns)
+        $pdf->SetXY(15 + $tableWidth1 + 25, $y);
+        $pdf->writeHTML($summaryTable3, true, false, true, false, '');
 
-    // Second table (3 columns)
-    $pdf->SetXY(15 + $tableWidth1 + 120, $y);
-    $pdf->writeHTML($summaryTable4, true, false, true, false, '');
+        // Second table (3 columns)
+        $pdf->SetXY(15 + $tableWidth1 + 120, $y);
+        $pdf->writeHTML($summaryTable4, true, false, true, false, '');
+    }
+
+    
 
     $pdf->Ln(0);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
@@ -121,7 +129,7 @@
     $pdf->Output('cash-disbursement-voucher.pdf', 'I');
     ob_end_flush();
 
-    function generatePrint($disbursementIDs){        
+    function generatePrint($disbursementIDs, $type){        
         require_once 'model/database-model.php';
         require_once 'model/pdc-management-model.php';
         require_once 'model/system-model.php';
@@ -177,7 +185,7 @@
             $departmentDetails = $departmentModel->getDepartment($department_id);
             $departmentName = $departmentDetails['department_name'] ?? null;
 
-            if($fund_source == 'Petty Cash' && ($disburse_status == 'Posted' || $disburse_status == 'Replenished')) {
+            if(($fund_source == 'Petty Cash' || $type === 'disbursement check') && ($disburse_status == 'Posted' || $disburse_status == 'Replenished')) {
                 $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementParticularsTable(:disbursementID)');
                 $sql->bindValue(':disbursementID', $disbursementID, PDO::PARAM_INT);
                 $sql->execute();
