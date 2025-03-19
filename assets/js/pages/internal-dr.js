@@ -244,7 +244,7 @@ function internalDRTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
         { 'width': '15%','bSortable': false, 'aTargets': 7 }
     ];
 
@@ -265,7 +265,7 @@ function internalDRTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 6, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

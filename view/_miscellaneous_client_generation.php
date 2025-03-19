@@ -40,6 +40,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             foreach ($options as $row) {
                 $miscellaneousClientID = $row['miscellaneous_client_id'];
                 $clientName = $row['client_name'];
+                $address = $row['address'];
+                $tin = $row['tin'] ?? null;
 
                 $miscellaneousClientIDEncrypted = $securityModel->encryptData($miscellaneousClientID);
 
@@ -53,6 +55,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $miscellaneousClientID .'">',
                     'CLIENT_NAME' => $clientName,
+                    'ADDRESS' => $address,
+                    'TIN' => $tin,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="miscellaneous-client.php?id='. $miscellaneousClientIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>

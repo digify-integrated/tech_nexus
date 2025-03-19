@@ -23,6 +23,10 @@
                       $dropdown .= '<li><button class="dropdown-item print" target="_blank">Print Voucher</button></li>';
                     }
              
+                    if (($disbursementStatus == 'Draft' || $disbursementStatus == 'Posted')) {
+                      $dropdown .= '<li><a href="print-bir-2307.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print BIR Form 2307 (DO NOT USE YET - TESTING PURPOSES ONLY)</a></li>';
+                    }
+             
                     if ($postDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="post-disbursement-details">Post Disbursement</button></li>';
                     }
@@ -407,9 +411,54 @@
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Amount <span class="text-danger">*</span></label>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Invoice/Particulars Amount <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="particulars_amount" name="particulars_amount" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Base Amount</label>
+                <input type="number" class="form-control" id="base_amount" name="base_amount" step="0.01" readonly>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-4 mt-3 mt-lg-0">
+                <label class="form-label">With VAT? <span class="text-danger">*</span></label>
+                <select class="form-control" name="with_vat" id="with_vat">
+                  <option value="No" selected>No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </div>
+              <div class="col-lg-4 mt-3 mt-lg-0">
+                <label class="form-label">With Withholding? <span class="text-danger">*</span></label>
+                <select class="form-control" name="with_withholding" id="with_withholding">
+                  <option value="No" selected>--</option>
+                  <option value="1">Goods (1%)</option>
+                  <option value="2">Services (2%)</option>
+                  <option value="5">5%</option>
+                </select>
+              </div>
+              <div class="col-lg-4 mt-3 mt-lg-0">
+                <label class="form-label">Tax Quarter</label>
+                <select class="form-control" name="tax_quarter" id="tax_quarter">
+                  <option value="">--</option>
+                  <option value="1">1st Quarter</option>
+                  <option value="2">2nd Quarter</option>
+                  <option value="3">3rd Quarter</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-4 mt-3 mt-lg-0">
+                <label class="form-label">VAT Amount</label>
+                <input type="number" class="form-control" id="vat_amount" name="vat_amount" step="0.01" readonly>
+              </div>
+              <div class="col-lg-4 mt-3 mt-lg-0">
+                <label class="form-label">Withholding Amount</label>
+                <input type="number" class="form-control" id="withholding_amount" name="withholding_amount" step="0.01" readonly>
+              </div>
+              <div class="col-lg-4 mt-3 mt-lg-0">
+                <label class="form-label">Total Amount</label>
+                <input type="number" class="form-control" id="total_amount" name="total_amount" step="0.01" readonly>
               </div>
             </div>
             <div class="form-group row">

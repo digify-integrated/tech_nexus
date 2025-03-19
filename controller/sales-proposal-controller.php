@@ -3052,21 +3052,6 @@ class SalesProposalController {
         echo json_encode(['success' => true]);
         exit;
     }
-    
-    public function saveJobOrderProgress() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $salesProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_job_order_id'], ENT_QUOTES, 'UTF-8');
-        $progress = htmlspecialchars($_POST['job_order_progress'], ENT_QUOTES, 'UTF-8');
-    
-        $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $progress, $userID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -3115,11 +3100,35 @@ class SalesProposalController {
         }
     
         $userID = $_SESSION['user_id'];
-        $salesProposalAdditionalJobOrderID = htmlspecialchars($_POST['sales_proposal_additional_job_order_id'], ENT_QUOTES, 'UTF-8');
-    
+        $salesProposalAdditionalJobOrderID = htmlspecialchars($_POST['sales_proposal_additional_job_order_id'], ENT_QUOTES, 'UTF-8');    
         $progress = htmlspecialchars($_POST['additional_job_order_progress'], ENT_QUOTES, 'UTF-8');
+        $cost = htmlspecialchars($_POST['additional_job_order_cost'], ENT_QUOTES, 'UTF-8');
+        $contractor_id = htmlspecialchars($_POST['additional_job_order_contractor_id'], ENT_QUOTES, 'UTF-8');
+        $work_center_id = htmlspecialchars($_POST['additional_job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
+        $backjob = htmlspecialchars($_POST['additional_job_order_backjob'], ENT_QUOTES, 'UTF-8');
     
-        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $progress, $userID);
+        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    
+    
+    public function saveJobOrderProgress() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $progress = htmlspecialchars($_POST['job_order_progress'], ENT_QUOTES, 'UTF-8');
+        $cost = htmlspecialchars($_POST['job_order_cost'], ENT_QUOTES, 'UTF-8');
+        $contractor_id = htmlspecialchars($_POST['job_order_contractor_id'], ENT_QUOTES, 'UTF-8');
+        $work_center_id = htmlspecialchars($_POST['job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
+        $backjob = htmlspecialchars($_POST['job_order_backjob'], ENT_QUOTES, 'UTF-8');
+    
+        $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -3747,6 +3756,9 @@ class SalesProposalController {
                 'jobOrder' => $salesProposalJobOrderDetails['job_order'],
                 'cost' => $salesProposalJobOrderDetails['cost'],
                 'progress' => $salesProposalJobOrderDetails['progress'],
+                'contractorID' => $salesProposalJobOrderDetails['contractor_id'],
+                'workCenterID' => $salesProposalJobOrderDetails['work_center_id'],
+                'backjob' => $salesProposalJobOrderDetails['backjob'],
             ];
 
             echo json_encode($response);
@@ -3830,7 +3842,10 @@ class SalesProposalController {
                 'jobOrderDate' =>  $this->systemModel->checkDate('empty', $salesProposalAdditionalJobOrderDetails['job_order_date'], '', 'm/d/Y', ''),
                 'particulars' =>  $salesProposalAdditionalJobOrderDetails['particulars'],
                 'cost' => $salesProposalAdditionalJobOrderDetails['cost'],
-                'progress' => $salesProposalAdditionalJobOrderDetails['progress']
+                'progress' => $salesProposalAdditionalJobOrderDetails['progress'],
+                'contractorID' => $salesProposalAdditionalJobOrderDetails['contractor_id'],
+                'workCenterID' => $salesProposalAdditionalJobOrderDetails['work_center_id'],
+                'backjob' => $salesProposalAdditionalJobOrderDetails['backjob'],
             ];
 
             echo json_encode($response);

@@ -41,6 +41,8 @@
                   </div>
                 </th>
                 <th>Miscellaneous Client</th>
+                <th>Address</th>
+                <th>TIN</th>
                 <th>Actions</th>
               </tr>
             </thead>

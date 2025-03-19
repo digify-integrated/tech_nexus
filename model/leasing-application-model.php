@@ -700,8 +700,9 @@ class LeasingApplicationModel {
         return $htmlOptions;
     }
 
-    public function generateLeasingApplicationUnpaidRepaymentOptions() {
-        $stmt = $this->db->getConnection()->prepare('CALL generateLeasingApplicationUnpaidRepaymentOptions()');
+    public function generateLeasingApplicationUnpaidRepaymentOptions($p_collection_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL generateLeasingApplicationUnpaidRepaymentOptions(:p_collection_id)');
+        $stmt->bindValue(':p_collection_id', $p_collection_id, PDO::PARAM_INT);
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -711,16 +712,18 @@ class LeasingApplicationModel {
             $reference = $row['reference'];
             $tenant_name = $row['tenant_name'];
             $due_date = $row['due_date'];
+            $unpaid_rental = $row['unpaid_rental'];
             $formatted_due_date = date("F d, Y", strtotime($due_date));
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($leasing_application_repayment_id, ENT_QUOTES) . '">' . $tenant_name . ' - ' . htmlspecialchars($reference, ENT_QUOTES) .' (Due Date: '. $formatted_due_date .')</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($leasing_application_repayment_id, ENT_QUOTES) . '">' . $tenant_name . ' - ' . htmlspecialchars($reference, ENT_QUOTES) .' (Due Amount: '. number_format($unpaid_rental, 2) .', Due Date: '. $formatted_due_date .')</option>';
         }
 
         return $htmlOptions;
     }
 
-    public function generateLeasingApplicationUnpaidOtherChargesOptions() {
-        $stmt = $this->db->getConnection()->prepare('CALL generateLeasingApplicationUnpaidOtherChargesOptions()');
+    public function generateLeasingApplicationUnpaidOtherChargesOptions($p_collection_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL generateLeasingApplicationUnpaidOtherChargesOptions(:p_collection_id)');
+        $stmt->bindValue(':p_collection_id', $p_collection_id, PDO::PARAM_INT);
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -731,9 +734,10 @@ class LeasingApplicationModel {
             $tenant_name = $row['tenant_name'];
             $other_charges_type = $row['other_charges_type'];
             $due_date = $row['due_date'];
+            $outstanding_balance = $row['outstanding_balance'];
             $formatted_due_date = date("F d, Y", strtotime($due_date));
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($leasing_other_charges_id, ENT_QUOTES) . '">' . $tenant_name . ' - ' . htmlspecialchars($reference, ENT_QUOTES). ' - ' . $other_charges_type .' (Due Date: '. $formatted_due_date .')</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($leasing_other_charges_id, ENT_QUOTES) . '">' . $tenant_name . ' - ' . htmlspecialchars($reference, ENT_QUOTES). ' - ' . $other_charges_type .' (Due Amount: '. number_format($outstanding_balance, 2) .', Due Date: '. $formatted_due_date .')</option>';
         }
 
         return $htmlOptions;

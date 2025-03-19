@@ -28,10 +28,12 @@ class MiscellaneousClientModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateMiscellaneousClient($p_miscellaneous_client_id, $p_client_name, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateMiscellaneousClient(:p_miscellaneous_client_id, :p_client_name, :p_last_log_by)');
+    public function updateMiscellaneousClient($p_miscellaneous_client_id, $p_client_name, $p_address, $p_tin, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateMiscellaneousClient(:p_miscellaneous_client_id, :p_client_name, :p_address, :p_tin, :p_last_log_by)');
         $stmt->bindValue(':p_miscellaneous_client_id', $p_miscellaneous_client_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_client_name', $p_client_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
+        $stmt->bindValue(':p_tin', $p_tin, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -53,9 +55,11 @@ class MiscellaneousClientModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertMiscellaneousClient($p_client_name, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertMiscellaneousClient(:p_client_name, :p_last_log_by, @p_miscellaneous_client_id)');
+    public function insertMiscellaneousClient($p_client_name, $p_address, $p_tin, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertMiscellaneousClient(:p_client_name, :p_address, :p_tin, :p_last_log_by, @p_miscellaneous_client_id)');
         $stmt->bindValue(':p_client_name', $p_client_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
+        $stmt->bindValue(':p_tin', $p_tin, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 

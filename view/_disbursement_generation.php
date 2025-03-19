@@ -370,6 +370,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
+            
+            $response = []; 
 
             foreach ($options as $row) {
                 $disbursement_particulars_id = $row['disbursement_particulars_id'];
@@ -377,6 +379,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $company_id = $row['company_id'];
                 $remarks = $row['remarks'];
                 $particulars_amount = $row['particulars_amount'];
+                $with_vat = $row['with_vat'];
+                $with_withholding = $row['with_withholding'];
+                $vat_amount = $row['vat_amount'];
+                $withholding_amount = $row['withholding_amount'];
+                $total_amount = $row['total_amount'];
 
                 $companyDetails = $companyModel->getCompany($company_id);
                 $companyName = $companyDetails['company_name'] ?? null;
@@ -398,6 +405,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $disbursement_particulars_id_enc = $securityModel->encryptData($disbursement_particulars_id);
 
+               
+
                 $response[] = [
                     'PARTICULARS' => $chartOfAccountName,
                     'COMPANY' => $companyName,
@@ -405,6 +414,26 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'REMARKS' => $remarks,
                     'ACTION' => $action
                 ];
+
+                if($with_vat === 'Yes'){
+                    $response[] = [
+                        'PARTICULARS' => 'Input Tax',
+                        'COMPANY' => $companyName,
+                        'PARTICULAR_AMOUNT' => number_format($vat_amount, 2),
+                        'REMARKS' => 'Particulars of ' . $chartOfAccountName . ' with an amount of ' . number_format($particulars_amount, 2),
+                        'ACTION' => ''
+                    ];
+                }
+
+                if($with_withholding != 'No'){
+                    $response[] = [
+                        'PARTICULARS' => 'Withholding Tax Payable Other',
+                        'COMPANY' => $companyName,
+                        'PARTICULAR_AMOUNT' => number_format($withholding_amount * -1, 2),
+                        'REMARKS' => 'Particulars of ' . $chartOfAccountName . ' with an amount of ' . number_format($particulars_amount, 2),
+                        'ACTION' => ''
+                    ];
+                }
             }
 
             echo json_encode($response);

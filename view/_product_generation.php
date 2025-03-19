@@ -189,6 +189,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $bodyTypeFilter = htmlspecialchars($_POST['body_type_filter'], ENT_QUOTES, 'UTF-8');
                 $filterCreatedDateStartDate = $systemModel->checkDate('empty', $_POST['filter_created_date_start_date'], '', 'Y-m-d', '');
                 $filterCreatedDateEndDate = $systemModel->checkDate('empty', $_POST['filter_created_date_end_date'], '', 'Y-m-d', '');
+                $filter_for_sale_date_start_date = $systemModel->checkDate('empty', $_POST['filter_for_sale_date_start_date'], '', 'Y-m-d', '');
+                $filter_for_sale_date_end_date = $systemModel->checkDate('empty', $_POST['filter_for_sale_date_end_date'], '', 'Y-m-d', '');
+                $filter_sold_date_start_date = $systemModel->checkDate('empty', $_POST['filter_sold_date_start_date'], '', 'Y-m-d', '');
+                $filter_sold_date_end_date = $systemModel->checkDate('empty', $_POST['filter_sold_date_end_date'], '', 'Y-m-d', '');
                 $colorFilter = null;               
                 $filterProductCostMin = null;
                 $filterProductCostMax = null;
@@ -214,7 +218,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $filterProductPriceMax = htmlspecialchars($_POST['filter_product_price_max'], ENT_QUOTES, 'UTF-8');
                 }
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateProductTable(:productSearch, :productCategoryFilter, :productSubcategoryFilter, :companyFilter, :warehouseFilter, :bodyTypeFilter, :colorFilter, :filterProductCostMin, :filterProductCostMax, :filterProductPriceMin, :filterProductPriceMax, :productStatusFilter, :filterCreatedDateStartDate, :filterCreatedDateEndDate)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateProductTable(:productSearch, :productCategoryFilter, :productSubcategoryFilter, :companyFilter, :warehouseFilter, :bodyTypeFilter, :colorFilter, :filterProductCostMin, :filterProductCostMax, :filterProductPriceMin, :filterProductPriceMax, :productStatusFilter, :filterCreatedDateStartDate, :filterCreatedDateEndDate, :filter_for_sale_date_start_date, :filter_for_sale_date_end_date, :filter_sold_date_start_date, :filter_sold_date_end_date)');
                 $sql->bindValue(':productSearch', $productSearch, PDO::PARAM_STR);
                 $sql->bindValue(':productCategoryFilter', $productCategoryFilter, PDO::PARAM_STR);
                 $sql->bindValue(':productSubcategoryFilter', $productSubcategoryFilter, PDO::PARAM_STR);
@@ -229,6 +233,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->bindValue(':productStatusFilter', $productStatusFilter, PDO::PARAM_STR);
                 $sql->bindValue(':filterCreatedDateStartDate', $filterCreatedDateStartDate, PDO::PARAM_STR);
                 $sql->bindValue(':filterCreatedDateEndDate', $filterCreatedDateEndDate, PDO::PARAM_STR);
+                $sql->bindValue(':filter_for_sale_date_start_date', $filter_for_sale_date_start_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_for_sale_date_end_date', $filter_for_sale_date_end_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_sold_date_start_date', $filter_sold_date_start_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_sold_date_end_date', $filter_sold_date_end_date, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -245,6 +253,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $chassis_number = $row['chassis_number'];
                     $body_type_id = $row['body_type_id'];
                     $color_id  = $row['color_id'];
+                    $total_landed_cost  = $row['total_landed_cost'];
                     $warehouseID = $row['warehouse_id'];
                     $productStatus = $productModel->getProductStatus($row['product_status']);
                     $productImage = $systemModel->checkImage($row['product_image'], 'default');
@@ -263,6 +272,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $fullStockNumber = $productSubcategoryCode . $stockNumber;
                     $forSaleDate = $systemModel->checkDate('summary', $row['for_sale_date'], '', 'm/d/Y h:i:s A', '');
 
+                    $productCost = $productModel->getTotalProductCost($productID)['expense_amount'] ?? 0;
                     
                     $colorDetails = $colorModel->getColor($color_id );
                     $colorName = $colorDetails['color_name'] ?? null;
@@ -294,6 +304,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'BODY_TYPE' => $bodyTypeName,
                         'COLOR' => $colorName,
                         'WAREHOUSE' => $warehouseName,
+                        'PRODUCT_COST' => number_format($productCost,2),
                         'PRODUCT_PRICE' => number_format($productPrice,2),
                         'PRODUCT_STATUS' => $productStatus,
                         'ACTION' => '<div class="d-flex gap-2">

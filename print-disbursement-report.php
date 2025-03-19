@@ -115,8 +115,6 @@
         $pdf->writeHTML($summaryTable4, true, false, true, false, '');
     }
 
-    
-
     $pdf->Ln(0);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
 

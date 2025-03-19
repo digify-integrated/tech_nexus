@@ -234,18 +234,26 @@ class SalesProposalModel {
         $stmt->execute();
     }
 
-    public function updateSalesProposalJobOrderProgress($p_sales_proposal_job_order_id, $p_progress, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalJobOrderProgress(:p_sales_proposal_job_order_id, :p_progress, :p_last_log_by)');
+    public function updateSalesProposalJobOrderProgress($p_sales_proposal_job_order_id, $p_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalJobOrderProgress(:p_sales_proposal_job_order_id, :p_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_job_order_id', $p_sales_proposal_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_progress', $p_progress, PDO::PARAM_STR);
+        $stmt->bindValue(':p_contractor_id', $p_contractor_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_work_center_id', $p_work_center_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_backjob', $p_backjob, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
 
-    public function updateSalesProposalAdditionalJobOrderProgress($sales_proposal_additional_job_order_id, $p_progress, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderProgress(:sales_proposal_additional_job_order_id, :p_progress, :p_last_log_by)');
+    public function updateSalesProposalAdditionalJobOrderProgress($sales_proposal_additional_job_order_id, $p_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderProgress(:sales_proposal_additional_job_order_id, :p_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_last_log_by)');
         $stmt->bindValue(':sales_proposal_additional_job_order_id', $sales_proposal_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_progress', $p_progress, PDO::PARAM_STR);
+        $stmt->bindValue(':p_contractor_id', $p_contractor_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_work_center_id', $p_work_center_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_backjob', $p_backjob, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

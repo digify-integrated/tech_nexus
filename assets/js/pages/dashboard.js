@@ -412,7 +412,7 @@ function dashboardDocumentTable(datatable_name, buttons = false, show_all = fals
         { 'width': '10%', 'aTargets': 0 },
         { 'width': '15%', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '15%', 'type': 'date', 'aTargets': 3 },
         { 'width': '15%', 'aTargets': 4 },
     ];
 

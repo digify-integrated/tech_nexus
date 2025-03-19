@@ -103,6 +103,8 @@ class MiscellaneousClientController {
         $userID = $_SESSION['user_id'];
         $miscellaneousClientID = isset($_POST['miscellaneous_client_id']) ? htmlspecialchars($_POST['miscellaneous_client_id'], ENT_QUOTES, 'UTF-8') : null;
         $miscellaneousClientName = htmlspecialchars($_POST['client_name'], ENT_QUOTES, 'UTF-8');
+        $tin = htmlspecialchars($_POST['tin'], ENT_QUOTES, 'UTF-8');
+        $address = htmlspecialchars($_POST['address'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -115,13 +117,13 @@ class MiscellaneousClientController {
         $total = $checkMiscellaneousClientExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->miscellaneousClientModel->updateMiscellaneousClient($miscellaneousClientID, $miscellaneousClientName, $userID);
+            $this->miscellaneousClientModel->updateMiscellaneousClient($miscellaneousClientID, $miscellaneousClientName, $address, $tin, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'miscellaneousClientID' => $this->securityModel->encryptData($miscellaneousClientID)]);
             exit;
         } 
         else {
-            $miscellaneousClientID = $this->miscellaneousClientModel->insertMiscellaneousClient($miscellaneousClientName, $userID);
+            $miscellaneousClientID = $this->miscellaneousClientModel->insertMiscellaneousClient($miscellaneousClientName, $address, $tin, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'miscellaneousClientID' => $this->securityModel->encryptData($miscellaneousClientID)]);
             exit;
@@ -289,7 +291,9 @@ class MiscellaneousClientController {
 
             $response = [
                 'success' => true,
-                'clientName' => $miscellaneousClientDetails['client_name']
+                'clientName' => $miscellaneousClientDetails['client_name'],
+                'tin' => $miscellaneousClientDetails['tin'],
+                'address' => $miscellaneousClientDetails['address']
             ];
 
             echo json_encode($response);

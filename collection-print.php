@@ -43,8 +43,8 @@
 
         foreach ($loanCollectionIDs as $loanCollectionID) {
             $pdcManagementDetails = $pdcManagementModel->getPDCManagement($loanCollectionID);
-            $collection_status = $pdcManagementDetails['collection_status'];
-            $payment_amount = $pdcManagementDetails['payment_amount'];
+            $collection_status = $pdcManagementDetails['collection_status'] ?? null;
+            $payment_amount = $pdcManagementDetails['payment_amount'] ?? 0;
 
             $totalPDCAmount = $totalPDCAmount + $payment_amount;
 
@@ -163,26 +163,27 @@
 
         foreach ($loanCollectionIDs as $loanCollectionID) {
             $pdcManagementDetails = $pdcManagementModel->getPDCManagement($loanCollectionID);
-            $collection_status = $pdcManagementDetails['collection_status'];
-            $payment_amount = $pdcManagementDetails['payment_amount'];
-            $customer_id = $pdcManagementDetails['customer_id'];
-            $sales_proposal_id = $pdcManagementDetails['sales_proposal_id'];
-            $loan_number = $pdcManagementDetails['loan_number'];
-            $payment_details = $pdcManagementDetails['payment_details'];
-            $bank_branch = $pdcManagementDetails['bank_branch'];
-            $mode_of_payment = $pdcManagementDetails['mode_of_payment'];
-            $check_number = $pdcManagementDetails['check_number'];
-            $remarks = $pdcManagementDetails['remarks'];
-            $pdc_type = $pdcManagementDetails['pdc_type'];
-            $collected_from = $pdcManagementDetails['collected_from'];
-            $deposited_to = $pdcManagementDetails['deposited_to'];
-            $payment_advice = $pdcManagementDetails['payment_advice'];
-            $leasing_application_id = $pdcManagementDetails['leasing_application_id'];
-            $payment_date = $systemModel->checkDate('empty', $pdcManagementDetails['payment_date'], '', 'm/d/Y', '');
-            $transaction_date = $systemModel->checkDate('empty', $pdcManagementDetails['transaction_date'], '', 'm/d/Y', '');
+            $collection_status = $pdcManagementDetails['collection_status'] ?? null;
+            $payment_amount = $pdcManagementDetails['payment_amount'] ?? null;
+            $customer_id = $pdcManagementDetails['customer_id'] ?? null;
+            $sales_proposal_id = $pdcManagementDetails['sales_proposal_id'] ?? null;
+            $loan_number = $pdcManagementDetails['loan_number'] ?? null;
+            $payment_details = $pdcManagementDetails['payment_details'] ?? null;
+            $bank_branch = $pdcManagementDetails['bank_branch'] ?? null;
+            $mode_of_payment = $pdcManagementDetails['mode_of_payment'] ?? null;
+            $check_number = $pdcManagementDetails['check_number'] ?? null;
+            $remarks = $pdcManagementDetails['remarks'] ?? null;
+            $pdc_type = $pdcManagementDetails['pdc_type'] ?? null;
+            $collected_from = $pdcManagementDetails['collected_from'] ?? null;
+            $deposited_to = $pdcManagementDetails['deposited_to'] ?? null;
+            $payment_advice = $pdcManagementDetails['payment_advice'] ?? null;
+            $leasing_application_repayment_id = $pdcManagementDetails['leasing_application_repayment_id'] ?? null;
+            $leasing_other_charges_id = $pdcManagementDetails['leasing_other_charges_id'] ?? null;
+            $payment_date = $systemModel->checkDate('empty', $pdcManagementDetails['payment_date'] ?? null, '', 'm/d/Y', '');
+            $transaction_date = $systemModel->checkDate('empty', $pdcManagementDetails['transaction_date'] ?? null, '', 'm/d/Y', '');
 
             $getBankDetails = $bankModel->getBank($deposited_to);
-            $bank_name = $getBankDetails['bank_name'];
+            $bank_name = $getBankDetails['bank_name'] ?? null;
 
             $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($collected_from);
             $customerName2 = $miscellaneousClientDetails['client_name'] ?? null;
@@ -191,23 +192,33 @@
             $customerName = $customerDetails['file_as'] ?? null;
 
             if($pdc_type == 'Product'){
-                $product_id = $pdcManagementDetails['product_id'];
+                $product_id = $pdcManagementDetails['product_id'] ?? null;
 
                 $productDetails = $productModel->getProduct($product_id);
                 $stockNumber = $productDetails['stock_number'] ?? null;
             }
             else if($pdc_type == 'Loan'){
                 $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
-                $product_id = $salesProposalDetails['product_id'];
+                $product_id = $salesProposalDetails['product_id'] ?? null;
 
                 $productDetails = $productModel->getProduct($product_id);
                 $stockNumber = $productDetails['stock_number'] ?? null;
             }
-            else if($pdc_type == 'Leasing'){
+            else if($pdc_type == 'Leasing' || $pdc_type === 'Leasing Other'){
+
+                if($pdc_type === 'Leasing'){
+                    $leasingApplicationRepaymentDetails = $leasingApplicationModel->getLeasingApplicationRepayment($leasing_application_repayment_id);
+                    $leasing_application_id = $leasingApplicationRepaymentDetails['leasing_application_id'] ?? '';
+                }
+                else{
+                    $leasingApplicationOtherChargesDetails = $leasingApplicationModel->getLeasingOtherCharges($leasing_other_charges_id);
+                    $leasing_application_id = $leasingApplicationOtherChargesDetails['leasing_application_id'] ?? '';
+                }
+                
                 $leasingApplicationDetails = $leasingApplicationModel->getLeasingApplication($leasing_application_id);
 
-                $loan_number = $leasingApplicationDetails['leasing_application_number'];
-                $tenant_id = $leasingApplicationDetails['tenant_id'];
+                $loan_number = $leasingApplicationDetails['leasing_application_number'] ?? '';
+                $tenant_id = $leasingApplicationDetails['tenant_id'] ?? '';
 
                 $tenantDetails = $tenantModel->getTenant($tenant_id);
                 $customerName = strtoupper($tenantDetails['tenant_name'] ?? '');
@@ -218,11 +229,11 @@
             }
 
             if($collection_status == 'Reversed'){
-                $or_number = $pdcManagementDetails['reversal_reference_number'];
+                $or_number = $pdcManagementDetails['reversal_reference_number'] ?? null;
                 $or_date = $systemModel->checkDate('empty', $pdcManagementDetails['reversal_reference_date'], '', 'm/d/Y', '');
             }
             else{
-                $or_number = $pdcManagementDetails['or_number'];
+                $or_number = $pdcManagementDetails['or_number'] ?? null;
                 $or_date = $systemModel->checkDate('empty', $pdcManagementDetails['or_date'], '', 'm/d/Y', '');
             }
 

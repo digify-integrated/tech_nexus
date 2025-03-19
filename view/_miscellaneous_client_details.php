@@ -50,6 +50,20 @@
                         <label class="col-form-label form-details fw-normal" id="client_name_label"></label>
                         <input type="text" class="form-control d-none form-edit" id="client_name" name="client_name" maxlength="2000" autocomplete="off">
                       </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label">Address</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="address_label"></label>
+                        <input type="text" class="form-control d-none form-edit" id="address" name="address" maxlength="5000" autocomplete="off">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label">TIN</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="tin_label"></label>
+                        <input type="text" class="form-control d-none form-edit" id="tin" name="tin" maxlength="50" autocomplete="off">
+                      </div>
                     </div>';
             }
             else{
@@ -57,6 +71,18 @@
                       <label class="col-lg-2 col-form-label">Name</label>
                       <div class="col-lg-10">
                         <label class="col-form-label form-details fw-normal" id="client_name_label"></label>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label">Address</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="address_label"></label>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label">TIN</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="tin_label"></label>
                       </div>
                     </div>';
             }

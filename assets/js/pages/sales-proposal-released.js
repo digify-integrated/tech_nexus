@@ -366,120 +366,120 @@
 
         $(document).on('change','#diesel_fuel_quantity',function() {
             calculateFuelTotal();
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#diesel_price_per_liter',function() {
             calculateFuelTotal();
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#regular_fuel_quantity',function() {
             calculateFuelTotal();
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#regular_price_per_liter',function() {
             calculateFuelTotal();
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#premium_fuel_quantity',function() {
             calculateFuelTotal();
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#premium_price_per_liter',function() {
             calculateFuelTotal();
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#delivery_price',function() {
-            calculateTotalDeliveryPrice();
+            //calculateTotalDeliveryPrice();
             calculateRenewalAmount();
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#add_on_charge',function() {
-            calculateTotalDeliveryPrice();
-            calculateTotalOtherCharges();
+            //calculateTotalDeliveryPrice();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#nominal_discount',function() {
-            calculateTotalDeliveryPrice();
-            calculateTotalOtherCharges();
+            //calculateTotalDeliveryPrice();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#term_length',function() {
-            calculatePricingComputation();
+            //calculatePricingComputation();
         });
 
         $(document).on('change','#interest_rate',function() {
-            calculatePricingComputation();
-            calculateTotalOtherCharges();
+            //calculatePricingComputation();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#cost_of_accessories',function() {
-            calculatePricingComputation();
-            calculateTotalOtherCharges();
+            //calculatePricingComputation();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#reconditioning_cost',function() {
-            calculatePricingComputation();
-            calculateTotalOtherCharges();
+            //calculatePricingComputation();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#downpayment',function() {
-            calculatePricingComputation();
-            calculateTotalOtherCharges();
+            //calculatePricingComputation();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#insurance_coverage',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#insurance_premium',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#insurance_premium_discount',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#handling_fee',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#handling_fee_discount',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#transfer_fee',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#transfer_fee_discount',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#registration_fee',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#doc_stamp_tax',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#doc_stamp_tax_discount',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#transaction_fee',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#transaction_fee_discount',function() {
-            calculateTotalOtherCharges();
+            //calculateTotalOtherCharges();
         });
 
         $(document).on('change','#compute_second_year',function() {
@@ -1300,10 +1300,6 @@
 
         if($('#sales-proposal-id').length){
             displayDetails('get sales proposal basic details');
-            displayDetails('get sales proposal pricing computation details');
-            displayDetails('get sales proposal other charges details');
-            displayDetails('get sales proposal confirmation details');
-            displayDetails('get sales proposal renewal amount details');
         }
 
         $(document).on('click','#apply-filter',function() {
@@ -5179,20 +5175,12 @@ function displayDetails(transaction){
                     }
                     showErrorDialog(fullErrorMessage);
                 },
-                ccomplete: function(){
-                    var productType = $('#product_type').val();
+                complete: function(){
+                    displayDetails('get sales proposal unit details');
+                    displayDetails('get sales proposal fuel details');
+                    displayDetails('get sales proposal refinancing details');
 
-                    if(productType == 'Unit' || productType == 'Rental' || productType == 'Consignment'){
-                        displayDetails('get sales proposal unit details');
-                    }
-                    else if(productType == 'Fuel'){
-                        displayDetails('get sales proposal fuel details');
-                    }
-                    else{
-                        displayDetails('get sales proposal refinancing details');
-                    }
-
-                    calculateTotalOtherCharges();
+                    //calculateTotalOtherCharges();
                 }
             });
             break;
@@ -5223,6 +5211,68 @@ function displayDetails(transaction){
                         checkOptionExist('#for_change_color', response.forChangeColor, '');
                         checkOptionExist('#for_change_body', response.forChangeBody, '');
                         checkOptionExist('#for_change_engine', response.forChangeEngine, '');
+
+                        var product_id = response.productID;
+                        var transaction = 'get product details';
+                
+                        if(product_id != '' && product_id != 0){
+                            $.ajax({
+                                url: 'controller/product-controller.php',
+                                method: 'POST',
+                                dataType: 'json',
+                                data: {
+                                    product_id : product_id, 
+                                    transaction : transaction
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        $('#delivery_price').val(response.productPrice);
+                                        $('#old_color').val(response.colorName);
+                                        $('#old_body').val(response.bodyTypeName);
+                                        $('#old_engine').val(response.engineNumber);
+
+                                        $('#product_engine_number').text(response.engineNumber);
+                                        $('#product_chassis_number').text(response.chassisNumber);
+                                        $('#product_plate_number').text(response.plateNumber);
+                                        $('#product_category').val(response.productCategoryID);
+
+                                        $('#summary-stock-no').text(response.summaryStockNumber);
+                                        $('#summary-engine-no').text(response.engineNumber);
+                                        $('#summary-chassis-no').text(response.chassisNumber);
+                                        $('#summary-plate-no').text(response.plateNumber);
+
+                                        $('#insurance_unit_no').text(response.summaryStockNumber);
+                                        $('#insurance_engine_no').text(response.engineNumber);
+                                        $('#insurance_chassis_no').text(response.chassisNumber);
+                                        $('#insurance_plate_no').text(response.plateNumber);
+                                        $('#insurance_color').text(response.colorName);
+
+                                        if($('#product_cost_label').length){
+                                            $('#product_cost_label').text(parseFloat(response.productCost).toLocaleString("en-US"));
+                                        }
+                                    } 
+                                    else {
+                                        if(response.isInactive){
+                                            window.location = 'logout.php?logout';
+                                        }
+                                        else{
+                                            showNotification('Get Product Details Error', response.message, 'danger');
+                                        }
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                                    if (xhr.responseText) {
+                                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                                    }
+                                    showErrorDialog(fullErrorMessage);
+                                },
+                                complete: function(){
+                                    //calculateTotalDeliveryPrice();
+                                    //calculateTotalOtherCharges();
+                                }
+                            });
+                        }
                         
                         $('#summary-new-color').text(response.newColor);
                         $('#summary-new-body').text(response.newBody);
@@ -5456,7 +5506,7 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                    calculateTotalDeliveryPrice();
+                    //calculateTotalDeliveryPrice();
                 }
             });
             break;
@@ -5520,7 +5570,7 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                    calculateTotalOtherCharges();
+                    //calculateTotalOtherCharges();
                 }
             });
             break;
@@ -5890,73 +5940,7 @@ function displayDetails(transaction){
                 });
                 break;
         case 'get product details':
-            var product_id;
-    
-            if($('#product_id_details').length){
-                product_id = $('#product_id_details').text();
-            }
-            else{
-                product_id = $('#product_id').val();
-            }
-    
-            if(product_id != '' && product_id != 0){
-                $.ajax({
-                    url: 'controller/product-controller.php',
-                    method: 'POST',
-                    dataType: 'json',
-                    data: {
-                        product_id : product_id, 
-                        transaction : transaction
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            $('#delivery_price').val(response.productPrice);
-                            $('#old_color').val(response.colorName);
-                            $('#old_body').val(response.bodyTypeName);
-                            $('#old_engine').val(response.engineNumber);
-
-                            $('#product_engine_number').text(response.engineNumber);
-                            $('#product_chassis_number').text(response.chassisNumber);
-                            $('#product_plate_number').text(response.plateNumber);
-                            $('#product_category').val(response.productCategoryID);
-
-                            $('#summary-stock-no').text(response.summaryStockNumber);
-                            $('#summary-engine-no').text(response.engineNumber);
-                            $('#summary-chassis-no').text(response.chassisNumber);
-                            $('#summary-plate-no').text(response.plateNumber);
-
-                            $('#insurance_unit_no').text(response.summaryStockNumber);
-                            $('#insurance_engine_no').text(response.engineNumber);
-                            $('#insurance_chassis_no').text(response.chassisNumber);
-                            $('#insurance_plate_no').text(response.plateNumber);
-                            $('#insurance_color').text(response.colorName);
-
-                            if($('#product_cost_label').length){
-                                $('#product_cost_label').text(parseFloat(response.productCost).toLocaleString("en-US"));
-                            }
-                        } 
-                        else {
-                            if(response.isInactive){
-                                window.location = 'logout.php?logout';
-                            }
-                            else{
-                                showNotification('Get Product Details Error', response.message, 'danger');
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                        if (xhr.responseText) {
-                            fullErrorMessage += ', Response: ${xhr.responseText}';
-                        }
-                        showErrorDialog(fullErrorMessage);
-                    },
-                    complete: function(){
-                        calculateTotalDeliveryPrice();
-                        calculateTotalOtherCharges();
-                    }
-                });
-            }
+            
             break;
         case 'get sales proposal other product details':
             var sales_proposal_id = $('#sales-proposal-id').text();
@@ -6114,7 +6098,7 @@ function calculateFuelTotal() {
     $('#fuel_total').text(parseCurrency(total_delivery_price.toFixed(2)).toLocaleString("en-US"));
     $('#delivery_price').val(parseCurrency(total_delivery_price.toFixed(2)).toLocaleString("en-US"));
 
-    calculateTotalDeliveryPrice();
+    //calculateTotalDeliveryPrice();
 }
 
 function calculateTotalDeliveryPrice(){
@@ -6134,7 +6118,7 @@ function calculateTotalDeliveryPrice(){
     
     $('#summary-deliver-price').text(parseFloat(total.toFixed(2)).toLocaleString("en-US"));
 
-    calculatePricingComputation();
+    //calculatePricingComputation();
 }
 
 function calculatePricingComputation(){

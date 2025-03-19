@@ -457,6 +457,13 @@ function collectionsTable(datatable_name, buttons = false, show_all = false){
 
     var filter_collections_status = $('.collections-status-filter:checked').val();
     var filter_payment_advice = $('.payment-advice-filter:checked').val();
+    var collection_report_filter_values_collection = [];
+
+    $('.collection-checkbox:checked').each(function() {
+        collection_report_filter_values_collection.push($(this).val());
+    });
+
+    var filter_collection_report_collection = collection_report_filter_values_collection.join(', ');
     var settings;
 
     const column = [ 
@@ -512,7 +519,8 @@ function collectionsTable(datatable_name, buttons = false, show_all = false){
                 'filter_cancellation_date_start_date' : filter_cancellation_date_start_date, 
                 'filter_cancellation_date_end_date' : filter_cancellation_date_end_date, 
                 'filter_collections_status' : filter_collections_status,
-                'filter_payment_advice' : filter_payment_advice
+                'filter_payment_advice' : filter_payment_advice,
+                'filter_collection_report_collection' : filter_collection_report_collection,
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
@@ -563,6 +571,13 @@ function paymentAdviceTable(datatable_name, buttons = false, show_all = false){
     var filter_cancellation_date_end_date = $('#filter_cancellation_date_end_date').val();
 
     var filter_collections_status = $('.collections-status-filter:checked').val();
+    var collection_report_filter_values_collection = [];
+
+    $('.collection-checkbox:checked').each(function() {
+        collection_report_filter_values_collection.push($(this).val());
+    });
+    
+    var filter_collection_report_collection = collection_report_filter_values_collection.join(', ');
     var settings;
 
     const column = [ 
@@ -615,7 +630,8 @@ function paymentAdviceTable(datatable_name, buttons = false, show_all = false){
                 'filter_reversed_date_end_date' : filter_reversed_date_end_date, 
                 'filter_cancellation_date_start_date' : filter_cancellation_date_start_date, 
                 'filter_cancellation_date_end_date' : filter_cancellation_date_end_date, 
-                'filter_collections_status' : filter_collections_status
+                'filter_collections_status' : filter_collections_status,
+                'filter_collection_report_collection' : filter_collection_report_collection,
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {

@@ -20,12 +20,18 @@ function collectionReportTable(datatable_name, buttons = false, show_all = false
     var filter_payment_date_end_date = $('#filter_payment_date_end_date').val();
     var filter_payment_advice = $('.payment-advice-filter:checked').val();
     var collection_report_filter_values_company = [];
+    var collection_report_filter_values_collection = [];
 
     $('.company-checkbox:checked').each(function() {
         collection_report_filter_values_company.push($(this).val());
     });
 
+    $('.collection-checkbox:checked').each(function() {
+        collection_report_filter_values_collection.push($(this).val());
+    });
+
     var filter_collection_report_company = collection_report_filter_values_company.join(', ');
+    var filter_collection_report_collection = collection_report_filter_values_collection.join(', ');
     var settings;
 
     const column = [ 
@@ -71,6 +77,7 @@ function collectionReportTable(datatable_name, buttons = false, show_all = false
                 'filter_payment_date_start_date' : filter_payment_date_start_date, 
                 'filter_payment_date_end_date' : filter_payment_date_end_date, 
                 'filter_collection_report_company' : filter_collection_report_company,
+                'filter_collection_report_collection' : filter_collection_report_collection,
                 'filter_payment_advice' : filter_payment_advice
             },
             'dataSrc' : '',

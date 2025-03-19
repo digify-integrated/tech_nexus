@@ -7,6 +7,8 @@
   require('model/approving-officer-model.php');
   require('model/id-type-model.php');
   require('model/application-source-model.php');
+  require('model/contractor-model.php');
+  require('model/work-center-model.php');
 
   $pageTitle = 'Job Order Monitoring';
   
@@ -16,6 +18,8 @@
   $productModel = new ProductModel($databaseModel);
   $idTypeModel = new IDTypeModel($databaseModel);
   $applicationSourceModel = new ApplicationSourceModel($databaseModel);
+  $contractorModel = new ContractorModel($databaseModel);
+  $workCenterModel = new WorkCenterModel($databaseModel);
     
   $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id,  130, 'read');
   

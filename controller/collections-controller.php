@@ -488,16 +488,6 @@ class CollectionsController {
         $checkLoanCollectionExist = $this->collectionsModel->checkLoanCollectionExist($loanCollectionID);
         $total = $checkLoanCollectionExist['total'] ?? 0;
 
-        if($modeOfPayment === 'GCash' || $modeOfPayment === 'Online Deposit'){
-            $checkLoanCollectionReferenceExist = $this->collectionsModel->checkLoanCollectionReferenceExist($referenceNumber);
-            $total = $checkLoanCollectionReferenceExist['total'] ?? 0;
-
-            if($total > 0){
-                echo json_encode(['success' => false, 'referenceExist' => true]);
-                exit;
-            }
-        }
-
         if($pdcType == 'Loan'){
             $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
             $loanNumber = $salesProposalDetails['loan_number'];
@@ -508,7 +498,6 @@ class CollectionsController {
         }
 
         if($pdcType == 'Leasing' || $pdcType == 'Leasing Other'){
-
             if($pdcType == 'Leasing'){
                 $leasingApplicationRepaymentDetails = $this->leasingApplicationModel->getLeasingApplicationRepayment($leasing_repayment_id);
                 $leasing_application_id = $leasingApplicationRepaymentDetails['leasing_application_id'];
@@ -566,6 +555,16 @@ class CollectionsController {
             exit;
         } 
         else {
+            if($modeOfPayment === 'GCash' || $modeOfPayment === 'Online Deposit'){
+                $checkLoanCollectionReferenceExist = $this->collectionsModel->checkLoanCollectionReferenceExist($referenceNumber);
+                $total = $checkLoanCollectionReferenceExist['total'] ?? 0;
+
+                if($total > 0){
+                    echo json_encode(['success' => false, 'referenceExist' => true]);
+                    exit;
+                }
+            }
+            
             if($companyID == '1'){
                 $systemSettingID = 11;
             }
@@ -581,12 +580,13 @@ class CollectionsController {
                 $unpaidRental = $leasingApplicationRepaymentDetails['unpaid_rental'] ?? 0;
     
                 if($paymentAmount <= $unpaidRental){
-                    $leasing_collections_id = $this->leasingApplicationModel->insertLeasingRentalPayment($leasing_repayment_id, $leasing_application_id, 'Rent', '', $referenceNumber, $modeOfPayment, $paymentDate, $paymentAmount, $userID);
+                    $leasing_collections_id = $this->leasingApplicationModel->insertLeasingRentalPayment($leasing_repayment_id, $leasing_application_id, 'Rent', '', $orNumber, $modeOfPayment, $paymentDate, $paymentAmount, $userID);
                     $this->leasingApplicationModel->updateLeasingOtherChargesStatus();
                     $this->leasingApplicationModel->updateLeasingApplicationRepaymentStatus();
                 }
                 else{
                     echo json_encode(['success' => false, 'overPayment' => true]);
+                    exit;
                 }               
             }
             else if($pdcType === 'Leasing Other'){
@@ -594,29 +594,32 @@ class CollectionsController {
                     $dueAmount = $leasingApplicationOtherChargesDetails['due_amount'] ?? 0;
             
                     if($paymentAmount <= $dueAmount){
-                        $leasing_collections_id = $this->leasingApplicationModel->insertLeasingOtherChargesPayment($leasing_repayment_id, $leasing_application_id, $payment_for, $leasing_other_charges_id, $referenceNumber, $modeOfPayment, $paymentDate, $paymentAmount, $userID);
+                        $leasing_collections_id = $this->leasingApplicationModel->insertLeasingOtherChargesPayment($leasing_repayment_id, $leasing_application_id, $payment_for, $leasing_other_charges_id, $orNumber, $modeOfPayment, $paymentDate, $paymentAmount, $userID);
                         $this->leasingApplicationModel->updateLeasingOtherChargesStatus();
                         $this->leasingApplicationModel->updateLeasingApplicationRepaymentStatus();
                     }
                     else{
                         echo json_encode(['success' => false, 'overPayment' => true]);
+                        exit;
                     }
             }
             else{
                 $leasing_collections_id = '';
             }
 
-            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $paymentAmount;
-
             $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $leasing_application_id, $leasing_repayment_id, $leasing_other_charges_id, $leasing_collections_id, $payment_for, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $payment_advice, $userID);
-                    
-            if($payment_advice == 'No'){
-                $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
-            }
-                    
-            if($payment_advice == 'Yes'){
-                $this->systemSettingModel->updateSystemSettingValue(26, $orNumber, $userID);
-            }
+
+            if($pdcType != 'Leasing Other' && $pdcType != 'Leasing'){
+                $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $paymentAmount;
+
+                if($payment_advice === 'No'){
+                    $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
+                }
+                        
+                if($payment_advice === 'Yes'){
+                    $this->systemSettingModel->updateSystemSettingValue(26, $orNumber, $userID);
+                }
+            }            
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
             exit;

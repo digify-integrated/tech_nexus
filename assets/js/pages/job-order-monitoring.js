@@ -55,10 +55,10 @@ function jobOrderMonitoring(datatable_name, buttons = false, show_all = false){
     ];
 
     const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
         { 'width': '10%', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5 },
         { 'width': '10%','bSortable': false, 'aTargets': 6 }
@@ -111,15 +111,21 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
     const column = [ 
         { 'data' : 'JOB_ORDER' },
         { 'data' : 'COST' },
+        { 'data' : 'CONTRACTOR' },
+        { 'data' : 'WORK_CENTER' },
         { 'data' : 'PROGRESS' },
+        { 'data' : 'BACKJOB' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '28%', 'aTargets': 0 },
-        { 'width': '28%', 'aTargets': 1 },
-        { 'width': '28%', 'aTargets': 2 },
-        { 'width': '16%','bSortable': false, 'aTargets': 3 }
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': '15%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -171,17 +177,23 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'data' : 'JOB_ORDER_DATE' },
         { 'data' : 'PARTICULARS' },
         { 'data' : 'COST' },
+        { 'data' : 'CONTRACTOR' },
+        { 'data' : 'WORK_CENTER' },
         { 'data' : 'PROGRESS' },
+        { 'data' : 'BACKJOB' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '25%', 'aTargets': 0 },
-        { 'width': '15%', 'type': 'date', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
-        { 'width': '15%', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '15%','bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -229,10 +241,19 @@ function salesProposalJobOrderProgressForm(){
             job_order_progress: {
                 required: true
             },
+            job_order_cost: {
+                required: true
+            },
+            job_order_backjob: {
+                required: true
+            },
         },
         messages: {
             job_order_progress: {
                 required: 'Please enter the progress'
+            },
+            job_order_cost: {
+                required: 'Please enter the cost'
             },
         },
         errorPlacement: function (error, element) {
@@ -318,10 +339,19 @@ function salesProposalAdditionalJobOrderProgressForm(){
             additional_job_order_progress: {
                 required: true
             },
+            additional_job_order_cost: {
+                required: true
+            },
+            additional_job_order_backjob: {
+                required: true
+            },
         },
         messages: {
             additional_job_order_progress: {
                 required: 'Please enter the progress'
+            },
+            additional_job_order_cost: {
+                required: 'Please enter the cost'
             },
         },
         errorPlacement: function (error, element) {
@@ -417,6 +447,10 @@ function displayDetails(transaction){
                     if (response.success) {                        
                         $('#sales_proposal_job_order_id').val(sales_proposal_job_order_id);
                         $('#job_order_progress').val(response.progress);
+                        $('#job_order_cost').val(response.cost);
+
+                        checkOptionExist('#job_order_contractor_id', response.contractorID, '');
+                        checkOptionExist('#job_order_work_center_id', response.workCenterID, '');
                     } 
                     else {
                         if(response.isInactive){
@@ -452,6 +486,10 @@ function displayDetails(transaction){
                         
                         $('#sales_proposal_additional_job_order_id').val(sales_proposal_additional_job_order_id);
                         $('#additional_job_order_progress').val(response.progress);
+                        $('#additional_job_order_cost').val(response.cost);
+
+                        checkOptionExist('#additional_job_order_contractor_id', response.contractorID, '');
+                        checkOptionExist('#additional_job_order_work_center_id', response.workCenterID, '');
                     } 
                     else {
                         if(response.isInactive){

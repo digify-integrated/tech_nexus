@@ -7148,3 +7148,71 @@ BEGIN
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('disbursement_particulars', NEW.disbursement_id, audit_log, NEW.last_log_by, NOW());
 END //
+
+/* Contractor Table Triggers */
+
+CREATE TRIGGER contractor_trigger_update
+AFTER UPDATE ON contractor
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.contractor_name <> OLD.contractor_name THEN
+        SET audit_log = CONCAT(audit_log, "Contractor Name: ", OLD.contractor_name, " -> ", NEW.contractor_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contractor', NEW.contractor_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contractor_trigger_insert
+AFTER INSERT ON contractor
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contractor created. <br/>';
+
+    IF NEW.contractor_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Contractor Name: ", NEW.contractor_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contractor', NEW.contractor_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Work Center Table Triggers */
+
+CREATE TRIGGER work_center_trigger_update
+AFTER UPDATE ON work_center
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.work_center_name <> OLD.work_center_name THEN
+        SET audit_log = CONCAT(audit_log, "Work Center Name: ", OLD.work_center_name, " -> ", NEW.work_center_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('work_center', NEW.work_center_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER work_center_trigger_insert
+AFTER INSERT ON work_center
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Work center created. <br/>';
+
+    IF NEW.work_center_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Work Center Name: ", NEW.work_center_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('work_center', NEW.work_center_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

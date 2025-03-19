@@ -182,6 +182,32 @@
                           </div>
                         </li>
                         <li class="list-group-item px-0 py-2">
+                          <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#for-sale-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                            For Sale Date
+                          </a>
+                          <div class="collapse " id="for-sale-date-filter-collapse">
+                            <div class="row py-3">
+                              <div class="col-12">
+                                <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_for_sale_date_start_date" id="filter_for_sale_date_start_date" placeholder="Start Date">
+                                <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_for_sale_date_end_date" id="filter_for_sale_date_end_date" placeholder="End Date">
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="list-group-item px-0 py-2">
+                          <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#sold-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                            Sold Date
+                          </a>
+                          <div class="collapse " id="sold-date-filter-collapse">
+                            <div class="row py-3">
+                              <div class="col-12">
+                                <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_sold_date_start_date" id="filter_sold_date_start_date" placeholder="Start Date">
+                                <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_sold_date_end_date" id="filter_sold_date_end_date" placeholder="End Date">
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="list-group-item px-0 py-2">
                             <button type="button" class="btn btn-light-success w-100" id="apply-filter">Apply</a>
                         </li>
                     </ul>
@@ -262,6 +288,9 @@
               </div>
             </div>  
           </div>-->
+          <?php
+            $viewSalesProposalProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
+          ?>
           <div class="tab-pane fade show active" id="table-view" role="tabpanel" aria-labelledby="table-view-tab" tabindex="0">
             <div class="card table-card">
               <div class="card-body">
@@ -282,6 +311,11 @@
                         <th>Body Type</th>
                         <th>Color</th>
                         <th>Location</th>
+                        <?php
+                          if($viewSalesProposalProductCost['total'] > 0){
+                            echo '<th id="cost_column">Cost</th>';
+                          }
+                        ?>
                         <th>Price</th>
                         <th>Status</th>
                         <th>Actions</th>

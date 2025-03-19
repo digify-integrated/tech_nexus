@@ -8,6 +8,8 @@ require_once '../model/system-model.php';
 require_once '../model/sales-proposal-model.php';
 require_once '../model/customer-model.php';
 require_once '../model/product-model.php';
+require_once '../model/contractor-model.php';
+require_once '../model/work-center-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -15,6 +17,8 @@ $userModel = new UserModel($databaseModel, $systemModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
+$contractorModel = new ContractorModel($databaseModel);
+$workCenterModel = new WorkCenterModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -1135,7 +1139,23 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $salesProposalJobOrderID = $row['sales_proposal_job_order_id'];
                     $jobOrder = $row['job_order'];
                     $progress = $row['progress'];
+                    $contractor_id = $row['contractor_id'];
+                    $work_center_id = $row['work_center_id'];
+                    $backjob = $row['backjob'];
                     $cost = number_format($row['cost'], 2);
+
+                    if($backjob == 'No'){
+                        $backjob =  '<span class="badge bg-success">' . $backjob . '</span>';
+                    }
+                    else{
+                        $backjob =  '<span class="badge bg-danger">' . $backjob . '</span>';
+                    }
+
+                    $contractorDetails = $contractorModel->getContractor($contractor_id);
+                    $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                    $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                    $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
                     $action = '';
                     if($updateJobOrderProgress['total'] > 0){
@@ -1147,6 +1167,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $response[] = [
                         'JOB_ORDER' => $jobOrder,
                         'COST' => $cost,
+                        'BACKJOB' => $backjob,
+                        'CONTRACTOR' => $contractor_name,
+                        'WORK_CENTER' => $work_center_name,
                         'PROGRESS' => number_format($progress, 2) . '%',
                         'ACTION' => '<div class="d-flex gap-2">'.
                                     $action . 
@@ -1283,7 +1306,23 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $jobOrderDate = $systemModel->checkDate('summary', $row['job_order_date'], '', 'F d, Y', '');
                     $particulars = $row['particulars'];
                     $progress = $row['progress'];
+                    $contractor_id = $row['contractor_id'];
+                    $work_center_id = $row['work_center_id'];
+                    $backjob = $row['backjob'];
                     $cost = number_format($row['cost'], 2);
+
+                    if($backjob == 'No'){
+                        $backjob =  '<span class="badge bg-success">' . $backjob . '</span>';
+                    }
+                    else{
+                        $backjob =  '<span class="badge bg-danger">' . $backjob . '</span>';
+                    }
+
+                    $contractorDetails = $contractorModel->getContractor($contractor_id);
+                    $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                    $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                    $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
 
                     $action = '';
@@ -1298,6 +1337,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'JOB_ORDER_DATE' => $jobOrderDate,
                         'PARTICULARS' => $particulars,
                         'COST' => $cost,
+                        'BACKJOB' => $backjob,
+                        'CONTRACTOR' => $contractor_name,
+                        'WORK_CENTER' => $work_center_name,
                         'PROGRESS' => number_format($progress, 2) . '%',
                         'ACTION' => '<div class="d-flex gap-2">'.
                                     $action . 

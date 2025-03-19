@@ -386,11 +386,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }*/
 
                     $delete = '';
-                    /*if($row['due_paid'] == 0 && $applicationStatus != 'Closed'){
+                    if($row['due_paid'] == 0 && $applicationStatus != 'Closed'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-leasing-other-charges" data-leasing-other-charges-id="'. $leasingOtherChargesID .'" title="Delete Other Charges">
                             <i class="ti ti-trash"></i>
                         </button>';
-                    }*/
+                    }
 
                     $response[] = [
                         'OTHER_CHARGES_TYPE' => $otherChargesType,
@@ -451,11 +451,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $reference = $leasingApplicationRepaymentDetails['reference'];
                     
                     $delete = '';
-                    /*if($applicationStatus != 'Closed'){
+                    if($applicationStatus != 'Closed'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-leasing-collections" data-leasing-collections-id="'. $leasingCollectionsID .'" title="Delete Collections">
                         <i class="ti ti-trash"></i>
                         </button>';
-                    }*/
+                    }
 
                     $response[] = [
                         'REFERENCE' => $reference,

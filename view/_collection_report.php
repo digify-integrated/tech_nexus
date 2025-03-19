@@ -16,6 +16,43 @@
                   <div class="card-body">
                     <ul class="list-group list-group-flush">
                       <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#collection-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Collection Type
+                        </a>
+                        <div class="collapse" id="collection-filter-collapse">
+                          <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
+                              <div class="col-12">
+                                <div class="form-check my-2">
+                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-loan" value="Loan" checked/>
+                                  <label class="form-check-label" for="collection-loan">Loan</label>
+                                </div>
+                                <div class="form-check my-2">
+                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-product" value="Product" checked/>
+                                  <label class="form-check-label" for="collection-product">Product</label>
+                                </div>
+                                <div class="form-check my-2">
+                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-customer" value="Customer" checked/>
+                                  <label class="form-check-label" for="collection-customer">Customer</label>
+                                </div>
+                                <div class="form-check my-2">
+                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-leasing" value="Leasing" checked/>
+                                  <label class="form-check-label" for="collection-leasing">Leasing</label>
+                                </div>
+                                <div class="form-check my-2">
+                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-leasing-other" value="Leasing Other" checked/>
+                                  <label class="form-check-label" for="collection-leasing-other">Leasing Other</label>
+                                </div>
+                                <div class="form-check my-2">
+                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-miscellaneous" value="Miscellaneous" checked/>
+                                  <label class="form-check-label" for="collection-miscellaneous">Miscellaneous</label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#company-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Company
                         </a>
@@ -33,7 +70,7 @@
                                 </div>
                                 <div class="form-check my-2">
                                   <input class="form-check-input company-checkbox" type="checkbox" id="company-fuso-tarlac" value="3"/>
-                                  <label class="form-check-label" for="company-nefuso-tarlac">FUSO Tarlac</label>
+                                  <label class="form-check-label" for="company-fuso-tarlac">FUSO Tarlac</label>
                                 </div>
                               </div>
                             </div>

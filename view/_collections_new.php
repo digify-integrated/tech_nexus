@@ -90,7 +90,7 @@
                 <div class="col-lg-10">
                   <select class="form-control select2" name="leasing_repayment_id" id="leasing_repayment_id">
                   <option value="">--</option>
-                    <?php echo $leasingApplicationModel->generateLeasingApplicationUnpaidRepaymentOptions(); ?>
+                    <?php echo $leasingApplicationModel->generateLeasingApplicationUnpaidRepaymentOptions(''); ?>
                   </select>
                 </div>
             </div>
@@ -99,7 +99,7 @@
                 <div class="col-lg-4">
                   <select class="form-control select2" name="leasing_other_charges_id" id="leasing_other_charges_id">
                   <option value="">--</option>
-                    <?php echo $leasingApplicationModel->generateLeasingApplicationUnpaidOtherChargesOptions(); ?>
+                    <?php echo $leasingApplicationModel->generateLeasingApplicationUnpaidOtherChargesOptions(''); ?>
                   </select>
                 </div>
               <label class="col-lg-2 col-form-label">Payment For <span class="text-danger">*</span></label>
@@ -121,6 +121,8 @@
                   <option value="1" selected>Christian General Motors Inc.</option>
                   <option value="2">NE Truck Builders</option>
                   <option value="3">FUSO Tarlac</option>
+                  <option value="4">PCG Property Management Corporation</option>
+                  <option value="5">GCB Property Management Corporation</option>
                 </select>
               </div>  
             <label class="col-lg-2 col-form-label">Payment Details <span class="text-danger">*</span></label>

@@ -245,11 +245,10 @@ class DisbursementController {
         $disbursementTotal = number_format($this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0, 2, '.', '');
         $disbursementCheckTotal = number_format($this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0, 2, '.', '');
 
-        //if( $transaction_type == 'Disbursement' && $fund_source != 'Check' && $disbursementTotal > 5000){
-        if( $transaction_type == 'Disbursement' && $fund_source != 'Check'){
+        /*if( $transaction_type == 'Disbursement' && $fund_source != 'Check' && $disbursementTotal > 5000){
             echo json_encode(['success' => false, 'disbursementGreater' => true]);
             exit;
-        }
+        }*/
         
         if($disbursementTotal === 0){
             echo json_encode(['success' => false, 'disbursementZero' => true]);
@@ -350,11 +349,10 @@ class DisbursementController {
         $disbursementTotal = number_format($this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0, 2, '.', '');
         $disbursementCheckTotal = number_format($this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0, 2, '.', '');
 
-        //if( $transaction_type == 'Disbursement' && $fund_source != 'Check' && $disbursementTotal > 5000){
-        if( $transaction_type == 'Disbursement' && $fund_source != 'Check'){
+        /*if( $transaction_type == 'Disbursement' && $fund_source != 'Check' && $disbursementTotal > 5000){
             echo json_encode(['success' => false, 'disbursementGreater' => true]);
             exit;
-        }
+        }*/
         
         if($disbursementTotal === 0){
             echo json_encode(['success' => false, 'disbursementZero' => true]);
@@ -1204,7 +1202,14 @@ class DisbursementController {
         $disbursement_id = $_POST['disbursement_id'];
         $chart_of_account_id = $_POST['chart_of_account_id'];
         $particulars_amount = $_POST['particulars_amount'];
+        $base_amount = $_POST['base_amount'];
         $company_id = $_POST['particulars_company_id'];
+        $with_vat = $_POST['with_vat'];
+        $with_withholding = $_POST['with_withholding'];
+        $vat_amount = $_POST['vat_amount'];
+        $withholding_amount = $_POST['withholding_amount'];
+        $tax_quarter = $_POST['tax_quarter'];
+        $total_amount = $_POST['total_amount'];
         $remarks = $_POST['remarks'];
     
         $user = $this->userModel->getUserByID($userID);
@@ -1218,13 +1223,13 @@ class DisbursementController {
         $total = $checkDisbursementExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->disbursementModel->updateDisbursementParticulars($disbursement_particulars_id, $disbursement_id, $chart_of_account_id, $company_id, $remarks, $particulars_amount, $userID);
+            $this->disbursementModel->updateDisbursementParticulars($disbursement_particulars_id, $disbursement_id, $chart_of_account_id, $company_id, $remarks, $particulars_amount, $base_amount, $with_vat, $with_withholding, $vat_amount, $withholding_amount, $total_amount, $tax_quarter, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->disbursementModel->insertDisbursementParticulars($disbursement_id, $chart_of_account_id, $company_id, $remarks, $particulars_amount, $userID);
+            $this->disbursementModel->insertDisbursementParticulars($disbursement_id, $chart_of_account_id, $company_id, $remarks, $particulars_amount, $base_amount, $with_vat, $with_withholding, $vat_amount, $withholding_amount, $total_amount, $tax_quarter, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -1622,8 +1627,12 @@ class DisbursementController {
             $response = [
                 'success' => true,
                 'chartOfAccountID' => $disbursementDetails['chart_of_account_id'],
+                'companyID' => $disbursementDetails['company_id'],
                 'remarks' => $disbursementDetails['remarks'],
-                'particularsAmount' => $disbursementDetails['particulars_amount']
+                'particularsAmount' => $disbursementDetails['particulars_amount'],
+                'withVat' => $disbursementDetails['with_vat'],
+                'withWithholding' => $disbursementDetails['with_withholding'],
+                'taxQuarter' => $disbursementDetails['tax_quarter'],
             ];
 
             echo json_encode($response);

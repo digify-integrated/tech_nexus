@@ -1089,22 +1089,22 @@ BEGIN
 	ORDER BY tenant_name;
 END //
 
-CREATE PROCEDURE generateLeasingApplicationUnpaidRepaymentOptions()
+CREATE PROCEDURE generateLeasingApplicationUnpaidRepaymentOptions(IN p_collection_id INT)
 BEGIN
-	SELECT leasing_application_repayment_id, reference, due_date, tenant_name FROM leasing_application_repayment
+	SELECT leasing_application_repayment_id, reference, due_date, tenant_name, unpaid_rental FROM leasing_application_repayment
     LEFT OUTER JOIN leasing_application ON leasing_application.leasing_application_id = leasing_application_repayment.leasing_application_id
     LEFT OUTER JOIN tenant ON tenant.tenant_id = leasing_application.tenant_id
-    WHERE application_status = 'Active' AND outstanding_balance > 0 AND (repayment_status = 'Unpaid' OR repayment_status = 'Partially Paid')
+    WHERE ((application_status = 'Active' AND unpaid_rental > 0 AND repayment_status = 'Unpaid' OR repayment_status = 'Partially Paid' ) OR leasing_application_repayment_id IN (SELECT leasing_application_repayment_id FROM loan_collections WHERE loan_collection_id = p_collection_id))
 	ORDER BY reference;
 END //
 
-CREATE PROCEDURE generateLeasingApplicationUnpaidOtherChargesOptions()
+CREATE PROCEDURE generateLeasingApplicationUnpaidOtherChargesOptions(IN p_collection_id INT)
 BEGIN
-	SELECT leasing_other_charges_id, reference, other_charges_type, leasing_other_charges.due_date AS due_date, tenant_name FROM leasing_other_charges
+	SELECT leasing_other_charges_id, reference, other_charges_type, leasing_other_charges.due_date AS due_date, tenant_name, leasing_other_charges.outstanding_balance AS outstanding_balance FROM leasing_other_charges
     LEFT OUTER JOIN leasing_application_repayment ON leasing_application_repayment.leasing_application_repayment_id = leasing_other_charges.leasing_application_repayment_id
     LEFT OUTER JOIN leasing_application ON leasing_application.leasing_application_id = leasing_other_charges.leasing_application_id
     LEFT OUTER JOIN tenant ON tenant.tenant_id = leasing_application.tenant_id
-    WHERE application_status = 'Active' AND leasing_other_charges.outstanding_balance > 0 AND (payment_status = 'Unpaid' OR payment_status = 'Partially Paid')
+    WHERE ((application_status = 'Active' AND leasing_other_charges.outstanding_balance > 0 AND repayment_status = 'Unpaid' OR repayment_status = 'Partially Paid') OR leasing_other_charges_id IN (SELECT leasing_other_charges_id FROM loan_collections WHERE loan_collection_id = p_collection_id))
 	ORDER BY reference;
 END //
 
@@ -7170,7 +7170,11 @@ CREATE PROCEDURE generateProductTable(
     IN p_product_price_max DOUBLE,
     IN p_product_status VARCHAR(100),
     IN p_created_start_date DATE,
-    IN p_created_end_date DATE
+    IN p_created_end_date DATE,
+    IN p_for_sale_start_date DATE,
+    IN p_for_sale_end_date DATE,
+    IN p_sold_start_date DATE,
+    IN p_sold_end_date DATE
 )
 BEGIN
     DECLARE sql_query LONGTEXT;
@@ -7190,6 +7194,22 @@ BEGIN
         SET sql_query = CONCAT(sql_query, QUOTE(p_created_start_date));
         SET sql_query = CONCAT(sql_query, ' AND ');
         SET sql_query = CONCAT(sql_query, QUOTE(p_created_end_date));
+        SET sql_query = CONCAT(sql_query, ')');
+    END IF;
+
+    IF p_for_sale_start_date IS NOT NULL AND p_for_sale_end_date IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND (for_sale_date BETWEEN ');
+        SET sql_query = CONCAT(sql_query, QUOTE(p_for_sale_start_date));
+        SET sql_query = CONCAT(sql_query, ' AND ');
+        SET sql_query = CONCAT(sql_query, QUOTE(p_for_sale_end_date));
+        SET sql_query = CONCAT(sql_query, ')');
+    END IF;
+
+    IF p_sold_start_date IS NOT NULL AND p_sold_end_date IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND (sold_date BETWEEN ');
+        SET sql_query = CONCAT(sql_query, QUOTE(p_sold_start_date));
+        SET sql_query = CONCAT(sql_query, ' AND ');
+        SET sql_query = CONCAT(sql_query, QUOTE(p_sold_end_date));
         SET sql_query = CONCAT(sql_query, ')');
     END IF;
 
@@ -7878,7 +7898,7 @@ END //
 
 CREATE PROCEDURE cronSalesProposalOverdueForCI()
 BEGIN
-   SELECT * FROM sales_proposal WHERE for_ci_date IS NOT NULL AND ci_completion_date IS NULL AND created_date < NOW() - INTERVAL 8 DAY AND sales_proposal_status NOT IN ('Draft', 'Cancelled', 'Rejected', 'For Initial Approval');
+   SELECT * FROM sales_proposal WHERE for_ci_date IS NOT NULL AND ci_completion_date IS NULL AND for_ci_date < NOW() - INTERVAL 8 DAY AND sales_proposal_status NOT IN ('Draft', 'For Review', 'Cancelled', 'Rejected', 'For Initial Approval');
 END //
 
 CREATE PROCEDURE updateSalesProposalStatus(IN p_sales_proposal_id INT, IN p_changed_by INT, IN p_sales_proposal_status VARCHAR(50), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
@@ -8035,18 +8055,26 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id AND sales_proposal_status = 'For CI';
 END //
 
-CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_progress DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_job_order
     SET progress = p_progress,
+    cost = p_cost,
+    p_contractor_id = p_contractor_id,
+    p_work_center_id = p_work_center_id,
+    p_backjob = p_backjob,
     last_log_by = p_last_log_by
     WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
 END //
 
-CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_progress DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_additional_job_order
     SET progress = p_progress,
+    cost = p_cost,
+    p_contractor_id = p_contractor_id,
+    p_work_center_id = p_work_center_id,
+    p_backjob = p_backjob,
     last_log_by = p_last_log_by
     WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
 END //
@@ -8387,7 +8415,7 @@ END //
 
 CREATE PROCEDURE generateIncomingSalesProposalTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Draft', 'For Review', 'For Initial Approval', 'For Final Approval', 'For CI');
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Draft', 'For Review', 'For Initial Approval', 'For Final Approval', 'For CI', 'Cancelled');
 END //
 
 CREATE PROCEDURE generateSalesProposalForCITable()
@@ -10265,7 +10293,7 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateCollectionReportTable(IN p_pdc_management_company VARCHAR(500), IN p_filter_transaction_date_start_date DATE, IN p_filter_transaction_date_end_date DATE, IN p_filter_payment_date_start_date DATE, IN p_filter_payment_date_end_date DATE, IN p_payment_advice VARCHAR(5))
+CREATE PROCEDURE generateCollectionReportTable(IN p_pdc_management_company VARCHAR(500), IN p_pdc_management_collection VARCHAR(5000), IN p_filter_transaction_date_start_date DATE, IN p_filter_transaction_date_end_date DATE, IN p_filter_payment_date_start_date DATE, IN p_filter_payment_date_end_date DATE, IN p_payment_advice VARCHAR(5))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -10302,6 +10330,12 @@ BEGIN
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
+    IF p_pdc_management_collection IS NOT NULL AND p_pdc_management_collection <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND pdc_type IN (');
+        SET conditionList = CONCAT(conditionList, p_pdc_management_collection);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY transaction_date DESC;');
 
@@ -10310,7 +10344,7 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateCollectionsTable(IN p_pdc_management_status VARCHAR(50), IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_payment_start_date DATE, IN p_payment_end_date DATE, IN p_or_start_date DATE, IN p_or_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE, IN p_payment_advice VARCHAR(5))
+CREATE PROCEDURE generateCollectionsTable(IN p_pdc_management_status VARCHAR(50), IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_payment_start_date DATE, IN p_payment_end_date DATE, IN p_or_start_date DATE, IN p_or_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE, IN p_payment_advice VARCHAR(5), IN p_pdc_management_collection VARCHAR(5000))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -10371,6 +10405,12 @@ BEGIN
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
+    IF p_pdc_management_collection IS NOT NULL AND p_pdc_management_collection <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND pdc_type IN (');
+        SET conditionList = CONCAT(conditionList, p_pdc_management_collection);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY loan_number ASC, payment_date ASC;');
 
@@ -10379,7 +10419,7 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generatePaymentAdviceTable(IN p_pdc_management_status VARCHAR(50), IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_payment_start_date DATE, IN p_payment_end_date DATE, IN p_or_start_date DATE, IN p_or_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE)
+CREATE PROCEDURE generatePaymentAdviceTable(IN p_pdc_management_status VARCHAR(50), IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_payment_start_date DATE, IN p_payment_end_date DATE, IN p_or_start_date DATE, IN p_or_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE, IN p_pdc_management_collection VARCHAR(5000))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -10430,6 +10470,12 @@ BEGIN
     IF p_pdc_management_status IS NOT NULL AND p_pdc_management_status <> '' THEN
         SET conditionList = CONCAT(conditionList, ' AND collection_status IN (');
         SET conditionList = CONCAT(conditionList, QUOTE(p_pdc_management_status));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_pdc_management_collection IS NOT NULL AND p_pdc_management_collection <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND pdc_type IN (');
+        SET conditionList = CONCAT(conditionList, p_pdc_management_collection);
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
@@ -12347,10 +12393,10 @@ BEGIN
     SET p_disbursement_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE insertDisbursementParticulars(IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_company_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertDisbursementParticulars(IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_company_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_base_amount DOUBLE, IN p_with_vat VARCHAR(5), IN p_with_withholding VARCHAR(5), IN p_vat_amount DOUBLE, IN p_withholding_amount DOUBLE, IN p_total_amount DOUBLE, IN p_tax_quarter INT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO disbursement_particulars (disbursement_id, chart_of_account_id, company_id, remarks, particulars_amount, created_by, last_log_by) 
-	VALUES(p_disbursement_id, p_chart_of_account_id, p_company_id, p_remarks, p_particulars_amount, p_last_log_by, p_last_log_by);
+    INSERT INTO disbursement_particulars (disbursement_id, chart_of_account_id, company_id, remarks, particulars_amount, base_amount, with_vat, with_withholding, vat_amount, withholding_amount, total_amount, tax_quarter, created_by, last_log_by) 
+	VALUES(p_disbursement_id, p_chart_of_account_id, p_company_id, p_remarks, p_particulars_amount, p_base_amount, p_with_vat, p_with_withholding, p_vat_amount, p_withholding_amount, p_total_amount, p_tax_quarter, p_last_log_by, p_last_log_by);
 END //
 
 CREATE PROCEDURE insertDisbursementCheck(IN p_disbursement_id INT, IN p_bank_branch VARCHAR(100), IN p_check_name VARCHAR(5000), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_check_amount DOUBLE, IN p_last_log_by INT)
@@ -12375,7 +12421,7 @@ BEGIN
     WHERE disbursement_id = p_disbursement_id;
 END //
 
-CREATE PROCEDURE updateDisbursementParticulars(IN p_disbursement_particulars_id INT, IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_company_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateDisbursementParticulars(IN p_disbursement_particulars_id INT, IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_company_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_base_amount DOUBLE, IN p_with_vat VARCHAR(5), IN p_with_withholding VARCHAR(5), IN p_vat_amount DOUBLE, IN p_withholding_amount DOUBLE, IN p_total_amount DOUBLE, IN p_tax_quarter INT, IN p_last_log_by INT)
 BEGIN
     UPDATE disbursement_particulars
     SET disbursement_id = p_disbursement_id,
@@ -12383,6 +12429,13 @@ BEGIN
         company_id = p_company_id,
         remarks = p_remarks,
         particulars_amount = p_particulars_amount,
+        base_amount = p_base_amount,
+        with_vat = p_with_vat,
+        with_withholding = p_with_withholding,
+        vat_amount = p_vat_amount,
+        withholding_amount = p_withholding_amount,
+        total_amount = p_total_amount,
+        tax_quarter = p_tax_quarter,
         last_log_by = p_last_log_by
     WHERE disbursement_particulars_id = p_disbursement_particulars_id;
 END //
@@ -12478,7 +12531,7 @@ END //
 
 CREATE PROCEDURE getDisbursementTotal(IN p_disbursement_id INT)
 BEGIN
-	SELECT SUM(particulars_amount) AS total FROM disbursement_particulars
+	SELECT SUM((base_amount + vat_amount) - withholding_amount) AS total FROM disbursement_particulars
     WHERE disbursement_id = p_disbursement_id;
 END //
 
@@ -12801,6 +12854,158 @@ END //
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS createDisbursementEntry //
+CREATE PROCEDURE createDisbursementEntry(
+    IN p_disbursement_id INT,
+    IN p_transaction_number VARCHAR(100),
+    IN p_fund_source VARCHAR(100),
+    IN p_transaction_type VARCHAR(100),
+    IN p_transaction_date DATE,
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_journal_id VARCHAR(500);
+    DECLARE v_credit VARCHAR(500);
+    DECLARE v_chart_item VARCHAR(600);
+    DECLARE v_base_amount DOUBLE;
+    DECLARE v_company_id INT;
+    DECLARE v_with_vat VARCHAR(10);
+    DECLARE v_with_withholding VARCHAR(10);
+    DECLARE v_vat_amount DOUBLE;
+    DECLARE v_withholding_amount DOUBLE;
+    DECLARE v_done INT DEFAULT 0;
+
+    -- Cursor for disbursement particulars
+    DECLARE cur_particulars CURSOR FOR
+        SELECT dp.base_amount, dp.company_id,
+               dp.with_vat, dp.with_withholding, dp.vat_amount, dp.withholding_amount,
+               CONCAT(ca.code, ' ', ca.name) AS chart_item
+        FROM disbursement_particulars dp
+        JOIN chart_of_account ca ON dp.chart_of_account_id = ca.chart_of_account_id
+        WHERE dp.disbursement_id = p_disbursement_id;
+
+    -- Continue handler for cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = 1;
+
+    -- Determine credit account based on fund source
+    CASE p_fund_source
+        WHEN 'Petty Cash' THEN
+            SET v_credit = '10101030 Petty Cash Fund';
+            SET v_journal_id = 'Disbursement Operations';
+        WHEN 'Revolving Fund' THEN
+            SET v_credit = '10101020 Revolving Fund';
+            SET v_journal_id = 'Disbursement Operations';
+        ELSE
+            SET v_credit = '10102060 Cash in Bank - Checking BPI CGMI';
+            SET v_journal_id = 'Check Disbursement Operations';
+    END CASE;
+
+    -- Open cursor
+    OPEN cur_particulars;
+
+    read_loop: LOOP
+        FETCH cur_particulars INTO v_base_amount, v_company_id, v_with_vat, v_with_withholding, v_vat_amount, v_withholding_amount, v_chart_item;
+
+        -- Exit loop if cursor is done
+        IF v_done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Determine analytic lines based on company_id
+        CASE v_company_id
+            WHEN 1 THEN
+                SET v_analytic_lines = 'CGMI';
+                SET v_analytic_distribution = '{"1": 100.0}';
+            WHEN 2 THEN
+                SET v_analytic_lines = 'NE TRUCK';
+                SET v_analytic_distribution = '{"2": 100.0}';
+            WHEN 3 THEN
+                SET v_analytic_lines = 'FUSO';
+                SET v_analytic_distribution = '{"5": 100.0}';
+            WHEN 4 THEN
+                SET v_analytic_lines = 'PCG PROPERTY';
+                SET v_analytic_distribution = '{"4": 100.0}';
+            WHEN 5 THEN
+                SET v_analytic_lines = 'GCB PROPERTY';
+                SET v_analytic_distribution = '{"3": 100.0}';
+            ELSE
+                SET v_analytic_lines = 'DEFAULT';
+                SET v_analytic_distribution = '{"0": 0.0}';
+        END CASE;
+
+        -- Insert the standard journal entries
+        IF v_base_amount > 0 THEN
+            -- Insert debit entry
+            INSERT INTO journal_entry (
+                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+            ) VALUES (
+                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, v_chart_item, v_base_amount, 0, 
+                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+            );
+
+            -- Insert credit entry
+            INSERT INTO journal_entry (
+                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+            ) VALUES (
+                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, v_credit, 0, v_base_amount, 
+                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+            );
+
+        END IF;
+
+        -- Insert VAT Journal Entries if applicable
+        IF v_with_vat = 'Yes' AND v_vat_amount > 0 THEN
+            -- Debit VAT (Input Tax)
+            INSERT INTO journal_entry (
+                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+            ) VALUES (
+                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, '19902050 Input Tax', v_vat_amount, 0, 
+                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+            );
+
+            -- Credit VAT to the expense account
+            INSERT INTO journal_entry (
+                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+            ) VALUES (
+                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, v_credit, 0, v_vat_amount, 
+                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+            );
+        END IF;
+
+        -- Insert Withholding Tax Journal Entries if applicable
+        IF v_with_withholding <> 'No' AND v_withholding_amount > 0 THEN
+            -- Debit Withholding
+            INSERT INTO journal_entry (
+                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+            ) VALUES (
+                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, v_credit, v_withholding_amount, 0, 
+                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+            );
+
+            -- Credit Withholding Tax Payable
+            INSERT INTO journal_entry (
+                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+            ) VALUES (
+                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, '20101132 Withholding Tax Payable Other', 0, v_withholding_amount,  
+                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+            );
+        END IF;
+
+    END LOOP;
+
+    -- Close cursor
+    CLOSE cur_particulars;
+END//
+
+
 CREATE PROCEDURE createDisbursementEntry(
     IN p_disbursement_id INT,
     IN p_transaction_number VARCHAR(100),
@@ -13621,3 +13826,136 @@ CREATE PROCEDURE deleteProductInventoryScanAdditional(IN p_product_inventory_sca
 BEGIN
     DELETE FROM product_inventory_scan_additional WHERE product_inventory_scan_additional_id = p_product_inventory_scan_additional_id;
 END //
+
+
+/* Contractor Table Stored Procedures */
+
+CREATE PROCEDURE checkContractorExist (IN p_contractor_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contractor
+    WHERE contractor_id = p_contractor_id;
+END //
+
+CREATE PROCEDURE insertContractor(IN p_contractor_name VARCHAR(100), IN p_last_log_by INT, OUT p_contractor_id INT)
+BEGIN
+    INSERT INTO contractor (contractor_name, last_log_by) 
+	VALUES(p_contractor_name, p_last_log_by);
+	
+    SET p_contractor_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateContractor(IN p_contractor_id INT, IN p_contractor_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE contractor
+    SET contractor_name = p_contractor_name,
+    last_log_by = p_last_log_by
+    WHERE contractor_id = p_contractor_id;
+END //
+
+CREATE PROCEDURE deleteContractor(IN p_contractor_id INT)
+BEGIN
+    DELETE FROM contractor WHERE contractor_id = p_contractor_id;
+END //
+
+CREATE PROCEDURE getContractor(IN p_contractor_id INT)
+BEGIN
+	SELECT * FROM contractor
+    WHERE contractor_id = p_contractor_id;
+END //
+
+CREATE PROCEDURE duplicateContractor(IN p_contractor_id INT, IN p_last_log_by INT, OUT p_new_contractor_id INT)
+BEGIN
+    DECLARE p_contractor_name VARCHAR(100);
+    
+    SELECT contractor_name
+    INTO p_contractor_name
+    FROM contractor 
+    WHERE contractor_id = p_contractor_id;
+    
+    INSERT INTO contractor (contractor_name, last_log_by) 
+    VALUES(p_contractor_name, p_last_log_by);
+    
+    SET p_new_contractor_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateContractorTable()
+BEGIN
+    SELECT contractor_id, contractor_name
+    FROM contractor
+    ORDER BY contractor_id;
+END //
+
+CREATE PROCEDURE generateContractorOptions()
+BEGIN
+	SELECT contractor_id, contractor_name FROM contractor
+	ORDER BY contractor_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Work Center Table Stored Procedures */
+
+CREATE PROCEDURE checkWorkCenterExist (IN p_work_center_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM work_center
+    WHERE work_center_id = p_work_center_id;
+END //
+
+CREATE PROCEDURE insertWorkCenter(IN p_work_center_name VARCHAR(100), IN p_last_log_by INT, OUT p_work_center_id INT)
+BEGIN
+    INSERT INTO work_center (work_center_name, last_log_by) 
+	VALUES(p_work_center_name, p_last_log_by);
+	
+    SET p_work_center_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateWorkCenter(IN p_work_center_id INT, IN p_work_center_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE work_center
+    SET work_center_name = p_work_center_name,
+    last_log_by = p_last_log_by
+    WHERE work_center_id = p_work_center_id;
+END //
+
+CREATE PROCEDURE deleteWorkCenter(IN p_work_center_id INT)
+BEGIN
+    DELETE FROM work_center WHERE work_center_id = p_work_center_id;
+END //
+
+CREATE PROCEDURE getWorkCenter(IN p_work_center_id INT)
+BEGIN
+	SELECT * FROM work_center
+    WHERE work_center_id = p_work_center_id;
+END //
+
+CREATE PROCEDURE duplicateWorkCenter(IN p_work_center_id INT, IN p_last_log_by INT, OUT p_new_work_center_id INT)
+BEGIN
+    DECLARE p_work_center_name VARCHAR(100);
+    
+    SELECT work_center_name
+    INTO p_work_center_name
+    FROM work_center 
+    WHERE work_center_id = p_work_center_id;
+    
+    INSERT INTO work_center (work_center_name, last_log_by) 
+    VALUES(p_work_center_name, p_last_log_by);
+    
+    SET p_new_work_center_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateWorkCenterTable()
+BEGIN
+    SELECT work_center_id, work_center_name
+    FROM work_center
+    ORDER BY work_center_id;
+END //
+
+CREATE PROCEDURE generateWorkCenterOptions()
+BEGIN
+	SELECT work_center_id, work_center_name FROM work_center
+	ORDER BY work_center_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

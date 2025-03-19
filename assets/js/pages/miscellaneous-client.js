@@ -267,13 +267,17 @@ function miscellaneousClientTable(datatable_name, buttons = false, show_all = fa
     const column = [ 
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'CLIENT_NAME' },
+        { 'data' : 'ADDRESS' },
+        { 'data' : 'TIN' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '84%', 'aTargets': 1 },
-        { 'width': '15%','bSortable': false, 'aTargets': 2 }
+        { 'width': '34%', 'aTargets': 1 },
+        { 'width': '30%', 'aTargets': 2 },
+        { 'width': '20%', 'aTargets': 3 },
+        { 'width': '15%','bSortable': false, 'aTargets': 4 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -423,8 +427,12 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#miscellaneous_client_id').val(miscellaneous_client_id);
                         $('#client_name').val(response.clientName);
+                        $('#tin').val(response.tin);
+                        $('#address').val(response.address);
 
                         $('#client_name_label').text(response.clientName);
+                        $('#tin_label').text(response.tin);
+                        $('#address_label').text(response.address);
                     } 
                     else {
                         if(response.isInactive){

@@ -55,12 +55,28 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             
             $filterCollectionsStatus = $_POST['filter_collections_status'];
             $filterPaymentAdvice = $_POST['filter_payment_advice'];
+            $values_collection = $_POST['filter_collection_report_collection'];
 
             if(empty($_POST['filter_payment_advice'])){
                 $filterPaymentAdvice = null;
             }
+            
+            if(!empty($values_collection)){
+                $values_array = explode(', ', $values_collection);
+    
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . $value . "'";
+                }, $values_array);
+    
+                $quoted_values_string = implode(', ', $quoted_values_array);
+    
+                $filterPDCManagementCollection = $quoted_values_string;
+            }
+            else{
+                $filterPDCManagementCollection = null;
+            }
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateCollectionsTable(:filterCollectionsStatus, :filterTransactionDateStartDate, :filterTransactionDateEndDate, :filterPaymentDateStartDate, :filterPaymentDateEndDate, :filterORDateStartDate, :filterORDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate, :filterPaymentAdvice)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generateCollectionsTable(:filterCollectionsStatus, :filterTransactionDateStartDate, :filterTransactionDateEndDate, :filterPaymentDateStartDate, :filterPaymentDateEndDate, :filterORDateStartDate, :filterORDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate, :filterPaymentAdvice, :filterPDCManagementCollection)');
             $sql->bindValue(':filterCollectionsStatus', $filterCollectionsStatus, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateStartDate', $filterTransactionDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateEndDate', $filterTransactionDateEndDate, PDO::PARAM_STR);
@@ -73,6 +89,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->bindValue(':filterCancellationDateStartDate', $filterCancellationDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterCancellationDateEndDate', $filterCancellationDateEndDate, PDO::PARAM_STR);
             $sql->bindValue(':filterPaymentAdvice', $filterPaymentAdvice, PDO::PARAM_STR);
+            $sql->bindValue(':filterPDCManagementCollection', $filterPDCManagementCollection, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -183,8 +200,24 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $filterCancellationDateEndDate = $systemModel->checkDate('empty', $_POST['filter_cancellation_date_end_date'], '', 'Y-m-d', '');
             
             $filterCollectionsStatus = $_POST['filter_collections_status'];
+            $values_collection = $_POST['filter_collection_report_collection'];
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePaymentAdviceTable(:filterCollectionsStatus, :filterTransactionDateStartDate, :filterTransactionDateEndDate, :filterPaymentDateStartDate, :filterPaymentDateEndDate, :filterORDateStartDate, :filterORDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate)');
+            if(!empty($values_collection)){
+                $values_array = explode(', ', $values_collection);
+    
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . $value . "'";
+                }, $values_array);
+    
+                $quoted_values_string = implode(', ', $quoted_values_array);
+    
+                $filterPDCManagementCollection = $quoted_values_string;
+            }
+            else{
+                $filterPDCManagementCollection = null;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePaymentAdviceTable(:filterCollectionsStatus, :filterTransactionDateStartDate, :filterTransactionDateEndDate, :filterPaymentDateStartDate, :filterPaymentDateEndDate, :filterORDateStartDate, :filterORDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate, :filterPDCManagementCollection)');
             $sql->bindValue(':filterCollectionsStatus', $filterCollectionsStatus, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateStartDate', $filterTransactionDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateEndDate', $filterTransactionDateEndDate, PDO::PARAM_STR);
@@ -196,6 +229,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->bindValue(':filterReversedDateEndDate', $filterReversedDateEndDate, PDO::PARAM_STR);
             $sql->bindValue(':filterCancellationDateStartDate', $filterCancellationDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterCancellationDateEndDate', $filterCancellationDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterPDCManagementCollection', $filterPDCManagementCollection, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();

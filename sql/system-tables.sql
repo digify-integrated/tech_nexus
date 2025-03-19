@@ -5978,3 +5978,17 @@ CREATE TABLE product_inventory_scan_additional(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE contractor(
+	contractor_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	contractor_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE work_center(
+	work_center_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	work_center_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);

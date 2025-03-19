@@ -24,6 +24,18 @@
               <input type="text" class="form-control" id="client_name" name="client_name" maxlength="2000" autocomplete="off">
             </div>
           </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Address</label>
+            <div class="col-lg-10">
+              <input type="text" class="form-control" id="address" name="address" maxlength="5000" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">TIN</label>
+            <div class="col-lg-10">
+              <input type="text" class="form-control" id="tin" name="tin" maxlength="50" autocomplete="off">
+            </div>
+          </div>
         </form>
       </div>
     </div>

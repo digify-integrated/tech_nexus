@@ -7,6 +7,9 @@
           <div class="col-sm-6">
             <h5>Job Order</h5>
           </div>
+          <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+            <a href="print-job-order-list.php?id=<?php echo $salesProposalID; ?>" target="_blank" class="btn btn-success">Print</a>
+           </div>
         </div>
       </div>
       <div class="card-body">
@@ -16,7 +19,10 @@
                   <tr>
                     <th>Job Order</th>
                     <th>Cost</th>
+                    <th>Contactor</th>
+                    <th>Work Center</th>
                     <th>Progress</th>
+                    <th>Backjob?</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -32,6 +38,9 @@
           <div class="col-sm-6">
             <h5>Additional Job Order</h5>
           </div>
+          <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+            <a href="print-additional-job-order-list.php?id=<?php echo $salesProposalID; ?>" target="_blank" class="btn btn-success">Print</a>
+           </div>
         </div>
       </div>
       <div class="card-body">
@@ -43,7 +52,10 @@
                     <th>Job Order Date</th>
                     <th>Particulars</th>
                     <th>Cost</th>
+                    <th>Contactor</th>
+                    <th>Work Center</th>
                     <th>Progress</th>
+                    <th>Backjob?</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -64,11 +76,40 @@
       <div class="row">
         <div class="col-lg-12">
           <form id="sales-proposal-job-order-progress-form" method="post" action="#">
-            <input type="hidden" id="sales_proposal_job_order_id" name="sales_proposal_job_order_id">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label" for="job_order_cost">Cost <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01">
+              </div>
+            </div>
+            <input type="hidden" id="sales_proposal_job_order_id" name="sales_proposal_job_order_id">
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="job_order_progress" name="job_order_progress" min="0" max="100" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Contractor</label>
+                <select class="form-control offcanvas-select2" name="job_order_contractor_id" id="job_order_contractor_id">
+                  <option value="">--</option>
+                  <?php echo $contractorModel->generateContractorOptions(); ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Work Center</label>
+                <select class="form-control offcanvas-select2" name="job_order_work_center_id" id="job_order_work_center_id">
+                  <option value="">--</option>
+                  <?php echo $workCenterModel->generateWorkCenterOptions(); ?>
+                </select>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Backjob? <span class="text-danger">*</span></label>
+                <select class="form-control" name="job_order_backjob" id="job_order_backjob">
+                  <option value="No" selected>No</option>
+                  <option value="Yes">Yes</option>
+                </select>
               </div>
             </div>
           </form>
@@ -95,8 +136,37 @@
             <input type="hidden" id="sales_proposal_additional_job_order_id" name="sales_proposal_additional_job_order_id">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label" for="additional_job_order_cost">Cost <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="additional_job_order_cost" name="additional_job_order_cost" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="additional_job_order_progress" name="additional_job_order_progress" min="0" max="100" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Contractor</label>
+                <select class="form-control offcanvas-select2" name="additional_job_order_contractor_id" id="additional_job_order_contractor_id">
+                  <option value="">--</option>
+                  <?php echo $contractorModel->generateContractorOptions(); ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Work Center</label>
+                <select class="form-control offcanvas-select2" name="additional_job_order_work_center_id" id="additional_job_order_work_center_id">
+                  <option value="">--</option>
+                  <?php echo $workCenterModel->generateWorkCenterOptions(); ?>
+                </select>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Backjob? <span class="text-danger">*</span></label>
+                <select class="form-control" name="additional_job_order_backjob" id="additional_job_order_backjob">
+                  <option value="No" selected>No</option>
+                  <option value="Yes">Yes</option>
+                </select>
               </div>
             </div>
           </form>

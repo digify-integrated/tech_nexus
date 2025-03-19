@@ -945,7 +945,7 @@
                                     <div class="card-body py-2">
                                         <ul class="list-group list-group-flush">
                                             <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
-                                                <h5 class="mb-0">Credit Advice</h5>
+                                                <h5 class="mb-0">Credit Advice / Purchase Order</h5>
                                                 <?php
                                                 if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft'){
                                                     if(!empty($clientConfirmation) && $transactionType == 'Bank Financing'){

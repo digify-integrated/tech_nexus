@@ -47,6 +47,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $filter_payment_date_end_date = $systemModel->checkDate('empty', $_POST['filter_payment_date_end_date'], '', 'Y-m-d', '');
             
             $values_company = $_POST['filter_collection_report_company'];
+            $values_collection = $_POST['filter_collection_report_collection'];
             $filter_payment_advice = $_POST['filter_payment_advice'];
 
             if(empty($_POST['filter_payment_advice'])){
@@ -68,8 +69,24 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filterPDCManagementCompany = null;
             }
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateCollectionReportTable(:filterPDCManagementCompany, :filter_transaction_date_start_date, :filter_transaction_date_end_date, :filter_payment_date_start_date, :filter_payment_date_end_date, :filter_payment_advice)');
+            if(!empty($values_collection)){
+                $values_array = explode(', ', $values_collection);
+    
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . $value . "'";
+                }, $values_array);
+    
+                $quoted_values_string = implode(', ', $quoted_values_array);
+    
+                $filterPDCManagementCollection = $quoted_values_string;
+            }
+            else{
+                $filterPDCManagementCollection = null;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateCollectionReportTable(:filterPDCManagementCompany, :filterPDCManagementCollection, :filter_transaction_date_start_date, :filter_transaction_date_end_date, :filter_payment_date_start_date, :filter_payment_date_end_date, :filter_payment_advice)');
             $sql->bindValue(':filterPDCManagementCompany', $filterPDCManagementCompany, PDO::PARAM_STR);
+            $sql->bindValue(':filterPDCManagementCollection', $filterPDCManagementCollection, PDO::PARAM_STR);
             $sql->bindValue(':filter_transaction_date_start_date', $filter_transaction_date_start_date, PDO::PARAM_STR);
             $sql->bindValue(':filter_transaction_date_end_date', $filter_transaction_date_end_date, PDO::PARAM_STR);
             $sql->bindValue(':filter_payment_date_start_date', $filter_payment_date_start_date, PDO::PARAM_STR);

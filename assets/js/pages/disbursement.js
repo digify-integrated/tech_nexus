@@ -579,7 +579,16 @@
         });
 
         $(document).on('click','#add-particulars',function() {
-            resetModalForm('particulars-form');
+            $('#disbursement_particulars_id').val('');
+            $('#particulars_amount').val('');
+            $('#remarks').val('');
+
+                       
+            checkOptionExist('#particulars_company_id', '', '');
+            checkOptionExist('#chart_of_account_id', '', '');
+            checkOptionExist('#with_vat', 'No', '');
+            checkOptionExist('#with_withholding', 'No', '');
+            checkOptionExist('#tax_quarter', '', '');
         });
 
         $(document).on('change','#payable_type',function() {
@@ -979,6 +988,22 @@
             else{
                 showNotification('Print Disbursements Error', 'No selected disbursement.', 'danger');
             }
+        });
+
+        $(document).on('change','#with_vat',function() {
+            calculateTax();
+        });
+
+        $(document).on('change','#with_vat',function() {
+            calculateTax();
+        });
+
+        $(document).on('change','#with_withholding',function() {
+            calculateTax();
+        });
+
+        $(document).on('change','#particulars_amount',function() {
+            calculateTax();
         });
     });
 })(jQuery);
@@ -1454,6 +1479,11 @@ function particularsForm(){
             particulars_company_id: {
                 required: true
             },
+            tax_quarter: {
+                required: function () {
+                    return $("#with_withholding").val() != "No";
+                }
+            }
         },
         messages: {
             chart_of_account_id: {
@@ -1464,6 +1494,9 @@ function particularsForm(){
             },
             particulars_company_id: {
                 required: 'Please choose the company'
+            },
+            tax_quarter: {
+                required: 'Please choose the tax quarter'
             },
         },
         errorPlacement: function (error, element) {
@@ -2163,7 +2196,13 @@ function displayDetails(transaction){
                         $('#remarks').val(response.remarks);
 
                        
+                        checkOptionExist('#particulars_company_id', response.companyID, '');
                         checkOptionExist('#chart_of_account_id', response.chartOfAccountID, '');
+                        checkOptionExist('#with_vat', response.withVat, '');
+                        checkOptionExist('#with_withholding', response.withWithholding, '');
+                        checkOptionExist('#tax_quarter', response.taxQuarter, '');
+
+                        calculateTax();
                     } 
                     else {
                         if(response.isInactive){
@@ -2223,4 +2262,27 @@ function displayDetails(transaction){
             });
             break;
     }
+}
+
+function calculateTax() {
+    const withVat = $('#with_vat').val() === 'Yes';
+    const withWithholding = $('#with_withholding').val();
+    const particularsAmount = parseFloat($('#particulars_amount').val()) || 0;
+
+    const vatRate = 0.12;
+    const vatBase = withVat ? particularsAmount / 1.12 : particularsAmount;
+    const vatAmount = withVat ? vatBase * vatRate : 0;
+
+    $('#base_amount').val(vatBase.toFixed(2));
+    $('#vat_amount').val(vatAmount.toFixed(2));
+
+    let withholdingAmount = 0;
+    if (withWithholding !== 'No') {
+        withholdingAmount = vatBase * (withWithholding / 100);
+    }
+
+    const totalAmount = vatBase + vatAmount - withholdingAmount;
+
+    $('#withholding_amount').val(withholdingAmount.toFixed(2));
+    $('#total_amount').val(totalAmount.toFixed(2));
 }
