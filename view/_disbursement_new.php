@@ -31,13 +31,13 @@
             </div>
             <?php
                   if($disbursementCategory === 'disbursement petty cash'){
-                   $customerhide = 'd-none';
-                   $mischide = '';
+                   $customerhide = '';
+                   $mischide = 'd-none';
                   }
                   else{
                   
-                    $customerhide = '';
-                    $mischide = 'd-none';
+                    $customerhide = 'd-none';
+                    $mischide = '';
                   }
                 ?>
             <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>

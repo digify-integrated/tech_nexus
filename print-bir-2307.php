@@ -3,6 +3,87 @@
 require_once('assets/libs/fpdf/fpdf.php');
 require_once('assets/libs/fpdi/autoload.php');
 
+require_once 'config/config.php';
+    require_once 'session.php';
+    require_once 'model/database-model.php';
+    require_once 'model/disbursement-model.php';
+    require_once 'model/system-model.php';
+    require_once 'model/user-model.php';
+    require_once 'model/customer-model.php';
+    require_once 'model/miscellaneous-client-model.php';
+    require_once 'model/company-model.php';
+    require_once 'model/city-model.php';
+    require_once 'model/state-model.php';
+    require_once 'model/country-model.php';
+
+    $databaseModel = new DatabaseModel();
+    $systemModel = new SystemModel();
+    $userModel = new UserModel(new DatabaseModel, new SystemModel);
+    $disbursementModel = new DisbursementModel($databaseModel);
+    $customerModel = new CustomerModel($databaseModel);
+    $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
+    $companyModel = new CompanyModel($databaseModel);
+    $cityModel = new CityModel($databaseModel);
+    $stateModel = new StateModel($databaseModel);
+    $countryModel = new CountryModel($databaseModel);
+
+if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: disbursement.php');
+      exit;
+    }
+
+    $disbursementID = $_GET['id'];
+
+    $disbursementDetails = $disbursementModel->getDisbursement($disbursementID);
+    $payable_type = $disbursementDetails['payable_type'] ?? '';
+    $customer_id = $disbursementDetails['customer_id'] ?? '';
+    $company_id = $disbursementDetails['company_id'] ?? '';
+
+    $companyDetails = $companyModel->getCompany($company_id);
+    $company_name = $companyDetails['company_name'] ?? null;
+    $tax_id = $companyDetails['tax_id'] ?? null;
+    $address = $companyDetails['address'] ?? null;
+    $cityID = $companyDetails['city_id'];
+
+    $cityDetails = $cityModel->getCity($cityID);
+    $cityName = $cityDetails['city_name'];
+    $stateID = $cityDetails['state_id'];
+    
+    $stateDetails = $stateModel->getState($stateID);
+    $stateName = $stateDetails['state_name'];
+    $countryID = $stateDetails['country_id'];
+    
+    $countryName = $countryModel->getCountry($countryID)['country_name'];
+    
+    $companyAddress = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
+
+    $customerAddress = '';
+    $customerName = '';
+    $tin = '';
+    if($payable_type === 'Customer'){
+        $customerDetails = $customerModel->getPersonalInformation($customer_id);
+        $customerName = $customerDetails['file_as'] ?? null;
+
+        $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customer_id);
+        $customerAddress = $customerPrimaryAddress['address'] ?? '' . ', ' . $customerPrimaryAddress['city_name'] ?? '' . ', ' . $customerPrimaryAddress['state_name'] ?? '' . ', ' . $customerPrimaryAddress['country_name'] ?? '';
+    }
+    else{
+        $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+        $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+        $customerAddress = $miscellaneousClientDetails['address'] ?? null;
+        $tin = $miscellaneousClientDetails['tin'] ?? null;
+    }
+
+    if($company_id == 2 || $customer_id == 4){
+        $signature = 'JOSEFINA MENDOZA / 193-346-270';
+    }
+    else{
+        $signature = 'LALAINE PENACILLA / 124-031-432';
+    }
+
+}
+
 use setasign\Fpdi\Fpdi;
 
 // Create a new FPDI instance with 8.5 x 13 page size
@@ -24,7 +105,7 @@ $pdf->useTemplate($tplIdx, 0, 0, 216);
 $pdf->SetFont('Arial', '', size: 7.5);
 
 // Fill in Payee TIN
-$payee_tin = '00798001200312';
+$payee_tin = $tin;
 
 $payee_tin_positions = [
     [73.5, 46],  // 0
@@ -54,11 +135,11 @@ for ($i = 0; $i < strlen($payee_tin); $i++) {
 
 // Fill in Payee
 $pdf->SetXY(12, 56);  // Adjust X, Y as needed
-$pdf->Cell(100, 10, 'MOTORHUB INC.', 0, 1);
+$pdf->Cell(100, 10, $customerName, 0, 1);
 
 // Fill in Payee Address
 $pdf->SetXY(12, 66.5);
-$pdf->Cell(100, 10, 'BRGY H. CONCEPCION CABANATUAN CITY', 0, 1);
+$pdf->Cell(100, 10, $customerAddress, 0, 1);
 
 // Fill in Payee's Zip Code
 $pdf->SetXY(191.5, 66);
@@ -99,11 +180,11 @@ for ($i = 0; $i < strlen($payor_tin); $i++) {
 
 // Fill in Payor's Name
 $pdf->SetXY(12, 97);
-$pdf->Cell(100, 10, 'N E TRUCK BUILDERS CORPORATION', 0, 1);
+$pdf->Cell(100, 10, $company_name, 0, 1);
 
 // Fill in Payor's Address
 $pdf->SetXY(12, 107);
-$pdf->Cell(100, 10, 'SAN JUAN ACCFA CABANATUAN CITY', 0, 1);
+$pdf->Cell(100, 10, $address, 0, 1);
 
 // Fill in Payor's Zip Code
 $pdf->SetXY(191.5, 107);
@@ -124,19 +205,92 @@ $spacing1 = 4.5; // First row spacing
 $spacing2 = 5;   // Second row spacing
 $currentSpacing = $spacing1; // Start with 4.5
 
-// Sample Income Data
-$incomes = [
-    ['PAYMENT TO LOCAL SUPPLIERS-GOODS', 'WC158', '-', '22,321.43', '-', '22,321.43', '223.21'],
-    ['PAYMENT TO LOCAL SUPPLIERS-SERVICES', 'WC159', '-', '10,000.00', '-', '10,000.00', '100.00'],
-    ['PAYMENT TO FOREIGN SUPPLIERS', 'WC160', '-', '50,500.25', '-', '50,500.25', '505.00'],
-    ['OTHER INCOME CATEGORY', 'WC161', '-', '30,750.75', '-', '30,750.75', '307.50'],
-    ['OTHER INCOME CATEGORY', 'WC161', '-', '30,750.75', '-', '30,750.75', '307.50'],
-    ['OTHER INCOME CATEGORY', 'WC161', '-', '30,750.75', '-', '30,750.75', '307.50'],
-    ['OTHER INCOME CATEGORY', 'WC161', '-', '30,750.75', '-', '30,750.75', '307.50'],
-    ['OTHER INCOME CATEGORY', 'WC161', '-', '30,750.75', '-', '30,750.75', '307.50'],
-    ['OTHER INCOME CATEGORY', 'WC161', '-', '30,750.75', '-', '30,750.75', '307.50'],
-    ['OTHER INCOME CATEGORY', 'WC161', '-', '30,750.75', '-', '30,750.75', '307.50'],
-];
+$goodsTotal = 0;
+$goods1stQuarterTotal = 0;
+$goods2ndQuarterTotal = 0;
+$goods3rdQuarterTotal = 0;
+$goodsWithholdingTotal = 0;
+
+$serviceTotal = 0;
+$service1stQuarterTotal = 0;
+$service2ndQuarterTotal = 0;
+$service3rdQuarterTotal = 0;
+$serviceWithholdingTotal = 0;
+
+$sql = $databaseModel->getConnection()->prepare('SELECT * from disbursement_particulars where disbursement_id  = :disbursement_id');
+$sql->bindValue(':disbursement_id', $disbursementID, PDO::PARAM_INT);
+$sql->execute();
+$options = $sql->fetchAll(PDO::FETCH_ASSOC);
+$sql->closeCursor();
+
+foreach ($options as $row) {
+    $disbursement_particulars_id = $row['disbursement_particulars_id'];
+    $base_amount = $row['base_amount'];
+    $tax_quarter = $row['tax_quarter'];
+    $withholding_amount = $row['withholding_amount'];
+    $with_withholding = $row['with_withholding'];
+
+    if($with_withholding == '1'){
+        $goodsTotal = $goodsTotal + $base_amount;
+        $goodsWithholdingTotal = $goodsWithholdingTotal + $withholding_amount;
+
+        if($tax_quarter == '1'){
+            $goods1stQuarterTotal = $goods1stQuarterTotal + $base_amount;
+        }
+        else if($tax_quarter == '2'){
+            $goods2ndQuarterTotal = $goods2ndQuarterTotal + $base_amount;
+        }
+        else{
+            $goods3rdQuarterTotal = $goods3rdQuarterTotal + $base_amount;
+        }
+    }
+    else if($with_withholding == '2'){
+        $serviceTotal = $serviceTotal + $base_amount;
+        $serviceWithholdingTotal = $serviceWithholdingTotal + $withholding_amount;
+
+        if($tax_quarter == '1'){
+            $service1stQuarterTotal = $service1stQuarterTotal + $base_amount;
+        }
+        else if($tax_quarter == '2'){
+            $service2ndQuarterTotal = $service2ndQuarterTotal + $base_amount;
+        }
+        else{
+            $service3rdQuarterTotal = $service3rdQuarterTotal + $base_amount;
+        }
+    }
+}
+
+$total1stQuarter = $goods1stQuarterTotal + $service1stQuarterTotal;
+$total2ndQuarter = $goods2ndQuarterTotal + $service2ndQuarterTotal;
+$total3rdQuarter = $goods3rdQuarterTotal + $service3rdQuarterTotal;
+$totalAmount = $total1stQuarter + $total2ndQuarter + $total3rdQuarter;
+$totalWithholding = $goodsWithholdingTotal + $serviceWithholdingTotal;
+
+$incomes = []; // Initialize the array
+
+if ($goodsTotal > 0) {
+    $incomes[] = [
+        'PAYMENT TO LOCAL SUPPLIERS-GOODS', 
+        'WC158', 
+        number_format($goods1stQuarterTotal, 2), 
+        number_format($goods2ndQuarterTotal, 2), 
+        number_format($goods3rdQuarterTotal, 2), 
+        number_format($goodsTotal, 2), 
+        number_format($goodsWithholdingTotal, 2)
+    ];
+}
+
+if ($serviceTotal > 0) {
+    $incomes[] = [
+        'PAYMENT TO LOCAL SUPPLIERS-SERVICES', 
+        'WC159', 
+        number_format($service1stQuarterTotal, 2), 
+        number_format($service2ndQuarterTotal, 2), 
+        number_format($service3rdQuarterTotal, 2), 
+        number_format($serviceTotal, 2), 
+        number_format($totalWithholding, 2)
+    ];
+}
 
 // Column positions (X-coordinates)
 $columns = [8, 65, 89, 110.5, 141, 161.5, 190];
@@ -157,22 +311,22 @@ foreach ($incomes as $index => $income) {
 //TOTAL
 
 $pdf->SetXY(89, 175);
-$pdf->Cell(100, 10, '-', 0, 1);
+$pdf->Cell(100, 10, number_format($total1stQuarter, 2), 0, 1);
 $pdf->SetXY(110.5,  175);
-$pdf->Cell(100, 10, '22,321.43', 0, 1);
+$pdf->Cell(100, 10, number_format($total2ndQuarter, 2), 0, 1);
 $pdf->SetXY(141,  175);
-$pdf->Cell(100, 10, '-', 0, 1);
+$pdf->Cell(100, 10, number_format($total3rdQuarter, 2), 0, 1);
 $pdf->SetXY(161.5, 175);
-$pdf->Cell(100, 10, '22,321.43', 0, 1);
+$pdf->Cell(100, 10, number_format($totalAmount, 2), 0, 1);
 $pdf->SetXY(190, 175);
-$pdf->Cell(100, 10, '223.21', 0, 1);
+$pdf->Cell(100, 10, number_format($totalWithholding, 2), 0, 1);
 
 
 //SIGNATURE
 $pdf->SetFont('Arial', '', size: 9);
 
 $pdf->SetXY(75, 257);
-$pdf->Cell(100, 10, 'JOSEFINA MENDOZA/193-346-270', 0, 1);
+$pdf->Cell(100, 10, $signature, 0, 1);
 
 // Import Page 2 (if applicable)
 if ($pdf->setSourceFile($pdfPath) >= 2) { // Check if a second page exists

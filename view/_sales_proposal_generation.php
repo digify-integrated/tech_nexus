@@ -1165,6 +1165,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $response[] = [
+                        'CHECK_BOX' => '<input class="form-check-input job-order-checkbox-children" type="checkbox" value="'. $salesProposalJobOrderID .'">',
                         'JOB_ORDER' => $jobOrder,
                         'COST' => $cost,
                         'BACKJOB' => $backjob,
@@ -1333,6 +1334,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $response[] = [
+                        'CHECK_BOX' => '<input class="form-check-input additional-job-order-checkbox-children" type="checkbox" value="'. $salesProposalAdditionalJobOrderID .'">',
                         'JOB_ORDER_NUMBER' => $jobOrderNumber,
                         'JOB_ORDER_DATE' => $jobOrderDate,
                         'PARTICULARS' => $particulars,

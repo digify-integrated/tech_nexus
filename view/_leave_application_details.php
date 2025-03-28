@@ -34,9 +34,13 @@
                       $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#leave-application-reject-offcanvas" aria-controls="leave-application-reject-offcanvas" id="leave-application-reject" id="tag-leave-application-reject">Reject</button></li>';
                   }
                               
-                  if ($leaveApplicationCancel['total'] > 0 && ($status == 'Draft' || $status == 'For Approval' || $status == "For Recommendation" || ($status == 'Approved' && (strtotime($leaveDate) < strtotime(date('Y-m-d')))) )) {
-                      $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#leave-application-cancel-offcanvas" aria-controls="leave-application-cancel-offcanvas" id="leave-application-cancel" id="tag-leave-application-cancel">Cancel</button></li>';
-                  }
+                  if ($leaveApplicationCancel['total'] > 0 && 
+                    ($status == 'Draft' || 
+                    $status == 'For Approval' || 
+                    $status == "For Recommendation" || 
+                    ($status == 'Approved' && (strtotime($leaveDate) >= strtotime(date('Y-m-d')))) )) {
+                    $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#leave-application-cancel-offcanvas" aria-controls="leave-application-cancel-offcanvas" id="leave-application-cancel" id="tag-leave-application-cancel">Cancel</button></li>';
+                }
                           
                   $dropdown .= '</ul>
                               </div>';

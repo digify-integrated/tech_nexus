@@ -127,7 +127,7 @@
     $pdf->writeHTML($billingTable, true, false, true, false, '');
     $pdf->Ln(0);
     $pdf->SetFont('times', '', 10.5);
-    $pdf->Cell(50, 8, 'This is a computer document. No signature is required.'  , 0, 0, 'L');
+    $pdf->Cell(50, 8, 'This is a computer generated document. No signature is required.'  , 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->SetFont('times', '', 8);
     $pdf->Cell(50, 8, 'RECEIVED BY:'  , 0, 0, 'L');

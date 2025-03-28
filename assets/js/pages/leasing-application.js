@@ -9,7 +9,7 @@
         }
 
         if($('#leasing-summary-table').length){
-            leasingSummaryTable('#leasing-summary-table');
+            leasingSummaryTable('#leasing-summary-table', true, false);
         }
 
         if($('#closed-leasing-summary-table').length){

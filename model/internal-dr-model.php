@@ -99,6 +99,37 @@ class InternalDRModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    public function updateInternalDRAsOnProcess($p_internal_dr_id, $p_dr_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateInternalDRAsOnProcess(:p_internal_dr_id, :p_dr_status, :p_last_log_by)');
+        $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_dr_status', $p_dr_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateInternalDRAsReadyForRelease($p_internal_dr_id, $p_dr_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateInternalDRAsReadyForRelease(:p_internal_dr_id, :p_dr_status, :p_last_log_by)');
+        $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_dr_status', $p_dr_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    
+    public function updateInternalDRAsForDR($p_internal_dr_id, $p_dr_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateInternalDRAsForDR(:p_internal_dr_id, :p_dr_status, :p_last_log_by)');
+        $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_dr_status', $p_dr_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    
+    public function updateSalesProposalBackjobProgress($p_internal_dr_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalBackjobProgress(:p_internal_dr_id, :p_last_log_by)');
+        $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
      # -------------------------------------------------------------
@@ -118,6 +149,42 @@ class InternalDRModel {
         $stmt = $this->db->getConnection()->prepare('CALL updateInternalDRUnitImage(:p_internal_dr_id, :p_unit_image, :p_last_log_by)');
         $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateInternalDROutgoingChecklist($p_internal_dr_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateInternalDROutgoingChecklist(:p_internal_dr_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateInternalDRQualityControlForm($p_internal_dr_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateInternalDRQualityControlForm(:p_internal_dr_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    
+    public function updateInternalDRJobOrder($p_internal_dr_job_order_id, $p_progress, $p_contractor_id, $p_work_center_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateInternalDRJobOrder(:p_internal_dr_job_order_id, :p_progress, :p_contractor_id, :p_work_center_id, :p_last_log_by)');
+        $stmt->bindValue(':p_internal_dr_job_order_id', $p_internal_dr_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_progress', $p_progress, PDO::PARAM_STR);
+        $stmt->bindValue(':p_contractor_id', $p_contractor_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_work_center_id', $p_work_center_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateInternalDRAdditionalJobOrder($p_internal_dr_additional_job_order_id, $p_progress, $p_contractor_id, $p_work_center_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateInternalDRAdditionalJobOrder(:p_internal_dr_additional_job_order_id, :p_progress, :p_contractor_id, :p_work_center_id, :p_last_log_by)');
+        $stmt->bindValue(':p_internal_dr_additional_job_order_id', $p_internal_dr_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_progress', $p_progress, PDO::PARAM_STR);
+        $stmt->bindValue(':p_contractor_id', $p_contractor_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_work_center_id', $p_work_center_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -207,6 +274,18 @@ class InternalDRModel {
         $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    public function deleteInternalDRJobOrder($p_internal_dr_job_order_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteInternalDRJobOrder(:p_internal_dr_job_order_id)');
+        $stmt->bindValue(':p_internal_dr_job_order_id', $p_internal_dr_job_order_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function deleteInternalDRAdditionalJobOrder($p_internal_dr_additional_job_order_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteInternalDRAdditionalJobOrder(:p_internal_dr_additional_job_order_id)');
+        $stmt->bindValue(':p_internal_dr_additional_job_order_id', $p_internal_dr_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -228,6 +307,36 @@ class InternalDRModel {
     public function getInternalDR($p_internal_dr_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getInternalDR(:p_internal_dr_id)');
         $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getInternalDRJobOrder($p_internal_dr_job_order_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getInternalDRJobOrder(:p_internal_dr_job_order_id)');
+        $stmt->bindValue(':p_internal_dr_job_order_id', $p_internal_dr_job_order_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getInternalDRAdditionalJobOrder($p_internal_dr_additional_job_order_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getInternalDRAdditionalJobOrder(:p_internal_dr_additional_job_order_id)');
+        $stmt->bindValue(':p_internal_dr_additional_job_order_id', $p_internal_dr_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function loadInternalDRJobOrder($p_internal_dr_id, $p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL loadInternalDRJobOrder(:p_internal_dr_id, :p_sales_proposal_id)');
+        $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getInternalDRJobOrderCount($p_internal_dr_id, $p_type): mixed {
+        $stmt = $this->db->getConnection()->prepare('CALL getInternalDRJobOrderCount(:p_internal_dr_id, :p_type)');
+        $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

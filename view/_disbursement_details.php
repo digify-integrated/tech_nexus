@@ -24,7 +24,7 @@
                     }
              
                     if (($disbursementStatus == 'Draft' || $disbursementStatus == 'Posted')) {
-                      $dropdown .= '<li><a href="print-bir-2307.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print BIR Form 2307 (DO NOT USE YET - TESTING PURPOSES ONLY)</a></li>';
+                      $dropdown .= '<li><a href="print-bir-2307.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print BIR Form 2307 (DO NOT USE YET - FOR VALIDATION BY ACCOUNTING)</a></li>';
                     }
              
                     if ($postDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
@@ -105,13 +105,13 @@
             <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
             <?php
                   if($disbursementCategory === 'disbursement petty cash'){
-                   $customerhide = 'd-none';
-                   $mischide = '';
+                   $customerhide = '';
+                   $mischide = 'd-none';
                   }
                   else{
                   
-                    $customerhide = '';
-                    $mischide = 'd-none';
+                    $customerhide = 'd-none';
+                    $mischide = '';
                   }
                 ?>
             <div class="col-lg-4 <?php echo $customerhide; ?>" id="customer-select">

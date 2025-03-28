@@ -1293,6 +1293,20 @@ class SalesProposalModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function getJobOrderBackjobCount($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getJobOrderBackjobCount(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getAdditionalJobOrderBackjobCount($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getAdditionalJobOrderBackjobCount(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -2116,6 +2130,23 @@ class SalesProposalModel {
             $stockNumber = strtoupper($row['stock_number']);
 
             $htmlOptions .= '<option value="' . htmlspecialchars($salesProposalID, ENT_QUOTES) . '">' . htmlspecialchars($loanNumber, ENT_QUOTES) . ' - ' . $stockNumber . ' - '. htmlspecialchars($fileAs, ENT_QUOTES)  .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    public function generateJobOrderBackjobOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateJobOrderBackjobOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $salesProposalID = $row['sales_proposal_id'];
+            $sales_proposal_number = $row['sales_proposal_number'];
+            $fileAs = strtoupper($row['file_as']);
+            $stockNumber = strtoupper($row['stock_number']);
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($salesProposalID, ENT_QUOTES) . '">' . htmlspecialchars($sales_proposal_number, ENT_QUOTES) . ' - ' . $stockNumber . ' - '. htmlspecialchars($fileAs, ENT_QUOTES)  .'</option>';
         }
 
         return $htmlOptions;

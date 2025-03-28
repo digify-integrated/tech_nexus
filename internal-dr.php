@@ -2,8 +2,14 @@
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
   require('model/internal-dr-model.php');
+  require('model/sales-proposal-model.php');
+  require('model/contractor-model.php');
+  require('model/work-center-model.php');
   
   $internalDRModel = new InternalDRModel($databaseModel);
+  $salesProposalModel = new SalesProposalModel($databaseModel);
+  $contractorModel = new ContractorModel($databaseModel);
+  $workCenterModel = new WorkCenterModel($databaseModel);
 
   $pageTitle = 'Internal DR';
     

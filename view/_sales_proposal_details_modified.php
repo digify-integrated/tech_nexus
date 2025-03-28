@@ -1,3 +1,8 @@
+<?php
+$getJobOrderBackjobCount = $salesProposalModel->getJobOrderBackjobCount($salesProposalID);
+$getAdditionalJobOrderBackjobCount = $salesProposalModel->getAdditionalJobOrderBackjobCount($salesProposalID);
+?>
+
 <div class="row">
   <div class="col-md-3">
     <div class="card">
@@ -28,13 +33,15 @@
                           <button class="btn btn-info" id="on-process-sales-proposal">On-Process</button>
                         </div>';
                 }
-
+                
                 if($salesProposalStatus == 'On-Process'){
                   if($tagSalesProposalReadyForRelease['total'] > 0 && !empty($qualityControlForm)){
                     if((($additionalJobOrderCount['total'] > 0 && !empty($additionalJobOrderConfirmation)) || $additionalJobOrderCount['total'] == 0) && $productType != 'Brand New'){
-                      echo '<div class="previous me-2 d-none" id="ready-for-release-sales-proposal-button">
-                      <button class="btn btn-info m-l-5" id="ready-for-release-sales-proposal">Ready For Release</button>
-                    </div>';
+                      if($getJobOrderBackjobCount['total'] == 0 && $getAdditionalJobOrderBackjobCount['total'] == 0){
+                        echo '<div class="previous me-2 d-none" id="ready-for-release-sales-proposal-button">
+                          <button class="btn btn-info m-l-5" id="ready-for-release-sales-proposal">Ready For Release</button>
+                        </div>';
+                      }
                     }
                   }
 

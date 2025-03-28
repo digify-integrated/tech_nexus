@@ -20,20 +20,24 @@
     require_once 'model/disbursement-model.php';
     require_once 'model/sales-proposal-model.php';
     require_once 'model/product-model.php';
+    require_once 'model/product-subcategory-model.php';
 
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
     $userModel = new UserModel(new DatabaseModel, new SystemModel);
     $productModel = new ProductModel($databaseModel);
     $salesProposalModel = new SalesProposalModel($databaseModel);
+    $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
           header('location: job-order-monitoring.php');
           exit;
         }
+
+        $jobOrderIDs = explode(',', $_GET['id']);
         
-        $salesProposalID = $_GET['id'];
+        $salesProposalID = $_GET['sales_proposal_id'];
 
         $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID); 
         $salesProposalNumber = $salesProposalDetails['sales_proposal_number'] ?? null;
@@ -41,13 +45,15 @@
 
         $productDetails = $productModel->getProduct($productID);
         $description = $productDetails['description'] ?? null;
+        $productSubategoryID = $productDetails['product_subcategory_id'] ?? '';
 
-        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? null);
+        $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
+        $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
 
-
+        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? '');
     }
 
-    $summaryTable = generatePrint($salesProposalID);
+    $summaryTable = generatePrint($jobOrderIDs);
 
     ob_start();
 
@@ -94,7 +100,7 @@
     $pdf->Output('job-order-list.pdf', 'I');
     ob_end_flush();
 
-    function generatePrint($salesProposalID){
+    function generatePrint($jobOrderIDs){
         
         require_once 'model/database-model.php';
         require_once 'model/pdc-management-model.php';
@@ -103,25 +109,23 @@
         require_once 'model/contractor-model.php';
         require_once 'model/employee-model.php';
         require_once 'model/work-center-model.php';
+        require_once 'model/sales-proposal-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
         $userModel = new UserModel(new DatabaseModel, new SystemModel);
         $contractorModel = new ContractorModel($databaseModel);
         $workCenterModel = new WorkCenterModel($databaseModel);
-        
-        
+        $salesProposalModel = new SalesProposalModel($databaseModel);
+    
         $list = '';
-        $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalAdditionalJobOrderTable(:salesProposalID)');
-        $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
-        $sql->execute();
-        $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-        $sql->closeCursor();
             
-        foreach ($options as $row) {
+        foreach ($jobOrderIDs as $jobOrderID) {
+
+            $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalAdditionalJobOrder($jobOrderID);
            
-            $jobOrder = $row['job_order'];
-            $work_center_id = $row['work_center_id'];
+            $jobOrder = $salesProposalJobOrderDetails['particulars'];
+            $work_center_id = $salesProposalJobOrderDetails['work_center_id'];
 
             $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
             $work_center_name = $workCenterDetails['work_center_name'] ?? null;

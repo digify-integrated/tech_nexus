@@ -1336,12 +1336,14 @@ class UserController {
             
             $message .= ".";
             echo json_encode(['success' => false, 'message' => $message]);
+    
+            exit;
         }
         else {
             echo json_encode(['success' => false, 'message' => 'The email or password you entered is invalid. Please double-check your credentials and try again.']);
-        }
     
-        exit;
+            exit;
+        }
     }
     # -------------------------------------------------------------
 
@@ -1361,9 +1363,11 @@ class UserController {
     # -------------------------------------------------------------
     private function handlePasswordExpiration($user, $email, $encryptedUserID) {
         $userID = $user['user_id'];
-        $resetTokenExpiryDate = $user['reset_token_expiry_date'];
-    
-        if (strtotime(date('Y-m-d H:i:s')) > strtotime($resetTokenExpiryDate)) {
+
+        $passwordExpiryDate = new DateTime($user['password_expiry_date']);
+        $currentDate = new DateTime();
+        
+        if ($currentDate > $passwordExpiryDate) {
             $resetToken = $this->generateResetToken();
             $encryptedResetToken = $this->securityModel->encryptData($resetToken);
             $resetTokenExpiryDate = date('Y-m-d H:i:s', strtotime('+10 minutes'));
@@ -1372,9 +1376,9 @@ class UserController {
             $this->sendPasswordReset($email, $encryptedUserID, $encryptedResetToken);
     
             echo json_encode(['success' => false, 'message' => "Your password has expired. To reset your password, we have sent a password reset link to your registered email address. Please follow the instructions in the email to securely reset your password."]);
-        }
     
-        exit;
+            exit;
+        }
     }
     # -------------------------------------------------------------
     
@@ -1400,12 +1404,12 @@ class UserController {
         if (time() < $unlockTime) {
             $remainingTime = round(($unlockTime - time()) / 60);
             echo json_encode(['success' => false, 'message' => "Your account has been locked. Please try again in $remainingTime minutes."]);
+            exit;
         }
         else {
             $this->userModel->updateAccountLock($userID, 0, null);
         }
     
-        exit;
     }
     # -------------------------------------------------------------
     

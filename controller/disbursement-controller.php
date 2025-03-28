@@ -539,6 +539,7 @@ class DisbursementController {
             $transaction_type = $disbursementDetails['transaction_type'];
             $transaction_number = $disbursementDetails['transaction_number'];
             $transaction_date = $disbursementDetails['transaction_date'];
+            $disburse_status = $disbursementDetails['disburse_status'];
         
             $disbursementTotal = $this->disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
             $disbursementCheckTotal = $this->disbursementModel->getDisbursementCheckTotal($disbursementID)['total'] ?? 0;
@@ -552,6 +553,10 @@ class DisbursementController {
             }
         
             if ($fund_source === 'Check' && $disbursementCheckTotal != $disbursementTotal) {
+                continue; 
+            }
+
+            if($disburse_status != 'Draft'){
                 continue; 
             }
         

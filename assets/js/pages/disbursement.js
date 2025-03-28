@@ -1012,6 +1012,8 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
     const type = 'disbursement table';
     var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
+    var filter_replenishment_date_start_date = $('#filter_replenishment_date_start_date').val();
+    var filter_replenishment_date_end_date = $('#filter_replenishment_date_end_date').val();
     var fund_source_filter = $('.fund-source-filter:checked').val();
     var disbursement_status_filter = $('.disbursement-status-filter:checked').val();
     var transaction_type_filter = $('.transaction-type-filter:checked').val();
@@ -1058,6 +1060,8 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
             'data': {'type' : type, 
                 'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
                 'filter_transaction_date_end_date' : filter_transaction_date_end_date,
+                'filter_replenishment_date_start_date' : filter_replenishment_date_start_date,
+                'filter_replenishment_date_end_date' : filter_replenishment_date_end_date,
                 'fund_source_filter' : fund_source_filter,
                 'disbursement_status_filter' : disbursement_status_filter,
                 'transaction_type_filter' : transaction_type_filter,

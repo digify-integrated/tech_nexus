@@ -1459,8 +1459,7 @@ class ProductController {
             
             $productCost = $this->productModel->getTotalProductCost($productID)['expense_amount'] ?? 0;
 
-            
-
+        
             $response = [
                 'success' => true,
                 'productSubcategoryID' => $productSubategoryID,

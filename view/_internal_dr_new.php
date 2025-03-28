@@ -46,6 +46,7 @@
                     <option value="Unit">Unit</option>
                     <option value="Fuel">Fuel</option>
                     <option value="Repair">Repair</option>
+                    <option value="Backjob">Backjob</option>
                     <option value="Parts">Parts</option>
                     <option value="Tools">Tools</option>
                 </select>

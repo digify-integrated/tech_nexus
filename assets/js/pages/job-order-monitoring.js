@@ -37,6 +37,42 @@
             
             displayDetails('get sales proposal additional job order details');
         });
+
+        $(document).on('click','#print-job-order',function() {
+            var checkedBoxes = [];
+            var sales_proposal_id = $('#sales_proposal_id').val();
+
+            $('.job-order-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('print-job-order-list.php?id=' + checkedBoxes + '&sales_proposal_id=' + sales_proposal_id, '_blank');
+            }
+            else{
+                showNotification('Print Job Order Error', 'No selected job order.', 'danger');
+            }
+        });
+
+        $(document).on('click','#print-additional-job-order',function() {
+            var checkedBoxes = [];
+            var sales_proposal_id = $('#sales_proposal_id').val();
+
+            $('.additional-job-order-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('print-additional-job-order-list.php?id=' + checkedBoxes + '&sales_proposal_id=' + sales_proposal_id, '_blank');
+            }
+            else{
+                showNotification('Print Additional Job Order Error', 'No selected additional job order.', 'danger');
+            }
+        });
     });
 })(jQuery);
 
@@ -109,6 +145,7 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
     var settings;
 
     const column = [ 
+        { 'data' : 'CHECK_BOX' },
         { 'data' : 'JOB_ORDER' },
         { 'data' : 'COST' },
         { 'data' : 'CONTRACTOR' },
@@ -119,13 +156,14 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
     ];
 
     const column_definition = [
-        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': '15%','bSortable': false, 'aTargets': 6 }
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': '15%','bSortable': false, 'aTargets': 7 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -145,7 +183,7 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 0, 'asc' ]],
+        'order': [[ 1, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -173,6 +211,7 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
     var settings;
 
     const column = [ 
+        { 'data' : 'CHECK_BOX' },
         { 'data' : 'JOB_ORDER_NUMBER' },
         { 'data' : 'JOB_ORDER_DATE' },
         { 'data' : 'PARTICULARS' },
@@ -185,15 +224,16 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
     ];
 
     const column_definition = [
-        { 'width': 'auto', 'aTargets': 0 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 1 },
-        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
-        { 'width': '15%','bSortable': false, 'aTargets': 8 }
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': '15%','bSortable': false, 'aTargets': 9 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -213,7 +253,7 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 0, 'asc' ]],
+        'order': [[ 1, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

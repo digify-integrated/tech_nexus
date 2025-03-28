@@ -5453,12 +5453,18 @@ function displayDetails(transaction){
                         $('#received_from_id_number').val(response.receivedFromIDNumber);
                         $('#unit_description').val(response.unitDescription);
 
-                        var existingText = $('#summary-remarks').text();
-                        if (existingText) {
-                            $('#summary-remarks').text(existingText + "\n\n" + response.unitDescription);
-                        } else {
-                            $('#summary-remarks').text(response.unitDescription);
+                        var existingText = $('#summary-remarks').text().trim();
+                        var newText = response.unitDescription.trim();
+
+                        // Check if the new text is already present
+                        if (!existingText.includes(newText)) {
+                            if (existingText) {
+                                $('#summary-remarks').text(existingText + "\n\n" + newText);
+                            } else {
+                                $('#summary-remarks').text(newText);
+                            }
                         }
+
                         
                         checkOptionExist('#received_from_id_type', response.receivedFromIDType, '');
 

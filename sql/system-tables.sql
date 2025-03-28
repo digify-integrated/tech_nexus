@@ -5451,6 +5451,28 @@ CREATE TABLE internal_dr(
 
 CREATE INDEX internal_dr_index_internal_dr_id ON internal_dr(internal_dr_id);
 
+CREATE TABLE internal_dr_job_order(
+	internal_dr_job_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	internal_dr_id INT NOT NULL,
+	sales_proposal_id INT NOT NULL,
+	job_order_id INT NOT NULL,
+	progress DOUBLE DEFAULT 0,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE internal_dr_additional_job_order(
+	internal_dr_job_additional_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	internal_dr_id INT NOT NULL,
+	sales_proposal_id INT NOT NULL,
+	additional_job_order_id INT NOT NULL,
+	progress DOUBLE DEFAULT 0,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX internal_dr_index_internal_dr_id ON internal_dr(internal_dr_id);
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 CREATE TABLE leave_type(

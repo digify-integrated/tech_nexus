@@ -69,8 +69,26 @@ class InternalDRController {
                 case 'save internal dr unit image':
                     $this->saveInternalDRUnitImage();
                     break;
+                case 'save internal dr outgoing checklist':
+                    $this->saveInternalDROutgoingChecklist();
+                    break;
+                case 'save internal dr quality control form':
+                    $this->saveInternalDRQualityControlForm();
+                    break;
+                case 'save internal dr progress job order':
+                    $this->saveInternalDRJobOrder();
+                    break;
+                case 'save internal dr progress additional job order':
+                    $this->saveInternalDRAdditionalJobOrder();
+                    break;
                 case 'get internal DR details':
                     $this->getInternalDRDetails();
+                    break;
+                case 'get internal dr job order details':
+                    $this->getInternalDRJobOrderDetails();
+                    break;
+                case 'get internal dr additional job order details':
+                    $this->getInternalDRAdditionalJobOrderDetails();
                     break;
                 case 'tag for release':
                     $this->tagInternalDRAsReleased();
@@ -78,11 +96,29 @@ class InternalDRController {
                 case 'tag for cancelled':
                     $this->tagInternalDRAsCancelled();
                     break;
+                case 'tag as on process':
+                    $this->tagInternalDRAsOnProcess();
+                    break;
+                case 'tag as ready for release':
+                    $this->tagInternalDRAsReadyForRelease();
+                    break;
+                case 'tag as for dr':
+                    $this->tagInternalDRAsForDR();
+                    break;
                 case 'delete internal DR':
                     $this->deleteInternalDR();
                     break;
+                case 'delete internal dr job order':
+                    $this->deleteInternalDRJobOrder();
+                    break;
+                case 'delete internal dr additional job order':
+                    $this->deleteInternalDRAdditionalJobOrder();
+                    break;
                 case 'delete multiple internal DR':
                     $this->deleteMultipleInternalDR();
+                    break;
+                case 'load job order':
+                    $this->loadJobOrder();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -147,6 +183,56 @@ class InternalDRController {
             echo json_encode(['success' => true, 'insertRecord' => true, 'internalDRID' => $this->securityModel->encryptData($internalDRID)]);
             exit;
         }
+    }
+    
+    public function saveInternalDRJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $internal_dr_job_order_id = htmlspecialchars($_POST['internal_dr_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $internal_dr_id = htmlspecialchars($_POST['internal_dr_id'], ENT_QUOTES, 'UTF-8');
+        $job_order_progress = htmlspecialchars($_POST['job_order_progress'], ENT_QUOTES, 'UTF-8');
+        $job_order_contractor_id = htmlspecialchars($_POST['job_order_contractor_id'], ENT_QUOTES, 'UTF-8');
+        $job_order_work_center_id = htmlspecialchars($_POST['job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->internalDRModel->updateInternalDRJobOrder($internal_dr_job_order_id, $job_order_progress, $job_order_contractor_id, $job_order_work_center_id, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function saveInternalDRAdditionalJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $internal_dr_additional_job_order_id = htmlspecialchars($_POST['internal_dr_additional_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $internal_dr_id = htmlspecialchars($_POST['internal_dr_id'], ENT_QUOTES, 'UTF-8');
+        $additional_job_order_progress = htmlspecialchars($_POST['additional_job_order_progress'], ENT_QUOTES, 'UTF-8');
+        $additional_job_order_contractor_id = htmlspecialchars($_POST['additional_job_order_contractor_id'], ENT_QUOTES, 'UTF-8');
+        $additional_job_order_work_center_id = htmlspecialchars($_POST['additional_job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->internalDRModel->updateInternalDRAdditionalJobOrder($internal_dr_additional_job_order_id, $additional_job_order_progress, $additional_job_order_contractor_id, $additional_job_order_work_center_id, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -260,6 +346,206 @@ class InternalDRController {
             exit;
         }
     }
+
+    public function saveInternalDROutgoingChecklist() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $internalDRID = htmlspecialchars($_POST['internal_dr_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkInternalDRExist = $this->internalDRModel->checkInternalDRExist($internalDRID);
+        $total = $checkInternalDRExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['outgoing_checklist_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['outgoing_checklist_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['outgoing_checklist_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['outgoing_checklist_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $internalDRDetails = $this->internalDRModel->getInternalDR($internalDRID);
+            $clientoutgoingChecklistImage = !empty($internalDRDetails['outgoing_checklist']) ? '.' . $internalDRDetails['outgoing_checklist'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Outgoing checklist cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the outgoing checklist.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The outgoing checklist exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/outgoing_checklist/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/outgoing_checklist/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->internalDRModel->updateInternalDROutgoingChecklist($internalDRID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
+
+    public function saveInternalDRQualityControlForm() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $internalDRID = htmlspecialchars($_POST['internal_dr_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkInternalDRExist = $this->internalDRModel->checkInternalDRExist($internalDRID);
+        $total = $checkInternalDRExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $qualityControlFormFileName = $_FILES['quality_control_form']['name'];
+            $qualityControlFormFileSize = $_FILES['quality_control_form']['size'];
+            $qualityControlFormFileError = $_FILES['quality_control_form']['error'];
+            $qualityControlFormTempName = $_FILES['quality_control_form']['tmp_name'];
+            $qualityControlFormFileExtension = explode('.', $qualityControlFormFileName);
+            $qualityControlFormActualFileExtension = strtolower(end($qualityControlFormFileExtension));
+
+            $internalDRDetails = $this->internalDRModel->getInternalDR($internalDRID);
+            $clientqualityControlForm = !empty($internalDRDetails['quality_control_form']) ? '.' . $internalDRDetails['quality_control_form'] : null;
+    
+            if(file_exists($clientqualityControlForm)){
+                if (!unlink($clientqualityControlForm)) {
+                    echo json_encode(['success' => false, 'message' => 'Quality control form cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($qualityControlFormActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($qualityControlFormTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the quality control form.']);
+                exit;
+            }
+            
+            if($qualityControlFormFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($qualityControlFormFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The quality control form exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $qualityControlFormActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/quality_control_form/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/quality_control_form/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($qualityControlFormTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->internalDRModel->updateInternalDRQualityControlForm($internalDRID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -301,6 +587,48 @@ class InternalDRController {
         }
     
         $this->internalDRModel->deleteInternalDR($internalDRID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function deleteInternalDRJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $internal_dr_job_order_id = htmlspecialchars($_POST['internal_dr_job_order_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->internalDRModel->deleteInternalDRJobOrder($internal_dr_job_order_id);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function deleteInternalDRAdditionalJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $internal_dr_additional_job_order_id = htmlspecialchars($_POST['internal_dr_additional_job_order_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->internalDRModel->deleteInternalDRAdditionalJobOrder($internal_dr_additional_job_order_id);
             
         echo json_encode(['success' => true]);
         exit;
@@ -383,6 +711,13 @@ class InternalDRController {
     
         $this->internalDRModel->updateInternalDRAsReleased($internalDRID, 'Released', $releaseRemarks, $userID);
 
+        $internalDRDetails = $this->internalDRModel->getInternalDR($internalDRID);
+        $drType = $internalDRDetails['dr_type'];
+
+        if($drType === 'Backjob'){
+            $this->internalDRModel->updateSalesProposalBackjobProgress($internalDRID, $userID);
+        }
+
         echo json_encode(['success' => true]);
     }
     # -------------------------------------------------------------
@@ -423,6 +758,161 @@ class InternalDRController {
         }
     
         $this->internalDRModel->updateInternalDRAsCancelled($internalDRID, 'Cancelled', $cancellationReason, $userID);
+
+        echo json_encode(['success' => true]);
+    }
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagInternalDRAsCancelled
+    # Description: 
+    # Updates the existing internal dr accessories if it exists; otherwise, inserts a new internal dr accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagInternalDRAsOnProcess() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $internalDRID = htmlspecialchars($_POST['internal_dr_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkInternalDRExist = $this->internalDRModel->checkInternalDRExist($internalDRID);
+        $total = $checkInternalDRExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $internalDRDetails = $this->internalDRModel->getInternalDR($internalDRID);
+        $drType = $internalDRDetails['dr_type'];
+
+        if($drType === 'Backjob'){
+            $total = $this->internalDRModel->getInternalDRJobOrderCount($internalDRID, 'all')['total'];
+
+            if($total === 0){
+                echo json_encode(['success' => false, 'noJobOrder' =>  true]);
+                exit;
+            }
+        }
+    
+        $this->internalDRModel->updateInternalDRAsOnProcess($internalDRID, 'On-Process', $userID);
+
+        echo json_encode(['success' => true]);
+    }
+
+    public function tagInternalDRAsReadyForRelease() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $internalDRID = htmlspecialchars($_POST['internal_dr_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkInternalDRExist = $this->internalDRModel->checkInternalDRExist($internalDRID);
+        $total = $checkInternalDRExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+        
+        $internalDRDetails = $this->internalDRModel->getInternalDR($internalDRID);
+        $drType = $internalDRDetails['dr_type'];
+        $outgoing_checklist = $internalDRDetails['outgoing_checklist'];
+        $quality_control_form = $internalDRDetails['quality_control_form'];
+
+        if($drType === 'Backjob'){
+            $total = $this->internalDRModel->getInternalDRJobOrderCount($internalDRID, 'unfinished')['total'];
+
+            if($total === 0){
+                echo json_encode(['success' => false, 'jobOrderUnfinished' =>  true]);
+                exit;
+            }
+
+            if(empty($outgoing_checklist) || empty($quality_control_form)){
+                echo json_encode(['success' => false, 'imageNotUploaded' =>  true]);
+                exit;
+            }
+        }
+    
+        $this->internalDRModel->updateInternalDRAsReadyForRelease($internalDRID, 'Ready For Release', $userID);
+
+        echo json_encode(['success' => true]);
+    }
+
+    public function tagInternalDRAsForDR() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $internalDRID = htmlspecialchars($_POST['internal_dr_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkInternalDRExist = $this->internalDRModel->checkInternalDRExist($internalDRID);
+        $total = $checkInternalDRExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->internalDRModel->updateInternalDRAsForDR($internalDRID, 'For DR', $userID);
+
+        echo json_encode(['success' => true]);
+    }
+
+    public function loadJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $internalDRID = htmlspecialchars($_POST['internal_dr_id'], ENT_QUOTES, 'UTF-8');
+        $sales_proposal_id = $_POST['sales_proposal_id'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkInternalDRExist = $this->internalDRModel->checkInternalDRExist($internalDRID);
+        $total = $checkInternalDRExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->internalDRModel->loadInternalDRJobOrder($internalDRID, $sales_proposal_id);
 
         echo json_encode(['success' => true]);
     }
@@ -474,6 +964,65 @@ class InternalDRController {
                 'chassisNumber' => $internalDRDetails['chassis_number'],
                 'plateNumber' => $internalDRDetails['plate_number'],
                 'unitImage' =>  $this->systemModel->checkImage($internalDRDetails['unit_image'], 'default')
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+
+    public function getInternalDRJobOrderDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['internal_dr_job_order_id']) && !empty($_POST['internal_dr_job_order_id'])) {
+            $userID = $_SESSION['user_id'];
+            $internal_dr_job_order_id = $_POST['internal_dr_job_order_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $internalDRDetails = $this->internalDRModel->getInternalDRJobOrder($internal_dr_job_order_id);
+
+            $response = [
+                'success' => true,
+                'progress' => $internalDRDetails['progress'],
+                'contractorID' => $internalDRDetails['contractor_id'],
+                'work_centerID' => $internalDRDetails['work_center_id']
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    public function getInternalDRAdditionalJobOrderDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['internal_dr_additional_job_order_id']) && !empty($_POST['internal_dr_additional_job_order_id'])) {
+            $userID = $_SESSION['user_id'];
+            $internal_dr_additional_job_order_id = $_POST['internal_dr_additional_job_order_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $internalDRDetails = $this->internalDRModel->getInternalDRAdditionalJobOrder($internal_dr_additional_job_order_id);
+
+            $response = [
+                'success' => true,
+                'progress' => $internalDRDetails['progress'],
+                'contractorID' => $internalDRDetails['contractor_id'],
+                'work_centerID' => $internalDRDetails['work_center_id']
             ];
 
             echo json_encode($response);

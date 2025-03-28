@@ -39,7 +39,7 @@
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Deposit Amount <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-                <input type="number" class="form-control" id="deposit_amount" name="deposit_amount" min="0" step="0.01" disabled>
+                <input type="number" class="form-control" id="deposit_amount" name="deposit_amount" step="0.01" disabled>
             </div>
             <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
               <div class="col-lg-4">

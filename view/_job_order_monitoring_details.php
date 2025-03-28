@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-lg-12">
-
+    <input type="hidden" id="sales_proposal_id" value="<?php echo $salesProposalID; ?>"/>
     <div class="card table-card">
       <div class="card-header">
         <div class="row align-items-center">
@@ -8,7 +8,7 @@
             <h5>Job Order</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-            <a href="print-job-order-list.php?id=<?php echo $salesProposalID; ?>" target="_blank" class="btn btn-success">Print</a>
+            <a href="javascript:void(0);" id="print-job-order" class="btn btn-success">Print</a>
            </div>
         </div>
       </div>
@@ -17,6 +17,7 @@
             <table id="job-order-progress-table" class="table table-hover nowrap w-100">
                 <thead>
                   <tr>
+                    <th class="all"></th>
                     <th>Job Order</th>
                     <th>Cost</th>
                     <th>Contactor</th>
@@ -39,7 +40,7 @@
             <h5>Additional Job Order</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-            <a href="print-additional-job-order-list.php?id=<?php echo $salesProposalID; ?>" target="_blank" class="btn btn-success">Print</a>
+            <a href="javascript:void(0);" id="print-additional-job-order" class="btn btn-success">Print</a>
            </div>
         </div>
       </div>
@@ -48,6 +49,7 @@
             <table id="additional-job-order-progress-table" class="table table-hover nowrap w-100">
                 <thead>
                   <tr>
+                    <th class="all"></th>
                     <th>Job Order Number</th>
                     <th>Job Order Date</th>
                     <th>Particulars</th>

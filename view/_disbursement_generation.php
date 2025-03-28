@@ -48,6 +48,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         case 'disbursement table':
             $filterTransactionDateStartDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_start_date'], '', 'Y-m-d', '');
             $filterTransactionDateEndDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_end_date'], '', 'Y-m-d', '');
+            $filter_replenishment_date_start_date = $systemModel->checkDate('empty', $_POST['filter_replenishment_date_start_date'], '', 'Y-m-d', '');
+            $filter_replenishment_date_end_date = $systemModel->checkDate('empty', $_POST['filter_replenishment_date_end_date'], '', 'Y-m-d', '');
             $fund_source_filter = $_POST['fund_source_filter'];
             $disbursement_status_filter = $_POST['disbursement_status_filter'];
             $transaction_type_filter = $_POST['transaction_type_filter'];
@@ -64,9 +66,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $transaction_type_filter = null;
             }
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementTable(:filterTransactionDateStartDate, :filterTransactionDateEndDate, :fund_source_filter, :disbursement_status_filter, :transaction_type_filter)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementTable(:filterTransactionDateStartDate, :filterTransactionDateEndDate, :filter_replenishment_date_start_date, :filter_replenishment_date_end_date, :fund_source_filter, :disbursement_status_filter, :transaction_type_filter)');
             $sql->bindValue(':filterTransactionDateStartDate', $filterTransactionDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateEndDate', $filterTransactionDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filter_replenishment_date_start_date', $filter_replenishment_date_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_replenishment_date_end_date', $filter_replenishment_date_end_date, PDO::PARAM_STR);
             $sql->bindValue(':fund_source_filter', $fund_source_filter, PDO::PARAM_STR);
             $sql->bindValue(':disbursement_status_filter', $disbursement_status_filter, PDO::PARAM_STR);
             $sql->bindValue(':transaction_type_filter', $transaction_type_filter, PDO::PARAM_STR);

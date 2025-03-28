@@ -234,6 +234,8 @@ class LeasingApplicationController {
         }
     
         $this->leasingApplicationModel->insertLeasingOtherCharges($leasingApplicationRepaymentID, $leasingApplicationID, $otherChargesType, $otherChargesDueAmount, 0, $otherChargesDueDate, $coverageStartDate, $coverageEndDate, $otherChargesDueAmount, $otherChargesReferenceNumber, $userID);
+        $this->leasingApplicationModel->updateLeasingOtherChargesStatus();
+        $this->leasingApplicationModel->updateLeasingApplicationRepaymentStatus();
 
         echo json_encode(['success' => true]);
         exit;
@@ -1056,7 +1058,7 @@ class LeasingApplicationController {
             $unpaidElectricity = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Electricity')['total'] ?? 0;
             $unpaidWater = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Water')['total'] ?? 0;
             $unpaidOtherCharges = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Other Charges')['total'] ?? 0;
-            $outstandingBalance = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Outstanding Balance')['total'] ?? 0;
+            $outstandingBalance = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, null, 'Outstanding Balance')['total'] ?? 0;
 
             $response = [
                 'success' => true,

@@ -5443,6 +5443,8 @@ BEGIN
     WHERE contact_id = p_contact_id AND (check_out IS NOT NULL OR check_out != '') AND (check_out IS NOT NULL OR check_out != '') AND DATE(check_in) = CURRENT_DATE;
 END //
 
+
+
 CREATE PROCEDURE generateAttendanceRecordTable(IN p_attendance_record_start_date DATE, IN p_attendance_record_end_date DATE, IN p_check_in_mode VARCHAR(50), IN p_check_out_mode VARCHAR(50), IN p_employment_status VARCHAR(10), IN p_company_filter VARCHAR(500), IN p_department_filter VARCHAR(500), IN p_job_position_filter VARCHAR(500), IN p_branch_filter VARCHAR(500))
 BEGIN
     DECLARE query VARCHAR(5000);
@@ -8060,9 +8062,9 @@ BEGIN
 	UPDATE sales_proposal_job_order
     SET progress = p_progress,
     cost = p_cost,
-    p_contractor_id = p_contractor_id,
-    p_work_center_id = p_work_center_id,
-    p_backjob = p_backjob,
+    contractor_id = p_contractor_id,
+    work_center_id = p_work_center_id,
+    backjob = p_backjob,
     last_log_by = p_last_log_by
     WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
 END //
@@ -8072,9 +8074,9 @@ BEGIN
 	UPDATE sales_proposal_additional_job_order
     SET progress = p_progress,
     cost = p_cost,
-    p_contractor_id = p_contractor_id,
-    p_work_center_id = p_work_center_id,
-    p_backjob = p_backjob,
+    contractor_id = p_contractor_id,
+    work_center_id = p_work_center_id,
+    backjob = p_backjob,
     last_log_by = p_last_log_by
     WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
 END //
@@ -9489,7 +9491,7 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
 
-          UPDATE leasing_other_charges
+        UPDATE leasing_other_charges
         SET due_amount = (due_amount - p_payment_amount),
         due_paid = (due_paid + p_payment_amount),
         outstanding_balance = (outstanding_balance - p_payment_amount)
@@ -9703,6 +9705,33 @@ BEGIN
     WHERE internal_dr_id = p_internal_dr_id;
 END //
 
+CREATE PROCEDURE updateInternalDRAsOnProcess(IN p_internal_dr_id INT, IN p_dr_status VARCHAR(50), IN p_last_log_by INT)
+BEGIN
+	UPDATE internal_dr
+    SET dr_status = p_dr_status,
+    on_process_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+CREATE PROCEDURE updateInternalDRAsReadyForRelease(IN p_internal_dr_id INT, IN p_dr_status VARCHAR(50), IN p_last_log_by INT)
+BEGIN
+	UPDATE internal_dr
+    SET dr_status = p_dr_status,
+    ready_for_release_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+CREATE PROCEDURE updateInternalDRAsForDR(IN p_internal_dr_id INT, IN p_dr_status VARCHAR(50), IN p_last_log_by INT)
+BEGIN
+	UPDATE internal_dr
+    SET dr_status = p_dr_status,
+    for_dr_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE internal_dr_id = p_internal_dr_id;
+END //
+
 CREATE PROCEDURE updateInternalDRUnitImage(IN p_internal_dr_id INT, IN p_unit_image VARCHAR(500), IN p_last_log_by INT)
 BEGIN
       UPDATE internal_dr
@@ -9710,6 +9739,49 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE internal_dr_id = p_internal_dr_id;
 END //
+
+CREATE PROCEDURE updateInternalDROutgoingChecklist(IN p_internal_dr_id INT, IN p_outgoing_checklist VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE internal_dr
+        SET outgoing_checklist = p_outgoing_checklist,
+        last_log_by = p_last_log_by
+        WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+CREATE PROCEDURE updateInternalDRQualityControlForm(IN p_internal_dr_id INT, IN p_quality_control_form VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE internal_dr
+        SET quality_control_form = p_quality_control_form,
+        last_log_by = p_last_log_by
+        WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+DELIMITER //
+
+CREATE PROCEDURE updateSalesProposalBackjobProgress(
+    IN p_internal_dr_id INT, 
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Update sales_proposal_job_order table
+    UPDATE sales_proposal_job_order
+    SET progress = 100,
+        last_log_by = p_last_log_by
+    WHERE job_order_id IN (
+        SELECT job_order_id FROM internal_dr_job_order WHERE internal_dr_id = p_internal_dr_id
+    );
+
+    -- Update sales_proposal_additional_job_order table
+    UPDATE sales_proposal_additional_job_order
+    SET progress = 100,
+        last_log_by = p_last_log_by
+    WHERE sales_proposal_additional_job_order_id IN (
+        SELECT additional_job_order_id FROM internal_dr_additional_job_order WHERE internal_dr_id = p_internal_dr_id
+    );
+END //
+
+DELIMITER ;
+
 
 CREATE PROCEDURE deleteInternalDR(IN p_internal_dr_id INT)
 BEGIN
@@ -9721,6 +9793,48 @@ BEGIN
 	SELECT * FROM internal_dr
     WHERE internal_dr_id = p_internal_dr_id;
 END //
+
+CREATE PROCEDURE getInternalDRJobOrder(IN p_internal_dr_job_order_id INT)
+BEGIN
+	SELECT * FROM internal_dr_job_order
+    WHERE internal_dr_job_order_id = p_internal_dr_job_order_id;
+END //
+
+CREATE PROCEDURE getInternalDRAdditionalJobOrder(IN p_internal_dr_additional_job_order_id INT)
+BEGIN
+	SELECT * FROM internal_dr_additional_job_order
+    WHERE internal_dr_additional_job_order_id = p_internal_dr_additional_job_order_id;
+END //
+
+DELIMITER //
+DROP PROCEDURE getInternalDRJobOrderCount//
+CREATE PROCEDURE getInternalDRJobOrderCount(
+    IN p_internal_dr_job_order_id INT, 
+    IN p_type VARCHAR(20)
+)
+BEGIN
+    -- Declare a variable to store the total count
+    DECLARE total_count INT DEFAULT 0;
+    
+    IF p_type = 'all' THEN
+        -- Get total count of all job orders (main + additional)
+        SELECT 
+            (SELECT COUNT(*) FROM internal_dr_job_order WHERE internal_dr_job_order_id = p_internal_dr_job_order_id) +
+            (SELECT COUNT(*) FROM internal_dr_additional_job_order WHERE internal_dr_job_order_id = p_internal_dr_job_order_id)
+        INTO total_count;
+
+    ELSEIF p_type = 'unfinished' THEN
+        -- Get total count of unfinished job orders (main + additional)
+        SELECT 
+            (SELECT COUNT(*) FROM internal_dr_job_order WHERE internal_dr_job_order_id = p_internal_dr_job_order_id AND progress < 100) +
+            (SELECT COUNT(*) FROM internal_dr_additional_job_order WHERE internal_dr_job_order_id = p_internal_dr_job_order_id AND progress < 100)
+        INTO total_count;
+    END IF;
+
+    -- Return the total count
+    SELECT total_count AS total;
+END //
+
 
 CREATE PROCEDURE generateInternalDRTable()
 BEGIN
@@ -12559,7 +12673,7 @@ BEGIN
     WHERE disbursement_id IN (SELECT disbursement_id FROM disbursement WHERE fund_source = p_fund_source AND disburse_status = 'Posted' AND transaction_type != 'Replenishment');
 END //
 
-CREATE PROCEDURE generateDisbursementTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(100), IN p_transaction_type VARCHAR(100))
+CREATE PROCEDURE generateDisbursementTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_replenishment_start_date DATE, IN p_replenishment_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(100), IN p_transaction_type VARCHAR(100))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -12587,6 +12701,14 @@ BEGIN
         SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
         SET conditionList = CONCAT(conditionList, ' AND ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_replenishment_start_date IS NOT NULL AND p_replenishment_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (replenishment_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_replenishment_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_replenishment_end_date));
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
@@ -13959,3 +14081,128 @@ BEGIN
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE PROCEDURE getJobOrderBackjobCount(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_job_order
+    WHERE progress < 100
+    AND backjob = 'No' AND sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE generateJobOrderBackjobOptions()
+BEGIN
+	SELECT *
+    FROM sales_proposal sp
+    WHERE EXISTS (
+        SELECT 1
+        FROM sales_proposal_job_order spjo
+        WHERE spjo.sales_proposal_id = sp.sales_proposal_id
+        AND spjo.backjob = 'Yes'
+        AND spjo.progress < 100
+    )
+    OR EXISTS (
+        SELECT 1
+        FROM sales_proposal_additional_job_order spajo
+        WHERE spajo.sales_proposal_id = sp.sales_proposal_id
+        AND spajo.backjob = 'Yes'
+        AND spajo.progress < 100
+    );
+END //
+
+CREATE PROCEDURE getAdditionalJobOrderBackjobCount(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_additional_job_order
+    WHERE progress < 100
+    AND backjob = 'No' AND sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE generateWorkCenterTable()
+BEGIN
+    SELECT work_center_id, work_center_name
+    FROM work_center
+    ORDER BY work_center_id;
+END //
+
+CREATE PROCEDURE generateInternalDRJobOrderTable(IN p_internal_dr_id INT)
+BEGIN
+	SELECT *
+    FROM internal_dr_job_order
+    WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+CREATE PROCEDURE generateInternalDRAdditionalJobOrderTable(IN p_internal_dr_id INT)
+BEGIN
+	SELECT *
+    FROM internal_dr_additional_job_order
+    WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+CREATE PROCEDURE loadInternalDRJobOrder(
+    IN p_internal_dr_id INT, 
+    IN p_sales_proposal_id INT
+)
+BEGIN
+    -- Delete existing records for the given internal_dr_id
+    DELETE FROM internal_dr_job_order 
+    WHERE internal_dr_id = p_internal_dr_id;
+
+    DELETE FROM internal_dr_additional_job_order 
+    WHERE internal_dr_id = p_internal_dr_id;
+
+    -- Insert job orders from sales proposal
+    INSERT INTO internal_dr_job_order (internal_dr_id, sales_proposal_id, job_order_id, progress, contractor_id, work_center_id)
+    SELECT 
+        p_internal_dr_id, 
+        sales_proposal_id, 
+        sales_proposal_job_order_id, 
+        progress, 
+        contractor_id, 
+        work_center_id
+    FROM sales_proposal_job_order
+    WHERE sales_proposal_id = p_sales_proposal_id;
+
+    -- Insert additional job orders from sales proposal
+    INSERT INTO internal_dr_additional_job_order (internal_dr_id, sales_proposal_id, additional_job_order_id, progress, contractor_id, work_center_id)
+    SELECT 
+        p_internal_dr_id, 
+        sales_proposal_id, 
+        sales_proposal_additional_job_order_id, 
+        progress, 
+        contractor_id, 
+        work_center_id
+    FROM sales_proposal_additional_job_order
+    WHERE sales_proposal_id = p_sales_proposal_id;
+
+END //
+
+CREATE PROCEDURE updateInternalDRJobOrder(IN p_internal_dr_job_order_id INT, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE internal_dr_job_order
+    SET progress = p_progress,
+    p_contractor_id = p_contractor_id,
+    p_work_center_id = p_work_center_id,
+    last_log_by = p_last_log_by
+    WHERE internal_dr_job_order_id = p_internal_dr_job_order_id;
+END //
+
+CREATE PROCEDURE updateInternalDRAdditionalJobOrder(IN p_internal_dr_additional_job_order_id INT, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE internal_dr_additional_job_order
+    SET progress = p_progress,
+    p_contractor_id = p_contractor_id,
+    p_work_center_id = p_work_center_id,
+    last_log_by = p_last_log_by
+    WHERE internal_dr_additional_job_order_id = p_internal_dr_additional_job_order_id;
+END //
+
+CREATE PROCEDURE deleteInternalDRJobOrder(IN p_internal_dr_job_order_id INT)
+BEGIN
+    DELETE FROM internal_dr_job_order WHERE internal_dr_job_order_id = p_internal_dr_job_order_id;
+END //
+
+CREATE PROCEDURE deleteInternalDRAdditionalJobOrder(IN p_internal_dr_additional_job_order_id INT)
+BEGIN
+    DELETE FROM internal_dr_additional_job_order WHERE internal_dr_additional_job_order_id = p_internal_dr_additional_job_order_id;
+END //
