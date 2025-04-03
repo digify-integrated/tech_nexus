@@ -204,3 +204,95 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade modal-animate" id="productModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Product Details</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="text-center mb-3">
+                    <img src="<?php echo DEFAULT_AVATAR_IMAGE; ?>" alt="User Image" id="product_thumbnail" class="img-fluid wid-100 hei-100">
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Stock Number</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control" id="product_stock_number" autocomplete="off" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Description</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control" id="description" autocomplete="off" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Category</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control" id="category" autocomplete="off" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Engine No.</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control" id="engine_no" autocomplete="off" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Chassis No.</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control" id="chassis_no" autocomplete="off" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Body Type</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control" id="body_type" autocomplete="off" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Color</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control" id="color" autocomplete="off" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>

@@ -14,24 +14,24 @@
             additionalJobOrderProgress('#additional-job-order-progress-table');
         }
 
-        if($('#sales-proposal-job-order-progress-form').length){
+        if($('#job-order-progress-form').length){
             salesProposalJobOrderProgressForm();
         }
 
-        if($('#sales-proposal-additional-job-order-progress-form').length){
+        if($('#additional-job-order-progress-form').length){
             salesProposalAdditionalJobOrderProgressForm();
         }
 
-        $(document).on('click','.update-sales-proposal-job-order-monitoring',function() {
-            const sales_proposal_job_order_id = $(this).data('sales-proposal-job-order-id');
+        $(document).on('click','.update-job-order-monitoring',function() {
+            const sales_proposal_job_order_id = $(this).data('job-order-id');
     
             sessionStorage.setItem('sales_proposal_job_order_id', sales_proposal_job_order_id);
             
             displayDetails('get sales proposal job order details');
         });
 
-        $(document).on('click','.update-sales-proposal-additional-job-order-monitoring',function() {
-            const sales_proposal_additional_job_order_id = $(this).data('sales-proposal-additional-job-order-id');
+        $(document).on('click','.update-additional-job-order-monitoring',function() {
+            const sales_proposal_additional_job_order_id = $(this).data('additional-job-order-id');
     
             sessionStorage.setItem('sales_proposal_additional_job_order_id', sales_proposal_additional_job_order_id);
             
@@ -140,7 +140,7 @@ function jobOrderMonitoring(datatable_name, buttons = false, show_all = false){
 }
 
 function jobOrderProgress(datatable_name, buttons = false, show_all = false){
-    const sales_proposal_id = $('#sales-proposal-id').text();
+    const sales_proposal_id = $('#id').text();
     const type = 'sales proposal job order monitoring table';
     var settings;
 
@@ -151,6 +151,7 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CONTRACTOR' },
         { 'data' : 'WORK_CENTER' },
         { 'data' : 'PROGRESS' },
+        { 'data' : 'COMPLETION_DATE' },
         { 'data' : 'BACKJOB' },
         { 'data' : 'ACTION' }
     ];
@@ -163,7 +164,8 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
-        { 'width': '15%','bSortable': false, 'aTargets': 7 }
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '15%','bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -206,7 +208,7 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
 }
 
 function additionalJobOrderProgress(datatable_name, buttons = false, show_all = false){
-    const sales_proposal_id = $('#sales-proposal-id').text();
+    const sales_proposal_id = $('#id').text();
     const type = 'sales proposal additional job order monitoring table';
     var settings;
 
@@ -219,6 +221,7 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'data' : 'CONTRACTOR' },
         { 'data' : 'WORK_CENTER' },
         { 'data' : 'PROGRESS' },
+        { 'data' : 'COMPLETION_DATE' },
         { 'data' : 'BACKJOB' },
         { 'data' : 'ACTION' }
     ];
@@ -233,7 +236,8 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
         { 'width': 'auto', 'aTargets': 8 },
-        { 'width': '15%','bSortable': false, 'aTargets': 9 }
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': '15%','bSortable': false, 'aTargets': 10 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -276,7 +280,7 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
 }
 
 function salesProposalJobOrderProgressForm(){
-    $('#sales-proposal-job-order-progress-form').validate({
+    $('#job-order-progress-form').validate({
         rules: {
             job_order_progress: {
                 required: true
@@ -287,6 +291,11 @@ function salesProposalJobOrderProgressForm(){
             job_order_backjob: {
                 required: true
             },
+            job_order_completion_date: {
+                required: function () {
+                    return $('#job_order_progress').val() == '100';
+                }
+            }
         },
         messages: {
             job_order_progress: {
@@ -295,6 +304,9 @@ function salesProposalJobOrderProgressForm(){
             job_order_cost: {
                 required: 'Please enter the cost'
             },
+            job_order_completion_date: {
+                required: 'Completion date is required when progress is 100%'
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -330,11 +342,11 @@ function salesProposalJobOrderProgressForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
+                url: 'controller/controller.php',
                 data: $(form).serialize() + '&transaction=' + transaction,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-job-order-progress');
+                    disableFormSubmitButton('submit-job-order-progress');
                 },
                 success: function (response) {
                     if (response.success) {
@@ -362,9 +374,9 @@ function salesProposalJobOrderProgressForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-job-order-progress', 'Save');
+                    enableFormSubmitButton('submit-job-order-progress', 'Save');
                     
-                    $('#sales-proposal-job-order-monitoring-offcanvas').offcanvas('hide');
+                    $('#job-order-monitoring-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -374,7 +386,7 @@ function salesProposalJobOrderProgressForm(){
 }
 
 function salesProposalAdditionalJobOrderProgressForm(){
-    $('#sales-proposal-additional-job-order-progress-form').validate({
+    $('#additional-job-order-progress-form').validate({
         rules: {
             additional_job_order_progress: {
                 required: true
@@ -385,6 +397,11 @@ function salesProposalAdditionalJobOrderProgressForm(){
             additional_job_order_backjob: {
                 required: true
             },
+            additional_job_order_completion_date: {
+                required: function () {
+                    return $('#job_order_progress').val() == '100';
+                }
+            }
         },
         messages: {
             additional_job_order_progress: {
@@ -393,6 +410,9 @@ function salesProposalAdditionalJobOrderProgressForm(){
             additional_job_order_cost: {
                 required: 'Please enter the cost'
             },
+            additional_job_order_completion_date: {
+                required: 'Completion date is required when progress is 100%'
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -428,11 +448,11 @@ function salesProposalAdditionalJobOrderProgressForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
+                url: 'controller/controller.php',
                 data: $(form).serialize() + '&transaction=' + transaction,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-additional-job-order-progress');
+                    disableFormSubmitButton('submit-additional-job-order-progress');
                 },
                 success: function (response) {
                     if (response.success) {
@@ -460,8 +480,8 @@ function salesProposalAdditionalJobOrderProgressForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-additional-job-order-progress', 'Save');
-                    $('#sales-proposal-additional-job-order-monitoring-offcanvas').offcanvas('hide');
+                    enableFormSubmitButton('submit-additional-job-order-progress', 'Save');
+                    $('#additional-job-order-monitoring-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -476,7 +496,7 @@ function displayDetails(transaction){
             var sales_proposal_job_order_id = sessionStorage.getItem('sales_proposal_job_order_id');
                 
             $.ajax({
-                url: 'controller/sales-proposal-controller.php',
+                url: 'controller/controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
@@ -488,6 +508,7 @@ function displayDetails(transaction){
                         $('#sales_proposal_job_order_id').val(sales_proposal_job_order_id);
                         $('#job_order_progress').val(response.progress);
                         $('#job_order_cost').val(response.cost);
+                        $('#job_order_completion_date').val(response.completionDate);
 
                         checkOptionExist('#job_order_contractor_id', response.contractorID, '');
                         checkOptionExist('#job_order_work_center_id', response.workCenterID, '');
@@ -514,7 +535,7 @@ function displayDetails(transaction){
             var sales_proposal_additional_job_order_id = sessionStorage.getItem('sales_proposal_additional_job_order_id');
             
             $.ajax({
-                url: 'controller/sales-proposal-controller.php',
+                url: 'controller/controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
@@ -527,6 +548,7 @@ function displayDetails(transaction){
                         $('#sales_proposal_additional_job_order_id').val(sales_proposal_additional_job_order_id);
                         $('#additional_job_order_progress').val(response.progress);
                         $('#additional_job_order_cost').val(response.cost);
+                        $('#additional_job_job_order_completion_date').val(response.completionDate);
 
                         checkOptionExist('#additional_job_order_contractor_id', response.contractorID, '');
                         checkOptionExist('#additional_job_order_work_center_id', response.workCenterID, '');

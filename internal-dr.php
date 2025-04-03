@@ -5,11 +5,13 @@
   require('model/sales-proposal-model.php');
   require('model/contractor-model.php');
   require('model/work-center-model.php');
+  require('model/back-job-monitoring-model.php');
   
   $internalDRModel = new InternalDRModel($databaseModel);
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $contractorModel = new ContractorModel($databaseModel);
   $workCenterModel = new WorkCenterModel($databaseModel);
+  $backJobMonitoringModel = new BackJobMonitoringModel($databaseModel);
 
   $pageTitle = 'Internal DR';
     

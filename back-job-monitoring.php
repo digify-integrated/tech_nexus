@@ -1,69 +1,53 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/sales-proposal-model.php');
-  require('model/customer-model.php');
+  require('model/back-job-monitoring-model.php');
   require('model/product-model.php');
-  require('model/approving-officer-model.php');
-  require('model/id-type-model.php');
-  require('model/application-source-model.php');
+  require('model/sales-proposal-model.php');
   require('model/contractor-model.php');
   require('model/work-center-model.php');
-
-  $pageTitle = 'Job Order Monitoring';
   
-  $salesProposalModel = new SalesProposalModel($databaseModel);
-  $approvingOfficerModel = new ApprovingOfficerModel($databaseModel);
-  $customerModel = new CustomerModel($databaseModel);
+  $backJobMonitoringModel = new BackJobMonitoringModel($databaseModel);
+
+  $pageTitle = 'Back Job Monitoring';
+  
   $productModel = new ProductModel($databaseModel);
-  $idTypeModel = new IDTypeModel($databaseModel);
-  $applicationSourceModel = new ApplicationSourceModel($databaseModel);
+  $salesProposalModel = new SalesProposalModel($databaseModel);
   $contractorModel = new ContractorModel($databaseModel);
   $workCenterModel = new WorkCenterModel($databaseModel);
     
-  $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id,  133, 'read');
+  $backJobMonitoringReadAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'read');
+  $backJobMonitoringCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'create');
+  $backJobMonitoringWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'write');
+  $backJobMonitoringDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'delete');
+  $backJobMonitoringDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'duplicate');
 
-  if ($allSalesProposalReadAccess['total'] == 0) {
+  if ($backJobMonitoringReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: job-order-monitoring.php');
+      header('location: back-job-monitoring.php');
       exit;
     }
 
-    $salesProposalID = $securityModel->decryptData($_GET['id']);
+    $backJobMonitoringID = $securityModel->decryptData($_GET['id']);
 
-    $checkSalesProposalExist = $salesProposalModel->checkSalesProposalExist($salesProposalID);
-    $total = $checkSalesProposalExist['total'] ?? 0;
+    $checkBackJobMonitoringExist = $backJobMonitoringModel->checkBackJobMonitoringExist($backJobMonitoringID);
+    $total = $checkBackJobMonitoringExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
       exit;
     }
 
-    $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);  
-    $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
-    $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
-    $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
-    $creditAdvice = $salesProposalDetails['credit_advice'];
-    $clientConfirmation = $salesProposalDetails['client_confirmation'];
-    $transactionType = $salesProposalDetails['transaction_type'];
-    $qualityControlForm = $salesProposalDetails['quality_control_form'];
-    $outgoingChecklist = $salesProposalDetails['outgoing_checklist'];
-    $unitImage = $salesProposalDetails['unit_image'];
-    $productType = $salesProposalDetails['product_type'];
-    $additionalJobOrderConfirmation = $salesProposalDetails['additional_job_order_confirmation'] ?? null;
-    $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
-
-    $additionalJobOrderCount = $salesProposalModel->countSalesProposalAdditionalJobOrder($salesProposalID);
+    
   }
   else{
-    $salesProposalID = null;
+    $backJobMonitoringID = null;
   }
-
 
   $newRecord = isset($_GET['new']);
 
@@ -95,13 +79,17 @@
             <div class="row align-items-center">
               <div class="col-md-12">
                 <ul class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">Production</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="job-order-monitoring.php"><?php echo $pageTitle; ?></a></li>
-                  <?php
-                    if(!$newRecord && !empty($salesProposalID)){
-                      echo '<li class="breadcrumb-item" id="sales-proposal-id">'. $salesProposalID .'</li>';
-                    }
+                    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                    <li class="breadcrumb-item">Production</li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="back-job-monitoring.php"><?php echo $pageTitle; ?></a></li>
+                    <?php
+                        if(!$newRecord && !empty($backJobMonitoringID)){
+                            echo '<li class="breadcrumb-item" id="backjob-monitoring-id">'. $backJobMonitoringID .'</li>';
+                        }
+
+                        if($newRecord){
+                            echo '<li class="breadcrumb-item">New</li>';
+                        }
                   ?>
                 </ul>
               </div>
@@ -114,7 +102,10 @@
           </div>
         </div>
         <?php
-          if(!empty($salesProposalID)){
+          if($newRecord && $backJobMonitoringCreateAccess['total'] > 0){
+            require_once('view/_back_job_monitoring_new.php');
+          }
+          else if(!empty($backJobMonitoringID) && $backJobMonitoringWriteAccess['total'] > 0){
             require_once('view/_back_job_monitoring_details.php');
           }
           else{
@@ -136,9 +127,8 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
-    <script src="./assets/js/plugins/imask.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/job-order-monitoring.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/back-job-monitoring.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

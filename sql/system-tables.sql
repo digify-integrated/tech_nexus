@@ -6001,16 +6001,67 @@ CREATE TABLE product_inventory_scan_additional(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
+
 CREATE TABLE contractor(
 	contractor_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	contractor_name VARCHAR(100) NOT NULL,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+ 
 
-CREATE TABLE work_center(
-	work_center_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	work_center_name VARCHAR(100) NOT NULL,
+DROP TABLE backjob_monitoring;
+DROP TABLE backjob_monitoring_job_order;
+DROP TABLE backjob_monitoring_additional_job_order;
+CREATE TABLE backjob_monitoring(
+	backjob_monitoring_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	type VARCHAR(50) NOT NULL,
+	product_id INT,
+	sales_proposal_id INT,
+    status VARCHAR(100) DEFAULT 'Draft',
+	unit_image VARCHAR(500),
+	outgoing_checklist VARCHAR(500),
+	quality_control_form VARCHAR(500),
+	on_process_date DATETIME,
+	ready_for_release_date DATETIME,
+	for_dr_date DATETIME,
+	cancellation_date DATE NOT NULL,
+	cancellation_reason VARCHAR(500),
+	release_date DATE NOT NULL,
+	released_remarks VARCHAR(500) NOT NULL,
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+ 
+ CREATE TABLE backjob_monitoring_job_order(
+	backjob_monitoring_job_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	backjob_monitoring_id INT NOT NULL,
+	sales_proposal_id INT,
+	job_order_id INT,
+    job_order VARCHAR(500) NOT NULL,
+    cost DOUBLE DEFAULT 0,
+    completion_date DATE,
+	progress DOUBLE DEFAULT 0,
+	contractor_id INT,
+	work_center_id INT,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE backjob_monitoring_additional_job_order(
+	backjob_monitoring_additional_job_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	backjob_monitoring_id INT NOT NULL,
+	sales_proposal_id INT,
+    job_order_number VARCHAR(500) NOT NULL,
+	job_order_date DATE NOT NULL,
+	particulars VARCHAR(1000) NOT NULL,
+	additional_job_order_id INT,
+	progress DOUBLE DEFAULT 0,
+    cost DOUBLE DEFAULT 0,
+    completion_date DATE,
+	contractor_id INT,
+	work_center_id INT,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );

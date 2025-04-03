@@ -3106,8 +3106,13 @@ class SalesProposalController {
         $contractor_id = htmlspecialchars($_POST['additional_job_order_contractor_id'], ENT_QUOTES, 'UTF-8');
         $work_center_id = htmlspecialchars($_POST['additional_job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
         $backjob = htmlspecialchars($_POST['additional_job_order_backjob'], ENT_QUOTES, 'UTF-8');
+        $completionDate = $this->systemModel->checkDate('empty', $_POST['additional_job_order_completion_date'], '', 'Y-m-d', '');
+
+        if($progress < 100){
+            $completionDate = null;
+        }
     
-        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $userID);
+        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -3127,8 +3132,14 @@ class SalesProposalController {
         $contractor_id = htmlspecialchars($_POST['job_order_contractor_id'], ENT_QUOTES, 'UTF-8');
         $work_center_id = htmlspecialchars($_POST['job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
         $backjob = htmlspecialchars($_POST['job_order_backjob'], ENT_QUOTES, 'UTF-8');
+        $completionDate = $this->systemModel->checkDate('empty', $_POST['job_order_completion_date'], '', 'Y-m-d', '');
+
+
+        if($progress < 100){
+            $completionDate = null;
+        }
     
-        $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $userID);
+        $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -3759,6 +3770,7 @@ class SalesProposalController {
                 'contractorID' => $salesProposalJobOrderDetails['contractor_id'],
                 'workCenterID' => $salesProposalJobOrderDetails['work_center_id'],
                 'backjob' => $salesProposalJobOrderDetails['backjob'],
+                'completionDate' =>  $this->systemModel->checkDate('empty', $salesProposalJobOrderDetails['completion_date'], '', 'm/d/Y', ''),
             ];
 
             echo json_encode($response);
@@ -3846,6 +3858,7 @@ class SalesProposalController {
                 'contractorID' => $salesProposalAdditionalJobOrderDetails['contractor_id'],
                 'workCenterID' => $salesProposalAdditionalJobOrderDetails['work_center_id'],
                 'backjob' => $salesProposalAdditionalJobOrderDetails['backjob'],
+                'completionDate' =>  $this->systemModel->checkDate('empty', $salesProposalAdditionalJobOrderDetails['completion_date'], '', 'm/d/Y', ''),
             ];
 
             echo json_encode($response);

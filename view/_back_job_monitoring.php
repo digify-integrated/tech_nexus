@@ -4,20 +4,31 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h5>Job Order Monitoring List</h5>
+            <h5>Back Job Monitoring List</h5>
           </div>
+          <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+            <?php
+              if($backJobMonitoringCreateAccess['total'] > 0){
+                $action = '';
+
+                if($backJobMonitoringCreateAccess['total'] > 0){
+                  $action .= '<a href="back-job-monitoring.php?new" class="btn btn-success">Create</a>';
+                }
+                              
+                echo $action;
+              }
+            ?>
+           </div>
         </div>
       </div>
       <div class="card-body">
         <div class="table-responsive dt-responsive">
-          <table id="job-order-monitoring-table" class="table table-hover nowrap w-100">
+        <table id="backjob-monitoring-table" class="table table-hover nowrap w-100">
             <thead>
               <tr>
-                <th>OS Number</th>
-                <th>Customer</th>
-                <th>Product Type</th>
-                <th>Stock</th>
-                <th>Total Progress</th>
+                <th>Type</th>
+                <th>Sales Proposal</th>
+                <th>Product</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>

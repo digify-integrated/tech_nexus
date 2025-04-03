@@ -141,6 +141,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $leaveApplicationID = $row['leave_application_id'];
                 $status = $row['status'];
                 $leaveTypeID = $row['leave_type_id'];
+                $contact_id = $row['contact_id'];
                 $leaveDate = $systemModel->checkDate('empty', $row['leave_date'], '', 'm/d/Y', '');
                 $leaveStartTime = $systemModel->checkDate('empty', $row['leave_start_time'], '', 'h:i a', '');
                 $leaveEndTime = $systemModel->checkDate('empty', $row['leave_end_time'], '', 'h:i a', '');
@@ -155,6 +156,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $fileAs = $employeeDetails['file_as'] ?? '';
 
                 $response[] = [
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $leaveApplicationID .'">',
                     'FILE_AS' => '<a href="leave-approval.php?id='. $leaveApplicationIDEncrypted .'">'. $fileAs . '</a>',
                     'LEAVE_TYPE' => $leaveTypeName,
                     'LEAVE_DATE' => ' <div class="col">

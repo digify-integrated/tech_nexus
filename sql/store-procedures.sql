@@ -8057,7 +8057,7 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id AND sales_proposal_status = 'For CI';
 END //
 
-CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_job_order
     SET progress = p_progress,
@@ -8065,11 +8065,12 @@ BEGIN
     contractor_id = p_contractor_id,
     work_center_id = p_work_center_id,
     backjob = p_backjob,
+    completion_date = p_completion_date,
     last_log_by = p_last_log_by
     WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
 END //
 
-CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_additional_job_order
     SET progress = p_progress,
@@ -8077,6 +8078,7 @@ BEGIN
     contractor_id = p_contractor_id,
     work_center_id = p_work_center_id,
     backjob = p_backjob,
+    completion_date = p_completion_date,
     last_log_by = p_last_log_by
     WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
 END //
@@ -9794,48 +9796,6 @@ BEGIN
     WHERE internal_dr_id = p_internal_dr_id;
 END //
 
-CREATE PROCEDURE getInternalDRJobOrder(IN p_internal_dr_job_order_id INT)
-BEGIN
-	SELECT * FROM internal_dr_job_order
-    WHERE internal_dr_job_order_id = p_internal_dr_job_order_id;
-END //
-
-CREATE PROCEDURE getInternalDRAdditionalJobOrder(IN p_internal_dr_additional_job_order_id INT)
-BEGIN
-	SELECT * FROM internal_dr_additional_job_order
-    WHERE internal_dr_additional_job_order_id = p_internal_dr_additional_job_order_id;
-END //
-
-DELIMITER //
-DROP PROCEDURE getInternalDRJobOrderCount//
-CREATE PROCEDURE getInternalDRJobOrderCount(
-    IN p_internal_dr_job_order_id INT, 
-    IN p_type VARCHAR(20)
-)
-BEGIN
-    -- Declare a variable to store the total count
-    DECLARE total_count INT DEFAULT 0;
-    
-    IF p_type = 'all' THEN
-        -- Get total count of all job orders (main + additional)
-        SELECT 
-            (SELECT COUNT(*) FROM internal_dr_job_order WHERE internal_dr_job_order_id = p_internal_dr_job_order_id) +
-            (SELECT COUNT(*) FROM internal_dr_additional_job_order WHERE internal_dr_job_order_id = p_internal_dr_job_order_id)
-        INTO total_count;
-
-    ELSEIF p_type = 'unfinished' THEN
-        -- Get total count of unfinished job orders (main + additional)
-        SELECT 
-            (SELECT COUNT(*) FROM internal_dr_job_order WHERE internal_dr_job_order_id = p_internal_dr_job_order_id AND progress < 100) +
-            (SELECT COUNT(*) FROM internal_dr_additional_job_order WHERE internal_dr_job_order_id = p_internal_dr_job_order_id AND progress < 100)
-        INTO total_count;
-    END IF;
-
-    -- Return the total count
-    SELECT total_count AS total;
-END //
-
-
 CREATE PROCEDURE generateInternalDRTable()
 BEGIN
     SELECT *
@@ -10160,10 +10120,10 @@ BEGIN
     SELECT * FROM leave_application WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE generateLeaveApprovalTable(IN p_contact_id INT)
+CREATE PROCEDURE generateLeaveApprovalTable()
 BEGIN
     SELECT * FROM leave_application 
-    WHERE status = 'For Approval' AND contact_id IN (SELECT contact_id FROM employment_information WHERE leave_approver_id = p_contact_id);
+    WHERE status = 'For Approval';
 END //
 
 CREATE PROCEDURE generateLeaveDashboardApprovalTable(IN p_contact_id INT)
@@ -14125,84 +14085,358 @@ BEGIN
     ORDER BY work_center_id;
 END //
 
-CREATE PROCEDURE generateInternalDRJobOrderTable(IN p_internal_dr_id INT)
+---------------------------------------------------------------------------
+
+CREATE PROCEDURE checkBackJobMonitoringExist (IN p_backjob_monitoring_id INT)
 BEGIN
-	SELECT *
-    FROM internal_dr_job_order
-    WHERE internal_dr_id = p_internal_dr_id;
+	SELECT COUNT(*) AS total
+    FROM backjob_monitoring
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
 END //
 
-CREATE PROCEDURE generateInternalDRAdditionalJobOrderTable(IN p_internal_dr_id INT)
+CREATE PROCEDURE insertBackJobMonitoring(IN p_type VARCHAR(50), IN p_product_id INT, IN p_sales_proposal_id INT, IN p_last_log_by INT, OUT p_backjob_monitoring_id INT)
 BEGIN
-	SELECT *
-    FROM internal_dr_additional_job_order
-    WHERE internal_dr_id = p_internal_dr_id;
+    INSERT INTO backjob_monitoring (type, product_id, sales_proposal_id, last_log_by) 
+	VALUES(p_type, p_product_id, p_sales_proposal_id, p_last_log_by);
+	
+    SET p_backjob_monitoring_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE loadInternalDRJobOrder(
-    IN p_internal_dr_id INT, 
-    IN p_sales_proposal_id INT
+CREATE PROCEDURE updateBackJobMonitoring(IN p_backjob_monitoring_id INT, IN p_type VARCHAR(50), IN p_product_id INT, IN p_sales_proposal_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE backjob_monitoring
+    SET type = p_type,
+    product_id = p_product_id,
+    sales_proposal_id = p_sales_proposal_id,
+    last_log_by = p_last_log_by
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE deleteBackJobMonitoring(IN p_backjob_monitoring_id INT)
+BEGIN
+    DELETE FROM backjob_monitoring WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE getBackJobMonitoring(IN p_backjob_monitoring_id INT)
+BEGIN
+	SELECT * FROM backjob_monitoring
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE generateBackJobMonitoringTable()
+BEGIN
+    SELECT *
+    FROM backjob_monitoring
+    ORDER BY backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE generateBackJobMonitoringOptions()
+BEGIN
+	SELECT type, backjob_monitoring.sales_proposal_id AS sales_proposal_id, sales_proposal_number FROM backjob_monitoring
+    LEFT OUTER JOIN sales_proposal ON sale_proposal.sales_proposal_id = backjob_monitoring.sales_proposal_id
+    WHERE backjob_monitoring.status = 'For DR' AND backjob_monitoring.type = "Back Job"
+	ORDER BY backjob_monitoring.for_dr_date DESC;
+END //
+
+CREATE PROCEDURE updateBackJobMonitoringAsReleased(IN p_backjob_monitoring_id INT, IN p_status VARCHAR(100), IN p_released_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE backjob_monitoring
+    SET status = p_status,
+    released_remarks = p_released_remarks,
+    release_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE updateBackJobMonitoringAsCancelled(IN p_backjob_monitoring_id INT, IN p_status VARCHAR(100), IN p_cancellation_reason VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE backjob_monitoring
+    SET status = p_status,
+    cancellation_reason = p_cancellation_reason,
+    cancellation_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE updateBackJobMonitoringAsOnProcess(IN p_backjob_monitoring_id INT, IN p_status VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE backjob_monitoring
+    SET status = p_status,
+    on_process_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE updateBackJobMonitoringAsReadyForRelease(IN p_backjob_monitoring_id INT, IN p_status VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE backjob_monitoring
+    SET status = p_status,
+    ready_for_release_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE updateBackJobMonitoringAsForDR(IN p_backjob_monitoring_id INT, IN p_status VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE backjob_monitoring
+    SET status = p_status,
+    for_dr_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE updateBackJobMonitoringUnitImage(IN p_backjob_monitoring_id INT, IN p_unit_image VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE backjob_monitoring
+        SET unit_image = p_unit_image,
+        last_log_by = p_last_log_by
+        WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE updateBackJobMonitoringOutgoingChecklist(IN p_backjob_monitoring_id INT, IN p_outgoing_checklist VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE backjob_monitoring
+        SET outgoing_checklist = p_outgoing_checklist,
+        last_log_by = p_last_log_by
+        WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE updateBackJobMonitoringQualityControlForm(IN p_backjob_monitoring_id INT, IN p_quality_control_form VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE backjob_monitoring
+        SET quality_control_form = p_quality_control_form,
+        last_log_by = p_last_log_by
+        WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE loadBackJobMonitoringJobOrder(
+    IN p_backjob_monitoring_id INT, 
+    IN p_sales_proposal_id INT,
+    IN p_last_log_by INT
 )
 BEGIN
     -- Delete existing records for the given internal_dr_id
-    DELETE FROM internal_dr_job_order 
-    WHERE internal_dr_id = p_internal_dr_id;
+    DELETE FROM backjob_monitoring_job_order 
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
 
-    DELETE FROM internal_dr_additional_job_order 
-    WHERE internal_dr_id = p_internal_dr_id;
+    DELETE FROM backjob_monitoring_additional_job_order 
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
 
     -- Insert job orders from sales proposal
-    INSERT INTO internal_dr_job_order (internal_dr_id, sales_proposal_id, job_order_id, progress, contractor_id, work_center_id)
+    INSERT INTO backjob_monitoring_job_order (backjob_monitoring_id, sales_proposal_id, job_order_id, job_order, progress, contractor_id, work_center_id, last_log_by)
     SELECT 
-        p_internal_dr_id, 
+        p_backjob_monitoring_id, 
         sales_proposal_id, 
         sales_proposal_job_order_id, 
+        job_order, 
         progress, 
         contractor_id, 
-        work_center_id
+        work_center_id,
+        p_last_log_by
     FROM sales_proposal_job_order
-    WHERE sales_proposal_id = p_sales_proposal_id;
+    WHERE sales_proposal_id = p_sales_proposal_id AND backjob = "Yes" AND progress < 100;
 
     -- Insert additional job orders from sales proposal
-    INSERT INTO internal_dr_additional_job_order (internal_dr_id, sales_proposal_id, additional_job_order_id, progress, contractor_id, work_center_id)
+    INSERT INTO backjob_monitoring_additional_job_order (backjob_monitoring_id, sales_proposal_id, additional_job_order_id, job_order_number, job_order_date, particulars, progress, contractor_id, work_center_id, last_log_by)
     SELECT 
-        p_internal_dr_id, 
+        p_backjob_monitoring_id, 
         sales_proposal_id, 
         sales_proposal_additional_job_order_id, 
+        job_order_number, 
+        job_order_date, 
+        particulars, 
         progress, 
         contractor_id, 
-        work_center_id
+        work_center_id,
+        p_last_log_by
     FROM sales_proposal_additional_job_order
-    WHERE sales_proposal_id = p_sales_proposal_id;
-
+    WHERE sales_proposal_id = p_sales_proposal_id AND backjob = "Yes" AND progress < 100;
 END //
 
-CREATE PROCEDURE updateInternalDRJobOrder(IN p_internal_dr_job_order_id INT, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateBackJobMonitoringJobOrder(
+    IN p_backjob_monitoring_id INT, 
+    IN p_backjob_monitoring_job_order_id INT, 
+    IN p_progress DOUBLE, 
+    IN p_contractor_id INT, 
+    IN p_work_center_id INT,  
+    IN p_completion_date DATE, 
+    IN p_cost DOUBLE, 
+    IN p_job_order VARCHAR(500), 
+    IN p_last_log_by INT
+)
 BEGIN
-	UPDATE internal_dr_job_order
-    SET progress = p_progress,
-    p_contractor_id = p_contractor_id,
-    p_work_center_id = p_work_center_id,
-    last_log_by = p_last_log_by
-    WHERE internal_dr_job_order_id = p_internal_dr_job_order_id;
+    DECLARE record_exists INT;
+
+    -- Check if the record exists
+    SELECT COUNT(*) INTO record_exists 
+    FROM backjob_monitoring_job_order 
+    WHERE backjob_monitoring_job_order_id = p_backjob_monitoring_job_order_id;
+
+    IF record_exists > 0 THEN
+        -- Update existing record
+        UPDATE backjob_monitoring_job_order
+        SET 
+            progress = p_progress,
+            contractor_id = p_contractor_id,
+            work_center_id = p_work_center_id,
+            completion_date = p_completion_date,
+            cost = p_cost,
+            job_order = p_job_order,
+            last_log_by = p_last_log_by
+        WHERE backjob_monitoring_job_order_id = p_backjob_monitoring_job_order_id;
+    ELSE
+        -- Insert new record if not exists
+        INSERT INTO backjob_monitoring_job_order (
+            backjob_monitoring_job_order_id, 
+            backjob_monitoring_id, 
+            progress, 
+            contractor_id, 
+            work_center_id, 
+            completion_date, 
+            cost, 
+            job_order, 
+            last_log_by
+        ) VALUES (
+            p_backjob_monitoring_job_order_id, 
+            p_backjob_monitoring_id, 
+            p_progress, 
+            p_contractor_id, 
+            p_work_center_id, 
+            p_completion_date, 
+            p_cost, 
+            p_job_order, 
+            p_last_log_by
+        );
+    END IF;
 END //
 
-CREATE PROCEDURE updateInternalDRAdditionalJobOrder(IN p_internal_dr_additional_job_order_id INT, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_last_log_by INT)
+
+CREATE PROCEDURE updateBackJobMonitoringAdditionalJobOrder(
+    IN p_backjob_monitoring_id INT, 
+    IN p_backjob_monitoring_additional_job_order_id INT, 
+    IN p_progress DOUBLE, 
+    IN p_contractor_id INT, 
+    IN p_work_center_id INT,  
+    IN p_completion_date DATE, 
+    IN p_cost DOUBLE, 
+    IN p_job_order_number VARCHAR(500), 
+    IN p_job_order_date DATE, 
+    IN p_particulars VARCHAR(1000), 
+    IN p_last_log_by INT
+)
 BEGIN
-	UPDATE internal_dr_additional_job_order
-    SET progress = p_progress,
-    p_contractor_id = p_contractor_id,
-    p_work_center_id = p_work_center_id,
-    last_log_by = p_last_log_by
-    WHERE internal_dr_additional_job_order_id = p_internal_dr_additional_job_order_id;
+    DECLARE record_exists INT;
+
+    -- Check if the record exists
+    SELECT COUNT(*) INTO record_exists 
+    FROM backjob_monitoring_additional_job_order 
+    WHERE backjob_monitoring_additional_job_order_id = p_backjob_monitoring_additional_job_order_id;
+
+    IF record_exists > 0 THEN
+        -- Update existing record
+        UPDATE backjob_monitoring_additional_job_order
+        SET 
+            progress = p_progress,
+            contractor_id = p_contractor_id,
+            work_center_id = p_work_center_id,
+            completion_date = p_completion_date,
+            cost = p_cost,
+            job_order_number = p_job_order_number,
+            job_order_date = p_job_order_date,
+            particulars = p_particulars,
+            last_log_by = p_last_log_by
+        WHERE backjob_monitoring_additional_job_order_id = p_backjob_monitoring_additional_job_order_id;
+    ELSE
+        -- Insert new record if not exists
+        INSERT INTO backjob_monitoring_additional_job_order (
+            backjob_monitoring_additional_job_order_id, 
+            backjob_monitoring_id, 
+            progress, 
+            contractor_id, 
+            work_center_id, 
+            completion_date, 
+            cost, 
+            job_order_number, 
+            job_order_date, 
+            particulars, 
+            last_log_by
+        ) VALUES (
+            p_backjob_monitoring_additional_job_order_id, 
+            p_backjob_monitoring_id, 
+            p_progress, 
+            p_contractor_id, 
+            p_work_center_id, 
+            p_completion_date, 
+            p_cost, 
+            p_job_order_number, 
+            p_job_order_date, 
+            p_particulars, 
+            p_last_log_by
+        );
+    END IF;
 END //
 
-CREATE PROCEDURE deleteInternalDRJobOrder(IN p_internal_dr_job_order_id INT)
+
+CREATE PROCEDURE deleteBackJobMonitoringJobOrder(IN p_backjob_monitoring_ob_order_id INT)
 BEGIN
-    DELETE FROM internal_dr_job_order WHERE internal_dr_job_order_id = p_internal_dr_job_order_id;
+    DELETE FROM backjob_monitoring_job_order WHERE backjob_monitoring_job_order_id = p_backjob_monitoring_ob_order_id;
 END //
 
-CREATE PROCEDURE deleteInternalDRAdditionalJobOrder(IN p_internal_dr_additional_job_order_id INT)
+CREATE PROCEDURE deleteBackJobMonitoringAdditionalJobOrder(IN p_backjob_monitoring_additional_job_order_id INT)
 BEGIN
-    DELETE FROM internal_dr_additional_job_order WHERE internal_dr_additional_job_order_id = p_internal_dr_additional_job_order_id;
+    DELETE FROM backjob_monitoring_additional_job_order WHERE backjob_monitoring_additional_job_order_id = p_backjob_monitoring_additional_job_order_id;
+END //
+
+CREATE PROCEDURE generateBackJobMonitoringJobOrderTable(IN p_backjob_monitoring_id INT)
+BEGIN
+	SELECT *
+    FROM backjob_monitoring_job_order
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE generateBackJobMonitoringAdditionalJobOrderTable(IN p_backjob_monitoring_id INT)
+BEGIN
+	SELECT *
+    FROM backjob_monitoring_additional_job_order
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+DELIMITER //
+CREATE PROCEDURE getBackJobMonitoringJobOrderCount(
+    IN p_backjob_monitoring_id INT, 
+    IN p_type VARCHAR(20)
+)
+BEGIN
+    -- Declare a variable to store the total count
+    DECLARE total_count INT DEFAULT 0;
+    
+    IF p_type = 'all' THEN
+        -- Get total count of all job orders (main + additional)
+        SELECT 
+            (SELECT COUNT(*) FROM backjob_monitoring_job_order WHERE backjob_monitoring_id = p_backjob_monitoring_id) +
+            (SELECT COUNT(*) FROM backjob_monitoring_additional_job_order WHERE backjob_monitoring_id = p_backjob_monitoring_id)
+        INTO total_count;
+
+    ELSEIF p_type = 'unfinished' THEN
+        -- Get total count of unfinished job orders (main + additional)
+        SELECT 
+            (SELECT COUNT(*) FROM backjob_monitoring_job_order WHERE backjob_monitoring_id = p_backjob_monitoring_id AND progress < 100) +
+            (SELECT COUNT(*) FROM backjob_monitoring_additional_job_order WHERE backjob_monitoring_id = p_backjob_monitoring_id AND progress < 100)
+        INTO total_count;
+    END IF;
+
+    -- Return the total count
+    SELECT total_count AS total;
+END //
+
+CREATE PROCEDURE getBackJobMonitoringJobOrder(IN p_backjob_monitoring_job_order_id INT)
+BEGIN
+	SELECT * FROM backjob_monitoring_job_order
+    WHERE backjob_monitoring_job_order_id = p_backjob_monitoring_job_order_id;
+END //
+
+CREATE PROCEDURE getBackJobMonitoringAdditionalJobOrder(IN p_backjob_monitoring_additional_job_order_id INT)
+BEGIN
+	SELECT * FROM backjob_monitoring_additional_job_order
+    WHERE backjob_monitoring_additional_job_order_id = p_backjob_monitoring_additional_job_order_id;
 END //

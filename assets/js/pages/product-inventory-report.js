@@ -668,6 +668,9 @@ function sendScannedData(product_id) {
         },
         success: function (response) {
             if (response.success) {
+                sessionStorage.setItem('product_id', product_id);
+                displayDetails('get product details');
+
                 showNotification("Scan Product Success", "The product has been scanned successfully.", "success");
                 inventoryProductReportBatch("#inventory-report-batch-table");
                 inventoryProductReportScanHistory("#inventory-report-scan-history-table");
@@ -722,6 +725,48 @@ function displayDetails(transaction){
                         fullErrorMessage += ', Response: ${xhr.responseText}';
                     }
                     showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get product details':
+            var product_id = sessionStorage.getItem('product_id');
+                
+            $.ajax({
+                url: 'controller/product-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    product_id : product_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#product_stock_number').val(response.fullStockNumber);
+                        $('#description').val(response.description);
+                        $('#category').val(response.productCategoryName);
+                        $('#engine_no').val(response.engineNumber);
+                        $('#chassis_no').val(response.chassisNumber);
+                        $('#body_type').val(response.bodyTypeName);
+                        $('#color').val(response.colorName);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Product Inventory Scan Additional Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function(){
+                 $('#productModal').modal('show');
                 }
             });
             break;

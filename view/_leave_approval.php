@@ -8,6 +8,24 @@
               <div class="col-sm-6">
                 <h5>Leave Approval</h5>
               </div>
+              <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+              <?php
+                if($leaveApplicationApprove['total'] > 0){
+                  $action = '';
+                                
+                    if($leaveApplicationApprove['total'] > 0){
+                      $action .= '<div class="btn-group m-r-10">
+                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                      <li><button class="dropdown-item" type="button" id="tag-leave-application-approve">Approve Leave</button></li>
+                                    </ul>
+                                  </div>';
+                    }
+                                
+                  echo $action;
+                }
+              ?>
+            </div>
             </div>
           </div>
           <div class="card-body">
@@ -17,6 +35,12 @@
                   <table id="leave-approval-table" class="table table-hover nowrap w-100 text-uppercase">
                     <thead>
                       <tr>
+                        <th class="all">
+                          <div class="form-check">
+                            <input class="form-check-input" id="datatable-checkbox" type="checkbox">
+                          </div>
+                        </th>
+                        <th>Employee</th>
                         <th>Leave Type</th>
                         <th>Leave Date</th>
                         <th>Application Date</th>

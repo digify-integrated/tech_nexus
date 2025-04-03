@@ -1441,6 +1441,7 @@ class ProductController {
             $productDetails = $this->productModel->getProduct($productID);
             $productSubategoryID = $productDetails['product_subcategory_id'];
             $bodyTypeID = $productDetails['body_type_id'];
+            $productCategoryID = $productDetails['product_category_id'];
             $colorID = $productDetails['color_id'];
             
             $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
@@ -1456,6 +1457,9 @@ class ProductController {
             $getColor = $this->colorModel->getColor($colorID);
             $colorName = $getColor['color_name'] ?? null;
 
+            $productCategoryDetails = $this->productCategoryModel->getProductCategory($productCategoryID);
+            $productCategoryName = $productCategoryDetails['product_category_name'] ?? null;
+
             
             $productCost = $this->productModel->getTotalProductCost($productID)['expense_amount'] ?? 0;
 
@@ -1463,6 +1467,7 @@ class ProductController {
             $response = [
                 'success' => true,
                 'productSubcategoryID' => $productSubategoryID,
+                'productCategoryName' => $productCategoryName,
                 'companyID' => $productDetails['company_id'],
                 'stockNumber' => $stockNumber,
                 'fullStockNumber' => $fullStockNumber,

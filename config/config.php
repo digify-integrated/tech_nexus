@@ -100,6 +100,8 @@ define('DEFAULT_TRANSMITTAL_FULL_PATH_FILE', '/transmittal/');
 define('DEFAULT_TRANSMITTAL_RELATIVE_PATH_FILE', './transmittal/');
 define('DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE', '/sales_proposal');
 define('DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE', './sales_proposal');
+define('DEFAULT_BACKJOB_FULL_PATH_FILE', '/tech_nexus/backjob');
+define('DEFAULT_BACKJOB_RELATIVE_PATH_FILE', './backjob');
 define('DEFAULT_LEASING_APPLICATION_RELATIVE_PATH_FILE', './leasing_application/');
 define('DEFAULT_LEASING_APPLICATION_FULL_PATH_FILE', '/leasing_application/');
 define('DEFAULT_EMAIL_EXTENSION', '@encorefinancials.com');

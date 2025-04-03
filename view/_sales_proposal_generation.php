@@ -805,6 +805,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $salesProposalNumber = $row['sales_proposal_number'];
                 $productType = $row['product_type'];
                 $productID = $row['product_id'];
+                
                 $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
                 $progress = $salesProposalModel->getJobOrderMonitoringTotalProgress($salesProposalID)['total_progress_percentage'] ?? 0;
 
@@ -1143,6 +1144,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $work_center_id = $row['work_center_id'];
                     $backjob = $row['backjob'];
                     $cost = number_format($row['cost'], 2);
+                    $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
 
                     if($backjob == 'No'){
                         $backjob =  '<span class="badge bg-success">' . $backjob . '</span>';
@@ -1171,6 +1173,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'BACKJOB' => $backjob,
                         'CONTRACTOR' => $contractor_name,
                         'WORK_CENTER' => $work_center_name,
+                        'COMPLETION_DATE' => $completionDate,
                         'PROGRESS' => number_format($progress, 2) . '%',
                         'ACTION' => '<div class="d-flex gap-2">'.
                                     $action . 
@@ -1311,6 +1314,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $work_center_id = $row['work_center_id'];
                     $backjob = $row['backjob'];
                     $cost = number_format($row['cost'], 2);
+                    $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
 
                     if($backjob == 'No'){
                         $backjob =  '<span class="badge bg-success">' . $backjob . '</span>';
@@ -1342,6 +1346,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'BACKJOB' => $backjob,
                         'CONTRACTOR' => $contractor_name,
                         'WORK_CENTER' => $work_center_name,
+                        'COMPLETION_DATE' => $completionDate,
                         'PROGRESS' => number_format($progress, 2) . '%',
                         'ACTION' => '<div class="d-flex gap-2">'.
                                     $action . 

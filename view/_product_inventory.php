@@ -8,7 +8,7 @@
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <?php
-              if($openProductInventory['total'] > 0){
+              if($openProductInventory['total'] > 0 || $closeProductInventory['total'] > 0){
                 $action = '';
 
                 if($openProductInventory['total'] > 0 && $getInventoryReportClosed['total'] == 0){

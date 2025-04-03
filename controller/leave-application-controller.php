@@ -93,6 +93,9 @@ class LeaveApplicationController {
                 case 'delete multiple leave application':
                     $this->deleteMultipleLeaveApplication();
                     break;
+                case 'approve multiple leave':
+                    $this->approveMultipleLeaveApplication();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -441,6 +444,29 @@ class LeaveApplicationController {
 
         foreach($leaveApplicationIDs as $leaveApplicationID){
             $this->leaveApplicationModel->deleteLeaveApplication($leaveApplicationID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function approveMultipleLeaveApplication() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $leaveApplicationIDs = $_POST['leave_application_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($leaveApplicationIDs as $leaveApplicationID){
+            $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'Approved', '', $userID);
         }
             
         echo json_encode(['success' => true]);

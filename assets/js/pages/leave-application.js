@@ -377,6 +377,73 @@
             });
         });
 
+        $(document).on('click','#tag-leave-application-approve',function() {
+            let leave_application_id = [];
+            const transaction = 'approve multiple leave';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    leave_application_id.push(element.value);
+                }
+            });
+    
+            if(leave_application_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple Leave Approval',
+                    text: 'Are you sure you want to approve these leave?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Approve',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/leave-application-controller.php',
+                            dataType: 'json',
+                            data: {
+                                leave_application_id: leave_application_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Approve Leave Success', 'The selected leave have been approved successfully.', 'success');
+                                        reloadDatatable('#leave-approval-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Approve Leave Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Approve Multiple Leave Error', 'Please select the leave you wish to delete.', 'danger');
+            }
+        });
+
         $(document).on('click','#discard-create',function() {
             discardCreate('leave-application.php');
         });
@@ -458,11 +525,12 @@ function leaveApplicationTable(datatable_name, buttons = false, show_all = false
     $(datatable_name).dataTable(settings);
 }
 
-function leaveApprovalTable(datatable_name, buttons = false, show_all = false){
+function leaveApprovalTable(datatable_name, buttons = false, show_all = false){    
     const type = 'leave approval table';
     var settings;
 
     const column = [ 
+        { 'data' : 'CHECK_BOX' },
         { 'data' : 'FILE_AS' },
         { 'data' : 'LEAVE_TYPE' },
         { 'data' : 'LEAVE_DATE' },
@@ -472,12 +540,13 @@ function leaveApprovalTable(datatable_name, buttons = false, show_all = false){
     ];
 
     const column_definition = [
-        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': '15%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -497,7 +566,7 @@ function leaveApprovalTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 2, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
