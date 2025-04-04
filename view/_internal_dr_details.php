@@ -109,6 +109,15 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label class="col-lg-2 col-form-label">Back Job</label>
+                                <div class="col-lg-4">
+                                    <select class="form-control select2" name="backjob_monitoring_id" id="backjob_monitoring_id" <?php echo $disabled; ?>>
+                                        <option value="">--</option>
+                                        <?php echo $backJobMonitoringModel->generateBackJobMonitoringOptions(); ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label class="col-lg-2 col-form-label">Product Description <span class="text-danger">*</span></label>
                                 <div class="col-lg-10">
                                     <textarea class="form-control" id="product_description" name="product_description" maxlength="1000" row="3" <?php echo $disabled; ?>></textarea>

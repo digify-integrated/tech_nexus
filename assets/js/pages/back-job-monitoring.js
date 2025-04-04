@@ -589,6 +589,42 @@
                 showNotification('Print Additional Job Order Error', 'No selected additional job order.', 'danger');
             }
         });
+
+        $(document).on('click','#print-job-order2',function() {
+            var checkedBoxes = [];
+            var product_id = $('#product_id').val();
+
+            $('.job-order-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('print-job-order-list2.php?id=' + checkedBoxes + '&product_id=' + product_id, '_blank');
+            }
+            else{
+                showNotification('Print Job Order Error', 'No selected job order.', 'danger');
+            }
+        });
+
+        $(document).on('click','#print-additional-job-order2',function() {
+            var checkedBoxes = [];
+            var product_id = $('#product_id').val();
+
+            $('.additional-job-order-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('print-additional-job-order-list2.php?id=' + checkedBoxes + '&product_id=' + product_id, '_blank');
+            }
+            else{
+                showNotification('Print Additional Job Order Error', 'No selected additional job order.', 'danger');
+            }
+        });
     });
 })(jQuery);
 

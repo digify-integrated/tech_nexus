@@ -9662,15 +9662,15 @@ BEGIN
     WHERE internal_dr_id = p_internal_dr_id;
 END //
 
-CREATE PROCEDURE insertInternalDR(IN p_release_to VARCHAR(1000), IN p_release_mobile VARCHAR(50), IN p_release_address VARCHAR(1000), IN p_dr_number VARCHAR(50), IN p_dr_type VARCHAR(50), IN p_stock_number VARCHAR(100), IN p_product_description VARCHAR(1000), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_last_log_by INT, OUT p_internal_dr_id INT)
+CREATE PROCEDURE insertInternalDR(IN p_release_to VARCHAR(1000), IN p_release_mobile VARCHAR(50), IN p_release_address VARCHAR(1000), IN p_dr_number VARCHAR(50), IN p_dr_type VARCHAR(50), IN p_backjob_monitoring_id INT, IN p_stock_number VARCHAR(100), IN p_product_description VARCHAR(1000), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_last_log_by INT, OUT p_internal_dr_id INT)
 BEGIN
-    INSERT INTO internal_dr (release_to, release_mobile, release_address, dr_number, dr_type, stock_number, product_description, engine_number, chassis_number, plate_number, last_log_by) 
-	VALUES(p_release_to, p_release_mobile, p_release_address, p_dr_number, p_dr_type, p_stock_number, p_product_description, p_engine_number, p_chassis_number, p_plate_number, p_last_log_by);
+    INSERT INTO internal_dr (release_to, release_mobile, release_address, dr_number, dr_type, backjob_monitoring_id, stock_number, product_description, engine_number, chassis_number, plate_number, last_log_by) 
+	VALUES(p_release_to, p_release_mobile, p_release_address, p_dr_number, p_dr_type, p_backjob_monitoring_id, p_stock_number, p_product_description, p_engine_number, p_chassis_number, p_plate_number, p_last_log_by);
 	
     SET p_internal_dr_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateInternalDR(IN p_internal_dr_id INT, IN p_release_to VARCHAR(1000), IN p_release_mobile VARCHAR(50), IN p_release_address VARCHAR(1000), IN p_dr_number VARCHAR(50), IN p_dr_type VARCHAR(50), IN p_stock_number VARCHAR(100), IN p_product_description VARCHAR(1000), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updateInternalDR(IN p_internal_dr_id INT, IN p_release_to VARCHAR(1000), IN p_release_mobile VARCHAR(50), IN p_release_address VARCHAR(1000), IN p_dr_number VARCHAR(50), IN p_dr_type VARCHAR(50), IN p_backjob_monitoring_id INT, IN p_stock_number VARCHAR(100), IN p_product_description VARCHAR(1000), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_last_log_by INT)
 BEGIN
 	UPDATE internal_dr
     SET release_to = p_release_to,
@@ -9678,6 +9678,7 @@ BEGIN
     release_address = p_release_address,
     dr_number = p_dr_number,
     dr_type = p_dr_type,
+    backjob_monitoring_id = p_backjob_monitoring_id,
     stock_number = p_stock_number,
     product_description = p_product_description,
     engine_number = p_engine_number,
@@ -9761,7 +9762,7 @@ END //
 DELIMITER //
 
 CREATE PROCEDURE updateSalesProposalBackjobProgress(
-    IN p_internal_dr_id INT, 
+    IN p_backjob_monitoring_id INT, 
     IN p_last_log_by INT
 )
 BEGIN
@@ -9769,17 +9770,17 @@ BEGIN
     UPDATE sales_proposal_job_order
     SET progress = 100,
         last_log_by = p_last_log_by
-    WHERE job_order_id IN (
-        SELECT job_order_id FROM internal_dr_job_order WHERE internal_dr_id = p_internal_dr_id
-    );
+    WHERE sales_proposal_id IN (
+        SELECT sales_proposal_id FROM backjob_monitoring_job_order WHERE backjob_monitoring_id = p_backjob_monitoring_id
+    ) AND backjob = 'Yes' AND progress < 100;
 
     -- Update sales_proposal_additional_job_order table
     UPDATE sales_proposal_additional_job_order
     SET progress = 100,
         last_log_by = p_last_log_by
-    WHERE sales_proposal_additional_job_order_id IN (
-        SELECT additional_job_order_id FROM internal_dr_additional_job_order WHERE internal_dr_id = p_internal_dr_id
-    );
+    WHERE sales_proposal_id IN (
+        SELECT sales_proposal_id FROM backjob_monitoring_additional_job_order WHERE backjob_monitoring_id = p_backjob_monitoring_id
+    ) AND backjob = 'Yes' AND progress < 100;
 END //
 
 DELIMITER ;
@@ -14132,9 +14133,9 @@ END //
 
 CREATE PROCEDURE generateBackJobMonitoringOptions()
 BEGIN
-	SELECT type, backjob_monitoring.sales_proposal_id AS sales_proposal_id, sales_proposal_number FROM backjob_monitoring
-    LEFT OUTER JOIN sales_proposal ON sale_proposal.sales_proposal_id = backjob_monitoring.sales_proposal_id
-    WHERE backjob_monitoring.status = 'For DR' AND backjob_monitoring.type = "Back Job"
+	SELECT backjob_monitoring_id, type, backjob_monitoring.sales_proposal_id AS sales_proposal_id, sales_proposal_number FROM backjob_monitoring
+    LEFT OUTER JOIN sales_proposal ON sales_proposal.sales_proposal_id = backjob_monitoring.sales_proposal_id
+    WHERE backjob_monitoring.status = 'For DR' AND backjob_monitoring.type = "Backjob"
 	ORDER BY backjob_monitoring.for_dr_date DESC;
 END //
 

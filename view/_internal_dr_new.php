@@ -52,15 +52,6 @@
                 </select>
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Back Job <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-                <select class="form-control select2" name="backjob_monitoring_id" id="backjob_monitoring_id">
-                    <option value="">--</option>
-                    <?php echo $backJobMonitoringModel->generateBackJobMonitoringOptions(); ?>
-                </select>
-            </div>
-          </div>
             <div class="form-group row">
                 <label class="col-lg-2 col-form-label">Stock Number </label>
                 <div class="col-lg-4">
@@ -81,6 +72,15 @@
                     <input type="text" class="form-control" id="plate_number" name="plate_number" maxlength="100" autocomplete="off">
                 </div>
             </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Back Job</label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="backjob_monitoring_id" id="backjob_monitoring_id">
+                    <option value="">--</option>
+                    <?php echo $backJobMonitoringModel->generateBackJobMonitoringOptions(); ?>
+                </select>
+            </div>
+          </div>
             <div class="form-group row">
                 <label class="col-lg-2 col-form-label">Product Description <span class="text-danger">*</span></label>
                 <div class="col-lg-10">

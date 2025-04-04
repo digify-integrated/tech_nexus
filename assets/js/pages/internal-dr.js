@@ -872,46 +872,54 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
 
 function internalDRForm(){
     $('#internal-dr-form').validate({
-        rules: {
-            release_to: {
-                required: true
+            rules: {
+                release_to: {
+                    required: true
+                },
+                release_mobile: {
+                    required: true
+                },
+                release_address: {
+                    required: true
+                },
+                dr_number: {
+                    required: true
+                },
+                dr_type: {
+                    required: true
+                },
+                product_description: {
+                    required: true
+                },
+                backjob_monitoring_id: {
+                    required: function () {
+                        return $('#dr_type').val() === 'Backjob';
+                    }
+                },
             },
-            release_mobile: {
-                required: true
+            messages: {
+                release_to: {
+                    required: 'Please enter the release to'
+                },
+                release_mobile: {
+                    required: 'Please enter the release to mobile'
+                },
+                release_address: {
+                    required: 'Please enter the release to address'
+                },
+                dr_number: {
+                    required: 'Please enter the DR number'
+                },
+                dr_type: {
+                    required: 'Please enter the DR type'
+                },
+                product_description: {
+                    required: 'Please enter the product description'
+                },
+                backjob_monitoring_id: {
+                    required: 'Please select a backjob monitoring'
+                }
             },
-            release_address: {
-                required: true
-            },
-            dr_number: {
-                required: true
-            },
-            dr_type: {
-                required: true
-            },
-            product_description: {
-                required: true
-            },
-        },
-        messages: {
-            release_to: {
-                required: 'Please enter the release to'
-            },
-            release_mobile: {
-                required: 'Please enter the release to mobile'
-            },
-            release_address: {
-                required: 'Please enter the release to address'
-            },
-            dr_number: {
-                required: 'Please enter the DR number'
-            },
-            dr_type: {
-                required: 'Please enter the DR type'
-            },
-            product_description: {
-                required: 'Please enter the product description'
-            },
-        },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
@@ -1732,6 +1740,7 @@ function displayDetails(transaction){
                         $('#plate_number').val(response.plateNumber);
                         $('#product_description').val(response.productDescription);
 
+                        checkOptionExist('#backjob_monitoring_id', response.backjobMonitoringID, '');
                         checkOptionExist('#dr_type', response.drType, '');
 
                         if($('#unit-image').length){
