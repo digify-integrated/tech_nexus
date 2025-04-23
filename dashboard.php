@@ -2,7 +2,9 @@
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
   require('model/attendance-setting-model.php');
-
+  require('model/branch-model.php');
+  
+  $branchModel = new BranchModel($databaseModel);
   $attendanceSettingModel = new AttendanceSettingModel($databaseModel);
   $transmittalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 53, 'read');
   $documentReadAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'read');
@@ -19,6 +21,7 @@
 <html lang="en">
 <head>
     <?php include_once('config/_title.php'); ?>
+    <link rel="stylesheet" href="./assets/css/plugins/datepicker-bs5.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
@@ -55,6 +58,11 @@
           $viewDashboardSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 181);
           $viewDashboardTravelForm = $userModel->checkSystemActionAccessRights($user_id, 182);
           $viewDashboardLeaveApprovalForm = $userModel->checkSystemActionAccessRights($user_id, 183);
+          $viewDashboardEmployeeDailyStatusForm = $userModel->checkSystemActionAccessRights($user_id, 198);
+
+          if($viewDashboardEmployeeDailyStatusForm['total'] > 0){
+            require_once('view/_daily_employee_status_dashboard.php');
+          }
 
           if($viewDashboardSalesProposal['total'] > 0){
             require_once('view/_sales_proposal_dashboard.php');
@@ -84,6 +92,7 @@
     <script src="./assets/js/plugins/bootstrap-maxlength.min.js"></script>
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
+    <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/pages/dashboard.js?v=<?php echo rand(); ?>"></script>
 </body>
 

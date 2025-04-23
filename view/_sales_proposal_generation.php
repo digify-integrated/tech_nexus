@@ -1145,6 +1145,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $backjob = $row['backjob'];
                     $cost = number_format($row['cost'], 2);
                     $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
+                    $planned_start_date = $systemModel->checkDate('summary', $row['planned_start_date'], '', 'm/d/Y', '');
+                    $planned_finish_date = $systemModel->checkDate('summary', $row['planned_finish_date'], '', 'm/d/Y', '');
+                    $date_started = $systemModel->checkDate('summary', $row['date_started'], '', 'm/d/Y', '');
 
                     if($backjob == 'No'){
                         $backjob =  '<span class="badge bg-success">' . $backjob . '</span>';
@@ -1174,6 +1177,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'CONTRACTOR' => $contractor_name,
                         'WORK_CENTER' => $work_center_name,
                         'COMPLETION_DATE' => $completionDate,
+                        'PLANNED_START_DATE' => $planned_start_date,
+                        'PLANNED_FINISH_DATE' => $planned_finish_date,
+                        'DATE_STARTED' => $date_started,
                         'PROGRESS' => number_format($progress, 2) . '%',
                         'ACTION' => '<div class="d-flex gap-2">'.
                                     $action . 
@@ -1315,6 +1321,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $backjob = $row['backjob'];
                     $cost = number_format($row['cost'], 2);
                     $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
+                    $planned_start_date = $systemModel->checkDate('summary', $row['planned_start_date'], '', 'm/d/Y', '');
+                    $planned_finish_date = $systemModel->checkDate('summary', $row['planned_finish_date'], '', 'm/d/Y', '');
+                    $date_started = $systemModel->checkDate('summary', $row['date_started'], '', 'm/d/Y', '');
 
                     if($backjob == 'No'){
                         $backjob =  '<span class="badge bg-success">' . $backjob . '</span>';
@@ -1347,6 +1356,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'CONTRACTOR' => $contractor_name,
                         'WORK_CENTER' => $work_center_name,
                         'COMPLETION_DATE' => $completionDate,
+                        'PLANNED_START_DATE' => $planned_start_date,
+                        'PLANNED_FINISH_DATE' => $planned_finish_date,
+                        'DATE_STARTED' => $date_started,
                         'PROGRESS' => number_format($progress, 2) . '%',
                         'ACTION' => '<div class="d-flex gap-2">'.
                                     $action . 

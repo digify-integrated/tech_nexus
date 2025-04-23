@@ -23,6 +23,9 @@
                     <th>Contactor</th>
                     <th>Work Center</th>
                     <th>Progress</th>
+                    <th>Planned Start Date</th>
+                    <th>Planned Finished Date</th>
+                    <th>Date Started</th>
                     <th>Completion Date</th>
                     <th>Backjob?</th>
                     <th>Actions</th>
@@ -58,6 +61,9 @@
                     <th>Contactor</th>
                     <th>Work Center</th>
                     <th>Progress</th>
+                    <th>Planned Start Date</th>
+                    <th>Planned Finished Date</th>
+                    <th>Date Started</th>
                     <th>Completion Date</th>
                     <th>Backjob?</th>
                     <th>Actions</th>
@@ -71,7 +77,7 @@
   </div>
 
   <div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="job-order-monitoring-offcanvas" aria-labelledby="job-order-monitoring-offcanvas-label">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-job-order-monitoring-offcanvas" aria-labelledby="sales-proposal-job-order-monitoring-offcanvas-label">
       <div class="offcanvas-header">
         <h2 id="job-order-offcanvas-label" style="margin-bottom:-0.5rem">Job Order Progress</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -81,7 +87,7 @@
         <div class="col-lg-12">
           <form id="job-order-progress-form" method="post" action="#">
             <div class="form-group row">
-             <input type="hidden" id="backjob_monitoring_job_order_id" name="backjob_monitoring_job_order_id">
+             <input type="hidden" id="sales_proposal_job_order_id" name="sales_proposal_job_order_id">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label" for="job_order_cost">Cost <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01">
@@ -118,6 +124,35 @@
             </div>
             <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Planned Start Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="job_order_planned_start_date" name="job_order_planned_start_date" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Planned Finish Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="job_order_planned_finish_date" name="job_order_planned_finish_date" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Date Started</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="job_order_date_started" name="job_order_date_started" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Completion Date</label>
                 <div class="input-group date">
                   <input type="text" class="form-control regular-datepicker" id="job_order_completion_date" name="job_order_completion_date" autocomplete="off">
@@ -138,8 +173,9 @@
       </div>
     </div>
   </div>
+  
   <div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="additional-job-order-monitoring-offcanvas" aria-labelledby="additional-job-order-monitoring-offcanvas-label">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-additional-job-order-monitoring-offcanvas" aria-labelledby="sales-proposal-additional-job-order-monitoring-offcanvas-label">
       <div class="offcanvas-header">
         <h2 id="additional-job-order-offcanvas-label" style="margin-bottom:-0.5rem">Additional Job Order Progress</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -148,7 +184,7 @@
       <div class="row">
         <div class="col-lg-12">
           <form id="additional-job-order-progress-form" method="post" action="#">
-            <input type="hidden" id="backjob_monitoring_additional_job_order_id" name="backjob_monitoring_additional_job_order_id">
+            <input type="hidden" id="sales_proposal_additional_job_order_id" name="sales_proposal_additional_job_order_id">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label" for="additional_job_order_cost">Cost <span class="text-danger">*</span></label>
@@ -185,6 +221,35 @@
               </div>
             </div>
             <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Planned Start Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_planned_start_date" name="additional_job_order_planned_start_date" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Planned Finish Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_planned_finish_date" name="additional_job_order_planned_finish_date" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Date Started</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_date_started" name="additional_job_order_date_started" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Completion Date</label>
                 <div class="input-group date">

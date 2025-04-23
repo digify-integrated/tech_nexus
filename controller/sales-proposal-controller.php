@@ -2229,49 +2229,49 @@ class SalesProposalController {
         else{
             $this->salesProposalModel->updateSalesProposalAsReleased($salesProposalID, $loanNumber, 'Released', $releaseRemarks, $userID);
         }
-
-        if($transactionType == 'COD'){
-            $transactionTypeCode = '1';
-        }
-        else if($transactionType == 'Installment Sales'){
-            $transactionTypeCode = '2';
-        }
-        else{
-            $transactionTypeCode = '3';
-        }
-
-        if($productType == 'Unit'){
-            $productTypeCode = '1';
-        }
-        else if($productType == 'Fuel'){
-            $productTypeCode = '8';
-        }
-        else if($productType == 'Parts'){
-            $productTypeCode = '2';
-        }
-        else if($productType == 'Repair'){
-            $productTypeCode = '7';
-        }
-        else if($productType == 'Rental'){
-            $productTypeCode = '6';
-        }
-        else if($productType == 'Brand New'){
-            $productTypeCode = '2';
-        }
-        else if($productType == 'Refinancing'){
-            $productTypeCode = '3';
-        }
-        else if($productType == 'Restructure'){
-            $productTypeCode = '5';
-        }
-        else if($productType == 'Real Estate'){
-            $productTypeCode = '4';
-        }
-        else{
-            $productTypeCode = '';
-        }
         
         if($productType != 'Consignment'){
+            if($transactionType == 'COD'){
+                $transactionTypeCode = '1';
+            }
+            else if($transactionType == 'Installment Sales'){
+                $transactionTypeCode = '2';
+            }
+            else{
+                $transactionTypeCode = '3';
+            }
+    
+            if($productType == 'Unit'){
+                $productTypeCode = '1';
+            }
+            else if($productType == 'Fuel'){
+                $productTypeCode = '8';
+            }
+            else if($productType == 'Parts'){
+                $productTypeCode = '2';
+            }
+            else if($productType == 'Repair'){
+                $productTypeCode = '7';
+            }
+            else if($productType == 'Rental'){
+                $productTypeCode = '6';
+            }
+            else if($productType == 'Brand New'){
+                $productTypeCode = '2';
+            }
+            else if($productType == 'Refinancing'){
+                $productTypeCode = '3';
+            }
+            else if($productType == 'Restructure'){
+                $productTypeCode = '5';
+            }
+            else if($productType == 'Real Estate'){
+                $productTypeCode = '4';
+            }
+            else{
+                $productTypeCode = '';
+            }
+            
             $this->salesProposalModel->create_journal_entry($loanNumber, $companyID, $transactionTypeCode, $productType, $productTypeCode, $salesProposalID, $productID, date('Y-m-d'), $userID);
         }
 
@@ -3107,12 +3107,16 @@ class SalesProposalController {
         $work_center_id = htmlspecialchars($_POST['additional_job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
         $backjob = htmlspecialchars($_POST['additional_job_order_backjob'], ENT_QUOTES, 'UTF-8');
         $completionDate = $this->systemModel->checkDate('empty', $_POST['additional_job_order_completion_date'], '', 'Y-m-d', '');
+        $additional_job_order_planned_start_date = $this->systemModel->checkDate('empty', $_POST['additional_job_order_planned_start_date'], '', 'Y-m-d', '');
+        $additional_job_order_planned_finish_date = $this->systemModel->checkDate('empty', $_POST['additional_job_order_planned_finish_date'], '', 'Y-m-d', '');
+        $additional_ob_order_date_started = $this->systemModel->checkDate('empty', $_POST['additional_job_order_date_started'], '', 'Y-m-d', '');
+        
 
         if($progress < 100){
             $completionDate = null;
         }
     
-        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $userID);
+        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $additional_job_order_planned_start_date, $additional_job_order_planned_finish_date, $additional_ob_order_date_started, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -3133,13 +3137,16 @@ class SalesProposalController {
         $work_center_id = htmlspecialchars($_POST['job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
         $backjob = htmlspecialchars($_POST['job_order_backjob'], ENT_QUOTES, 'UTF-8');
         $completionDate = $this->systemModel->checkDate('empty', $_POST['job_order_completion_date'], '', 'Y-m-d', '');
+        $job_order_planned_start_date = $this->systemModel->checkDate('empty', $_POST['job_order_planned_start_date'], '', 'Y-m-d', '');
+        $job_order_planned_finish_date = $this->systemModel->checkDate('empty', $_POST['job_order_planned_finish_date'], '', 'Y-m-d', '');
+        $job_order_date_started = $this->systemModel->checkDate('empty', $_POST['job_order_date_started'], '', 'Y-m-d', '');
 
 
         if($progress < 100){
             $completionDate = null;
         }
     
-        $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $userID);
+        $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $job_order_planned_start_date, $job_order_planned_finish_date, $job_order_date_started, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -3771,6 +3778,9 @@ class SalesProposalController {
                 'workCenterID' => $salesProposalJobOrderDetails['work_center_id'],
                 'backjob' => $salesProposalJobOrderDetails['backjob'],
                 'completionDate' =>  $this->systemModel->checkDate('empty', $salesProposalJobOrderDetails['completion_date'], '', 'm/d/Y', ''),
+                'plannedStartDate' =>  $this->systemModel->checkDate('empty', $salesProposalJobOrderDetails['planned_start_date'], '', 'm/d/Y', ''),
+                'plannedFinishDate' =>  $this->systemModel->checkDate('empty', $salesProposalJobOrderDetails['planned_finish_date'], '', 'm/d/Y', ''),
+                'dateStarted' =>  $this->systemModel->checkDate('empty', $salesProposalJobOrderDetails['date_started'], '', 'm/d/Y', ''),
             ];
 
             echo json_encode($response);
@@ -3859,6 +3869,9 @@ class SalesProposalController {
                 'workCenterID' => $salesProposalAdditionalJobOrderDetails['work_center_id'],
                 'backjob' => $salesProposalAdditionalJobOrderDetails['backjob'],
                 'completionDate' =>  $this->systemModel->checkDate('empty', $salesProposalAdditionalJobOrderDetails['completion_date'], '', 'm/d/Y', ''),
+                'plannedStartDate' =>  $this->systemModel->checkDate('empty', $salesProposalAdditionalJobOrderDetails['planned_start_date'], '', 'm/d/Y', ''),
+                'plannedFinishDate' =>  $this->systemModel->checkDate('empty', $salesProposalAdditionalJobOrderDetails['planned_finish_date'], '', 'm/d/Y', ''),
+                'dateStarted' =>  $this->systemModel->checkDate('empty', $salesProposalAdditionalJobOrderDetails['date_started'], '', 'm/d/Y', ''),
             ];
 
             echo json_encode($response);

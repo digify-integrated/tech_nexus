@@ -22,16 +22,16 @@
             salesProposalAdditionalJobOrderProgressForm();
         }
 
-        $(document).on('click','.update-job-order-monitoring',function() {
-            const sales_proposal_job_order_id = $(this).data('job-order-id');
+        $(document).on('click','.update-sales-proposal-job-order-monitoring',function() {
+            const sales_proposal_job_order_id = $(this).data('sales-proposal-job-order-id');
     
             sessionStorage.setItem('sales_proposal_job_order_id', sales_proposal_job_order_id);
             
             displayDetails('get sales proposal job order details');
         });
 
-        $(document).on('click','.update-additional-job-order-monitoring',function() {
-            const sales_proposal_additional_job_order_id = $(this).data('additional-job-order-id');
+        $(document).on('click','.update-sales-proposal-additional-job-order-monitoring',function() {
+            const sales_proposal_additional_job_order_id = $(this).data('sales-proposal-additional-job-order-id');
     
             sessionStorage.setItem('sales_proposal_additional_job_order_id', sales_proposal_additional_job_order_id);
             
@@ -140,7 +140,7 @@ function jobOrderMonitoring(datatable_name, buttons = false, show_all = false){
 }
 
 function jobOrderProgress(datatable_name, buttons = false, show_all = false){
-    const sales_proposal_id = $('#id').text();
+    const sales_proposal_id = $('#sales-proposal-id').text();
     const type = 'sales proposal job order monitoring table';
     var settings;
 
@@ -151,6 +151,9 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CONTRACTOR' },
         { 'data' : 'WORK_CENTER' },
         { 'data' : 'PROGRESS' },
+        { 'data' : 'PLANNED_START_DATE' },
+        { 'data' : 'PLANNED_FINISH_DATE' },
+        { 'data' : 'DATE_STARTED' },
         { 'data' : 'COMPLETION_DATE' },
         { 'data' : 'BACKJOB' },
         { 'data' : 'ACTION' }
@@ -163,9 +166,12 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'aTargets': 6 },
-        { 'width': 'auto', 'aTargets': 7 },
-        { 'width': '15%','bSortable': false, 'aTargets': 8 }
+        { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 10 },
+        { 'width': '15%','bSortable': false, 'aTargets': 11 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -208,7 +214,7 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
 }
 
 function additionalJobOrderProgress(datatable_name, buttons = false, show_all = false){
-    const sales_proposal_id = $('#id').text();
+    const sales_proposal_id = $('#sales-proposal-id').text();
     const type = 'sales proposal additional job order monitoring table';
     var settings;
 
@@ -221,6 +227,9 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'data' : 'CONTRACTOR' },
         { 'data' : 'WORK_CENTER' },
         { 'data' : 'PROGRESS' },
+        { 'data' : 'PLANNED_START_DATE' },
+        { 'data' : 'PLANNED_FINISH_DATE' },
+        { 'data' : 'DATE_STARTED' },
         { 'data' : 'COMPLETION_DATE' },
         { 'data' : 'BACKJOB' },
         { 'data' : 'ACTION' }
@@ -235,9 +244,12 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
-        { 'width': 'auto', 'aTargets': 8 },
-        { 'width': 'auto', 'aTargets': 9 },
-        { 'width': '15%','bSortable': false, 'aTargets': 10 }
+        { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 11 },
+        { 'width': 'auto', 'aTargets': 12 },
+        { 'width': '15%','bSortable': false, 'aTargets': 13 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -342,7 +354,7 @@ function salesProposalJobOrderProgressForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/controller.php',
+                url: 'controller/sales-proposal-controller.php',
                 data: $(form).serialize() + '&transaction=' + transaction,
                 dataType: 'json',
                 beforeSend: function() {
@@ -376,7 +388,7 @@ function salesProposalJobOrderProgressForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-job-order-progress', 'Save');
                     
-                    $('#job-order-monitoring-offcanvas').offcanvas('hide');
+                    $('#sales-proposal-job-order-monitoring-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -448,7 +460,7 @@ function salesProposalAdditionalJobOrderProgressForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/controller.php',
+                url: 'controller/sales-proposal-controller.php',
                 data: $(form).serialize() + '&transaction=' + transaction,
                 dataType: 'json',
                 beforeSend: function() {
@@ -481,7 +493,7 @@ function salesProposalAdditionalJobOrderProgressForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-additional-job-order-progress', 'Save');
-                    $('#additional-job-order-monitoring-offcanvas').offcanvas('hide');
+                    $('#sales-proposal-additional-job-order-monitoring-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -496,7 +508,7 @@ function displayDetails(transaction){
             var sales_proposal_job_order_id = sessionStorage.getItem('sales_proposal_job_order_id');
                 
             $.ajax({
-                url: 'controller/controller.php',
+                url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
@@ -509,6 +521,9 @@ function displayDetails(transaction){
                         $('#job_order_progress').val(response.progress);
                         $('#job_order_cost').val(response.cost);
                         $('#job_order_completion_date').val(response.completionDate);
+                        $('#job_order_planned_start_date').val(response.plannedStartDate);
+                        $('#job_order_planned_finish_date').val(response.plannedFinishDate);
+                        $('#job_order_date_started').val(response.dateStarted);
 
                         checkOptionExist('#job_order_contractor_id', response.contractorID, '');
                         checkOptionExist('#job_order_work_center_id', response.workCenterID, '');
@@ -535,7 +550,7 @@ function displayDetails(transaction){
             var sales_proposal_additional_job_order_id = sessionStorage.getItem('sales_proposal_additional_job_order_id');
             
             $.ajax({
-                url: 'controller/controller.php',
+                url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
@@ -548,7 +563,10 @@ function displayDetails(transaction){
                         $('#sales_proposal_additional_job_order_id').val(sales_proposal_additional_job_order_id);
                         $('#additional_job_order_progress').val(response.progress);
                         $('#additional_job_order_cost').val(response.cost);
-                        $('#additional_job_job_order_completion_date').val(response.completionDate);
+                        $('#additional_job_order_completion_date').val(response.completionDate);
+                        $('#additional_job_order_planned_start_date').val(response.plannedStartDate);
+                        $('#additional_job_order_planned_finish_date').val(response.plannedFinishDate);
+                        $('#additional_job_order_date_started').val(response.dateStarted);
 
                         checkOptionExist('#additional_job_order_contractor_id', response.contractorID, '');
                         checkOptionExist('#additional_job_order_work_center_id', response.workCenterID, '');

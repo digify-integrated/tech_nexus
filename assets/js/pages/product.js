@@ -1588,6 +1588,9 @@ function productDetailsForm(){
             warehouse_id: {
                 required: true
             },
+            checklist_date: {
+                required: true
+            },
         },
         messages: {
             company_id: {
@@ -1604,6 +1607,9 @@ function productDetailsForm(){
             },
             warehouse_id: {
                 required: 'Please choose the warehouse'
+            },
+            checklist_date: {
+                required: 'Please choose the checklist date'
             },
         },
         errorPlacement: function (error, element) {

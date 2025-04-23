@@ -90,12 +90,12 @@ function productExpenseTable(datatable_name, buttons = false, show_all = false){
     ];
     
     const column_definition = [
-        { 'width': '10%', 'aTargets': 0 },                             // PRODUCT (text)
+        { 'width': '30%', 'aTargets': 0 },                             // PRODUCT (text)
         { 'width': 'auto', 'type': 'date', 'aTargets': 1 },            // CREATED_DATE (date)
         { 'width': 'auto', 'aTargets': 2 },                            // REFERENCE_TYPE (text)
         { 'width': 'auto', 'aTargets': 3 },                            // REFERENCE_NUMBER (text)
         { 'width': 'auto', 'type': 'num-fmt', 'aTargets': 4 },         // EXPENSE_AMOUNT (formatted number)
-        { 'width': '20%', 'aTargets': 5 },                             // PARTICULARS (text)
+        { 'width': '30%', 'aTargets': 5 },                             // PARTICULARS (text)
         { 'width': 'auto', 'aTargets': 6 },                            // EXPENSE_TYPE (text)
         { 'width': '5%', 'bSortable': false, 'aTargets': 7 }           // ACTION (non-sortable)
     ];

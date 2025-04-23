@@ -186,27 +186,23 @@
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
-                                <input class="form-check-input disbursement-status-filter" type="radio" name="disbursement-status-filter" id="disbursement-status-all" value="" checked />
-                                <label class="form-check-label" for="disbursement-status-all">All</label>
-                              </div>
-                              <div class="form-check my-2">
-                                <input class="form-check-input disbursement-status-filter" type="radio" name="disbursement-status-filter" id="disbursement-status-draft" value="Draft" />
+                                <input class="form-check-input disbursement-status-checkbox" type="checkbox" id="disbursement-status-draft" value="Draft"/>
                                 <label class="form-check-label" for="disbursement-status-draft">Draft</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input disbursement-status-filter" type="radio" name="disbursement-status-filter" id="disbursement-status-posted" value="Posted" />
+                                <input class="form-check-input disbursement-status-checkbox" type="checkbox" id="disbursement-status-posted" value="Posted" checked/>
                                 <label class="form-check-label" for="disbursement-status-posted">Posted</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input disbursement-status-filter" type="radio" name="disbursement-status-filter" id="disbursement-status-replenished" value="Replenished" />
+                                <input class="form-check-input disbursement-status-checkbox" type="checkbox" id="disbursement-status-replenished" value="Replenished"/>
                                 <label class="form-check-label" for="disbursement-status-replenished">Replenished</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input disbursement-status-filter" type="radio" name="disbursement-status-filter" id="disbursement-status-cancelled" value="Cancelled" />
-                                <label class="form-check-label" for="disbursement-status-replenished">Cancelled</label>
+                                <input class="form-check-input disbursement-status-checkbox" type="checkbox" id="disbursement-status-cancelled" value="Cancelled"/>
+                                <label class="form-check-label" for="disbursement-status-cancelled">Cancelled</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input disbursement-status-filter" type="radio" name="disbursement-status-filter" id="disbursement-status-reversed" value="Reversed" />
+                                <input class="form-check-input disbursement-status-checkbox" type="checkbox" id="disbursement-status-reversed" value="Reversed"/>
                                 <label class="form-check-label" for="disbursement-status-reversed">Reversed</label>
                               </div>
                             </div>

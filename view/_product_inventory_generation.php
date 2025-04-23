@@ -115,18 +115,24 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $action = '';
                 if(empty($close_date) && $product_inventory_status === 'For Scanning'){
-                    $action = '<div class="d-flex gap-2">
+                    $action .= '<div class="d-flex gap-2">
                                     <button type="button" class="btn btn-icon btn-danger update-product-inventory-batch" data-bs-toggle="offcanvas" data-bs-target="#product-inventory-batch-offcanvas" aria-controls="product-inventory-batch-offcanvas" data-product-inventory-batch-id="'. $product_inventory_batch_id .'" title="Tag As Missing">
                                         <i class="ti ti-x"></i>
                                     </button>
                                 </div>';
                 }
 
+                if(empty($close_date)){
+                    $action .= '<div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-icon btn-info update-product-inventory-batch2" data-bs-toggle="offcanvas" data-bs-target="#product-inventory-batch-offcanvas" aria-controls="product-inventory-batch-offcanvas" data-product-inventory-batch-id="'. $product_inventory_batch_id .'" title="Add Remarks">
+                                        <i class="ti ti-file-text"></i>
+                                    </button>
+                                </div>';
+                }
+
                 $response[] = [
-                    'PRODUCT' => '<div class="col">
-                                                    <h6 class="mb-0">'. $stockNumber .'</h6>
-                                                    <p class="f-12 mb-0">'. $productName .'</p>
-                                                </div>',
+                    'PRODUCT' => $stockNumber,
+                    'DESCRIPTION' => $productName,
                     'SCAN_STATUS' => $product_inventory_status_badge,
                     'SCAN_DATE' => $scanned_date,
                     'SCAN_BY' => $scanned_by_name,
@@ -220,6 +226,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $product_inventory_scan_additional_id  = $row['product_inventory_scan_additional_id'];
                 $stock_number  = $row['stock_number'];
                 $scanned_by  = $row['added_by'];
+                $remarks  = $row['remarks'];
                 $created_date = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
 
                 $scanned_by_details = $userModel->getUserByID($scanned_by);
@@ -241,6 +248,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'STOCK_NUMBER' => $stock_number,
                     'ADDED_BY' => $scanned_by_name,
                     'CREATED_DATE' => $created_date,
+                    'REMARKS' => $remarks,
                     'ACTION' => $action
                 ];
             }

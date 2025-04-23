@@ -439,6 +439,9 @@
                                         setNotification('User Inactive', response.message, 'danger');
                                         window.location = 'logout.php?logout';
                                     }
+                                    else if (response.incomplete) {
+                                        showNotification('Send Welcome Email Success', 'Unable to send incomplete information.', 'danger');
+                                    }
                                     else if (response.notExist) {
                                         window.location = '404.php';
                                     }

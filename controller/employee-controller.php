@@ -2576,7 +2576,14 @@ class EmployeeController {
         $jobPositionName = $this->jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
         $onboardDate = $this->systemModel->checkDate('empty', $employeeDetails['onboard_date'] ?? null, '', 'm/d/Y', '');
 
+        if(empty($contactImage) || empty($fileAs) || empty($nickname) || empty($companyName) || empty($departmentName) || empty($jobPositionName) || empty($email) || empty($mobile) || empty($onboardDate)){
+            echo json_encode(['success' => false, 'incomplete' => true]);
+            exit;
+        }
+
         $this->sendWelcomeEmail1($contactImage, $fileAs, $nickname, $companyName, $departmentName, $jobPositionName, $email, $mobile, $onboardDate);
+        
+        $this->employeeModel->updateSentWelcomeEmail($employeeID, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -2628,7 +2635,6 @@ class EmployeeController {
             return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
         }
     }
-
     public function sendArchiveEmail1($contactImage, $fileAs, $nickname, $companyName, $departmentName, $jobPositionName, $email, $mobile, $onboardDate, $offboardDate) {
         $emailSetting = $this->emailSettingModel->getEmailSetting(1);
         $mailFromName = $emailSetting['mail_from_name'] ?? null;

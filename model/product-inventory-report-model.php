@@ -101,11 +101,12 @@ class ProductInventoryReportModel {
         $stmt->execute();
     }
 
-    public function updateProductInventoryScanAdditional($p_product_inventory_scan_additional_id, $p_product_inventory_id, $p_stock_number, $p_created_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateProductInventoryScanAdditional(:p_product_inventory_scan_additional_id, :p_product_inventory_id, :p_stock_number, :p_created_by)');
+    public function updateProductInventoryScanAdditional($p_product_inventory_scan_additional_id, $p_product_inventory_id, $p_stock_number, $p_remarks, $p_created_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateProductInventoryScanAdditional(:p_product_inventory_scan_additional_id, :p_product_inventory_id, :p_stock_number, :p_remarks, :p_created_by)');
         $stmt->bindValue(':p_product_inventory_scan_additional_id', $p_product_inventory_scan_additional_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_inventory_id', $p_product_inventory_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_INT);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -118,10 +119,19 @@ class ProductInventoryReportModel {
         $stmt->execute();
     }
 
-    public function insertProductInventoryScanAdditional($p_product_inventory_id, $p_stock_number, $p_created_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertProductInventoryScanAdditional(:p_product_inventory_id, :p_stock_number, :p_created_by)');
+    public function productInventoryAddRemarks($p_product_inventory_batch_id, $p_remarks, $p_created_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL productInventoryAddRemarks(:p_product_inventory_batch_id, :p_remarks, :p_created_by)');
+        $stmt->bindValue(':p_product_inventory_batch_id', $p_product_inventory_batch_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function insertProductInventoryScanAdditional($p_product_inventory_id, $p_stock_number, $p_remarks, $p_created_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertProductInventoryScanAdditional(:p_product_inventory_id, :p_stock_number, :p_remarks, :p_created_by)');
         $stmt->bindValue(':p_product_inventory_id', $p_product_inventory_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_INT);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
         $stmt->execute();
     }

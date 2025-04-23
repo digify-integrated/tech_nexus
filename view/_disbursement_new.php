@@ -35,7 +35,6 @@
                    $mischide = 'd-none';
                   }
                   else{
-                  
                     $customerhide = 'd-none';
                     $mischide = '';
                   }
@@ -87,6 +86,9 @@
                   if($disbursementCategory === 'disbursement petty cash'){
                     echo ' <option value="Petty Cash" selected>Petty Cash</option>
                     <option value="Revolving Fund">Revolving Fund</option>';
+                  }
+                  else if($disbursementCategory === 'disbursement voucher'){
+                    echo '<option value="Journal Voucher" selected>Journal Voucher</option>';
                   }
                   else{
                     echo ' <option value="Check" selected>Check</option>';

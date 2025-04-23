@@ -31,17 +31,17 @@
           </div>
           <div class="card-body">
             <div class="table-responsive dt-responsive">
-              <table id="product-expense-table" class="table table-hover wrap w-100">
+              <table id="product-expense-table" class="table table-hover text-wrap w-100">
                 <thead>
                   <tr>
                     <th>Product</th>
                     <th>Date</th>
-                    <th class="all">Reference Type</th>
-                    <th class="all">Reference Number</th>
-                    <th class="all">Amount</th>
-                    <th class="all">Particulars</th>
-                    <th class="all">Type</th>
-                    <th class="all">Actions</th>
+                    <th>Reference Type</th>
+                    <th>Reference Number</th>
+                    <th>Amount</th>
+                    <th>Particulars</th>
+                    <th>Type</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody class="text-wrap"></tbody>

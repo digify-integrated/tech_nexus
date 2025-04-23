@@ -31,8 +31,6 @@
           header('location: dashboard.php');
           exit;
         }
-
-        
         
         $disbursementIDs = explode(',', $_GET['id']);
 
@@ -42,15 +40,25 @@
         $pettyCashFund = $systemSettingModel->getSystemSetting(20)['value'] ?? 0;
 
         $disbursementTotal = 0;
+        $replenishmentTotal = 0;
         foreach ($disbursementIDs as $disbursementID) {
             $disbursementDetails = $disbursementModel->getDisbursement($disbursementID);
             $disburse_status = $disbursementDetails['disburse_status'];
             $fund_source = $disbursementDetails['fund_source'];
+            $transaction_type = $disbursementDetails['transaction_type'];
+
+            $disbursementDetails = $disbursementModel->getDisbursementTotal($disbursementID);
+            if($transaction_type == 'Replenishment'){
+                $replenishmentTotal = $disbursementTotal + $disbursementDetails['total'] ?? 0;
+            }
 
             if($fund_source == 'Petty Cash' && ($disburse_status == 'Posted' || $disburse_status == 'Replenished')) {
-                $disbursementDetails = $disbursementModel->getDisbursementTotal($disbursementID);
                 $disbursementTotal = $disbursementTotal + $disbursementDetails['total'] ?? 0;
             }
+        }
+
+        if($replenishmentTotal === 0){
+            $replenishmentTotal = $disbursementModel->getReplenishmentTotal(date('Y-m-d'))['total'] ?? 0;
         }
     }
     $type = $_GET['type'] ?? '';
@@ -58,7 +66,7 @@
     $summaryTable = generatePrint($disbursementIDs, $type);
     $summaryTable2 = generatePrint2($createdByName);
     $summaryTable3 = generatePrint3();
-    $summaryTable4 = generatePrint4($pettyCashFund, $disbursementTotal);
+    $summaryTable4 = generatePrint4($pettyCashFund, $disbursementTotal, $replenishmentTotal);
     
     $summaryTable5 = generatePrint5($disbursementIDs);
 
@@ -183,7 +191,7 @@
             $departmentDetails = $departmentModel->getDepartment($department_id);
             $departmentName = $departmentDetails['department_name'] ?? null;
 
-            if(($fund_source == 'Petty Cash' || $type === 'disbursement check') && ($disburse_status == 'Posted' || $disburse_status == 'Replenished')) {
+            if(($fund_source == 'Petty Cash' || $type === 'disbursement check') && ($disburse_status == 'Posted' || $disburse_status == 'Replenished' || $disburse_status === 'Cancelled') && $transaction_type != 'Replenishment') {
                 $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementParticularsTable(:disbursementID)');
                 $sql->bindValue(':disbursementID', $disbursementID, PDO::PARAM_INT);
                 $sql->execute();
@@ -203,24 +211,46 @@
                     $chartOfAccountDetails = $chartOfAccountModel->getChartOfAccount($chart_of_account_id);
                     $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
 
-                    $list .= '<tr>
-                        <td>'. $transaction_number .'</td>
-                        <td>'. $customerName .'</td>
-                        <td>'. $companyName .'</td>
-                        <td>'. $particulars .'</td>
-                        <td>'. $chartOfAccountName .'</td>
-                        <td>'. number_format($particulars_amount, 2) .'</td>
-                        <td>0.00</td>
-                    </tr>
-                    <tr>
-                        <td>'. $transaction_number .'</td>
-                        <td>'. $customerName .'</td>
-                        <td>'. $companyName .'</td>
-                        <td>'. $particulars .'</td>
-                        <td>Petty Cash Fund</td>
-                        <td>0.00</td>
-                        <td>'. number_format($particulars_amount, 2) .'</td>
-                    </tr>';
+                    if($disburse_status === 'Cancelled'){
+                        $list .= '<tr>
+                            <td>'. $transaction_number .'</td>
+                            <td>'. $customerName .'</td>
+                            <td>'. $companyName .'</td>
+                            <td>'. $particulars .'</td>
+                            <td>'. $chartOfAccountName .'</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                        </tr>
+                        <tr>
+                            <td>'. $transaction_number .'</td>
+                            <td>'. $customerName .'</td>
+                            <td>'. $companyName .'</td>
+                            <td>'. $particulars .'</td>
+                            <td>Petty Cash Fund</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                        </tr>';
+                    }
+                    else{
+                        $list .= '<tr>
+                            <td>'. $transaction_number .'</td>
+                            <td>'. $customerName .'</td>
+                            <td>'. $companyName .'</td>
+                            <td>'. $particulars .'</td>
+                            <td>'. $chartOfAccountName .'</td>
+                            <td>'. number_format($particulars_amount, 2) .'</td>
+                            <td>0.00</td>
+                        </tr>
+                        <tr>
+                            <td>'. $transaction_number .'</td>
+                            <td>'. $customerName .'</td>
+                            <td>'. $companyName .'</td>
+                            <td>'. $particulars .'</td>
+                            <td>Petty Cash Fund</td>
+                            <td>0.00</td>
+                            <td>'. number_format($particulars_amount, 2) .'</td>
+                        </tr>';
+                    }
                 }
             }
         }
@@ -321,8 +351,9 @@
         return $response;
     }
 
-    function generatePrint4($pettyCashFund, $disbursementTotal){
-        $total = $pettyCashFund + $disbursementTotal;
+    function generatePrint4($pettyCashFund, $disbursementTotal, $replenishmentTotal){
+        
+        $total = ($pettyCashFund + $disbursementTotal) - $replenishmentTotal;
         $response = '<table border="1" width="100%" cellpadding="5" align="left">
                         <tbody>
                             <tr>
@@ -331,7 +362,7 @@
                             </tr>
                             <tr>
                                 <td>ADD: REPLENISHMENT</td>
-                                <td>0.00</td>
+                                <td>'. number_format($replenishmentTotal, 2) .'</td>
                             </tr>
                             <tr>
                                 <td>LIQUIDATION</td>

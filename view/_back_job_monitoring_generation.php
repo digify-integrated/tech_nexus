@@ -88,6 +88,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $product = '--';
                 }
 
+                if($status === 'Draft'){
+                    $status = '<span class="badge bg-secondary">' . $status . '</span>';
+                }
+                else if($status === 'On-Process'){
+                    $status = '<span class="badge bg-warning">' . $status . '</span>';
+                }
+                else if($status === 'Ready For Release'){
+                    $status = '<span class="badge bg-info">' . $status . '</span>';
+                }
+                else{
+                    $status = '<span class="badge bg-success">' . $status . '</span>';
+                }
+
                 $delete = '';
                 if($backjobMonitoringDeleteAccess['total'] > 0){
                     $delete = '<button type="button" class="btn btn-icon btn-danger delete-backjob-monitoring" data-backjob-monitoring-id="'. $backjob_monitoring_id .'" title="Delete Zoom API">
@@ -131,6 +144,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $work_center_id = $row['work_center_id'];
                 $cost = number_format($row['cost'], 2);
                 $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
+                $planned_start_date = $systemModel->checkDate('summary', $row['planned_start_date'], '', 'm/d/Y', '');
+                $planned_finish_date = $systemModel->checkDate('summary', $row['planned_finish_date'], '', 'm/d/Y', '');
+                $date_started = $systemModel->checkDate('summary', $row['date_started'], '', 'm/d/Y', '');
 
                 $jobOrder = $row['job_order'] ?? null;
 
@@ -142,7 +158,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $delete = '';
                 $update = '';
-                if($status === 'On-Process'){
+                if($status === 'Draft' || $status === 'On-Process'){
                     $delete = '<button type="button" class="btn btn-icon btn-danger delete-backjob-monitoring-job-order" data-backjob-monitoring-job-order-id="'. $backjobMonitoringJobOrderID .'" title="Delete Job Order">
                                         <i class="ti ti-trash"></i>
                                     </button>';
@@ -158,6 +174,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CONTRACTOR' => $contractor_name,
                     'WORK_CENTER' => $work_center_name,
                     'COMPLETION_DATE' => $completionDate,
+                    'PLANNED_START_DATE' => $planned_start_date,
+                    'PLANNED_FINISH_DATE' => $planned_finish_date,
+                    'DATE_STARTED' => $date_started,
                     'PROGRESS' => number_format($progress, 2) . '%',
                     'ACTION' => '<div class="d-flex gap-2">'.
                                 $update . 
@@ -173,7 +192,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         case 'additional job order monitoring table':
             $backjob_monitoring_id = htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8');
             $backjobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
-            $drStatus = $backjobMonitoringDetails['dr_status'] ?? null;
+            $status = $backjobMonitoringDetails['status'] ?? null;
 
             $sql = $databaseModel->getConnection()->prepare('CALL generateBackJobMonitoringAdditionalJobOrderTable(:backjob_monitoring_id)');
             $sql->bindValue(':backjob_monitoring_id',  $backjob_monitoring_id, PDO::PARAM_INT);
@@ -189,6 +208,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $work_center_id = $row['work_center_id'];
                 $cost = number_format($row['cost'], 2);
                 $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
+                $planned_start_date = $systemModel->checkDate('summary', $row['planned_start_date'], '', 'm/d/Y', '');
+                $planned_finish_date = $systemModel->checkDate('summary', $row['planned_finish_date'], '', 'm/d/Y', '');
+                $date_started = $systemModel->checkDate('summary', $row['date_started'], '', 'm/d/Y', '');
 
                 $job_order_number = $row['job_order_number'] ?? null;
                 $job_order_date = $systemModel->checkDate('summary', $row['job_order_date'], '', 'F d, Y', '');
@@ -202,24 +224,27 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $delete = '';
                 $update = '';
-                if($drStatus === 'On-Process'){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-backjob-monitoring-additional-job-order" data-backjob-monitoring-additional-job-order-id="'. $internal_dr_job_additional_order_id  .'" title="Delete Job Order">
+                if($status === 'Draft' || $status === 'On-Process'){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-backjob-monitoring-additional-job-order" data-backjob-monitoring-additional-job-order-id="'. $backjob_monitoring_additional_job_order_id  .'" title="Delete Job Order">
                                         <i class="ti ti-trash"></i>
                                     </button>';
-                    $update = '<button type="button" class="btn btn-icon btn-success update-backjob-monitoring-additional-job-order" data-bs-toggle="offcanvas" data-bs-target="#additional-job-order-monitoring-offcanvas" aria-controls="additional-job-order-monitoring-offcanvas" data-backjob-monitoring-additional-job-order-id="'. $internal_dr_job_additional_order_id  .'" title="Update Additional Job Order Progress">
+                    $update = '<button type="button" class="btn btn-icon btn-success update-backjob-monitoring-additional-job-order" data-bs-toggle="offcanvas" data-bs-target="#additional-job-order-monitoring-offcanvas" aria-controls="additional-job-order-monitoring-offcanvas" data-backjob-monitoring-additional-job-order-id="'. $backjob_monitoring_additional_job_order_id  .'" title="Update Additional Job Order Progress">
                                     <i class="ti ti-edit"></i>
                                 </button>';
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input additional-job-order-checkbox-children" type="checkbox" value="'. $salesProposalAdditionalJobOrderID .'">',
-                    'JOB_ORDER_NUMBER' => $jobOrderNumber,
-                    'JOB_ORDER_DATE' => $jobOrderDate,
+                    'CHECK_BOX' => '<input class="form-check-input additional-job-order-checkbox-children" type="checkbox" value="'. $backjob_monitoring_additional_job_order_id .'">',
+                    'JOB_ORDER_NUMBER' => $job_order_number,
+                    'JOB_ORDER_DATE' => $job_order_date,
                     'PARTICULARS' => $particulars,
                     'COST' => $cost,
                     'CONTRACTOR' => $contractor_name,
                     'WORK_CENTER' => $work_center_name,
                     'COMPLETION_DATE' => $completionDate,
+                    'PLANNED_START_DATE' => $planned_start_date,
+                    'PLANNED_FINISH_DATE' => $planned_finish_date,
+                    'DATE_STARTED' => $date_started,
                     'PROGRESS' => number_format($progress, 2) . '%',
                     'ACTION' => '<div class="d-flex gap-2">'.
                                 $update . 

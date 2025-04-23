@@ -30,7 +30,36 @@
             leaveDashboardApprovalTable('#leave-dashboard-approval-table');
         }
 
-        document.querySelector('#record-attendance').addEventListener('click', async function() {
+        if($('#daily-employee-status-dashboard-table').length){
+            dailyEmployeeStatusDashboard('#daily-employee-status-dashboard-table');
+            getEmployeeStatusCount();
+        }
+
+        $(document).on('click','#apply-dashboard-filter-attendance-status',function() {
+            generateAbsentEmployeeList();
+            generateLateEmployeeList();
+            generateOnLeaveEmployeeList();
+            generateOfficialBusinessEmployeeList();
+        });
+
+
+        if($('#absent-employee-list').length){
+            generateAbsentEmployeeList();
+        }
+
+        if($('#late-employee-list').length){
+            generateLateEmployeeList();
+        }
+
+        if($('#on-leave-employee-list').length){
+            generateOnLeaveEmployeeList();
+        }
+
+        if($('#official-business-employee-list').length){
+            generateOfficialBusinessEmployeeList();
+        }
+
+        /*document.querySelector('#record-attendance').addEventListener('click', async function() {
             getLocation('location');
         
             const videContainer = document.getElementById('video-container');
@@ -96,9 +125,220 @@
             else {
                 showNotification('Capture Image Error', 'Failed to capture image. Location cannot be determined.', 'danger');
             }
-        });
+        });*/
     });
 })(jQuery);
+
+function dailyEmployeeStatusDashboard(datatable_name, buttons = false, show_all = false){
+    const type = 'daily employee status dashboard table';
+    var filter_attendance_date = $('#filter_attendance_date').val();
+
+    var attendance_filter_values_status = [];
+    var branch_filter_values = [];
+
+    $('.status-checkbox:checked').each(function() {
+        attendance_filter_values_status.push($(this).val());
+    });
+
+    $('.branch-filter:checked').each(function() {
+        branch_filter_values.push($(this).val());
+    });
+    
+    var filter_attendance_status = attendance_filter_values_status.join(', ');
+    var branch_filter = branch_filter_values.join(', ');
+
+    var settings;
+
+    const column = [
+        { 'data' : 'EMPLOYEE' },
+        { 'data' : 'BRANCH' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ATTENDANCE_DATE' },
+        { 'data' : 'REMARKS' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_daily_employee_status_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 
+                'filter_attendance_date' : filter_attendance_date, 
+                'filter_attendance_status' : filter_attendance_status,
+                'branch_filter' : branch_filter,
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function generateAbsentEmployeeList(){
+    const type = 'employee status dashboard list';
+    const list_type = 'Absent';
+    var filter_attendance_date = $('#filter_attendance_date').val();
+    var branch_filter_values = [];
+
+    $('.branch-filter:checked').each(function() {
+        branch_filter_values.push($(this).val());
+    });
+    
+    var branch_filter = branch_filter_values.join(', ');
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_daily_employee_status_generation.php',
+        data: 'type=' + type + 
+        '&filter_attendance_date=' + filter_attendance_date + 
+        '&branch_filter=' + branch_filter +
+        '&list_type=' + list_type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById("absent-employee-list").innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function generateLateEmployeeList(){
+    const type = 'employee status dashboard list';
+    const list_type = 'Late';
+    var filter_attendance_date = $('#filter_attendance_date').val();
+    var branch_filter_values = [];
+
+    $('.branch-filter:checked').each(function() {
+        branch_filter_values.push($(this).val());
+    });
+    
+    var branch_filter = branch_filter_values.join(', ');
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_daily_employee_status_generation.php',
+        data: 'type=' + type + 
+        '&filter_attendance_date=' + filter_attendance_date + 
+        '&branch_filter=' + branch_filter +
+        '&list_type=' + list_type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById("late-employee-list").innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function generateOnLeaveEmployeeList(){
+    const type = 'employee status dashboard list';
+    const list_type = 'On-Leave';
+    var filter_attendance_date = $('#filter_attendance_date').val();
+    var branch_filter_values = [];
+
+    $('.branch-filter:checked').each(function() {
+        branch_filter_values.push($(this).val());
+    });
+    
+    var branch_filter = branch_filter_values.join(', ');
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_daily_employee_status_generation.php',
+        data: 'type=' + type + 
+        '&filter_attendance_date=' + filter_attendance_date + 
+        '&branch_filter=' + branch_filter +
+        '&list_type=' + list_type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById("on-leave-employee-list").innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function generateOfficialBusinessEmployeeList(){
+    const type = 'employee status dashboard list';
+    const list_type = 'Official Business';
+    var filter_attendance_date = $('#filter_attendance_date').val();
+    var branch_filter_values = [];
+
+    $('.branch-filter:checked').each(function() {
+        branch_filter_values.push($(this).val());
+    });
+    
+    var branch_filter = branch_filter_values.join(', ');
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_daily_employee_status_generation.php',
+        data: 'type=' + type + 
+        '&filter_attendance_date=' + filter_attendance_date + 
+        '&branch_filter=' + branch_filter +
+        '&list_type=' + list_type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById("official-business-employee-list").innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
 
 function recordAttendanceForm(){
     $('#record-attendance-form').validate({

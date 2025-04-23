@@ -44,10 +44,27 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         case 'journal entry table':
             $filterJournalEntryDateStartDate = $systemModel->checkDate('empty', $_POST['filter_journal_entry_date_start_date'], '', 'Y-m-d', '');
             $filterJournalEntryDateEndDate = $systemModel->checkDate('empty', $_POST['filter_journal_entry_date_end_date'], '', 'Y-m-d', '');
+            $journal_id_filter = $_POST['journal_id_filter'] ?? '';
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateJournalEntryTable(:filterJournalEntryDateStartDate, :filterJournalEntryDateEndDate)');
+            if (!empty($journal_id_filter)) {
+                // Convert string to array and trim each value
+                $values_array = array_filter(array_map('trim', explode(',', $journal_id_filter)));
+
+                // Quote each value safely
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . addslashes($value) . "'";
+                }, $values_array);
+
+                // Implode into comma-separated string
+                $filter_journal_id = implode(', ', $quoted_values_array);
+            } else {
+                $filter_journal_id = null;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateJournalEntryTable(:filterJournalEntryDateStartDate, :filterJournalEntryDateEndDate, :filter_journal_id)');
             $sql->bindValue(':filterJournalEntryDateStartDate', $filterJournalEntryDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterJournalEntryDateEndDate', $filterJournalEntryDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filter_journal_id', $filter_journal_id, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();

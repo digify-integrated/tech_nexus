@@ -187,6 +187,9 @@ class BackJobMonitoringController {
         $work_center_id = htmlspecialchars($_POST['job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
         $job_order = htmlspecialchars($_POST['job_order'], ENT_QUOTES, 'UTF-8');
         $completionDate = $this->systemModel->checkDate('empty', $_POST['job_order_completion_date'], '', 'Y-m-d', '');
+        $job_order_planned_start_date = $this->systemModel->checkDate('empty', $_POST['job_order_planned_start_date'], '', 'Y-m-d', '');
+        $job_order_planned_finish_date = $this->systemModel->checkDate('empty', $_POST['job_order_planned_finish_date'], '', 'Y-m-d', '');
+        $job_order_date_started = $this->systemModel->checkDate('empty', $_POST['job_order_date_started'], '', 'Y-m-d', '');
 
         if($progress < 100){
             $completionDate = null;
@@ -199,7 +202,7 @@ class BackJobMonitoringController {
             exit;
         }
     
-        $this->backJobMonitoringModel->updateBackJobMonitoringJobOrder($backjob_monitoring_id, $backjob_monitoring_job_order_id, $progress, $contractor_id, $work_center_id, $completionDate, $cost, $job_order, $userID);
+        $this->backJobMonitoringModel->updateBackJobMonitoringJobOrder($backjob_monitoring_id, $backjob_monitoring_job_order_id, $progress, $contractor_id, $work_center_id, $completionDate, $cost, $job_order, $job_order_planned_start_date, $job_order_planned_finish_date, $job_order_date_started, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -221,6 +224,9 @@ class BackJobMonitoringController {
         $job_order_date = $this->systemModel->checkDate('empty', $_POST['job_order_date'], '', 'Y-m-d', '');
         $particulars = htmlspecialchars($_POST['particulars'], ENT_QUOTES, 'UTF-8');
         $completionDate = $this->systemModel->checkDate('empty', $_POST['additional_job_order_completion_date'], '', 'Y-m-d', '');
+        $additional_job_order_planned_start_date = $this->systemModel->checkDate('empty', $_POST['additional_job_order_planned_start_date'], '', 'Y-m-d', '');
+        $additional_job_order_planned_finish_date = $this->systemModel->checkDate('empty', $_POST['additional_job_order_planned_finish_date'], '', 'Y-m-d', '');
+        $additional_job_order_date_started = $this->systemModel->checkDate('empty', $_POST['additional_job_order_date_started'], '', 'Y-m-d', '');
 
          if($progress < 100){
             $completionDate = null;
@@ -233,7 +239,7 @@ class BackJobMonitoringController {
             exit;
         }
     
-        $this->backJobMonitoringModel->updateBackJobMonitoringAdditionalJobOrder($backjob_monitoring_id, $backjob_monitoring_additional_job_order_id, $progress, $contractor_id, $work_center_id, $completionDate, $cost, $job_order_number, $job_order_date, $particulars, $userID);
+        $this->backJobMonitoringModel->updateBackJobMonitoringAdditionalJobOrder($backjob_monitoring_id, $backjob_monitoring_additional_job_order_id, $progress, $contractor_id, $work_center_id, $completionDate, $cost, $job_order_number, $job_order_date, $particulars, $additional_job_order_planned_start_date, $additional_job_order_planned_finish_date, $additional_job_order_date_started, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -815,7 +821,7 @@ class BackJobMonitoringController {
         }
         
         $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
-        $status = $backJobMonitoringDetails['type'];
+        $type = $backJobMonitoringDetails['type'];
         $outgoing_checklist = $backJobMonitoringDetails['outgoing_checklist'];
         $quality_control_form = $backJobMonitoringDetails['quality_control_form'];
         $unit_image = $backJobMonitoringDetails['unit_image'];
@@ -827,7 +833,7 @@ class BackJobMonitoringController {
                 exit;
             }
 
-            if(empty($unit_image) || empty($outgoing_checklist) || empty($quality_control_form)){
+            if((empty($unit_image) || empty($outgoing_checklist) || empty($quality_control_form)) && $type == 'Backjob'){
                 echo json_encode(['success' => false, 'imageNotUploaded' =>  true]);
                 exit;
             }
@@ -939,7 +945,10 @@ class BackJobMonitoringController {
                 'progress' => $backJobMonitoringDetails['progress'],
                 'contractorID' => $backJobMonitoringDetails['contractor_id'],
                 'completionDate' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['completion_date'], '', 'm/d/Y', ''),
-                'work_centerID' => $backJobMonitoringDetails['work_center_id']
+                'plannedStartDate' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['planned_start_date'], '', 'm/d/Y', ''),
+                'plannedFinishDate' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['planned_finish_date'], '', 'm/d/Y', ''),
+                'dateStarted' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['date_started'], '', 'm/d/Y', ''),
+                'workCenterID' => $backJobMonitoringDetails['work_center_id']
             ];
 
             echo json_encode($response);
@@ -972,8 +981,11 @@ class BackJobMonitoringController {
                 'contractorID' => $backJobMonitoringDetails['contractor_id'],
                 'particulars' => $backJobMonitoringDetails['particulars'],
                 'completionDate' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['completion_date'], '', 'm/d/Y', ''),
+                'plannedStartDate' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['planned_start_date'], '', 'm/d/Y', ''),
+                'plannedFinishDate' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['planned_finish_date'], '', 'm/d/Y', ''),
+                'dateStarted' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['date_started'], '', 'm/d/Y', ''),
                 'jobOrderDate' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['job_order_date'], '', 'm/d/Y', ''),
-                'work_centerID' => $backJobMonitoringDetails['work_center_id']
+                'workCenterID' => $backJobMonitoringDetails['work_center_id']
             ];
 
             echo json_encode($response);

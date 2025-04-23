@@ -16,7 +16,6 @@
     require_once 'model/sales-proposal-model.php';
     require_once 'model/miscellaneous-client-model.php';
     require_once 'model/user-model.php';
-    require_once 'model/miscellaneous-client-model.php';
 
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();

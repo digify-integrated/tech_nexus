@@ -15,6 +15,11 @@
     require_once 'model/product-model.php';
     require_once 'model/sales-proposal-model.php';
     require_once 'model/user-model.php';
+    require_once 'model/tenant-model.php';
+    require_once 'model/leasing-application-model.php';
+    require_once 'model/city-model.php';
+    require_once 'model/state-model.php';
+    require_once 'model/country-model.php';
 
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
@@ -23,6 +28,11 @@
     $productModel = new ProductModel($databaseModel);
     $salesProposalModel = new SalesProposalModel($databaseModel);
     $userModel = new UserModel($databaseModel, $systemModel);
+    $leasingApplicationModel = new LeasingApplicationModel($databaseModel);
+    $tenantModel = new TenantModel($databaseModel);
+    $cityModel = new CityModel($databaseModel);
+    $stateModel = new StateModel($databaseModel);
+    $countryModel = new CountryModel($databaseModel);
     
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
@@ -37,20 +47,63 @@
 
         $customer_id = $pdcManagementDetails['customer_id'];
         $sales_proposal_id = $pdcManagementDetails['sales_proposal_id'];
+        $leasing_application_id = $pdcManagementDetails['leasing_application_id'];
+        $pdc_type = $pdcManagementDetails['pdc_type'];
 
-        $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customer_id);
-        $customerAddress = strtoupper($customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name']);
+        if($pdc_type == 'Product'){
+            $product_id = $pdcManagementDetails['product_id'];
 
-        $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
-        $product_id = $salesProposalDetails['product_id'];
-        $loan_number = $salesProposalDetails['loan_number'];
+            $productDetails = $productModel->getProduct($product_id);
+            $stockNumber = $productDetails['stock_number'] ?? null;
+        }
+        else if($pdc_type == 'Customer'){
+            $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customer_id);
+            $customerAddress = strtoupper($customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name']);
 
-        $productDetails = $productModel->getProduct($product_id);
-        $stock_number = $productDetails['stock_number'] ?? null;
-        $plateNumber = $productDetails['plate_number'] ?? null;
+            $customerDetails = $customerModel->getPersonalInformation($customer_id);
+            $customerName = $customerDetails['file_as'] ?? null;
+        }
+        else if($pdc_type == 'Loan'){
+            $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+            $product_id = $salesProposalDetails['product_id'];
+            $loan_number = $salesProposalDetails['loan_number'];
 
-        $customerDetails = $customerModel->getPersonalInformation($customer_id);
-        $customerName = $customerDetails['file_as'] ?? null;
+            $productDetails = $productModel->getProduct($product_id);
+            $stock_number = $productDetails['stock_number'] ?? null;
+            $plateNumber = $productDetails['plate_number'] ?? null;
+
+            $customerDetails = $customerModel->getPersonalInformation($customer_id);
+            $customerName = $customerDetails['file_as'] ?? null;
+        }
+        else if($pdc_type == 'Leasing'){
+            $leasingApplicationDetails = $leasingApplicationModel->getLeasingApplication($leasing_application_id);
+
+            $loan_number = $leasingApplicationDetails['leasing_application_number'];
+            $tenant_id = $leasingApplicationDetails['tenant_id'];
+
+            $tenantDetails = $tenantModel->getTenant($tenant_id);
+            $customerName = strtoupper($tenantDetails['tenant_name'] ?? '');
+            $stockNumber = '';
+
+            $cityID = $tenantDetails['city_id'];
+            $address = $tenantDetails['address'];
+
+                $cityDetails = $cityModel->getCity($cityID);
+                $cityName = $cityDetails['city_name'];
+                $stateID = $cityDetails['state_id'];
+
+                $stateDetails = $stateModel->getState($stateID);
+                $stateName = $stateDetails['state_name'];
+                $countryID = $stateDetails['country_id'];
+
+                $countryName = $countryModel->getCountry($countryID)['country_name'];
+
+                $customerAddress = strtoupper($address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName);
+        }
+        else{
+            $stockNumber = '';
+        }
+
 
         $totalPDCAmount = 0;
         $count = 0;
@@ -110,6 +163,8 @@
         require_once 'model/customer-model.php';
         require_once 'model/product-model.php';
         require_once 'model/sales-proposal-model.php';
+        require_once 'model/tenant-model.php';
+        require_once 'model/leasing-application-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -117,6 +172,8 @@
         $customerModel = new CustomerModel($databaseModel);
         $productModel = new ProductModel($databaseModel);
         $salesProposalModel = new SalesProposalModel($databaseModel);
+        $leasingApplicationModel = new LeasingApplicationModel($databaseModel);
+        $tenantModel = new TenantModel($databaseModel);
 
         $loanCollectionIDs = is_array($loanCollectionID) ? $loanCollectionID : explode(',', $loanCollectionID);
         sort($loanCollectionIDs);

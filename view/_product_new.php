@@ -299,7 +299,7 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-3 col-form-label">Checklist Date</label>
+            <label class="col-lg-3 col-form-label">Checklist Date <span class="text-danger">*</span></label>
             <div class="col-lg-3">
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="checklist_date" name="checklist_date" autocomplete="off">

@@ -177,6 +177,7 @@ class ProductInventoryReportController {
         $product_inventory_scan_additional_id = htmlspecialchars($_POST['product_inventory_scan_additional_id'], ENT_QUOTES, 'UTF-8');
         $product_inventory_id = htmlspecialchars($_POST['product_inventory_id'], ENT_QUOTES, 'UTF-8');
         $stock_number = htmlspecialchars($_POST['stock_number'], ENT_QUOTES, 'UTF-8');
+        $additional_remarks = htmlspecialchars($_POST['additional_remarks'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -189,13 +190,13 @@ class ProductInventoryReportController {
         $total = $checkProductInventoryScanAdditionalExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->productInventoryReportModel->updateProductInventoryScanAdditional($product_inventory_scan_additional_id, $product_inventory_id, $stock_number, $userID);
+            $this->productInventoryReportModel->updateProductInventoryScanAdditional($product_inventory_scan_additional_id, $product_inventory_id, $stock_number, $additional_remarks, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->productInventoryReportModel->insertProductInventoryScanAdditional($product_inventory_id, $stock_number, $userID);
+            $this->productInventoryReportModel->insertProductInventoryScanAdditional($product_inventory_id, $stock_number, $additional_remarks, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -210,6 +211,7 @@ class ProductInventoryReportController {
         $userID = $_SESSION['user_id'];
         $product_inventory_batch_id = htmlspecialchars($_POST['product_inventory_batch_id'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
+        $remarks_type = htmlspecialchars($_POST['remarks_type'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -217,11 +219,18 @@ class ProductInventoryReportController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        if($remarks_type === 'missing'){
+            $this->productInventoryReportModel->productInventoryTagAsMissing($product_inventory_batch_id, $remarks, $userID);
+        }
+        else{
+            $this->productInventoryReportModel->productInventoryAddRemarks($product_inventory_batch_id, $remarks, $userID);
+        }
     
-        $this->productInventoryReportModel->productInventoryTagAsMissing($product_inventory_batch_id, $remarks, $userID);
+       
             
-            echo json_encode(['success' => true, 'insertRecord' => false]);
-            exit;
+        echo json_encode(['success' => true, 'insertRecord' => false]);
+        exit;
     }
 
     # -------------------------------------------------------------

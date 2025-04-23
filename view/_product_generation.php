@@ -412,12 +412,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
     
                     $response[] = [
-                        'PRODUCT' => ' <a href="product.php?id='. $productIDEncrypted .'"><b>' .$stockNumber . '</b><br/><small>' . $description .'</small></a>',
+                        'PRODUCT' => ' <a href="product.php?id='. $productIDEncrypted .'"><b>' .$stockNumber . '</b><br/><small class="text-wrap">' . $description .'</small></a>',
                         'CREATED_DATE' => $createdDate,
                         'REFERENCE_TYPE' => $reference_type,
                         'REFERENCE_NUMBER' => $reference_number,
                         'EXPENSE_AMOUNT' => $expense_amount,
-                        'PARTICULARS' => $particulars,
+                        'PARTICULARS' => '<p class="text-wrap">'.$particulars.'</p>',
                         'EXPENSE_TYPE' => $expenseType,
                         'ACTION' => '<div class="d-flex gap-2">
                                         '. $delete .'

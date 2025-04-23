@@ -921,6 +921,22 @@ class UserModel {
 
         return $htmlOptions;
     }
+
+    public function generateUnitTransferUserOption() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateUnitTransferUserOption()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $contactID = $row['user_id'];
+            $fileAs = $row['file_as'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . htmlspecialchars($fileAs, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

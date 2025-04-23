@@ -109,6 +109,11 @@ class EmployeeModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function cronTransferActiveEmployeeToAttendanceStatus($p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL cronTransferActiveEmployeeToAttendanceStatus(:p_last_log_by)');
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -151,6 +156,13 @@ class EmployeeModel {
         $stmt->bindValue(':p_kiosk_pin_code', $p_kiosk_pin_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_biometrics_id', $p_biometrics_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_onboard_date', $p_onboard_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateSentWelcomeEmail($p_contact_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSentWelcomeEmail (:p_contact_id, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

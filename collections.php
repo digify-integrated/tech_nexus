@@ -46,7 +46,7 @@
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: loan-collections.php');
+      header('location: collections.php');
       exit;
     }
 

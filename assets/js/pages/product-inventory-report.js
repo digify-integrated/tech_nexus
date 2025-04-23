@@ -58,6 +58,16 @@
             const product_inventory_batch_id = $(this).data('product-inventory-batch-id');
     
             $('#product_inventory_batch_id').val(product_inventory_batch_id);
+            $('#product-inventory-batch-offcanvas-label').text('Tag As Missing');
+            $('#remarks_type').val('missing');
+        });
+
+        $(document).on('click','.update-product-inventory-batch2',function() {
+            const product_inventory_batch_id = $(this).data('product-inventory-batch-id');
+    
+            $('#product_inventory_batch_id').val(product_inventory_batch_id);
+            $('#product-inventory-batch-offcanvas-label').text('Add Remarks');
+            $('#remarks_type').val('remarks');
         });
 
         $(document).on('click','.delete-product-inventory-additional',function() {
@@ -183,6 +193,7 @@ function inventoryProductReportBatch(datatable_name, buttons = false, show_all =
 
     const column = [ 
         { 'data' : 'PRODUCT' },
+        { 'data' : 'DESCRIPTION' },
         { 'data' : 'SCAN_STATUS' },
         { 'data' : 'SCAN_DATE' },
         { 'data' : 'SCAN_BY' },
@@ -196,7 +207,8 @@ function inventoryProductReportBatch(datatable_name, buttons = false, show_all =
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': '15%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -356,6 +368,7 @@ function inventoryProductReportScanAdditional(datatable_name, buttons = false, s
         { 'data' : 'STOCK_NUMBER' },
         { 'data' : 'ADDED_BY' },
         { 'data' : 'CREATED_DATE' },
+        { 'data' : 'REMARKS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -363,7 +376,8 @@ function inventoryProductReportScanAdditional(datatable_name, buttons = false, s
         { 'width': 'auto', 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
-        { 'width': '15%','bSortable': false, 'aTargets': 3 }
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': '15%','bSortable': false, 'aTargets': 4 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

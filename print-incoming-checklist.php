@@ -157,7 +157,7 @@
         $className = $classModel->getClass($class_id)['class_name'] ?? null;
         $colorName = $colorModel->getColor($color_id)['color_name'] ?? null;
 
-        $rrDate = $systemModel->checkDate('summary', $productDetails['rr_date'], '', 'm/d/Y', '');
+        $rrDate = $systemModel->checkDate('summary', $productDetails['checklist_date'], '', 'm/d/Y', '');
 
         $response = '<table border="0.5" width="100%" cellpadding="2" align="left">
                         <tbody>

@@ -207,6 +207,13 @@ BEGIN
     ORDER BY file_as;
 END //
 
+CREATE PROCEDURE generateUnitTransferUserOption()
+BEGIN
+	SELECT user_id, file_as FROM users
+    WHERE is_active = 1
+    ORDER BY file_as;
+END //
+
 CREATE PROCEDURE generateAddRoleUserAccountTable(IN p_role_id INT)
 BEGIN
 	SELECT user_id, file_as, email, last_connection_date FROM users
@@ -4255,6 +4262,20 @@ BEGIN
     WHERE contact_id = p_contact_id;
 END //
 
+CREATE PROCEDURE updateSentWelcomeEmail(IN p_contact_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE employment_information
+    SET sent_welcome_email = 1,
+    last_log_by = p_last_log_by
+    WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE cronGetUnsentWelcomeEmail()
+BEGIN
+    SELECT * FROM employment_information
+    WHERE sent_welcome_email = 0 AND employment_status = 1;
+END //
+
 CREATE PROCEDURE updateContactImage(IN p_contact_id INT, IN p_contact_image VARCHAR(500), IN p_last_log_by INT)
 BEGIN
 	UPDATE personal_information 
@@ -7323,6 +7344,13 @@ BEGIN
 	ORDER BY stock_number;
 END //
 
+CREATE PROCEDURE generateInternalRepairProductOptions()
+BEGIN
+	SELECT product_id, description, stock_number FROM product
+    WHERE product_status IN ('Draft', 'ROPA', 'For Sale', 'With Application', 'On-Process', 'Ready For Release', 'For DR')
+	ORDER BY stock_number;
+END //
+
 CREATE PROCEDURE generateNotDraftProductOptions()
 BEGIN
 	SELECT product_id, description, stock_number FROM product
@@ -8057,7 +8085,7 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id AND sales_proposal_status = 'For CI';
 END //
 
-CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_job_order
     SET progress = p_progress,
@@ -8066,11 +8094,14 @@ BEGIN
     work_center_id = p_work_center_id,
     backjob = p_backjob,
     completion_date = p_completion_date,
+    planned_start_date = p_planned_start_date,
+    planned_finish_date = p_planned_finish_date,
+    date_started = p_date_started,
     last_log_by = p_last_log_by
     WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
 END //
 
-CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_additional_job_order
     SET progress = p_progress,
@@ -8079,6 +8110,9 @@ BEGIN
     work_center_id = p_work_center_id,
     backjob = p_backjob,
     completion_date = p_completion_date,
+    planned_start_date = p_planned_start_date,
+    planned_finish_date = p_planned_finish_date,
+    date_started = p_date_started,
     last_log_by = p_last_log_by
     WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
 END //
@@ -10320,7 +10354,7 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateJournalEntryTable(IN p_filter_journal_entry_date_start_date DATE, IN p_filter_journal_entry_date_end_date DATE)
+CREATE PROCEDURE generateJournalEntryTable(IN p_filter_journal_entry_date_start_date DATE, IN p_filter_journal_entry_date_end_date DATE, IN p_journal_id VARCHAR(1000))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -10333,6 +10367,12 @@ BEGIN
         SET conditionList = CONCAT(conditionList, QUOTE(p_filter_journal_entry_date_start_date));
         SET conditionList = CONCAT(conditionList, ' AND ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_filter_journal_entry_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+     IF p_journal_id IS NOT NULL AND p_journal_id <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND journal_id IN (');
+        SET conditionList = CONCAT(conditionList, p_journal_id);
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
@@ -10359,6 +10399,7 @@ BEGIN
         SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_end_date));
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
+    
 
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ';');
@@ -11485,13 +11526,6 @@ BEGIN
     WHERE deposits_id = p_deposits_id;
 END //
 
-CREATE PROCEDURE generateDepositsTable()
-BEGIN
-    SELECT deposits_id, deposits_name, deposit_amount, deposit_date, deposited_to, reference_number, remarks
-    FROM deposits
-    ORDER BY deposits_id;
-END //
-
 CREATE PROCEDURE generateDepositsTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_deposit_start_date DATE, IN p_deposit_end_date DATE)
 BEGIN
     DECLARE query VARCHAR(5000);
@@ -11501,7 +11535,7 @@ BEGIN
     SET conditionList = ' WHERE 1';
     
     IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(transaction_date) BETWEEN ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
         SET conditionList = CONCAT(conditionList, ' AND ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
@@ -11824,6 +11858,45 @@ BEGIN
     WHERE contact_id IN (SELECT contact_id from employment_information WHERE employment_status = 1) AND contact_information_type_id = 2;
 END //
 
+CREATE PROCEDURE cronTransferActiveEmployeeToAttendanceStatus(IN p_last_log_by INT)
+BEGIN
+    -- First, insert all active employees as 'Present'
+    INSERT INTO employee_daily_status (
+        contact_id,
+        status,
+        remarks,
+        attendance_date,
+        last_log_by
+    )
+    SELECT 
+        ei.contact_id,
+        'Present',
+        NULL,
+        CURRENT_DATE,
+        p_last_log_by
+    FROM employment_information ei
+    WHERE ei.employment_status = 1;
+
+    -- Update status to 'Official Business' where leave_type_id = 3 and leave is approved for today
+    UPDATE employee_daily_status eds
+    INNER JOIN leave_application la ON la.contact_id = eds.contact_id
+    SET eds.status = 'Official Business'
+    WHERE la.leave_date = CURRENT_DATE
+      AND la.leave_type_id = 3
+      AND la.status = 'Approved'
+      AND eds.attendance_date = CURRENT_DATE;
+
+    -- Update status to 'On-Leave' where leave_type_id != 3 and leave is approved for today
+    UPDATE employee_daily_status eds
+    INNER JOIN leave_application la ON la.contact_id = eds.contact_id
+    SET eds.status = 'On-Leave'
+    WHERE la.leave_date = CURRENT_DATE
+      AND la.leave_type_id = 1
+      AND la.status = 'Approved'
+      AND eds.attendance_date = CURRENT_DATE;
+END //
+
+
 
 /* Chart of Account Table Stored Procedures */
 
@@ -11950,6 +12023,7 @@ BEGIN
         UPDATE product
         SET product_status = p_product_status,
         for_sale_date = NOW(),
+        rr_date = NOW(),
         last_log_by = p_last_log_by
         WHERE product_id = p_product_id;
 
@@ -12074,7 +12148,7 @@ DROP PROCEDURE create_journal_entry//
 CREATE PROCEDURE create_journal_entry(
     IN p_loan_number VARCHAR(100),
     IN p_company_id INT,
-    IN p_transaction_type INT,
+    IN p_transaction_type VARCHAR(100),
     IN p_product_type VARCHAR(100),
     IN p_product_type_code VARCHAR(100),
     IN p_sales_proposal_id INT,
@@ -12111,7 +12185,7 @@ BEGIN
 
     -- Set reference code dynamically based on journal entry date
     SET v_reference_code = CONCAT(
-        'TO RECORD SALES FOR THE DAY ( ', 
+        'TO RECORD SALES FOR THE DAY (', 
         p_loan_number, 
         ')'
     );
@@ -12132,43 +12206,53 @@ BEGIN
         IF v_item = 'PRI' THEN
             SELECT total_delivery_price INTO v_amount
             FROM sales_proposal_pricing_computation
-            WHERE sales_proposal_id = p_sales_proposal_id;
+            WHERE sales_proposal_id = p_sales_proposal_id
+            LIMIT 1;
         ELSEIF v_item = 'INT' THEN
             SELECT (pn_amount - amount_financed) INTO v_amount
             FROM sales_proposal_pricing_computation
-            WHERE sales_proposal_id = p_sales_proposal_id;
+            WHERE sales_proposal_id = p_sales_proposal_id
+            LIMIT 1;
         ELSEIF v_item = 'INS' THEN
-            SELECT insurance_premium_subtotal INTO v_amount
+            SELECT insurance_premium INTO v_amount
             FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
+            WHERE sales_proposal_id = p_sales_proposal_id
+            LIMIT 1;
         ELSEIF v_item = 'REG' THEN
             SELECT registration_fee INTO v_amount
             FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
+            WHERE sales_proposal_id = p_sales_proposal_id
+            LIMIT 1;
         ELSEIF v_item = 'DOC' THEN
             SELECT doc_stamp_tax_subtotal INTO v_amount
             FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
+            WHERE sales_proposal_id = p_sales_proposal_id
+            LIMIT 1;
         ELSEIF v_item = 'TRA' THEN
             SELECT transfer_fee_subtotal INTO v_amount
             FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
+            WHERE sales_proposal_id = p_sales_proposal_id
+            LIMIT 1;
         ELSEIF v_item = 'TRS' THEN
             SELECT transaction_fee_subtotal INTO v_amount
             FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
+            WHERE sales_proposal_id = p_sales_proposal_id
+            LIMIT 1;
         ELSEIF v_item = 'HAN' THEN
             SELECT handling_fee_subtotal INTO v_amount
             FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
+            WHERE sales_proposal_id = p_sales_proposal_id
+            LIMIT 1;
         ELSEIF v_item = 'DP' THEN
             SELECT downpayment INTO v_amount
             FROM sales_proposal_pricing_computation
-            WHERE sales_proposal_id = p_sales_proposal_id;
+            WHERE sales_proposal_id = p_sales_proposal_id
+            LIMIT 1;
         ELSEIF v_item = 'AJO' THEN
-            SELECT COALESCE(SUM(cost), 0) INTO v_amount
-            FROM sales_proposal_additional_job_order
-            WHERE sales_proposal_id = p_sales_proposal_id;
+            SELECT COALESCE(SUM(expense_amount), 0) INTO v_amount
+            FROM product_expense
+            WHERE product_id = p_product_id
+            LIMIT 1;
         END IF;
 
         -- Set analytic_lines and analytic_distribution based on p_product_type
@@ -12610,6 +12694,12 @@ BEGIN
     WHERE disbursement_id = p_disbursement_id;
 END //
 
+CREATE PROCEDURE getReplenishmentTotal(IN p_transaction_date DATE)
+BEGIN
+	SELECT SUM((base_amount + vat_amount) - withholding_amount) AS total FROM disbursement_particulars
+    WHERE disbursement_id IN (SELECT disbursement_id FROM disbursement WHERE transaction_date = p_transaction_date AND transaction_type = 'Replenishment' AND disburse_status = 'Posted');
+END //
+
 CREATE PROCEDURE getDisbursementCheckTotal(IN p_disbursement_id INT)
 BEGIN
 	SELECT SUM(check_amount) AS total FROM disbursement_check
@@ -12634,7 +12724,7 @@ BEGIN
     WHERE disbursement_id IN (SELECT disbursement_id FROM disbursement WHERE fund_source = p_fund_source AND disburse_status = 'Posted' AND transaction_type != 'Replenishment');
 END //
 
-CREATE PROCEDURE generateDisbursementTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_replenishment_start_date DATE, IN p_replenishment_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(100), IN p_transaction_type VARCHAR(100))
+CREATE PROCEDURE generateDisbursementTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_replenishment_start_date DATE, IN p_replenishment_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(5000), IN p_transaction_type VARCHAR(100))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -12648,8 +12738,9 @@ BEGIN
     END IF;
 
     IF p_disbursement_status IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND disburse_status = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_disbursement_status));
+        SET conditionList = CONCAT(conditionList, ' AND disburse_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_disbursement_status);
+        SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
     IF p_transaction_type IS NOT NULL THEN
@@ -12715,7 +12806,41 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE getDisbursementTableTotal( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_disbursement_category VARCHAR(100))
+CREATE PROCEDURE generateJournalVoucherTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(100), IN p_transaction_type VARCHAR(100))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM disbursement';
+    SET conditionList = ' WHERE fund_source = "Journal Voucher"';
+
+    IF p_disbursement_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND disburse_status = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_disbursement_status));
+    END IF;
+
+    IF p_transaction_type IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND transaction_type = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_type));
+    END IF;
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY transaction_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE getDisbursementTableTotal( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_fund_source_filter VARCHAR(100), IN p_disbursement_status VARCHAR(5000), IN p_transaction_type VARCHAR(100), IN p_disbursement_category VARCHAR(100))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -12737,8 +12862,9 @@ BEGIN
     END IF;
     
     IF p_disbursement_status IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND disburse_status = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_disbursement_status));
+        SET conditionList = CONCAT(conditionList, ' AND disburse_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_disbursement_status);
+        SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
     IF p_transaction_type IS NOT NULL THEN
@@ -13006,13 +13132,40 @@ BEGIN
                 SET v_analytic_distribution = '{"2": 100.0}';
             WHEN 3 THEN
                 SET v_analytic_lines = 'FUSO';
-                SET v_analytic_distribution = '{"5": 100.0}';
+                SET v_analytic_distribution = '{"1": 100.0}';
             WHEN 4 THEN
                 SET v_analytic_lines = 'PCG PROPERTY';
                 SET v_analytic_distribution = '{"4": 100.0}';
             WHEN 5 THEN
                 SET v_analytic_lines = 'GCB PROPERTY';
                 SET v_analytic_distribution = '{"3": 100.0}';
+            WHEN 6 THEN
+                SET v_analytic_lines = 'GCB FARMING';
+                SET v_analytic_distribution = '{"11": 100.0}';
+            WHEN 7 THEN
+                SET v_analytic_lines = 'PCG FARMING';
+                SET v_analytic_distribution = '{"15": 100.0}';
+            WHEN 8 THEN
+                SET v_analytic_lines = 'NE FUEL';
+                SET v_analytic_distribution = '{"6": 100.0}';
+            WHEN 9 THEN
+                SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
+                SET v_analytic_distribution = '{"17": 100.0}';
+            WHEN 10 THEN
+                SET v_analytic_lines = 'Avida';
+                SET v_analytic_distribution = '{"20": 100.0}';
+            WHEN 11 THEN
+                SET v_analytic_lines = 'Caalibangbangan';
+                SET v_analytic_distribution = '{"19": 100.0}';
+            WHEN 12 THEN
+                SET v_analytic_lines = 'Sta Rosa';
+                SET v_analytic_distribution = '{"18": 100.0}';
+            WHEN 13 THEN
+                SET v_analytic_lines = 'KPC VENTURE INC';
+                SET v_analytic_distribution = '{"16": 100.0}';
+            WHEN 14 THEN
+                SET v_analytic_lines = 'NE HAULING';
+                SET v_analytic_distribution = '{"7": 100.0}';
             ELSE
                 SET v_analytic_lines = 'DEFAULT';
                 SET v_analytic_distribution = '{"0": 0.0}';
@@ -13080,332 +13233,6 @@ BEGIN
                 p_disbursement_id, NOW(), p_transaction_number, v_journal_id, '20101132 Withholding Tax Payable Other', 0, v_withholding_amount,  
                 '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
             );
-        END IF;
-
-    END LOOP;
-
-    -- Close cursor
-    CLOSE cur_particulars;
-END//
-
-
-CREATE PROCEDURE createDisbursementEntry(
-    IN p_disbursement_id INT,
-    IN p_transaction_number VARCHAR(100),
-    IN p_fund_source VARCHAR(100),
-    IN p_transaction_type VARCHAR(100),
-    IN p_transaction_date DATE,
-    IN p_last_log_by INT
-)
-BEGIN
-    -- Declare variables
-    DECLARE v_analytic_lines VARCHAR(500);
-    DECLARE v_analytic_distribution VARCHAR(500);
-    DECLARE v_journal_id VARCHAR(500);
-    DECLARE v_credit VARCHAR(500);
-    DECLARE v_chart_item VARCHAR(600);
-    DECLARE v_particulars_amount DOUBLE;
-    DECLARE v_company_id INT;
-    DECLARE v_done INT DEFAULT 0;
-
-    -- Cursor for disbursement particulars
-    DECLARE cur_particulars CURSOR FOR
-        SELECT dp.particulars_amount, dp.company_id,
-               CONCAT(ca.code, ' ', ca.name) AS chart_item
-        FROM disbursement_particulars dp
-        JOIN chart_of_account ca ON dp.chart_of_account_id = ca.chart_of_account_id
-        WHERE dp.disbursement_id = p_disbursement_id;
-
-    -- Continue handler for cursor
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = 1;
-
-    -- Determine credit account based on fund source
-    CASE p_fund_source
-        WHEN 'Petty Cash' THEN
-            SET v_credit = '10101030 Petty Cash Fund';
-            SET v_journal_id = 'Disbursement Operations';
-        WHEN 'Revolving Fund' THEN
-            SET v_credit = '10101020 Revolving Fund';
-            SET v_journal_id = 'Disbursement Operations';
-        ELSE
-            SET v_credit = '10102060 Cash in Bank - Checking BPI CGMI';
-            SET v_journal_id = 'Check Disbursement Operations';
-    END CASE;
-
-    -- Open cursor
-    OPEN cur_particulars;
-
-    read_loop: LOOP
-        FETCH cur_particulars INTO v_particulars_amount, v_company_id, v_chart_item;
-
-        CASE v_company_id
-            WHEN 1 THEN
-                SET v_analytic_lines = 'CGMI';
-                SET v_analytic_distribution = '{"1": 100.0}';
-            WHEN 2 THEN
-                SET v_analytic_lines = 'NE TRUCK';
-                SET v_analytic_distribution = '{"2": 100.0}';
-            WHEN 3 THEN
-                SET v_analytic_lines = 'FUSO';
-                SET v_analytic_distribution = '{"5": 100.0}';
-            WHEN 4 THEN
-                SET v_analytic_lines = 'PCG PROPERTY';
-                SET v_analytic_distribution = '{"4": 100.0}';
-            WHEN 5 THEN
-                SET v_analytic_lines = 'GCB PROPERTY';
-                SET v_analytic_distribution = '{"3": 100.0}';
-            ELSE
-                SET v_analytic_lines = 'DEFAULT';
-                SET v_analytic_distribution = '{"0": 0.0}';
-        END CASE;
-
-        -- Exit loop if cursor is done
-        IF v_done THEN
-            LEAVE read_loop;
-        END IF;
-
-        IF v_particulars_amount > 0 THEN
-            -- Insert the 2 journal entries per particular
-            IF p_transaction_type = 'posted' THEN
-                -- Insert debit entry
-                INSERT INTO journal_entry (
-                    loan_number, 
-                    journal_entry_date, 
-                    reference_code, 
-                    journal_id, 
-                    journal_item, 
-                    debit, 
-                    credit, 
-                    journal_label, 
-                    analytic_lines, 
-                    analytic_distribution, 
-                    created_date, 
-                    last_log_by
-                ) VALUES (
-                    p_disbursement_id, 
-                    NOW(), 
-                    p_transaction_number, 
-                    v_journal_id, 
-                    v_chart_item, 
-                    v_particulars_amount, 
-                    0, 
-                    '', 
-                    v_analytic_lines, 
-                    v_analytic_distribution, 
-                    NOW(), 
-                    p_last_log_by
-                );
-
-                -- Insert credit entry
-                INSERT INTO journal_entry (
-                    loan_number, 
-                    journal_entry_date, 
-                    reference_code, 
-                    journal_id, 
-                    journal_item, 
-                    debit, 
-                    credit, 
-                    journal_label, 
-                    analytic_lines, 
-                    analytic_distribution, 
-                    created_date, 
-                    last_log_by
-                ) VALUES (
-                    p_disbursement_id, 
-                    NOW(), 
-                    p_transaction_number, 
-                    v_journal_id, 
-                    v_credit, 
-                    0, 
-                    v_particulars_amount, 
-                    '', 
-                    v_analytic_lines, 
-                    v_analytic_distribution, 
-                    NOW(), 
-                    p_last_log_by
-                );
-
-            ELSE
-                -- Insert debit entry
-                INSERT INTO journal_entry (
-                    loan_number, 
-                    journal_entry_date, 
-                    reference_code, 
-                    journal_id, 
-                    journal_item, 
-                    debit, 
-                    credit, 
-                    journal_label, 
-                    analytic_lines, 
-                    analytic_distribution, 
-                    created_date, 
-                    last_log_by
-                ) VALUES (
-                    p_disbursement_id, 
-                    NOW(), 
-                    p_transaction_number, 
-                    v_journal_id, 
-                    v_chart_item, 
-                    0, 
-                    v_particulars_amount, 
-                    '', 
-                    v_analytic_lines, 
-                    v_analytic_distribution, 
-                    NOW(), 
-                    p_last_log_by
-                );
-
-                -- Insert credit entry
-                INSERT INTO journal_entry (
-                    loan_number, 
-                    journal_entry_date, 
-                    reference_code, 
-                    journal_id, 
-                    journal_item, 
-                    debit, 
-                    credit, 
-                    journal_label, 
-                    analytic_lines, 
-                    analytic_distribution, 
-                    created_date, 
-                    last_log_by
-                ) VALUES (
-                    p_disbursement_id, 
-                    NOW(), 
-                    p_transaction_number, 
-                    v_journal_id, 
-                    v_credit, 
-                    v_particulars_amount, 
-                    0, 
-                    '', 
-                    v_analytic_lines, 
-                    v_analytic_distribution, 
-                    NOW(), 
-                    p_last_log_by
-                );
-            END IF;
-        ELSE
-        -- Insert the 2 journal entries per particular
-            IF p_transaction_type = 'posted' THEN
-                -- Insert debit entry
-                INSERT INTO journal_entry (
-                    loan_number, 
-                    journal_entry_date, 
-                    reference_code, 
-                    journal_id, 
-                    journal_item, 
-                    debit, 
-                    credit, 
-                    journal_label, 
-                    analytic_lines, 
-                    analytic_distribution, 
-                    created_date, 
-                    last_log_by
-                ) VALUES (
-                    p_disbursement_id, 
-                    p_transaction_date, 
-                    p_transaction_number, 
-                    v_journal_id, 
-                    v_chart_item, 
-                    0, 
-                    ABS(v_particulars_amount), 
-                    '', 
-                    v_analytic_lines, 
-                    v_analytic_distribution, 
-                    NOW(), 
-                    p_last_log_by
-                );
-
-                -- Insert credit entry
-                INSERT INTO journal_entry (
-                    loan_number, 
-                    journal_entry_date, 
-                    reference_code, 
-                    journal_id, 
-                    journal_item, 
-                    debit, 
-                    credit, 
-                    journal_label, 
-                    analytic_lines, 
-                    analytic_distribution, 
-                    created_date, 
-                    last_log_by
-                ) VALUES (
-                    p_disbursement_id, 
-                    p_transaction_date, 
-                    p_transaction_number, 
-                    v_journal_id, 
-                    v_credit, 
-                    ABS(v_particulars_amount), 
-                    0, 
-                    '', 
-                    v_analytic_lines, 
-                    v_analytic_distribution, 
-                    NOW(), 
-                    p_last_log_by
-                );
-
-            ELSE
-            -- Insert debit entry
-                INSERT INTO journal_entry (
-                    loan_number, 
-                    journal_entry_date, 
-                    reference_code, 
-                    journal_id, 
-                    journal_item, 
-                    debit, 
-                    credit, 
-                    journal_label, 
-                    analytic_lines, 
-                    analytic_distribution, 
-                    created_date, 
-                    last_log_by
-                ) VALUES (
-                    p_disbursement_id, 
-                    p_transaction_date, 
-                    p_transaction_number, 
-                    v_journal_id, 
-                    v_chart_item, 
-                    ABS(v_particulars_amount), 
-                    0, 
-                    '', 
-                    v_analytic_lines, 
-                    v_analytic_distribution, 
-                    NOW(), 
-                    p_last_log_by
-                );
-
-                -- Insert credit entry
-                INSERT INTO journal_entry (
-                    loan_number, 
-                    journal_entry_date, 
-                    reference_code, 
-                    journal_id, 
-                    journal_item, 
-                    debit, 
-                    credit, 
-                    journal_label, 
-                    analytic_lines, 
-                    analytic_distribution, 
-                    created_date, 
-                    last_log_by
-                ) VALUES (
-                    p_disbursement_id, 
-                    p_transaction_date, 
-                    p_transaction_number, 
-                    v_journal_id, 
-                    v_credit, 
-                    0, 
-                    ABS(v_particulars_amount), 
-                    '', 
-                    v_analytic_lines, 
-                    v_analytic_distribution, 
-                    NOW(), 
-                    p_last_log_by
-                );
-
-                
-            END IF;
         END IF;
 
     END LOOP;
@@ -13860,13 +13687,14 @@ BEGIN
 END //
 
 
-CREATE PROCEDURE updateProductInventoryScanAdditional(IN p_product_inventory_scan_additional_id INT, IN p_product_inventory_id INT, IN p_stock_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updateProductInventoryScanAdditional(IN p_product_inventory_scan_additional_id INT, IN p_product_inventory_id INT, IN p_stock_number VARCHAR(100), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
 BEGIN
 SET time_zone = '+08:00';
 
     UPDATE product_inventory_scan_additional
         SET product_inventory_id = p_product_inventory_id,
         stock_number = p_stock_number,
+        remarks = p_remarks,
         last_log_by = p_last_log_by
         WHERE product_inventory_scan_additional_id = p_product_inventory_scan_additional_id;
 END //
@@ -13882,7 +13710,17 @@ SET time_zone = '+08:00';
         WHERE product_inventory_batch_id = p_product_inventory_batch_id AND product_inventory_status = 'For Scanning';
 END //
 
-CREATE PROCEDURE insertProductInventoryScanAdditional(IN p_product_inventory_id INT, IN p_stock_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE productInventoryAddRemarks(IN p_product_inventory_batch_id INT, IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+SET time_zone = '+08:00';
+
+    UPDATE product_inventory_batch
+        SET remarks = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE product_inventory_batch_id = p_product_inventory_batch_id AND product_inventory_status = 'For Scanning';
+END //
+
+CREATE PROCEDURE insertProductInventoryScanAdditional(IN p_product_inventory_id INT, IN p_stock_number VARCHAR(100), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
 BEGIN
 SET time_zone = '+08:00';
 
@@ -13890,11 +13728,13 @@ SET time_zone = '+08:00';
                 product_inventory_id, 
                 stock_number, 
                 added_by, 
+                remarks, 
                 last_log_by
             ) VALUES (
                 p_product_inventory_id,
                 p_stock_number,
                 p_last_log_by,
+                p_remarks,
                 p_last_log_by
             );
 END //
@@ -14263,6 +14103,9 @@ CREATE PROCEDURE updateBackJobMonitoringJobOrder(
     IN p_completion_date DATE, 
     IN p_cost DOUBLE, 
     IN p_job_order VARCHAR(500), 
+    IN p_planned_start_date DATE, 
+    IN p_planned_finish_date DATE, 
+    IN p_date_started DATE, 
     IN p_last_log_by INT
 )
 BEGIN
@@ -14283,6 +14126,9 @@ BEGIN
             completion_date = p_completion_date,
             cost = p_cost,
             job_order = p_job_order,
+            planned_start_date = p_planned_start_date,
+            planned_finish_date = p_planned_finish_date,
+            date_started = p_date_started,
             last_log_by = p_last_log_by
         WHERE backjob_monitoring_job_order_id = p_backjob_monitoring_job_order_id;
     ELSE
@@ -14296,6 +14142,9 @@ BEGIN
             completion_date, 
             cost, 
             job_order, 
+            planned_start_date, 
+            planned_finish_date, 
+            date_started, 
             last_log_by
         ) VALUES (
             p_backjob_monitoring_job_order_id, 
@@ -14306,6 +14155,9 @@ BEGIN
             p_completion_date, 
             p_cost, 
             p_job_order, 
+            p_planned_start_date, 
+            p_planned_finish_date, 
+            p_date_started, 
             p_last_log_by
         );
     END IF;
@@ -14323,6 +14175,9 @@ CREATE PROCEDURE updateBackJobMonitoringAdditionalJobOrder(
     IN p_job_order_number VARCHAR(500), 
     IN p_job_order_date DATE, 
     IN p_particulars VARCHAR(1000), 
+    IN p_planned_start_date DATE, 
+    IN p_planned_finish_date DATE, 
+    IN p_date_started DATE, 
     IN p_last_log_by INT
 )
 BEGIN
@@ -14345,6 +14200,9 @@ BEGIN
             job_order_number = p_job_order_number,
             job_order_date = p_job_order_date,
             particulars = p_particulars,
+            planned_start_date = p_planned_start_date,
+            planned_finish_date = p_planned_finish_date,
+            date_started = p_date_started,
             last_log_by = p_last_log_by
         WHERE backjob_monitoring_additional_job_order_id = p_backjob_monitoring_additional_job_order_id;
     ELSE
@@ -14360,6 +14218,9 @@ BEGIN
             job_order_number, 
             job_order_date, 
             particulars, 
+            planned_start_date, 
+            planned_finish_date, 
+            date_started, 
             last_log_by
         ) VALUES (
             p_backjob_monitoring_additional_job_order_id, 
@@ -14372,6 +14233,9 @@ BEGIN
             p_job_order_number, 
             p_job_order_date, 
             p_particulars, 
+            p_planned_start_date, 
+            p_planned_finish_date, 
+            p_date_started, 
             p_last_log_by
         );
     END IF;
@@ -14440,4 +14304,218 @@ CREATE PROCEDURE getBackJobMonitoringAdditionalJobOrder(IN p_backjob_monitoring_
 BEGIN
 	SELECT * FROM backjob_monitoring_additional_job_order
     WHERE backjob_monitoring_additional_job_order_id = p_backjob_monitoring_additional_job_order_id;
+END //
+
+DELIMITER //
+
+CREATE PROCEDURE generateDailyEmployeeStatusTable(
+    IN p_filter_attendance_date DATE,
+    IN p_filter_attendance_status VARCHAR(5000),
+    IN p_filter_branch VARCHAR(5000)
+)
+BEGIN
+    DECLARE baseQuery TEXT;
+    DECLARE finalQuery TEXT;
+
+    SET baseQuery = 'SELECT * FROM employee_daily_status WHERE 1 = 1';
+
+    -- Filter by attendance date
+    IF p_filter_attendance_date IS NOT NULL THEN
+        SET baseQuery = CONCAT(baseQuery, ' AND attendance_date = ', QUOTE(p_filter_attendance_date));
+    END IF;
+
+    -- Filter by attendance status (expects properly quoted values from PHP)
+    IF p_filter_attendance_status IS NOT NULL AND p_filter_attendance_status <> '' THEN
+        SET baseQuery = CONCAT(baseQuery, ' AND status IN (', p_filter_attendance_status, ')');
+    END IF;
+
+    IF p_filter_branch IS NOT NULL AND p_filter_branch <> '' THEN
+        SET baseQuery = CONCAT(baseQuery, ' AND contact_id IN (SELECT contact_id FROM employment_information WHERE branch_id IN (', p_filter_branch, '))');
+    END IF;
+
+    -- Add ORDER BY
+    SET finalQuery = CONCAT(baseQuery, ' ORDER BY contact_id ASC');
+
+    -- Debug: SELECT finalQuery; -- optional for troubleshooting
+    PREPARE stmt FROM finalQuery;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE PROCEDURE getDailyEmployeeStatusCount(
+    IN p_status VARCHAR(100), 
+    IN p_attendance_date DATE
+)
+BEGIN
+    DECLARE total INT;
+
+    IF p_attendance_date IS NOT NULL THEN
+        SELECT COUNT(employee_daily_status_id) 
+        INTO total
+        FROM employee_daily_status 
+        WHERE status = p_status 
+          AND attendance_date = p_attendance_date;
+
+        -- Return the total count
+        SELECT total AS total_count;
+    ELSE
+        SELECT COUNT(employee_daily_status_id) 
+        INTO total
+        FROM employee_daily_status 
+        WHERE status = p_status ;
+
+        -- Return the total count
+        SELECT total AS total_count;
+    END IF;
+END //
+
+DELIMITER ;
+
+
+
+
+CREATE PROCEDURE updateDailyEmployeeStatus(IN p_employee_daily_status_id INT, IN p_status VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+      UPDATE employee_daily_status
+        SET status = p_status,
+        last_log_by = p_last_log_by
+        WHERE employee_daily_status_id = p_employee_daily_status_id;
+END //
+
+CREATE PROCEDURE updateDailyEmployeeStatusRemarks(IN p_employee_daily_status_id INT, IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE employee_daily_status
+        SET remarks = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE employee_daily_status_id = p_employee_daily_status_id;
+END //
+
+CREATE PROCEDURE getEmployeesForMonthlyEvaluation()
+BEGIN
+    SELECT 
+        ei.contact_id,
+        ei.manager_id
+    FROM employment_information ei
+    WHERE ei.employment_status = 1
+      AND DAY(ei.onboard_date) = DAY(CURDATE())
+      AND ei.onboard_date <= CURDATE();
+END //
+
+CREATE PROCEDURE checkUnitTransferExist (IN p_product_id INT)
+BEGIN
+	SELECT *
+    FROM unit_transfer
+    WHERE product_id = p_product_id AND received_date is null AND transfer_status = 'To Receive';
+END //
+
+CREATE PROCEDURE checkUnitTransferOpenExist (IN p_product_id INT)
+BEGIN
+	SELECT *
+    FROM unit_transfer
+    WHERE product_id = p_product_id AND received_date is null AND transfer_status = 'To Receive';
+END //
+
+
+
+CREATE PROCEDURE insertUnitTransfer(IN p_product_id INT, IN p_transferred_from INT, IN p_transferred_to INT, IN p_transfer_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO unit_transfer (product_id, transferred_from, transferred_to, transferred_by, transfer_remarks, last_log_by) 
+	VALUES(p_product_id, p_transferred_from, p_transferred_to, p_last_log_by, p_transfer_remarks, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateUnitReceive(IN p_transfer_unit_id INT, IN p_receive_remarks VARCHAR(500), IN p_product_id INT, IN p_warehouse_id INT, IN p_last_log_by INT)
+BEGIN
+    UPDATE unit_transfer
+        SET received_remarks = p_receive_remarks,
+        received_by = p_last_log_by,
+        received_date = NOW(),
+        transfer_status = 'Received',
+        last_log_by = p_last_log_by
+        WHERE unit_transfer_id = p_transfer_unit_id;
+        
+    UPDATE product
+        SET warehouse_id  = p_warehouse_id,
+        last_log_by = p_last_log_by
+        WHERE product_id = p_product_id;
+END //
+
+CREATE PROCEDURE cancelUnitTransfer(IN p_transfer_unit_id INT, IN p_last_log_by INT)
+BEGIN
+    UPDATE unit_transfer
+        SET cancellation_date = NOW(),
+        transfer_status = 'Cancelled',
+        last_log_by = p_last_log_by
+        WHERE unit_transfer_id = p_transfer_unit_id;
+END //
+
+CREATE PROCEDURE updateUnitTransferDetails(IN p_unit_transfer_id INT, IN p_transferred_to INT, IN p_transfer_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    UPDATE unit_transfer
+        SET transferred_to = p_transferred_to,
+        transfer_remarks = p_transfer_remarks,
+        last_log_by = p_last_log_by
+        WHERE unit_transfer_id = p_unit_transfer_id;
+END //
+
+CREATE PROCEDURE generateUnitTransferTable()
+BEGIN
+    SELECT * FROM unit_transfer;
+END //
+
+CREATE PROCEDURE getUnitTransferDetails(IN p_unit_transfer_id INT)
+BEGIN
+    SELECT * FROM unit_transfer WHERE unit_transfer_id = p_unit_transfer_id;
+END //
+
+
+
+
+
+
+
+
+
+CREATE PROCEDURE checkAuthorizeUnitTransferExist (IN p_authorize_unit_transfer_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM authorize_unit_transfer
+    WHERE authorize_unit_transfer_id = p_authorize_unit_transfer_id;
+END //
+
+CREATE PROCEDURE insertAuthorizeUnitTransfer(IN p_warehouse_id INT, IN p_user_id INT, IN p_last_log_by INT, OUT p_authorize_unit_transfer_id INT)
+BEGIN
+    INSERT INTO authorize_unit_transfer (warehouse_id, user_id, last_log_by) 
+	VALUES(p_warehouse_id, p_user_id, p_last_log_by);
+	
+    SET p_authorize_unit_transfer_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE deleteAuthorizeUnitTransfer(IN p_authorize_unit_transfer_id INT)
+BEGIN
+    DELETE FROM authorize_unit_transfer WHERE authorize_unit_transfer_id = p_authorize_unit_transfer_id;
+END //
+
+CREATE PROCEDURE getAuthorizeUnitTransfer(IN p_authorize_unit_transfer_id INT)
+BEGIN
+	SELECT * FROM authorize_unit_transfer
+    WHERE authorize_unit_transfer_id = p_authorize_unit_transfer_id;
+END //
+
+CREATE PROCEDURE generateAuthorizeUnitTransferTable()
+BEGIN
+    SELECT *
+    FROM authorize_unit_transfer
+    ORDER BY authorize_unit_transfer_id;
+END //
+
+CREATE PROCEDURE checkUnitReceiveAuthorization (IN p_transferred_to INT, IN p_user_id INT)
+BEGIN
+	SELECT COUNT(authorize_unit_transfer_id) AS total
+    FROM authorize_unit_transfer
+    WHERE warehouse_id = p_transferred_to AND user_id = p_user_id;
 END //

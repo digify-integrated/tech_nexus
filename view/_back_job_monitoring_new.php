@@ -4,7 +4,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5>Internal DR</h5>
+            <h5>Internal Job Order</h5>
           </div>
           <?php
             if ($backJobMonitoringCreateAccess['total'] > 0) {
@@ -42,7 +42,7 @@
                 <div class="col-lg-8">
                     <select class="form-control select2" name="product_id" id="product_id">
                         <option value="">--</option>
-                        <?php echo $productModel->generateForSaleProductOptions(); ?>
+                        <?php echo $productModel->generateInternalRepairProductOptions(); ?>
                     </select>
                 </div>
             </div>

@@ -243,7 +243,7 @@ if($addCustomerComaker['total'] > 0){
                       <div class="col-lg-6 mt-3 mt-lg-0">
                         <label class="form-label">Birthday</label>
                         <div class="input-group date">
-                          <input type="text" class="form-control regular-datepicker" id="birthday" name="birthday" autocomplete="off">
+                          <input type="text" class="form-control customer-date-restricted-datepicker" id="birthday" name="birthday" autocomplete="off">
                           <span class="input-group-text">
                             <i class="feather icon-calendar"></i>
                           </span>

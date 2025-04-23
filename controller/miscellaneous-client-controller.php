@@ -102,7 +102,7 @@ class MiscellaneousClientController {
     
         $userID = $_SESSION['user_id'];
         $miscellaneousClientID = isset($_POST['miscellaneous_client_id']) ? htmlspecialchars($_POST['miscellaneous_client_id'], ENT_QUOTES, 'UTF-8') : null;
-        $miscellaneousClientName = htmlspecialchars($_POST['client_name'], ENT_QUOTES, 'UTF-8');
+        $miscellaneousClientName = $_POST['client_name'];
         $tin = htmlspecialchars($_POST['tin'], ENT_QUOTES, 'UTF-8');
         $address = htmlspecialchars($_POST['address'], ENT_QUOTES, 'UTF-8');
     

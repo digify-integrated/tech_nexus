@@ -9,7 +9,7 @@
   
   $backJobMonitoringModel = new BackJobMonitoringModel($databaseModel);
 
-  $pageTitle = 'Back Job Monitoring';
+  $pageTitle = 'Internal Job Order';
   
   $productModel = new ProductModel($databaseModel);
   $salesProposalModel = new SalesProposalModel($databaseModel);

@@ -1,6 +1,7 @@
 <?php
   $employmentDetails = $employeeModel->getEmploymentInformation($employeeID);
   $employmentStatus = $employmentDetails['employment_status'];
+  $sent_welcome_email = $employmentDetails['sent_welcome_email'];
 
   $deactivateEmployee = $userModel->checkSystemActionAccessRights($user_id, 180);
   $activateEmployee = $userModel->checkSystemActionAccessRights($user_id, 190);
@@ -23,7 +24,7 @@
   }
 
   $sendWelcomeEmail = '';
-  if($employmentStatus){
+  if($employmentStatus && !$sent_welcome_email){
     $sendWelcomeEmail = '<button type="button" class="btn btn-outline-success w-100 text-center mb-2" id="send-welcome-email">Send Welcome Email</button>';
   }
 
@@ -457,7 +458,7 @@
                             <div class="col-lg-6 mt-3 mt-lg-0">
                               <label class="form-label">Birthday <span class="text-danger">*</span></label>
                               <div class="input-group date">
-                                <input type="text" class="form-control regular-datepicker" id="birthday" name="birthday" autocomplete="off">
+                                <input type="text" class="form-control customer-date-restricted-datepicker" id="birthday" name="birthday" autocomplete="off">
                                 <span class="input-group-text">
                                   <i class="feather icon-calendar"></i>
                                 </span>

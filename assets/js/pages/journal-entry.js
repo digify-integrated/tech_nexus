@@ -16,6 +16,13 @@ function journalEntryTable(datatable_name, buttons = false, show_all = false){
     const type = 'journal entry table';
     var filter_journal_entry_date_start_date = $('#filter_journal_entry_date_start_date').val();
     var filter_journal_entry_date_end_date = $('#filter_journal_entry_date_end_date').val();
+    var journal_id_filter_values = [];
+
+    $('.journal-id-checkbox:checked').each(function() {
+        journal_id_filter_values.push($(this).val());
+    });
+
+    var journal_id_filter = journal_id_filter_values.join(', ');
 
     const column = [ 
         { 'data' : 'LOAN_NUMBER' },
@@ -53,6 +60,7 @@ function journalEntryTable(datatable_name, buttons = false, show_all = false){
             'data': {'type' : type, 
                 'filter_journal_entry_date_start_date' : filter_journal_entry_date_start_date, 
                 'filter_journal_entry_date_end_date' : filter_journal_entry_date_end_date, 
+                'journal_id_filter' : journal_id_filter, 
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {

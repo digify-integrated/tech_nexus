@@ -267,6 +267,13 @@ class DisbursementModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function getReplenishmentTotal($p_transaction_start_date) {
+        $stmt = $this->db->getConnection()->prepare('CALL getReplenishmentTotal(:p_transaction_start_date)');
+        $stmt->bindValue(':p_transaction_start_date', $p_transaction_start_date, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

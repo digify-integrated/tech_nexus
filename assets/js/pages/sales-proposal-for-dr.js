@@ -5291,7 +5291,9 @@ function displayDetails(transaction){
                         }
 
                         $('#initial_approval_remarks_label').text(response.initialApprovalRemarks);
+                        $('#initial_approval_remarks').val(response.initialApprovalRemarks);
                         $('#final_approval_remarks_label').text(response.finalApprovalRemarks);
+                        $('#final_approval_remarks').val(response.finalApprovalRemarks);
                         $('#installment_sales_approval_remarks_label').text(response.installmentSalesApprovalRemarks);
                         $('#rejection_reason_label').text(response.rejectionReason);
                         $('#cancellation_reason_label').text(response.cancellationReason);

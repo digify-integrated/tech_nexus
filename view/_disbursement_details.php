@@ -15,11 +15,11 @@
                  <ul class="dropdown-menu dropdown-menu-end">
                  ';
              
-                    if (($disbursementStatus == 'Draft' || $disbursementStatus == 'Posted')  && $fund_source != 'Check') {
+                    if (($disbursementStatus == 'Draft' || $disbursementStatus == 'Posted')  && ($fund_source != 'Check' && $fund_source != 'Journal Voucher')) {
                       $dropdown .= '<li><button class="dropdown-item print" target="_blank">Print Voucher</button></li>';
                     }
              
-                    if (($disbursementStatus == 'Draft' || $disbursementStatus == 'Posted') && $fund_source === 'Check') {
+                    if (($disbursementStatus == 'Draft' || $disbursementStatus == 'Posted') && ($fund_source === 'Check' || $fund_source === 'Journal Voucher')) {
                       $dropdown .= '<li><button class="dropdown-item print" target="_blank">Print Voucher</button></li>';
                     }
              
@@ -35,7 +35,7 @@
                       $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-disbursement-offcanvas" aria-controls="cancel-disbursement-offcanvas" id="cancel-disbursement">Cancel Disbursement</button></li>';
                     }
              
-                    if ($replenishmentDisbursement['total'] > 0 && $disbursementStatus == 'Posted'  && $fund_source != 'Check') {
+                    if ($replenishmentDisbursement['total'] > 0 && $disbursementStatus == 'Posted'  && ($fund_source != 'Check' && $fund_source != 'Journal Voucher')) {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="replenish-disbursement-details">Replenish Disbursement</button></li>';
                     }
              
@@ -109,7 +109,6 @@
                    $mischide = 'd-none';
                   }
                   else{
-                  
                     $customerhide = 'd-none';
                     $mischide = '';
                   }
@@ -160,6 +159,9 @@
                   if($disbursementCategory === 'disbursement petty cash'){
                     echo ' <option value="Petty Cash" selected>Petty Cash</option>
                     <option value="Revolving Fund">Revolving Fund</option>';
+                  }
+                  else if($disbursementCategory === 'disbursement voucher'){
+                    echo '<option value="Journal Voucher" selected>Journal Voucher</option>';
                   }
                   else{
                     echo ' <option value="Check" selected>Check</option>';
@@ -230,7 +232,7 @@
 
     <?php
       $check_hidden = 'd-none';
-      if($fund_source === 'Check'){
+      if($fund_source === 'Check' || $fund_source === 'Journal Voucher'){
         $check_hidden = '';
       }
     ?>

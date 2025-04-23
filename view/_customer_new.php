@@ -62,7 +62,7 @@
             <label class="col-lg-2 col-form-label">Birthday</label>
             <div class="col-lg-4">
               <div class="input-group date">
-                <input type="text" class="form-control regular-datepicker" id="birthday" name="birthday" autocomplete="off">
+                <input type="text" class="form-control customer-date-restricted-datepicker" id="birthday" name="birthday" autocomplete="off">
                 <span class="input-group-text">
                   <i class="feather icon-calendar"></i>
                 </span>

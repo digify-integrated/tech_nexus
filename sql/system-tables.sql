@@ -6065,3 +6065,40 @@ CREATE TABLE backjob_monitoring_additional_job_order(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE employee_daily_status (
+    employee_daily_status_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    status VARCHAR(100) DEFAULT 'Present',
+    remarks VARCHAR(500),
+    attendance_date DATE NOT NULL DEFAULT (CURRENT_DATE),
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE unit_transfer (
+    unit_transfer_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT UNSIGNED NOT NULL,
+    transferred_from INT UNSIGNED NOT NULL,
+    transferred_to INT UNSIGNED NOT NULL,
+    transferred_by INT UNSIGNED NOT NULL,
+    received_by INT UNSIGNED,
+    transfer_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    received_date DATETIME,
+    cancellation_date DATETIME,
+    transfer_remarks VARCHAR(500),
+    received_remarks VARCHAR(500),
+    transfer_status VARCHAR(100) DEFAULT 'To Receive',
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE authorize_unit_transfer (
+    authorize_unit_transfer_id INT AUTO_INCREMENT PRIMARY KEY,
+    warehouse_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);

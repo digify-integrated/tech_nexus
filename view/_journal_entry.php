@@ -29,6 +29,33 @@
                         </div>
                       </li>
                       <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#journal-id-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Journal ID
+                        </a>
+                        <div class="collapse" id="journal-id-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-1" value="Miscellaneous Operations" checked/>
+                                <label class="form-check-label" for="journal-id-1">Miscellaneous Operations</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-2" value="Check Disbursement Operations" checked/>
+                                <label class="form-check-label" for="journal-id-2">Check Disbursement Operations</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-3" value="Disbursement Operations" checked/>
+                                <label class="form-check-label" for="journal-id-3">Disbursement Operations</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-4" value="Liquidation Operations" checked/>
+                                <label class="form-check-label" for="journal-id-4">Liquidation Operations</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
                         <button type="button" class="btn btn-light-success w-100" id="apply-filter">Apply</a>
                       </li>
                     </ul>

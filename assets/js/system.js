@@ -126,6 +126,24 @@
             });
         }
 
+        if ($('.customer-date-restricted-datepicker').length) {
+            var future_date_restricted_datepickers = document.querySelectorAll('.customer-date-restricted-datepicker');
+        
+            future_date_restricted_datepickers.forEach(function(element) {
+                var today = new Date();
+                var tenYearsAgo = new Date();
+                tenYearsAgo.setFullYear(today.getFullYear() - 10);
+        
+                var filter_date_picker = new Datepicker(element, {
+                    buttonClass: 'btn',
+                    todayHighlight: true,
+                    autohide: true,
+                    maxDate: tenYearsAgo, // Only allow dates up to 10 years ago
+                });
+            });
+        }
+        
+
         if ($('.tiny-mce').length) {
             initTinyMCE();
         }

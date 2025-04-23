@@ -12,7 +12,7 @@
     $printJobOrder = ''; 
     $printAdditionalJobOrder = ''; 
 
-    if($type == 'Internal Repair' && $status == 'On-Process'){
+    if($type == 'Internal Repair'){
         $addJobOrder = '<div class="previous me-2">
            <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#job-order-monitoring-offcanvas" aria-controls="job-order-monitoring-offcanvas">Add Job Order</button>
         </div>';
@@ -22,28 +22,18 @@
         </div>';
     }
 
-    if($type == 'Backjob' && $status == 'On-Process'){
-        $printJobOrder = '<div class="previous me-2">
-            <a href="javascript:void(0);" id="print-job-order" class="btn btn-success">Print Job Order</a>
-        </div>';
-        $printAdditionalJobOrder = '<div class="previous me-2">
-            <a href="javascript:void(0);" id="print-additional-job-order" class="btn btn-success">Print Additional Job Order</a>
-        </div>';
+    if($type == 'Backjob' && $status == 'On-Process'){        
+        $printJobOrder = '<li><button class="dropdown-item" id="print-job-order">Print Job Order</button></li>';
+        $printAdditionalJobOrder = '<li><button class="dropdown-item" id="print-additional-job-order">Print Additional Job Order</button></li>';
     }
 
-    if($type == 'Internal Repair' && $status == 'On-Process'){
-        $printJobOrder = '<div class="previous me-2">
-            <a href="javascript:void(0);" id="print-job-order2" class="btn btn-success">Print Job Order</a>
-        </div>';
-        $printAdditionalJobOrder = '<div class="previous me-2">
-            <a href="javascript:void(0);" id="print-additional-job-order2" class="btn btn-success">Print Additional Job Order</a>
-        </div>';
+    if($type == 'Internal Repair' && $status == 'On-Process'){        
+        $printJobOrder = '<li><button class="dropdown-item" id="print-job-order2">Print Job Order</button></li>';
+        $printAdditionalJobOrder = '<li><button class="dropdown-item" id="print-additional-job-order2">Print Additional Job Order</button></li>';
     }
 
     if($type == 'Internal Repair' && $status == 'For DR'){
-        $releaseButton = '<div class="previous me-2">
-                <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#tag-as-released-offcanvas" aria-controls="tag-as-released-offcanvas">Tag As Released</button>
-            </div>';
+        $releaseButton = '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#tag-as-released-offcanvas" aria-controls="tag-as-released-offcanvas">Tag As Released</button></li>';
     }
   
     if($type == 'Internal Repair'){
@@ -51,33 +41,21 @@
     }
 
     if($status == 'Draft'){
-        $hidden = 'd-none'; 
-    }
-
-    if($status == 'Draft'){
-        $releaseButton = '<div class="previous me-2">
-            <button class="btn btn-info" type="button" id="tag-as-on-process">Tag As On-Process</button>
-        </div>';
+        $releaseButton = '<li><button class="dropdown-item" id="tag-as-on-process">Tag As On-Process</button></li>';
 
         $saveButton = '<div class="me-2"><button type="submit" form="backjob-monitoring-form" class="btn btn-success" id="submit-data">Save</button></div>';     
     }  
 
     if($status == 'On-Process'){
-        $releaseButton = '<div class="previous me-2">
-            <button class="btn btn-info" type="button" id="tag-as-ready-for-release">Tag As Ready For Release</button>
-        </div>';
+        $releaseButton = '<li><button class="dropdown-item" id="tag-as-ready-for-release">Tag As Ready For Release</button></li>';
     }  
 
     if($status == 'Ready For Release'){
-        $releaseButton = '<div class="previous me-2">
-            <button class="btn btn-info" type="button" id="tag-as-for-dr">Tag As For DR</button>
-        </div>';
+        $releaseButton = '<li><button class="dropdown-item" id="tag-as-for-dr">Tag As For DR</button></li>';
     }  
 
     if(($status != 'Cancelled' && $status != 'Released')){
-        $cancelButton = '<div class="previous me-2">
-                                <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#tag-as-cancelled-offcanvas" aria-controls="tag-as-cancelled-offcanvas">Tag As Cancelled</button>
-                            </div>';
+        $cancelButton = '<li><button class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#tag-as-cancelled-offcanvas" aria-controls="tag-as-cancelled-offcanvas">Tag As Cancelled</button></li>';
     }
 ?>
 
@@ -99,16 +77,28 @@
                 <div class="tab-content">
                     <div class="d-flex wizard justify-content-between mb-3">
                         <div class="d-flex">                     
-                            <?php echo $releaseButton; ?>    
-                            <?php echo $cancelButton; ?>
-                            <?php echo $addJobOrder; ?>     
-                            <?php echo $printJobOrder; ?>     
-                            <?php echo $printAdditionalJobOrder; ?>     
+                          <div class="btn-group m-r-5">
+                              <button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
+                                  Action
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-end">
+                                <?php
+                                  echo $printJobOrder;
+                                  echo $printAdditionalJobOrder;
+                                  echo $releaseButton;
+                                  echo $cancelButton;
+                                ?>
+                              </ul>
+                          </div>
+                          <?php
+                            echo $addJobOrder;
+                            echo $addAdditionalJobOrder;
+                          ?>
                         </div>
                     </div>
                     <div class="tab-pane show active" id="v-basic-details">
                         <form id="backjob-monitoring-form" method="post" action="#">
-                            <input type="hidden" id="backjob_monitoring_id ">
+                            <input type="hidden" id="backjob_monitoring_id">
                             <input type="hidden" id="status" value="<?php echo $status; ?>">
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">Type <span class="text-danger">*</span></label>
@@ -134,7 +124,7 @@
                                 <div class="col-lg-8">
                                     <select class="form-control select2" name="product_id" id="product_id">
                                         <option value="">--</option>
-                                        <?php echo $productModel->generateForSaleProductOptions(); ?>
+                                        <?php echo $productModel->generateInternalRepairProductOptions(); ?>
                                     </select>
                                 </div>
                             </div>
@@ -156,6 +146,9 @@
                                                         <th>Contactor</th>
                                                         <th>Work Center</th>
                                                         <th>Cost</th>
+                                                        <th>Planned Start Date</th>
+                                                        <th>Planned Finished Date</th>
+                                                        <th>Date Started</th>
                                                         <th>Completion Date</th>
                                                         <th>Progress</th>
                                                         <th>Actions</th>
@@ -184,6 +177,9 @@
                                                     <th>Contactor</th>
                                                     <th>Work Center</th>
                                                     <th>Progress</th>
+                                                    <th>Planned Start Date</th>
+                                                    <th>Planned Finished Date</th>
+                                                    <th>Date Started</th>
                                                     <th>Completion Date</th>
                                                     <th>Actions</th>
                                                 </tr>
@@ -436,6 +432,37 @@
                 </select>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Planned Start Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="job_order_planned_start_date" name="job_order_planned_start_date" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Planned Finish Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="job_order_planned_finish_date" name="job_order_planned_finish_date" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Date Started</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="job_order_date_started" name="job_order_date_started" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Completion Date</label>
                 <div class="input-group date">
                   <input type="text" class="form-control regular-datepicker" id="job_order_completion_date" name="job_order_completion_date" autocomplete="off">
@@ -499,7 +526,7 @@
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="additional_job_order_progress" name="additional_job_order_progress" min="0" max="100" step="0.01">
               </div>
@@ -518,6 +545,35 @@
                   <option value="">--</option>
                   <?php echo $workCenterModel->generateWorkCenterOptions(); ?>
                 </select>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Planned Start Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_planned_start_date" name="additional_job_order_planned_start_date" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Planned Finish Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_planned_finish_date" name="additional_job_order_planned_finish_date" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Date Started</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_date_started" name="additional_job_order_date_started" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
               </div>
             </div>
             <div class="form-group row">

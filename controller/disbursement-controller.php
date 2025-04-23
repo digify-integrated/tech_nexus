@@ -217,8 +217,14 @@ class DisbursementController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
+
+        if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
     
-        $userID = $_SESSION['user_id'];
         $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -312,7 +318,10 @@ class DisbursementController {
             }
         }
 
-        $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
+        if($fund_source != 'Petty Cash'){
+            $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
+        }
+
         $this->disbursementModel->createLiquidation($disbursementID, $transaction_date, $userID, $userID);
             
         echo json_encode(['success' => true]);
@@ -324,7 +333,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -378,7 +393,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $liquidation_particulars_id = htmlspecialchars($_POST['liquidation_particulars_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -426,7 +447,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $liquidation_particulars_id = htmlspecialchars($_POST['liquidation_particulars_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -461,7 +488,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -485,6 +518,15 @@ class DisbursementController {
         $batchID = $replenishmentBatch . $uniqueId;
     
         $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Replenished', $batchID, $userID);
+
+        $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
+        $fund_source = $disbursementDetails['fund_source'];
+        $transaction_number = $disbursementDetails['transaction_number'];
+        $transaction_date = $disbursementDetails['transaction_date'];
+
+        if($fund_source === 'Petty Cash'){
+            $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
+        }
             
         echo json_encode(['success' => true]);
         exit;
@@ -495,7 +537,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursementIDs = $_POST['disbursement_id'];
 
         $user = $this->userModel->getUserByID($userID);
@@ -512,6 +560,15 @@ class DisbursementController {
             $batchID = $replenishmentBatch . $uniqueId;
         
             $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Replenished', $batchID, $userID);
+
+            $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
+            $fund_source = $disbursementDetails['fund_source'];
+            $transaction_number = $disbursementDetails['transaction_number'];
+            $transaction_date = $disbursementDetails['transaction_date'];
+
+            if($fund_source === 'Petty Cash'){
+                $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
+            }
         }
             
         echo json_encode(['success' => true]);
@@ -523,7 +580,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursementIDs = $_POST['disbursement_id'];
 
         $user = $this->userModel->getUserByID($userID);
@@ -615,7 +678,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
         $cancellationReason = $_POST['cancellation_reason'];
     
@@ -639,7 +708,7 @@ class DisbursementController {
 
         $disbursementNegotiatedCheckTotal = $this->disbursementModel->getDisbursementNegotiatedCheckTotal($disbursementID)['total'] ?? 0;
         
-        if($disbursementNegotiatedCheckTotal > 0 && $fund_source == 'Check'){
+        if($disbursementNegotiatedCheckTotal > 0 && ($fund_source === 'Check' || $fund_source === 'Journal Voucher')){
             echo json_encode(['success' => false, 'hasNegotiatedCheck' => true]);
             exit;
         }
@@ -656,7 +725,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_check_id = htmlspecialchars($_POST['disbursement_check_id'], ENT_QUOTES, 'UTF-8');
         $cancellationReason = $_POST['check_cancellation_reason'];
     
@@ -698,7 +773,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursementID = htmlspecialchars( $_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
         $reversalRemarks = $_POST['reversal_remarks'];
     
@@ -724,7 +805,7 @@ class DisbursementController {
 
         $disbursementNegotiatedCheckTotal = $this->disbursementModel->getDisbursementNegotiatedCheckTotal($disbursementID)['total'] ?? 0;
         
-        if($disbursementNegotiatedCheckTotal > 0 && $fund_source == 'Check'){
+        if($disbursementNegotiatedCheckTotal > 0 && ($fund_source === 'Check' || $fund_source === 'Journal Voucher')){
             echo json_encode(['success' => false, 'hasNegotiatedCheck' => true]);
             exit;
         }
@@ -793,7 +874,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_check_id = htmlspecialchars( $_POST['disbursement_check_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -822,7 +909,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_check_ids = $_POST['disbursement_check_id'];
 
         $user = $this->userModel->getUserByID($userID);
@@ -850,7 +943,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_check_id = htmlspecialchars( $_POST['disbursement_check_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -879,7 +978,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_check_id = htmlspecialchars( $_POST['disbursement_check_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -908,7 +1013,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_check_ids = $_POST['disbursement_check_id'];
 
         $user = $this->userModel->getUserByID($userID);
@@ -936,7 +1047,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_check_ids = $_POST['disbursement_check_id'];
 
         $user = $this->userModel->getUserByID($userID);
@@ -964,7 +1081,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_check_id = htmlspecialchars( $_POST['disbursement_check_id'], ENT_QUOTES, 'UTF-8');
         $negotiated_date = $this->systemModel->checkDate('empty', $_POST['negotiated_date'], '', 'Y-m-d H:i:s', '');
 
@@ -994,7 +1117,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_check_ids = $_POST['disbursement_check_id'];
 
         $user = $this->userModel->getUserByID($userID);
@@ -1022,7 +1151,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $liquidation_particulars_id = htmlspecialchars($_POST['liquidation_particulars_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -1070,7 +1205,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+        if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $liquidation_particulars_id = htmlspecialchars($_POST['liquidation_particulars_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -1121,7 +1262,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursementID = isset($_POST['disbursement_id']) ? htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8') : null;
         $payable_type = $_POST['payable_type'];
         $transaction_type = $_POST['transaction_type'];
@@ -1158,8 +1305,11 @@ class DisbursementController {
         } 
         else {
 
-            if($fund_source == 'Check'){
+            if($fund_source === 'Check'){
                 $transaction_number = $this->systemSettingModel->getSystemSetting(24)['value'] + 1;
+            }
+            else if($fund_source == 'Journal Voucher'){
+                $transaction_number = $this->systemSettingModel->getSystemSetting(30)['value'] + 1;
             }
             else if($fund_source == 'Revolving Fund'){
                 $transaction_number = 'R-'.$this->systemSettingModel->getSystemSetting(29)['value'] + 1;
@@ -1178,6 +1328,9 @@ class DisbursementController {
 
             if($fund_source === 'Check'){
                 $this->systemSettingModel->updateSystemSettingValue(24, $transaction_number, $userID);
+            }
+            else if($fund_source == 'Journal Voucher'){
+                $this->systemSettingModel->updateSystemSettingValue(30, $transaction_number, $userID);
             }
             else if($fund_source === 'Revolving Fund'){
                 $this->systemSettingModel->updateSystemSettingValue(29, $transaction_number, $userID);
@@ -1202,7 +1355,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_particulars_id = isset($_POST['disbursement_particulars_id']) ? htmlspecialchars($_POST['disbursement_particulars_id'], ENT_QUOTES, 'UTF-8') : null;
         $disbursement_id = $_POST['disbursement_id'];
         $chart_of_account_id = $_POST['chart_of_account_id'];
@@ -1246,7 +1405,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_check_id = isset($_POST['disbursement_check_id']) ? htmlspecialchars($_POST['disbursement_check_id'], ENT_QUOTES, 'UTF-8') : null;
         $disbursement_id = $_POST['disbursement_id'];
         $bank_branch = $_POST['bank_branch'];
@@ -1289,7 +1454,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $liquidation_particulars_id = isset($_POST['liquidation_particulars_id']) ? htmlspecialchars($_POST['liquidation_particulars_id'], ENT_QUOTES, 'UTF-8') : null;
         $liquidation_id = $_POST['liquidation_id'];
         $chart_of_account_id = $_POST['chart_of_account_id'];
@@ -1343,7 +1514,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursementID = htmlspecialchars($_POST['disbursement_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -1372,7 +1549,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_particulars_id = htmlspecialchars($_POST['disbursement_particulars_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -1401,7 +1584,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursement_check_id = htmlspecialchars($_POST['disbursement_check_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -1430,7 +1619,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $liquidation_particulars_id = htmlspecialchars($_POST['liquidation_particulars_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -1477,7 +1672,13 @@ class DisbursementController {
             return;
         }
     
-        $userID = $_SESSION['user_id'];
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
         $disbursementIDs = $_POST['disbursement_id'];
 
         $user = $this->userModel->getUserByID($userID);
@@ -1535,7 +1736,13 @@ class DisbursementController {
         }
     
         if (isset($_POST['disbursement_id']) && !empty($_POST['disbursement_id'])) {
+           if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
             $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
             $disbursementID = $_POST['disbursement_id'];
     
             $user = $this->userModel->getUserByID($userID);
@@ -1571,7 +1778,13 @@ class DisbursementController {
         }
     
         if (isset($_POST['liquidation_id']) && !empty($_POST['liquidation_id'])) {
+           if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
             $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
             $liquidation_id = $_POST['liquidation_id'];
     
             $user = $this->userModel->getUserByID($userID);
@@ -1617,7 +1830,13 @@ class DisbursementController {
         }
     
         if (isset($_POST['disbursement_particulars_id']) && !empty($_POST['disbursement_particulars_id'])) {
+           if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
             $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
             $disbursement_particulars_id = $_POST['disbursement_particulars_id'];
     
             $user = $this->userModel->getUserByID($userID);
@@ -1651,7 +1870,13 @@ class DisbursementController {
         }
     
         if (isset($_POST['disbursement_check_id']) && !empty($_POST['disbursement_check_id'])) {
+           if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
             $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
             $disbursement_check_id = $_POST['disbursement_check_id'];
     
             $user = $this->userModel->getUserByID($userID);
@@ -1683,7 +1908,13 @@ class DisbursementController {
         }
     
         if (isset($_POST['liquidation_particulars_id']) && !empty($_POST['liquidation_particulars_id'])) {
+           if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
             $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
             $liquidation_particulars_id = $_POST['liquidation_particulars_id'];
     
             $user = $this->userModel->getUserByID($userID);
@@ -1717,7 +1948,7 @@ class DisbursementController {
         $filterTransactionDateStartDate = $this->systemModel->checkDate('empty', $_POST['filter_transaction_date_start_date'], '', 'Y-m-d', '');
         $filterTransactionDateEndDate = $this->systemModel->checkDate('empty', $_POST['filter_transaction_date_end_date'], '', 'Y-m-d', '');
         $fund_source_filter = $_POST['fund_source_filter'];
-        $disbursement_status_filter = $_POST['disbursement_status_filter'];
+        $disbursement_status_filter = $_POST['filter_disbursement_status'];
         $transaction_type_filter = $_POST['transaction_type_filter'];
         $disbursement_category = $_POST['disbursement_category'];
 
@@ -1725,15 +1956,26 @@ class DisbursementController {
             $fund_source_filter = null;
         }
 
-        if(empty($_POST['disbursement_status_filter'])){
-            $disbursement_status_filter = null;
+        if (!empty($disbursement_status_filter)) {
+            // Convert string to array and trim each value
+            $values_array = array_filter(array_map('trim', explode(',', $disbursement_status_filter)));
+
+            // Quote each value safely
+            $quoted_values_array = array_map(function($value) {
+                return "'" . addslashes($value) . "'";
+            }, $values_array);
+
+            // Implode into comma-separated string
+            $filter_disbursement_status = implode(', ', $quoted_values_array);
+        } else {
+            $filter_disbursement_status = null;
         }
 
         if(empty($_POST['transaction_type_filter'])){
             $transaction_type_filter = null;
         }
 
-        $disbursementDetails = $this->disbursementModel->getDisbursementTableTotal($filterTransactionDateStartDate, $filterTransactionDateEndDate, $fund_source_filter, $disbursement_status_filter, $transaction_type_filter, $disbursement_category);
+        $disbursementDetails = $this->disbursementModel->getDisbursementTableTotal($filterTransactionDateStartDate, $filterTransactionDateEndDate, $fund_source_filter, $filter_disbursement_status, $transaction_type_filter, $disbursement_category);
 
         $response = [
             'success' => true,

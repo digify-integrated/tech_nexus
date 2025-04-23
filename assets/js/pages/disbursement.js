@@ -9,6 +9,10 @@
         if($('#check-disbursement-table').length){
             checkDisbursementTable('#check-disbursement-table');
         }
+
+        if($('#journal-voucher-table').length){
+            journalVoucherTable('#journal-voucher-table');
+        }
         
         if($('#particulars-table').length){
             particularsTable('#particulars-table');
@@ -1015,8 +1019,15 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
     var filter_replenishment_date_start_date = $('#filter_replenishment_date_start_date').val();
     var filter_replenishment_date_end_date = $('#filter_replenishment_date_end_date').val();
     var fund_source_filter = $('.fund-source-filter:checked').val();
-    var disbursement_status_filter = $('.disbursement-status-filter:checked').val();
     var transaction_type_filter = $('.transaction-type-filter:checked').val();
+
+    var disbursement_status_filter = [];
+
+    $('.disbursement-status-checkbox:checked').each(function() {
+        disbursement_status_filter.push($(this).val());
+    });
+
+    var filter_disbursement_status = disbursement_status_filter.join(', ');
 
     var settings;
 
@@ -1063,7 +1074,7 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
                 'filter_replenishment_date_start_date' : filter_replenishment_date_start_date,
                 'filter_replenishment_date_end_date' : filter_replenishment_date_end_date,
                 'fund_source_filter' : fund_source_filter,
-                'disbursement_status_filter' : disbursement_status_filter,
+                'filter_disbursement_status' : filter_disbursement_status,
                 'transaction_type_filter' : transaction_type_filter,
             },
             'dataSrc' : '',
@@ -1099,6 +1110,91 @@ function disbursementTable(datatable_name, buttons = false, show_all = false){
 
 function checkDisbursementTable(datatable_name, buttons = false, show_all = false){
     const type = 'check disbursement table';
+    var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
+    var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
+    var fund_source_filter = $('.fund-source-filter:checked').val();
+    var disbursement_status_filter = $('.disbursement-status-filter:checked').val();
+    var transaction_type_filter = $('.transaction-type-filter:checked').val();
+
+    var settings;
+
+    const column = [
+        { 'data' : 'CHECK_BOX' },
+        { 'data' : 'TRANSACTION_DATE' },
+        { 'data' : 'CUSTOMER_NAME' },
+        { 'data' : 'COMPANY_NAME' },
+        { 'data' : 'TRANSACTION_NUMBER' },
+        { 'data' : 'TOTAL_AMOUNT' },
+        { 'data' : 'TRANSACTION_TYPE' },
+        { 'data' : 'PARTICULARS' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'DEPARTMENT_NAME' },
+        { 'data' : 'FUND_SOURCE' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 10 },
+        { 'width': '15%','bSortable': false, 'aTargets': 11 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_disbursement_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 
+                'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
+                'filter_transaction_date_end_date' : filter_transaction_date_end_date,
+                'fund_source_filter' : fund_source_filter,
+                'disbursement_status_filter' : disbursement_status_filter,
+                'transaction_type_filter' : transaction_type_filter,
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 4, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function journalVoucherTable(datatable_name, buttons = false, show_all = false){
+    const type = 'journal voucher table';
     var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
     var fund_source_filter = $('.fund-source-filter:checked').val();
@@ -1553,6 +1649,7 @@ function particularsForm(){
 
                         particularsTable('#particulars-table');
                         $('#particulars-offcanvas').offcanvas('hide');
+                        getDisbursementParticularsTotal();
                     }
                     else {
                         if (response.isInactive) {
@@ -2049,9 +2146,16 @@ function getDisbursementTotal(){
     var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
     var fund_source_filter = $('.fund-source-filter:checked').val();
-    var disbursement_status_filter = $('.disbursement-status-filter:checked').val();
     var transaction_type_filter = $('.transaction-type-filter:checked').val();
     const disbursement_category = $('#disbursement_category').val();
+
+    var disbursement_status_filter = [];
+
+    $('.disbursement-status-checkbox:checked').each(function() {
+        disbursement_status_filter.push($(this).val());
+    });
+
+    var filter_disbursement_status = disbursement_status_filter.join(', ');
         
     $.ajax({
         type: 'POST',
@@ -2060,7 +2164,7 @@ function getDisbursementTotal(){
         '&filter_transaction_date_start_date=' + filter_transaction_date_start_date + 
         '&filter_transaction_date_end_date=' + filter_transaction_date_end_date +
         '&fund_source_filter=' + fund_source_filter +
-        '&disbursement_status_filter=' + disbursement_status_filter +
+        '&filter_disbursement_status=' + filter_disbursement_status +
         '&transaction_type_filter=' + transaction_type_filter +
         '&disbursement_category=' + disbursement_category,
         dataType: 'json',
@@ -2270,23 +2374,27 @@ function displayDetails(transaction){
 
 function calculateTax() {
     const withVat = $('#with_vat').val() === 'Yes';
-    const withWithholding = $('#with_withholding').val();
+    const withWithholding = parseFloat($('#with_withholding').val()) || 0;
     const particularsAmount = parseFloat($('#particulars_amount').val()) || 0;
 
     const vatRate = 0.12;
-    const vatBase = withVat ? particularsAmount / 1.12 : particularsAmount;
-    const vatAmount = withVat ? vatBase * vatRate : 0;
 
-    $('#base_amount').val(vatBase.toFixed(2));
-    $('#vat_amount').val(vatAmount.toFixed(2));
+    // Work in cents
+    const particularsAmountCents = Math.round(particularsAmount * 100);
+    const vatBaseCents = withVat
+        ? Math.round(particularsAmountCents / 1.12)
+        : particularsAmountCents;
+    const vatAmountCents = withVat
+        ? Math.round(vatBaseCents * vatRate)
+        : 0;
 
-    let withholdingAmount = 0;
-    if (withWithholding !== 'No') {
-        withholdingAmount = vatBase * (withWithholding / 100);
-    }
+    const withholdingCents = Math.round(vatBaseCents * (withWithholding / 100));
+    const totalAmountCents = vatBaseCents + vatAmountCents - withholdingCents;
 
-    const totalAmount = vatBase + vatAmount - withholdingAmount;
-
-    $('#withholding_amount').val(withholdingAmount.toFixed(2));
-    $('#total_amount').val(totalAmount.toFixed(2));
+    // Display (convert cents back to decimal and fix to 2 places)
+    $('#base_amount').val((vatBaseCents / 100).toFixed(2));
+    $('#vat_amount').val((vatAmountCents / 100).toFixed(2));
+    $('#withholding_amount').val((withholdingCents / 100).toFixed(2));
+    $('#total_amount').val((totalAmountCents / 100).toFixed(2));
 }
+

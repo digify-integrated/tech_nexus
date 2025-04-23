@@ -10,6 +10,8 @@ require_once '../model/product-model.php';
 require_once '../model/security-model.php';
 require_once '../model/miscellaneous-client-model.php';
 require_once '../model/system-model.php';
+require_once '../model/leasing-application-model.php';
+require_once '../model/tenant-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -20,6 +22,8 @@ $productModel = new ProductModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $securityModel = new SecurityModel();
 $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
+$tenantModel = new TenantModel($databaseModel);
+$leasingApplicationModel = new LeasingApplicationModel($databaseModel);
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
     $type = htmlspecialchars($_POST['type'], ENT_QUOTES, 'UTF-8');
@@ -107,6 +111,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $collectionStatus = $row['collection_status'];
                 $collectedFrom = $row['collected_from'];
                 $payment_advice = $row['payment_advice'];
+                $leasing_application_repayment_id = $row['leasing_application_repayment_id'] ?? null;
+                $leasing_other_charges_id = $row['leasing_other_charges_id'] ?? null;
+                $pdc_type = $row['pdc_type'];
                 $orDate = $systemModel->checkDate('empty', $row['or_date'], '', 'm/d/Y', '');
                 $paymentDate = $systemModel->checkDate('empty', $row['payment_date'], '', 'm/d/Y', '');
                 $transactionDate = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y', '');
@@ -126,12 +133,47 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $collectionStatus = 'Posted';
                 }
 
-               if($payment_advice == 'Yes'){
-                $payment_advice_badge = '<span class="badge bg-warning">Yes</span>';
-               }
-               else{
-                $payment_advice_badge = '<span class="badge bg-info">No</span>';
-               }
+                if($payment_advice == 'Yes'){
+                    $payment_advice_badge = '<span class="badge bg-warning">Yes</span>';
+                }
+                else{
+                    $payment_advice_badge = '<span class="badge bg-info">No</span>';
+                }
+
+                if($pdc_type == 'Product'){    
+                    $productDetails = $productModel->getProduct($productID);
+                    $stockNumber = $productDetails['stock_number'] ?? null;
+                }
+                else if($pdc_type == 'Loan'){
+                    $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
+                    $product_id = $salesProposalDetails['product_id'] ?? null;
+    
+                    $productDetails = $productModel->getProduct($product_id);
+                    $stockNumber = $productDetails['stock_number'] ?? null;
+                }
+                else if($pdc_type == 'Leasing' || $pdc_type === 'Leasing Other'){
+    
+                    if($pdc_type === 'Leasing'){
+                        $leasingApplicationRepaymentDetails = $leasingApplicationModel->getLeasingApplicationRepayment($leasing_application_repayment_id);
+                        $leasing_application_id = $leasingApplicationRepaymentDetails['leasing_application_id'] ?? '';
+                    }
+                    else{
+                        $leasingApplicationOtherChargesDetails = $leasingApplicationModel->getLeasingOtherCharges($leasing_other_charges_id);
+                        $leasing_application_id = $leasingApplicationOtherChargesDetails['leasing_application_id'] ?? '';
+                    }
+                    
+                    $leasingApplicationDetails = $leasingApplicationModel->getLeasingApplication($leasing_application_id);
+    
+                    $loanNumber = $leasingApplicationDetails['leasing_application_number'] ?? '';
+                    $tenant_id = $leasingApplicationDetails['tenant_id'] ?? '';
+    
+                    $tenantDetails = $tenantModel->getTenant($tenant_id);
+                    $customerName = strtoupper($tenantDetails['tenant_name'] ?? '');
+                    $stockNumber = '';
+                }
+                else{
+                    $stockNumber = '';
+                }
 
                 $statusClasses = [
                     'Posted' => 'success',
