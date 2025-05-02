@@ -39,9 +39,10 @@
             <div class="row">
               <div class="col-xl-12">
                 <div class="table-responsive dt-responsive">
-                  <table id="leave-application-table" class="table table-hover nowrap w-100 text-uppercase">
+                  <table id="manual-leave-application-table" class="table table-hover nowrap w-100 text-uppercase">
                     <thead>
                       <tr>
+                        <th>Employee</th>
                         <th>Leave Type</th>
                         <th>Leave Date</th>
                         <th>Application Date</th>

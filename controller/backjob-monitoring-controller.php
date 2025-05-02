@@ -161,12 +161,22 @@ class BackJobMonitoringController {
     
         if ($total > 0) {
             $this->backJobMonitoringModel->updateBackJobMonitoring($backjobMonitoringID, $type, $product_id, $sales_proposal_id, $userID);
+
+            $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
+
+            if($type != $backJobMonitoringDetails['type'] && $type == 'Backjob'){
+                $this->backJobMonitoringModel->loadBackJobMonitoringJobOrder($backjobMonitoringID, $sales_proposal_id, $userID);
+            }
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'backjobMonitoringID' => $this->securityModel->encryptData($backjobMonitoringID)]);
             exit;
         } 
         else {
             $backjobMonitoringID = $this->backJobMonitoringModel->insertBackJobMonitoring($type, $product_id, $sales_proposal_id, $userID);
+
+            if($type == 'Backjob'){
+                $this->backJobMonitoringModel->loadBackJobMonitoringJobOrder($backjobMonitoringID, $sales_proposal_id, $userID);
+            }
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'backjobMonitoringID' => $this->securityModel->encryptData($backjobMonitoringID)]);
             exit;
@@ -792,7 +802,6 @@ class BackJobMonitoringController {
         $sales_proposal_id = $backJobMonitoringDetails['sales_proposal_id'];
     
         $this->backJobMonitoringModel->updateBackJobMonitoringAsOnProcess($backjobMonitoringID, 'On-Process', $userID);
-        $this->backJobMonitoringModel->loadBackJobMonitoringJobOrder($backjobMonitoringID, $sales_proposal_id, $userID);
 
         echo json_encode(['success' => true]);
     }

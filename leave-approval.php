@@ -51,6 +51,7 @@
   }
 
   $newRecord = isset($_GET['new']);
+  $creationType = 'own'; 
 
   require('config/_interface_settings.php');
   require('config/_user_account_details.php');

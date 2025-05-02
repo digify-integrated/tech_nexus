@@ -160,7 +160,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $disburse_status = '<span class="badge bg-success">' . $liquidation_particulars_status . '</span>';
                 }
 
-
                 $response[] = [
                     'PARTICULARS' => $chartOfAccountName,
                     'PARTICULAR_AMOUNT' => number_format($particulars_amount, 2),

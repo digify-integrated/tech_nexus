@@ -40,12 +40,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $leaveApplicationDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 92, 'delete');
+            $leaveApplicationDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 138, 'delete');
 
             foreach ($options as $row) {
                 $leaveApplicationID = $row['leave_application_id'];
                 $status = $row['status'];
                 $leaveTypeID = $row['leave_type_id'];
+                $application_type = $row['application_type'];
                 $leaveDate = $systemModel->checkDate('empty', $row['leave_date'], '', 'm/d/Y', '');
                 $leaveStartTime = $systemModel->checkDate('empty', $row['leave_start_time'], '', 'h:i a', '');
                 $leaveEndTime = $systemModel->checkDate('empty', $row['leave_end_time'], '', 'h:i a', '');
@@ -63,16 +64,90 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </button>'; 
                 }
 
+                if($leaveTypeID == '1'){
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $application_type .'</p>
+                    </div>';
+                }
+                else{
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
+                    </div>';
+                }
+
                 $response[] = [
                     'LEAVE_TYPE' => $leaveTypeName,
-                    'LEAVE_DATE' => ' <div class="col">
-                                        <h6 class="mb-0">'. $leaveDate .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
-                                        </div>',
+                    'LEAVE_DATE' => $leaveDateDetails,
                     'APPLICATION_DATE' => $applicationDate,
                     'STATUS' => $status,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="leave-application.php?id='. $leaveApplicationIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                    '. $delete .'
+                                </div>'
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'manual leave application table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateManualLeaveApplicationTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $leaveApplicationDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 138, 'delete');
+
+            foreach ($options as $row) {
+                $leaveApplicationID = $row['leave_application_id'];
+                $contact_id = $row['contact_id'];
+                $status = $row['status'];
+                $leaveTypeID = $row['leave_type_id'];
+                $application_type = $row['application_type'];
+                $leaveDate = $systemModel->checkDate('empty', $row['leave_date'], '', 'm/d/Y', '');
+                $leaveStartTime = $systemModel->checkDate('empty', $row['leave_start_time'], '', 'h:i a', '');
+                $leaveEndTime = $systemModel->checkDate('empty', $row['leave_end_time'], '', 'h:i a', '');
+                $applicationDate = $systemModel->checkDate('empty', $row['application_date'], '', 'm/d/Y', '');
+
+                $leaveApplicationIDEncrypted = $securityModel->encryptData($leaveApplicationID);
+
+                $leaveTypeDetails = $leaveTypeModel->getLeaveType($leaveTypeID);
+                $leaveTypeName = $leaveTypeDetails['leave_type_name'] ?? null;
+
+                $delete = '';
+                if($leaveApplicationDeleteAccess['total'] > 0 && ($status == 'Draft')){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-leave-application" data-leave-application-id="'. $leaveApplicationID .'" title="Delete Leave Application">
+                                    <i class="ti ti-trash"></i>
+                                </button>'; 
+                }
+
+                if($leaveTypeID == '1'){
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $application_type .'</p>
+                    </div>';
+                }
+                else{
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
+                    </div>';
+                }
+
+                $employeeDetails = $employeeModel->getPersonalInformation($contact_id);
+                $fileAs = $employeeDetails['file_as'] ?? '';
+
+                $response[] = [
+                    'FILE_AS' => $fileAs,
+                    'LEAVE_TYPE' => $leaveTypeName,
+                    'LEAVE_DATE' => $leaveDateDetails,
+                    'APPLICATION_DATE' => $applicationDate,
+                    'STATUS' => $status,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="manual-leave-application.php?id='. $leaveApplicationIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'
@@ -96,6 +171,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $status = $row['status'];
                 $employeeID = $row['contact_id'];
                 $leaveTypeID = $row['leave_type_id'];
+                $application_type = $row['application_type'];
                 $leaveDate = $systemModel->checkDate('empty', $row['leave_date'], '', 'm/d/Y', '');
                 $leaveStartTime = $systemModel->checkDate('empty', $row['leave_start_time'], '', 'h:i a', '');
                 $leaveEndTime = $systemModel->checkDate('empty', $row['leave_end_time'], '', 'h:i a', '');
@@ -109,13 +185,23 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $employeeDetails = $employeeModel->getPersonalInformation($employeeID);
                 $fileAs = $employeeDetails['file_as'] ?? '';
 
+                if($leaveTypeID == '1'){
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $application_type .'</p>
+                    </div>';
+                }
+                else{
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
+                    </div>';
+                }
+
                 $response[] = [
                     'FILE_AS' => '<a href="leave-recommendation.php?id='. $leaveApplicationIDEncrypted .'">'. $fileAs . '</a>',
                     'LEAVE_TYPE' => $leaveTypeName,
-                    'LEAVE_DATE' => ' <div class="col">
-                                        <h6 class="mb-0">'. $leaveDate .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
-                                        </div>',
+                    'LEAVE_DATE' => $leaveDateDetails,
                     'APPLICATION_DATE' => $applicationDate,
                     'STATUS' => $status,
                     'ACTION' => '<div class="d-flex gap-2">
@@ -141,6 +227,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $leaveApplicationID = $row['leave_application_id'];
                 $status = $row['status'];
                 $leaveTypeID = $row['leave_type_id'];
+                $application_type = $row['application_type'];
                 $contact_id = $row['contact_id'];
                 $leaveDate = $systemModel->checkDate('empty', $row['leave_date'], '', 'm/d/Y', '');
                 $leaveStartTime = $systemModel->checkDate('empty', $row['leave_start_time'], '', 'h:i a', '');
@@ -155,14 +242,24 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $employeeDetails = $employeeModel->getPersonalInformation($contact_id);
                 $fileAs = $employeeDetails['file_as'] ?? '';
 
+                if($leaveTypeID == '1'){
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $application_type .'</p>
+                    </div>';
+                }
+                else{
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
+                    </div>';
+                }
+
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $leaveApplicationID .'">',
                     'FILE_AS' => '<a href="leave-approval.php?id='. $leaveApplicationIDEncrypted .'">'. $fileAs . '</a>',
                     'LEAVE_TYPE' => $leaveTypeName,
-                    'LEAVE_DATE' => ' <div class="col">
-                                        <h6 class="mb-0">'. $leaveDate .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
-                                        </div>',
+                    'LEAVE_DATE' => $leaveDateDetails,
                     'APPLICATION_DATE' => $applicationDate,
                     'STATUS' => $status,
                     'ACTION' => '<div class="d-flex gap-2">
@@ -189,6 +286,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $contact_id = $row['contact_id'];
                 $status = $row['status'];
                 $leaveTypeID = $row['leave_type_id'];
+                $application_type = $row['application_type'];
                 $leaveDate = $systemModel->checkDate('empty', $row['leave_date'], '', 'm/d/Y', '');
                 $leaveStartTime = $systemModel->checkDate('empty', $row['leave_start_time'], '', 'h:i a', '');
                 $leaveEndTime = $systemModel->checkDate('empty', $row['leave_end_time'], '', 'h:i a', '');
@@ -202,13 +300,23 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $employeeDetails = $employeeModel->getPersonalInformation($contact_id);
                 $fileAs = $employeeDetails['file_as'] ?? '';
 
+                if($leaveTypeID == '1'){
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $application_type .'</p>
+                    </div>';
+                }
+                else{
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
+                    </div>';
+                }
+
                 $response[] = [
                     'FILE_AS' => '<a href="leave-approval.php?id='. $leaveApplicationIDEncrypted .'">'. $fileAs . '</a>',
                     'LEAVE_TYPE' => $leaveTypeName,
-                    'LEAVE_DATE' => ' <div class="col">
-                                        <h6 class="mb-0">'. $leaveDate .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
-                                        </div>',
+                    'LEAVE_DATE' => $leaveDateDetails,
                     'APPLICATION_DATE' => $applicationDate,
                     'STATUS' => $status
                     ];
@@ -245,6 +353,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $leaveApplicationID = $row['leave_application_id'];
                 $status = $row['status'];
                 $leaveTypeID = $row['leave_type_id'];
+                $reason = $row['reason'];
+                $application_type = $row['application_type'];
                 $leaveDate = $systemModel->checkDate('empty', $row['leave_date'], '', 'm/d/Y', '');
                 $leaveStartTime = $systemModel->checkDate('empty', $row['leave_start_time'], '', 'h:i a', '');
                 $leaveEndTime = $systemModel->checkDate('empty', $row['leave_end_time'], '', 'h:i a', '');
@@ -259,13 +369,26 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $leaveTypeDetails = $leaveTypeModel->getLeaveType($leaveTypeID);
                 $leaveTypeName = $leaveTypeDetails['leave_type_name'] ?? null;
 
+                if($leaveTypeID == '1'){
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $application_type .'</p>
+                    </div>';
+                }
+                else{
+                    $leaveDateDetails =  ' <div class="col">
+                    <h6 class="mb-0">'. $leaveDate .'</h6>
+                    <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
+                    </div>';
+                }
+
                 $response[] = [
                     'FILE_AS' => $fileAs,
-                    'LEAVE_TYPE' => $leaveTypeName,
-                    'LEAVE_DATE' => ' <div class="col">
-                                        <h6 class="mb-0">'. $leaveDate .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
+                    'LEAVE_TYPE' => ' <div class="col">
+                                        <h6 class="mb-0">'. $leaveTypeName .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $reason .'</p>
                                         </div>',
+                    'LEAVE_DATE' => $leaveDateDetails,
                     'APPLICATION_DATE' => $applicationDate,
                     'APPROVAL_DATE' => $approval_date,
                     'STATUS' => $status

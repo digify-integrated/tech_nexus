@@ -1,3 +1,10 @@
+
+<?php
+            $hiddenEmployee = 'd-none';
+            if($creationType === 'manual'){
+              $hiddenEmployee = '';
+            }
+          ?>
 <div class="row">
   <div class="col-lg-12">
     <div class="card">
@@ -18,16 +25,39 @@
       </div>
       <div class="card-body">
         <form id="leave-application-form" method="post" action="#">
+          <input type="hidden" id="creation_type" name="creation_type" value="<?php echo $creationType; ?>" />
+          <div class="form-group row <?php echo $hiddenEmployee; ?>">
+            <label class="col-lg-2 col-form-label">Employee <span class="text-danger">*</span></label>
+            <div class="col-lg-10">
+                <select class="form-control select2" name="employee_id" id="employee_id">
+                    <option value="">--</option>
+                    <?php echo $employeeModel->generateEmployeeWithoutUserOptions(); ?>
+                </select>
+            </div>
+          </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Leave Type <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
+            <div class="col-lg-10">
                 <select class="form-control select2" name="leave_type_id" id="leave_type_id">
                     <option value="">--</option>
                     <?php echo $leaveTypeModel->generateLeaveTypeOptions(); ?>
                 </select>
             </div>
+          </div>
+          <div class="form-group row d-none sil-group">
+            <label class="col-lg-2 col-form-label">Application Type <span class="text-danger">*</span></label>
+            <div class="col-lg-10">
+                <select class="form-control select2" name="application_type" id="application_type">
+                    <option value="">--</option>
+                    <option value="Whole Day">Whole Day</option>
+                    <option value="Half Day Morning">Half Day Morning</option>
+                    <option value="Half Day Afternoon">Half Day Afternoon</option>
+                </select>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Leave Date <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
+            <div class="col-lg-10">
                 <div class="input-group date">
                     <input type="text" class="form-control regular-datepicker" id="leave_date" name="leave_date" autocomplete="off">
                     <span class="input-group-text">
@@ -36,7 +66,7 @@
                 </div>
             </div>
           </div>
-          <div class="form-group row">
+          <div class="form-group row d-none leave-group">
             <label class="col-lg-2 col-form-label">Start Time <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <input class="form-control" id="leave_start_time" name="leave_start_time" type="time">

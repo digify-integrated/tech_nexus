@@ -5,6 +5,9 @@
         if($('#leave-application-table').length){
             leaveApplicationTable('#leave-application-table');
         }
+        if($('#manual-leave-application-table').length){
+            manualLeaveApplicationTable('#manual-leave-application-table');
+        }
 
         if($('#leave-approval-table').length){
             leaveApprovalTable('#leave-approval-table');
@@ -33,6 +36,24 @@
         if($('#leave-application-id').length){
             displayDetails('get leave application details');
         }
+
+        if($('#leave-form-image-form').length){
+            leaveFormImageForm();
+        }
+
+        $(document).on('change', '#leave_type_id', function() {
+            const type = $(this).val();
+            const $silGroup = $('.sil-group');
+            const $leaveGroup = $('.leave-group');
+        
+            if (type === '1') {
+                $silGroup.removeClass('d-none');
+                $leaveGroup.addClass('d-none');
+            } else {
+                $leaveGroup.removeClass('d-none');
+                $silGroup.addClass('d-none');
+            }
+        });
 
         $(document).on('click','.delete-leave-application',function() {
             const leave_application_id = $(this).data('leave-application-id');
@@ -184,7 +205,13 @@
                         success: function (response) {
                             if (response.success) {
                                 setNotification('Deleted Leave Application Success', 'The leave application has been deleted successfully.', 'success');
-                                window.location = 'leave-application.php';
+                                
+                                if($("#creation_type").val() === "manual"){
+                                    window.location = 'manual-leave-application.php';
+                                }
+                                else{
+                                    window.location = 'leave-application.php';
+                                }                                
                             }
                             else {
                                 if (response.isInactive) {
@@ -245,6 +272,9 @@
                                 if (response.isInactive) {
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
+                                }
+                                else if (response.leaveFormEmpty) {
+                                    showNotification('Leave Application For Recommendation Error', 'The leave form is empty.', 'danger');
                                 }
                                 else if (response.notExist) {
                                     window.location = '404.php';
@@ -356,6 +386,9 @@
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
                                 }
+                                else if (response.entitlementZero) {
+                                    showNotification('Leave Application Approval Error', 'The employee does not have enough leave entitlement.', 'danger');
+                                }
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }
@@ -445,7 +478,12 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('leave-application.php');
+            if($("#creation_type").val() === "manual"){
+                discardCreate('manual-leave-application.php');
+            }
+            else{
+                discardCreate('leave-application.php');
+            }            
         });
 
         $(document).on('click','#edit-form',function() {
@@ -484,6 +522,67 @@ function leaveApplicationTable(datatable_name, buttons = false, show_all = false
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': '15%','bSortable': false, 'aTargets': 4 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_leave_application_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function manualLeaveApplicationTable(datatable_name, buttons = false, show_all = false){
+    const type = 'manual leave application table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'FILE_AS' },
+        { 'data' : 'LEAVE_TYPE' },
+        { 'data' : 'LEAVE_DATE' },
+        { 'data' : 'APPLICATION_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -737,10 +836,24 @@ function leaveApplicationForm(){
                 required: true
             },
             leave_start_time: {
-                required: true
+                required: function() {
+                    return $("#leave_type_id").val() !== "1";
+                }
             },
             leave_end_time: {
-                required: true
+                required: function() {
+                    return $("#leave_type_id").val() !== "1";
+                }
+            },
+            application_type: {
+                required: function() {
+                    return $("#leave_type_id").val() === "1";
+                }
+            },
+            employee_id: {
+                required: function() {
+                    return $("#creation_type").val() === "manual";
+                }
             },
             reason: {
                 required: true
@@ -758,6 +871,9 @@ function leaveApplicationForm(){
             },
             leave_end_time: {
                 required: 'Please choose the end time'
+            },
+            application_type: {
+                required: 'Please choose the application type'
             },
             reason: {
                 required: 'Please enter the leave reason'
@@ -810,12 +926,22 @@ function leaveApplicationForm(){
                         const notificationDescription = response.insertRecord ? 'The leave application has been inserted successfully.' : 'The leave application has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'leave-application.php?id=' + response.leaveApplicationID;
+
+                        if($("#creation_type").val() === "manual"){
+                            window.location = 'manual-leave-application.php?id=' + response.leaveApplicationID;
+                        }
+                        else{
+                            window.location = 'leave-application.php?id=' + response.leaveApplicationID;
+                        }
+                       
                     }
                     else {
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
+                        }
+                        else if (response.entitlementZero) {
+                            showNotification('Leave Application Error', 'You do not have enough leave entitlement.', 'danger');
                         }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
@@ -1009,6 +1135,96 @@ function leaveApplicationRejectForm(){
     });
 }
 
+function leaveFormImageForm(){
+    $('#leave-form-image-form').validate({
+        rules: {
+            leave_form_image: {
+                required: true
+            },
+        },
+        messages: {
+            leave_form_image: {
+                required: 'Please choose the leave form'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const leave_application_id = $('#leave-application-id').text();
+            const transaction = 'save leave form image';
+    
+            var formData = new FormData(form);
+            formData.append('leave_application_id', leave_application_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/leave-application-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-leave-form-image');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Leave From Upload Success', 'The leave form has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-leave-form-image', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
 
 function displayDetails(transaction){
     switch (transaction) {
@@ -1034,12 +1250,20 @@ function displayDetails(transaction){
                         $('#reason').val(response.reason);
 
                         checkOptionExist('#leave_type_id', response.leaveTypeID, '');
+                        checkOptionExist('#application_type', response.applicationType, '');
+                        checkOptionExist('#employee_id', response.contactID, '');
 
                         $('#leave_type_id_label').text(response.leaveTypeName);
                         $('#leave_date_label').text(response.leaveDate);
                         $('#leave_start_time_label').text(response.leaveStartTimeLabel);
                         $('#leave_end_time_label').text(response.leaveEndTimeLabel);
                         $('#reason_label').text(response.reason);
+
+                        document.getElementById('leave-form').src = response.leaveForm;
+
+                        if(response.status != 'Draft'){
+                            disableFormAndSelect2('leave-application-form');
+                        }
                     } 
                     else {
                         if(response.isInactive){
@@ -1059,5 +1283,22 @@ function displayDetails(transaction){
                 }
             });
             break;
+    }
+}
+
+function disableFormAndSelect2(formId) {
+    // Disable all form elements
+    var form = document.getElementById(formId);
+    var elements = form.elements;
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].disabled = true;
+    }
+
+    // Disable Select2 dropdowns
+    var select2Dropdowns = form.getElementsByClassName('select2');
+    for (var j = 0; j < select2Dropdowns.length; j++) {
+        var select2Instance = $(select2Dropdowns[j]);
+        select2Instance.select2('destroy');
+        select2Instance.prop('disabled', true);
     }
 }

@@ -205,7 +205,7 @@ $getAdditionalJobOrderBackjobCount = $salesProposalModel->getAdditionalJobOrderB
                         <h5 class="mb-0">Unit Image </h5>
                         <?php
                           if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
-                            if(($productType == 'Unit' || $productType == 'Repair')){
+                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
                               echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-image-offcanvas" aria-controls="sales-proposal-unit-image-offcanvas" id="sales-proposal-unit-image">Unit Image</button>';
                             }
                           }

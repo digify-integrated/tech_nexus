@@ -204,6 +204,12 @@
                     $company_id = $row['company_id'];
                     $remarks = $row['remarks'];
                     $particulars_amount = $row['particulars_amount'];
+                    $with_vat = $row['with_vat'];
+                    $with_withholding = $row['with_withholding'];
+                    $vat_amount = $row['vat_amount'];
+                    $withholding_amount = $row['withholding_amount'];
+                    $base_amount = $row['base_amount'];
+                    $total_amount = $row['total_amount'];
 
                     $companyDetails = $companyModel->getCompany($company_id);
                     $companyName = $companyDetails['company_name'] ?? null;
@@ -232,13 +238,15 @@
                         </tr>';
                     }
                     else{
+                        $base_amount = ($base_amount + $vat_amount) - $withholding_amount;
+
                         $list .= '<tr>
                             <td>'. $transaction_number .'</td>
                             <td>'. $customerName .'</td>
                             <td>'. $companyName .'</td>
                             <td>'. $particulars .'</td>
                             <td>'. $chartOfAccountName .'</td>
-                            <td>'. number_format($particulars_amount, 2) .'</td>
+                            <td>'. number_format($base_amount, 2) .'</td>
                             <td>0.00</td>
                         </tr>
                         <tr>
@@ -248,8 +256,32 @@
                             <td>'. $particulars .'</td>
                             <td>Petty Cash Fund</td>
                             <td>0.00</td>
-                            <td>'. number_format($particulars_amount, 2) .'</td>
+                            <td>'. number_format($base_amount, 2) .'</td>
                         </tr>';
+
+                        if($with_vat === 'Yes'){
+                            $list .= '<tr>
+                                <td>'. $transaction_number .'</td>
+                                <td>'. $customerName .'</td>
+                                <td>'. $companyName .'</td>
+                                <td>'. $particulars .'</td>
+                                <td>Input Tax</td>
+                                <td>'. number_format($vat_amount, 2) .'</td>
+                                <td>0.00</td>
+                            </tr>';
+                        }
+
+                        if($with_withholding === 'Yes'){
+                            $list .= '<tr>
+                                    <td>'. $transaction_number .'</td>
+                                    <td>'. $customerName .'</td>
+                                    <td>'. $companyName .'</td>
+                                    <td>'. $particulars .'</td>
+                                    <td>Withholding Tax Payable Other</td>
+                                    <td>'. number_format($withholding_amount * -1, 2) .'</td>
+                                    <td>0.00</td>
+                                </tr>';
+                        }
                     }
                 }
             }

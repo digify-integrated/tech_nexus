@@ -29,16 +29,28 @@ class LeaveApplicationModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateLeaveApplication($p_leave_application_id, $p_contact_id, $p_leave_type_id, $p_reason, $p_leave_date, $p_leave_start_time, $p_leave_end_time, $p_number_of_hours, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateLeaveApplication(:p_leave_application_id, :p_contact_id, :p_leave_type_id, :p_reason, :p_leave_date, :p_leave_start_time, :p_leave_end_time, :p_number_of_hours, :p_last_log_by)');
+    public function updateLeaveApplication($p_leave_application_id, $p_contact_id, $p_leave_type_id, $p_application_type, $p_reason, $p_leave_date, $p_leave_start_time, $p_leave_end_time, $p_number_of_hours, $p_creation_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLeaveApplication(:p_leave_application_id, :p_contact_id, :p_leave_type_id, :p_application_type, :p_reason, :p_leave_date, :p_leave_start_time, :p_leave_end_time, :p_number_of_hours, :p_creation_type, :p_last_log_by)');
         $stmt->bindValue(':p_leave_application_id', $p_leave_application_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_leave_type_id', $p_leave_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_application_type', $p_application_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_reason', $p_reason, PDO::PARAM_STR);
         $stmt->bindValue(':p_leave_date', $p_leave_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_leave_start_time', $p_leave_start_time, PDO::PARAM_STR);
         $stmt->bindValue(':p_leave_end_time', $p_leave_end_time, PDO::PARAM_STR);
         $stmt->bindValue(':p_number_of_hours', $p_number_of_hours, PDO::PARAM_STR);
+        $stmt->bindValue(':p_creation_type', $p_creation_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateLeaveEntitlementAmount($p_contact_id, $p_leave_type_id, $p_leave_date, $p_application_amount, $p_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLeaveEntitlementAmount(:p_contact_id, :p_leave_type_id, :p_leave_date, :p_application_amount, :p_type, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leave_type_id', $p_leave_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leave_date', $p_leave_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_application_amount', $p_application_amount, PDO::PARAM_INT);
+        $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -66,6 +78,13 @@ class LeaveApplicationModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function updateLeaveForm($p_leave_application_id, $p_leave_form, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLeaveForm(:p_leave_application_id, :p_leave_form, :p_last_log_by)');
+        $stmt->bindValue(':p_leave_application_id', $p_leave_application_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leave_form', $p_leave_form, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -85,15 +104,17 @@ class LeaveApplicationModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertLeaveApplication($p_contact_id, $p_leave_type_id, $p_reason, $p_leave_date, $p_leave_start_time, $p_leave_end_time, $p_number_of_hours, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertLeaveApplication(:p_contact_id, :p_leave_type_id, :p_reason, :p_leave_date, :p_leave_start_time, :p_leave_end_time, :p_number_of_hours, :p_last_log_by, @p_leave_application_id)');
+    public function insertLeaveApplication($p_contact_id, $p_leave_type_id, $p_application_type, $p_reason, $p_leave_date, $p_leave_start_time, $p_leave_end_time, $p_number_of_hours, $p_creation_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertLeaveApplication(:p_contact_id, :p_leave_type_id, :p_application_type, :p_reason, :p_leave_date, :p_leave_start_time, :p_leave_end_time, :p_number_of_hours, :p_creation_type, :p_last_log_by, @p_leave_application_id)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_leave_type_id', $p_leave_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_application_type', $p_application_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_reason', $p_reason, PDO::PARAM_STR);
         $stmt->bindValue(':p_leave_date', $p_leave_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_leave_start_time', $p_leave_start_time, PDO::PARAM_STR);
         $stmt->bindValue(':p_leave_end_time', $p_leave_end_time, PDO::PARAM_STR);
         $stmt->bindValue(':p_number_of_hours', $p_number_of_hours, PDO::PARAM_STR);
+        $stmt->bindValue(':p_creation_type', $p_creation_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -168,6 +189,13 @@ class LeaveApplicationModel {
     public function getLeaveApplication($p_leave_application_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getLeaveApplication(:p_leave_application_id)');
         $stmt->bindValue(':p_leave_application_id', $p_leave_application_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getEmployeeLeaveEntitlement($p_contact_id, $p_leave_date) {
+        $stmt = $this->db->getConnection()->prepare('CALL getEmployeeLeaveEntitlement(:p_contact_id, :p_leave_date)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leave_date', $p_leave_date, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

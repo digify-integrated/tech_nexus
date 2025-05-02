@@ -1985,12 +1985,12 @@ class SalesProposalController {
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
         $clientsetToDraftFile = !empty($salesProposalDetails['other_document_file']) ? '.' . $salesProposalDetails['other_document_file'] : null;
 
-        if(file_exists($clientsetToDraftFile)){
+       /* if(file_exists($clientsetToDraftFile)){
             if (!unlink($clientsetToDraftFile)) {
                 echo json_encode(['success' => false, 'message' => 'Sales proposal file cannot be deleted due to an error.']);
                 exit;
             }
-        }
+        }*/
 
         $uploadSetting = $this->uploadSettingModel->getUploadSetting(17);
         $maxFileSize = $uploadSetting['max_file_size'];
@@ -2923,7 +2923,11 @@ class SalesProposalController {
         switch ($frequency) {
             case 'Monthly':
                 $lastDayOfMonth = $date->format('t');
-                if ($date->format('d') == $lastDayOfMonth) {
+                $day = (int) $date->format('d');
+                $month = (int) $date->format('m');
+    
+                // Check if the current date is the last day of the month
+                if ($day == $lastDayOfMonth && !in_array($month, [4, 6, 9, 11])) {
                     for ($i = 0; $i < $iteration; $i++) {
                         $date->modify('last day of next month');
                     }

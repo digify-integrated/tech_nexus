@@ -19,6 +19,10 @@ class LeasingApplicationController {
     private $systemSettingModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
+    private $emailSettingModel;
+    private $notificationSettingModel;
+    private $tenantModel;
+    private $propertyModel;
     private $systemModel;
 
     # -------------------------------------------------------------
@@ -37,12 +41,16 @@ class LeasingApplicationController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(LeasingApplicationModel $leasingApplicationModel, UserModel $userModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(LeasingApplicationModel $leasingApplicationModel, UserModel $userModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, TenantModel $tenantModel, PropertyModel $propertyModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->leasingApplicationModel = $leasingApplicationModel;
         $this->userModel = $userModel;
         $this->systemSettingModel = $systemSettingModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
+        $this->emailSettingModel = $emailSettingModel;
+        $this->notificationSettingModel = $notificationSettingModel;
+        $this->tenantModel = $tenantModel;
+        $this->propertyModel = $propertyModel;
         $this->securityModel = $securityModel;
         $this->systemModel = $systemModel;
     }
@@ -587,10 +595,77 @@ class LeasingApplicationController {
         }
 
         $this->leasingApplicationModel->updateLeasingApplicationStatus($leasingApplicationID, $contactID, 'For Approval', null, $userID);
+
+        $leasingApplicationDetails = $this->leasingApplicationModel->getLeasingApplication($leasingApplicationID);
+        $leasing_application_number = $leasingApplicationDetails['leasing_application_number'] ?? null;
+        $tenant_id = $leasingApplicationDetails['tenant_id'] ?? null;
+        $property_id = $leasingApplicationDetails['property_id'] ?? null;
+
+        $tenantDetails = $this->tenantModel->getTenant($tenant_id);
+        $tenantName = $tenantDetails['tenant_name'];
+
+        $propertyDetails = $this->propertyModel->getProperty($property_id);
+        $propertyName = $propertyDetails['property_name'];
+
+        $this->sendForApproval($leasing_application_number, $tenantName, $propertyName);
             
         echo json_encode(['success' => true]);
     }
     # -------------------------------------------------------------
+
+    public function sendForApproval($leasing_application_number, $tenantName, $propertyName) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(14);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{LEASING_APPLICATION_ID}', $leasing_application_number, $emailBody);
+        $emailBody = str_replace('{TENANT_NAME}', $tenantName, $emailBody);
+        $emailBody = str_replace('{PROPERTY_NAME}', $propertyName, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        $mailer->addAddress('christianbaguisa@christianmotors.ph');
+        $mailer->addAddress('glenbonita@christianmotors.ph');
+        $mailer->addAddress('l.agulto@christianmotors.ph');
+
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+
+    private function configureSMTP($mailer, $isHTML = true) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailHost = $emailSetting['mail_host'] ?? MAIL_HOST;
+        $smtpAuth = empty($emailSetting['smtp_auth']) ? false : true;
+        $mailUsername = $emailSetting['mail_username'] ?? MAIL_USERNAME;
+        $mailPassword = !empty($password) ? $this->securityModel->decryptData($emailSetting['mail_password']) : MAIL_PASSWORD;
+        $mailEncryption = $emailSetting['mail_encryption'] ?? MAIL_SMTP_SECURE;
+        $port = $emailSetting['port'] ?? MAIL_PORT;
+        
+        $mailer->isSMTP();
+        $mailer->isHTML(true);
+        $mailer->Host = $mailHost;
+        $mailer->SMTPAuth = $smtpAuth;
+        $mailer->Username = $mailUsername;
+        $mailer->Password = $mailPassword;
+        $mailer->SMTPSecure = $mailEncryption;
+        $mailer->Port = $port;
+    }
 
     # -------------------------------------------------------------
     #
@@ -1225,8 +1300,15 @@ require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
+require_once '../model/email-setting-model.php';
+require_once '../model/notification-setting-model.php';
+require_once '../model/tenant-model.php';
+require_once '../model/property-model.php';
 require_once '../model/system-model.php';
+require '../assets/libs/PHPMailer/src/PHPMailer.php';
+require '../assets/libs/PHPMailer/src/Exception.php';
+require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new LeasingApplicationController(new LeasingApplicationModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new LeasingApplicationController(new LeasingApplicationModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new TenantModel(new DatabaseModel), new PropertyModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

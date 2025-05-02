@@ -12,7 +12,7 @@
     $printJobOrder = ''; 
     $printAdditionalJobOrder = ''; 
 
-    if($type == 'Internal Repair'){
+    if($type == 'Internal Repair' && ($status == 'Draft' || $status == 'On-Process')){
         $addJobOrder = '<div class="previous me-2">
            <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#job-order-monitoring-offcanvas" aria-controls="job-order-monitoring-offcanvas">Add Job Order</button>
         </div>';

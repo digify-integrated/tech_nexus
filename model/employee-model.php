@@ -2913,6 +2913,23 @@ class EmployeeModel {
 
         return $htmlOptions;
     }
+    public function generateEmployeeWithoutUserOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateEmployeeWithoutUserOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmt->closeCursor();
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $contactID = $row['contact_id'];
+            $fileAs = $row['file_as'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . htmlspecialchars($fileAs, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

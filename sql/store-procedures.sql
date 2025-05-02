@@ -4194,6 +4194,12 @@ BEGIN
     END IF;
 END //
 
+CREATE PROCEDURE generateEmployeeWithoutUserOptions()
+BEGIN
+	SELECT contact_id, file_as FROM personal_information
+    WHERE contact_id IN (SELECT contact_id FROM contact WHERE is_employee = 1 AND user_id IS NULL AND contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 1)) ORDER BY file_as;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Personal Information Table Stored Procedures */
@@ -10064,6 +10070,34 @@ BEGIN
     SELECT * FROM leave_entitlement;
 END //
 
+CREATE PROCEDURE getEmployeeLeaveEntitlement(IN p_contact_id INT, IN p_leave_date DATE)
+BEGIN
+    SELECT entitlement_amount
+    FROM leave_entitlement
+    WHERE leave_type_id = 1
+    AND contact_id = p_contact_id
+    AND p_leave_date BETWEEN leave_period_start AND leave_period_end;
+END //
+
+
+CREATE PROCEDURE updateLeaveEntitlementAmount(IN p_contact_id INT, IN p_leave_type_id INT, IN p_leave_date DATE, IN p_application_amount INT, IN p_type VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    IF p_type = 'increase' THEN
+        UPDATE leave_entitlement
+        SET entitlement_amount = entitlement_amount + p_application_amount,        
+        last_log_by = p_last_log_by
+        WHERE leave_type_id = p_leave_type_id 
+        AND contact_id = p_contact_id
+        AND p_leave_date BETWEEN leave_period_start AND leave_period_end;
+    ELSE
+        UPDATE leave_entitlement
+        SET entitlement_amount = entitlement_amount - p_application_amount, 
+        last_log_by = p_last_log_by
+        WHERE leave_type_id = p_leave_type_id 
+        AND contact_id = p_contact_id
+        AND p_leave_date BETWEEN leave_period_start AND leave_period_end;
+    END IF;
+END //
 
 
 
@@ -10075,23 +10109,33 @@ BEGIN
     WHERE leave_application_id = p_leave_application_id;
 END //
 
-CREATE PROCEDURE insertLeaveApplication(IN p_contact_id INT, IN p_leave_type_id INT, IN p_reason VARCHAR(500), IN p_leave_date DATE, IN p_leave_start_time TIME, IN p_leave_end_time TIME, IN p_number_of_hours DOUBLE, IN p_last_log_by INT, OUT p_leave_application_id INT)
+CREATE PROCEDURE insertLeaveApplication(IN p_contact_id INT, IN p_leave_type_id INT, IN p_application_type VARCHAR(100), IN p_reason VARCHAR(500), IN p_leave_date DATE, IN p_leave_start_time TIME, IN p_leave_end_time TIME, IN p_number_of_hours DOUBLE, IN p_creation_type VARCHAR(100), IN p_last_log_by INT, OUT p_leave_application_id INT)
 BEGIN
-    INSERT INTO leave_application (contact_id, leave_type_id, reason, leave_date, leave_start_time, leave_end_time, number_of_hours, last_log_by) 
-	VALUES(p_contact_id, p_leave_type_id, p_reason, p_leave_date, p_leave_start_time, p_leave_end_time, p_number_of_hours, p_last_log_by);
+    INSERT INTO leave_application (contact_id, leave_type_id, application_type, reason, leave_date, leave_start_time, leave_end_time, number_of_hours, creation_type, last_log_by) 
+	VALUES(p_contact_id, p_leave_type_id, p_application_type, p_reason, p_leave_date, p_leave_start_time, p_leave_end_time, p_number_of_hours, p_creation_type, p_last_log_by);
 	
     SET p_leave_application_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateLeaveApplication(IN p_leave_application_id INT, IN p_contact_id INT, IN p_leave_type_id INT, IN p_reason VARCHAR(500), IN p_leave_date DATE, IN p_leave_start_time TIME, IN p_leave_end_time TIME, IN p_number_of_hours DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateLeaveApplication(IN p_leave_application_id INT, IN p_contact_id INT, IN p_leave_type_id INT, IN p_application_type VARCHAR(100), IN p_reason VARCHAR(500), IN p_leave_date DATE, IN p_leave_start_time TIME, IN p_leave_end_time TIME, IN p_number_of_hours DOUBLE, IN p_creation_type VARCHAR(100), IN p_last_log_by INT)
 BEGIN
 	UPDATE leave_application
     SET contact_id = contact_id,
     reason = p_reason,
     leave_date = p_leave_date,
+    application_type = p_application_type,
     leave_start_time = p_leave_start_time,
     leave_end_time = p_leave_end_time,
     number_of_hours = p_number_of_hours,
+    creation_type = p_creation_type,
+    last_log_by = p_last_log_by
+    WHERE leave_application_id = p_leave_application_id;
+END //
+
+CREATE PROCEDURE updateLeaveForm(IN p_leave_application_id INT, IN p_leave_form VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE leave_application
+    SET leave_form = p_leave_form,
     last_log_by = p_last_log_by
     WHERE leave_application_id = p_leave_application_id;
 END //
@@ -10153,6 +10197,12 @@ END //
 CREATE PROCEDURE generateLeaveApplicationTable(IN p_contact_id INT)
 BEGIN
     SELECT * FROM leave_application WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE generateManualLeaveApplicationTable()
+BEGIN
+    SELECT * FROM leave_application
+    WHERE contact_id NOT IN (SELECT contact_id FROM contact WHERE user_id is not null AND is_employee = 1);
 END //
 
 CREATE PROCEDURE generateLeaveApprovalTable()
@@ -12720,7 +12770,7 @@ END //
 
 CREATE PROCEDURE getUnreplishedDisbursement(IN p_fund_source VARCHAR(100))
 BEGIN
-	SELECT SUM(particulars_amount) AS total FROM disbursement_particulars
+	SELECT SUM((base_amount + vat_amount ) - withholding_amount) AS total FROM disbursement_particulars
     WHERE disbursement_id IN (SELECT disbursement_id FROM disbursement WHERE fund_source = p_fund_source AND disburse_status = 'Posted' AND transaction_type != 'Replenishment');
 END //
 
@@ -12845,7 +12895,7 @@ BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
 
-    SET query = 'SELECT SUM(particulars_amount) AS total FROM disbursement_particulars
+    SET query = 'SELECT SUM((base_amount + vat_amount ) - withholding_amount) AS total FROM disbursement_particulars
     WHERE disbursement_id IN (SELECT disbursement_id FROM disbursement';
     SET conditionList = ' WHERE 1';
 
@@ -14519,3 +14569,121 @@ BEGIN
     FROM authorize_unit_transfer
     WHERE warehouse_id = p_transferred_to AND user_id = p_user_id;
 END //
+
+
+/* Part Class Table Stored Procedures */
+
+CREATE PROCEDURE checkPartsClassExist (IN p_part_class_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM part_class
+    WHERE part_class_id = p_part_class_id;
+END //
+
+CREATE PROCEDURE insertPartsClass(IN p_part_class_name VARCHAR(100), IN p_last_log_by INT, OUT p_part_class_id INT)
+BEGIN
+    INSERT INTO part_class (part_class_name, last_log_by) 
+	VALUES(p_part_class_name, p_last_log_by);
+	
+    SET p_part_class_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updatePartsClass(IN p_part_class_id INT, IN p_part_class_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE part_class
+    SET part_class_name = p_part_class_name,
+    last_log_by = p_last_log_by
+    WHERE part_class_id = p_part_class_id;
+END //
+
+CREATE PROCEDURE deletePartsClass(IN p_part_class_id INT)
+BEGIN
+    DELETE FROM part_class WHERE part_class_id = p_part_class_id;
+END //
+
+CREATE PROCEDURE getPartsClass(IN p_part_class_id INT)
+BEGIN
+	SELECT * FROM part_class
+    WHERE part_class_id = p_part_class_id;
+END //
+
+CREATE PROCEDURE generatePartsClassTable()
+BEGIN
+    SELECT part_class_id, part_class_name
+    FROM part_class
+    ORDER BY part_class_id;
+END //
+
+CREATE PROCEDURE generatePartsClassOptions()
+BEGIN
+	SELECT part_class_id, part_class_name FROM part_class
+	ORDER BY part_class_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Part SubClass Table Stored Procedures */
+DROP PROCEDURE checkPartSubclassExist//
+CREATE PROCEDURE checkPartsSubclassExist (IN p_part_subclass_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM part_subclass
+    WHERE part_subclass_id = p_part_subclass_id;
+END //
+
+DROP PROCEDURE insertPartSubclass//
+CREATE PROCEDURE insertPartsSubclass(IN p_part_subclass_name VARCHAR(100), IN p_part_class_id INT, IN p_last_log_by INT, OUT p_part_subclass_id INT)
+BEGIN
+    INSERT INTO part_subclass (part_subclass_name, part_class_id, last_log_by) 
+	VALUES(p_part_subclass_name, p_part_class_id, p_last_log_by);
+	
+    SET p_part_subclass_id = LAST_INSERT_ID();
+END //
+
+DROP PROCEDURE updatePartSubclass//
+CREATE PROCEDURE updatePartsSubclass(IN p_part_subclass_id INT, IN p_part_subclass_name VARCHAR(100), IN p_part_class_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE part_subclass
+    SET part_subclass_name = p_part_subclass_name,
+    part_class_id = p_part_class_id,
+    last_log_by = p_last_log_by
+    WHERE part_subclass_id = p_part_subclass_id;
+END //
+
+DROP PROCEDURE deletePartSubclass//
+CREATE PROCEDURE deletePartsSubclass(IN p_part_subclass_id INT)
+BEGIN
+    DELETE FROM part_subclass WHERE part_subclass_id = p_part_subclass_id;
+END //
+
+DROP PROCEDURE getPartSubclass//
+CREATE PROCEDURE getPartsSubclass(IN p_part_subclass_id INT)
+BEGIN
+	SELECT * FROM part_subclass
+    WHERE part_subclass_id = p_part_subclass_id;
+END //
+
+DROP PROCEDURE generatePartSubclassTable//
+CREATE PROCEDURE generatePartsSubclassTable()
+BEGIN
+    SELECT *
+    FROM part_subclass
+    ORDER BY part_subclass_id;
+END //
+
+DROP PROCEDURE generatePartSubclassOptions//
+CREATE PROCEDURE generatePartsSubclassOptions()
+BEGIN
+	SELECT part_subclass_id, part_subclass_name FROM part_subclass
+	ORDER BY part_subclass_name;
+END //
+
+DROP PROCEDURE generatePartSubclassByCategoryOptions//
+CREATE PROCEDURE generatePartsSubclassByCategoryOptions(IN p_part_class_id INT)
+BEGIN
+	SELECT part_subclass_id, part_subclass_name FROM part_subclass
+    WHERE part_class_id = p_part_class_id
+	ORDER BY part_subclass_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

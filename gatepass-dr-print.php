@@ -70,7 +70,7 @@
         $otherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
         $productDescription = $otherProductDetails['product_description'] ?? null;
         
-        if($productType == 'Unit'){
+        if($productType == 'Unit' || $productType == 'Rental'){
             $productDetails = $productModel->getProduct($productID);
             $productSubategoryID = $productDetails['product_subcategory_id'] ?? null;
 
@@ -81,7 +81,6 @@
             $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? null);
             $fullStockNumber = $productSubcategoryCode . $stockNumber;
 
-            $stockNumber = $stockNumber;
             $engineNumber = $productDetails['engine_number'] ??  '--';
             $chassisNumber = $productDetails['chassis_number'] ??  '--';
             $plateNumber = $productDetails['plate_number'] ?? '--';
@@ -123,7 +122,7 @@
     }
 
     
-    $gatePassTable = generateGatePassTable($customerName, $unitImage, $customerMobile, $customerAddress, $drNumber, $productDescription, $stockNumber);
+    $gatePassTable = generateGatePassTable($customerName, $unitImage, $customerMobile, $customerAddress, $drNumber, $productDescription, $fullStockNumber);
 
     ob_start();
 

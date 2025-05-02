@@ -470,13 +470,6 @@ class CollectionsController {
         $payment_advice = $_POST['payment_advice'];
         $orDate = $this->systemModel->checkDate('empty', $_POST['or_date'], '', 'Y-m-d', '');
         $paymentDate = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
-
-        if($payment_advice == 'No'){
-            $orNumber = $_POST['or_number'];
-        }
-        else{
-            $orNumber = $this->systemSettingModel->getSystemSetting(26)['value'] + 1;
-        }
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -513,6 +506,7 @@ class CollectionsController {
         }
     
         if ($total > 0) {
+            $orNumber = $_POST['or_number'];
             $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
             $paymentAmount2 = $collectionsDetails['payment_amount'];
             $companyID2 = $collectionsDetails['company_id'];
@@ -555,6 +549,13 @@ class CollectionsController {
             exit;
         } 
         else {
+            if($payment_advice == 'No'){
+                $orNumber = $_POST['or_number'];
+            }
+            else{
+                $orNumber = $this->systemSettingModel->getSystemSetting(26)['value'] + 1;
+            }
+
             if($modeOfPayment === 'GCash' || $modeOfPayment === 'Online Deposit'){
                 $checkLoanCollectionReferenceExist = $this->collectionsModel->checkLoanCollectionReferenceExist($referenceNumber);
                 $total = $checkLoanCollectionReferenceExist['total'] ?? 0;

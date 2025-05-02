@@ -860,6 +860,7 @@ if($addProductExpense['total'] > 0){
                               <option value="">--</option>
                               <option value="Check Voucher">Check Voucher</option>
                               <option value="Cash Disbursement Voucher">Cash Disbursement Voucher</option>
+                              <option value="Journal Voucher">Journal Voucher</option>
                               <option value="Issuance Slip">Issuance Slip</option>
                               <option value="Contractor Report">Contractor Report</option>
                               <option value="Adjustment">Adjustment</option>

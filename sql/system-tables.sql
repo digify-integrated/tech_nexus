@@ -6102,3 +6102,19 @@ CREATE TABLE authorize_unit_transfer (
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE part_class(
+	part_class_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	part_class_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part_subclass(
+	part_subclass_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	part_subclass_name VARCHAR(100) NOT NULL,
+	part_class_id INT UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (part_class_id) REFERENCES part_class(part_class_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
