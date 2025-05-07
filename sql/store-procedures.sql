@@ -6983,13 +6983,7 @@ BEGIN
 	VALUES(p_product_category_id, p_product_subcategory_id, p_company_id, p_product_status, p_stock_number, p_engine_number, p_chassis_number, p_plate_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_product_cost, p_product_price, p_remarks, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateProductImage(IN p_product_id INT, IN p_product_image VARCHAR(500), IN p_last_log_by INT)
-BEGIN
-	UPDATE product 
-    SET product_image = p_product_image, 
-    last_log_by = p_last_log_by 
-    WHERE product_id = p_product_id;
-END //
+
 
 CREATE PROCEDURE updateProductRRNumber(IN p_product_id INT, IN p_rr_no VARCHAR(100), IN p_last_log_by INT)
 BEGIN
@@ -7002,6 +6996,14 @@ END //
 CREATE PROCEDURE insertProductImage(IN p_product_id INT, IN p_product_image VARCHAR(500), IN p_last_log_by INT)
 BEGIN
     INSERT INTO product_image (product_id, product_image, last_log_by) VALUES(p_product_id, p_product_image, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateProductImage(IN p_product_id INT, IN p_product_image VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE product 
+    SET product_image = p_product_image, 
+    last_log_by = p_last_log_by 
+    WHERE product_id = p_product_id;
 END //
 
 CREATE PROCEDURE insertProductDocument(IN p_product_id INT, IN p_document_type VARCHAR(200), IN p_product_document VARCHAR(500), IN p_last_log_by INT)
@@ -13767,7 +13769,7 @@ SET time_zone = '+08:00';
     UPDATE product_inventory_batch
         SET remarks = p_remarks,
         last_log_by = p_last_log_by
-        WHERE product_inventory_batch_id = p_product_inventory_batch_id AND product_inventory_status = 'For Scanning';
+        WHERE product_inventory_batch_id = p_product_inventory_batch_id AND product_inventory_status IN ('For Scanning', 'Scanned');
 END //
 
 CREATE PROCEDURE insertProductInventoryScanAdditional(IN p_product_inventory_id INT, IN p_stock_number VARCHAR(100), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
@@ -14687,3 +14689,298 @@ BEGIN
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+
+CREATE PROCEDURE checkPartsCategoryExist (IN p_part_category_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM part_category
+    WHERE part_category_id = p_part_category_id;
+END //
+
+CREATE PROCEDURE insertPartsCategory(IN p_part_category_name VARCHAR(100), IN p_last_log_by INT, OUT p_part_category_id INT)
+BEGIN
+    INSERT INTO part_category (part_category_name, last_log_by) 
+	VALUES(p_part_category_name, p_last_log_by);
+	
+    SET p_part_category_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updatePartsCategory(IN p_part_category_id INT, IN p_part_category_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE part_category
+    SET part_category_name = p_part_category_name,
+    last_log_by = p_last_log_by
+    WHERE part_category_id = p_part_category_id;
+END //
+
+CREATE PROCEDURE deletePartsCategory(IN p_part_category_id INT)
+BEGIN
+    DELETE FROM part_category WHERE part_category_id = p_part_category_id;
+END //
+
+CREATE PROCEDURE getPartsCategory(IN p_part_category_id INT)
+BEGIN
+	SELECT * FROM part_category
+    WHERE part_category_id = p_part_category_id;
+END //
+
+CREATE PROCEDURE generatePartsCategoryTable()
+BEGIN
+    SELECT part_category_id, part_category_name
+    FROM part_category
+    ORDER BY part_category_id;
+END //
+
+CREATE PROCEDURE generatePartsCategoryOptions()
+BEGIN
+	SELECT part_category_id, part_category_name FROM part_category
+	ORDER BY part_category_name;
+END //
+
+
+CREATE PROCEDURE checkPartsExist (IN p_part_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM part
+    WHERE part_id = p_part_id;
+END //
+
+CREATE PROCEDURE checkPartsImageExist (IN p_part_image_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM part_image
+    WHERE part_image_id = p_part_image_id;
+END //
+
+CREATE PROCEDURE checkPartsDocumentExist (IN p_part_document_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM part_document
+    WHERE part_document_id = p_part_document_id;
+END //
+
+CREATE PROCEDURE insertParts(IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_unit_purchase INT, IN p_stock_alert INT, IN p_quantity INT, IN p_brand_id INT, IN p_warehouse_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_jo_date DATE, IN p_jo_no VARCHAR(100), IN p_supplier_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT, OUT p_part_id INT)
+BEGIN
+    INSERT INTO part (part_category_id, part_class_id, part_subclass_id, description, bar_code, company_id, unit_sale, unit_purchase, stock_alert, quantity, brand_id, warehouse_id, issuance_date, issuance_no, jo_date, jo_no, supplier_id, remarks, last_log_by) 
+	VALUES(p_part_category_id, p_part_class_id, p_part_subclass_id, p_description, p_bar_code, p_company_id, p_unit_sale, p_unit_purchase, p_stock_alert, p_quantity, p_brand_id, p_warehouse_id, p_issuance_date, p_issuance_no, p_jo_date, p_jo_no, p_supplier_id, p_remarks, p_last_log_by);
+	
+    SET p_part_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateParts(IN p_part_id INT, IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_unit_purchase INT, IN p_stock_alert INT, IN p_part_price DOUBLE, IN p_quantity INT, IN p_brand_id INT, IN p_warehouse_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_jo_date DATE, IN p_jo_no VARCHAR(100), IN p_supplier_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+    UPDATE part
+    SET part_category_id = p_part_category_id,
+    part_class_id = p_part_class_id,
+    part_subclass_id = p_part_subclass_id,
+    description = p_description,
+    bar_code = p_bar_code,
+    company_id = p_company_id,
+    unit_sale = p_unit_sale,
+    unit_purchase = p_unit_purchase,
+    stock_alert = p_stock_alert,
+    part_price = p_part_price,
+    quantity = p_quantity,
+    brand_id = p_brand_id,
+    warehouse_id = p_warehouse_id,
+    issuance_date = p_issuance_date,
+    issuance_no = p_issuance_no,
+    jo_date = p_jo_date,
+    jo_no = p_jo_no,
+    supplier_id = p_supplier_id,
+    remarks = p_remarks,
+    last_log_by = p_last_log_by
+    WHERE part_id = p_part_id;
+END //
+
+CREATE PROCEDURE getParts(IN p_part_id INT)
+BEGIN
+	SELECT * FROM part
+    WHERE part_id = p_part_id;
+END //
+
+CREATE PROCEDURE getPartsImage(IN p_part_image_id INT)
+BEGIN
+	SELECT * FROM part_image
+    WHERE part_image_id = p_part_image_id;
+END //
+
+
+CREATE PROCEDURE insertPartsImage(IN p_part_id INT, IN p_part_image VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO part_image (part_id, part_image, last_log_by) VALUES(p_part_id, p_part_image, p_last_log_by);
+END //
+
+CREATE PROCEDURE updatePartsImage(IN p_part_id INT, IN p_part_image VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE part 
+    SET part_image = p_part_image, 
+    last_log_by = p_last_log_by 
+    WHERE part_id = p_part_id;
+END //
+
+CREATE PROCEDURE insertPartsDocument(IN p_part_id INT, IN p_document_type VARCHAR(200), IN p_part_document VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO part_document (part_id, part_document_type, document_path, last_log_by) VALUES(p_part_id, p_document_type, p_part_document, p_last_log_by);
+END //
+
+CREATE PROCEDURE generatePartsImage(IN p_part_id INT)
+BEGIN
+	SELECT part_image_id, part_image FROM part_image
+    WHERE part_id = p_part_id
+	ORDER BY part_image_id;
+END //
+
+CREATE PROCEDURE generatePartsDocument(IN p_part_id INT)
+BEGIN
+	SELECT part_document_id, part_document_type, document_path FROM part_document
+    WHERE part_id = p_part_id
+	ORDER BY part_document_id;
+END //
+
+CREATE PROCEDURE generatePartsExpenseTable(IN p_part_id INT, IN p_reference_type VARCHAR(100), IN p_expense_type VARCHAR(100))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM part_expense';
+    SET conditionList = ' WHERE 1';
+    
+    IF p_reference_type IS NOT NULL AND p_reference_type <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND reference_type =');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_reference_type));
+    END IF;
+    
+    IF p_expense_type IS NOT NULL AND p_expense_type <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND expense_type =');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_expense_type));
+    END IF;
+
+    SET conditionList = CONCAT(conditionList, ' AND part_id =');
+    SET conditionList = CONCAT(conditionList, QUOTE(p_part_id));
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE insertPartsExpense(IN p_part_id INT, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(200), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_particulars VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO part_expense (part_id, reference_type, reference_number, expense_amount, expense_type, particulars, last_log_by) 
+	VALUES(p_part_id, p_reference_type, p_reference_number, p_expense_amount, p_expense_type, p_particulars, p_last_log_by);
+END //
+
+CREATE PROCEDURE deletePartsExpense(IN p_part_expense_id INT)
+BEGIN
+    DELETE FROM part_expense WHERE part_expense_id = p_part_expense_id;
+END //
+
+CREATE PROCEDURE deletePartsImage(IN p_part_image_id INT)
+BEGIN
+    DELETE FROM part_image WHERE part_image_id = p_part_image_id;
+END //
+
+CREATE PROCEDURE deletePartsDocument(IN p_part_document_id INT)
+BEGIN
+    DELETE FROM part_document WHERE part_document_id = p_part_document_id;
+END //
+
+CREATE PROCEDURE getPartsDocument(IN p_part_document_id INT)
+BEGIN
+	SELECT * FROM part_document
+    WHERE part_document_id = p_part_document_id;
+END //
+
+CREATE PROCEDURE deleteParts(IN p_part_id INT)
+BEGIN
+    DELETE FROM part WHERE part_id = p_part_id;
+END //
+
+DELIMITER //
+
+CREATE PROCEDURE generatePartsTable(
+    IN p_parts_search VARCHAR(1000), 
+    IN p_company_filter VARCHAR(500),
+    IN p_brand_filter VARCHAR(500),
+    IN p_parts_category_filter VARCHAR(500),
+    IN p_parts_class_filter VARCHAR(500),
+    IN p_warehouse_filter VARCHAR(500),
+    IN p_parts_subclass_filter VARCHAR(500),
+    IN p_created_start_date DATE,
+    IN p_created_end_date DATE,
+    IN p_for_sale_start_date DATE,
+    IN p_for_sale_end_date DATE,
+    IN p_part_status VARCHAR(500)
+)
+BEGIN
+    DECLARE sql_query LONGTEXT;
+    DECLARE search_param1, search_param2 VARCHAR(1000);
+
+    -- Initialize base query
+    SET sql_query = 'SELECT * FROM part WHERE 1=1';
+
+    -- Add filters dynamically
+    IF p_part_status IS NOT NULL AND p_part_status <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND part_status = ', QUOTE(p_part_status));
+    ELSE
+        SET sql_query = CONCAT(sql_query, ' AND part_status != "Out of Stock"');
+    END IF;
+
+    IF p_created_start_date IS NOT NULL AND p_created_end_date IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND created_date BETWEEN ', 
+                               QUOTE(p_created_start_date), ' AND ', QUOTE(p_created_end_date));
+    END IF;
+
+    IF p_for_sale_start_date IS NOT NULL AND p_for_sale_end_date IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND for_sale_date BETWEEN ', 
+                               QUOTE(p_for_sale_start_date), ' AND ', QUOTE(p_for_sale_end_date));
+    END IF;
+
+    IF p_parts_search IS NOT NULL AND p_parts_search <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND (bar_code LIKE ? OR description LIKE ?)');
+        SET search_param1 = CONCAT('%', p_parts_search, '%');
+        SET search_param2 = CONCAT('%', p_parts_search, '%');
+    END IF;
+
+    IF p_company_filter IS NOT NULL AND p_company_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND company_id IN (', p_company_filter, ')');
+    END IF;
+
+    IF p_brand_filter IS NOT NULL AND p_brand_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND brand_id IN (', p_brand_filter, ')');
+    END IF;
+
+    IF p_parts_category_filter IS NOT NULL AND p_parts_category_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND part_category_id IN (', p_parts_category_filter, ')');
+    END IF;
+
+    IF p_parts_class_filter IS NOT NULL AND p_parts_class_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND part_class_id IN (', p_parts_class_filter, ')');
+    END IF;
+
+    IF p_parts_subclass_filter IS NOT NULL AND p_parts_subclass_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND part_subclass_id IN (', p_parts_subclass_filter, ')');
+    END IF;
+
+    IF p_warehouse_filter IS NOT NULL AND p_warehouse_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND warehouse_id IN (', p_warehouse_filter, ')');
+    END IF;
+
+    -- Add ordering
+    SET sql_query = CONCAT(sql_query, ' ORDER BY description');
+
+    -- Prepare and execute
+    PREPARE stmt FROM sql_query;
+
+    IF p_parts_search IS NOT NULL AND p_parts_search <> '' THEN
+        EXECUTE stmt USING @search_param1 := search_param1, @search_param2 := search_param2;
+    ELSE
+        EXECUTE stmt;
+    END IF;
+
+    DEALLOCATE PREPARE stmt;
+END //

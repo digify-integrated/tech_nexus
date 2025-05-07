@@ -217,7 +217,7 @@
                     $chartOfAccountDetails = $chartOfAccountModel->getChartOfAccount($chart_of_account_id);
                     $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
 
-                    if($disburse_status === 'Cancelled'){
+                    if($disburse_status == 'Cancelled'){
                         $list .= '<tr>
                             <td>'. $transaction_number .'</td>
                             <td>'. $customerName .'</td>
@@ -238,8 +238,6 @@
                         </tr>';
                     }
                     else{
-                        $base_amount = ($base_amount + $vat_amount) - $withholding_amount;
-
                         $list .= '<tr>
                             <td>'. $transaction_number .'</td>
                             <td>'. $customerName .'</td>
@@ -259,7 +257,7 @@
                             <td>'. number_format($base_amount, 2) .'</td>
                         </tr>';
 
-                        if($with_vat === 'Yes'){
+                        if($with_vat == 'Yes'){
                             $list .= '<tr>
                                 <td>'. $transaction_number .'</td>
                                 <td>'. $customerName .'</td>
@@ -268,17 +266,35 @@
                                 <td>Input Tax</td>
                                 <td>'. number_format($vat_amount, 2) .'</td>
                                 <td>0.00</td>
+                            </tr>
+                            <tr>
+                                <td>'. $transaction_number .'</td>
+                                <td>'. $customerName .'</td>
+                                <td>'. $companyName .'</td>
+                                <td>'. $particulars .'</td>
+                                <td>Petty Cash Fund</td>
+                                <td>0.00</td>
+                                <td>'. number_format($vat_amount, 2) .'</td>
                             </tr>';
                         }
 
-                        if($with_withholding === 'Yes'){
+                        if($with_withholding != 'No'){
                             $list .= '<tr>
                                     <td>'. $transaction_number .'</td>
                                     <td>'. $customerName .'</td>
                                     <td>'. $companyName .'</td>
                                     <td>'. $particulars .'</td>
                                     <td>Withholding Tax Payable Other</td>
-                                    <td>'. number_format($withholding_amount * -1, 2) .'</td>
+                                    <td>0.00</td>
+                                    <td>'. number_format($withholding_amount, 2) .'</td>
+                                </tr>
+                                <tr>
+                                    <td>'. $transaction_number .'</td>
+                                    <td>'. $customerName .'</td>
+                                    <td>'. $companyName .'</td>
+                                    <td>'. $particulars .'</td>
+                                    <td>Petty Cash Fund</td>
+                                    <td>'. number_format($withholding_amount, 2) .'</td>
                                     <td>0.00</td>
                                 </tr>';
                         }

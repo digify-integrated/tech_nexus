@@ -6118,3 +6118,77 @@ CREATE TABLE part_subclass(
     FOREIGN KEY (part_class_id) REFERENCES part_class(part_class_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE part_category(
+	part_category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	part_category_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part(
+	part_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    part_category_id VARCHAR(500) NOT NULL,
+    part_class_id VARCHAR(500) NOT NULL,
+    part_subclass_id VARCHAR(500) NOT NULL,
+	description VARCHAR(2000),
+	bar_code VARCHAR(100),
+    company_id INT UNSIGNED NOT NULL,
+    unit_sale INT UNSIGNED,
+    unit_purchase INT UNSIGNED,
+    stock_alert INT UNSIGNED,
+	part_image VARCHAR(500),
+	part_status VARCHAR(50) NOT NULL DEFAULT 'Draft',
+	part_cost DOUBLE DEFAULT 0,
+	part_price DOUBLE DEFAULT 0,
+	quantity DOUBLE DEFAULT 0,
+	brand_id INT UNSIGNED NOT NULL,
+	warehouse_id INT UNSIGNED NOT NULL,
+	issuance_date DATE,
+	issuance_no VARCHAR(100),
+	jo_date DATE,
+	jo_no VARCHAR(100),
+	rr_date DATE,
+	rr_no VARCHAR(100),
+	supplier_id INT UNSIGNED,
+	ref_no VARCHAR(200),
+	remarks VARCHAR(1000),
+	created_date DATETIME DEFAULT NOW(),
+	for_sale_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part_image(
+	part_image_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	part_id INT UNSIGNED NOT NULL,
+	part_image VARCHAR(500) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (part_id) REFERENCES part(part_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+
+CREATE TABLE part_expense(
+	part_expense_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    part_id INT UNSIGNED NOT NULL,
+    reference_type VARCHAR(100),
+    reference_number VARCHAR(200),
+    expense_amount DOUBLE DEFAULT 0,
+    expense_type VARCHAR(100),
+    expense_category VARCHAR(100),
+    particulars VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part_document(
+	part_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    part_id INT UNSIGNED NOT NULL,
+    part_document_type VARCHAR(100),
+    document_path VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);

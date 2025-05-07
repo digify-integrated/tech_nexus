@@ -359,3 +359,32 @@
         </div>
     </div>
 </div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="internal-dr-unit-image-offcanvas" aria-labelledby="internal-dr-unit-image-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="internal-dr-unit-image-offcanvas-label" style="margin-bottom:-0.5rem">Unit Image</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="internal-dr-unit-image-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Unit Image <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="unit_image_image" name="unit_image_image">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-internal-dr-unit-image" form="internal-dr-unit-image-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

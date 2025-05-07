@@ -100,6 +100,7 @@
         $particulars = $disbursementDetails['particulars'];
         $customer_id = $disbursementDetails['customer_id'];
         $transaction_number = $disbursementDetails['transaction_number'];
+        $fund_source = $disbursementDetails['fund_source'];
 
         $disbursementTotal = $disbursementModel->getDisbursementTotal($disbursementID)['total'] ?? 0;
 
@@ -119,24 +120,73 @@
         $sql->execute();
         $options = $sql->fetchAll(PDO::FETCH_ASSOC);
         $sql->closeCursor();
+
+        $jvlist = '';
             
         foreach ($options as $row) {
             $disbursement_particulars_id = $row['disbursement_particulars_id'];
             $chart_of_account_id = $row['chart_of_account_id'];
             $remarks = $row['remarks'];
             $particulars_amount = $row['particulars_amount'];
+            $base_amount = $row['base_amount'];
+            $with_vat = $row['with_vat'];
+            $with_withholding = $row['with_withholding'];
+            $vat_amount = $row['vat_amount'];
+            $withholding_amount = $row['withholding_amount'];
 
             $chartOfAccountDetails = $chartOfAccountModel->getChartOfAccount($chart_of_account_id);
             $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
 
             $list .= trim($chartOfAccountName) . ' (' . number_format($particulars_amount, 2) . ')';
+
+            if($particulars_amount >= 0){
+                $jvlist .= '<tr>
+                            <td>'. $chartOfAccountName .'</td>
+                            <td style="text-align: right">'. number_format(abs($base_amount), 2) .'</td>
+                            <td style="text-align: right">0.00</td>
+                        </tr>';
+            }
+            else{
+                $jvlist .= '<tr>
+                    <td>'. $chartOfAccountName .'</td>
+                    <td style="text-align: right">0.00</td>
+                    <td style="text-align: right">'. number_format(abs($base_amount), 2) .'</td>
+                </tr>';
+            }
+
+            if($with_vat === 'Yes'){
+                $jvlist .= '<tr>
+                    <td>Input Tax</td>
+                    <td style="text-align: right">'. number_format(abs($vat_amount), 2) .'</td>
+                    <td style="text-align: right">0.00</td>
+                </tr>';
+            }
+
+            if($with_withholding != 'No'){
+                $jvlist .= '<tr>
+                    <td>Withholding Tax Payable Other</td>
+                    <td style="text-align: right">0.00</td>
+                    <td style="text-align: right">'. number_format($withholding_amount * -1, 2) .'</td>
+                </tr>';
+            }
+            
+        }
+
+        if($fund_source == 'Check'){
+            $title = 'CV NO.';
+        }
+        else if($fund_source == 'Journal Voucher'){
+            $title = 'JV NO.';
+        }
+        else{
+            $title = 'CDV NO.';
         }
 
         $response = '<table border="2" width="100%" cellpadding="5" align="left">
                         <tbody>
                             <tr>
                                 <td colspan="2" style="text-align: left"><b>PAYEE</b><br/>'. $customerName .'</td>
-                                <td style="text-align: center"><b>CDV NO.</b><br/>'. $transaction_number .'</td>
+                                <td style="text-align: center"><b>'. $title .'</b><br/>'. $transaction_number .'</td>
                                 <td style="text-align: center"><b>DATE</b><br/>'. $transaction_date .'</td>
                             </tr>
                             <tr>
@@ -157,7 +207,20 @@
                                 <td style="text-align: left"><b>Received by:</b><br/></td>
                             </tr>
                         </tbody>
+                    </table><br/>';
+
+                    if($fund_source == 'Journal Voucher'){
+                        $response .= '<table border="2" width="100%" cellpadding="5" align="left">
+                        <tbody>
+                            <tr>
+                                <td style="text-align: center; background-color: red; color:white; ">ACCOUNT CHARGED</td>
+                                <td style="text-align: center; background-color: red; color:white; ">DEBIT</td>
+                                <td style="text-align: center; background-color: red; color:white; ">CREDIT</td>
+                            </tr>
+                            '. $jvlist .'
+                        </tbody>
                     </table>';
+                    }
 
         return $response;
     }

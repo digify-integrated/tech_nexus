@@ -361,6 +361,9 @@
                                 if(disbursement_category == 'disbursement petty cash'){
                                     window.location = 'disbursement.php';
                                 }
+                                else if(disbursement_category == 'disbursement voucher'){
+                                    window.location = 'journal-voucher.php?';
+                                }
                                 else{
                                     window.location = 'check-disbursement.php';
                                 }
@@ -576,6 +579,9 @@
 
             if(disbursement_category == 'disbursement petty cash'){
                 discardCreate('disbursement.php');
+            }
+            else if(disbursement_category == 'disbursement voucher'){
+                discardCreate('journal-voucher.php');
             }
             else{
                 discardCreate('check-disbursement.php');
@@ -1535,6 +1541,9 @@ function disbursementForm(){
 
                         if(disbursement_category == 'disbursement petty cash'){
                             window.location = 'disbursement.php?id=' + response.disbursementID;
+                        }
+                        else if(disbursement_category == 'disbursement voucher'){
+                            window.location = 'journal-voucher.php?id=' + response.disbursementID;
                         }
                         else{
                             window.location = 'check-disbursement.php?id=' + response.disbursementID;

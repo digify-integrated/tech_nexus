@@ -294,7 +294,13 @@
         });
 
         $(document).on('click','#apply-filter',function() {
-            collectionsTable('#collections-table');
+            
+            if($('#collections-table').length){
+                collectionsTable('#collections-table');
+            }
+            if($('#payment-advice-table').length){
+                paymentAdviceTable('#payment-advice-table');
+            }
         });
 
         $(document).on('click','#tag-collections-as-cleared-details',function() {

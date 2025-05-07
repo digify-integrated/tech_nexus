@@ -220,7 +220,7 @@ class ProductInventoryReportController {
             exit;
         }
 
-        if($remarks_type === 'missing'){
+        if($remarks_type == 'missing'){
             $this->productInventoryReportModel->productInventoryTagAsMissing($product_inventory_batch_id, $remarks, $userID);
         }
         else{

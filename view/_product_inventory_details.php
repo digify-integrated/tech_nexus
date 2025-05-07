@@ -167,34 +167,6 @@
   </div>
 </div>
 
-<div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="product-inventory-batch-offcanvas" aria-labelledby="product-inventory-batch-offcanvas-label">
-    <div class="offcanvas-header">
-      <h2 id="product-inventory-batch-offcanvas-label" style="margin-bottom:-0.5rem">Tag As Missing</h2>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="product-inventory-batch-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12">
-                <label class="form-label">Remarks</label>
-                <input type="hidden" id="product_inventory_batch_id" name="product_inventory_batch_id">
-                <textarea class="form-control" id="remarks" name="remarks" maxlength="500"></textarea>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-product-inventory-batch" form="product-inventory-batch-form">Submit</button>
-          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-        </div>
-      </div>
-  </div>
-</div>
 
 <div>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="product-inventory-batch-offcanvas" aria-labelledby="product-inventory-batch-offcanvas-label">

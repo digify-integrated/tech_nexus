@@ -336,7 +336,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $disbursementID .'">',
                     'TRANSACTION_DATE' => $transaction_date,
-                    'CUSTOMER_NAME' => '<a href="check-disbursement.php?id='. $disbursementIDEncrypted .'" title="View Details">
+                    'CUSTOMER_NAME' => '<a href="journal-voucher.php?id='. $disbursementIDEncrypted .'" title="View Details">
                                         '. $customerName .'
                                     </a>',
                     'DEPARTMENT_NAME' => $departmentName,
@@ -348,7 +348,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'STATUS' => $disburse_status,
                     'TOTAL_AMOUNT' => number_format($disbursementTotal, 2),
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="check-disbursement.php?id='. $disbursementIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="journal-voucher.php?id='. $disbursementIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
@@ -498,6 +498,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $vat_amount = $row['vat_amount'];
                 $withholding_amount = $row['withholding_amount'];
                 $total_amount = $row['total_amount'];
+                $base_amount = $row['base_amount'];
 
                 $companyDetails = $companyModel->getCompany($company_id);
                 $companyName = $companyDetails['company_name'] ?? null;
@@ -524,7 +525,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'PARTICULARS' => $chartOfAccountName,
                     'COMPANY' => $companyName,
-                    'PARTICULAR_AMOUNT' => number_format($particulars_amount, 2),
+                    'PARTICULAR_AMOUNT' => number_format($base_amount, 2),
                     'REMARKS' => $remarks,
                     'ACTION' => $action
                 ];

@@ -548,7 +548,12 @@ function productInventoryBatchForm(){
                 },
                 success: function (response) {
                     if (response.success) {
-                        showNotification('Tag As Missing Success', 'The product inventory has bee tagged as missing successfully.', 'success');
+                        if($('#remarks_type').val() == 'remarks'){
+                            showNotification('Add Remarks Success', 'The remarks has been added successfully.', 'success');
+                        }
+                        else{
+                            showNotification('Tag As Missing Success', 'The product inventory has been tagged as missing successfully.', 'success');
+                        }
                         reloadDatatable("#inventory-report-batch-table");
                     }
                     else{
