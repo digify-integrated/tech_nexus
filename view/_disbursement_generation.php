@@ -485,6 +485,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
             
+            $updateReplenished = $userModel->checkSystemActionAccessRights($user_id, 199);
+            
             $response = []; 
 
             foreach ($options as $row) {
@@ -507,7 +509,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
 
                 $action = '';
-                if($disburse_status === 'Draft'){
+                if($disburse_status === 'Draft' || ($disburse_status == 'Replenished' && $updateReplenished['total'] > 0)){
                     $action = '<div class="d-flex gap-2">
                                     <button type="button" class="btn btn-icon btn-success update-disbursement-particulars" data-bs-toggle="offcanvas" data-bs-target="#particulars-offcanvas" aria-controls="particulars-offcanvas" data-disbursement-particulars-id="'. $disbursement_particulars_id .'" title="Update Particular">
                                         <i class="ti ti-edit"></i>
@@ -519,8 +521,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $disbursement_particulars_id_enc = $securityModel->encryptData($disbursement_particulars_id);
-
-               
 
                 $response[] = [
                     'PARTICULARS' => $chartOfAccountName,

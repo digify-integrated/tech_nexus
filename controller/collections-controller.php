@@ -593,6 +593,7 @@ class CollectionsController {
             else if($pdcType === 'Leasing Other'){
                 $leasingApplicationOtherChargesDetails = $this->leasingApplicationModel->getLeasingOtherCharges($leasing_other_charges_id);
                     $dueAmount = $leasingApplicationOtherChargesDetails['due_amount'] ?? 0;
+                    $other_charges_type = $leasingApplicationOtherChargesDetails['other_charges_type'] ?? 0;
             
                     if($paymentAmount <= $dueAmount){
                         $leasing_collections_id = $this->leasingApplicationModel->insertLeasingOtherChargesPayment($leasing_repayment_id, $leasing_application_id, $payment_for, $leasing_other_charges_id, $orNumber, $modeOfPayment, $paymentDate, $paymentAmount, $userID);
@@ -601,6 +602,11 @@ class CollectionsController {
                     }
                     else{
                         echo json_encode(['success' => false, 'overPayment' => true]);
+                        exit;
+                    }
+
+                    if($other_charges_type != $payment_for){
+                        echo json_encode(['success' => false, 'otherChargesType' => true]);
                         exit;
                     }
             }
@@ -616,11 +622,11 @@ class CollectionsController {
                 if($payment_advice === 'No'){
                     $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
                 }
-                        
-                if($payment_advice === 'Yes'){
-                    $this->systemSettingModel->updateSystemSettingValue(26, $orNumber, $userID);
-                }
-            }            
+            }
+
+            if($payment_advice === 'Yes'){
+                $this->systemSettingModel->updateSystemSettingValue(26, $orNumber, $userID);
+            }
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
             exit;

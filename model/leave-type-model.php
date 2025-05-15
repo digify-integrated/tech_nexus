@@ -197,6 +197,22 @@ class LeaveTypeModel {
 
         return $htmlOptions;
     }
+    
+    public function generateLeaveTypeWithoutAWOLOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateLeaveTypeWithoutAWOLOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $leaveTypeID = $row['leave_type_id'];
+            $leaveTypeName = $row['leave_type_name'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($leaveTypeID, ENT_QUOTES) . '">' . htmlspecialchars($leaveTypeName, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 }
 ?>

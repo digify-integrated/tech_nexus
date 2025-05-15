@@ -93,7 +93,7 @@
             <div class="col-lg-10">
                 <select class="form-control select2" name="employee_id" id="employee_id">
                     <option value="">--</option>
-                    <?php echo $employeeModel->generateEmployeeWithoutUserOptions(); ?>
+                    <?php echo $employeeModel->generateEmployeeOptions('active employee'); ?>
                 </select>
             </div>
           </div>
@@ -102,7 +102,14 @@
             <div class="col-lg-10">
                 <select class="form-control select2" name="leave_type_id" id="leave_type_id">
                     <option value="">--</option>
-                    <?php echo $leaveTypeModel->generateLeaveTypeOptions(); ?>
+                    <?php 
+                      if($creationType === 'manual'){
+                        echo $leaveTypeModel->generateLeaveTypeOptions();
+                      }
+                      else{
+                        echo $leaveTypeModel->generateLeaveTypeWithoutAWOLOptions();
+                      }
+                    ?>
                 </select>
             </div>
           </div>

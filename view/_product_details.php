@@ -18,7 +18,7 @@ $disabledProductForm = 'disabled';
 $disabledLandedCostForm = 'readonly';
 $disabledLandedCostForm2 = 'readonly';
 
-if ($updateLandedCost['total'] > 0 && $productStatus == 'Draft') {
+if ($updateLandedCost['total'] > 0 && ($productStatus == 'Draft' || $productStatus == 'ROPA')) {
   $disabledLandedCostForm = '';
   $disabledLandedCostForm2 = '';
 } elseif ($updateProductDisabled['total'] > 0 && $productStatus != 'Draft' && $productStatus != 'Sold') {
@@ -78,7 +78,7 @@ if($addProductExpense['total'] > 0){
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">';
 
-                        if ($tagForSale['total'] > 0 && $productStatus == 'Draft') {
+                        if ($tagForSale['total'] > 0 && ($productStatus == 'Draft' || $productStatus == 'ROPA')) {
                             $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-product-for-sale">Tag For Sale</button></li>';
                         }
 

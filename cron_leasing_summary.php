@@ -125,11 +125,11 @@ foreach ($options as $row) {
                         </a>
                         </td>
                     <td>'. $propertyName .'</td>
+                    <td>'. number_format($outstandingBalance, 2) .'</td>
                     <td>'. number_format($unpaidRental, 2) .'</td>
                     <td>'. number_format($unpaidElectricity, 2) .'</td>
                     <td>'. number_format($unpaidWater, 2) .'</td>
                     <td>'. number_format($unpaidOtherCharges, 2) .'</td>
-                    <td>'. number_format($outstandingBalance, 2) .'</td>
                     <td>'. number_format($floorArea, 2) .'</td>
                     <td>'. $termLength . ' ' . $termType .'</td>
                     <td>'. $contractDate .'</td>

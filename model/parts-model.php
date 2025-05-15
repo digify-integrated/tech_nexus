@@ -85,13 +85,10 @@ class PartsModel {
     # -------------------------------------------------------------
     
     # -------------------------------------------------------------
-    public function updatePartsStatus($p_parts_id, $p_parts_status, $p_particulars, $p_expense_amount, $p_expense_type, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePartsStatus(:p_parts_id, :p_parts_status, :p_particulars, :p_expense_amount, :p_expense_type, :p_last_log_by)');
+    public function updatePartsStatus($p_parts_id, $p_parts_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsStatus(:p_parts_id, :p_parts_status, :p_last_log_by)');
         $stmt->bindValue(':p_parts_id', $p_parts_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_parts_status', $p_parts_status, PDO::PARAM_STR);
-        $stmt->bindValue(':p_particulars', $p_particulars, PDO::PARAM_STR);
-        $stmt->bindValue(':p_expense_amount', $p_expense_amount, PDO::PARAM_STR);
-        $stmt->bindValue(':p_expense_type', $p_expense_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

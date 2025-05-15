@@ -2398,7 +2398,7 @@ function calculateTax() {
         : 0;
 
     const withholdingCents = Math.round(vatBaseCents * (withWithholding / 100));
-    const totalAmountCents = vatBaseCents + vatAmountCents - withholdingCents;
+    const totalAmountCents = particularsAmountCents - withholdingCents;
 
     // Display (convert cents back to decimal and fix to 2 places)
     $('#base_amount').val((vatBaseCents / 100).toFixed(2));

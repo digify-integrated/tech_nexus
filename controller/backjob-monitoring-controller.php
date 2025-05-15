@@ -153,8 +153,22 @@ class BackJobMonitoringController {
             exit;
         }
 
-        $sales_proposal_id = ($type === 'Internal Repair') ? null : htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
-        $product_id = ($type === 'Back Job') ? null : htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+        if($type === 'Backjob'){
+            $sales_proposal_id = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        }
+        else{
+            $sales_proposal_id = null;
+        }
+
+        if($type === 'Internal Repair'){
+            $product_id = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+        }
+        else if($type === 'Warranty'){
+            $product_id = htmlspecialchars($_POST['product_id2'], ENT_QUOTES, 'UTF-8');
+        }
+        else{
+            $product_id = null;
+        }
     
         $checkBackJobMonitoringExist = $this->backJobMonitoringModel->checkBackJobMonitoringExist($backjobMonitoringID);
         $total = $checkBackJobMonitoringExist['total'] ?? 0;

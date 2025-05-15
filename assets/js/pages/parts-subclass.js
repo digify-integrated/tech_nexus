@@ -329,10 +329,10 @@ function partsSubclassForm(){
         },
         messages: {
             parts_subclass_name: {
-                required: 'Please enter the parts subclass name'
+                required: 'Please enter the part subclass name'
             },
             parts_class_id: {
-                required: 'Please choose the product category'
+                required: 'Please choose the part class'
             },
         },
         errorPlacement: function (error, element) {

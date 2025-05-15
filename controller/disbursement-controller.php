@@ -1375,6 +1375,13 @@ class DisbursementController {
         $tax_quarter = $_POST['tax_quarter'];
         $total_amount = $_POST['total_amount'];
         $remarks = $_POST['remarks'];
+
+        $disbursementDetails = $this->disbursementModel->getDisbursement($disbursement_id);
+        $disburse_status = $disbursementDetails['disburse_status'] ?? '';
+        $transaction_number = $disbursementDetails['transaction_number'] ?? '';
+        $fund_source = $disbursementDetails['fund_source'] ?? '';
+        $fund_source = $disbursementDetails['fund_source'] ?? '';
+        $transaction_date = $disbursementDetails['transaction_date'];
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -1387,7 +1394,15 @@ class DisbursementController {
         $total = $checkDisbursementExist['total'] ?? 0;
     
         if ($total > 0) {
+            if($disburse_status == 'Replenished'){
+                $this->disbursementModel->createDisbursementEntry($disbursement_id, $transaction_number, $fund_source, 'reversed', date('Y-m-d'), $userID);
+            }
+
             $this->disbursementModel->updateDisbursementParticulars($disbursement_particulars_id, $disbursement_id, $chart_of_account_id, $company_id, $remarks, $particulars_amount, $base_amount, $with_vat, $with_withholding, $vat_amount, $withholding_amount, $total_amount, $tax_quarter, $userID);
+
+            if($disburse_status == 'Replenished'){
+                $this->disbursementModel->createDisbursementEntry($disbursement_id, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
+            }
             
             echo json_encode(['success' => true]);
             exit;

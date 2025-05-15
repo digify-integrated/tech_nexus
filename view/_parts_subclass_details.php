@@ -50,7 +50,7 @@
                         <label class="col-form-label form-details fw-normal" id="parts_subclass_name_label"></label>
                         <input type="text" class="form-control d-none form-edit" id="parts_subclass_name" name="parts_subclass_name" maxlength="100" autocomplete="off">
                       </div>
-                      <label class="col-lg-2 col-form-label">Product Category <span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">Part Class <span class="text-danger d-none form-edit">*</span></label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="parts_class_id_label"></label>
                         <div class="d-none form-edit">
@@ -68,7 +68,7 @@
                       <div class="col-lg-10">
                         <label class="col-form-label form-details fw-normal" id="parts_subclass_name_label"></label>
                       </div>
-                      <label class="col-lg-2 col-form-label">Product Category</label>
+                      <label class="col-lg-2 col-form-label">Part Class</label>
                       <div class="col-lg-10">
                         <label class="col-form-label form-details fw-normal" id="parts_class_id_label"></label>
                       </div>

@@ -177,7 +177,6 @@ class PartsController {
         }
     
         $userID = $_SESSION['user_id'];
-        $contactID = $_SESSION['contact_id'];
         $partsID = htmlspecialchars($_POST['parts_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -196,30 +195,14 @@ class PartsController {
         }
 
         $partsDetails = $this->partsModel->getParts($partsID);
-        $preorder = $partsDetails['preorder'];
-        $description = $partsDetails['description'];
-        $totalLandedCost = $partsDetails['total_landed_cost'];
-        $unitCost = $partsDetails['unit_cost'];
-        $partsPrice = $partsDetails['parts_price'];
+        $partsPrice = $partsDetails['part_price'];
 
-        if($preorder == 'Yes'){
-            echo json_encode(['success' => false, 'preOrder' =>  true]);
+        if($partsPrice == 0){
+            echo json_encode(['success' => false, 'zeroPrice' =>  true]);
             exit;
         }
 
-        /*if($unitCost == 0 || $partsPrice == 0){
-            echo json_encode(['success' => false, 'zeroCost' =>  true]);
-            exit;
-        }*/
-
-        if($unitCost == 0){
-            echo json_encode(['success' => false, 'zeroCost' =>  true]);
-            exit;
-        }
-
-        $rrNumber = $this->systemSettingModel->getSystemSetting(18)['value'] + 1;
-        $this->partsModel->updatePartsStatus($partsID, 'For Sale', $description, $totalLandedCost, 'Landed Cost', $userID);
-        $this->systemSettingModel->updateSystemSettingValue(18, $rrNumber, $userID);
+        $this->partsModel->updatePartsStatus($partsID, 'For Sale', $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -333,6 +316,7 @@ class PartsController {
         } 
     }
     # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------

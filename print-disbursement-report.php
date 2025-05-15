@@ -238,24 +238,46 @@
                         </tr>';
                     }
                     else{
-                        $list .= '<tr>
-                            <td>'. $transaction_number .'</td>
-                            <td>'. $customerName .'</td>
-                            <td>'. $companyName .'</td>
-                            <td>'. $particulars .'</td>
-                            <td>'. $chartOfAccountName .'</td>
-                            <td>'. number_format($base_amount, 2) .'</td>
-                            <td>0.00</td>
-                        </tr>
-                        <tr>
-                            <td>'. $transaction_number .'</td>
-                            <td>'. $customerName .'</td>
-                            <td>'. $companyName .'</td>
-                            <td>'. $particulars .'</td>
-                            <td>Petty Cash Fund</td>
-                            <td>0.00</td>
-                            <td>'. number_format($base_amount, 2) .'</td>
-                        </tr>';
+                        if($base_amount > 0){
+                            $list .= '<tr>
+                                <td>'. $transaction_number .'</td>
+                                <td>'. $customerName .'</td>
+                                <td>'. $companyName .'</td>
+                                <td>'. $particulars .'</td>
+                                <td>'. $chartOfAccountName .'</td>
+                                <td>'. number_format($base_amount, 2) .'</td>
+                                <td>0.00</td>
+                            </tr>
+                            <tr>
+                                <td>'. $transaction_number .'</td>
+                                <td>'. $customerName .'</td>
+                                <td>'. $companyName .'</td>
+                                <td>'. $particulars .'</td>
+                                <td>Petty Cash Fund</td>
+                                <td>0.00</td>
+                                <td>'. number_format($base_amount, 2) .'</td>
+                            </tr>';
+                        }
+                        else{
+                            $list .= '<tr>
+                                <td>'. $transaction_number .'</td>
+                                <td>'. $customerName .'</td>
+                                <td>'. $companyName .'</td>
+                                <td>'. $particulars .'</td>
+                                <td>'. $chartOfAccountName .'</td>
+                                <td>0.00</td>
+                                <td>'. number_format(abs($base_amount), 2) .'</td>
+                            </tr>
+                            <tr>
+                                <td>'. $transaction_number .'</td>
+                                <td>'. $customerName .'</td>
+                                <td>'. $companyName .'</td>
+                                <td>'. $particulars .'</td>
+                                <td>Petty Cash Fund</td>
+                                <td>'. number_format(abs($base_amount), 2) .'</td>
+                                <td>0.00</td>
+                            </tr>';
+                        }
 
                         if($with_vat == 'Yes'){
                             $list .= '<tr>

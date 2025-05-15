@@ -23,7 +23,7 @@
             <div class="col-lg-4">
               <input type="text" class="form-control" id="parts_subclass_name" name="parts_subclass_name" maxlength="100" autocomplete="off">
             </div>
-            <label class="col-lg-2 col-form-label">Product Category <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Product Class <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="parts_class_id" id="parts_class_id">
                 <option value="">--</option>

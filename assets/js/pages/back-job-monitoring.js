@@ -238,14 +238,22 @@
             if(type === 'Backjob'){
                 $('#sales-row').removeClass('d-none');
                 $('#product-row').addClass('d-none');
+                $('#warranty-row').addClass('d-none');
             }
             else if(type === 'Internal Repair'){
                 $('#sales-row').addClass('d-none');
+                $('#warranty-row').addClass('d-none');
                 $('#product-row').removeClass('d-none');
+            }
+            else if(type === 'Warranty'){
+                $('#sales-row').addClass('d-none');
+                $('#product-row').addClass('d-none');
+                $('#warranty-row').removeClass('d-none');
             }
             else{
                 $('#sales-row').addClass('d-none');
                 $('#product-row').addClass('d-none');
+                $('#warranty-row').addClass('d-none');
             }
         });
 
@@ -851,6 +859,11 @@ function backJobMonitoringForm(){
                     return $('#type').val() == 'Internal Repair';
                 }
             },
+            product_id2: {
+                required: function () {
+                    return $('#type').val() == 'Warranty';
+                }
+            },
         },
         messages: {
             type: {
@@ -860,6 +873,9 @@ function backJobMonitoringForm(){
                 required: 'Please choose the sales proposal'
             },
             product_id: {
+                required: 'Please choose the product'
+            },
+            product_id2: {
                 required: 'Please choose the product'
             },
         },
@@ -1594,6 +1610,7 @@ function displayDetails(transaction){
                         checkOptionExist('#type', response.type, '');
                         checkOptionExist('#sales_proposal_id', response.sales_proposal_id, '');
                         checkOptionExist('#product_id', response.product_id, '');
+                        checkOptionExist('#product_id2', response.product_id, '');
 
                         if($('#unit-img').length){
                             document.getElementById('unit-img').src = response.unitImage;

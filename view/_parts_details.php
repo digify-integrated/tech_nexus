@@ -24,7 +24,7 @@ if ($updateLandedCost['total'] > 0 && $partsStatus == 'Draft') {
 }
 
 
-if(($partsWriteAccess['total'] > 0 && $partsStatus == 'Draft') || $updatePartsDisabled['total'] > 0 && $partsStatus != 'Draft' &&  $partsStatus != 'Sold'){
+if(($partsWriteAccess['total'] > 0 && $partsStatus == 'Draft') || $updatePartsDisabled['total'] > 0 && $partsStatus != 'Draft'){
   $disabledPartsForm = '';
 }
 

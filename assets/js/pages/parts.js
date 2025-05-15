@@ -389,11 +389,8 @@
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
                                 }
-                                else if (response.preOrder) {
-                                    showNotification('Part Pre-order', 'The parts is tagged as pre-order.', 'danger');
-                                }
-                                else if (response.zeroCost) {
-                                    showNotification('Part Pre-order', 'The parts poduct price or cost is set to 0. Check the fields and try again.', 'danger');
+                                else if (response.zeroPrice) {
+                                    showNotification('Part Price Zero', 'The parts poduct price is set to 0. Check the field and try again.', 'danger');
                                 }
                                 else if (response.notExist) {
                                     window.location = '404.php';

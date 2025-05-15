@@ -944,6 +944,9 @@ function collectionsForm(){
                         else if (response.overPayment) {
                             showNotification('Collection Management Error', 'The payment amount exceeds the amount due.', 'danger');
                         }
+                        else if (response.otherChargesType) {
+                            showNotification('Collection Management Error', 'The leasing other charges does not match to your selected payment for.', 'danger');
+                        }
                         else if (response.referenceExist) {
                             showNotification('Collection Management Error', 'The online reference number already exist.', 'danger');
                         }

@@ -931,6 +931,24 @@ class ProductModel {
 
         return $htmlOptions;
     }
+
+    # -------------------------------------------------------------
+    public function generateSoldProductOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateSoldProductOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $productID = $row['product_id'];
+            $description = $row['description'];
+            $stockNumber = $row['stock_number'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($productID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 }
 ?>

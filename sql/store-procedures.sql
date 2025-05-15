@@ -7327,8 +7327,25 @@ END //
 
 CREATE PROCEDURE getTotalProductCost(IN p_product_id INT)
 BEGIN
-	SELECT SUM(expense_amount) AS expense_amount FROM product_expense
-    WHERE product_id = p_product_id;
+    DECLARE ropa_date DATETIME;
+
+    -- Get the latest created_date where expense_type = 'ROPA' for the given product
+    SELECT MAX(created_date) INTO ropa_date
+    FROM product_expense
+    WHERE product_id = p_product_id AND expense_type = 'ROPA';
+
+    -- Conditional logic to sum expenses
+    IF ropa_date IS NOT NULL THEN
+        -- Sum only expenses on or after the latest ROPA date
+        SELECT SUM(expense_amount) AS expense_amount
+        FROM product_expense
+        WHERE product_id = p_product_id AND created_date >= ropa_date;
+    ELSE
+        -- No ROPA expense, sum all expenses
+        SELECT SUM(expense_amount) AS expense_amount
+        FROM product_expense
+        WHERE product_id = p_product_id;
+    END IF;
 END //
 
 CREATE PROCEDURE generateInStockProductOptions()
@@ -7363,6 +7380,13 @@ CREATE PROCEDURE generateNotDraftProductOptions()
 BEGIN
 	SELECT product_id, description, stock_number FROM product
     WHERE product_status != 'Draft'
+	ORDER BY stock_number;
+END //
+
+CREATE PROCEDURE generateSoldProductOptions()
+BEGIN
+	SELECT product_id, description, stock_number FROM product
+    WHERE product_status = 'Sold'
 	ORDER BY stock_number;
 END //
 
@@ -9937,6 +9961,13 @@ BEGIN
 	ORDER BY leave_type_name;
 END //
 
+CREATE PROCEDURE generateLeaveTypeWithoutAWOLOptions()
+BEGIN
+	SELECT leave_type_id, leave_type_name FROM leave_type
+    WHERE leave_type_id != 4
+	ORDER BY leave_type_name;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 CREATE PROCEDURE deletePartsInquiryTable()
@@ -12107,7 +12138,7 @@ BEGIN
         WHERE product_id = p_product_id;
     ELSEIF p_product_status = 'ROPA' THEN
         UPDATE product
-        SET product_status = 'For Sale',
+        SET product_status = 'ROPA',
         ropa_date = NOW(),
         last_log_by = p_last_log_by
         WHERE product_id = p_product_id;
@@ -12266,7 +12297,7 @@ BEGIN
             WHERE sales_proposal_id = p_sales_proposal_id
             LIMIT 1;
         ELSEIF v_item = 'INS' THEN
-            SELECT insurance_premium INTO v_amount
+            SELECT insurance_premium_subtotal INTO v_amount
             FROM sales_proposal_other_charges
             WHERE sales_proposal_id = p_sales_proposal_id
             LIMIT 1;
@@ -12305,180 +12336,6 @@ BEGIN
             FROM product_expense
             WHERE product_id = p_product_id
             LIMIT 1;
-        END IF;
-
-        -- Set analytic_lines and analytic_distribution based on p_product_type
-        IF p_product_type = 'Fuel' THEN
-            SET v_analytic_lines = 'NE FUEL';
-            SET v_analytic_distribution = '{"6": 100.0}';
-        ELSEIF p_product_type = 'Repair' THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
-        ELSE
-            SET v_analytic_lines = 'CGMI';
-            SET v_analytic_distribution = '{"1": 100.0}';
-        END IF;
-
-        -- Insert Debit Entry using the journal transaction value for debit
-        INSERT INTO journal_entry (
-            loan_number, 
-            journal_entry_date, 
-            reference_code, 
-            journal_id, 
-            journal_item, 
-            debit, 
-            credit, 
-            journal_label, 
-            analytic_lines, 
-            analytic_distribution, 
-            created_date, 
-            last_log_by
-        ) VALUES (
-            p_loan_number, 
-            p_journal_entry_date, 
-            v_reference_code, 
-            'Miscellaneous Operations', -- Use the debit account code
-            v_debit_code, -- Use the transaction as journal_item (which can be the debit reference)
-            v_amount, 
-            0, 
-            '', 
-            v_analytic_lines, 
-            v_analytic_distribution, 
-            NOW(), 
-            p_last_log_by
-        );
-
-        -- Insert Credit Entry using the journal transaction value for credit
-        INSERT INTO journal_entry (
-            loan_number, 
-            journal_entry_date, 
-            reference_code, 
-            journal_id, 
-            journal_item, 
-            debit, 
-            credit, 
-            journal_label, 
-            analytic_lines, 
-            analytic_distribution, 
-            created_date, 
-            last_log_by
-        ) VALUES (
-            p_loan_number, 
-            p_journal_entry_date, 
-            v_reference_code, 
-            'Miscellaneous Operations', -- Use the credit account code
-            v_credit_code, -- Use the transaction as journal_item (which can be the credit reference)
-            0, 
-            v_amount, 
-            '', 
-            v_analytic_lines, 
-            v_analytic_distribution, 
-            NOW(), 
-            p_last_log_by
-        );
-
-        -- Fetch the next journal code
-        FETCH cur_journal_code INTO v_transaction, v_item, v_debit_code, v_credit_code;
-    END LOOP;
-
-    -- Close cursor
-    CLOSE cur_journal_code;
-END//
-
-CREATE PROCEDURE createDisbursementEntry(
-    IN p_disbursement_id INT,
-    IN p_transaction_number VARCHAR(100),
-    IN p_fund_source VARCHAR(100),
-    IN p_transaction_type VARCHAR(100),
-    IN p_last_log_by INT
-)
-BEGIN
-    -- Declare variables
-    DECLARE v_transaction VARCHAR(100);
-    DECLARE v_item VARCHAR(100);
-    DECLARE v_amount DOUBLE;
-    DECLARE v_debit_code VARCHAR(100);
-    DECLARE v_credit_code VARCHAR(100);
-    DECLARE v_cursor_done INT DEFAULT 0;
-
-    -- Declare variables for analytic_lines and analytic_distribution
-    DECLARE v_analytic_lines VARCHAR(500);
-    DECLARE v_analytic_distribution VARCHAR(500);
-    
-    -- Declare reference code
-    DECLARE v_reference_code VARCHAR(200);
-
-    -- Declare cursor for fetching journal codes (debit, credit codes)
-    DECLARE cur_journal_code CURSOR FOR
-        SELECT transaction, item, debit, credit
-        FROM `journal_code`
-        WHERE company_id = p_company_id 
-          AND transaction_type = p_transaction_type 
-          AND product_type_id = p_product_type_code;
-    
-    -- Declare a handler to manage the cursor
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_cursor_done = 1;
-
-    -- Set reference code dynamically based on journal entry date
-    SET v_reference_code = CONCAT(
-        'TO RECORD SALES FOR THE DAY ( ', 
-        p_loan_number, 
-        ')'
-    );
-
-    -- Open cursor
-    OPEN cur_journal_code;
-
-    -- Fetch first row from cursor
-    FETCH cur_journal_code INTO v_transaction, v_item, v_debit_code, v_credit_code;
-
-    -- Process each journal code
-    journal_loop: LOOP
-        IF v_cursor_done THEN
-            LEAVE journal_loop;
-        END IF;
-
-        -- Determine the amount based on the item
-        IF v_item = 'PRI' THEN
-            SELECT total_delivery_price INTO v_amount
-            FROM sales_proposal_pricing_computation
-            WHERE sales_proposal_id = p_sales_proposal_id;
-        ELSEIF v_item = 'INT' THEN
-            SELECT (pn_amount - amount_financed) INTO v_amount
-            FROM sales_proposal_pricing_computation
-            WHERE sales_proposal_id = p_sales_proposal_id;
-        ELSEIF v_item = 'INS' THEN
-            SELECT insurance_premium INTO v_amount
-            FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
-        ELSEIF v_item = 'REG' THEN
-            SELECT registration_fee INTO v_amount
-            FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
-        ELSEIF v_item = 'DOC' THEN
-            SELECT doc_stamp_tax_subtotal INTO v_amount
-            FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
-        ELSEIF v_item = 'TRA' THEN
-            SELECT transfer_fee_subtotal INTO v_amount
-            FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
-        ELSEIF v_item = 'TRS' THEN
-            SELECT transaction_fee_subtotal INTO v_amount
-            FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
-        ELSEIF v_item = 'HAN' THEN
-            SELECT handling_fee_subtotal INTO v_amount
-            FROM sales_proposal_other_charges
-            WHERE sales_proposal_id = p_sales_proposal_id;
-        ELSEIF v_item = 'DP' THEN
-            SELECT downpayment INTO v_amount
-            FROM sales_proposal_pricing_computation
-            WHERE sales_proposal_id = p_sales_proposal_id;
-        ELSEIF v_item = 'AJO' THEN
-            SELECT COALESCE(SUM(expense_amount), 0) INTO v_amount
-            FROM product_expense
-            WHERE product_id = p_product_id;
         END IF;
 
         -- Set analytic_lines and analytic_distribution based on p_product_type
@@ -13005,13 +12862,17 @@ BEGIN
     SET @sql = CONCAT('
         SELECT journal_item, SUM(debit) AS debit, SUM(credit) AS credit 
         FROM journal_entry 
-        WHERE loan_number IN (
+        WHERE (loan_number IN (
             SELECT disbursement_id 
             FROM disbursement 
             WHERE disbursement_id IN (', p_disbursement_id, ') 
             AND fund_source = ''Petty Cash'' 
             AND (disburse_status = ''Posted'' OR disburse_status = ''Replenished'')
-        )  
+        ) OR loan_number IN (
+            SELECT disbursement_particulars_id 
+            FROM disbursement_particulars
+            WHERE disbursement_id IN (', p_disbursement_id, ')
+        ))
         AND journal_id = ''Disbursement Operations'' 
         GROUP BY journal_item
     ');
@@ -13137,10 +12998,11 @@ BEGIN
     DECLARE v_vat_amount DOUBLE;
     DECLARE v_withholding_amount DOUBLE;
     DECLARE v_done INT DEFAULT 0;
+    DECLARE v_disbursement_particulars_id INT DEFAULT 0;
 
     -- Cursor for disbursement particulars
     DECLARE cur_particulars CURSOR FOR
-        SELECT dp.base_amount, dp.company_id,
+        SELECT dp.disbursement_particulars_id, dp.base_amount, dp.company_id,
                dp.with_vat, dp.with_withholding, dp.vat_amount, dp.withholding_amount,
                CONCAT(ca.code, ' ', ca.name) AS chart_item
         FROM disbursement_particulars dp
@@ -13167,7 +13029,7 @@ BEGIN
     OPEN cur_particulars;
 
     read_loop: LOOP
-        FETCH cur_particulars INTO v_base_amount, v_company_id, v_with_vat, v_with_withholding, v_vat_amount, v_withholding_amount, v_chart_item;
+        FETCH cur_particulars INTO v_disbursement_particulars_id, v_base_amount, v_company_id, v_with_vat, v_with_withholding, v_vat_amount, v_withholding_amount, v_chart_item;
 
         -- Exit loop if cursor is done
         IF v_done THEN
@@ -13223,70 +13085,169 @@ BEGIN
                 SET v_analytic_distribution = '{"0": 0.0}';
         END CASE;
 
-        -- Insert the standard journal entries
-        IF v_base_amount > 0 THEN
-            -- Insert debit entry
-            INSERT INTO journal_entry (
-                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
-                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
-            ) VALUES (
-                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, v_chart_item, v_base_amount, 0, 
-                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
-            );
+        CASE p_transaction_type
+            WHEN 'posted' THEN
+                -- Insert the standard journal entries
+                IF v_base_amount > 0 THEN
+                    -- Insert debit entry
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_chart_item, v_base_amount, 0, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
 
-            -- Insert credit entry
-            INSERT INTO journal_entry (
-                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
-                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
-            ) VALUES (
-                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, v_credit, 0, v_base_amount, 
-                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
-            );
+                    -- Insert credit entry
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_credit, 0, v_base_amount, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
+                ELSEIF v_base_amount < 0 THEN
+                    -- Insert debit entry
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_chart_item, 0, ABS(v_base_amount), 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
 
-        END IF;
+                    -- Insert credit entry
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_credit, ABS(v_base_amount), 0, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
+                END IF;
 
-        -- Insert VAT Journal Entries if applicable
-        IF v_with_vat = 'Yes' AND v_vat_amount > 0 THEN
-            -- Debit VAT (Input Tax)
-            INSERT INTO journal_entry (
-                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
-                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
-            ) VALUES (
-                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, '19902050 Input Tax', v_vat_amount, 0, 
-                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
-            );
+                -- Insert VAT Journal Entries if applicable
+                IF v_with_vat = 'Yes' AND v_vat_amount > 0 THEN
+                    -- Debit VAT (Input Tax)
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, '19902050 Input Tax', v_vat_amount, 0, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
 
-            -- Credit VAT to the expense account
-            INSERT INTO journal_entry (
-                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
-                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
-            ) VALUES (
-                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, v_credit, 0, v_vat_amount, 
-                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
-            );
-        END IF;
+                    -- Credit VAT to the expense account
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_credit, 0, v_vat_amount, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
+                END IF;
 
-        -- Insert Withholding Tax Journal Entries if applicable
-        IF v_with_withholding <> 'No' AND v_withholding_amount > 0 THEN
-            -- Debit Withholding
-            INSERT INTO journal_entry (
-                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
-                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
-            ) VALUES (
-                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, v_credit, v_withholding_amount, 0, 
-                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
-            );
+                -- Insert Withholding Tax Journal Entries if applicable
+                IF v_with_withholding <> 'No' AND v_withholding_amount > 0 THEN
+                    -- Debit Withholding
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_credit, v_withholding_amount, 0, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
 
-            -- Credit Withholding Tax Payable
-            INSERT INTO journal_entry (
-                loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
-                journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
-            ) VALUES (
-                p_disbursement_id, NOW(), p_transaction_number, v_journal_id, '20101132 Withholding Tax Payable Other', 0, v_withholding_amount,  
-                '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
-            );
-        END IF;
+                    -- Credit Withholding Tax Payable
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, '20101132 Withholding Tax Payable Other', 0, v_withholding_amount,  
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
+                END IF;
+            ELSE
+                -- Insert the standard journal entries
+                IF v_base_amount > 0 THEN
+                    -- Insert debit entry
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_chart_item, 0, v_base_amount, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
 
+                    -- Insert credit entry
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_credit, v_base_amount, 0, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
+                ELSEIF v_base_amount < 0 THEN
+                    -- Insert debit entry
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_chart_item, ABS(v_base_amount), 0, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
+
+                    -- Insert credit entry
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_credit, 0, ABS(v_base_amount), 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
+                END IF;
+
+                -- Insert VAT Journal Entries if applicable
+                IF v_with_vat = 'Yes' AND v_vat_amount > 0 THEN
+                    -- Debit VAT (Input Tax)
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, '19902050 Input Tax', 0, v_vat_amount, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
+
+                    -- Credit VAT to the expense account
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_credit, v_vat_amount, 0, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
+                END IF;
+
+                -- Insert Withholding Tax Journal Entries if applicable
+                IF v_with_withholding <> 'No' AND v_withholding_amount > 0 THEN
+                    -- Debit Withholding
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, v_credit, 0, v_withholding_amount, 
+                        '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
+
+                    -- Credit Withholding Tax Payable
+                    INSERT INTO journal_entry (
+                        loan_number, journal_entry_date, reference_code, journal_id, journal_item, debit, credit, 
+                        journal_label, analytic_lines, analytic_distribution, created_date, last_log_by
+                    ) VALUES (
+                        v_disbursement_particulars_id, NOW(), p_transaction_number, v_journal_id, '20101132 Withholding Tax Payable Other', v_withholding_amount, 0, '', v_analytic_lines, v_analytic_distribution, NOW(), p_last_log_by
+                    );
+                END IF;
+        END CASE;
     END LOOP;
 
     -- Close cursor
@@ -14984,3 +14945,205 @@ BEGIN
 
     DEALLOCATE PREPARE stmt;
 END //
+
+CREATE PROCEDURE updatePartsStatus(IN p_part_id INT, IN p_part_status VARCHAR(50), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+    IF p_part_status = 'For Sale' THEN
+        UPDATE part
+        SET part_status = p_part_status,
+        for_sale_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE part_id = p_part_id;
+    ELSE
+        UPDATE part
+        SET part_status = p_part_status,
+        last_log_by = p_last_log_by
+        WHERE part_id = p_part_id;
+    END IF;
+END //
+
+CREATE PROCEDURE generateInStockPartOptions(IN p_parts_transaction_id VARCHAR(100))
+BEGIN
+	SELECT * FROM part
+    WHERE part_status = 'For Sale' AND quantity > 0 AND part_id NOT IN (SELECT part_id FROM part_transaction_cart WHERE part_transaction_id = p_parts_transaction_id)
+	ORDER BY description;
+END //
+CREATE PROCEDURE generatePartItemTable(IN p_parts_transaction_id VARCHAR(100))
+BEGIN
+	SELECT * FROM part_transaction_cart
+    WHERE part_transaction_id = p_parts_transaction_id
+	ORDER BY part_id;
+END //
+
+CREATE PROCEDURE checkPartsTransactionExist (IN p_part_transaction_id VARCHAR(100))
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM part_transaction
+    WHERE part_transaction_id = p_part_transaction_id;
+END //
+
+CREATE PROCEDURE checkPartsTransactionCartExist (IN p_part_transaction_cart_id VARCHAR(100))
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM part_transaction_cart
+    WHERE part_transaction_cart_id = p_part_transaction_cart_id;
+END //
+
+CREATE PROCEDURE insertPartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO part_transaction (part_transaction_id, last_log_by) 
+	VALUES(p_part_transaction_id, p_last_log_by);
+END //
+
+DELIMITER //
+
+CREATE PROCEDURE insertPartItem(
+    IN p_part_transaction_id VARCHAR(100),
+    IN p_part_id INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_price DECIMAL(10, 2);
+
+    -- Fetch the price from the part table
+    SELECT part_price INTO v_price
+    FROM part
+    WHERE part_id = p_part_id;
+
+    -- Insert into the cart with quantity = 1 and no discount applied
+    INSERT INTO part_transaction_cart (
+        part_transaction_id,
+        part_id,
+        quantity,
+        sub_total,
+        total,
+        last_log_by
+    ) VALUES (
+        p_part_transaction_id,
+        p_part_id,
+        1,
+        v_price,       -- sub_total = price * 1
+        v_price,       -- total = price * 1 (no discount assumed)
+        p_last_log_by
+    );
+END //
+
+DELIMITER ;
+
+
+CREATE PROCEDURE getPartsTransactionCart(IN p_part_transaction_cart_id INT)
+BEGIN
+	SELECT * FROM part_transaction_cart
+    WHERE part_transaction_cart_id = p_part_transaction_cart_id;
+END //
+
+
+
+CREATE PROCEDURE updatePartsTransactionCart(IN p_part_transaction_cart_id INT, IN p_quantity INT, IN p_add_on DOUBLE, IN p_discount DOUBLE, IN p_discount_type VARCHAR(10), IN p_discount_total DOUBLE, IN p_sub_total DOUBLE, IN p_total DOUBLE, IN p_last_log_by INT)
+BEGIN
+    UPDATE part_transaction_cart
+    SET quantity = p_quantity,
+        add_on = p_add_on,
+        discount = p_discount,
+        discount_type = p_discount_type,
+        discount_total = p_discount_total,
+        sub_total = p_sub_total,
+        total = p_total,
+        last_log_by = p_last_log_by
+    WHERE part_transaction_cart_id = p_part_transaction_cart_id;
+END //
+
+CREATE PROCEDURE getPartsTransactionCartTotal(IN p_part_transaction_id VARCHAR(100), IN p_type VARCHAR(10))
+BEGIN
+	IF p_type = 'subtotal' THEN
+        SELECT SUM(sub_total) AS total
+        FROM part_transaction_cart
+        WHERE part_transaction_id = p_part_transaction_id;
+    ELSEIF p_type = 'add-on' THEN
+        SELECT SUM(add_on) AS total
+        FROM part_transaction_cart
+        WHERE part_transaction_id = p_part_transaction_id;
+    ELSEIF p_type = 'discount' THEN
+        SELECT SUM(discount_total) AS total
+        FROM part_transaction_cart
+        WHERE part_transaction_id = p_part_transaction_id;
+    ELSE
+        SELECT SUM(total) AS total
+        FROM part_transaction_cart
+        WHERE part_transaction_id = p_part_transaction_id;
+    END IF;
+END //
+
+CREATE PROCEDURE deletePartsTransactionCart(IN p_part_transaction_cart_id INT)
+BEGIN
+    DELETE FROM part_transaction_cart WHERE part_transaction_cart_id = p_part_transaction_cart_id;
+END //
+
+CREATE PROCEDURE generatePartsTransactionTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_approval_date_start_date DATE, IN p_approval_date_end_date DATE, IN p_transaction_status VARCHAR(5000))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM part_transaction';
+    SET conditionList = ' WHERE 1';
+
+    IF p_transaction_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND part_transaction_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_transaction_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_approval_date_start_date IS NOT NULL AND p_approval_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(approval_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+
+CREATE PROCEDURE UpdatePartTransactionSummary(IN p_transaction_id VARCHAR(100))
+BEGIN
+    DECLARE v_item_count INT DEFAULT 0;
+    DECLARE v_add_on DOUBLE DEFAULT 0;
+    DECLARE v_sub_total DOUBLE DEFAULT 0;
+    DECLARE v_total_discount DOUBLE DEFAULT 0;
+    DECLARE v_total_amount DOUBLE DEFAULT 0;
+
+    SELECT 
+        COUNT(*) AS item_count,
+        IFNULL(SUM(add_on), 0),
+        IFNULL(SUM(sub_total), 0),
+        IFNULL(SUM(discount_total), 0),
+        IFNULL(SUM(total), 0)
+    INTO v_item_count, v_add_on, v_sub_total, v_total_discount, v_total_amount
+    FROM part_transaction_cart
+    WHERE part_transaction_id = p_transaction_id;
+
+    UPDATE part_transaction
+    SET
+        number_of_items = v_item_count,
+        add_on = v_add_on,
+        sub_total = v_sub_total,
+        total_discount = v_total_discount,
+        total_amount = v_total_amount
+    WHERE part_transaction_id = p_transaction_id;
+END//

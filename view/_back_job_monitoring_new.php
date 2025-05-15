@@ -25,6 +25,7 @@
                         <option value="">--</option>
                         <option value="Backjob">Backjob</option>
                         <option value="Internal Repair">Internal Repair</option>
+                        <option value="Warranty">Warranty</option>
                     </select>
                 </div>
             </div>
@@ -43,6 +44,15 @@
                     <select class="form-control select2" name="product_id" id="product_id">
                         <option value="">--</option>
                         <?php echo $productModel->generateInternalRepairProductOptions(); ?>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row d-none" id="warranty-row">
+                <label class="col-lg-4 col-form-label">Product <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                    <select class="form-control select2" name="product_id2" id="product_id2">
+                        <option value="">--</option>
+                        <?php echo $productModel->generateSoldProductOptions(); ?>
                     </select>
                 </div>
             </div>

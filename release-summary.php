@@ -134,12 +134,7 @@
 
     $customerDetails = $customerModel->getPersonalInformation($customerID);
 
-    if(!empty($releaseTo)){
-      $customerName = strtoupper($releaseTo) ?? null;
-    }
-    else{
-      $customerName = strtoupper($customerDetails['file_as']) ?? null;
-    }
+     $customerName = strtoupper($customerDetails['file_as']) ?? null;
     
     $comakerDetails = $customerModel->getPersonalInformation($comakerID);
     $comakerName = $comakerDetails['file_as'] ?? null;

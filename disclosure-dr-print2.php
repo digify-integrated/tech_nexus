@@ -165,7 +165,7 @@
     $pdf->Cell(20, 8, 'P   ', 0, 0, 'L');
     $pdf->Cell(70, 8,  number_format($downpayment, 2), 0, 0, 'L');
     $pdf->Ln(8);
-    $pdf->Cell(130, 8, '3. UNPAID BALANCE OF RESTRUCTURED AMOUNT', 0, 0, 'L');
+    $pdf->Cell(130, 8, '3. UNPAID BALANCE OF TOTAL PRICE', 0, 0, 'L');
     $pdf->Cell(20, 8, 'P   ', 0, 0, 'L');
     $pdf->Cell(70, 8, number_format($pnAmount, 2), 0, 0, 'L');
     $pdf->Ln(8);

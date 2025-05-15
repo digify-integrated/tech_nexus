@@ -101,13 +101,8 @@
         }
     
        
-        if(!empty($releaseTo)){
-            $customerName = strtoupper($releaseTo);
-          }
-          else{
-            $customerDetails = $customerModel->getPersonalInformation($customerID);
-            $customerName = strtoupper($customerDetails['file_as']) ?? null;
-          }
+        $customerDetails = $customerModel->getPersonalInformation($customerID);
+        $customerName = strtoupper($customerDetails['file_as']) ?? null;
     
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
         $address = $customerPrimaryAddress['address'] ?? null ;

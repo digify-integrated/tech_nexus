@@ -6192,3 +6192,39 @@ CREATE TABLE part_document(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE part_transaction(
+	part_transaction_id VARCHAR(100) PRIMARY KEY NOT NULL,
+	part_transaction_status VARCHAR(50) NOT NULL DEFAULT 'Draft',
+	number_of_items INT NOT NULL DEFAULT 0,
+	add_on DOUBLE NOT NULL DEFAULT 0,
+	sub_total DOUBLE NOT NULL DEFAULT 0,
+	total_discount DOUBLE NOT NULL DEFAULT 0,
+	total_amount DOUBLE NOT NULL DEFAULT 0,
+	on_process_date DATETIME,
+	for_approval DATETIME,
+	approval_date DATETIME,
+	released_date DATETIME,
+	cancellation_date DATETIME,
+	cancellation_remarks VARCHAR(500),
+	approval_remarks VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part_transaction_cart(
+	part_transaction_cart_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    part_transaction_id VARCHAR(100) NOT NULL,
+	part_id INT NOT NULL,
+	quantity INT NOT NULL DEFAULT 0,
+	add_on DOUBLE NOT NULL DEFAULT 0,
+	discount DOUBLE NOT NULL DEFAULT 0,
+	discount_type VARCHAR(10),
+	discount_total DOUBLE DEFAULT 0,
+	sub_total DOUBLE DEFAULT 0,
+	total DOUBLE DEFAULT 0,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
