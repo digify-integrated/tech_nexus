@@ -83,6 +83,7 @@
                                         <option value="Fuel">Fuel</option>
                                         <option value="Repair">Repair</option>
                                         <option value="Backjob">Backjob</option>
+                                        <option value="Warranty">Warranty</option>
                                         <option value="Parts">Parts</option>
                                         <option value="Tools">Tools</option>
                                     </select>
@@ -109,7 +110,7 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-lg-2 col-form-label">Back Job</label>
+                                <label class="col-lg-2 col-form-label">Internal Job Order</label>
                                 <div class="col-lg-4">
                                     <select class="form-control select2" name="backjob_monitoring_id" id="backjob_monitoring_id" <?php echo $disabled; ?>>
                                         <option value="">--</option>

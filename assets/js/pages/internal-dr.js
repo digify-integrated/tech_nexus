@@ -893,9 +893,11 @@ function internalDRForm(){
                 },
                 backjob_monitoring_id: {
                     required: function () {
-                        return $('#dr_type').val() === 'Backjob';
+                        const type = $('#dr_type').val();
+                        return type === 'Backjob' || type === 'Warranty';
                     }
                 },
+
             },
             messages: {
                 release_to: {
@@ -917,7 +919,7 @@ function internalDRForm(){
                     required: 'Please enter the product description'
                 },
                 backjob_monitoring_id: {
-                    required: 'Please select a backjob monitoring'
+                    required: 'Please select a internal job order'
                 }
             },
         errorPlacement: function (error, element) {

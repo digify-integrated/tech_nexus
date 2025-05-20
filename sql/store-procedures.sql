@@ -12151,7 +12151,7 @@ BEGIN
     END IF;
 END //
 
-CREATE PROCEDURE insertProductExpense(IN p_product_id INT, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(200), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_particulars VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE insertProductExpense(IN p_product_id INT, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(200), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
     INSERT INTO product_expense (product_id, reference_type, reference_number, expense_amount, expense_type, particulars, last_log_by) 
 	VALUES(p_product_id, p_reference_type, p_reference_number, p_expense_amount, p_expense_type, p_particulars, p_last_log_by);
@@ -12332,9 +12332,9 @@ BEGIN
             WHERE sales_proposal_id = p_sales_proposal_id
             LIMIT 1;
         ELSEIF v_item = 'AJO' THEN
-            SELECT COALESCE(SUM(expense_amount), 0) INTO v_amount
-            FROM product_expense
-            WHERE product_id = p_product_id
+            SELECT COALESCE(SUM(cost), 0) INTO v_amount
+            FROM sales_proposal_additional_job_order
+            WHERE sales_proposal_id = p_sales_proposal_id
             LIMIT 1;
         END IF;
 
@@ -13986,9 +13986,10 @@ END //
 
 CREATE PROCEDURE generateBackJobMonitoringOptions()
 BEGIN
-	SELECT backjob_monitoring_id, type, backjob_monitoring.sales_proposal_id AS sales_proposal_id, sales_proposal_number FROM backjob_monitoring
+	SELECT backjob_monitoring_id, backjob_monitoring.type AS type, backjob_monitoring.sales_proposal_id AS sales_proposal_id, sales_proposal_number, description, stock_number FROM backjob_monitoring
+    LEFT OUTER JOIN product ON product.product_id = backjob_monitoring.product_id
     LEFT OUTER JOIN sales_proposal ON sales_proposal.sales_proposal_id = backjob_monitoring.sales_proposal_id
-    WHERE backjob_monitoring.status = 'For DR' AND backjob_monitoring.type = "Backjob"
+    WHERE backjob_monitoring.status = 'For DR' AND (backjob_monitoring.type = "Backjob" OR backjob_monitoring.type = "Warranty")
 	ORDER BY backjob_monitoring.for_dr_date DESC;
 END //
 
@@ -15040,6 +15041,13 @@ BEGIN
 END //
 
 
+CREATE PROCEDURE getPartsTransaction(IN p_part_transaction_id INT)
+BEGIN
+	SELECT * FROM part_transaction
+    WHERE part_transaction_id = p_part_transaction_id;
+END //
+
+
 
 CREATE PROCEDURE updatePartsTransactionCart(IN p_part_transaction_cart_id INT, IN p_quantity INT, IN p_add_on DOUBLE, IN p_discount DOUBLE, IN p_discount_type VARCHAR(10), IN p_discount_total DOUBLE, IN p_sub_total DOUBLE, IN p_total DOUBLE, IN p_last_log_by INT)
 BEGIN
@@ -15147,3 +15155,154 @@ BEGIN
         total_amount = v_total_amount
     WHERE part_transaction_id = p_transaction_id;
 END//
+
+CREATE PROCEDURE insertPartsTransactionDocument(IN p_part_transaction_id INT, IN p_document_name VARCHAR(500), IN p_document_file_path VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO part_transaction_document (part_transaction_id, document_name, document_file_path, last_log_by) VALUES(p_part_transaction_id, p_document_name, p_document_file_path, p_last_log_by);
+END //
+
+CREATE PROCEDURE generatePartsTransactionDocument(IN p_part_transaction_id INT)
+BEGIN
+	SELECT * FROM part_transaction_document
+    WHERE part_transaction_id = p_part_transaction_id
+	ORDER BY document_name;
+END //
+
+CREATE PROCEDURE deletePartsTransactionDocument(IN p_part_transaction_document_id INT)
+BEGIN
+    DELETE FROM part_transaction_document WHERE part_transaction_document_id = p_part_transaction_document_id;
+END //
+
+DELIMITER //
+DROP PROCEDURE updatePartsTransactionStatus//
+
+CREATE PROCEDURE updatePartsTransactionStatus(
+    IN p_parts_transaction_id VARCHAR(100),
+    IN p_part_transaction_status VARCHAR(50),
+    IN p_remarks VARCHAR(500),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- ===== DECLARATIONS MUST BE FIRST =====
+    DECLARE done INT DEFAULT 0;
+    DECLARE v_part_id INT;
+    DECLARE v_quantity INT;
+
+    -- Cursor and handler
+    DECLARE cur CURSOR FOR
+        SELECT part_id, quantity
+        FROM part_transaction_cart
+        WHERE part_transaction_id = p_parts_transaction_id;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    -- ===== Now we can set values =====
+    SET time_zone = '+08:00';
+
+    -- ===== Main Status Check =====
+    IF p_part_transaction_status = 'On-Process' THEN
+        UPDATE part_transaction
+        SET on_process_date = NOW(),
+            part_transaction_status = p_part_transaction_status,
+            last_log_by = p_last_log_by
+        WHERE part_transaction_id = p_parts_transaction_id;
+
+    ELSEIF p_part_transaction_status = 'For Approval' THEN
+        UPDATE part_transaction
+        SET for_approval = NOW(),
+            part_transaction_status = p_part_transaction_status,
+            last_log_by = p_last_log_by
+        WHERE part_transaction_id = p_parts_transaction_id;
+
+    ELSEIF p_part_transaction_status = 'Released' THEN
+        -- Step 1: Update part_transaction status and released date
+        UPDATE part_transaction
+        SET released_date = NOW(),
+            part_transaction_status = p_part_transaction_status,
+            last_log_by = p_last_log_by
+        WHERE part_transaction_id = p_parts_transaction_id;
+
+        -- Step 2: Loop through part_transaction_cart and update part quantities
+        OPEN cur;
+
+        read_loop: LOOP
+            FETCH cur INTO v_part_id, v_quantity;
+            IF done THEN
+                LEAVE read_loop;
+            END IF;
+
+            -- Deduct quantity
+            UPDATE part
+            SET quantity = quantity - v_quantity
+            WHERE part_id = v_part_id;
+        END LOOP;
+
+        CLOSE cur;
+
+    ELSEIF p_part_transaction_status = 'Cancelled' THEN
+        UPDATE part_transaction
+        SET cancellation_date = NOW(),
+            part_transaction_status = p_part_transaction_status,
+            cancellation_remarks = p_remarks,
+            last_log_by = p_last_log_by
+        WHERE part_transaction_id = p_parts_transaction_id;
+
+    ELSE
+        UPDATE part_transaction
+        SET approval_date = NOW(),
+            part_transaction_status = p_part_transaction_status,
+            approval_remarks = p_remarks,
+            last_log_by = p_last_log_by
+        WHERE part_transaction_id = p_parts_transaction_id;
+    END IF;
+END //
+
+
+
+
+CREATE PROCEDURE updatePartsQuantity(IN p_part_id INT, IN p_quantity INT, IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+    UPDATE part
+    SET quantity = (quantity - p_quantity),
+    last_log_by = p_last_log_by
+    WHERE part_id = p_part_id;
+END //
+
+DELIMITER //
+DROP PROCEDURE get_exceeded_part_quantity_count//
+CREATE PROCEDURE get_exceeded_part_quantity_count(
+    IN p_transaction_id VARCHAR(100)
+)
+BEGIN
+    SELECT COUNT(*) AS total
+    FROM part_transaction_cart ptc
+    JOIN part p ON ptc.part_id = p.part_id
+    WHERE ptc.part_transaction_id = p_transaction_id
+      AND ptc.quantity > p.quantity;
+END //
+
+CREATE PROCEDURE generatePDCInsuranceExtractionTable(IN p_check_start_date DATE, IN p_check_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM loan_collections';
+    SET conditionList = ' WHERE mode_of_payment = "Check" AND payment_details IN ("Insurance", "Insurance Renewal")  AND collection_status IN ("Pending", "Redeposit")';
+    
+    IF p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (check_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_check_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_check_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY check_date ASC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //

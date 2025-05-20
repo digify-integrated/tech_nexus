@@ -98,9 +98,9 @@ foreach ($loanCollectionIDs as $loanCollectionID) {
     $pdf->Cell(5, 10, $year, 0, 0, 'L');
 
     // Print payee and amount aligned horizontally
-    $pdf->SetXY($checkX, 16);
+    $pdf->SetXY($checkX + 20, 16);
     $pdf->Cell(10, 10,  '', 0, 0, 'L');
-    $pdf->Cell(140, 10,  'CHRISTIAN GENERAL MOTORS INC', 0, 0, 'L');
+    $pdf->Cell(120, 10,  'CHRISTIAN GENERAL MOTORS INC', 0, 0, 'L');
     $pdf->Cell(40, 10, number_format($payment_amount,2), 0, 0, 'L');
 
     // Print amount in 30

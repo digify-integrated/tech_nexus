@@ -6228,3 +6228,13 @@ CREATE TABLE part_transaction_cart(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE part_transaction_document(
+	part_transaction_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    part_transaction_id VARCHAR(100) NOT NULL,
+	document_name VARCHAR(500),
+	document_file_path VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);

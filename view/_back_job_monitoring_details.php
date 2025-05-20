@@ -12,7 +12,7 @@
     $printJobOrder = ''; 
     $printAdditionalJobOrder = ''; 
 
-    if($type == 'Internal Repair' && ($status == 'Draft' || $status == 'On-Process')){
+    if(($type == 'Internal Repair' || $type == 'Warranty') && ($status == 'Draft' || $status == 'On-Process')){
         $addJobOrder = '<div class="previous me-2">
            <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#job-order-monitoring-offcanvas" aria-controls="job-order-monitoring-offcanvas">Add Job Order</button>
         </div>';
@@ -27,16 +27,16 @@
         $printAdditionalJobOrder = '<li><button class="dropdown-item" id="print-additional-job-order">Print Additional Job Order</button></li>';
     }
 
-    if($type == 'Internal Repair' && $status == 'On-Process'){        
+    if(($type == 'Internal Repair' || $type == 'Warranty') && $status == 'On-Process'){        
         $printJobOrder = '<li><button class="dropdown-item" id="print-job-order2">Print Job Order</button></li>';
         $printAdditionalJobOrder = '<li><button class="dropdown-item" id="print-additional-job-order2">Print Additional Job Order</button></li>';
     }
 
-    if($type == 'Internal Repair' && $status == 'For DR'){
+    if(($type == 'Internal Repair' || $type == 'Warranty') && $status == 'For DR'){
         $releaseButton = '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#tag-as-released-offcanvas" aria-controls="tag-as-released-offcanvas">Tag As Released</button></li>';
     }
   
-    if($type == 'Internal Repair'){
+    if(($type == 'Internal Repair' || $type == 'Warranty')){
         $hiddenCost = '';
     }
 

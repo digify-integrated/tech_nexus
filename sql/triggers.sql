@@ -7216,3 +7216,127 @@ BEGIN
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE TRIGGER part_class_trigger_insert
+AFTER INSERT ON part_class
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Part Class created.<br/>';
+    IF NEW.part_class_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, 'Part Class Name: ', NEW.part_class_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('part_class', NEW.part_class_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER part_class_trigger_update
+AFTER UPDATE ON part_class
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.part_class_name <> OLD.part_class_name THEN
+        SET audit_log = CONCAT(audit_log, 'Part Class Name: ', OLD.part_class_name, ' -> ', NEW.part_class_name, '<br/>');
+    END IF;
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('part_class', NEW.part_class_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER part_subclass_trigger_insert
+AFTER INSERT ON part_subclass
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Part Subclass created.<br/>';
+    SET audit_log = CONCAT(audit_log, 'Name: ', NEW.part_subclass_name, '<br/>Class ID: ', NEW.part_class_id);
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('part_subclass', NEW.part_subclass_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER part_subclass_trigger_update
+AFTER UPDATE ON part_subclass
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.part_subclass_name <> OLD.part_subclass_name THEN
+        SET audit_log = CONCAT(audit_log, 'Name: ', OLD.part_subclass_name, ' -> ', NEW.part_subclass_name, '<br/>');
+    END IF;
+
+    IF NEW.part_class_id <> OLD.part_class_id THEN
+        SET audit_log = CONCAT(audit_log, 'Class ID: ', OLD.part_class_id, ' -> ', NEW.part_class_id, '<br/>');
+    END IF;
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('part_subclass', NEW.part_subclass_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER part_trigger_insert
+AFTER INSERT ON part
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Part created.<br/>';
+    SET audit_log = CONCAT(audit_log, 'Description: ', NEW.description, '<br/>Status: ', NEW.part_status);
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('part', NEW.part_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER part_trigger_update
+AFTER UPDATE ON part
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.description <> OLD.description THEN
+        SET audit_log = CONCAT(audit_log, 'Description: ', OLD.description, ' -> ', NEW.description, '<br/>');
+    END IF;
+
+    IF NEW.part_status <> OLD.part_status THEN
+        SET audit_log = CONCAT(audit_log, 'Status: ', OLD.part_status, ' -> ', NEW.part_status, '<br/>');
+    END IF;
+
+    -- Add more IF statements for other fields of interest
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('part', NEW.part_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER part_image_trigger_insert
+AFTER INSERT ON part_image
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Part Image added.<br/>';
+    SET audit_log = CONCAT(audit_log, 'Image Path: ', NEW.part_image);
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('part_image', NEW.part_image_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER part_transaction_trigger_update
+AFTER UPDATE ON part_transaction
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.part_transaction_status <> OLD.part_transaction_status THEN
+        SET audit_log = CONCAT(audit_log, 'Status: ', OLD.part_transaction_status, ' -> ', NEW.part_transaction_status, '<br/>');
+    END IF;
+
+    IF NEW.total_amount <> OLD.total_amount THEN
+        SET audit_log = CONCAT(audit_log, 'Total Amount: ', OLD.total_amount, ' -> ', NEW.total_amount, '<br/>');
+    END IF;
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('part_transaction', NEW.part_transaction_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //

@@ -55,6 +55,15 @@ class PartsTransactionModel {
         $stmt->bindValue(':p_parts_transaction_id', $p_parts_transaction_id, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    public function updatePartsTransactionStatus($p_parts_transaction_id, $p_part_transaction_status, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsTransactionStatus(:p_parts_transaction_id, :p_part_transaction_status, :p_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_parts_transaction_id', $p_parts_transaction_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_part_transaction_status', $p_part_transaction_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -87,6 +96,15 @@ class PartsTransactionModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    public function insertPartsTransactionDocument($p_part_transaction_id, $p_document_name, $p_document_file_path, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartsTransactionDocument(:p_part_transaction_id, :p_document_name, :p_document_file_path, :p_last_log_by)');
+        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_document_name', $p_document_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_document_file_path', $p_document_file_path, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -106,7 +124,14 @@ class PartsTransactionModel {
     # -------------------------------------------------------------
     public function checkPartsTransactionExist($p_parts_transaction_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkPartsTransactionExist(:p_parts_transaction_id)');
-        $stmt->bindValue(':p_parts_transaction_id', $p_parts_transaction_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_parts_transaction_id', $p_parts_transaction_id, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function get_exceeded_part_quantity_count($p_parts_transaction_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL get_exceeded_part_quantity_count(:p_parts_transaction_id)');
+        $stmt->bindValue(':p_parts_transaction_id', $p_parts_transaction_id, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -142,6 +167,12 @@ class PartsTransactionModel {
     public function deletePartsTransactionCart($p_part_transaction_cart_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deletePartsTransactionCart(:p_part_transaction_cart_id)');
         $stmt->bindValue(':p_part_transaction_cart_id', $p_part_transaction_cart_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    
+    public function deletePartsTransactionDocument($p_part_transaction_document_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deletePartsTransactionDocument(:p_part_transaction_document_id)');
+        $stmt->bindValue(':p_part_transaction_document_id', $p_part_transaction_document_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------

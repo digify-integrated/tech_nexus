@@ -106,7 +106,7 @@
                                                             <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-sub-total"></td>
                                                         </tr>
                                                         <tr>
-                                                            <td>LESS: DOWNPAYMENT</td>
+                                                            <td>LESS: DOWNPAYMENT (<span id="downpayment-percent">0</span>%)</td>
                                                             <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-downpayment"></td>
                                                         </tr>
                                                         <tr>

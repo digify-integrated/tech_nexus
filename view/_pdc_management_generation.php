@@ -255,7 +255,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TRANSACTION_DATE' => $transactionDate,
                     'REFERENCE_NUMBER' => $referenceNumber,
                     'REFERENCE_DATE' => $referenceDate,
-                    'REFERENCE_DATE' => $referenceDate,
                     'TRANSACTION_BY' => $createdByName
                 ];
             }
@@ -372,7 +371,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TRANSACTION_TYPE' => $transactionType,
                     'TRANSACTION_DATE' => $transactionDate,
                     'REFERENCE_NUMBER' => $referenceNumber,
-                    'REFERENCE_DATE' => $referenceDate,
                     'REFERENCE_DATE' => $referenceDate,
                     'TRANSACTION_BY' => $createdByName
                 ];

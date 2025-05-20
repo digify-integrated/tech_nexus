@@ -6,15 +6,19 @@ require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require_once '../model/parts-model.php';
+require_once '../model/parts-transaction-model.php';
 require_once '../model/parts-subclass-model.php';
 require_once '../model/parts-class-model.php';
+require_once '../model/unit-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
 $partsModel = new PartsModel($databaseModel);
+$partsTransactionModel = new PartsTransactionModel($databaseModel);
 $partsSubclassModel = new PartsSubclassModel($databaseModel);
 $partsClassModel = new PartsClassModel($databaseModel);
+$unitModel = new UnitModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -68,6 +72,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         case 'part item table':
             $parts_transaction_id = $_POST['parts_transaction_id'];
+
+            $partTransactionDetails = $partsTransactionModel->getPartsTransaction($parts_transaction_id);
+            $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
+
             $sql = $databaseModel->getConnection()->prepare('CALL generatePartItemTable(:parts_transaction_id)');
             $sql->bindValue(':parts_transaction_id', $parts_transaction_id, PDO::PARAM_STR);
             $sql->execute();
@@ -99,6 +107,23 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $discount = number_format($discount, decimals: 2) . '%';
                 }
 
+                $action = '';
+                if($part_transaction_status == 'Draft' || $part_transaction_status == 'On-Process'){
+                    $action = ' <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#part-cart-offcanvas" aria-controls="part-cart-offcanvas" data-parts-transaction-cart-id="'. $part_transaction_cart_id .'" title="Update Part Item">
+                                        <i class="ti ti-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-icon btn-danger delete-part-cart" data-parts-transaction-cart-id="'. $part_transaction_cart_id .'" title="Delete Part Item">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+                
+                $partDetails = $partsModel->getParts($part_id);
+                $partQuantity = $partDetails['quantity'] ?? 0;
+                $unitSale = $partDetails['unit_sale'] ?? null;
+
+                $unitCode = $unitModel->getUnit($unitSale);
+                $short_name = $unitCode['short_name'] ?? null;
+
                 $response[] = [
                     'PART' => '<div class="d-flex align-items-center"><img src="'. $partsImage .'" alt="image" class="bg-light wid-50 rounded">
                                     <div class="flex-grow-1 ms-3">
@@ -107,20 +132,45 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </div>
                                 </div>',
                     'PRICE' => number_format($part_price, 2) .' PHP',
-                    'QUANTITY' => number_format($quantity, 0, '', ','),
+                    'QUANTITY' => number_format($quantity, 0, '', ',') . '' . $short_name,
+                    'AVAILABLE_STOCK' => number_format($partQuantity, 0, '', ',') . '' . $short_name,
                     'ADD_ON' => number_format($add_on, 2) .' PHP',
                     'DISCOUNT' => $discount,
                     'DISCOUNT_TOTAL' => number_format($discount_total, 2) .' PHP',
                     'SUBTOTAL' => number_format($sub_total, 2) .' PHP',
                     'TOTAL' => number_format($total, 2) .' PHP',
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#part-cart-offcanvas" aria-controls="part-cart-offcanvas" data-parts-transaction-cart-id="'. $part_transaction_cart_id .'" title="Update Part Item">
-                                        <i class="ti ti-edit"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-icon btn-danger delete-part-cart" data-parts-transaction-cart-id="'. $part_transaction_cart_id .'" title="Delete Part Item">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
+                                   '. $action .'
                                 </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'part transaction document table':
+            $parts_transaction_id = $_POST['parts_transaction_id'];
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsTransactionDocument(:parts_transaction_id)');
+            $sql->bindValue(':parts_transaction_id', $parts_transaction_id, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_transaction_document_id = $row['part_transaction_document_id'];
+                $document_name = $row['document_name'];
+                $document_file_path = $row['document_file_path'];
+                $transaction_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
+
+                $documentType = '<a href="'. $document_file_path .'" target="_blank">' . $document_name . "</a>";
+
+                $response[] = [
+                    'DOCUMENT' => $documentType,
+                    'UPLOAD_DATE' => $transaction_date,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-icon btn-danger delete-parts-document" data-parts-transaction-document-id="'. $part_transaction_document_id .'" title="Delete Transaction Document">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>'
                 ];
             }
 
@@ -186,10 +236,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'TRANSACTION_ID' => $part_transaction_id,
                     'NUMBER_OF_ITEMS' => number_format($number_of_items, 0),
-                    'ADD_ON' => number_format($add_on, 2),
-                    'DISCOUNT' => number_format($total_discount, 2),
-                    'SUB_TOTAL' => number_format($sub_total, 2),
-                    'TOTAL_AMOUNT' => number_format($total_amount, 2),
+                    'ADD_ON' => number_format($add_on, 2) . ' PHP',
+                    'DISCOUNT' => number_format($total_discount, 2) . ' PHP',
+                    'SUB_TOTAL' => number_format($sub_total, 2) . ' PHP',
+                    'TOTAL_AMOUNT' => number_format($total_amount, 2) . ' PHP',
                     'TRANSACTION_DATE' => $transaction_date,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="parts-transaction.php?id='. $part_transaction_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">

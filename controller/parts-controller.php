@@ -579,10 +579,10 @@ class PartsController {
         $partsImageFileExtension = explode('.', $partsImageFileName);
         $partsImageActualFileExtension = strtolower(end($partsImageFileExtension));
 
-        $uploadSetting = $this->uploadSettingModel->getUploadSetting(7);
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(6);
         $maxFileSize = $uploadSetting['max_file_size'];
 
-        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(7);
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(6);
         $allowedFileExtensions = [];
 
         foreach ($uploadSettingFileExtension as $row) {

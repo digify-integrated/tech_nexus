@@ -1,3 +1,10 @@
+<?php
+    $partTransactionDetails = $partsTransactionModel->getPartsTransaction($partsTransactionID);
+    $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
+    $number_of_items = $partTransactionDetails['number_of_items'] ?? 0;
+    $total_discount = $partTransactionDetails['total_discount'] ?? 0;
+?>
+
 <div class="row">
   <div class="col-lg-9">
     <div class="card">
@@ -7,8 +14,30 @@
                     <h5>Part Order</h5>
                 </div>
                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-                    <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part">Add Parts</button>
-                    <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#scan-barcode-offcanvas" aria-controls="scan-barcode-offcanvas">Scan Barcode</button>
+                    <?php
+                        if($part_transaction_status == 'Draft'){
+                            echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part">Add Parts</button>';
+
+                             echo '<button class="btn btn-info ms-2" type="button" id="on-process">On-Process</button>';
+                        }
+
+                        if($part_transaction_status == 'Draft' || $part_transaction_status == 'Approved' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'On-Process'){
+                            echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
+                        }
+
+                        if($part_transaction_status == 'On-Process'){
+                            if($total_discount > 0){
+                                echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Approval</button>';
+                            }
+                            else if(($total_discount > 0 && $part_transaction_status == 'Approved') || $total_discount == 0){
+                                echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
+                            }
+                        }
+
+                        if($part_transaction_status == 'For Approval'){
+                           echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-transaction-offcanvas" aria-controls="approve-transaction-offcanvas" id="approved">Approved</button>';
+                        }
+                    ?>
                 </div>
             </div>
         </div>
@@ -20,11 +49,42 @@
                             <th>Part</th>
                             <th class="text-end">Price</th>
                             <th class="text-center">Quantity</th>
+                            <th class="text-center">Available Stock</th>
                             <th class="text-center">Add-On</th>
                             <th class="text-center">Discount</th>
                             <th class="text-center">Total Discount</th>
                             <th class="text-end">Sub-Total</th>
                             <th class="text-end">Total</th>
+                            <th class="text-end"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5>Transaction Document</h5>
+                </div>
+                <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                    <?php
+                      if($part_transaction_status != 'Released'){
+                        echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-document-offcanvas" aria-controls="add-part-document-offcanvas" id="add-part-document">Add Document</button>';
+                      }  
+                    ?>                    
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="dt-responsive table-responsive">
+                <table class="table mb-0" id="parts-transaction-document-table">
+                    <thead>
+                        <tr>
+                            <th>Transaction Document</th>
+                            <th class="text-end">Upload Date</th>
                             <th class="text-end"></th>
                         </tr>
                     </thead>
@@ -100,6 +160,97 @@
         </div>
     </div>
 </div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="add-part-document-offcanvas" aria-labelledby="add-part-document-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="add-part-document-offcanvas-label" style="margin-bottom:-0.5rem">Add Document</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="add-part-document-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Document Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="document_name" name="document_name" maxlength="200" autocomplete="off">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Document <span class="text-danger">*</span></label>
+                <input type="file" id="transaction_document" name="transaction_document" class="form-control">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-add-part-document" form="add-part-document-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+ <div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cancel-transaction-offcanvas" aria-labelledby="cancel-transaction-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="cancel-transaction-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Transaction</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="cancel-transaction-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Cancellation Reason <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="cancellation_reason" name="cancellation_reason" maxlength="500"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-cancel-transaction" form="cancel-transaction-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="approve-transaction-offcanvas" aria-labelledby="approve-transaction-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="approve-transaction-offcanvas-label" style="margin-bottom:-0.5rem">Approve Transaction</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="approve-transaction-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Approval Remarks <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="approval_remarks" name="approval_remarks" maxlength="500"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-approve-transaction" form="approve-transaction-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="part-cart-offcanvas" aria-labelledby="part-cart-offcanvas-label">

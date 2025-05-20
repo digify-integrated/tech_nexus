@@ -371,7 +371,7 @@ if($addPartExpense['total'] > 0){
 <div>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="parts-document-offcanvas" aria-labelledby="parts-document-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="parts-document-offcanvas-label" style="margin-bottom:-0.5rem">Add Expense</h2>
+      <h2 id="parts-document-offcanvas-label" style="margin-bottom:-0.5rem">Add Document</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">

@@ -6273,6 +6273,7 @@ function calculatePricingComputation(){
     var outstanding_balance = subtotal - downpayment;
     var pn_amount = outstanding_balance * (1 + (interest_rate/100));
     var repayment_amount = Math.ceil(pn_amount / term_length);
+    var downpayment_percent = (downpayment / delivery_price) * 100;
 
     $('#subtotal').val(parseCurrency(subtotal.toFixed(2)).toLocaleString("en-US"));
     $('#outstanding_balance').val(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
@@ -6292,6 +6293,7 @@ function calculatePricingComputation(){
     $('#summary-interest-rate').text(parseFloat(interest_rate.toFixed(2)).toLocaleString("en-US") + '%');
     $('#summary-outstanding-balance').text(parseFloat(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
     $('#summary-sub-total').text(parseFloat(subtotal.toFixed(2)).toLocaleString("en-US"));
+    $('#downpayment-percent').text(parseFloat(downpayment_percent.toFixed(2)).toLocaleString("en-US"));
 }
 
 function calculateRenewalAmount(){

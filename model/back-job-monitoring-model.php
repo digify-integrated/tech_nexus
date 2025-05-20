@@ -313,8 +313,18 @@ class BackJobMonitoringModel {
         foreach ($options as $row) {
             $bankAccountTypeID = $row['backjob_monitoring_id'];
             $sales_proposal_number = $row['sales_proposal_number'];
+            $type = $row['type'];
+            $stock_number = $row['stock_number'];
+            $description = $row['description'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($bankAccountTypeID, ENT_QUOTES) . '">Back Job - ' . $sales_proposal_number .'</option>';
+            if($type == 'Warranty'){
+                $htmlOptions .= '<option value="' . htmlspecialchars($bankAccountTypeID, ENT_QUOTES) . '">Warranty - ' . $stock_number .' - '. $description .'</option>';
+            }
+            else{
+                $htmlOptions .= '<option value="' . htmlspecialchars($bankAccountTypeID, ENT_QUOTES) . '">Back Job - ' . $sales_proposal_number .'</option>';
+            }
+
+           
         }
 
         return $htmlOptions;

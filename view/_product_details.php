@@ -820,7 +820,7 @@ if($addProductExpense['total'] > 0){
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Particulars <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="particulars" name="particulars" maxlength="500"></textarea>
+                <textarea class="form-control" id="particulars" name="particulars" maxlength="2000"></textarea>
               </div>
             </div>
           </form>

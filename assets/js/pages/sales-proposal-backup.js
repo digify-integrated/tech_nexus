@@ -5891,34 +5891,48 @@ function calculateTotalDeliveryPrice(){
 }
 
 function calculatePricingComputation(){
-    var term_length = parseFloat($('#term_length').val()) || 0;
-    var interest_rate = parseFloat($('#interest_rate').val()) || 0;
-    var delivery_price = parseFloat($('#total_delivery_price').val()) || 0;
-    var cost_of_accessories = parseFloat($('#cost_of_accessories').val()) || 0;
-    var reconditioning_cost = parseFloat($('#reconditioning_cost').val()) || 0;
-    var downpayment = parseFloat($('#downpayment').val()) || 0;
+    var term_length = parseCurrency($('#term_length').val());
+    var interest_rate = parseCurrency($('#interest_rate').val());
+    var delivery_price = parseCurrency($('#total_delivery_price').val());
+    var cost_of_accessories = parseCurrency($('#cost_of_accessories').val());
+    var reconditioning_cost = parseCurrency($('#reconditioning_cost').val());
+    var downpayment = parseCurrency($('#downpayment').val());
+    var number_of_payments = parseCurrency($('#number_of_payments').val());
 
     var payment_frequency = $('#payment_frequency').val();
 
     if(payment_frequency == 'Lumpsum'){
         term_length = 1;
     }
+    else if(payment_frequency == 'Semi-Annual' || payment_frequency == 'Quarterly'){
+        term_length = (number_of_payments);
+    }
 
     var subtotal = delivery_price + cost_of_accessories + reconditioning_cost;
     var outstanding_balance = subtotal - downpayment;
     var pn_amount = outstanding_balance * (1 + (interest_rate/100));
     var repayment_amount = Math.ceil(pn_amount / term_length);
+    var downpayment_percent = (downpayment / delivery_price) * 100;
 
-    $('#subtotal').val(subtotal.toFixed(2));
-    $('#outstanding_balance').val(outstanding_balance.toFixed(2));
+    $('#subtotal').val(parseCurrency(subtotal.toFixed(2)).toLocaleString("en-US"));
+    $('#outstanding_balance').val(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
 
-    $('#amount_financed').val(outstanding_balance.toFixed(2));
-    $('#pn_amount').val(pn_amount.toFixed(2));
-    $('#repayment_amount').val(repayment_amount.toFixed(2));
+    $('#amount_financed').val(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
+    $('#pn_amount').val(parseCurrency(pn_amount.toFixed(2)).toLocaleString("en-US"));
+    $('#repayment_amount').val(parseCurrency(repayment_amount.toFixed(2)).toLocaleString("en-US"));
 
+    $('#summary-repayment-amount').text(parseCurrency(repayment_amount.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-outstanding-balance').text(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-sub-total').text(parseCurrency(subtotal.toFixed(2)).toLocaleString("en-US"));
+
+    $('#summary-cost-of-accessories').text(parseFloat(cost_of_accessories.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-reconditioning-cost').text(parseFloat(reconditioning_cost.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-downpayment').text(parseFloat(downpayment.toFixed(2)).toLocaleString("en-US"));
     $('#summary-repayment-amount').text(parseFloat(repayment_amount.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-interest-rate').text(parseFloat(interest_rate.toFixed(2)).toLocaleString("en-US") + '%');
     $('#summary-outstanding-balance').text(parseFloat(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
     $('#summary-sub-total').text(parseFloat(subtotal.toFixed(2)).toLocaleString("en-US"));
+    $('#downpayment-percent').text(parseFloat(downpayment_percent.toFixed(2)).toLocaleString("en-US"));
 }
 
 function calculateTotalOtherCharges(){
