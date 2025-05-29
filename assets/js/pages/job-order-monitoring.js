@@ -56,6 +56,24 @@
             }
         });
 
+        $(document).on('click','#print-job-order-detailed',function() {
+            var checkedBoxes = [];
+            var sales_proposal_id = $('#sales_proposal_id').val();
+
+            $('.job-order-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('print-job-order-list-detailed.php?id=' + checkedBoxes + '&sales_proposal_id=' + sales_proposal_id, '_blank');
+            }
+            else{
+                showNotification('Print Job Order Error', 'No selected job order.', 'danger');
+            }
+        });
+
         $(document).on('click','#print-additional-job-order',function() {
             var checkedBoxes = [];
             var sales_proposal_id = $('#sales_proposal_id').val();
@@ -68,6 +86,24 @@
 
             if(checkedBoxes != ''){
                 window.open('print-additional-job-order-list.php?id=' + checkedBoxes + '&sales_proposal_id=' + sales_proposal_id, '_blank');
+            }
+            else{
+                showNotification('Print Additional Job Order Error', 'No selected additional job order.', 'danger');
+            }
+        });
+
+        $(document).on('click','#print-additional-job-order-detailed',function() {
+            var checkedBoxes = [];
+            var sales_proposal_id = $('#sales_proposal_id').val();
+
+            $('.additional-job-order-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('print-additional-job-order-list-detailed.php?id=' + checkedBoxes + '&sales_proposal_id=' + sales_proposal_id, '_blank');
             }
             else{
                 showNotification('Print Additional Job Order Error', 'No selected additional job order.', 'danger');
@@ -148,6 +184,7 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'JOB_ORDER' },
         { 'data' : 'COST' },
+        { 'data' : 'JOB_COST' },
         { 'data' : 'CONTRACTOR' },
         { 'data' : 'WORK_CENTER' },
         { 'data' : 'PROGRESS' },
@@ -166,12 +203,13 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
-        { 'width': 'auto', 'aTargets': 10 },
-        { 'width': '15%','bSortable': false, 'aTargets': 11 }
+        { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
+        { 'width': 'auto', 'aTargets': 11 },
+        { 'width': '15%','bSortable': false, 'aTargets': 12 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -224,6 +262,7 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'data' : 'JOB_ORDER_DATE' },
         { 'data' : 'PARTICULARS' },
         { 'data' : 'COST' },
+        { 'data' : 'JOB_COST' },
         { 'data' : 'CONTRACTOR' },
         { 'data' : 'WORK_CENTER' },
         { 'data' : 'PROGRESS' },
@@ -244,12 +283,13 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 8 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 11 },
-        { 'width': 'auto', 'aTargets': 12 },
-        { 'width': '15%','bSortable': false, 'aTargets': 13 }
+        { 'width': 'auto', 'type': 'date', 'aTargets': 12 },
+        { 'width': 'auto', 'aTargets': 13 },
+        { 'width': '15%','bSortable': false, 'aTargets': 14 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -300,6 +340,9 @@ function salesProposalJobOrderProgressForm(){
             job_order_cost: {
                 required: true
             },
+            job_cost: {
+                required: true
+            },
             job_order_backjob: {
                 required: true
             },
@@ -313,8 +356,11 @@ function salesProposalJobOrderProgressForm(){
             job_order_progress: {
                 required: 'Please enter the progress'
             },
+            job_cost: {
+                required: 'Please enter the charge to customer'
+            },
             job_order_cost: {
-                required: 'Please enter the cost'
+                required: 'Please enter the job order cost'
             },
             job_order_completion_date: {
                 required: 'Completion date is required when progress is 100%'
@@ -406,6 +452,9 @@ function salesProposalAdditionalJobOrderProgressForm(){
             additional_job_order_cost: {
                 required: true
             },
+            additional_job_cost: {
+                required: true
+            },
             additional_job_order_backjob: {
                 required: true
             },
@@ -420,7 +469,10 @@ function salesProposalAdditionalJobOrderProgressForm(){
                 required: 'Please enter the progress'
             },
             additional_job_order_cost: {
-                required: 'Please enter the cost'
+                required: 'Please enter the charge to customer'
+            },
+            additional_job_cost: {
+                required: 'Please enter the additional job order cost'
             },
             additional_job_order_completion_date: {
                 required: 'Completion date is required when progress is 100%'
@@ -457,11 +509,17 @@ function salesProposalAdditionalJobOrderProgressForm(){
         },
         submitHandler: function(form) {
             const transaction = 'save sales proposal progress additional job order';
-        
+
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+
             $.ajax({
                 type: 'POST',
                 url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction,
+                data: formData,
+                processData: false,
+                contentType: false,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-additional-job-order-progress');
@@ -520,6 +578,7 @@ function displayDetails(transaction){
                         $('#sales_proposal_job_order_id').val(sales_proposal_job_order_id);
                         $('#job_order_progress').val(response.progress);
                         $('#job_order_cost').val(response.cost);
+                        $('#job_cost').val(response.jobCost);
                         $('#job_order_completion_date').val(response.completionDate);
                         $('#job_order_planned_start_date').val(response.plannedStartDate);
                         $('#job_order_planned_finish_date').val(response.plannedFinishDate);
@@ -563,6 +622,7 @@ function displayDetails(transaction){
                         $('#sales_proposal_additional_job_order_id').val(sales_proposal_additional_job_order_id);
                         $('#additional_job_order_progress').val(response.progress);
                         $('#additional_job_order_cost').val(response.cost);
+                        $('#additional_job_cost').val(response.jobCost);
                         $('#additional_job_order_completion_date').val(response.completionDate);
                         $('#additional_job_order_planned_start_date').val(response.plannedStartDate);
                         $('#additional_job_order_planned_finish_date').val(response.plannedFinishDate);

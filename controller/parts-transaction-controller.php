@@ -216,6 +216,14 @@ class PartsTransactionController {
             exit;
         }
 
+        $partTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
+        $number_of_items = $partTransactionDetails['number_of_items'] ?? 0;
+
+        if($number_of_items == 0){
+            echo json_encode(['success' => false, 'noItem' => true]);
+            exit;
+        }
+
         $quantityCheck = $this->partsTransactionModel->get_exceeded_part_quantity_count($parts_transaction_id)['total'] ?? 0;
 
         if($quantityCheck > 0){
@@ -360,6 +368,7 @@ class PartsTransactionController {
         $discount_total = $_POST['discount_total'];
         $part_item_subtotal = $_POST['part_item_subtotal'];
         $part_item_total = $_POST['part_item_total'];
+        $remarks = $_POST['remarks'];
         
         $user = $this->userModel->getUserByID($userID);
         
@@ -380,7 +389,7 @@ class PartsTransactionController {
         $total = $checkPartsTransactionCartExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->partsTransactionModel->updatePartsTransactionCart($part_transaction_cart_id, $quantity, $add_on, $discount, $discount_type, $discount_total, $part_item_subtotal, $part_item_total, $userID);
+            $this->partsTransactionModel->updatePartsTransactionCart($part_transaction_cart_id, $quantity, $add_on, $discount, $discount_type, $discount_total, $part_item_subtotal, $part_item_total, $remarks, $userID);
 
             $partsTransactionCartDetails = $this->partsTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
             $part_transaction_id = $partsTransactionCartDetails['part_transaction_id'];
@@ -621,6 +630,7 @@ class PartsTransactionController {
                 'quantity' => $partsTransactionCartDetails['quantity'],
                 'discount' => $partsTransactionCartDetails['discount'],
                 'add_on' => $partsTransactionCartDetails['add_on'],
+                'remarks' => $partsTransactionCartDetails['remarks'],
                 'discount_type' => $partsTransactionCartDetails['discount_type']
             ];
 

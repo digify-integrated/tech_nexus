@@ -1486,7 +1486,7 @@ function productExpenseTable(datatable_name, buttons = false, show_all = false){
 
     if (buttons) {
         settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
+        settings.buttons = ['csv', 'pdf'];
     }
 
     destroyDatatable(datatable_name);

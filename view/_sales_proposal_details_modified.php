@@ -123,6 +123,7 @@ $getAdditionalJobOrderBackjobCount = $salesProposalModel->getAdditionalJobOrderB
                     <th>Job Order</th>
                     <th>Cost</th>
                     <th>Progress</th>
+                    <th>Approval Document</th>
                     <th>Actions</th>
                   </tr>
                 </thead>

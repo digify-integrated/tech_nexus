@@ -1045,6 +1045,9 @@ function partsDetailsForm(){
             bar_code: {
                 required: true
             },
+            part_number: {
+                required: true
+            },
             part_category_id: {
                 required: true
             },
@@ -1079,6 +1082,9 @@ function partsDetailsForm(){
         messages: {
             brand_id: {
                 required: 'Please choose the brand'
+            },
+            part_number: {
+                required: 'Please enter the part number'
             },
             bar_code: {
                 required: 'Please enter the bar code'
@@ -1424,14 +1430,11 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#parts_id').val(parts_id);
                         $('#bar_code').val(response.bar_code);
+                        $('#part_number').val(response.part_number);
                         $('#quantity').val(response.quantity);
                         $('#stock_alert').val(response.stock_alert);
                         $('#description').val(response.description);
                         $('#remarks').val(response.remarks);
-                        $('#issuance_date').val(response.issuance_date);
-                        $('#jo_no').val(response.jo_no);
-                        $('#issuance_no').val(response.issuance_no);
-                        $('#jo_date').val(response.jo_date);
                         $('#part_price').val(response.part_price);
 
                         document.getElementById('parts_thumbnail').src = response.part_image;
@@ -1442,8 +1445,6 @@ function displayDetails(transaction){
                         checkOptionExist('#part_subclass_id', response.part_subclass_id, '');
                         checkOptionExist('#company_id', response.company_id, '');
                         checkOptionExist('#unit_sale', response.unit_sale, '');
-                        checkOptionExist('#unit_purchase', response.unit_purchase, '');
-                        checkOptionExist('#supplier_id', response.supplier_id, '');
                         checkOptionExist('#warehouse_id', response.warehouse_id, '');
                     } 
                     else {

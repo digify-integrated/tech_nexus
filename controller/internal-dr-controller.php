@@ -393,7 +393,7 @@ class InternalDRController {
         $drType = $internalDRDetails['dr_type'];
         $backjob_monitoring_id = $internalDRDetails['backjob_monitoring_id'];
 
-        if($drType === 'Backjob'){
+        if($drType === 'Backjob' || $drType === 'Warranty'){
             $this->internalDRModel->updateSalesProposalBackjobProgress($backjob_monitoring_id, $userID);
         }
 

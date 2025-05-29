@@ -428,6 +428,9 @@
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
                                 }
+                                else if (response.notPosted) {
+                                    showNotification('Replenish Disbursement Error', 'The disbursement is not posted. Cannot be replenished.', 'danger');
+                                }
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }
@@ -970,7 +973,25 @@
 
             if(checkedBoxes != ''){
                 const disbursement_category = $('#disbursement_category').val();
-                window.open('print-disbursement-report.php?id=' + checkedBoxes + '&type=' + disbursement_category, '_blank');
+                window.open('print-disbursement-report.php?id=' + checkedBoxes + '&type=' + disbursement_category + '&ptype=full', '_blank');
+            }
+            else{
+                showNotification('Print Report Error', 'No selected disbursement.', 'danger');
+            }
+        });
+
+        $(document).on('click','#print-report-less',function() {
+            var checkedBoxes = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                const disbursement_category = $('#disbursement_category').val();
+                window.open('print-disbursement-report.php?id=' + checkedBoxes + '&type=' + disbursement_category + '&ptype=less', '_blank');
             }
             else{
                 showNotification('Print Report Error', 'No selected disbursement.', 'danger');

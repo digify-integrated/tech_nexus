@@ -2,28 +2,37 @@
     'use strict';
 
     $(function() {
-        if($('#parts-transaction-table').length){
-            partsTransactionTable('#parts-transaction-table');
+        if($('#parts-incoming-table').length){
+            partsIncomingTable('#parts-incoming-table');
+        }
+
+        if($('#parts-incoming-form').length){
+            partsIncomingForm();
+        }
+
+        if($('#parts-incoming-id').length){
+            displayDetails('get parts incoming details');
+            displayDetails('get parts incoming cart total');
         }
 
         if($('#parts-item-table').length){
             partItemTable('#parts-item-table');
         }
 
-        if($('#parts-transaction-document-table').length){
-            partTransactionDocumentTable('#parts-transaction-document-table');
+        if($('#parts-incoming-document-table').length){
+            partIncomingDocumentTable('#parts-incoming-document-table');
         }
         
         if($('#add-part-form').length){
             addPartsForm();
         }
 
-        if($('#cancel-transaction-form').length){
-            cancelTransactionForm();
+        if($('#cancel-incoming-form').length){
+            cancelIncomingForm();
         }
 
-        if($('#approve-transaction-form').length){
-            approveTransactionForm();
+        if($('#approve-incoming-form').length){
+            approveIncomingForm();
         }
         
         if($('#add-part-document-form').length){
@@ -34,6 +43,10 @@
             partItemForm();
         }
 
+        if($('#receive-item-form').length){
+            receiveItemForm();
+        }
+
         $(document).on('click','#add-part',function() {
             if($('#add-part-table').length){
                 addPartTable('#add-part-table');
@@ -41,55 +54,50 @@
         });
 
         $(document).on('click','#apply-filter',function() {
-            partsTransactionTable('#parts-transaction-table');
-        });
-        
-        if($('#parts-transaction-id').length){
-            displayDetails('get parts transaction cart total');
-
-            document.getElementById('quantity').addEventListener('input', calculateTotals);
-            document.getElementById('discount').addEventListener('input', calculateTotals);
-            document.getElementById('add_on').addEventListener('input', calculateTotals);
-        }
-
-        $(document).on('change','#discount_type',function() {
-            calculateTotals();
+            partsIncomingTable('#parts-incoming-table');
         });
 
         $(document).on('click','.update-part-cart',function() {
-            const parts_transaction_cart_id = $(this).data('parts-transaction-cart-id');
+            const parts_incoming_cart_id = $(this).data('parts-incoming-cart-id');
 
-            $('#part_transaction_cart_id').val(parts_transaction_cart_id);
-            displayDetails('get parts transaction cart details');
+            $('#part_incoming_cart_id').val(parts_incoming_cart_id);
+            displayDetails('get parts incoming cart details');
+        });
+
+        $(document).on('click','.receive-quantity',function() {
+            const parts_incoming_cart_id = $(this).data('parts-incoming-cart-id');
+
+            sessionStorage.setItem('parts_incoming_cart_id', parts_incoming_cart_id);
+            displayDetails('get receive parts incoming cart details');
         });
 
         $(document).on('click','#on-process',function() {
-            var parts_transaction_id = $('#parts-transaction-id').text();
-            const transaction = 'tag transaction as on process';
+            var parts_incoming_id = $('#parts-incoming-id').text();
+            const transaction = 'tag incoming as on-process';
     
             Swal.fire({
-                title: 'Confirm Transaction On-Process',
-                text: 'Are you sure you want to tag this transaction as on-process?',
+                title: 'Confirm Incoming On-Process',
+                text: 'Are you sure you want to tag this incoming as on-process?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'On-Process',
                 cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-info mt-2',
+                confirmButtonClass: 'btn btn-success mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
                 buttonsStyling: !1
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/parts-transaction-controller.php',
+                        url: 'controller/parts-incoming-controller.php',
                         dataType: 'json',
                         data: {
-                            parts_transaction_id : parts_transaction_id, 
+                            parts_incoming_id : parts_incoming_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Transaction On-Process Success', 'The transaction has been tagged as on-process successfully.', 'success');
+                                setNotification('Incoming On-Process Success', 'The incoming has been tagged as on-process successfully.', 'success');
                                 window.location.reload();
                             }
                             else {
@@ -98,68 +106,10 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.noItem) {
-                                    showNotification('Transaction On-Process Error', 'No parts added. Cannot be released.', 'danger');
-                                }
-                                else if (response.cartQuantity) {
-                                    showNotification('Transaction On-Process Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                    showNotification('Incoming On-Process Error', 'No parts added. Cannot be on-process.', 'danger');
                                 }
                                 else {
-                                    showNotification('Transaction On-Process Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
-
-        $(document).on('click','#for-approval',function() {
-            var parts_transaction_id = $('#parts-transaction-id').text();
-            const transaction = 'tag transaction as for approval';
-    
-            Swal.fire({
-                title: 'Confirm Transaction For Approval',
-                text: 'Are you sure you want to tag this transaction as for approval?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'For Approval',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-info mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/parts-transaction-controller.php',
-                        dataType: 'json',
-                        data: {
-                            parts_transaction_id : parts_transaction_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                setNotification('Transaction For Approval Success', 'The transaction has been tagged as for approval successfully.', 'success');
-                                window.location.reload();
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.cartQuantity) {
-                                    showNotification('Transaction For Approval Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
-                                }
-                                else {
-                                    showNotification('Transaction For Approval Error', response.message, 'danger');
+                                    showNotification('Incoming On-Process Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -177,15 +127,15 @@
         });
 
         $(document).on('click','#release',function() {
-            var parts_transaction_id = $('#parts-transaction-id').text();
-            const transaction = 'tag transaction as released';
+            var parts_incoming_id = $('#parts-incoming-id').text();
+            const transaction = 'tag incoming as released';
     
             Swal.fire({
-                title: 'Confirm Transaction Release',
-                text: 'Are you sure you want to tag this transaction as released?',
+                title: 'Confirm Incoming Complete',
+                text: 'Are you sure you want to tag this incoming as complete?',
                 icon: 'warning',
                 showCancelButton: !0,
-                confirmButtonText: 'Release',
+                confirmButtonText: 'Complete',
                 cancelButtonText: 'Cancel',
                 confirmButtonClass: 'btn btn-success mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
@@ -194,15 +144,15 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/parts-transaction-controller.php',
+                        url: 'controller/parts-incoming-controller.php',
                         dataType: 'json',
                         data: {
-                            parts_transaction_id : parts_transaction_id, 
+                            parts_incoming_id : parts_incoming_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Transaction Released Success', 'The transaction has been tagged as released successfully.', 'success');
+                                setNotification('Incoming Complete Success', 'The incoming has been tagged as completed successfully.', 'success');
                                 window.location.reload();
                             }
                             else {
@@ -210,11 +160,11 @@
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
                                 }
-                                else if (response.cartQuantity) {
-                                    showNotification('Transaction Released Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                else if (response.remaining) {
+                                    showNotification('Incoming Complete Error', 'Some items have not been fully received yet. Please complete the receipt before proceeding.', 'danger');
                                 }
                                 else {
-                                    showNotification('Transaction Released Error', response.message, 'danger');
+                                    showNotification('Incoming Complete Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -232,8 +182,8 @@
         });
 
         $(document).on('click','.delete-part-cart',function() {
-            const parts_transaction_cart_id = $(this).data('parts-transaction-cart-id');
-            var parts_transaction_id = $('#parts-transaction-id').text();
+            const parts_incoming_cart_id = $(this).data('parts-incoming-cart-id');
+            var parts_incoming_id = $('#parts-incoming-id').text();
             const transaction = 'delete part item';
     
             Swal.fire({
@@ -250,18 +200,18 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/parts-transaction-controller.php',
+                        url: 'controller/parts-incoming-controller.php',
                         dataType: 'json',
                         data: {
-                            parts_transaction_cart_id : parts_transaction_cart_id, 
-                            parts_transaction_id : parts_transaction_id, 
+                            parts_incoming_cart_id : parts_incoming_cart_id, 
+                            parts_incoming_id : parts_incoming_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
                                 showNotification('Delete Part Item Success', 'The part item has been deleted successfully.', 'success');
                                 reloadDatatable('#parts-item-table');
-                                displayDetails('get parts transaction cart total');
+                                displayDetails('get parts incoming cart total');
                             }
                             else {
                                 if (response.isInactive) {
@@ -289,20 +239,87 @@
                 }
             });
         });
+    });
+})(jQuery);
 
-        $(document).on('click','#create-transaction',function() {
-            var transaction = 'save parts transaction';
-            
+function partsIncomingForm(){
+    $('#parts-incoming-form').validate({
+        rules: {
+            reference_number: {
+                required: true
+            },
+            purchase_date: {
+                required: true
+            },
+            delivery_date: {
+                required: true
+            },
+            supplier_id: {
+                required: true
+            },
+        },
+        messages: {
+            reference_number: {
+                required: 'Please enter the reference number'
+            },
+            purchase_date: {
+                required: 'Please choose the purchase date'
+            },
+            delivery_date: {
+                required: 'Please choose the delivery date'
+            },
+            supplier_id: {
+                required: 'Please choose the supplier'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const parts_incoming_id = $('#parts-incoming-id').text();
+            const transaction = 'save parts incoming';
+        
             $.ajax({
                 type: 'POST',
-                url: 'controller/parts-transaction-controller.php',
+                url: 'controller/parts-incoming-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_incoming_id=' + parts_incoming_id,
                 dataType: 'json',
-                data: {
-                    transaction : transaction
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        window.location = 'parts-transaction.php?id=' + response.partsTransactionID;
+                        const notificationMessage = response.insertRecord ? 'Insert Incoming Parts Success' : 'Update Incoming Parts Success';
+                        const notificationDescription = response.insertRecord ? 'The incoming parts has been inserted successfully.' : 'The incoming parts has been updated successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location = 'parts-incoming.php?id=' + response.partsIncomingID;
                     }
                     else {
                         if (response.isInactive) {
@@ -320,37 +337,47 @@
                         fullErrorMessage += `, Response: ${xhr.responseText}`;
                     }
                     showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Save');
                 }
             });
-        });
+        
+            return false;
+        }
     });
-})(jQuery);
+}
 
-function partsTransactionTable(datatable_name, buttons = false, show_all = false){
-    const type = 'parts transaction table';
+function partsIncomingTable(datatable_name, buttons = false, show_all = false){
+    const type = 'parts incoming table';
     var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
-    var filter_approval_date_start_date = $('#filter_approval_date_start_date').val();
-    var filter_approval_date_end_date = $('#filter_approval_date_end_date').val();
+    var filter_released_date_start_date = $('#filter_released_date_start_date').val();
+    var filter_released_date_end_date = $('#filter_released_date_end_date').val();
+    var filter_purchased_date_start_date = $('#filter_purchased_date_start_date').val();
+    var filter_purchased_date_end_date = $('#filter_purchased_date_end_date').val();
 
-    var transaction_status_filter = [];
+    var incoming_status_filter = [];
 
-    $('.transaction-status-checkbox:checked').each(function() {
-        transaction_status_filter.push($(this).val());
+    $('.incoming-status-checkbox:checked').each(function() {
+        incoming_status_filter.push($(this).val());
     });
 
-    var filter_transaction_status = transaction_status_filter.join(', ');
+    var filter_incoming_status = incoming_status_filter.join(', ');
 
     var settings;
 
     const column = [
         { 'data' : 'TRANSACTION_ID' },
-        { 'data' : 'NUMBER_OF_ITEMS' },
-        { 'data' : 'ADD_ON' },
-        { 'data' : 'DISCOUNT' },
-        { 'data' : 'SUB_TOTAL' },
-        { 'data' : 'TOTAL_AMOUNT' },
+        { 'data' : 'LINES' },
+        { 'data' : 'QUANTITY' },
+        { 'data' : 'RECEIVED' },
+        { 'data' : 'REMAINING' },
+        { 'data' : 'COST' },
+        { 'data' : 'COMPLETION_DATE' },
+        { 'data' : 'PURCHASE_DATE' },
         { 'data' : 'TRANSACTION_DATE' },
+        { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -362,22 +389,27 @@ function partsTransactionTable(datatable_name, buttons = false, show_all = false
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
-        { 'width': '15%','bSortable': false, 'aTargets': 7 }
+        { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': '15%','bSortable': false, 'aTargets': 10 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_parts_transaction_generation.php',
+            'url' : 'view/_parts_incoming_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 
                 'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
                 'filter_transaction_date_end_date' : filter_transaction_date_end_date,
-                'filter_approval_date_start_date' : filter_approval_date_start_date,
-                'filter_approval_date_end_date' : filter_approval_date_end_date,
-                'filter_transaction_status' : filter_transaction_status,
+                'filter_released_date_start_date' : filter_released_date_start_date,
+                'filter_released_date_end_date' : filter_released_date_end_date,
+                'filter_purchased_date_start_date' : filter_purchased_date_start_date,
+                'filter_purchased_date_end_date' : filter_purchased_date_end_date,
+                'filter_incoming_status' : filter_incoming_status
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
@@ -411,7 +443,7 @@ function partsTransactionTable(datatable_name, buttons = false, show_all = false
 }
 
 function addPartTable(datatable_name, buttons = false, show_all = false){
-    var parts_transaction_id = $('#parts-transaction-id').text();
+    var parts_incoming_id = $('#parts-incoming-id').text();
     const type = 'add part table';
     var settings;
 
@@ -433,10 +465,10 @@ function addPartTable(datatable_name, buttons = false, show_all = false){
 
     settings = {
         'ajax': { 
-            'url' : 'view/_parts_transaction_generation.php',
+            'url' : 'view/_parts_incoming_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'parts_transaction_id' : parts_transaction_id},
+            'data': {'type' : type, 'parts_incoming_id' : parts_incoming_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -469,25 +501,24 @@ function addPartTable(datatable_name, buttons = false, show_all = false){
 }
 
 function partItemTable(datatable_name, buttons = false, show_all = false){
-    var parts_transaction_id = $('#parts-transaction-id').text();
+    var parts_incoming_id = $('#parts-incoming-id').text();
     const type = 'part item table';
     var settings;
 
     const column = [ 
+        { 'data' : 'ACTION' },
         { 'data' : 'PART' },
-        { 'data' : 'PRICE' },
         { 'data' : 'QUANTITY' },
+        { 'data' : 'RECEIVED_QUANTITY' },
+        { 'data' : 'REMAINING_QUANTITY' },
+        { 'data' : 'COST' },
+        { 'data' : 'TOTAL_COST' },
         { 'data' : 'AVAILABLE_STOCK' },
-        { 'data' : 'ADD_ON' },
-        { 'data' : 'DISCOUNT' },
-        { 'data' : 'DISCOUNT_TOTAL' },
-        { 'data' : 'SUBTOTAL' },
-        { 'data' : 'TOTAL' },
-        { 'data' : 'ACTION' }
+        { 'data' : 'REMARKS' }
     ];
 
     const column_definition = [
-        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'bSortable': false, 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
@@ -496,17 +527,16 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
         { 'width': 'auto', 'aTargets': 8 },
-        { 'width': 'auto', 'bSortable': false, 'aTargets': 9 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_parts_transaction_generation.php',
+            'url' : 'view/_parts_incoming_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'parts_transaction_id' : parts_transaction_id},
+            'data': {'type' : type, 'parts_incoming_id' : parts_incoming_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -516,7 +546,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 0, 'asc' ]],
+        'order': [[ 1, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -538,9 +568,9 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function partTransactionDocumentTable(datatable_name, buttons = false, show_all = false){
-    var parts_transaction_id = $('#parts-transaction-id').text();
-    const type = 'part transaction document table';
+function partIncomingDocumentTable(datatable_name, buttons = false, show_all = false){
+    var parts_incoming_id = $('#parts-incoming-id').text();
+    const type = 'part incoming document table';
     var settings;
 
     const column = [ 
@@ -559,10 +589,10 @@ function partTransactionDocumentTable(datatable_name, buttons = false, show_all 
 
     settings = {
         'ajax': { 
-            'url' : 'view/_parts_transaction_generation.php',
+            'url' : 'view/_parts_incoming_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'parts_transaction_id' : parts_transaction_id},
+            'data': {'type' : type, 'parts_incoming_id' : parts_incoming_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -597,8 +627,8 @@ function partTransactionDocumentTable(datatable_name, buttons = false, show_all 
 function addPartsForm(){
     $('#add-part-form').validate({
         submitHandler: function(form) {
-          var parts_transaction_id = $('#parts-transaction-id').text();
-            const transaction = 'add parts transaction item';
+          var parts_incoming_id = $('#parts-incoming-id').text();
+            const transaction = 'add parts incoming item';
 
             var part_id = [];
 
@@ -610,8 +640,8 @@ function addPartsForm(){
 
             $.ajax({
                 type: 'POST',
-                url: 'controller/parts-transaction-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&parts_transaction_id=' + parts_transaction_id + '&part_id=' + part_id,
+                url: 'controller/parts-incoming-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_incoming_id=' + parts_incoming_id + '&part_id=' + part_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-add-part');
@@ -619,7 +649,8 @@ function addPartsForm(){
                 success: function(response) {
                     if (response.success) {
                         showNotification('Add Parts Success', 'The parts has been added successfully.', 'success');
-                        displayDetails('get parts transaction cart total');
+                        
+                        displayDetails('get parts incoming cart total');
                     }
                     else {
                         if (response.isInactive) {
@@ -627,7 +658,7 @@ function addPartsForm(){
                             window.location = 'logout.php?logout';
                         }
                         else {
-                            showNotification('Transaction Error', response.message, 'danger');
+                            showNotification('Incoming Error', response.message, 'danger');
                         }
                     }
                 },
@@ -653,7 +684,7 @@ function partsDocumentForm(){
             document_name: {
                 required: true
             },
-            transaction_document: {
+            incoming_document: {
                 required: true
             },
         },
@@ -661,7 +692,7 @@ function partsDocumentForm(){
             document_name: {
                 required: 'Please enter the document name'
             },
-            transaction_document: {
+            incoming_document: {
                 required: 'Please choose the document'
             },
         },
@@ -695,15 +726,15 @@ function partsDocumentForm(){
             }
         },
         submitHandler: function(form) {
-            var parts_transaction_id = $('#parts-transaction-id').text();
-            const transaction = 'add parts transaction document';
+            var parts_incoming_id = $('#parts-incoming-id').text();
+            const transaction = 'add parts incoming document';
             var formData = new FormData(form);
             formData.append('transaction', transaction);
-            formData.append('parts_transaction_id', parts_transaction_id);
+            formData.append('parts_incoming_id', parts_incoming_id);
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/parts-transaction-controller.php',
+                url: 'controller/parts-incoming-controller.php',
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -724,7 +755,7 @@ function partsDocumentForm(){
                             window.location = 'logout.php?logout';
                         }
                         else {
-                            showNotification('Transaction Error', response.message, 'danger');
+                            showNotification('Incoming Error', response.message, 'danger');
                         }
                     }
                 },
@@ -737,7 +768,7 @@ function partsDocumentForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-add-part-document', 'Submit');
-                    reloadDatatable('#parts-transaction-document-table');
+                    reloadDatatable('#parts-incoming-document-table');
                     $('#add-part-document-offcanvas').offcanvas('hide');
                     resetModalForm('add-part-document-form');
                 }
@@ -748,8 +779,8 @@ function partsDocumentForm(){
     });
 }
 
-function cancelTransactionForm(){
-    $('#cancel-transaction-form').validate({
+function cancelIncomingForm(){
+    $('#cancel-incoming-form').validate({
         rules: {
             cancellation_reason: {
                 required: true
@@ -790,21 +821,21 @@ function cancelTransactionForm(){
             }
         },
         submitHandler: function(form) {
-            var parts_transaction_id = $('#parts-transaction-id').text();
-            const transaction = 'tag transaction as cancelled';
+            var parts_incoming_id = $('#parts-incoming-id').text();
+            const transaction = 'tag incoming as cancelled';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/parts-transaction-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&parts_transaction_id=' + parts_transaction_id,
+                url: 'controller/parts-incoming-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_incoming_id=' + parts_incoming_id,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-cancel-transaction');
+                    disableFormSubmitButton('submit-cancel-incoming');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = 'Cancel Transaction Success';
-                        const notificationDescription = 'The transaction has been tag as cancelled successfully.';
+                        const notificationMessage = 'Cancel Incoming Success';
+                        const notificationDescription = 'The incoming has been tag as cancelled successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
                         window.location.reload();
@@ -815,10 +846,10 @@ function cancelTransactionForm(){
                             window.location = 'logout.php?logout';
                         }
                         else if (response.cartQuantity) {
-                            showNotification('Cancel Transaction Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                            showNotification('Cancel Incoming Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
                         }
                         else {
-                            showNotification('Transaction Error', response.message, 'danger');
+                            showNotification('Incoming Error', response.message, 'danger');
                         }
                     }
                 },
@@ -830,7 +861,7 @@ function cancelTransactionForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-cancel-transaction', 'Submit');
+                    enableFormSubmitButton('submit-cancel-incoming', 'Submit');
                 }
             });
         
@@ -838,127 +869,24 @@ function cancelTransactionForm(){
         }
     });
 }
-
-function approveTransactionForm(){
-    $('#approve-transaction-form').validate({
-        rules: {
-            approval_remarks: {
-                required: true
-            },
-        },
-        messages: {
-            approval_remarks: {
-                required: 'Please enter the approval remarks'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            var parts_transaction_id = $('#parts-transaction-id').text();
-            const transaction = 'tag transaction as approved';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/parts-transaction-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&parts_transaction_id=' + parts_transaction_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-approve-transaction');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        const notificationMessage = 'Approve Transaction Success';
-                        const notificationDescription = 'The transaction has been tag as approved successfully.';
-                        
-                        setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location.reload();
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else if (response.cartQuantity) {
-                            showNotification('Approve Transaction Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-approve-transaction', 'Submit');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-$.validator.addMethod("maxStock", function(value, element) {
-    var availableStock = parseInt($("#available_stock").val(), 10);
-    var quantity = parseInt(value, 10);
-    return quantity <= availableStock;
-}, "Quantity cannot exceed available stock.");
 
 function partItemForm(){
   $('#part-item-form').validate({
         rules: {
-            discount_type: {
-                required: {
-                    depends: function(element) {
-                        return $("#discount").val() > 0;
-                    }
-                }
-            },
             quantity: {
                 required: true,
-                maxStock: true
+            },
+            cost: {
+                required: true,
             },
         },
         messages: {
             quantity: {
                 required: 'Please enter the quantity',
-                maxStock: 'Quantity cannot exceed available stock'
             },
-            discount_type: {
-                required: 'Please choose the discount type'
-            },
+            cost: {
+                required: 'Please enter the cost',
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -994,7 +922,7 @@ function partItemForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/parts-transaction-controller.php',
+                url: 'controller/parts-incoming-controller.php',
                 data: $(form).serialize() + '&transaction=' + transaction,
                 dataType: 'json',
                 beforeSend: function() {
@@ -1005,7 +933,7 @@ function partItemForm(){
                         showNotification('Update Part Item Success', 'The part item has been updated successfully', 'success');
                         reloadDatatable('#parts-item-table');
                         $('#part-cart-offcanvas').offcanvas('hide');
-                        displayDetails('get parts transaction cart total');
+                        displayDetails('get parts incoming cart total');
                     }
                     else {
                         if (response.isInactive) {
@@ -1016,7 +944,104 @@ function partItemForm(){
                             showNotification('Update Part Item', 'Quantity cannot exceed available stock', 'danger');
                         }
                         else {
-                            showNotification('Transaction Error', response.message, 'danger');
+                            showNotification('Incoming Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+$.validator.addMethod("notGreaterThanRemaining", function(value, element, params) {
+    var remaining = parseFloat($(params).val());
+    var received = parseFloat(value);
+    return received <= remaining;
+}, "Received quantity cannot be greater than remaining quantity.");
+
+function receiveItemForm(){
+  $('#receive-item-form').validate({
+        rules: {
+            received_quantity: {
+                required: true,
+                notGreaterThanRemaining: "#remaining_quantity"
+            },
+        },
+        messages: {
+            received_quantity: {
+                required: 'Please enter the received quantity',
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const transaction = 'save received part item';
+             let part_incoming_cart_id = sessionStorage.getItem('parts_incoming_cart_id');
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/parts-incoming-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&part_incoming_cart_id=' + part_incoming_cart_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Update Received Item Success', 'The received item has been updated successfully', 'success');
+                        reloadDatatable('#parts-item-table');
+                        $('#receive-item-offcanvas').offcanvas('hide');
+                        displayDetails('get parts incoming cart total');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else if (response.quantity) {
+                            showNotification('Update Received Item', 'Quantity cannot exceed available stock', 'danger');
+                        }
+                        else {
+                            showNotification('Incoming Error', response.message, 'danger');
                         }
                     }
                 },
@@ -1039,28 +1064,99 @@ function partItemForm(){
 
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get parts transaction cart details':
-            const part_transaction_cart_id = $('#part_transaction_cart_id').val();
+        case 'get parts incoming details':
+             var parts_incoming_id = $('#parts-incoming-id').text();
             
             $.ajax({
-                url: 'controller/parts-transaction-controller.php',
+                url: 'controller/parts-incoming-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    part_transaction_cart_id : part_transaction_cart_id, 
+                    parts_incoming_id : parts_incoming_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#reference_number').val(response.reference_number);
+                        $('#purchase_date').val(response.purchase_date);
+                        $('#delivery_date').val(response.delivery_date);
+                        $('#rr_no').val(response.rr_no);
+                        $('#rr_date').val(response.rr_date);
+
+                        checkOptionExist('#supplier_id', response.supplier_id, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Part Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get parts incoming cart details':
+            let part_incoming_cart_id = $('#part_incoming_cart_id').val();
+            
+            $.ajax({
+                url: 'controller/parts-incoming-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    part_incoming_cart_id : part_incoming_cart_id, 
                     transaction : transaction
                 },
                 success: function(response) {
                     if (response.success) {
                         $('#quantity').val(response.quantity);
+                        $('#cost').val(response.cost);
                         $('#part_id').val(response.part_id);
-                        $('#discount').val(response.discount);
-                        $('#add_on').val(response.add_on);
                         $('#remarks').val(response.remarks);
                         
                         checkOptionExist('#discount_type', response.discount_type, '');
 
                         displayDetails('get parts details');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Part Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get receive parts incoming cart details':
+            let parts_incoming_cart_id = sessionStorage.getItem('parts_incoming_cart_id');
+            
+            $.ajax({
+                url: 'controller/parts-incoming-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    part_incoming_cart_id : parts_incoming_cart_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#remaining_quantity').val(response.remaining_quantity);
                     } 
                     else {
                         if(response.isInactive){
@@ -1093,7 +1189,7 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#part_price').val(response.part_price);
+                        $('#part_description').val(response.description);
                         $('#available_stock').val(response.quantity);
                     } 
                     else {
@@ -1111,29 +1207,28 @@ function displayDetails(transaction){
                         fullErrorMessage += `, Response: ${xhr.responseText}`;
                     }
                     showErrorDialog(fullErrorMessage);
-                },
-                complete: function(){
-                    calculateTotals();
                 }
             });
             break;
-        case 'get parts transaction cart total':
-            var parts_transaction_id = $('#parts-transaction-id').text();
+
+        case 'get parts incoming cart total':
+             var parts_incoming_id = $('#parts-incoming-id').text();
             
             $.ajax({
-                url: 'controller/parts-transaction-controller.php',
+                url: 'controller/parts-incoming-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    parts_transaction_id : parts_transaction_id, 
+                    parts_incoming_id : parts_incoming_id, 
                     transaction : transaction
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#sub-total-summary').text(response.subTotal);
-                        $('#total-discount-summary').text(response.discountAmount);
-                        $('#total-summary').text(response.total);
-                        $('#add-on-total-summary').text(response.addOn);
+                        $('#total-cost-summary').text(response.cost);
+                        $('#total-item-summary').text(response.lines);
+                        $('#total-quantity-summary').text(response.quantity);
+                        $('#total-received-quantity-summary').text(response.received);
+                        $('#total-remaining-quantity-summary').text(response.remaining);
                     } 
                     else {
                         if(response.isInactive){
@@ -1150,50 +1245,8 @@ function displayDetails(transaction){
                         fullErrorMessage += `, Response: ${xhr.responseText}`;
                     }
                     showErrorDialog(fullErrorMessage);
-                },
-                complete: function(){
-                    calculateTotals();
                 }
             });
             break;
     }
-}
-
-function calculateTotals() {
-  const priceInput = document.getElementById('part_price');
-  const quantityInput = document.getElementById('quantity');
-  const addOnInput = document.getElementById('add_on');
-  const discountInput = document.getElementById('discount');
-  const discountTotal = document.getElementById('discount_total');
-  const discountTypeSelect = document.getElementById('discount_type');
-  const subtotalInput = document.getElementById('part_item_subtotal');
-  const totalInput = document.getElementById('part_item_total');
-
-  // Parse values with fallback to 0
-  const price = Math.max(parseFloat(priceInput.value) || 0, 0);
-  const quantity = Math.max(parseInt(quantityInput.value) || 0, 0);
-  const discount = Math.max(parseFloat(discountInput.value) || 0, 0);
-  const addOn = Math.max(parseFloat(addOnInput.value) || 0, 0);
-  const discountType = discountTypeSelect.value;
-
-  // Calculate subtotal
-  const subtotal = price * quantity;
-  const subtotal2 = (price * quantity) + addOn;
-  subtotalInput.value = subtotal2.toFixed(2);
-
-  // Calculate discount amount
-  let discountAmount = 0;
-  if (discountType === 'Percentage') {
-    discountAmount = subtotal * (discount / 100);
-  } else if (discountType === 'Amount') {
-    discountAmount = discount;
-  }
-
-  // Prevent discount from exceeding subtotal
-  discountAmount = Math.min(discountAmount, subtotal);
-  discountTotal.value = discountAmount.toFixed(2); // Update the discount total field
-
-  // Calculate total
-  const total = (subtotal + addOn) - discountAmount;
-  totalInput.value = total.toFixed(2);
 }

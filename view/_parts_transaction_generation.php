@@ -132,8 +132,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </div>
                                 </div>',
                     'PRICE' => number_format($part_price, 2) .' PHP',
-                    'QUANTITY' => number_format($quantity, 0, '', ',') . '' . $short_name,
-                    'AVAILABLE_STOCK' => number_format($partQuantity, 0, '', ',') . '' . $short_name,
+                    'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
+                    'AVAILABLE_STOCK' => number_format($partQuantity, 0, '', ',') . ' ' . $short_name,
                     'ADD_ON' => number_format($add_on, 2) .' PHP',
                     'DISCOUNT' => $discount,
                     'DISCOUNT_TOTAL' => number_format($discount_total, 2) .' PHP',

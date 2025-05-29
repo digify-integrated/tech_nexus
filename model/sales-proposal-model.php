@@ -234,10 +234,11 @@ class SalesProposalModel {
         $stmt->execute();
     }
 
-    public function updateSalesProposalJobOrderProgress($p_sales_proposal_job_order_id, $p_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalJobOrderProgress(:p_sales_proposal_job_order_id, :p_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_last_log_by)');
+    public function updateSalesProposalJobOrderProgress($p_sales_proposal_job_order_id, $p_cost, $p_job_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalJobOrderProgress(:p_sales_proposal_job_order_id, :p_cost, :p_job_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_job_order_id', $p_sales_proposal_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_job_cost', $p_job_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_progress', $p_progress, PDO::PARAM_STR);
         $stmt->bindValue(':p_contractor_id', $p_contractor_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_work_center_id', $p_work_center_id, PDO::PARAM_STR);
@@ -250,10 +251,11 @@ class SalesProposalModel {
         $stmt->execute();
     }
 
-    public function updateSalesProposalAdditionalJobOrderProgress($sales_proposal_additional_job_order_id, $p_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderProgress(:sales_proposal_additional_job_order_id, :p_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_last_log_by)');
+    public function updateSalesProposalAdditionalJobOrderProgress($sales_proposal_additional_job_order_id, $p_cost, $p_job_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderProgress(:sales_proposal_additional_job_order_id, :p_cost, :p_job_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_last_log_by)');
         $stmt->bindValue(':sales_proposal_additional_job_order_id', $sales_proposal_additional_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_job_cost', $p_job_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_progress', $p_progress, PDO::PARAM_STR);
         $stmt->bindValue(':p_contractor_id', $p_contractor_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_work_center_id', $p_work_center_id, PDO::PARAM_STR);
@@ -494,6 +496,22 @@ class SalesProposalModel {
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_job_order', $p_job_order, PDO::PARAM_STR);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateSalesProposalJobOrderApprovalDocument($p_sales_proposal_job_order_id, $p_approval_document, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalJobOrderApprovalDocument(:p_sales_proposal_job_order_id, :p_approval_document, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_job_order_id', $p_sales_proposal_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_approval_document', $p_approval_document, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateSalesProposalAdditionalJobOrderApprovalDocument($p_sales_proposal_additional_job_order_id, $p_approval_document, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderApprovalDocument(:p_sales_proposal_additional_job_order_id, :p_approval_document, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_additional_job_order_id', $p_sales_proposal_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_approval_document', $p_approval_document, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -943,11 +961,12 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposalJobOrder($p_sales_proposal_id, $p_job_order, $p_cost, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalJobOrder(:p_sales_proposal_id, :p_job_order, :p_cost, :p_last_log_by)');
+    public function insertSalesProposalJobOrder($p_sales_proposal_id, $p_job_order, $p_cost, $p_approval_document, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalJobOrder(:p_sales_proposal_id, :p_job_order, :p_cost, :p_approval_document, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_job_order', $p_job_order, PDO::PARAM_STR);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_approval_document', $p_approval_document, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

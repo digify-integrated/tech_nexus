@@ -1097,6 +1097,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $jobOrder = $row['job_order'];
                     $progress = $row['progress'];
                     $cost = number_format($row['cost'], 2);
+                    $approval_document = $systemModel->checkImage($row['approval_document'], 'default');
 
                     $action = '';
                     if($salesProposalStatus == 'Draft'){
@@ -1113,6 +1114,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $response[] = [
                         'JOB_ORDER' => $jobOrder,
                         'COST' => $cost,
+                        'APPROVAL_DOCUMENT' => '<a href="'. $approval_document .'" target="_blank">View</a>',
                         'PROGRESS' => number_format($progress, 2) . '%',
                         'ACTION' => '<div class="d-flex gap-2">'.
                                     $action . 
@@ -1144,6 +1146,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $work_center_id = $row['work_center_id'];
                     $backjob = $row['backjob'];
                     $cost = number_format($row['cost'], 2);
+                    $job_cost = number_format($row['job_cost'], 2);
                     $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
                     $planned_start_date = $systemModel->checkDate('summary', $row['planned_start_date'], '', 'm/d/Y', '');
                     $planned_finish_date = $systemModel->checkDate('summary', $row['planned_finish_date'], '', 'm/d/Y', '');
@@ -1173,6 +1176,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'CHECK_BOX' => '<input class="form-check-input job-order-checkbox-children" type="checkbox" value="'. $salesProposalJobOrderID .'">',
                         'JOB_ORDER' => $jobOrder,
                         'COST' => $cost,
+                        'JOB_COST' => $job_cost,
                         'BACKJOB' => $backjob,
                         'CONTRACTOR' => $contractor_name,
                         'WORK_CENTER' => $work_center_name,
@@ -1320,6 +1324,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $work_center_id = $row['work_center_id'];
                     $backjob = $row['backjob'];
                     $cost = number_format($row['cost'], 2);
+                    $job_cost = number_format($row['job_cost'], 2);
                     $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
                     $planned_start_date = $systemModel->checkDate('summary', $row['planned_start_date'], '', 'm/d/Y', '');
                     $planned_finish_date = $systemModel->checkDate('summary', $row['planned_finish_date'], '', 'm/d/Y', '');
@@ -1352,6 +1357,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'JOB_ORDER_DATE' => $jobOrderDate,
                         'PARTICULARS' => $particulars,
                         'COST' => $cost,
+                        'JOB_COST' => $job_cost,
                         'BACKJOB' => $backjob,
                         'CONTRACTOR' => $contractor_name,
                         'WORK_CENTER' => $work_center_name,

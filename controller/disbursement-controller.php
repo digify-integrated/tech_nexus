@@ -512,17 +512,23 @@ class DisbursementController {
             exit;
         }
 
+        $disbursementDetails = $this->disbursementModel->getDisbursement(p_disbursement_id: $disbursementID);
+        $fund_source = $disbursementDetails['fund_source'];
+        $transaction_number = $disbursementDetails['transaction_number'];
+        $transaction_date = $disbursementDetails['transaction_date'];
+        $disburse_status = $disbursementDetails['disburse_status'];
+
+        if($disburse_status != 'Posted'){
+           echo json_encode(['success' => false, 'notPosted' =>  true]);
+            exit;
+        }
+
         $replenishmentBatch = 'RPLNSH-';
     
         $uniqueId = time() . '-' . rand(1000, 9999);
         $batchID = $replenishmentBatch . $uniqueId;
     
         $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Replenished', $batchID, $userID);
-
-        $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
-        $fund_source = $disbursementDetails['fund_source'];
-        $transaction_number = $disbursementDetails['transaction_number'];
-        $transaction_date = $disbursementDetails['transaction_date'];
 
         if($fund_source === 'Petty Cash'){
             $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
@@ -554,17 +560,22 @@ class DisbursementController {
         }
 
         foreach($disbursementIDs as $disbursementID){
+            $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
+            $fund_source = $disbursementDetails['fund_source'];
+            $transaction_number = $disbursementDetails['transaction_number'];
+            $transaction_date = $disbursementDetails['transaction_date'];
+            $disburse_status = $disbursementDetails['disburse_status'];
+
+            if($disburse_status != 'Posted'){
+                continue; 
+            }
+
             $replenishmentBatch = 'RPLNSH-';
     
             $uniqueId = time() . '-' . rand(1000, 9999);
             $batchID = $replenishmentBatch . $uniqueId;
         
             $this->disbursementModel->updateDisbursementStatus($disbursementID, 'Replenished', $batchID, $userID);
-
-            $disbursementDetails = $this->disbursementModel->getDisbursement($disbursementID);
-            $fund_source = $disbursementDetails['fund_source'];
-            $transaction_number = $disbursementDetails['transaction_number'];
-            $transaction_date = $disbursementDetails['transaction_date'];
 
             if($fund_source === 'Petty Cash'){
                 $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
@@ -653,7 +664,6 @@ class DisbursementController {
                 }
             }
         
-            $this->disbursementModel->createDisbursementEntry($disbursementID, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
             $this->disbursementModel->createLiquidation($disbursementID, $transaction_date, $userID, $userID);
         }
             

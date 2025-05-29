@@ -226,6 +226,7 @@ class PartsController {
         $userID = $_SESSION['user_id'];
         $brand_id = $_POST['brand_id'];
         $bar_code = $_POST['bar_code'];
+        $part_number = $_POST['part_number'];
         $part_category_id = $_POST['part_category_id'];
         $part_class_id = $_POST['part_class_id'];
         $part_subclass_id = $_POST['part_subclass_id'];
@@ -233,16 +234,9 @@ class PartsController {
         $quantity = $_POST['quantity'];
         $stock_alert = $_POST['stock_alert'];
         $unit_sale = $_POST['unit_sale'];
-        $unit_purchase = $_POST['unit_purchase'];
         $remarks = $_POST['remarks'];
-        $supplier_id = $_POST['supplier_id'];
-        $jo_no = $_POST['jo_no'];
-        $issuance_no = $_POST['issuance_no'];
         $warehouse_id = $_POST['warehouse_id'];
         $description = $_POST['description'];
-
-        $issuance_date = $this->systemModel->checkDate('empty', $_POST['issuance_date'], '', 'Y-m-d', '');
-        $jo_date = $this->systemModel->checkDate('empty', $_POST['jo_date'], '', 'Y-m-d', '');
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -251,7 +245,7 @@ class PartsController {
             exit;
         }
     
-        $partsID = $this->partsModel->insertParts($part_category_id, $part_class_id, $part_subclass_id, $description, $bar_code, $company_id, $unit_sale, $unit_purchase, $stock_alert, $quantity, $brand_id, $warehouse_id, $issuance_date, $issuance_no, $jo_date, $jo_no, $supplier_id, $remarks, $userID);        
+        $partsID = $this->partsModel->insertParts($part_category_id, $part_class_id, $part_subclass_id, $description, $bar_code, $part_number, $company_id, $unit_sale, $stock_alert, $quantity, $brand_id, $warehouse_id, $remarks, $userID);        
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'partsID' => $this->securityModel->encryptData($partsID)]);
         exit;
@@ -278,6 +272,7 @@ class PartsController {
         $parts_id = htmlspecialchars($_POST['parts_id'], ENT_QUOTES, 'UTF-8');
         $brand_id = $_POST['brand_id'];
         $bar_code = $_POST['bar_code'];
+        $part_number = $_POST['part_number'];
         $part_category_id = $_POST['part_category_id'];
         $part_class_id = $_POST['part_class_id'];
         $part_subclass_id = $_POST['part_subclass_id'];
@@ -285,17 +280,10 @@ class PartsController {
         $quantity = $_POST['quantity'];
         $stock_alert = $_POST['stock_alert'];
         $unit_sale = $_POST['unit_sale'];
-        $unit_purchase = $_POST['unit_purchase'];
         $remarks = $_POST['remarks'];
-        $supplier_id = $_POST['supplier_id'];
-        $jo_no = $_POST['jo_no'];
-        $issuance_no = $_POST['issuance_no'];
         $warehouse_id = $_POST['warehouse_id'];
         $description = $_POST['description'];
         $part_price = $_POST['part_price'];
-
-        $issuance_date = $this->systemModel->checkDate('empty', $_POST['issuance_date'], '', 'Y-m-d', '');
-        $jo_date = $this->systemModel->checkDate('empty', $_POST['jo_date'], '', 'Y-m-d', '');
 
     
         $user = $this->userModel->getUserByID($userID);
@@ -309,7 +297,7 @@ class PartsController {
         $total = $checkPartsExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->partsModel->updateParts($parts_id, $part_category_id, $part_class_id, $part_subclass_id, $description, $bar_code, $company_id, $unit_sale, $unit_purchase, $stock_alert, $part_price, $quantity, $brand_id, $warehouse_id, $issuance_date, $issuance_no, $jo_date, $jo_no, $supplier_id, $remarks, $userID);
+            $this->partsModel->updateParts($parts_id, $part_category_id, $part_class_id, $part_subclass_id, $description, $bar_code, $part_number, $company_id, $unit_sale, $stock_alert, $part_price, $quantity, $brand_id, $warehouse_id, $remarks, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'partsID' => $this->securityModel->encryptData($parts_id)]);
             exit;
@@ -846,21 +834,16 @@ class PartsController {
                 'stock_alert' => $partsDetails['stock_alert'],
                 'description' => $partsDetails['description'],
                 'remarks' => $partsDetails['remarks'],
-                'jo_no' => $partsDetails['jo_no'],
-                'issuance_no' => $partsDetails['issuance_no'],
                 'brand_id' => $partsDetails['brand_id'],
                 'part_category_id' => $partsDetails['part_category_id'],
                 'part_class_id' => $partsDetails['part_class_id'],
                 'part_subclass_id' => $partsDetails['part_subclass_id'],
                 'company_id' => $partsDetails['company_id'],
                 'unit_sale' => $partsDetails['unit_sale'],
-                'unit_purchase' => $partsDetails['unit_purchase'],
                 'part_price' => $partsDetails['part_price'],
-                'supplier_id' => $partsDetails['supplier_id'],
                 'warehouse_id' => $partsDetails['warehouse_id'],
+                'part_number' => $partsDetails['part_number'],
                 'part_image' => $this->systemModel->checkImage($partsDetails['part_image'], 'default'),
-                'issuance_date' =>  $this->systemModel->checkDate('empty', $partsDetails['issuance_date'], '', 'm/d/Y', ''),
-                'jo_date' =>  $this->systemModel->checkDate('empty', $partsDetails['jo_date'], '', 'm/d/Y', ''),
             ];
 
             echo json_encode($response);

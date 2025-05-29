@@ -105,7 +105,7 @@
           if($newRecord && $backJobMonitoringCreateAccess['total'] > 0){
             require_once('view/_back_job_monitoring_new.php');
           }
-          else if(!empty($backJobMonitoringID) && $backJobMonitoringWriteAccess['total'] > 0){
+          else if(!empty($backJobMonitoringID)){
             require_once('view/_back_job_monitoring_details.php');
           }
           else{

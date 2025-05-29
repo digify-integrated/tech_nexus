@@ -6224,6 +6224,7 @@ CREATE TABLE part_transaction_cart(
 	discount_total DOUBLE DEFAULT 0,
 	sub_total DOUBLE DEFAULT 0,
 	total DOUBLE DEFAULT 0,
+	remarks VARCHAR(5000) NOT NULL,
 	created_date DATETIME DEFAULT NOW(),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
@@ -6232,6 +6233,41 @@ CREATE TABLE part_transaction_cart(
 CREATE TABLE part_transaction_document(
 	part_transaction_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     part_transaction_id VARCHAR(100) NOT NULL,
+	document_name VARCHAR(500),
+	document_file_path VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part_incoming(
+	part_incoming_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	part_incoming_status VARCHAR(50) NOT NULL DEFAULT 'Draft',
+	reference_number VARCHAR(500) NOT NULL,
+	number_of_items INT NOT NULL DEFAULT 0,
+	released_date DATETIME,
+	purchase_date DATE,
+	cancellation_date DATETIME,
+	cancellation_remarks VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part_incoming_cart(
+	part_incoming_cart_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    part_incoming_id INT UNSIGNED NOT NULL,
+	part_id INT NOT NULL,
+	quantity INT NOT NULL DEFAULT 0,
+	remarks VARCHAR(5000) NOT NULL,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part_incoming_document(
+	part_incoming_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    part_incoming_id INT UNSIGNED NOT NULL,
 	document_name VARCHAR(500),
 	document_file_path VARCHAR(500),
 	created_date DATETIME DEFAULT NOW(),

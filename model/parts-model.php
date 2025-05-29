@@ -15,27 +15,22 @@ class PartsModel {
     #   Update methods
     # -------------------------------------------------------------
 
-    public function updateParts($p_part_id, $p_part_category_id, $p_part_class_id, $p_part_subclass_id, $p_description, $p_bar_code, $p_company_id, $p_unit_sale, $p_unit_purchase, $p_stock_alert, $p_product_price, $p_quantity, $p_brand_id, $p_warehouse_id, $p_issuance_date, $p_issuance_no, $p_jo_date, $p_jo_no, $p_supplier_id, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateParts(:p_part_id, :p_part_category_id, :p_part_class_id, :p_part_subclass_id, :p_description, :p_bar_code, :p_company_id, :p_unit_sale, :p_unit_purchase, :p_stock_alert, :p_product_price, :p_quantity, :p_brand_id, :p_warehouse_id, :p_issuance_date, :p_issuance_no, :p_jo_date, :p_jo_no, :p_supplier_id, :p_remarks, :p_last_log_by)');
+    public function updateParts($p_part_id, $p_part_category_id, $p_part_class_id, $p_part_subclass_id, $p_description, $p_bar_code, $p_part_number, $p_company_id, $p_unit_sale, $p_stock_alert, $p_product_price, $p_quantity, $p_brand_id, $p_warehouse_id, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateParts(:p_part_id, :p_part_category_id, :p_part_class_id, :p_part_subclass_id, :p_description, :p_bar_code, :p_part_number, :p_company_id, :p_unit_sale, :p_stock_alert, :p_product_price, :p_quantity, :p_brand_id, :p_warehouse_id, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_part_category_id', $p_part_category_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_part_class_id', $p_part_class_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_part_subclass_id', $p_part_subclass_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_bar_code', $p_bar_code, PDO::PARAM_STR);
+        $stmt->bindValue(':p_part_number', $p_part_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_unit_sale', $p_unit_sale, PDO::PARAM_INT);
-        $stmt->bindValue(':p_unit_purchase', $p_unit_purchase, PDO::PARAM_INT);
         $stmt->bindValue(':p_stock_alert', $p_stock_alert, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_price', $p_product_price, PDO::PARAM_STR);
         $stmt->bindValue(':p_quantity', $p_quantity, PDO::PARAM_STR);
         $stmt->bindValue(':p_brand_id', $p_brand_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_warehouse_id', $p_warehouse_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_issuance_date', $p_issuance_date, PDO::PARAM_STR);
-        $stmt->bindValue(':p_issuance_no', $p_issuance_no, PDO::PARAM_STR);
-        $stmt->bindValue(':p_jo_date', $p_jo_date, PDO::PARAM_STR);
-        $stmt->bindValue(':p_jo_no', $p_jo_no, PDO::PARAM_STR);
-        $stmt->bindValue(':p_supplier_id', $p_supplier_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -142,25 +137,20 @@ class PartsModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertParts($p_part_category_id, $p_part_class_id, $p_part_subclass_id, $p_description, $p_bar_code, $p_company_id, $p_unit_sale, $p_unit_purchase, $p_stock_alert, $p_quantity, $p_brand_id, $p_warehouse_id, $p_issuance_date, $p_issuance_no, $p_jo_date, $p_jo_no, $p_supplier_id, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertParts(:p_part_category_id, :p_part_class_id, :p_part_subclass_id, :p_description, :p_bar_code, :p_company_id, :p_unit_sale, :p_unit_purchase, :p_stock_alert, :p_quantity, :p_brand_id, :p_warehouse_id, :p_issuance_date, :p_issuance_no, :p_jo_date, :p_jo_no, :p_supplier_id, :p_remarks, :p_last_log_by, @p_part_id)');
+    public function insertParts($p_part_category_id, $p_part_class_id, $p_part_subclass_id, $p_description, $p_bar_code, $p_part_number, $p_company_id, $p_unit_sale, $p_stock_alert, $p_quantity, $p_brand_id, $p_warehouse_id, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertParts(:p_part_category_id, :p_part_class_id, :p_part_subclass_id, :p_description, :p_bar_code, :p_part_number, :p_company_id, :p_unit_sale, :p_stock_alert, :p_quantity, :p_brand_id, :p_warehouse_id, :p_remarks, :p_last_log_by, @p_part_id)');
         $stmt->bindValue(':p_part_category_id', $p_part_category_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_part_class_id', $p_part_class_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_part_subclass_id', $p_part_subclass_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_bar_code', $p_bar_code, PDO::PARAM_STR);
+        $stmt->bindValue(':p_part_number', $p_part_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_unit_sale', $p_unit_sale, PDO::PARAM_INT);
-        $stmt->bindValue(':p_unit_purchase', $p_unit_purchase, PDO::PARAM_INT);
         $stmt->bindValue(':p_stock_alert', $p_stock_alert, PDO::PARAM_STR);
         $stmt->bindValue(':p_quantity', $p_quantity, PDO::PARAM_STR);
         $stmt->bindValue(':p_brand_id', $p_brand_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_warehouse_id', $p_warehouse_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_issuance_date', $p_issuance_date, PDO::PARAM_STR);
-        $stmt->bindValue(':p_issuance_no', $p_issuance_no, PDO::PARAM_STR);
-        $stmt->bindValue(':p_jo_date', $p_jo_date, PDO::PARAM_STR);
-        $stmt->bindValue(':p_jo_no', $p_jo_no, PDO::PARAM_STR);
-        $stmt->bindValue(':p_supplier_id', $p_supplier_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();

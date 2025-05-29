@@ -7717,14 +7717,31 @@ END //
 
 
 
-CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_application_source_id INT, IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
+CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_additional_maker_id INT, IN p_comaker_id2 INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_application_source_id INT, IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_type, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, renewal_tag, application_source_id, commission_amount, company_id, last_log_by) 
-	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_type, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_renewal_tag, p_application_source_id, p_commission_amount, p_company_id, p_last_log_by);
-	
+    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, additional_maker_id, comaker_id2, product_type, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, renewal_tag, application_source_id, commission_amount, company_id, last_log_by) 
+	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_additional_maker_id, p_comaker_id2, p_product_type, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_renewal_tag, p_application_source_id, p_commission_amount, p_company_id, p_last_log_by);
+      	
     SET p_sales_proposal_id = LAST_INSERT_ID();
+
+    IF p_product_type IN ('Unit', 'Rental') THEN
+        INSERT INTO sales_proposal_job_order (sales_proposal_id, job_order, cost, last_log_by) 
+	    VALUES(p_sales_proposal_id, 'Quality Check', 0, p_last_log_by);
+
+        INSERT INTO sales_proposal_job_order (sales_proposal_id, job_order, cost, last_log_by) 
+	    VALUES(p_sales_proposal_id, 'Road Test', 0, p_last_log_by);
+
+        INSERT INTO sales_proposal_job_order (sales_proposal_id, job_order, cost, last_log_by) 
+	    VALUES(p_sales_proposal_id, 'Check water, oil, brake and engine', 0, p_last_log_by);
+
+        INSERT INTO sales_proposal_job_order (sales_proposal_id, job_order, cost, last_log_by) 
+	    VALUES(p_sales_proposal_id, 'Check electrical', 0, p_last_log_by);
+
+        INSERT INTO sales_proposal_job_order (sales_proposal_id, job_order, cost, last_log_by) 
+	    VALUES(p_sales_proposal_id, 'Check cowl, interior, tires and other accessories', 0, p_last_log_by);
+    END IF;
 END //
 
 CREATE PROCEDURE insertSalesProposalRepayment(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_reference VARCHAR(200), IN p_due_date DATE, IN p_due_amount DOUBLE, IN p_last_log_by INT)
@@ -8117,11 +8134,12 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id AND sales_proposal_status = 'For CI';
 END //
 
-CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cost DOUBLE, IN p_job_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_job_order
     SET progress = p_progress,
     cost = p_cost,
+    job_cost = p_job_cost,
     contractor_id = p_contractor_id,
     work_center_id = p_work_center_id,
     backjob = p_backjob,
@@ -8133,11 +8151,12 @@ BEGIN
     WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
 END //
 
-CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cost DOUBLE, IN p_job_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_additional_job_order
     SET progress = p_progress,
     cost = p_cost,
+    job_cost = p_job_cost,
     contractor_id = p_contractor_id,
     work_center_id = p_work_center_id,
     backjob = p_backjob,
@@ -8599,10 +8618,10 @@ BEGIN
     WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
 END //
 
-CREATE PROCEDURE insertSalesProposalJobOrder(IN p_sales_proposal_id INT, IN p_job_order VARCHAR(500), IN p_cost DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertSalesProposalJobOrder(IN p_sales_proposal_id INT, IN p_job_order VARCHAR(500), IN p_cost DOUBLE, IN p_approval_document VARCHAR(500), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO sales_proposal_job_order (sales_proposal_id, job_order, cost, last_log_by) 
-	VALUES(p_sales_proposal_id, p_job_order, p_cost, p_last_log_by);
+    INSERT INTO sales_proposal_job_order (sales_proposal_id, job_order, cost, approval_document, last_log_by) 
+	VALUES(p_sales_proposal_id, p_job_order, p_cost, p_approval_document, p_last_log_by);
 END //
 
 CREATE PROCEDURE updateSalesProposalJobOrder(IN p_sales_proposal_job_order_id INT, IN p_sales_proposal_id INT, IN p_job_order VARCHAR(500), IN p_cost DOUBLE, IN p_last_log_by INT)
@@ -8611,6 +8630,14 @@ BEGIN
     SET sales_proposal_id = p_sales_proposal_id,
     job_order = p_job_order,
     cost = p_cost,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalJobOrderApprovalDocument(IN p_sales_proposal_job_order_id INT, IN p_approval_document VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_job_order
+    SET approval_document = p_approval_document,
     last_log_by = p_last_log_by
     WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
 END //
@@ -8679,6 +8706,16 @@ END //
 CREATE PROCEDURE deleteSalesProposalAdditionalJobOrder(IN p_sales_proposal_additional_job_order_id INT)
 BEGIN
     DELETE FROM sales_proposal_additional_job_order WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
+END //
+
+
+
+CREATE PROCEDURE updateSalesProposalAdditionalJobOrderApprovalDocument(IN p_sales_proposal_additional_job_order_id INT, IN p_approval_document VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_additional_job_order
+    SET approval_document = p_approval_document,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
 END //
 
 CREATE PROCEDURE getSalesProposalAdditionalJobOrder(IN p_sales_proposal_additional_job_order_id INT)
@@ -14722,15 +14759,15 @@ BEGIN
     WHERE part_document_id = p_part_document_id;
 END //
 
-CREATE PROCEDURE insertParts(IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_unit_purchase INT, IN p_stock_alert INT, IN p_quantity INT, IN p_brand_id INT, IN p_warehouse_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_jo_date DATE, IN p_jo_no VARCHAR(100), IN p_supplier_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT, OUT p_part_id INT)
+CREATE PROCEDURE insertParts(IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_part_number VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_stock_alert INT, IN p_quantity INT, IN p_brand_id INT, IN p_warehouse_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT, OUT p_part_id INT)
 BEGIN
-    INSERT INTO part (part_category_id, part_class_id, part_subclass_id, description, bar_code, company_id, unit_sale, unit_purchase, stock_alert, quantity, brand_id, warehouse_id, issuance_date, issuance_no, jo_date, jo_no, supplier_id, remarks, last_log_by) 
-	VALUES(p_part_category_id, p_part_class_id, p_part_subclass_id, p_description, p_bar_code, p_company_id, p_unit_sale, p_unit_purchase, p_stock_alert, p_quantity, p_brand_id, p_warehouse_id, p_issuance_date, p_issuance_no, p_jo_date, p_jo_no, p_supplier_id, p_remarks, p_last_log_by);
+    INSERT INTO part (part_category_id, part_class_id, part_subclass_id, description, bar_code, part_number, company_id, unit_sale, stock_alert, quantity, brand_id, warehouse_id, remarks, last_log_by) 
+	VALUES(p_part_category_id, p_part_class_id, p_part_subclass_id, p_description, p_bar_code, p_part_number, p_company_id, p_unit_sale, p_stock_alert, p_quantity, p_brand_id, p_warehouse_id, p_remarks, p_last_log_by);
 	
     SET p_part_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateParts(IN p_part_id INT, IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_unit_purchase INT, IN p_stock_alert INT, IN p_part_price DOUBLE, IN p_quantity INT, IN p_brand_id INT, IN p_warehouse_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_jo_date DATE, IN p_jo_no VARCHAR(100), IN p_supplier_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+CREATE PROCEDURE updateParts(IN p_part_id INT, IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_part_number VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_stock_alert INT, IN p_part_price DOUBLE, IN p_quantity DOUBLE, IN p_brand_id INT, IN p_warehouse_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     UPDATE part
     SET part_category_id = p_part_category_id,
@@ -14738,19 +14775,14 @@ BEGIN
     part_subclass_id = p_part_subclass_id,
     description = p_description,
     bar_code = p_bar_code,
+    part_number = p_part_number,
     company_id = p_company_id,
     unit_sale = p_unit_sale,
-    unit_purchase = p_unit_purchase,
     stock_alert = p_stock_alert,
     part_price = p_part_price,
     quantity = p_quantity,
     brand_id = p_brand_id,
     warehouse_id = p_warehouse_id,
-    issuance_date = p_issuance_date,
-    issuance_no = p_issuance_no,
-    jo_date = p_jo_date,
-    jo_no = p_jo_no,
-    supplier_id = p_supplier_id,
     remarks = p_remarks,
     last_log_by = p_last_log_by
     WHERE part_id = p_part_id;
@@ -14880,7 +14912,7 @@ CREATE PROCEDURE generatePartsTable(
 )
 BEGIN
     DECLARE sql_query LONGTEXT;
-    DECLARE search_param1, search_param2 VARCHAR(1000);
+    DECLARE search_param1, search_param2, search_param3 VARCHAR(1000);
 
     -- Initialize base query
     SET sql_query = 'SELECT * FROM part WHERE 1=1';
@@ -14903,9 +14935,10 @@ BEGIN
     END IF;
 
     IF p_parts_search IS NOT NULL AND p_parts_search <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND (bar_code LIKE ? OR description LIKE ?)');
+        SET sql_query = CONCAT(sql_query, ' AND (bar_code LIKE ? OR part_number LIKE ? OR description LIKE ?)');
         SET search_param1 = CONCAT('%', p_parts_search, '%');
         SET search_param2 = CONCAT('%', p_parts_search, '%');
+        SET search_param3 = CONCAT('%', p_parts_search, '%');
     END IF;
 
     IF p_company_filter IS NOT NULL AND p_company_filter <> '' THEN
@@ -14933,13 +14966,13 @@ BEGIN
     END IF;
 
     -- Add ordering
-    SET sql_query = CONCAT(sql_query, ' ORDER BY description');
+    SET sql_query = CONCAT(sql_query, ' ORDER BY description LIMIT 500 ');
 
     -- Prepare and execute
     PREPARE stmt FROM sql_query;
 
     IF p_parts_search IS NOT NULL AND p_parts_search <> '' THEN
-        EXECUTE stmt USING @search_param1 := search_param1, @search_param2 := search_param2;
+        EXECUTE stmt USING @search_param1 := search_param1, @search_param2 := search_param2, @search_param3 := search_param3;
     ELSE
         EXECUTE stmt;
     END IF;
@@ -14969,6 +15002,13 @@ CREATE PROCEDURE generateInStockPartOptions(IN p_parts_transaction_id VARCHAR(10
 BEGIN
 	SELECT * FROM part
     WHERE part_status = 'For Sale' AND quantity > 0 AND part_id NOT IN (SELECT part_id FROM part_transaction_cart WHERE part_transaction_id = p_parts_transaction_id)
+	ORDER BY description;
+END //
+
+CREATE PROCEDURE generateAllPartOptions(IN p_part_incoming_id INT)
+BEGIN
+	SELECT * FROM part
+    WHERE part_id NOT IN (SELECT part_id FROM part_incoming_cart WHERE part_incoming_id = p_part_incoming_id)
 	ORDER BY description;
 END //
 CREATE PROCEDURE generatePartItemTable(IN p_parts_transaction_id VARCHAR(100))
@@ -15049,7 +15089,7 @@ END //
 
 
 
-CREATE PROCEDURE updatePartsTransactionCart(IN p_part_transaction_cart_id INT, IN p_quantity INT, IN p_add_on DOUBLE, IN p_discount DOUBLE, IN p_discount_type VARCHAR(10), IN p_discount_total DOUBLE, IN p_sub_total DOUBLE, IN p_total DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsTransactionCart(IN p_part_transaction_cart_id INT, IN p_quantity DOUBLE, IN p_add_on DOUBLE, IN p_discount DOUBLE, IN p_discount_type VARCHAR(10), IN p_discount_total DOUBLE, IN p_sub_total DOUBLE, IN p_total DOUBLE, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
     UPDATE part_transaction_cart
     SET quantity = p_quantity,
@@ -15059,6 +15099,7 @@ BEGIN
         discount_total = p_discount_total,
         sub_total = p_sub_total,
         total = p_total,
+        remarks = p_remarks,
         last_log_by = p_last_log_by
     WHERE part_transaction_cart_id = p_part_transaction_cart_id;
 END //
@@ -15186,7 +15227,7 @@ BEGIN
     -- ===== DECLARATIONS MUST BE FIRST =====
     DECLARE done INT DEFAULT 0;
     DECLARE v_part_id INT;
-    DECLARE v_quantity INT;
+    DECLARE v_quantity DOUBLE;
 
     -- Cursor and handler
     DECLARE cur CURSOR FOR
@@ -15260,7 +15301,7 @@ END //
 
 
 
-CREATE PROCEDURE updatePartsQuantity(IN p_part_id INT, IN p_quantity INT, IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsQuantity(IN p_part_id INT, IN p_quantity DOUBLE, IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
 
@@ -15305,4 +15346,238 @@ BEGIN
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE checkPartsIncomingExist (IN p_part_incoming_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM part_incoming
+    WHERE part_incoming_id = p_part_incoming_id;
+END //
+
+CREATE PROCEDURE insertPartsIncoming(IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_last_log_by INT, OUT p_part_incoming_id INT)
+BEGIN
+    INSERT INTO part_incoming (reference_number, supplier_id, rr_no, rr_date, delivery_date, purchase_date, last_log_by) 
+	VALUES(p_reference_number, p_supplier_id, p_rr_no, p_rr_date, p_delivery_date, p_purchase_date, p_last_log_by);
+	
+    SET p_part_incoming_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updatePartsIncoming(IN p_part_incoming_id INT, IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_last_log_by INT)
+BEGIN
+	UPDATE part_incoming
+    SET reference_number = p_reference_number,
+    supplier_id = p_supplier_id,
+    rr_no = p_rr_no,
+    rr_date = p_rr_date,
+    delivery_date = p_delivery_date,
+    purchase_date = p_purchase_date,
+    last_log_by = p_last_log_by
+    WHERE part_incoming_id = p_part_incoming_id;
+END //
+
+CREATE PROCEDURE deletePartsIncoming(IN p_part_incoming_id INT)
+BEGIN
+    DELETE FROM part_incoming WHERE part_incoming_id = p_part_incoming_id;
+END //
+
+CREATE PROCEDURE getPartsIncoming(IN p_part_incoming_id INT)
+BEGIN
+	SELECT * FROM part_incoming
+    WHERE part_incoming_id = p_part_incoming_id;
+END //
+
+CREATE PROCEDURE generatePartIncomingItemTable(IN p_part_incoming_id INT)
+BEGIN
+	SELECT * FROM part_incoming_cart
+    WHERE part_incoming_id = p_part_incoming_id
+	ORDER BY part_id;
+END //
+
+CREATE PROCEDURE generatePartsIncomingDocument(IN p_part_incoming_id INT)
+BEGIN
+	SELECT * FROM part_incoming_document
+    WHERE part_incoming_id = p_part_incoming_id
+	ORDER BY document_name;
+END //
+
+CREATE PROCEDURE insertPartIncomingItem(
+    IN p_part_incoming_id VARCHAR(100),
+    IN p_part_id INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    INSERT INTO part_incoming_cart (
+        part_incoming_id,
+        part_id,
+        quantity,
+        remaining_quantity,
+        last_log_by
+    ) VALUES (
+        p_part_incoming_id,
+        p_part_id,
+        1,
+        1,
+        p_last_log_by
+    );
+END //
+
+CREATE PROCEDURE getPartsIncomingCart(IN p_part_incoming_cart_id INT)
+BEGIN
+	SELECT * FROM part_incoming_cart
+    WHERE part_incoming_cart_id = p_part_incoming_cart_id;
+END //
+
+CREATE PROCEDURE updatePartsIncomingCart(IN p_part_incoming_cart_id INT, IN p_quantity DOUBLE, IN p_cost DOUBLE, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+BEGIN
+    UPDATE part_incoming_cart
+    SET quantity = p_quantity,
+        remaining_quantity = p_quantity,
+        cost = p_cost,
+        remarks = p_remarks,
+        last_log_by = p_last_log_by
+    WHERE part_incoming_cart_id = p_part_incoming_cart_id;
+END //
+
+CREATE PROCEDURE updatePartsReceivedIncomingCart(IN p_part_incoming_cart_id INT, IN p_part_id INT, IN p_received_quantity DOUBLE, IN p_last_log_by INT)
+BEGIN
+    UPDATE part_incoming_cart
+    SET received_quantity = p_received_quantity,
+        remaining_quantity = remaining_quantity - p_received_quantity,
+        last_log_by = p_last_log_by
+    WHERE part_incoming_cart_id = p_part_incoming_cart_id;
+
+    UPDATE part
+    SET quantity = quantity + p_received_quantity,
+        last_log_by = p_last_log_by
+    WHERE part_id = p_part_id;
+END //
+
+CREATE PROCEDURE checkPartsIncomingCartExist (IN p_part_incoming_cart_id VARCHAR(100))
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM part_incoming_cart
+    WHERE part_incoming_cart_id = p_part_incoming_cart_id;
+END //
+
+CREATE PROCEDURE deletePartsIncomingCart(IN p_part_incoming_cart_id INT)
+BEGIN
+    DELETE FROM part_incoming_cart WHERE part_incoming_cart_id = p_part_incoming_cart_id;
+END //
+
+CREATE PROCEDURE insertPartsIncomingDocument(IN p_part_incoming_id INT, IN p_document_name VARCHAR(500), IN p_document_file_path VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO part_incoming_document (part_incoming_id, document_name, document_file_path, last_log_by) VALUES(p_part_incoming_id, p_document_name, p_document_file_path, p_last_log_by);
+END //
+
+CREATE PROCEDURE deletePartsIncomingDocument(IN p_part_incoming_document_id INT)
+BEGIN
+    DELETE FROM part_incoming_document WHERE part_incoming_document_id = p_part_incoming_document_id;
+END //
+
+CREATE PROCEDURE generatePartsIncomingTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_released_date_start_date DATE, IN p_released_date_end_date DATE, IN p_purchase_date_start_date DATE, IN p_purchase_date_end_date DATE, IN p_transaction_status VARCHAR(5000))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM part_incoming';
+    SET conditionList = ' WHERE 1';
+
+    IF p_transaction_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND part_incoming_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_transaction_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_released_date_start_date IS NOT NULL AND p_released_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(completion) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_released_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_released_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_purchase_date_start_date IS NOT NULL AND p_purchase_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(purchase_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_purchase_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_purchase_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+
+DELIMITER //
+DROP PROCEDURE updatePartsIncomingStatus//
+
+CREATE PROCEDURE updatePartsIncomingStatus(
+    IN p_parts_incoming_id VARCHAR(100),
+    IN p_part_incoming_status VARCHAR(50),
+    IN p_remarks VARCHAR(500),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- ===== Now we can set values =====
+    SET time_zone = '+08:00';
+
+    IF p_part_incoming_status = 'Completed' THEN
+       UPDATE part_incoming
+        SET completion_date = NOW(),
+            part_incoming_status = p_part_incoming_status,
+            last_log_by = p_last_log_by
+        WHERE part_incoming_id = p_parts_incoming_id;
+    ELSEIF p_part_incoming_status = 'On-Process' THEN
+       UPDATE part_incoming
+        SET onprocess_date = NOW(),
+            part_incoming_status = p_part_incoming_status,
+            last_log_by = p_last_log_by
+        WHERE part_incoming_id = p_parts_incoming_id;
+    ELSE
+        UPDATE part_incoming
+        SET cancellation_date = NOW(),
+            part_incoming_status = p_part_incoming_status,
+            cancellation_remarks = p_remarks,
+            last_log_by = p_last_log_by
+        WHERE part_incoming_id = p_parts_incoming_id;
+    END IF;
+END //
+
+CREATE PROCEDURE getPartsIncomingCartTotal(IN p_part_incoming_id INT, IN p_type VARCHAR(10))
+BEGIN
+	IF p_type = 'cost' THEN
+        SELECT SUM(cost * quantity) AS total
+        FROM part_incoming_cart
+        WHERE part_incoming_id = p_part_incoming_id;
+	ELSEIF p_type = 'lines' THEN
+        SELECT COUNT(part_incoming_cart_id) AS total
+        FROM part_incoming_cart
+        WHERE part_incoming_id = p_part_incoming_id;
+	ELSEIF p_type = 'received' THEN
+        SELECT SUM(received_quantity) AS total
+        FROM part_incoming_cart
+        WHERE part_incoming_id = p_part_incoming_id;
+	ELSEIF p_type = 'remaining' THEN
+        SELECT SUM(remaining_quantity) AS total
+        FROM part_incoming_cart
+        WHERE part_incoming_id = p_part_incoming_id;
+    ELSE
+        SELECT SUM(quantity) AS total
+        FROM part_incoming_cart
+        WHERE part_incoming_id = p_part_incoming_id;
+    END IF;
 END //

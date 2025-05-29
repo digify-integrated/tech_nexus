@@ -233,14 +233,15 @@
                     $action = '<div class="btn-group m-r-10">
                                       <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                       <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a href="javascript:void(0);" id="print-report" class="dropdown-item" target="_blank" id="">Print Report</a></li>';
-                                  
-                    if($replenishmentDisbursement['total'] > 0){
-                      $action .= '<li><button class="dropdown-item" type="button" id="replenish-disbursement">Replenish Disbursement</button></li>';
-                    }
+                                        <li><a href="javascript:void(0);" id="print-report-less" class="dropdown-item" target="_blank" id="">Print Report</a></li>
+                                        <li><a href="javascript:void(0);" id="print-report" class="dropdown-item" target="_blank" id="">Print Report with Journal Entry</a></li>';
 
                     if ($postDisbursement['total'] > 0) {
                       $action .= '<li><button class="dropdown-item" type="button" id="post-disbursement">Post Disbursement</button></li>';
+                    }
+                                  
+                    if($replenishmentDisbursement['total'] > 0){
+                      $action .= '<li><button class="dropdown-item" type="button" id="replenish-disbursement">Replenish Disbursement</button></li>';
                     }
                                   
                     if($disbursementDeleteAccess['total'] > 0){

@@ -645,6 +645,7 @@ function backJobMonitoringTable(datatable_name, buttons = false, show_all = fals
         { 'data' : 'SALES_PROPOSAL' },
         { 'data' : 'PRODUCT' },
         { 'data' : 'STATUS' },
+        { 'data' : 'CREATED_DATE' },
         { 'data' : 'ACTION' }
     ];
 
@@ -653,7 +654,8 @@ function backJobMonitoringTable(datatable_name, buttons = false, show_all = fals
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+        { 'width': 'auto', 'type': 'date', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

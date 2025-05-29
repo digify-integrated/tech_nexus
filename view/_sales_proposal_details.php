@@ -706,6 +706,7 @@
                     <th>Job Order</th>
                     <th>Cost</th>
                     <th>Progress</th>
+                    <th>Approval Document</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -1294,6 +1295,7 @@
               <div class="col-lg-12">
                 <label class="form-label">Job Order <span class="text-danger">*</span></label>
                 <input type="hidden" id="sales_proposal_job_order_id" name="sales_proposal_job_order_id">
+                <input type="hidden" id="job_order_type" name="job_order_type">
                 <input type="text" class="form-control text-uppercase" id="job_order" name="job_order" maxlength="500" autocomplete="off">
               </div>
             </div>
@@ -1301,6 +1303,12 @@
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label" for="job_order_cost">Cost <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group row" >
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Approval Document</label>
+                <input type="file" class="form-control" id="approval_document" name="approval_document">
               </div>
             </div>
           </form>

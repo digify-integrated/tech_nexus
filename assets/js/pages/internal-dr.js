@@ -1842,6 +1842,42 @@ function displayDetails(transaction){
                     }
                 });
                 break;
+            case 'get backjob monitoring details':
+                const backjob_monitoring_id = $('#backjob-monitoring-id').text();
+                
+                $.ajax({
+                    url: 'controller/backjob-monitoring-controller.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        backjob_monitoring_id : backjob_monitoring_id, 
+                        transaction : transaction
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            checkOptionExist('#type', response.type, '');
+                            checkOptionExist('#sales_proposal_id', response.sales_proposal_id, '');
+                            checkOptionExist('#product_id', response.product_id, '');
+                            checkOptionExist('#product_id2', response.product_id, '');
+                        } 
+                        else {
+                            if(response.isInactive){
+                                window.location = 'logout.php?logout';
+                            }
+                            else{
+                                showNotification('Get Backjob Monitoring Details Error', response.message, 'danger');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                        if (xhr.responseText) {
+                            fullErrorMessage += `, Response: ${xhr.responseText}`;
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    }
+                });
+                break;
     }
 }
 

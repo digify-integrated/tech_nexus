@@ -3,6 +3,9 @@
     $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
     $number_of_items = $partTransactionDetails['number_of_items'] ?? 0;
     $total_discount = $partTransactionDetails['total_discount'] ?? 0;
+    
+    $approvePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 201);
+    $releasePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 202);
 ?>
 
 <div class="row">
@@ -29,12 +32,12 @@
                             if($total_discount > 0){
                                 echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Approval</button>';
                             }
-                            else if(($total_discount > 0 && $part_transaction_status == 'Approved') || $total_discount == 0){
+                            else if((($total_discount > 0 && $part_transaction_status == 'Approved') || $total_discount == 0) && $releasePartsTransaction['total'] > 0){
                                 echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
                             }
                         }
 
-                        if($part_transaction_status == 'For Approval'){
+                        if($part_transaction_status == 'For Approval' && $approvePartsTransaction['total'] > 0){
                            echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-transaction-offcanvas" aria-controls="approve-transaction-offcanvas" id="approved">Approved</button>';
                         }
                     ?>
@@ -277,7 +280,7 @@
             <div class="form-group row">
                 <div class="col-lg-6 mt-3 mt-lg-0">
                     <label class="form-label">Quantity <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" id="quantity" name="quantity" min="1">
+                    <input type="number" class="form-control" id="quantity" name="quantity" min="0.01" step="0.01">
                 </div>
                 <div class="col-lg-6 mt-3 mt-lg-0">
                     <label class="form-label">Add-On</label>
@@ -319,6 +322,12 @@
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Total</label>
                 <input type="number" class="form-control" id="part_item_total" name="part_item_total" min="0" readonly>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Remarks</label>
+                <textarea class="form-control" id="remarks" name="remarks" maxlength="1000"></textarea>
               </div>
             </div>
           </form>

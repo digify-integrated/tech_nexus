@@ -55,28 +55,28 @@
                             <input type="hidden" id="internal_dr_id">
                             <input type="hidden" id="internal_dr_status" value="<?php echo $drStatus; ?>">
                             <div class="form-group row">
-                                <label class="col-lg-2 col-form-label">Release To <span class="text-danger">*</span></label>
-                                <div class="col-lg-4">
+                                <label class="col-lg-3 col-form-label">Release To <span class="text-danger">*</span></label>
+                                <div class="col-lg-3">
                                     <input type="text" class="form-control" id="release_to" name="release_to" maxlength="1000" autocomplete="off" <?php echo $disabled; ?>>
                                 </div>
-                                <label class="col-lg-2 col-form-label">Release To Mobile <span class="text-danger">*</span></label>
-                                <div class="col-lg-4">
+                                <label class="col-lg-3 col-form-label">Release To Mobile <span class="text-danger">*</span></label>
+                                <div class="col-lg-3">
                                     <input type="text" class="form-control" id="release_mobile" name="release_mobile" maxlength="50" autocomplete="off" <?php echo $disabled; ?>>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-lg-2 col-form-label">Release To Address <span class="text-danger">*</span></label>
-                                <div class="col-lg-10">
+                                <label class="col-lg-3 col-form-label">Release To Address <span class="text-danger">*</span></label>
+                                <div class="col-lg-9">
                                     <textarea class="form-control" id="release_address" name="release_address" maxlength="1000" row="3" <?php echo $disabled; ?>></textarea>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-lg-2 col-form-label">DR Number <span class="text-danger">*</span></label>
-                                <div class="col-lg-4">
+                                <label class="col-lg-3 col-form-label">DR Number <span class="text-danger">*</span></label>
+                                <div class="col-lg-3">
                                     <input type="text" class="form-control" id="dr_number" name="dr_number" maxlength="50" autocomplete="off" <?php echo $disabled; ?>>
                                 </div>
-                                <label class="col-lg-2 col-form-label">DR Type <span class="text-danger">*</span></label>
-                                <div class="col-lg-4">
+                                <label class="col-lg-3 col-form-label">DR Type <span class="text-danger">*</span></label>
+                                <div class="col-lg-3">
                                     <select class="form-control select2" name="dr_type" id="dr_type" <?php echo $disabled; ?>>
                                         <option value="">--</option>
                                         <option value="Unit">Unit</option>
@@ -90,28 +90,8 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-lg-2 col-form-label">Stock Number </label>
-                                <div class="col-lg-4">
-                                    <input type="text" class="form-control" id="stock_number" name="stock_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
-                                </div>
-                                <label class="col-lg-2 col-form-label">Engine Number </label>
-                                <div class="col-lg-4">
-                                    <input type="text" class="form-control" id="engine_number" name="engine_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-lg-2 col-form-label">Chassis Number </label>
-                                <div class="col-lg-4">
-                                    <input type="text" class="form-control" id="chassis_number" name="chassis_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
-                                </div>
-                                <label class="col-lg-2 col-form-label">Plate Number </label>
-                                <div class="col-lg-4">
-                                    <input type="text" class="form-control" id="plate_number" name="plate_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-lg-2 col-form-label">Internal Job Order</label>
-                                <div class="col-lg-4">
+                                <label class="col-lg-3 col-form-label">Internal Job Order</label>
+                                <div class="col-lg-9">
                                     <select class="form-control select2" name="backjob_monitoring_id" id="backjob_monitoring_id" <?php echo $disabled; ?>>
                                         <option value="">--</option>
                                         <?php echo $backJobMonitoringModel->generateBackJobMonitoringOptions(); ?>
@@ -119,8 +99,28 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-lg-2 col-form-label">Product Description <span class="text-danger">*</span></label>
-                                <div class="col-lg-10">
+                                <label class="col-lg-3 col-form-label">Stock Number </label>
+                                <div class="col-lg-3">
+                                    <input type="text" class="form-control" id="stock_number" name="stock_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+                                </div>
+                                <label class="col-lg-3 col-form-label">Engine Number </label>
+                                <div class="col-lg-3">
+                                    <input type="text" class="form-control" id="engine_number" name="engine_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Chassis Number </label>
+                                <div class="col-lg-3">
+                                    <input type="text" class="form-control" id="chassis_number" name="chassis_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+                                </div>
+                                <label class="col-lg-3 col-form-label">Plate Number </label>
+                                <div class="col-lg-3">
+                                    <input type="text" class="form-control" id="plate_number" name="plate_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Product Description <span class="text-danger">*</span></label>
+                                <div class="col-lg-9">
                                     <textarea class="form-control" id="product_description" name="product_description" maxlength="1000" row="3" <?php echo $disabled; ?>></textarea>
                                 </div>
                             </div>

@@ -104,12 +104,19 @@
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
         $address = $customerPrimaryAddress['address'] ?? null ;
         
-        if(!empty($address)){
-            $customerAddress = $address . ', ' . $customerPrimaryAddress['city_name'] ?? null . ', ' . $customerPrimaryAddress['state_name'] ?? null . ', ' . $customerPrimaryAddress['country_name'] ?? null;
+        if (!empty($address)) {
+            $parts = [
+                $address,
+                $customerPrimaryAddress['city_name'] ?? '',
+                $customerPrimaryAddress['state_name'] ?? '',
+                $customerPrimaryAddress['country_name'] ?? '--'
+            ];
+            $customerAddress = implode(', ', array_filter($parts));
+        } else {
+            $customerAddress = '';
         }
-        else{
-$customerAddress = '';
-        }
+
+
     
     }
 

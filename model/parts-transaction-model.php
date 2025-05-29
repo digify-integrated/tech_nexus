@@ -36,16 +36,17 @@ class PartsTransactionModel {
         $stmt->execute();
     }
 
-    public function updatePartsTransactionCart($p_part_transaction_cart_id, $p_quantity, $p_add_on, $p_discount, $p_discount_type, $p_discount_total, $p_sub_total, $p_total, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePartsTransactionCart(:p_part_transaction_cart_id, :p_quantity, :p_add_on, :p_discount, :p_discount_type, :p_discount_total, :p_sub_total, :p_total, :p_last_log_by)');
+    public function updatePartsTransactionCart($p_part_transaction_cart_id, $p_quantity, $p_add_on, $p_discount, $p_discount_type, $p_discount_total, $p_sub_total, $p_total, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsTransactionCart(:p_part_transaction_cart_id, :p_quantity, :p_add_on, :p_discount, :p_discount_type, :p_discount_total, :p_sub_total, :p_total, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_part_transaction_cart_id', $p_part_transaction_cart_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_quantity', $p_quantity, PDO::PARAM_INT);
+        $stmt->bindValue(':p_quantity', $p_quantity, PDO::PARAM_STR);
         $stmt->bindValue(':p_add_on', $p_add_on, PDO::PARAM_STR);
         $stmt->bindValue(':p_discount', $p_discount, PDO::PARAM_STR);
         $stmt->bindValue(':p_discount_type', $p_discount_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_discount_total', $p_discount_total, PDO::PARAM_STR);
         $stmt->bindValue(':p_sub_total', $p_sub_total, PDO::PARAM_STR);
         $stmt->bindValue(':p_total', $p_total, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

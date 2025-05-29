@@ -27,6 +27,7 @@
     $userModel = new UserModel(new DatabaseModel, new SystemModel);
     $productModel = new ProductModel($databaseModel);
     $salesProposalModel = new SalesProposalModel($databaseModel);
+    $customerModel = new CustomerModel($databaseModel);
     $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
 
     if(isset($_GET['id'])){
@@ -42,15 +43,20 @@
         $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID); 
         $salesProposalNumber = $salesProposalDetails['sales_proposal_number'] ?? null;
         $productID = $salesProposalDetails['product_id'] ?? null;
+        $customer_id = $salesProposalDetails['customer_id'] ?? null;
 
         $productDetails = $productModel->getProduct($productID);
         $description = $productDetails['description'] ?? null;
         $productSubategoryID = $productDetails['product_subcategory_id'] ?? '';
 
+        $customerDetails = $customerModel->getPersonalInformation($customer_id);
+        $customerName = $customerDetails['file_as'] ?? null;
+
         $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
         $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
 
         $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? '');
+        $fullStockNumber = $productSubcategoryCode . $stockNumber;
     }
 
     $summaryTable = generatePrint($jobOrderIDs);
@@ -63,7 +69,7 @@
    // Disable header and footer
     $pdf->setPrintHeader(false);
     $pdf->setPrintFooter(false);
-    $pdf->SetPageOrientation('P');
+    $pdf->SetPageOrientation('L');
 
     // Set PDF metadata
     $pdf->SetCreator('CGMI');
@@ -85,14 +91,17 @@
     $pdf->MultiCell(0, 0, '<b>ADDITIONAL JOB ORDER REPORT</b>', 0, 'l', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->SetFont('times', '', 10);
+    $pdf->Cell(60, 8, 'CUSTOMER:', 0, 0, 'L');
+    $pdf->Cell(200, 8, $customerName, 'B', 0, 'L');
+    $pdf->Ln(8);
     $pdf->Cell(60, 8, 'PRODUCT:', 0, 0, 'L');
-    $pdf->Cell(120, 8, $description, 'B', 0, 'L');
+    $pdf->Cell(200, 8, $description, 'B', 0, 'L');
     $pdf->Ln(8);
     $pdf->Cell(60, 8, 'MANUFACTURING ORDER:', 0, 0, 'L');
-    $pdf->Cell(120, 8, $salesProposalNumber, 'B', 0, 'L');
+    $pdf->Cell(200, 8, $salesProposalNumber, 'B', 0, 'L');
     $pdf->Ln(8);
     $pdf->Cell(60, 8, 'STOCK NUMBER:', 0, 0, 'L');
-    $pdf->Cell(120, 8, $stockNumber, 'B', 0, 'L');
+    $pdf->Cell(200, 8, $fullStockNumber, 'B', 0, 'L');
     $pdf->Ln(12);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
 

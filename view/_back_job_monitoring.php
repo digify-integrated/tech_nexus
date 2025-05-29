@@ -30,6 +30,7 @@
                 <th>Sales Proposal</th>
                 <th>Product</th>
                 <th>Status</th>
+                <th>Created Date</th>
                 <th>Actions</th>
               </tr>
             </thead>

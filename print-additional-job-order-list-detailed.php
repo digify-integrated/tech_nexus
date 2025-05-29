@@ -88,13 +88,12 @@
     $pdf->AddPage();
 
     $pdf->SetFont('times', '', 20);
-    $pdf->MultiCell(0, 0, '<b>JOB ORDER REPORT</b>', 0, 'l', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '<b>ADDITIONAL JOB ORDER REPORT</b>', 0, 'l', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->SetFont('times', '', 10);
     $pdf->Cell(60, 8, 'CUSTOMER:', 0, 0, 'L');
     $pdf->Cell(200, 8, $customerName, 'B', 0, 'L');
     $pdf->Ln(8);
-    $pdf->SetFont('times', '', 10);
     $pdf->Cell(60, 8, 'PRODUCT:', 0, 0, 'L');
     $pdf->Cell(200, 8, $description, 'B', 0, 'L');
     $pdf->Ln(8);
@@ -132,17 +131,28 @@
             
         foreach ($jobOrderIDs as $jobOrderID) {
 
-            $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalJobOrder($jobOrderID);
+            $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalAdditionalJobOrder($jobOrderID);
            
-            $jobOrder = $salesProposalJobOrderDetails['job_order'];
+            $jobOrder = $salesProposalJobOrderDetails['particulars'];
             $work_center_id = $salesProposalJobOrderDetails['work_center_id'];
+            $contractor_id = $salesProposalJobOrderDetails['contractor_id'];
 
             $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
             $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
+            $contractorDetails = $contractorModel->getContractor($contractor_id);
+            $contractor_name = $contractorDetails['contractor_name'] ?? null;
+            $planned_start_date = $systemModel->checkDate('summary', $salesProposalJobOrderDetails['planned_start_date'], '', 'm/d/Y', '');
+            $planned_finish_date = $systemModel->checkDate('summary', $salesProposalJobOrderDetails['planned_finish_date'], '', 'm/d/Y', '');
+            $date_started = $systemModel->checkDate('summary', $salesProposalJobOrderDetails['date_started'], '', 'm/d/Y', '');
+
             $list .= '<tr>
                                 <td>'. $jobOrder .'</td>
                                 <td>'. $work_center_name .'</td>
+                                <td>'. $contractor_name .'</td>
+                                <td>'. $date_started .'</td>
+                                <td>'. $planned_start_date .'</td>
+                                <td>'. $planned_finish_date .'</td>
                             </tr>';
         }
 
@@ -151,6 +161,10 @@
                             <tr style="text-align:center">
                                 <td><b>NAME</b></td>
                                 <td><b>WORK CENTER</b></td>
+                                <td><b>CONTRACTOR</b></td>
+                                <td><b>DATE STARTED</b></td>
+                                <td><b>PLANNED START DATE</b></td>
+                                <td><b>PLANNED FINISH DATE</b></td>
                             </tr>
                         </thead>
                         <tbody>

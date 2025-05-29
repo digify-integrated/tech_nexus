@@ -84,7 +84,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $description = $row['description'];
                     $bar_code = $row['bar_code'];
                     $quantity = $row['quantity'];
-                    $part_cost = $row['part_cost'];
                     $part_price = $row['part_price'];
                    
                     $partsStatus = $partsModel->getPartsStatus($row['part_status']);
@@ -120,7 +119,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'CATEGORY' => $part_category_name,
                         'CLASS' => $part_class_name . ' <br/>(' . $part_subclass_name . ')',
                         'QUANTITY' => number_format($quantity, 2),
-                        'PRODUCT_COST' => number_format($part_cost,2),
+                        'PRODUCT_COST' => number_format(0,2),
                         'PRODUCT_PRICE' => number_format($part_price,2),
                         'PRODUCT_STATUS' => $partsStatus,
                         'ACTION' => '<div class="d-flex gap-2">

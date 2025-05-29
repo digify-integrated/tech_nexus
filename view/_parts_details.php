@@ -141,12 +141,16 @@ if($addPartExpense['total'] > 0){
                     <?php echo $brandModel->generateBrandOptions(); ?>
                   </select>
                 </div>
-                <label class="col-lg-3 col-form-label">Bar Code <span class="text-danger">*</span></label>
+                <label class="col-lg-3 col-form-label">Part Number <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
-                  <input type="text" class="form-control" id="bar_code" name="bar_code" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
+                  <input type="text" class="form-control" id="part_number" name="part_number" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
                 </div>
               </div>
               <div class="form-group row">
+                <label class="col-lg-3 col-form-label">Bar Code</label>
+                <div class="col-lg-3">
+                  <input type="text" class="form-control" id="bar_code" name="bar_code" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
+                </div>
                 <label class="col-lg-3 col-form-label">Category <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <select class="form-control select2" name="part_category_id" id="part_category_id" <?php echo $disabledPartsForm; ?>>
@@ -154,6 +158,8 @@ if($addPartExpense['total'] > 0){
                     <?php echo $partsCategoryModel->generatePartsCategoryOptions(); ?>
                   </select>
                 </div>
+              </div>
+              <div class="form-group row">
                 <label class="col-lg-3 col-form-label">Class <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <select class="form-control select2" name="part_class_id" id="part_class_id" <?php echo $disabledPartsForm; ?>>
@@ -161,8 +167,6 @@ if($addPartExpense['total'] > 0){
                     <?php echo $partsClassModel->generatePartsClassOptions(); ?>
                   </select>
                 </div>
-              </div>
-              <div class="form-group row">
                 <label class="col-lg-3 col-form-label">Subclass <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <select class="form-control select2" name="part_subclass_id" id="part_subclass_id" <?php echo $disabledPartsForm; ?>>
@@ -170,6 +174,8 @@ if($addPartExpense['total'] > 0){
                     <?php echo $partsSubclassModel->generatePartsSubclassOptions(); ?>
                   </select>
                 </div>
+              </div>
+              <div class="form-group row">
                 <label class="col-lg-3 col-form-label">Company <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabledPartsForm; ?>>
@@ -177,18 +183,10 @@ if($addPartExpense['total'] > 0){
                     <?php echo $companyModel->generateCompanyOptions(); ?>
                   </select>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-3 col-form-label">Quantity <span class="text-danger">*</span></label>
-                <div class="col-lg-3">
-                  <input type="number" class="form-control" id="quantity" name="quantity" value="0" min="0" step="1" <?php echo $disabledPartsForm; ?>>
+                <label class="col-lg-3 col-form-label d-none">Quantity <span class="text-danger">*</span></label>
+                <div class="col-lg-3 d-none">
+                  <input type="number" class="form-control" id="quantity" name="quantity" value="0" min="0" step="0.01" <?php echo $disabledPartsForm; ?>>
                 </div>
-                <label class="col-lg-3 col-form-label">Stock Alert <span class="text-danger">*</span></label>
-                <div class="col-lg-3">
-                  <input type="number" class="form-control" id="stock_alert" name="stock_alert" value="0" min="0" step="1" <?php echo $disabledPartsForm; ?>>
-                </div>
-              </div>
-              <div class="form-group row">
                 <label class="col-lg-3 col-form-label">Unit Sale <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <select class="form-control select2" name="unit_sale" id="unit_sale" <?php echo $disabledPartsForm; ?>>
@@ -196,15 +194,12 @@ if($addPartExpense['total'] > 0){
                     <?php echo $unitModel->generateUnitOptions(); ?>
                   </select>
                 </div>
-                <label class="col-lg-3 col-form-label">Unit Purchase <span class="text-danger">*</span></label>
-                <div class="col-lg-3">
-                  <select class="form-control select2" name="unit_purchase" id="unit_purchase" <?php echo $disabledPartsForm; ?>>
-                    <option value="">--</option>
-                    <?php echo $unitModel->generateUnitOptions(); ?>
-                  </select>
-                </div>
               </div>
               <div class="form-group row">
+                <label class="col-lg-3 col-form-label">Stock Alert <span class="text-danger">*</span></label>
+                <div class="col-lg-3">
+                  <input type="number" class="form-control" id="stock_alert" name="stock_alert" value="0" min="0" step="1" <?php echo $disabledPartsForm; ?>>
+                </div>
                 <label class="col-lg-3 col-form-label">Part Price (SRP) <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <input type="number" class="form-control" id="part_price" name="part_price" min="0" step="0.01" <?php echo $disabledLandedCostForm2; ?>>
@@ -220,50 +215,6 @@ if($addPartExpense['total'] > 0){
                 <label class="col-lg-3 col-form-label">Remarks</label>
                 <div class="col-lg-9">
                   <textarea class="form-control" id="remarks" name="remarks" maxlength="1000" rows="3" <?php echo $disabledPartsForm; ?>></textarea>
-                </div>
-              </div>
-
-              <div class="form-group row mt-4">
-                <h5 class="col-lg-12">Supplier & Acquisition Information</h5>
-                <hr/>
-              </div>
-              <div class="form-group row">      
-                <label class="col-lg-3 col-form-label">Supplier</label>
-                <div class="col-lg-3">
-                  <select class="form-control select2" name="supplier_id" id="supplier_id" <?php echo $disabledPartsForm; ?>>
-                    <option value="">--</option>
-                    <?php echo $supplierModel->generateSupplierOptions(); ?>
-                  </select>
-                </div>
-                <label class="col-lg-3 col-form-label">Issuance Date</label>
-                <div class="col-lg-3">
-                  <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off" <?php echo $disabledPartsForm; ?>>
-                    <span class="input-group-text">
-                      <i class="feather icon-calendar"></i>
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group row">      
-                <label class="col-lg-3 col-form-label">JO No.</label>
-                <div class="col-lg-3">
-                  <input type="text" class="form-control" id="jo_no" name="jo_no" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
-                </div>
-                <label class="col-lg-3 col-form-label">Issuance No.</label>
-                <div class="col-lg-3">
-                  <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-3 col-form-label">JO Date</label>
-                <div class="col-lg-3">
-                  <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="jo_date" name="jo_date" autocomplete="off" <?php echo $disabledPartsForm; ?>>
-                    <span class="input-group-text">
-                      <i class="feather icon-calendar"></i>
-                    </span>
-                  </div>
                 </div>
               </div>
                     
@@ -301,7 +252,7 @@ if($addPartExpense['total'] > 0){
   }
 ?>
 
-<div class="card table-card <?php echo $expenseHidden; ?>">
+<div class="card table-card d-none">
   <div class="card-header">
     <div class="row align-items-center">
       <div class="col-sm-6">

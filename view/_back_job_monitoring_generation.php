@@ -55,6 +55,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $product_id = $row['product_id'];
                 $sales_proposal_id = $row['sales_proposal_id'];
                 $status = $row['status'];
+                $created_date = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y', '');
 
                 $backjob_monitoring_id_encrypted = $securityModel->encryptData($backjob_monitoring_id);
 
@@ -114,6 +115,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'SALES_PROPOSAL' => $sales_proposal_number,
                     'PRODUCT' =>$product,
                     'STATUS' => $status,
+                    'CREATED_DATE' => $created_date,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="back-job-monitoring.php?id='. $backjob_monitoring_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>

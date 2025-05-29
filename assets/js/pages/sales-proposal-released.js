@@ -592,6 +592,8 @@
 
         $(document).on('click','#add-sales-proposal-job-order',function() {
             resetModalForm("sales-proposal-job-order-form");
+            $('#job_order_type').val('add');
+
         });
 
         $(document).on('click','.update-sales-proposal-job-order',function() {
@@ -600,7 +602,10 @@
             sessionStorage.setItem('sales_proposal_job_order_id', sales_proposal_job_order_id);
             
             displayDetails('get sales proposal job order details');
+            
+            $('#job_order_type').val('update');
         });
+
 
         $(document).on('click','.delete-sales-proposal-job-order',function() {
             const sales_proposal_job_order_id = $(this).data('sales-proposal-job-order-id');
@@ -1484,14 +1489,16 @@ function salesProposalJobOrderTable(datatable_name, buttons = false, show_all = 
         { 'data' : 'JOB_ORDER' },
         { 'data' : 'COST' },
         { 'data' : 'PROGRESS' },
+        { 'data' : 'APPROVAL_DOCUMENT' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '28%', 'aTargets': 0 },
-        { 'width': '28%', 'aTargets': 1 },
-        { 'width': '28%', 'aTargets': 2 },
-        { 'width': '16%','bSortable': false, 'aTargets': 3 }
+        { 'width': '42%', 'aTargets': 0 },
+        { 'width': '14%', 'aTargets': 1 },
+        { 'width': '14%', 'aTargets': 2 },
+        { 'width': '14%', 'aTargets': 3 },
+        { 'width': '16%','bSortable': false, 'aTargets': 4 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -2983,7 +2990,12 @@ function salesProposalJobOrderForm(){
             },
             job_order_cost: {
                 required: true
-            }
+            },
+            approval_document: {
+                required: function(element) {
+                    return $('#job_order_type').val() === 'add';
+                }
+            },
         },
         messages: {
             job_order: {
@@ -2991,7 +3003,10 @@ function salesProposalJobOrderForm(){
             },
             job_order_cost: {
                 required: 'Please enter the cost'
-            }
+            },
+            approval_document: {
+                required: 'Please choose the approval document'
+            },
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -3025,11 +3040,17 @@ function salesProposalJobOrderForm(){
         submitHandler: function(form) {
             const sales_proposal_id = $('#sales-proposal-id').text();
             const transaction = 'save sales proposal job order';
-        
+
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+
             $.ajax({
                 type: 'POST',
                 url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                data: formData,
+                processData: false,
+                contentType: false,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-sales-proposal-job-order');

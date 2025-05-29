@@ -8,8 +8,16 @@
             <h5>Job Order</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-            <a href="javascript:void(0);" id="print-job-order" class="btn btn-success">Print</a>
-           </div>
+            <div class="btn-group m-r-5">
+              <button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><button class="dropdown-item" type="button" id="print-job-order">Print Job Order</button></li>
+                <li><button class="dropdown-item" type="button" id="print-job-order-detailed">Print Job Order Detailed</button></li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
       <div class="card-body">
@@ -20,6 +28,7 @@
                     <th class="all"></th>
                     <th>Job Order</th>
                     <th>Cost</th>
+                    <th>Job Order Cost</th>
                     <th>Contactor</th>
                     <th>Work Center</th>
                     <th>Progress</th>
@@ -44,7 +53,15 @@
             <h5>Additional Job Order</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-            <a href="javascript:void(0);" id="print-additional-job-order" class="btn btn-success">Print</a>
+            <div class="btn-group m-r-5">
+              <button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><button class="dropdown-item" type="button" id="print-additional-job-order">Print Additional Job Order</button></li>
+                <li><button class="dropdown-item" type="button" id="print-additional-job-order-detailed">Print Additional Job Order Detailed</button></li>
+              </ul>
+            </div>
            </div>
         </div>
       </div>
@@ -58,6 +75,7 @@
                     <th>Job Order Date</th>
                     <th>Particulars</th>
                     <th>Cost</th>
+                    <th>Job Order Cost</th>
                     <th>Contactor</th>
                     <th>Work Center</th>
                     <th>Progress</th>
@@ -88,9 +106,13 @@
           <form id="job-order-progress-form" method="post" action="#">
             <div class="form-group row">
              <input type="hidden" id="sales_proposal_job_order_id" name="sales_proposal_job_order_id">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label" for="job_order_cost">Cost <span class="text-danger">*</span></label>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label" for="job_order_cost">Charge to Customer <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label" for="job_cost">Job Order Cost <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="job_cost" name="job_cost" min="0" step="0.01">
               </div>
             </div>
             <div class="form-group row">
@@ -186,13 +208,17 @@
           <form id="additional-job-order-progress-form" method="post" action="#">
             <input type="hidden" id="sales_proposal_additional_job_order_id" name="sales_proposal_additional_job_order_id">
             <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label" for="additional_job_order_cost">Cost <span class="text-danger">*</span></label>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label" for="additional_job_order_cost">Charge to Customer <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="additional_job_order_cost" name="additional_job_order_cost" min="0" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label" for="additional_job_cost">Additional Job Order Cost <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="additional_job_cost" name="additional_job_cost" min="0" step="0.01">
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="additional_job_order_progress" name="additional_job_order_progress" min="0" max="100" step="0.01">
               </div>
@@ -258,6 +284,12 @@
                       <i class="feather icon-calendar"></i>
                     </span>
                 </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Approval Document</label>
+                <input type="file" class="form-control" id="approval_document" name="approval_document">
               </div>
             </div>
           </form>

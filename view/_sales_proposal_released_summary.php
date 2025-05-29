@@ -569,6 +569,7 @@
                                 <th>Job Order</th>
                                 <th>Cost</th>
                                 <th>Progress</th>
+                                <th>Approval Document</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
@@ -1158,7 +1159,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-6 align-items-stretch">
+                            <div class="col-lg-6 align-items-stretch d-none">
                                 <div class="card price-card">
                                     <div class="card-body">
                                         <div class="price-head">
@@ -1168,7 +1169,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-6 d-none">
                                 <div class="card price-card">
                                     <div class="card-body">
                                         <div class="price-head">
@@ -1182,7 +1183,7 @@
                                 <div class="card price-card">
                                     <div class="card-body">
                                         <div class="price-head">
-                                            <div class="price-price">Promissory Note V2 (For Validation Do Not Use)</div>
+                                            <div class="price-price">Promissory Note</div>
                                             <div class="d-grid"><a href="pn-dr-print2.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
                                         </div>
                                     </div>
@@ -1192,7 +1193,7 @@
                                 <div class="card price-card">
                                     <div class="card-body">
                                         <div class="price-head">
-                                            <div class="price-price">Disclosure V2 (For Validation Do Not Use)</div>
+                                            <div class="price-price">Disclosure</div>
                                             <div class="d-grid"><a href="disclosure-dr-print2.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
                                         </div>
                                     </div>

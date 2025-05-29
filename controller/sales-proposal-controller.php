@@ -2469,13 +2469,141 @@ class SalesProposalController {
         $total = $checkSalesProposalJobOrderExist['total'] ?? 0;
     
         if ($total > 0) {
+            $approvalDocumentFileName = $_FILES['approval_document']['name'];
+            $approvalDocumentFileSize = $_FILES['approval_document']['size'];
+            $approvalDocumentFileError = $_FILES['approval_document']['error'];
+            $approvalDocumentTempName = $_FILES['approval_document']['tmp_name'];
+            $approvalDocumentFileExtension = explode('.', $approvalDocumentFileName);
+            $approvalDocumentActualFileExtension = strtolower(end($approvalDocumentFileExtension));
+
+            if(!empty($approvalDocumentTempName)){
+                $salesProposalDetails = $this->salesProposalModel->getSalesProposalJobOrder($salesProposalJobOrderID);
+                $clientapprovalDocument = !empty($salesProposalDetails['approval_document']) ? '.' . $salesProposalDetails['approval_document'] : null;
+        
+                if(file_exists($clientapprovalDocument)){
+                    if (!unlink($clientapprovalDocument)) {
+                        echo json_encode(['success' => false, 'message' => 'Approval document cannot be deleted due to an error.']);
+                        exit;
+                    }
+                }
+
+                $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+                $maxFileSize = $uploadSetting['max_file_size'];
+
+                $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+                $allowedFileExtensions = [];
+
+                foreach ($uploadSettingFileExtension as $row) {
+                    $fileExtensionID = $row['file_extension_id'];
+                    $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                    $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+                }
+
+                if (!in_array($approvalDocumentActualFileExtension, $allowedFileExtensions)) {
+                    $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                    echo json_encode($response);
+                    exit;
+                }
+                
+                if($approvalDocumentFileError){
+                    echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                    exit;
+                }
+                
+                if($approvalDocumentFileSize > ($maxFileSize * 1048576)){
+                    echo json_encode(['success' => false, 'message' => 'The approval document exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                    exit;
+                }
+
+                $fileName = $this->securityModel->generateFileName();
+                $fileNew = $fileName . '.' . $approvalDocumentActualFileExtension;
+
+                $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/job_order_approval_document/';
+                $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/job_order_approval_document/' . $fileNew;
+                $filePath = $directory . $fileNew;
+
+                $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+                if(!$directoryChecker){
+                    echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                    exit;
+                }
+
+                if(!move_uploaded_file($approvalDocumentTempName, $fileDestination)){
+                    echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                    exit;
+                }
+
+                
+                $this->salesProposalModel->updateSalesProposalJobOrderApprovalDocument($salesProposalJobOrderID, $filePath, $userID);
+            }
+            
             $this->salesProposalModel->updateSalesProposalJobOrder($salesProposalJobOrderID, $salesProposalID, $jobOrder, $cost, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->salesProposalModel->insertSalesProposalJobOrder($salesProposalID, $jobOrder, $cost, $userID);
+            $approvalDocumentFileName = $_FILES['approval_document']['name'];
+            $approvalDocumentFileSize = $_FILES['approval_document']['size'];
+            $approvalDocumentFileError = $_FILES['approval_document']['error'];
+            $approvalDocumentTempName = $_FILES['approval_document']['tmp_name'];
+            $approvalDocumentFileExtension = explode('.', $approvalDocumentFileName);
+            $approvalDocumentActualFileExtension = strtolower(end($approvalDocumentFileExtension));
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($approvalDocumentActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($approvalDocumentTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the approval document.']);
+                exit;
+            }
+            
+            if($approvalDocumentFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($approvalDocumentFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The approval document exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $approvalDocumentActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/job_order_approval_document/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/job_order_approval_document/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($approvalDocumentTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->insertSalesProposalJobOrder($salesProposalID, $jobOrder, $cost, $filePath, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -2551,18 +2679,18 @@ class SalesProposalController {
         $userID = $_SESSION['user_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $deliverPrice = str_replace(',', '', $_POST['delivery_price']);
-            $nominalDiscount = str_replace(',', '', $_POST['nominal_discount']);
-            $addOnCharge = str_replace(',', '', $_POST['add_on_charge']);
-            $totalDeliveryPrice = str_replace(',', '', $_POST['total_delivery_price']);
-            $costOfAccessories = str_replace(',', '', $_POST['cost_of_accessories']);
-            $reconditioningCost = str_replace(',', '', $_POST['reconditioning_cost']);
-            $subtotal = str_replace(',', '', $_POST['subtotal']);
-            $downpayment = str_replace(',', '', $_POST['downpayment']);
-            $outstandingBalance = str_replace(',', '', $_POST['outstanding_balance']);
-            $amountFinanced = str_replace(',', '', $_POST['amount_financed']);
-            $pnAmount = str_replace(',', '', $_POST['pn_amount']);
-            $repaymentAmount = str_replace(',', '', $_POST['repayment_amount']);
-            $interestRate = str_replace(',', '', $_POST['interest_rate']);
+        $nominalDiscount = str_replace(',', '', $_POST['nominal_discount']);
+        $addOnCharge = str_replace(',', '', $_POST['add_on_charge']);
+        $totalDeliveryPrice = str_replace(',', '', $_POST['total_delivery_price']);
+        $costOfAccessories = str_replace(',', '', $_POST['cost_of_accessories']);
+        $reconditioningCost = str_replace(',', '', $_POST['reconditioning_cost']);
+        $subtotal = str_replace(',', '', $_POST['subtotal']);
+        $downpayment = str_replace(',', '', $_POST['downpayment']);
+        $outstandingBalance = str_replace(',', '', $_POST['outstanding_balance']);
+        $amountFinanced = str_replace(',', '', $_POST['amount_financed']);
+        $pnAmount = str_replace(',', '', $_POST['pn_amount']);
+        $repaymentAmount = str_replace(',', '', $_POST['repayment_amount']);
+        $interestRate = str_replace(',', '', $_POST['interest_rate']);
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -3107,6 +3235,7 @@ class SalesProposalController {
         $salesProposalAdditionalJobOrderID = htmlspecialchars($_POST['sales_proposal_additional_job_order_id'], ENT_QUOTES, 'UTF-8');    
         $progress = htmlspecialchars($_POST['additional_job_order_progress'], ENT_QUOTES, 'UTF-8');
         $cost = htmlspecialchars($_POST['additional_job_order_cost'], ENT_QUOTES, 'UTF-8');
+        $additionalJobCost = htmlspecialchars($_POST['additional_job_cost'], ENT_QUOTES, 'UTF-8');
         $contractor_id = htmlspecialchars($_POST['additional_job_order_contractor_id'], ENT_QUOTES, 'UTF-8');
         $work_center_id = htmlspecialchars($_POST['additional_job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
         $backjob = htmlspecialchars($_POST['additional_job_order_backjob'], ENT_QUOTES, 'UTF-8');
@@ -3119,8 +3248,76 @@ class SalesProposalController {
         if($progress < 100){
             $completionDate = null;
         }
+        
+        $approvalDocumentFileName = $_FILES['approval_document']['name'];
+        $approvalDocumentFileSize = $_FILES['approval_document']['size'];
+        $approvalDocumentFileError = $_FILES['approval_document']['error'];
+        $approvalDocumentTempName = $_FILES['approval_document']['tmp_name'];
+        $approvalDocumentFileExtension = explode('.', $approvalDocumentFileName);
+        $approvalDocumentActualFileExtension = strtolower(end($approvalDocumentFileExtension));
+
+        if(!empty($approvalDocumentTempName)){
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposalAdditionalJobOrder($salesProposalAdditionalJobOrderID);
+            $clientapprovalDocument = !empty($salesProposalDetails['approval_document']) ? '.' . $salesProposalDetails['approval_document'] : null;
+        
+            if(file_exists($clientapprovalDocument)){
+                if (!unlink($clientapprovalDocument)) {
+                    echo json_encode(['success' => false, 'message' => 'Approval document cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($approvalDocumentActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+                
+            if($approvalDocumentFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+                
+            if($approvalDocumentFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The approval document exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $approvalDocumentActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/additional_job_order_approval_document/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/additional_job_order_approval_document/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($approvalDocumentTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+ 
+            $this->salesProposalModel->updateSalesProposalAdditionalJobOrderApprovalDocument($salesProposalAdditionalJobOrderID, $filePath, $userID);
+        }
     
-        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $additional_job_order_planned_start_date, $additional_job_order_planned_finish_date, $additional_ob_order_date_started, $userID);
+        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $cost, $additionalJobCost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $additional_job_order_planned_start_date, $additional_job_order_planned_finish_date, $additional_ob_order_date_started, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -3137,6 +3334,7 @@ class SalesProposalController {
         $salesProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_job_order_id'], ENT_QUOTES, 'UTF-8');
         $progress = htmlspecialchars($_POST['job_order_progress'], ENT_QUOTES, 'UTF-8');
         $cost = htmlspecialchars($_POST['job_order_cost'], ENT_QUOTES, 'UTF-8');
+        $jobCost = htmlspecialchars($_POST['job_cost'], ENT_QUOTES, 'UTF-8');
         $contractor_id = htmlspecialchars($_POST['job_order_contractor_id'], ENT_QUOTES, 'UTF-8');
         $work_center_id = htmlspecialchars($_POST['job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
         $backjob = htmlspecialchars($_POST['job_order_backjob'], ENT_QUOTES, 'UTF-8');
@@ -3145,12 +3343,11 @@ class SalesProposalController {
         $job_order_planned_finish_date = $this->systemModel->checkDate('empty', $_POST['job_order_planned_finish_date'], '', 'Y-m-d', '');
         $job_order_date_started = $this->systemModel->checkDate('empty', $_POST['job_order_date_started'], '', 'Y-m-d', '');
 
-
         if($progress < 100){
             $completionDate = null;
         }
     
-        $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $cost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $job_order_planned_start_date, $job_order_planned_finish_date, $job_order_date_started, $userID);
+        $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $cost, $jobCost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $job_order_planned_start_date, $job_order_planned_finish_date, $job_order_date_started, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -3777,6 +3974,7 @@ class SalesProposalController {
                 'success' => true,
                 'jobOrder' => $salesProposalJobOrderDetails['job_order'],
                 'cost' => $salesProposalJobOrderDetails['cost'],
+                'jobCost' => $salesProposalJobOrderDetails['job_cost'],
                 'progress' => $salesProposalJobOrderDetails['progress'],
                 'contractorID' => $salesProposalJobOrderDetails['contractor_id'],
                 'workCenterID' => $salesProposalJobOrderDetails['work_center_id'],
@@ -3868,6 +4066,7 @@ class SalesProposalController {
                 'jobOrderDate' =>  $this->systemModel->checkDate('empty', $salesProposalAdditionalJobOrderDetails['job_order_date'], '', 'm/d/Y', ''),
                 'particulars' =>  $salesProposalAdditionalJobOrderDetails['particulars'],
                 'cost' => $salesProposalAdditionalJobOrderDetails['cost'],
+                'jobCost' => $salesProposalAdditionalJobOrderDetails['job_cost'],
                 'progress' => $salesProposalAdditionalJobOrderDetails['progress'],
                 'contractorID' => $salesProposalAdditionalJobOrderDetails['contractor_id'],
                 'workCenterID' => $salesProposalAdditionalJobOrderDetails['work_center_id'],

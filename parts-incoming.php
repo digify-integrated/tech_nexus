@@ -1,33 +1,35 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/parts-transaction-model.php');
+  require('model/parts-incoming-model.php');
+  require('model/supplier-model.php');
 
-  $partsTransactionModel = new PartsTransactionModel($databaseModel);
+  $partsIncomingModel = new PartsIncomingModel($databaseModel);
+  $supplierModel = new SupplierModel($databaseModel);
 
-  $pageTitle = 'Parts Transaction';
+  $pageTitle = 'Parts Incoming';
     
-  $partsTransactionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'read');
-  $partsTransactionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'create');
-  $partsTransactionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'write');
-  $partsTransactionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'delete');
-  $partsTransactionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'duplicate');
+  $partsIncomingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'read');
+  $partsIncomingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'create');
+  $partsIncomingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'write');
+  $partsIncomingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'delete');
+  $partsIncomingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'duplicate');
 
-  if ($partsTransactionReadAccess['total'] == 0) {
+  if ($partsIncomingReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: parts-transaction.php');
+      header('location: parts-incoming.php');
       exit;
     }
 
-    $partsTransactionID = $securityModel->decryptData($_GET['id']);
+    $partsIncomingID = $securityModel->decryptData($_GET['id']);
 
-    $checkPartsTransactionExist = $partsTransactionModel->checkPartsTransactionExist($partsTransactionID);
-    $total = $checkPartsTransactionExist['total'] ?? 0;
+    $checkPartsIncomingExist = $partsIncomingModel->checkPartsIncomingExist($partsIncomingID);
+    $total = $checkPartsIncomingExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
@@ -35,7 +37,7 @@
     }
   }
   else{
-    $partsTransactionID = null;
+    $partsIncomingID = null;
   }
 
   $newRecord = isset($_GET['new']);
@@ -70,10 +72,10 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="parts-transaction.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="parts-incoming.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($partsTransactionID)){
-                            echo '<li class="breadcrumb-item" id="parts-transaction-id">'. $partsTransactionID .'</li>';
+                        if(!$newRecord && !empty($partsIncomingID)){
+                            echo '<li class="breadcrumb-item" id="parts-incoming-id">'. $partsIncomingID .'</li>';
                         }
 
                         if($newRecord){
@@ -91,14 +93,14 @@
           </div>
         </div>
         <?php
-          if($newRecord && $partsTransactionCreateAccess['total'] > 0){
-            require_once('view/_parts_transaction_new.php');
+          if($newRecord && $partsIncomingCreateAccess['total'] > 0){
+            require_once('view/_parts_incoming_new.php');
           }
-          else if(!empty($partsTransactionID) && $partsTransactionWriteAccess['total'] > 0){
-            require_once('view/_parts_transaction_details.php');
+          else if(!empty($partsIncomingID) && $partsIncomingWriteAccess['total'] > 0){
+            require_once('view/_parts_incoming_details.php');
           }
           else{
-            require_once('view/_parts_transaction.php');
+            require_once('view/_parts_incoming.php');
           }
         ?>
       </div>
@@ -117,7 +119,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/parts-transaction.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/parts-incoming.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

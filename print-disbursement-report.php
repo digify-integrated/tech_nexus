@@ -31,6 +31,8 @@
           header('location: dashboard.php');
           exit;
         }
+
+        $print_type = $_GET['ptype'];
         
         $disbursementIDs = explode(',', $_GET['id']);
 
@@ -126,9 +128,10 @@
     $pdf->Ln(0);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
 
-    
-    $pdf->AddPage('L');
-    $pdf->writeHTML($summaryTable5, true, false, true, false, '');
+    if($print_type != 'less'){
+        $pdf->AddPage('L');
+        $pdf->writeHTML($summaryTable5, true, false, true, false, '');
+    }
 
 
     // Output the PDF to the browser
