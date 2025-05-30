@@ -2,8 +2,14 @@
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
   require('model/parts-transaction-model.php');
+  require('model/customer-model.php');
+  require('model/company-model.php');
+  require('model/miscellaneous-client-model.php');
 
   $partsTransactionModel = new PartsTransactionModel($databaseModel);
+  $customerModel = new CustomerModel($databaseModel);
+  $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
+  $companyModel = new CompanyModel($databaseModel);
 
   $pageTitle = 'Parts Transaction';
     

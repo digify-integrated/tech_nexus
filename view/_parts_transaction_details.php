@@ -6,22 +6,25 @@
     
     $approvePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 201);
     $releasePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 202);
+
+    $disabled = '';
+    if($part_transaction_status != 'Draft'){
+      $disabled = 'disabled';
+    }
 ?>
 
 <div class="row">
-  <div class="col-lg-9">
+  <div class="col-lg-12">
     <div class="card">
-        <div class="card-header">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h5>Part Order</h5>
-                </div>
-                <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-                    <?php
-                        if($part_transaction_status == 'Draft'){
-                            echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part">Add Parts</button>';
-
-                             echo '<button class="btn btn-info ms-2" type="button" id="on-process">On-Process</button>';
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <h5>Parts Transaction</h5>
+          </div>
+           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+          <?php
+            if($part_transaction_status == 'Draft'){
+              echo '<button class="btn btn-info ms-2" type="button" id="on-process">On-Process</button>';
                         }
 
                         if($part_transaction_status == 'Draft' || $part_transaction_status == 'Approved' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'On-Process'){
@@ -39,6 +42,103 @@
 
                         if($part_transaction_status == 'For Approval' && $approvePartsTransaction['total'] > 0){
                            echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-transaction-offcanvas" aria-controls="approve-transaction-offcanvas" id="approved">Approved</button>';
+                        }
+
+            if ($partsTransactionCreateAccess['total'] > 0) {
+               echo '<button type="submit" form="parts-transaction-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
+                      <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
+            }
+          ?>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <form id="parts-transaction-form" method="post" action="#">
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Customer Type <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="customer_type" id="customer_type" <?php echo $disabled; ?>>
+                  <option value="Customer">Customer</option>
+                  <option value="Miscellaneous">Miscellaneous</option>
+                </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
+            <div class="col-lg-4" id="customer-select">
+                <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
+                </select>
+            </div>
+            <div class="col-lg-4 d-none" id="misc-select">
+                <select class="form-control select2" name="misc_id" id="misc_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>
+                </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Issuance Number</label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+            </div>
+            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+            <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Issuance Date</label>
+            <div class="col-lg-4">
+              <div class="input-group date">
+                <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off" <?php echo $disabled; ?>>
+                <span class="input-group-text">
+                  <i class="feather icon-calendar"></i>
+                </span>
+              </div>
+            </div>
+            <label class="col-lg-2 col-form-label">Reference Number</label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Reference Date</label>
+            <div class="col-lg-4">
+              <div class="input-group date">
+                <input type="text" class="form-control regular-datepicker" id="reference_date" name="reference_date" autocomplete="off" <?php echo $disabled; ?>>
+                <span class="input-group-text">
+                  <i class="feather icon-calendar"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Remarks</label>
+            <div class="col-lg-10">
+              <textarea class="form-control" id="remarks" name="remarks" maxlength="2000" <?php echo $disabled; ?>></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-9">
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5>Part Order</h5>
+                </div>
+                <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                    <?php
+                        if($part_transaction_status == 'Draft'){
+                            echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part">Add Parts</button>';
                         }
                     ?>
                 </div>

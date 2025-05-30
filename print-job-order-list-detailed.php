@@ -144,14 +144,16 @@
             $planned_start_date = $systemModel->checkDate('summary', $salesProposalJobOrderDetails['planned_start_date'], '', 'm/d/Y', '');
             $planned_finish_date = $systemModel->checkDate('summary', $salesProposalJobOrderDetails['planned_finish_date'], '', 'm/d/Y', '');
             $date_started = $systemModel->checkDate('summary', $salesProposalJobOrderDetails['date_started'], '', 'm/d/Y', '');
+            $completion_date = $systemModel->checkDate('summary', $salesProposalJobOrderDetails['completion_date'], '', 'm/d/Y', '');
 
             $list .= '<tr>
                                 <td>'. $jobOrder .'</td>
                                 <td>'. $work_center_name .'</td>
                                 <td>'. $contractor_name .'</td>
-                                <td>'. $date_started .'</td>
                                 <td>'. $planned_start_date .'</td>
                                 <td>'. $planned_finish_date .'</td>
+                                <td>'. $date_started .'</td>
+                                <td>'. $completion_date .'</td>
                             </tr>';
         }
 
@@ -161,9 +163,10 @@
                                 <td><b>NAME</b></td>
                                 <td><b>WORK CENTER</b></td>
                                 <td><b>CONTRACTOR</b></td>
-                                <td><b>DATE STARTED</b></td>
                                 <td><b>PLANNED START DATE</b></td>
                                 <td><b>PLANNED FINISH DATE</b></td>
+                                <td><b>DATE STARTED</b></td>
+                                <td><b>COMPLETION DATE</b></td>
                             </tr>
                         </thead>
                         <tbody>

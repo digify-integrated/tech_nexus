@@ -47,6 +47,7 @@
         $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
 
         $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? '');
+        $fullStockNumber = $productSubcategoryCode . $stockNumber;
     }
 
     $summaryTable = generatePrint($jobOrderIDs);
@@ -54,12 +55,12 @@
     ob_start();
 
     // Create TCPDF instance
-    $pdf = new TCPDF('P', 'mm', array(330.2, 215.9), true, 'UTF-8', false);
+    $pdf = new TCPDF('L', 'mm', array(330.2, 215.9), true, 'UTF-8', false);
 
    // Disable header and footer
     $pdf->setPrintHeader(false);
     $pdf->setPrintFooter(false);
-    $pdf->SetPageOrientation('P');
+    $pdf->SetPageOrientation('L');
 
     // Set PDF metadata
     $pdf->SetCreator('CGMI');
@@ -82,10 +83,10 @@
     $pdf->Ln(5);
     $pdf->SetFont('times', '', 10);
     $pdf->Cell(60, 8, 'PRODUCT:', 0, 0, 'L');
-    $pdf->Cell(120, 8, $description, 'B', 0, 'L');
+    $pdf->Cell(200, 8, $description, 'B', 0, 'L');
     $pdf->Ln(8);
     $pdf->Cell(60, 8, 'STOCK NUMBER:', 0, 0, 'L');
-    $pdf->Cell(120, 8, $stockNumber, 'B', 0, 'L');
+    $pdf->Cell(200, 8, $fullStockNumber, 'B', 0, 'L');
     $pdf->Ln(12);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
 

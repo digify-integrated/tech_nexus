@@ -15032,10 +15032,25 @@ BEGIN
     WHERE part_transaction_cart_id = p_part_transaction_cart_id;
 END //
 
-CREATE PROCEDURE insertPartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE insertPartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO part_transaction (part_transaction_id, last_log_by) 
-	VALUES(p_part_transaction_id, p_last_log_by);
+    INSERT INTO part_transaction (part_transaction_id, customer_type, customer_id, company_id, issuance_date, issuance_no, reference_date, reference_number, remarks, last_log_by) 
+	VALUES(p_part_transaction_id, p_customer_type, p_customer_id, p_company_id, p_issuance_date, p_issuance_no, p_reference_date, p_reference_number, p_remarks, p_last_log_by);
+END //
+
+CREATE PROCEDURE updatePartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+BEGIN
+    UPDATE part_transaction
+    SET customer_type = p_customer_type,
+    customer_id = p_customer_id,
+    company_id = p_company_id,
+    issuance_date = p_issuance_date,
+    issuance_no = p_issuance_no,
+    reference_date = p_reference_date,
+    reference_number = p_reference_number,
+    remarks = p_remarks,
+    last_log_by = p_last_log_by
+    WHERE part_transaction_id = p_part_transaction_id;
 END //
 
 DELIMITER //
@@ -15081,7 +15096,7 @@ BEGIN
 END //
 
 
-CREATE PROCEDURE getPartsTransaction(IN p_part_transaction_id INT)
+CREATE PROCEDURE getPartsTransaction(IN p_part_transaction_id VARCHAR(100))
 BEGIN
 	SELECT * FROM part_transaction
     WHERE part_transaction_id = p_part_transaction_id;

@@ -41,7 +41,7 @@
                 <?php echo $supplierModel->generateSupplierOptions(); ?>
               </select>
             </div>
-             <label class="col-lg-2 col-form-label">Delivery Date <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Delivery Date <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="delivery_date" name="delivery_date" autocomplete="off">

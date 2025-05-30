@@ -20,6 +20,7 @@ class PartsTransactionController {
     private $fileExtensionModel;
     private $securityModel;
     private $systemSettingModel;
+    private $systemModel;
 
     # -------------------------------------------------------------
     #
@@ -36,7 +37,7 @@ class PartsTransactionController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(PartsTransactionModel $partsTransactionModel, PartsModel $partsModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel) {
+    public function __construct(PartsTransactionModel $partsTransactionModel, PartsModel $partsModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->partsTransactionModel = $partsTransactionModel;
         $this->partsModel = $partsModel;
         $this->userModel = $userModel;
@@ -44,6 +45,7 @@ class PartsTransactionController {
         $this->fileExtensionModel = $fileExtensionModel;
         $this->systemSettingModel = $systemSettingModel;
         $this->securityModel = $securityModel;
+        $this->systemModel = $systemModel;
     }
     # -------------------------------------------------------------
 
@@ -73,6 +75,9 @@ class PartsTransactionController {
                     break;
                 case 'add parts transaction item':
                     $this->addPartsTransactionItem();
+                    break;
+                case 'get parts transaction details':
+                    $this->getPartsTransactionDetails();
                     break;
                 case 'get parts transaction cart details':
                     $this->getPartsTransactionCartDetails();
@@ -136,6 +141,16 @@ class PartsTransactionController {
         }
     
         $userID = $_SESSION['user_id'];
+        $parts_transaction_id = isset($_POST['parts_transaction_id']) ? htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8') : null;
+        $customer_type = htmlspecialchars($_POST['customer_type'], ENT_QUOTES, 'UTF-8');
+        $customer_id = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+        $misc_id = htmlspecialchars($_POST['misc_id'], ENT_QUOTES, 'UTF-8');
+        $issuance_no = htmlspecialchars($_POST['issuance_no'], ENT_QUOTES, 'UTF-8');
+        $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
+        $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
+        $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
+        $issuance_date = $this->systemModel->checkDate('empty', $_POST['issuance_date'], '', 'Y-m-d', '');
+        $reference_date = $this->systemModel->checkDate('empty', $_POST['reference_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -143,35 +158,45 @@ class PartsTransactionController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
-    
-        $partsTransactionID = $this->generateTransactionID();
-        $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $userID);
 
-        echo json_encode(value: ['success' => true, 'insertRecord' => true, 'partsTransactionID' => $this->securityModel->encryptData($partsTransactionID)]);
-        exit;
+        if($customer_type == 'Miscellaneous'){
+            $customer_id = $misc_id;
+        }
+
+        $checkPartsTransactionExist = $this->partsTransactionModel->checkPartsTransactionExist($parts_transaction_id);
+        $total = $checkPartsTransactionExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $userID);
+            
+            echo json_encode(value: ['success' => true, 'insertRecord' => false, 'partsTransactionID' => $this->securityModel->encryptData($parts_transaction_id)]);
+            exit;
+        } 
+        else {
+            $partsTransactionID = $this->generateTransactionID();
+           $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $userID);
+
+            echo json_encode(value: ['success' => true, 'insertRecord' => true, 'partsTransactionID' => $this->securityModel->encryptData($partsTransactionID)]);
+            exit;
+        }
     }
 
-    private function generateTransactionID($prefix = 'PRT-') {
-        // Ensure prefix is alphanumeric and not too long
+    private function generateTransactionID(string $prefix = 'PRT-'): string
+    {
+        // Sanitize prefix: allow only alphanumeric characters
         $prefix = preg_replace('/[^A-Za-z0-9]/', '', $prefix);
+
+        // Limit prefix length to prevent excessively long IDs
         $maxPrefixLength = 10;
         $prefix = substr($prefix, 0, $maxPrefixLength);
 
-        // Timestamp format: YmdHis = 14 characters
+        // Generate timestamp in the format YYYYMMDDHHMMSS (14 characters)
         $timestamp = date('YmdHis');
 
-        // Remaining space for random string: 80 - prefix - timestamp = 80 - (<=10) - 14
-        $remainingLength = 20 - strlen($prefix) - strlen($timestamp);
-
-        // Convert bytes to hex (2 characters per byte)
-        $numBytes = floor($remainingLength / 2); // each byte = 2 hex chars
-        $randomHex = strtoupper(bin2hex(random_bytes($numBytes)));
-
-        // Combine all parts
-        $transactionID = $prefix . $timestamp . $randomHex;
-
-        return $transactionID;
+        // Concatenate prefix and timestamp
+        return $prefix . $timestamp;
     }
+
 
     public function addPartsTransactionItem() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -606,6 +631,41 @@ class PartsTransactionController {
     # Returns: Array
     #
     # -------------------------------------------------------------
+    public function getPartsTransactionDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['parts_transaction_id']) && !empty($_POST['parts_transaction_id'])) {
+            $userID = $_SESSION['user_id'];
+            $parts_transaction_id = $_POST['parts_transaction_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
+
+            $response = [
+                'success' => true,
+                'customer_type' => $partsTransactionDetails['customer_type'],
+                'customer_id' => $partsTransactionDetails['customer_id'],
+                'company_id' => $partsTransactionDetails['company_id'],
+                'issuance_no' => $partsTransactionDetails['issuance_no'],
+                'reference_number' => $partsTransactionDetails['reference_number'],
+                'remarks' => $partsTransactionDetails['remarks'],
+                'issuance_date' =>  $this->systemModel->checkDate('empty', $partsTransactionDetails['issuance_date'], '', 'm/d/Y', ''),
+                'reference_date' =>  $this->systemModel->checkDate('empty', $partsTransactionDetails['reference_date'], '', 'm/d/Y', ''),
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+
     public function getPartsTransactionCartDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -638,6 +698,7 @@ class PartsTransactionController {
             exit;
         }
     }
+
     public function getPartsTransactionCartTotal() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -686,6 +747,6 @@ require_once '../model/system-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new PartsTransactionController(new PartsTransactionModel(new DatabaseModel), new PartsModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel());
+$controller = new PartsTransactionController(new PartsTransactionModel(new DatabaseModel), new PartsModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

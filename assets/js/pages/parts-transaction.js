@@ -34,6 +34,10 @@
             partItemForm();
         }
 
+        if($('#parts-transaction-form').length){
+            partsTransactionForm();
+        }
+
         $(document).on('click','#add-part',function() {
             if($('#add-part-table').length){
                 addPartTable('#add-part-table');
@@ -45,6 +49,7 @@
         });
         
         if($('#parts-transaction-id').length){
+            displayDetails('get parts transaction details');
             displayDetails('get parts transaction cart total');
 
             document.getElementById('quantity').addEventListener('input', calculateTotals);
@@ -98,7 +103,7 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.noItem) {
-                                    showNotification('Transaction On-Process Error', 'No parts added. Cannot be released.', 'danger');
+                                    showNotification('Transaction On-Process Error', 'No parts added. Cannot be processed.', 'danger');
                                 }
                                 else if (response.cartQuantity) {
                                     showNotification('Transaction On-Process Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
@@ -290,38 +295,22 @@
             });
         });
 
-        $(document).on('click','#create-transaction',function() {
-            var transaction = 'save parts transaction';
-            
-            $.ajax({
-                type: 'POST',
-                url: 'controller/parts-transaction-controller.php',
-                dataType: 'json',
-                data: {
-                    transaction : transaction
-                },
-                success: function (response) {
-                    if (response.success) {
-                        window.location = 'parts-transaction.php?id=' + response.partsTransactionID;
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
+        $(document).on('click','#discard-create',function() {
+            discardCreate('parts-transaction.php');
+        });
+
+        $(document).on('change','#customer_type',function() {
+            checkOptionExist('#customer_id', '', '');
+            checkOptionExist('#misc_id', '', '');
+
+            if($(this).val() === 'Customer'){
+                $('#misc-select').addClass('d-none');
+                $('#customer-select').removeClass('d-none');
+            }
+            else{
+                $('#customer-select').addClass('d-none');
+                $('#misc-select').removeClass('d-none');
+            }
         });
     });
 })(jQuery);
@@ -592,6 +581,114 @@ function partTransactionDocumentTable(datatable_name, buttons = false, show_all 
     destroyDatatable(datatable_name);
 
     $(datatable_name).dataTable(settings);
+}
+
+function partsTransactionForm(){
+    $('#parts-transaction-form').validate({
+        rules: {
+            customer_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='customer_type']").val() === 'Customer';
+                    }
+                }
+            },
+            misc_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='customer_type']").val() === 'Miscellaneous';
+                    }
+                }
+            },
+            company_id: {
+                required: true
+            },
+        },
+        messages: {
+            customer_id: {
+                required: 'Please choose the customer'
+            },
+            misc_id: {
+                required: 'Please choose the customer'
+            },
+            company_id: {
+                required: 'Please choose the company'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const parts_transaction_id = $('#parts-transaction-id').text();
+            const transaction = 'save parts transaction';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/parts-transaction-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_transaction_id=' + parts_transaction_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Transaction Success' : 'Update Transaction Success';
+                        const notificationDescription = response.insertRecord ? 'The transaction has been inserted successfully.' : 'The transaction  has been updated successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location = 'parts-transaction.php?id=' + response.partsTransactionID;
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
 }
 
 function addPartsForm(){
@@ -1039,6 +1136,53 @@ function partItemForm(){
 
 function displayDetails(transaction){
     switch (transaction) {
+        case 'get parts transaction details':
+            var parts_transaction_id = $('#parts-transaction-id').text();
+            
+            $.ajax({
+                url: 'controller/parts-transaction-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    parts_transaction_id : parts_transaction_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#issuance_no').val(response.issuance_no);
+                        $('#issuance_date').val(response.issuance_date);
+                        $('#reference_number').val(response.reference_number);
+                        $('#reference_date').val(response.reference_date);
+                        $('#remarks').val(response.remarks);
+                        
+                        checkOptionExist('#customer_type', response.customer_type, '');
+                        checkOptionExist('#company_id', response.company_id, '');
+
+                        if(response.customer_type == 'Customer'){
+                            checkOptionExist('#customer_id', response.customer_id, '');
+                        }
+                        else{
+                            checkOptionExist('#misc_id', response.customer_id, '');
+                        }                        
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Part Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
         case 'get parts transaction cart details':
             const part_transaction_cart_id = $('#part_transaction_cart_id').val();
             

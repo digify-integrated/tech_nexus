@@ -23,13 +23,15 @@
     }
 
     if($type == 'Backjob' && $status == 'On-Process'){        
-        $printJobOrder = '<li><button class="dropdown-item" id="print-job-order">Print Job Order</button></li>';
-        $printAdditionalJobOrder = '<li><button class="dropdown-item" id="print-additional-job-order">Print Additional Job Order</button></li>';
+        $printJobOrder = '<li><button class="dropdown-item" id="print-job-order">Print Job Order</button></li><li><button class="dropdown-item" id="print-job-order-detailed">Print Job Order Detailed</button></li>';
+        $printAdditionalJobOrder = '<li><button class="dropdown-item" id="print-additional-job-order">Print Additional Job Order</button></li><li><button class="dropdown-item" id="print-additional-job-order-detailed">Print Additional Job Order Detailed</button></li>';
     }
 
     if(($type == 'Internal Repair' || $type == 'Warranty') && $status == 'On-Process'){        
-        $printJobOrder = '<li><button class="dropdown-item" id="print-job-order2">Print Job Order</button></li>';
-        $printAdditionalJobOrder = '<li><button class="dropdown-item" id="print-additional-job-order2">Print Additional Job Order</button></li>';
+        $printJobOrder = '<li><button class="dropdown-item" id="print-job-order2">Print Job Order</button></li>
+        <li><button class="dropdown-item" id="print-job-order2-detailed">Print Job Order Detailed</button></li>';
+        $printAdditionalJobOrder = '<li><button class="dropdown-item" id="print-additional-job-order2">Print Additional Job Order</button></li>
+        <li><button class="dropdown-item" id="print-additional-job-order2-detailed">Print Additional Job Order Detailed</button></li>';
     }
 
     if(($type == 'Internal Repair' || $type == 'Warranty') && $status == 'For DR'){

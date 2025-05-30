@@ -21,7 +21,7 @@
                   }
 
                 if($partsTransactionCreateAccess['total'] > 0){
-                  $action .= '<button type="button" id="create-transaction" class="btn btn-success">Create</a>';
+                   $action .= '<a href="parts-transaction.php?new" class="btn btn-success">Create</a>';
                 }
                               
                 echo $action;
