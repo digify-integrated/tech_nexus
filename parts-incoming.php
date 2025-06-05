@@ -14,6 +14,8 @@
   $partsIncomingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'write');
   $partsIncomingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'delete');
   $partsIncomingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'duplicate');
+  $viewPartCost = $userModel->checkSystemActionAccessRights($user_id, 203);
+  $updatePartCost = $userModel->checkSystemActionAccessRights($user_id, 204);
 
   if ($partsIncomingReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -92,6 +94,8 @@
             </div>
           </div>
         </div>
+        <input type="hidden" id="view-cost" value="<?php echo $viewPartCost['total'] ?>">
+        <input type="hidden" id="update-cost" value="<?php echo $updatePartCost['total'] ?>">
         <?php
           if($newRecord && $partsIncomingCreateAccess['total'] > 0){
             require_once('view/_parts_incoming_new.php');

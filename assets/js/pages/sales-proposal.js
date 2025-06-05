@@ -1451,7 +1451,38 @@ function salesProposalTable(datatable_name, buttons = false, show_all = false){
 
 function allSalesProposalTable(datatable_name, buttons = false, show_all = false){
     const type = 'all sales proposal table';
-    var sales_proposal_status_filter = $('.sales-proposal-status-filter:checked').val();
+
+    var sale_proposal_status_filter = [];
+    var product_type_filter = [];
+    var company_filter = [];
+    var user_filter = [];
+
+    $('.sales-proposal-status-filter:checked').each(function() {
+        sale_proposal_status_filter.push($(this).val());
+    });
+
+    $('.product-type-filter:checked').each(function() {
+        product_type_filter.push($(this).val());
+    });
+
+    $('.company-filter:checked').each(function() {
+        company_filter.push($(this).val());
+    });
+
+    $('.user-filter:checked').each(function() {
+        user_filter.push($(this).val());
+    });
+
+    var filter_sale_proposal_status = sale_proposal_status_filter.join(', ');
+    var filter_product_type = product_type_filter.join(', ');
+    var filter_company = company_filter.join(', ');
+    var filter_user = user_filter.join(', ');
+
+    
+    var filter_created_date_start_date = $('#filter_created_date_start_date').val();
+    var filter_created_date_end_date = $('#filter_created_date_end_date').val();
+    var filter_released_date_start_date = $('#filter_released_date_start_date').val();
+    var filter_released_date_end_date = $('#filter_released_date_end_date').val();
 
     var settings;
 
@@ -1484,7 +1515,17 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
             'url' : 'view/_sales_proposal_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'sales_proposal_status_filter' : sales_proposal_status_filter},
+            'data': {
+                'type' : type,
+                'filter_sale_proposal_status' : filter_sale_proposal_status,
+                'filter_product_type' : filter_product_type,
+                'filter_company' : filter_company,
+                'filter_user' : filter_user,
+                'filter_created_date_start_date' : filter_created_date_start_date,
+                'filter_created_date_end_date' : filter_created_date_end_date,
+                'filter_released_date_start_date' : filter_released_date_start_date,
+                'filter_released_date_end_date' : filter_released_date_end_date,
+            },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

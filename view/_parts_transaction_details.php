@@ -25,27 +25,32 @@
           <?php
             if($part_transaction_status == 'Draft'){
               echo '<button class="btn btn-info ms-2" type="button" id="on-process">On-Process</button>';
-                        }
+            }
 
-                        if($part_transaction_status == 'Draft' || $part_transaction_status == 'Approved' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'On-Process'){
-                            echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
-                        }
+            if($part_transaction_status == 'Draft' || $part_transaction_status == 'Approved' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'On-Process'){
+              echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
+            }
 
-                        if($part_transaction_status == 'On-Process'){
-                            if($total_discount > 0){
-                                echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Approval</button>';
-                            }
-                            else if((($total_discount > 0 && $part_transaction_status == 'Approved') || $total_discount == 0) && $releasePartsTransaction['total'] > 0){
-                                echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
-                            }
-                        }
+            if($part_transaction_status == 'On-Process' || $part_transaction_status == 'For Approval'){
+              echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
+            }
 
-                        if($part_transaction_status == 'For Approval' && $approvePartsTransaction['total'] > 0){
-                           echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-transaction-offcanvas" aria-controls="approve-transaction-offcanvas" id="approved">Approved</button>';
-                        }
+            if($part_transaction_status == 'On-Process'){
+              if($total_discount > 0){
+                echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Approval</button>';
+              }
+            }
 
-            if ($partsTransactionCreateAccess['total'] > 0) {
-               echo '<button type="submit" form="parts-transaction-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
+            if((($total_discount > 0 && $part_transaction_status == 'Approved') || $total_discount == 0) && $releasePartsTransaction['total'] > 0){
+              echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
+            }
+
+            if($part_transaction_status == 'For Approval' && $approvePartsTransaction['total'] > 0){
+              echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-transaction-offcanvas" aria-controls="approve-transaction-offcanvas" id="approved">Approved</button>';
+            }
+
+            if ($partsTransactionCreateAccess['total'] > 0 && $part_transaction_status == 'Draft') {
+              echo '<button type="submit" form="parts-transaction-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
                       <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
             }
           ?>
@@ -55,43 +60,43 @@
       <div class="card-body">
         <form id="parts-transaction-form" method="post" action="#">
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Customer Type <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-                <select class="form-control select2" name="customer_type" id="customer_type" <?php echo $disabled; ?>>
-                  <option value="Customer">Customer</option>
-                  <option value="Miscellaneous">Miscellaneous</option>
-                </select>
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Customer Type <span class="text-danger">*</span></label>
+              <select class="form-control select2" name="customer_type" id="customer_type" <?php echo $disabled; ?>>
+                <option value="Customer">Customer</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+              </select>
             </div>
-            <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
-            <div class="col-lg-4" id="customer-select">
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Customer <span class="text-danger">*</span></label>
+              <div id="customer-select">
                 <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
-            </div>
-            <div class="col-lg-4 d-none" id="misc-select">
+              </div>
+              <div class="d-none" id="misc-select">
                 <select class="form-control select2" name="misc_id" id="misc_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>
                 </select>
+              </div>
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Issuance Number</label>
-            <div class="col-lg-4">
+            <div class="col-lg-4 mt-3 mt-lg-0">
+              <label class="form-label">Issuance Number</label>
               <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
             </div>
-            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-            <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
-                  <option value="">--</option>
-                  <?php echo $companyModel->generateCompanyOptions(); ?>
-                </select>
+            <div class="col-lg-4 mt-3 mt-lg-0">
+              <label class="form-label">Company <span class="text-danger">*</span></label>
+              <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <?php echo $companyModel->generateCompanyOptions(); ?>
+              </select>
             </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Issuance Date</label>
-            <div class="col-lg-4">
+            <div class="col-lg-4 mt-3 mt-lg-0">
+              <label class="form-label">Issuance Date</label>
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off" <?php echo $disabled; ?>>
                 <span class="input-group-text">
@@ -99,14 +104,14 @@
                 </span>
               </div>
             </div>
-            <label class="col-lg-2 col-form-label">Reference Number</label>
-            <div class="col-lg-4">
-              <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
-            </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Reference Date</label>
-            <div class="col-lg-4">
+            <div class="col-lg-4 mt-3 mt-lg-0">
+              <label class="form-label">Reference Number</label>
+              <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+            </div>
+            <div class="col-lg-4 mt-3 mt-lg-0">
+              <label class="form-label">Reference Date</label>
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="reference_date" name="reference_date" autocomplete="off" <?php echo $disabled; ?>>
                 <span class="input-group-text">
@@ -115,12 +120,39 @@
               </div>
             </div>
           </div>
+          
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Remarks</label>
-            <div class="col-lg-10">
-              <textarea class="form-control" id="remarks" name="remarks" maxlength="2000" <?php echo $disabled; ?>></textarea>
+            <a class="btn border-0 text-start w-100" data-bs-toggle="collapse" href="#overall-discount-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+              With Add-On Discount?
+            </a>
+            <div class="collapse" id="overall-discount-collapse">
+              <div class="form-group row">
+                <div class="col-lg-4 mt-3 mt-lg-0">
+                  <label class="form-label">Discount</label>
+                  <input type="number" class="form-control" id="overall_discount" name="overall_discount" min="0" step="0.01" <?php echo $disabled; ?>>
+                </div>
+                <div class="col-lg-4 mt-3 mt-lg-0">
+                  <label class="form-label">Type</label>
+                  <select class="form-control select2" name="overall_discount_type" id="overall_discount_type" <?php echo $disabled; ?>>
+                    <option value="">--</option>
+                    <option value="Percentage">Percentage</option>
+                    <option value="Amount">Amount</option>
+                  </select>
+                </div>
+                <div class="col-lg-4 mt-3 mt-lg-0">
+                  <label class="form-label">Discount Total</label>
+                  <input type="number" class="form-control" id="overall_discount_total" name="overall_discount_total" min="0" readonly>
+                </div>
+              </div>
             </div>
-          </div>
+
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Remarks</label>
+                <textarea class="form-control" id="remarks" name="remarks" maxlength="2000" <?php echo $disabled; ?>></textarea>
+              </div>
+            </div>
+        </div>
         </form>
       </div>
     </div>
@@ -128,7 +160,7 @@
 </div>
 
 <div class="row">
-  <div class="col-lg-9">
+  <div class="col-lg-8">
     <div class="card">
         <div class="card-header">
             <div class="row align-items-center">
@@ -149,6 +181,7 @@
                 <table class="table mb-0" id="parts-item-table">
                     <thead>
                         <tr>
+                            <th class="text-end"></th>
                             <th>Part</th>
                             <th class="text-end">Price</th>
                             <th class="text-center">Quantity</th>
@@ -158,7 +191,6 @@
                             <th class="text-center">Total Discount</th>
                             <th class="text-end">Sub-Total</th>
                             <th class="text-end">Total</th>
-                            <th class="text-end"></th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -197,7 +229,7 @@
         </div>
     </div>
   </div>
-  <div class="col-lg-3">
+  <div class="col-lg-4">
     <div class="card">
         <div class="card-body py-2">
             <ul class="list-group list-group-flush">
@@ -206,16 +238,20 @@
                 </li>
                 <li class="list-group-item px-0">
                     <div class="float-end">
+                        <h5 class="mb-0" id="sub-total-summary">0.00 PHP</h5>
+                    </div><span class="text-muted">Item Total</li>
+                <li class="list-group-item px-0">
+                    <div class="float-end">
                         <h5 class="mb-0" id="add-on-total-summary">0.00 PHP</h5>
                     </div><span class="text-muted">Add-On Total</span></li>
                 <li class="list-group-item px-0">
                     <div class="float-end">
-                        <h5 class="mb-0" id="sub-total-summary">0.00 PHP</h5>
-                    </div><span class="text-muted">Sub-Total</span></li>
+                        <h5 class="mb-0" id="total-discount-summary">0.00 PHP</h5>
+                    </div><span class="text-muted">Item Discount</span></li>
                 <li class="list-group-item px-0">
                     <div class="float-end">
-                        <h5 class="mb-0" id="total-discount-summary">0.00 PHP</h5>
-                    </div><span class="text-muted">Total Discount</span></li>
+                        <h5 class="mb-0" id="item-total-summary">0.00 PHP</h5>
+                    </div><span class="text-muted">Sub-Total</span></li>
             </ul>
         </div>
     </div>
@@ -224,8 +260,15 @@
             <ul class="list-group list-group-flush">
                 <li class="list-group-item px-0">
                     <div class="float-end">
+                        <h5 class="mb-0" id="total-overall-discount-summary">0.00 PHP</h5>
+                    </div>
+                    <h5 class="mb-0 d-inline-block">Add-On Discount</h5>
+                </li>
+                <li class="list-group-item px-0">
+                    <div class="float-end">
                         <h5 class="mb-0" id="total-summary">0.00 PHP</h5>
                     </div>
+                    <input type="hidden" id="subtotal-reference">
                     <h5 class="mb-0 d-inline-block">Total</h5>
                 </li>
             </ul>
@@ -233,6 +276,27 @@
     </div>
   </div>
 </div>
+
+<?php
+  echo '<div class="row">
+          <div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-sm-6">
+                  <h5>Log Notes</h5>
+                </div>
+              </div>
+            </div>
+            <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
+              <div class="card-body p-b-0">
+                '. $userModel->generateLogNotes('parts_transaction', $partsTransactionID) .'
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>';
+?>
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="add-part-offcanvas" aria-labelledby="add-part-offcanvas-label">
     <div class="offcanvas-header">
@@ -328,6 +392,34 @@
   </div>
 
  <div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="draft-transaction-offcanvas" aria-labelledby="draft-transaction-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="draft-transaction-offcanvas-label" style="margin-bottom:-0.5rem">Set To Draft Transaction</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="draft-transaction-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Set To Draft Reason <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="draft_reason" name="draft_reason" maxlength="500"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-draft-transaction" form="draft-transaction-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="approve-transaction-offcanvas" aria-labelledby="approve-transaction-offcanvas-label">
       <div class="offcanvas-header">
         <h2 id="approve-transaction-offcanvas-label" style="margin-bottom:-0.5rem">Approve Transaction</h2>
@@ -374,7 +466,7 @@
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Available Stock</label>
-                <input type="number" class="form-control" id="available_stock" name="available_stock" min="0" readonly>
+                <input type="number" class="form-control" id="available_stock" name="available_stock" min="0.01" step="0.01" readonly>
               </div>
             </div>
             <div class="form-group row">
@@ -427,7 +519,7 @@
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Remarks</label>
-                <textarea class="form-control" id="remarks" name="remarks" maxlength="1000"></textarea>
+                <textarea class="form-control" id="item_remarks" name="item_remarks" maxlength="1000"></textarea>
               </div>
             </div>
           </form>

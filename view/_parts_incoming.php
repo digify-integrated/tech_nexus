@@ -44,7 +44,11 @@
                 <th>Item Quantity</th>
                 <th>Received Items</th>
                 <th>Remaining Items</th>
-                <th>Total Cost</th>
+                <?php
+                  if($viewPartCost['total'] > 0){
+                    echo '<th>Total Cost</th>';
+                  }
+                ?>
                 <th>Completion Date</th>
                 <th>Purchase Date</th>
                 <th>Transaction Date</th>

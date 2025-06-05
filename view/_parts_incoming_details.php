@@ -142,8 +142,12 @@
                             <th class="text-center">Quantity</th>
                             <th class="text-center">Received Quantity</th>
                             <th class="text-center">Remaining Quantity</th>
-                            <th class="text-center">Cost</th>
-                            <th class="text-center">Total Cost</th>
+                            <?php
+                              if($viewPartCost['total'] > 0){
+                                echo '<th class="text-center">Cost</th>
+                                <th class="text-center">Total Cost</th>';
+                              }
+                            ?>
                             <th class="text-center">Available Stock</th>
                             <th class="text-center">Remarks</th>
                         </tr>
@@ -161,7 +165,7 @@
                 <li class="list-group-item px-0">
                     <h5 class="mb-0">Incoming Summary</h5>
                 </li>
-                <li class="list-group-item px-0">
+                <li class="list-group-item px-0 <?php echo  $viewPartCost['total'] == 0 ? 'd-none' : ''; ?>">
                     <div class="float-end">
                         <h5 class="mb-0" id="total-cost-summary">0.00 PHP</h5>
                     </div><span class="text-muted">Total Cost</span></li>
@@ -344,6 +348,14 @@
     </div>
   </div>
 
+<?php
+  $readOnly = '';
+  if($part_incoming_status == 'On-Process' && $viewPartCost['total'] > 0 && $updatePartCost['total'] > 0){
+    $readOnly = 'readonly';
+  }
+?>
+
+
 <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="part-cart-offcanvas" aria-labelledby="part-cart-offcanvas-label">
       <div class="offcanvas-header">
@@ -367,19 +379,21 @@
               </div>
             </div>
             <div class="form-group row">
-                <div class="col-lg-6 mt-3 mt-lg-0">
-                    <label class="form-label">Quantity <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" id="quantity" name="quantity" min="0.01" step="0.01">
-                </div>
-                <div class="col-lg-6 mt-3 mt-lg-0">
-                    <label class="form-label">Cost <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" id="cost" name="cost" min="0.01" step="0.01">
-                </div>
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="quantity" name="quantity" min="0.01" step="0.01" <?php echo $readOnly; ?>>
+              </div>
+            </div>
+            <div class="form-group row" id="cost-row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Cost</label>
+                <input type="number" class="form-control" id="cost" name="cost" min="0" step="0.01">
+              </div>
             </div>
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Remarks</label>
-                <textarea class="form-control" id="remarks" name="remarks" maxlength="1000"></textarea>
+                <textarea class="form-control" id="remarks" name="remarks" maxlength="1000" <?php echo $readOnly; ?>></textarea>
               </div>
             </div>
           </form>

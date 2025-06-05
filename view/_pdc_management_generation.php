@@ -73,6 +73,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             
             $values = $_POST['filter_pdc_management_status'];
             $values_company = $_POST['filter_pdc_management_company'];
+            $loan_number = $_POST['loan_number'];
 
             if(!empty($values)){
                 $values_array = explode(', ', $values);
@@ -104,7 +105,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filterPDCManagementCompany = null;
             }
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTable(:filterPDCManagementStatus, :filterPDCManagementCompany, :filterCheckDateStartDate, :filterCheckDateEndDate, :filterRedepositDateStartDate, :filterRedepositDateEndDate, :filterOnHoldDateStartDate, :filterOnHoldDateEndDate, :filterForDepositDateStartDate, :filterForDepositDateEndDate, :filterDepositDateStartDate, :filterDepositDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterPulledOutDateStartDate, :filterPulledOutDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate, :filterClearDateStartDate, :filterClearDateEndDate)');
+            /*$sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTable(:filterPDCManagementStatus, :filterPDCManagementCompany, :filterCheckDateStartDate, :filterCheckDateEndDate, :filterRedepositDateStartDate, :filterRedepositDateEndDate, :filterOnHoldDateStartDate, :filterOnHoldDateEndDate, :filterForDepositDateStartDate, :filterForDepositDateEndDate, :filterDepositDateStartDate, :filterDepositDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterPulledOutDateStartDate, :filterPulledOutDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate, :filterClearDateStartDate, :filterClearDateEndDate)');
             $sql->bindValue(':filterPDCManagementStatus', $filterPDCManagementStatus, PDO::PARAM_STR);
             $sql->bindValue(':filterPDCManagementCompany', $filterPDCManagementCompany, PDO::PARAM_STR);
             $sql->bindValue(':filterCheckDateStartDate', $filterCheckDateStartDate, PDO::PARAM_STR);
@@ -124,7 +125,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->bindValue(':filterCancellationDateStartDate', $filterCancellationDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterCancellationDateEndDate', $filterCancellationDateEndDate, PDO::PARAM_STR);
             $sql->bindValue(':filterClearDateStartDate', $filterClearDateStartDate, PDO::PARAM_STR);
-            $sql->bindValue(':filterClearDateEndDate', $filterClearDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterClearDateEndDate', $filterClearDateEndDate, PDO::PARAM_STR);*/
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTable(:loan_number, :filterPDCManagementStatus, :filterCheckDateStartDate, :filterCheckDateEndDate, :filterRedepositDateStartDate, :filterRedepositDateEndDate)');
+            $sql->bindValue(':loan_number', $loan_number, PDO::PARAM_STR);
+            $sql->bindValue(':filterPDCManagementStatus', $filterPDCManagementStatus, PDO::PARAM_STR);
+            $sql->bindValue(':filterCheckDateStartDate', $filterCheckDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterCheckDateEndDate', $filterCheckDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterRedepositDateStartDate', $filterRedepositDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterRedepositDateEndDate', $filterRedepositDateEndDate, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -153,15 +162,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 
                 if($pdcType == 'Leasing'){
                     $getLeasingApplication = $leasingApplicationModel->getLeasingApplication($leasingApplicationID);
-                    $loanNumber = $getLeasingApplication['leasing_application_number'];
-                    $tenantID = $getLeasingApplication['tenant_id'];
-                    $propertyID = $getLeasingApplication['property_id'];
+                    $loanNumber = $getLeasingApplication['leasing_application_number'] ?? '';
+                    $tenantID = $getLeasingApplication['tenant_id'] ?? '';
+                    $propertyID = $getLeasingApplication['property_id'] ?? '';
 
                     $getTenant = $tenantModel->getTenant($tenantID);
-                    $customerName = $getTenant['tenant_name'];
+                    $customerName = $getTenant['tenant_name'] ?? '';
 
                     $getProperty = $propertyModel->getProperty($propertyID);
-                    $corporateName = $getProperty['property_name'];
+                    $corporateName = $getProperty['property_name'] ?? '';
 
                 }
 

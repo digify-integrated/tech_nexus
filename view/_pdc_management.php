@@ -32,6 +32,18 @@
                         </div>
                       </li>
                       <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#pdc-management-default-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Loan Number
+                        </a>
+                        <div class="collapse" id="pdc-management-default-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control" id="loan_number" name="loan_number" maxlength="200" autocomplete="off">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#pdc-management-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           PDC Status
                         </a>
@@ -78,7 +90,7 @@
                           </div>
                         </div>
                       </li>
-                      <li class="list-group-item px-0 py-2">
+                      <li class="list-group-item px-0 py-2 d-none">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#company-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Company
                         </a>
@@ -129,7 +141,7 @@
                           </div>
                         </div>
                       </li>
-                      <li class="list-group-item px-0 py-2">
+                      <li class="list-group-item px-0 py-2 d-none">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#onhold-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           On-Hold Date
                         </a>
@@ -142,7 +154,7 @@
                           </div>
                         </div>
                       </li>
-                      <li class="list-group-item px-0 py-2">
+                      <li class="list-group-item px-0 py-2 d-none">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#for-deposit-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           For Deposit Date
                         </a>
@@ -155,7 +167,7 @@
                           </div>
                         </div>
                       </li>
-                      <li class="list-group-item px-0 py-2">
+                      <li class="list-group-item px-0 py-2 d-none">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#deposit-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Deposit Date
                         </a>
@@ -168,7 +180,7 @@
                           </div>
                         </div>
                       </li>
-                      <li class="list-group-item px-0 py-2">
+                      <li class="list-group-item px-0 py-2 d-none">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#reversed-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Reversed Date
                         </a>
@@ -181,7 +193,7 @@
                           </div>
                         </div>
                       </li>
-                      <li class="list-group-item px-0 py-2">
+                      <li class="list-group-item px-0 py-2 d-none">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#pulled-out-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Pulled-Out Date
                         </a>
@@ -194,7 +206,7 @@
                           </div>
                         </div>
                       </li>
-                      <li class="list-group-item px-0 py-2">
+                      <li class="list-group-item px-0 py-2 d-none">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#cancelled-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Cancellation Date
                         </a>
@@ -207,7 +219,7 @@
                           </div>
                         </div>
                       </li>
-                      <li class="list-group-item px-0 py-2">
+                      <li class="list-group-item px-0 py-2 d-none">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#clear-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Clear Date
                         </a>

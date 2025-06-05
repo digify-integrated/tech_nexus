@@ -7340,3 +7340,245 @@ BEGIN
         VALUES ('part_transaction', NEW.part_transaction_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
+
+
+CREATE TRIGGER part_transaction_trigger_insert
+AFTER INSERT ON part_transaction
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Part Transaction created.<br/>';
+
+    SET audit_log = CONCAT(
+        audit_log,
+        'Status: ', NEW.part_transaction_status, '<br/>',
+        'Customer Type: ', NEW.customer_type, '<br/>',
+        'Customer ID: ', NEW.customer_id, '<br/>',
+        'Company ID: ', NEW.company_id, '<br/>',
+        'Issuance Date: ', NEW.issuance_date, '<br/>',
+        'Issuance No: ', NEW.issuance_no, '<br/>',
+        'Reference Date: ', NEW.reference_date, '<br/>',
+        'Reference No: ', NEW.reference_number, '<br/>',
+        'Remarks: ', NEW.remarks, '<br/>',
+        'Number of Items: ', NEW.number_of_items, '<br/>',
+        'Add-On: ', NEW.add_on, '<br/>',
+        'Sub Total: ', NEW.sub_total, '<br/>',
+        'Total Discount: ', NEW.total_discount, '<br/>',
+        'Total Amount: ', NEW.total_amount, '<br/>',
+        'Discount: ', NEW.discount, '<br/>',
+        'Discount Type: ', NEW.discount_type, '<br/>',
+        'Overall Total: ', NEW.overall_total, '<br/>',
+        'On Process Date: ', NEW.on_process_date, '<br/>',
+        'For Approval: ', NEW.for_approval, '<br/>',
+        'Approval Date: ', NEW.approval_date, '<br/>',
+        'Released Date: ', NEW.released_date, '<br/>',
+        'Draft Date: ', NEW.draft_date, '<br/>',
+        'Draft Reason: ', NEW.draft_reason, '<br/>',
+        'Cancellation Date: ', NEW.cancellation_date, '<br/>',
+        'Cancellation Remarks: ', NEW.cancellation_remarks, '<br/>',
+        'Approval Remarks: ', NEW.approval_remarks, '<br/>',
+        'Created Date: ', NEW.created_date
+    );
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('part_transaction', NEW.part_transaction_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER part_transaction_trigger_update
+AFTER UPDATE ON part_transaction
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.part_transaction_status <> OLD.part_transaction_status THEN
+        SET audit_log = CONCAT(audit_log, 'Status: ', OLD.part_transaction_status, ' -> ', NEW.part_transaction_status, '<br/>');
+    END IF;
+
+    IF NEW.customer_type <> OLD.customer_type THEN
+        SET audit_log = CONCAT(audit_log, 'Customer Type: ', OLD.customer_type, ' -> ', NEW.customer_type, '<br/>');
+    END IF;
+
+    IF NEW.customer_id <> OLD.customer_id THEN
+        SET audit_log = CONCAT(audit_log, 'Customer ID: ', OLD.customer_id, ' -> ', NEW.customer_id, '<br/>');
+    END IF;
+
+    IF NEW.company_id <> OLD.company_id THEN
+        SET audit_log = CONCAT(audit_log, 'Company ID: ', OLD.company_id, ' -> ', NEW.company_id, '<br/>');
+    END IF;
+
+    IF NEW.issuance_date <> OLD.issuance_date THEN
+        SET audit_log = CONCAT(audit_log, 'Issuance Date: ', OLD.issuance_date, ' -> ', NEW.issuance_date, '<br/>');
+    END IF;
+
+    IF NEW.issuance_no <> OLD.issuance_no THEN
+        SET audit_log = CONCAT(audit_log, 'Issuance No: ', OLD.issuance_no, ' -> ', NEW.issuance_no, '<br/>');
+    END IF;
+
+    IF NEW.reference_date <> OLD.reference_date THEN
+        SET audit_log = CONCAT(audit_log, 'Reference Date: ', OLD.reference_date, ' -> ', NEW.reference_date, '<br/>');
+    END IF;
+
+    IF NEW.reference_number <> OLD.reference_number THEN
+        SET audit_log = CONCAT(audit_log, 'Reference No: ', OLD.reference_number, ' -> ', NEW.reference_number, '<br/>');
+    END IF;
+
+    IF NEW.remarks <> OLD.remarks THEN
+        SET audit_log = CONCAT(audit_log, 'Remarks: ', OLD.remarks, ' -> ', NEW.remarks, '<br/>');
+    END IF;
+
+    IF NEW.number_of_items <> OLD.number_of_items THEN
+        SET audit_log = CONCAT(audit_log, 'Number of Items: ', OLD.number_of_items, ' -> ', NEW.number_of_items, '<br/>');
+    END IF;
+
+    IF NEW.add_on <> OLD.add_on THEN
+        SET audit_log = CONCAT(audit_log, 'Add-On: ', OLD.add_on, ' -> ', NEW.add_on, '<br/>');
+    END IF;
+
+    IF NEW.sub_total <> OLD.sub_total THEN
+        SET audit_log = CONCAT(audit_log, 'Sub Total: ', OLD.sub_total, ' -> ', NEW.sub_total, '<br/>');
+    END IF;
+
+    IF NEW.total_discount <> OLD.total_discount THEN
+        SET audit_log = CONCAT(audit_log, 'Total Discount: ', OLD.total_discount, ' -> ', NEW.total_discount, '<br/>');
+    END IF;
+
+    IF NEW.total_amount <> OLD.total_amount THEN
+        SET audit_log = CONCAT(audit_log, 'Total Amount: ', OLD.total_amount, ' -> ', NEW.total_amount, '<br/>');
+    END IF;
+
+    IF NEW.discount <> OLD.discount THEN
+        SET audit_log = CONCAT(audit_log, 'Discount: ', OLD.discount, ' -> ', NEW.discount, '<br/>');
+    END IF;
+
+    IF NEW.discount_type <> OLD.discount_type THEN
+        SET audit_log = CONCAT(audit_log, 'Discount Type: ', OLD.discount_type, ' -> ', NEW.discount_type, '<br/>');
+    END IF;
+
+    IF NEW.overall_total <> OLD.overall_total THEN
+        SET audit_log = CONCAT(audit_log, 'Overall Total: ', OLD.overall_total, ' -> ', NEW.overall_total, '<br/>');
+    END IF;
+
+    IF NEW.on_process_date <> OLD.on_process_date THEN
+        SET audit_log = CONCAT(audit_log, 'On Process Date: ', OLD.on_process_date, ' -> ', NEW.on_process_date, '<br/>');
+    END IF;
+
+    IF NEW.for_approval <> OLD.for_approval THEN
+        SET audit_log = CONCAT(audit_log, 'For Approval: ', OLD.for_approval, ' -> ', NEW.for_approval, '<br/>');
+    END IF;
+
+    IF NEW.approval_date <> OLD.approval_date THEN
+        SET audit_log = CONCAT(audit_log, 'Approval Date: ', OLD.approval_date, ' -> ', NEW.approval_date, '<br/>');
+    END IF;
+
+    IF NEW.released_date <> OLD.released_date THEN
+        SET audit_log = CONCAT(audit_log, 'Released Date: ', OLD.released_date, ' -> ', NEW.released_date, '<br/>');
+    END IF;
+
+    IF NEW.draft_date <> OLD.draft_date THEN
+        SET audit_log = CONCAT(audit_log, 'Draft Date: ', OLD.draft_date, ' -> ', NEW.draft_date, '<br/>');
+    END IF;
+
+    IF NEW.draft_reason <> OLD.draft_reason THEN
+        SET audit_log = CONCAT(audit_log, 'Draft Reason: ', OLD.draft_reason, ' -> ', NEW.draft_reason, '<br/>');
+    END IF;
+
+    IF NEW.cancellation_date <> OLD.cancellation_date THEN
+        SET audit_log = CONCAT(audit_log, 'Cancellation Date: ', OLD.cancellation_date, ' -> ', NEW.cancellation_date, '<br/>');
+    END IF;
+
+    IF NEW.cancellation_remarks <> OLD.cancellation_remarks THEN
+        SET audit_log = CONCAT(audit_log, 'Cancellation Remarks: ', OLD.cancellation_remarks, ' -> ', NEW.cancellation_remarks, '<br/>');
+    END IF;
+
+    IF NEW.approval_remarks <> OLD.approval_remarks THEN
+        SET audit_log = CONCAT(audit_log, 'Approval Remarks: ', OLD.approval_remarks, ' -> ', NEW.approval_remarks, '<br/>');
+    END IF;
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('part_transaction', NEW.part_transaction_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+
+CREATE TRIGGER part_incoming_trigger_insert
+AFTER INSERT ON part_incoming
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Part Incoming created.<br/>';
+
+    SET audit_log = CONCAT(
+        audit_log,
+        'Status: ', NEW.part_incoming_status, '<br/>',
+        'Reference Number: ', NEW.reference_number, '<br/>',
+        'Supplier ID: ', NEW.supplier_id, '<br/>',
+        'RR No: ', NEW.rr_no, '<br/>',
+        'RR Date: ', NEW.rr_date, '<br/>',
+        'Delivery Date: ', NEW.delivery_date, '<br/>',
+        'Completion Date: ', NEW.completion_date, '<br/>',
+        'On Process Date: ', NEW.onprocess_date, '<br/>',
+        'Purchase Date: ', NEW.purchase_date, '<br/>',
+        'Cancellation Date: ', NEW.cancellation_date, '<br/>',
+        'Cancellation Remarks: ', NEW.cancellation_remarks, '<br/>',
+        'Created Date: ', NEW.created_date
+    );
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('part_incoming', NEW.part_incoming_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+CREATE TRIGGER part_incoming_trigger_update
+AFTER UPDATE ON part_incoming
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.part_incoming_status <> OLD.part_incoming_status THEN
+        SET audit_log = CONCAT(audit_log, 'Status: ', OLD.part_incoming_status, ' -> ', NEW.part_incoming_status, '<br/>');
+    END IF;
+
+    IF NEW.reference_number <> OLD.reference_number THEN
+        SET audit_log = CONCAT(audit_log, 'Reference Number: ', OLD.reference_number, ' -> ', NEW.reference_number, '<br/>');
+    END IF;
+
+    IF NEW.supplier_id <> OLD.supplier_id THEN
+        SET audit_log = CONCAT(audit_log, 'Supplier ID: ', OLD.supplier_id, ' -> ', NEW.supplier_id, '<br/>');
+    END IF;
+
+    IF NEW.rr_no <> OLD.rr_no THEN
+        SET audit_log = CONCAT(audit_log, 'RR No: ', OLD.rr_no, ' -> ', NEW.rr_no, '<br/>');
+    END IF;
+
+    IF NEW.rr_date <> OLD.rr_date THEN
+        SET audit_log = CONCAT(audit_log, 'RR Date: ', OLD.rr_date, ' -> ', NEW.rr_date, '<br/>');
+    END IF;
+
+    IF NEW.delivery_date <> OLD.delivery_date THEN
+        SET audit_log = CONCAT(audit_log, 'Delivery Date: ', OLD.delivery_date, ' -> ', NEW.delivery_date, '<br/>');
+    END IF;
+
+    IF NEW.completion_date <> OLD.completion_date THEN
+        SET audit_log = CONCAT(audit_log, 'Completion Date: ', OLD.completion_date, ' -> ', NEW.completion_date, '<br/>');
+    END IF;
+
+    IF NEW.onprocess_date <> OLD.onprocess_date THEN
+        SET audit_log = CONCAT(audit_log, 'On Process Date: ', OLD.onprocess_date, ' -> ', NEW.onprocess_date, '<br/>');
+    END IF;
+
+    IF NEW.purchase_date <> OLD.purchase_date THEN
+        SET audit_log = CONCAT(audit_log, 'Purchase Date: ', OLD.purchase_date, ' -> ', NEW.purchase_date, '<br/>');
+    END IF;
+
+    IF NEW.cancellation_date <> OLD.cancellation_date THEN
+        SET audit_log = CONCAT(audit_log, 'Cancellation Date: ', OLD.cancellation_date, ' -> ', NEW.cancellation_date, '<br/>');
+    END IF;
+
+    IF NEW.cancellation_remarks <> OLD.cancellation_remarks THEN
+        SET audit_log = CONCAT(audit_log, 'Cancellation Remarks: ', OLD.cancellation_remarks, ' -> ', NEW.cancellation_remarks, '<br/>');
+    END IF;
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('part_incoming', NEW.part_incoming_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //

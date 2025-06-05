@@ -964,6 +964,8 @@
 
         $(document).on('click','#print-report',function() {
             var checkedBoxes = [];
+            var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
+            var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
@@ -973,7 +975,7 @@
 
             if(checkedBoxes != ''){
                 const disbursement_category = $('#disbursement_category').val();
-                window.open('print-disbursement-report.php?id=' + checkedBoxes + '&type=' + disbursement_category + '&ptype=full', '_blank');
+                window.open('print-disbursement-report.php?id=' + checkedBoxes + '&type=' + disbursement_category + '&ptype=full&sdate=' + filter_transaction_date_start_date + '&edate=' + filter_transaction_date_end_date, '_blank');
             }
             else{
                 showNotification('Print Report Error', 'No selected disbursement.', 'danger');
@@ -982,6 +984,8 @@
 
         $(document).on('click','#print-report-less',function() {
             var checkedBoxes = [];
+            var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
+            var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
@@ -991,7 +995,7 @@
 
             if(checkedBoxes != ''){
                 const disbursement_category = $('#disbursement_category').val();
-                window.open('print-disbursement-report.php?id=' + checkedBoxes + '&type=' + disbursement_category + '&ptype=less', '_blank');
+                window.open('print-disbursement-report.php?id=' + checkedBoxes + '&type=' + disbursement_category + '&ptype=less&sdate=' + filter_transaction_date_start_date + '&edate=' + filter_transaction_date_end_date, '_blank');
             }
             else{
                 showNotification('Print Report Error', 'No selected disbursement.', 'danger');

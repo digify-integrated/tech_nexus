@@ -9,7 +9,7 @@
   require('model/application-source-model.php');
   require('model/company-model.php');
 
-  $pageTitle = 'All Sales Proposal';
+  $pageTitle = 'Repairs';
   
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $approvingOfficerModel = new ApprovingOfficerModel($databaseModel);
@@ -19,9 +19,7 @@
   $applicationSourceModel = new ApplicationSourceModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
     
-  $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 72, 'read');
-  $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);  
-  $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
+  $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 147, 'read');
 
   if ($allSalesProposalReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -81,15 +79,6 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Sales Proposal</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="all-sales-proposal.php"><?php echo $pageTitle; ?></a></li>
-                  <?php
-                    if(!$newRecord && !empty($salesProposalID)){
-                      echo '<li class="breadcrumb-item" id="sales-proposal-id">'. $salesProposalID .'</li>';
-                    }
-
-                    if($newRecord){
-                      echo '<li class="breadcrumb-item">New</li>';
-                    }
-                  ?>
                 </ul>
               </div>
               <div class="col-md-12">
@@ -101,12 +90,7 @@
           </div>
         </div>
         <?php
-         if(!empty($salesProposalID) && !empty($customerID)){
-            require_once('view/_sales_proposal_details.php');
-          }
-          else{
-            require_once('view/_all_sales_proposal.php');
-          }
+            require_once('view/_repairs.php');
         ?>
       </div>
     </section>
@@ -125,7 +109,7 @@
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/imask.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/sales-proposal.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/repairs.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

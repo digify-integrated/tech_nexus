@@ -92,11 +92,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sub_total = $row['sub_total'];
                 $total = $row['total'];
                 $add_on = $row['add_on'];
+                $price = $row['price'];
 
                 $partDetails = $partsModel->getParts($part_id);
                 $description = $partDetails['description'];
                 $bar_code = $partDetails['bar_code'];
-                $part_price = $partDetails['part_price'];
 
                 $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
 
@@ -108,7 +108,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $action = '';
-                if($part_transaction_status == 'Draft' || $part_transaction_status == 'On-Process'){
+                if($part_transaction_status == 'Draft'){
                     $action = ' <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#part-cart-offcanvas" aria-controls="part-cart-offcanvas" data-parts-transaction-cart-id="'. $part_transaction_cart_id .'" title="Update Part Item">
                                         <i class="ti ti-edit"></i>
                                     </button>
@@ -131,7 +131,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <p class="text-sm text-muted mb-0">'. $bar_code .'</p>
                                     </div>
                                 </div>',
-                    'PRICE' => number_format($part_price, 2) .' PHP',
+                    'PRICE' => number_format($price, 2) .' PHP',
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
                     'AVAILABLE_STOCK' => number_format($partQuantity, 0, '', ',') . ' ' . $short_name,
                     'ADD_ON' => number_format($add_on, 2) .' PHP',
@@ -241,6 +241,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'SUB_TOTAL' => number_format($sub_total, 2) . ' PHP',
                     'TOTAL_AMOUNT' => number_format($total_amount, 2) . ' PHP',
                     'TRANSACTION_DATE' => $transaction_date,
+                    'STATUS' => $part_transaction_status,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="parts-transaction.php?id='. $part_transaction_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>

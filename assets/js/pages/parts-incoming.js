@@ -62,6 +62,16 @@
 
             $('#part_incoming_cart_id').val(parts_incoming_cart_id);
             displayDetails('get parts incoming cart details');
+
+            var view_cost = $('#view-cost').val();
+            var update_cost = $('#update-cost').val();
+
+            if(view_cost > 0 && update_cost > 0){
+                $('#cost-row').removeClass('d-none');
+            }
+            else{
+                $('#cost-row').addClass('d-none');
+            }
         });
 
         $(document).on('click','.receive-quantity',function() {
@@ -356,6 +366,7 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
     var filter_released_date_end_date = $('#filter_released_date_end_date').val();
     var filter_purchased_date_start_date = $('#filter_purchased_date_start_date').val();
     var filter_purchased_date_end_date = $('#filter_purchased_date_end_date').val();
+    var view_cost = $('#view-cost').val();
 
     var incoming_status_filter = [];
 
@@ -367,33 +378,62 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
 
     var settings;
 
-    const column = [
-        { 'data' : 'TRANSACTION_ID' },
-        { 'data' : 'LINES' },
-        { 'data' : 'QUANTITY' },
-        { 'data' : 'RECEIVED' },
-        { 'data' : 'REMAINING' },
-        { 'data' : 'COST' },
-        { 'data' : 'COMPLETION_DATE' },
-        { 'data' : 'PURCHASE_DATE' },
-        { 'data' : 'TRANSACTION_DATE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
+    if(view_cost > 0){
+        var column = [
+            { 'data' : 'TRANSACTION_ID' },
+            { 'data' : 'LINES' },
+            { 'data' : 'QUANTITY' },
+            { 'data' : 'RECEIVED' },
+            { 'data' : 'REMAINING' },
+            { 'data' : 'COST' },
+            { 'data' : 'COMPLETION_DATE' },
+            { 'data' : 'PURCHASE_DATE' },
+            { 'data' : 'TRANSACTION_DATE' },
+            { 'data' : 'STATUS' },
+            { 'data' : 'ACTION' }
+        ];
 
-    const column_definition = [
-        { 'width': 'auto', 'aTargets': 0 },
-        { 'width': 'auto', 'aTargets': 1 },
-        { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
-        { 'width': 'auto', 'aTargets': 4 },
-        { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
-        { 'width': 'auto', 'aTargets': 9 },
-        { 'width': '15%','bSortable': false, 'aTargets': 10 }
-    ];
+        var column_definition = [
+            { 'width': 'auto', 'aTargets': 0 },
+            { 'width': 'auto', 'aTargets': 1 },
+            { 'width': 'auto', 'aTargets': 2 },
+            { 'width': 'auto', 'aTargets': 3 },
+            { 'width': 'auto', 'aTargets': 4 },
+            { 'width': 'auto', 'aTargets': 5 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+            { 'width': 'auto', 'aTargets': 9 },
+            { 'width': '15%','bSortable': false, 'aTargets': 10 }
+        ];
+    }
+    else{
+        var column = [
+            { 'data' : 'TRANSACTION_ID' },
+            { 'data' : 'LINES' },
+            { 'data' : 'QUANTITY' },
+            { 'data' : 'RECEIVED' },
+            { 'data' : 'REMAINING' },
+            { 'data' : 'COMPLETION_DATE' },
+            { 'data' : 'PURCHASE_DATE' },
+            { 'data' : 'TRANSACTION_DATE' },
+            { 'data' : 'STATUS' },
+            { 'data' : 'ACTION' }
+        ];
+
+        var column_definition = [
+            { 'width': 'auto', 'aTargets': 0 },
+            { 'width': 'auto', 'aTargets': 1 },
+            { 'width': 'auto', 'aTargets': 2 },
+            { 'width': 'auto', 'aTargets': 3 },
+            { 'width': 'auto', 'aTargets': 4 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 5 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+            { 'width': 'auto', 'aTargets': 8 },
+            { 'width': '15%','bSortable': false, 'aTargets': 9 }
+        ];
+    }
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
@@ -502,32 +542,56 @@ function addPartTable(datatable_name, buttons = false, show_all = false){
 
 function partItemTable(datatable_name, buttons = false, show_all = false){
     var parts_incoming_id = $('#parts-incoming-id').text();
+    var view_cost = $('#view-cost').val();
     const type = 'part item table';
     var settings;
 
-    const column = [ 
-        { 'data' : 'ACTION' },
-        { 'data' : 'PART' },
-        { 'data' : 'QUANTITY' },
-        { 'data' : 'RECEIVED_QUANTITY' },
-        { 'data' : 'REMAINING_QUANTITY' },
-        { 'data' : 'COST' },
-        { 'data' : 'TOTAL_COST' },
-        { 'data' : 'AVAILABLE_STOCK' },
-        { 'data' : 'REMARKS' }
-    ];
+    if(view_cost > 0){
+        var column = [ 
+            { 'data' : 'ACTION' },
+            { 'data' : 'PART' },
+            { 'data' : 'QUANTITY' },
+            { 'data' : 'RECEIVED_QUANTITY' },
+            { 'data' : 'REMAINING_QUANTITY' },
+            { 'data' : 'COST' },
+            { 'data' : 'TOTAL_COST' },
+            { 'data' : 'AVAILABLE_STOCK' },
+            { 'data' : 'REMARKS' }
+        ];
 
-    const column_definition = [
-        { 'width': 'auto', 'bSortable': false, 'aTargets': 0 },
-        { 'width': 'auto', 'aTargets': 1 },
-        { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
-        { 'width': 'auto', 'aTargets': 4 },
-        { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'aTargets': 6 },
-        { 'width': 'auto', 'aTargets': 7 },
-        { 'width': 'auto', 'aTargets': 8 },
-    ];
+        var column_definition = [
+            { 'width': 'auto', 'bSortable': false, 'aTargets': 0 },
+            { 'width': 'auto', 'aTargets': 1 },
+            { 'width': 'auto', 'aTargets': 2 },
+            { 'width': 'auto', 'aTargets': 3 },
+            { 'width': 'auto', 'aTargets': 4 },
+            { 'width': 'auto', 'aTargets': 5 },
+            { 'width': 'auto', 'aTargets': 6 },
+            { 'width': 'auto', 'aTargets': 7 },
+            { 'width': 'auto', 'aTargets': 8 },
+        ];
+    }
+    else{
+        var column = [ 
+            { 'data' : 'ACTION' },
+            { 'data' : 'PART' },
+            { 'data' : 'QUANTITY' },
+            { 'data' : 'RECEIVED_QUANTITY' },
+            { 'data' : 'REMAINING_QUANTITY' },
+            { 'data' : 'AVAILABLE_STOCK' },
+            { 'data' : 'REMARKS' }
+        ];
+
+        var column_definition = [
+            { 'width': 'auto', 'bSortable': false, 'aTargets': 0 },
+            { 'width': 'auto', 'aTargets': 1 },
+            { 'width': 'auto', 'aTargets': 2 },
+            { 'width': 'auto', 'aTargets': 3 },
+            { 'width': 'auto', 'aTargets': 4 },
+            { 'width': 'auto', 'aTargets': 5 },
+            { 'width': 'auto', 'aTargets': 6 },
+        ];
+    }
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
@@ -876,17 +940,11 @@ function partItemForm(){
             quantity: {
                 required: true,
             },
-            cost: {
-                required: true,
-            },
         },
         messages: {
             quantity: {
                 required: 'Please enter the quantity',
             },
-            cost: {
-                required: 'Please enter the cost',
-            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {

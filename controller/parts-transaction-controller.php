@@ -109,6 +109,9 @@ class PartsTransactionController {
                 case 'tag transaction as cancelled':
                     $this->tagAsCancelled();
                     break;
+                case 'tag transaction as draft':
+                    $this->tagAsDraft();
+                    break;
                 case 'tag transaction as approved':
                     $this->tagAsApproved();
                     break;
@@ -167,14 +170,18 @@ class PartsTransactionController {
         $total = $checkPartsTransactionExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $userID);
+            $overall_discount = htmlspecialchars($_POST['overall_discount'], ENT_QUOTES, 'UTF-8');
+            $overall_discount_type = htmlspecialchars($_POST['overall_discount_type'], ENT_QUOTES, 'UTF-8');
+            $overall_discount_total = htmlspecialchars($_POST['overall_discount_total'], ENT_QUOTES, 'UTF-8');
+
+            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $overall_discount, $overall_discount_type, $overall_discount_total, $userID);
             
             echo json_encode(value: ['success' => true, 'insertRecord' => false, 'partsTransactionID' => $this->securityModel->encryptData($parts_transaction_id)]);
             exit;
         } 
         else {
             $partsTransactionID = $this->generateTransactionID();
-           $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $userID);
+            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => true, 'partsTransactionID' => $this->securityModel->encryptData($partsTransactionID)]);
             exit;
@@ -349,6 +356,28 @@ class PartsTransactionController {
         exit;
     }
 
+    public function tagAsDraft() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $draft_reason = htmlspecialchars($_POST['draft_reason'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Draft', $draft_reason, $userID);
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     public function tagAsApproved() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -393,7 +422,7 @@ class PartsTransactionController {
         $discount_total = $_POST['discount_total'];
         $part_item_subtotal = $_POST['part_item_subtotal'];
         $part_item_total = $_POST['part_item_total'];
-        $remarks = $_POST['remarks'];
+        $remarks = $_POST['item_remarks'];
         
         $user = $this->userModel->getUserByID($userID);
         
@@ -657,6 +686,10 @@ class PartsTransactionController {
                 'issuance_no' => $partsTransactionDetails['issuance_no'],
                 'reference_number' => $partsTransactionDetails['reference_number'],
                 'remarks' => $partsTransactionDetails['remarks'],
+                'discount' => $partsTransactionDetails['discount'],
+                'discount_type' => $partsTransactionDetails['discount_type'],
+                'overall_total' => $partsTransactionDetails['overall_total'],
+                'addOnDiscount' => number_format($partsTransactionDetails['overall_total'] ?? 0, 2) . ' PHP',
                 'issuance_date' =>  $this->systemModel->checkDate('empty', $partsTransactionDetails['issuance_date'], '', 'm/d/Y', ''),
                 'reference_date' =>  $this->systemModel->checkDate('empty', $partsTransactionDetails['reference_date'], '', 'm/d/Y', ''),
             ];
@@ -688,6 +721,7 @@ class PartsTransactionController {
                 'success' => true,
                 'part_id' => $partsTransactionCartDetails['part_id'],
                 'quantity' => $partsTransactionCartDetails['quantity'],
+                'price' => $partsTransactionCartDetails['price'],
                 'discount' => $partsTransactionCartDetails['discount'],
                 'add_on' => $partsTransactionCartDetails['add_on'],
                 'remarks' => $partsTransactionCartDetails['remarks'],
@@ -719,13 +753,16 @@ class PartsTransactionController {
             $discountAmount = $this->partsTransactionModel->getPartsTransactionCartTotal($part_transaction_id, 'discount')['total'];
             $total = $this->partsTransactionModel->getPartsTransactionCartTotal($part_transaction_id, 'total')['total'];
             $addOn = $this->partsTransactionModel->getPartsTransactionCartTotal($part_transaction_id, 'add-on')['total'];
+            $overallTotal = $this->partsTransactionModel->getPartsTransactionCartTotal($part_transaction_id, 'overall total')['total'];
 
             $response = [
                 'success' => true,
+                'subtotal_reference' => $total,
                 'subTotal' => number_format($subTotal, 2) . ' PHP',
                 'discountAmount' => number_format($discountAmount, 2) . ' PHP',
                 'addOn' => number_format($addOn, 2) . ' PHP',
-                'total' => number_format($total, 2) . ' PHP'
+                'total' => number_format($total, 2) . ' PHP',
+                'overallTotal' => number_format($overallTotal, 2) . ' PHP'
             ];
 
             echo json_encode($response);

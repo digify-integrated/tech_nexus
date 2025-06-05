@@ -1038,7 +1038,7 @@ function ReleaseForm(){
         },
         messages: {
             release_remarks: {
-                required: 'Please enter the release remarks'
+                required: 'Please enter the completed remarks'
             },
         },
         errorPlacement: function (error, element) {

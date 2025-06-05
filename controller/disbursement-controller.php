@@ -474,8 +474,11 @@ class DisbursementController {
         $liquidationParticularsDetails = $this->disbursementModel->getLiquidationParticulars($liquidation_particulars_id);
         $liquidation_id = $liquidationParticularsDetails['liquidation_id'] ?? '';
         $particulars_amount = $liquidationParticularsDetails['particulars_amount'] ?? '';
+        $reference_type = $liquidationParticularsDetails['reference_type'] ?? '';
 
-        $this->disbursementModel->updateLiquidationBalance($liquidation_id, $particulars_amount, $userID);
+        if($reference_type == 'OR'){
+            $this->disbursementModel->updateLiquidationBalance($liquidation_id, $particulars_amount, $userID);
+        }
 
         $this->disbursementModel->updateLiquidationParticularsStatus($liquidation_particulars_id, 'Posted', $userID);
             
@@ -1242,8 +1245,11 @@ class DisbursementController {
         $liquidationParticularsDetails = $this->disbursementModel->getLiquidationParticulars($liquidation_particulars_id);
         $liquidation_id = $liquidationParticularsDetails['liquidation_id'] ?? '';
         $particulars_amount = $liquidationParticularsDetails['particulars_amount'] ?? '';
+        $reference_type = $liquidationParticularsDetails['reference_type'] ?? '';
 
-        $this->disbursementModel->updateLiquidationBalance($liquidation_id, '-' . $particulars_amount, $userID);
+        if($reference_type == 'OR'){
+            $this->disbursementModel->updateLiquidationBalance($liquidation_id, '-' . $particulars_amount, $userID);
+        }
 
         $this->disbursementModel->updateLiquidationParticularsStatus($liquidation_particulars_id, 'Reversed', $userID);
             

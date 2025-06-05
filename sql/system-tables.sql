@@ -6217,6 +6217,7 @@ CREATE TABLE part_transaction_cart(
 	part_transaction_cart_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     part_transaction_id VARCHAR(100) NOT NULL,
 	part_id INT NOT NULL,
+	price DOUBLE NOT NULL DEFAULT 0,
 	quantity INT NOT NULL DEFAULT 0,
 	add_on DOUBLE NOT NULL DEFAULT 0,
 	discount DOUBLE NOT NULL DEFAULT 0,

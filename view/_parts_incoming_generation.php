@@ -75,6 +75,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             $partIncomingDetails = $partsIncomingModel->getPartsIncoming($parts_incoming_id);
             $part_incoming_status = $partIncomingDetails['part_incoming_status'] ?? 'Draft';
+            $updatePartCost = $userModel->checkSystemActionAccessRights($user_id, 204);
 
             $sql = $databaseModel->getConnection()->prepare('CALL generatePartIncomingItemTable(:parts_incoming_id)');
             $sql->bindValue(':parts_incoming_id', $parts_incoming_id, PDO::PARAM_STR);
@@ -99,18 +100,22 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
 
                 $action = '';
-                if($part_incoming_status == 'Draft'){
-                    $action = '
+                if($part_incoming_status == 'Draft' || ($part_incoming_status == 'On-Process' && $updatePartCost['total'] > 0)){
+                    $action .= '
                     <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#part-cart-offcanvas" aria-controls="part-cart-offcanvas" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Update Part Item">
                                         <i class="ti ti-edit"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-icon btn-danger delete-part-cart" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Delete Part Item">
-                                        <i class="ti ti-trash"></i>
                                     </button>';
                 }
-                else if($part_incoming_status == 'On-Process' && $remaining_quantity > 0){
-                    $action = ' <button type="button" class="btn btn-icon btn-warning receive-quantity" data-bs-toggle="offcanvas" data-bs-target="#receive-item-offcanvas" aria-controls="receive-item-offcanvas" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Receive Item">
+               
+                if($part_incoming_status == 'On-Process' && $remaining_quantity > 0){
+                    $action .= ' <button type="button" class="btn btn-icon btn-warning receive-quantity" data-bs-toggle="offcanvas" data-bs-target="#receive-item-offcanvas" aria-controls="receive-item-offcanvas" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Receive Item">
                                         <i class="ti ti-arrow-bar-to-down"></i>
+                                    </button>';
+                }
+
+                if($part_incoming_status == 'Draft'){
+                    $action .= '<button type="button" class="btn btn-icon btn-danger delete-part-cart" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Delete Part Item">
+                                        <i class="ti ti-trash"></i>
                                     </button>';
                 }
                 

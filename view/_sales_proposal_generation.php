@@ -126,8 +126,66 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'all sales proposal table':
-            if(isset($_POST['sales_proposal_status_filter'])){
-                $salesProposalStatusFilter = htmlspecialchars($_POST['sales_proposal_status_filter'], ENT_QUOTES, 'UTF-8');
+                $filter_sale_proposal_status = $_POST['filter_sale_proposal_status'];
+                $filter_product_type = $_POST['filter_product_type'];
+                $filter_company = $_POST['filter_company'];
+                $filter_user = $_POST['filter_user'];
+                $filter_created_date_start_date = $systemModel->checkDate('empty', $_POST['filter_created_date_start_date'], '', 'Y-m-d', '');
+                $filter_created_date_end_date = $systemModel->checkDate('empty', $_POST['filter_created_date_end_date'], '', 'Y-m-d', '');
+                $filter_released_date_start_date = $systemModel->checkDate('empty', $_POST['filter_released_date_start_date'], '', 'Y-m-d', '');
+                $filter_released_date_end_date = $systemModel->checkDate('empty', $_POST['filter_released_date_end_date'], '', 'Y-m-d', '');
+
+                if (!empty($filter_sale_proposal_status)) {
+                    $values_array = array_filter(array_map('trim', explode(',', $filter_sale_proposal_status)));
+
+                    $quoted_values_array = array_map(function($value) {
+                        return "'" . addslashes($value) . "'";
+                    }, $values_array);
+
+                    $filter_sale_proposal_status = implode(', ', $quoted_values_array);
+                }
+                else {
+                    $filter_sale_proposal_status = null;
+                }
+
+                if (!empty($filter_product_type)) {
+                    $values_array = array_filter(array_map('trim', explode(',', $filter_product_type)));
+
+                    $quoted_values_array = array_map(function($value) {
+                        return "'" . addslashes($value) . "'";
+                    }, $values_array);
+
+                    $filter_product_type = implode(', ', $quoted_values_array);
+                }
+                else {
+                    $filter_product_type = null;
+                }
+
+                if (!empty($filter_company)) {
+                    $values_array = array_filter(array_map('trim', explode(',', $filter_company)));
+
+                    $quoted_values_array = array_map(function($value) {
+                        return "'" . addslashes($value) . "'";
+                    }, $values_array);
+
+                    $filter_company = implode(', ', $quoted_values_array);
+                }
+                else {
+                    $filter_company = null;
+                }
+
+                if (!empty($filter_user)) {
+                    $values_array = array_filter(array_map('trim', explode(',', $filter_user)));
+
+                    $quoted_values_array = array_map(function($value) {
+                        return "'" . addslashes($value) . "'";
+                    }, $values_array);
+
+                    $filter_user = implode(', ', $quoted_values_array);
+                }
+                else {
+                    $filter_user = null;
+                }
 
                 $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
                 $viewOwnSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 131);
@@ -136,16 +194,23 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $userID = $_SESSION['user_id'];
                     $contactID = $_SESSION['contact_id'];
 
-                    $sql = $databaseModel->getConnection()->prepare('CALL generateOwnSalesProposalTable(:contactID, :userID, :salesProposalStatusFilter)');
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateOwnSalesProposalTable(:contactID, :userID, :filter_sale_proposal_status, :filter_product_type, :filter_company, :filter_user, :filter_created_date_start_date, :filter_created_date_end_date, :filter_released_date_start_date, :filter_released_date_end_date)');
                     $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
                     $sql->bindValue(':userID', $userID, PDO::PARAM_INT);
                 }
                 else{
-                    $sql = $databaseModel->getConnection()->prepare('CALL generateAllSalesProposalTable(:salesProposalStatusFilter)');
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateAllSalesProposalTable(:filter_sale_proposal_status, :filter_product_type, :filter_company, :filter_user, :filter_created_date_start_date, :filter_created_date_end_date, :filter_released_date_start_date, :filter_released_date_end_date)');
                 }
 
               
-                $sql->bindValue(':salesProposalStatusFilter', $salesProposalStatusFilter, PDO::PARAM_STR);
+                $sql->bindValue(':filter_sale_proposal_status', $filter_sale_proposal_status, PDO::PARAM_STR);
+                $sql->bindValue(':filter_product_type', $filter_product_type, PDO::PARAM_STR);
+                $sql->bindValue(':filter_company',  $filter_company, PDO::PARAM_STR);
+                $sql->bindValue(':filter_user',  $filter_user, PDO::PARAM_STR);
+                $sql->bindValue(':filter_created_date_start_date',  $filter_created_date_start_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_created_date_end_date',  $filter_created_date_end_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_released_date_start_date',  $filter_released_date_start_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_released_date_end_date',  $filter_released_date_end_date, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -157,6 +222,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productType = $row['product_type'];
                     $productID = $row['product_id'];
                     $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                    $releasedDate = $systemModel->checkDate('summary', $row['released_date'], '', 'm/d/Y h:i:s A', '');
                     $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
 
                     $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
@@ -188,6 +254,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'PRODUCT_TYPE' => $productType,
                         'PRODUCT' => $stockNumber,
                         'CREATED_DATE' => $createdDate,
+                        'RELEASED_DATE' => $releasedDate,
                         'STATUS' => $salesProposalStatus,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
@@ -199,7 +266,139 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 echo json_encode($response);
-            }
+        break;
+        case 'all sales proposal table2':
+                $filter_sale_proposal_status = $_POST['filter_sale_proposal_status'];
+                $filter_product_type = $_POST['filter_product_type'];
+                $filter_company = $_POST['filter_company'];
+                $filter_user = $_POST['filter_user'];
+                $filter_created_date_start_date = $systemModel->checkDate('empty', $_POST['filter_created_date_start_date'], '', 'Y-m-d', '');
+                $filter_created_date_end_date = $systemModel->checkDate('empty', $_POST['filter_created_date_end_date'], '', 'Y-m-d', '');
+                $filter_released_date_start_date = $systemModel->checkDate('empty', $_POST['filter_released_date_start_date'], '', 'Y-m-d', '');
+                $filter_released_date_end_date = $systemModel->checkDate('empty', $_POST['filter_released_date_end_date'], '', 'Y-m-d', '');
+
+                if (!empty($filter_sale_proposal_status)) {
+                    $values_array = array_filter(array_map('trim', explode(',', $filter_sale_proposal_status)));
+
+                    $quoted_values_array = array_map(function($value) {
+                        return "'" . addslashes($value) . "'";
+                    }, $values_array);
+
+                    $filter_sale_proposal_status = implode(', ', $quoted_values_array);
+                }
+                else {
+                    $filter_sale_proposal_status = null;
+                }
+
+                if (!empty($filter_product_type)) {
+                    $values_array = array_filter(array_map('trim', explode(',', $filter_product_type)));
+
+                    $quoted_values_array = array_map(function($value) {
+                        return "'" . addslashes($value) . "'";
+                    }, $values_array);
+
+                    $filter_product_type = implode(', ', $quoted_values_array);
+                }
+                else {
+                    $filter_product_type = null;
+                }
+
+                if (!empty($filter_company)) {
+                    $values_array = array_filter(array_map('trim', explode(',', $filter_company)));
+
+                    $quoted_values_array = array_map(function($value) {
+                        return "'" . addslashes($value) . "'";
+                    }, $values_array);
+
+                    $filter_company = implode(', ', $quoted_values_array);
+                }
+                else {
+                    $filter_company = null;
+                }
+
+                if (!empty($filter_user)) {
+                    $values_array = array_filter(array_map('trim', explode(',', $filter_user)));
+
+                    $quoted_values_array = array_map(function($value) {
+                        return "'" . addslashes($value) . "'";
+                    }, $values_array);
+
+                    $filter_user = implode(', ', $quoted_values_array);
+                }
+                else {
+                    $filter_user = null;
+                }
+
+                $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
+                $viewOwnSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 131);
+
+                if($viewOwnSalesProposal['total'] > 0){
+                    $userID = $_SESSION['user_id'];
+                    $contactID = $_SESSION['contact_id'];
+
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateOwnSalesProposalTable(:contactID, :userID, :filter_sale_proposal_status, :filter_product_type, :filter_company, :filter_user, :filter_created_date_start_date, :filter_created_date_end_date, :filter_released_date_start_date, :filter_released_date_end_date)');
+                    $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
+                    $sql->bindValue(':userID', $userID, PDO::PARAM_INT);
+                }
+                else{
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateAllSalesProposalTable(:filter_sale_proposal_status, :filter_product_type, :filter_company, :filter_user, :filter_created_date_start_date, :filter_created_date_end_date, :filter_released_date_start_date, :filter_released_date_end_date)');
+                }
+
+              
+                $sql->bindValue(':filter_sale_proposal_status', $filter_sale_proposal_status, PDO::PARAM_STR);
+                $sql->bindValue(':filter_product_type', $filter_product_type, PDO::PARAM_STR);
+                $sql->bindValue(':filter_company',  $filter_company, PDO::PARAM_STR);
+                $sql->bindValue(':filter_user',  $filter_user, PDO::PARAM_STR);
+                $sql->bindValue(':filter_created_date_start_date',  $filter_created_date_start_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_created_date_end_date',  $filter_created_date_end_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_released_date_start_date',  $filter_released_date_start_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_released_date_end_date',  $filter_released_date_end_date, PDO::PARAM_STR);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $salesProposalID = $row['sales_proposal_id'];
+                    $customerID = $row['customer_id'];
+                    $salesProposalNumber = $row['sales_proposal_number'];
+                    $productType = $row['product_type'];
+                    $productID = $row['product_id'];
+                    $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                    $releasedDate = $systemModel->checkDate('summary', $row['released_date'], '', 'm/d/Y h:i:s A', '');
+                    $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+
+                    $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                    $productDetails = $productModel->getProduct($productID);
+                    $productName = $productDetails['description'] ?? null;
+                    $stockNumber = $productDetails['stock_number'] ?? null;
+
+                    $customerDetails = $customerModel->getPersonalInformation($customerID);
+                    $customerName = $customerDetails['file_as'] ?? null;
+                    $corporateName = $customerDetails['corporate_name'] ?? null;
+
+                    $response[] = [
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
+                        'SALES_PROPOSAL_NUMBER' => '<a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                                                        '. $salesProposalNumber .'
+                                                    </a>',
+                        'CUSTOMER' => '<div class="col">
+                                                    <h6 class="mb-0">'. $customerName .'</h6>
+                                                    <p class="f-12 mb-0">'. $corporateName .'</p>
+                                                </div>',
+                        'PRODUCT_TYPE' => $productType,
+                        'PRODUCT' => $stockNumber,
+                        'RELEASED_DATE' => $releasedDate,
+                        'STATUS' => $salesProposalStatus,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" target="_blank" title="View Details">
+                                            <i class="ti ti-eye"></i>
+                                        </a>
+                                    </div>'
+                        ];
+                }
+
+                echo json_encode($response);
         break;
         # -------------------------------------------------------------
 

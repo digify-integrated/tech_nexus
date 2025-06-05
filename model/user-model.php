@@ -999,6 +999,25 @@ class UserModel {
         
         return $htmlLogNotes;
     }
+
+    public function generateSalesOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateSalesOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+           $contactID = $row['user_id'];
+            $fileAs = $row['file_as'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input user-filter" type="checkbox" id="user-' . htmlspecialchars($contactID, ENT_QUOTES) . '" value="' . htmlspecialchars($contactID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="user-' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . htmlspecialchars($fileAs, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 }
 ?>

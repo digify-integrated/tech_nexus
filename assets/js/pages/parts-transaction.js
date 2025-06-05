@@ -22,6 +22,10 @@
             cancelTransactionForm();
         }
 
+        if($('#draft-transaction-form').length){
+            draftTransactionForm();
+        }
+
         if($('#approve-transaction-form').length){
             approveTransactionForm();
         }
@@ -49,16 +53,24 @@
         });
         
         if($('#parts-transaction-id').length){
-            displayDetails('get parts transaction details');
             displayDetails('get parts transaction cart total');
+            
+            displayDetails('get parts transaction details');
 
             document.getElementById('quantity').addEventListener('input', calculateTotals);
             document.getElementById('discount').addEventListener('input', calculateTotals);
             document.getElementById('add_on').addEventListener('input', calculateTotals);
+
+            document.getElementById('overall_discount').addEventListener('input', calculateOverallTotals);
+            document.getElementById('overall_discount_type').addEventListener('input', calculateOverallTotals);
         }
 
         $(document).on('change','#discount_type',function() {
             calculateTotals();
+        });
+
+         $(document).on('change','#overall_discount_type',function() {
+            calculateOverallTotals();
         });
 
         $(document).on('click','.update-part-cart',function() {
@@ -340,6 +352,7 @@ function partsTransactionTable(datatable_name, buttons = false, show_all = false
         { 'data' : 'SUB_TOTAL' },
         { 'data' : 'TOTAL_AMOUNT' },
         { 'data' : 'TRANSACTION_DATE' },
+        { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -351,7 +364,8 @@ function partsTransactionTable(datatable_name, buttons = false, show_all = false
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
-        { 'width': '15%','bSortable': false, 'aTargets': 7 }
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '15%','bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -463,6 +477,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
     var settings;
 
     const column = [ 
+        { 'data' : 'ACTION' },
         { 'data' : 'PART' },
         { 'data' : 'PRICE' },
         { 'data' : 'QUANTITY' },
@@ -472,11 +487,10 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'DISCOUNT_TOTAL' },
         { 'data' : 'SUBTOTAL' },
         { 'data' : 'TOTAL' },
-        { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'bSortable': false, 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
@@ -485,7 +499,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
         { 'width': 'auto', 'aTargets': 8 },
-        { 'width': 'auto', 'bSortable': false, 'aTargets': 9 }
+        { 'width': 'auto', 'aTargets': 9 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -505,7 +519,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 0, 'asc' ]],
+        'order': [[ 1, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -936,6 +950,94 @@ function cancelTransactionForm(){
     });
 }
 
+function draftTransactionForm(){
+    $('#draft-transaction-form').validate({
+        rules: {
+            draft_reason: {
+                required: true
+            },
+        },
+        messages: {
+            draft_reason: {
+                required: 'Please enter the set to draft reason'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            var parts_transaction_id = $('#parts-transaction-id').text();
+            const transaction = 'tag transaction as draft';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/parts-transaction-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_transaction_id=' + parts_transaction_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-draft-transaction');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Set to Draft Transaction Success';
+                        const notificationDescription = 'The transaction has been set to draft successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-draft-transaction', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function approveTransactionForm(){
     $('#approve-transaction-form').validate({
         rules: {
@@ -1154,9 +1256,13 @@ function displayDetails(transaction){
                         $('#reference_number').val(response.reference_number);
                         $('#reference_date').val(response.reference_date);
                         $('#remarks').val(response.remarks);
+                        $('#overall_discount').val(response.discount);
+                        $('#overall_discount_total').val(response.overall_total);
+                        $('#total-overall-discount-summary').text(response.addOnDiscount);
                         
                         checkOptionExist('#customer_type', response.customer_type, '');
                         checkOptionExist('#company_id', response.company_id, '');
+                        checkOptionExist('#overall_discount_type', response.discount_type, '');
 
                         if(response.customer_type == 'Customer'){
                             checkOptionExist('#customer_id', response.customer_id, '');
@@ -1180,6 +1286,9 @@ function displayDetails(transaction){
                         fullErrorMessage += `, Response: ${xhr.responseText}`;
                     }
                     showErrorDialog(fullErrorMessage);
+                },
+                complete: function (){
+                    calculateOverallTotals();
                 }
             });
             break;
@@ -1201,6 +1310,7 @@ function displayDetails(transaction){
                         $('#discount').val(response.discount);
                         $('#add_on').val(response.add_on);
                         $('#remarks').val(response.remarks);
+                        $('#part_price').val(response.price);
                         
                         checkOptionExist('#discount_type', response.discount_type, '');
 
@@ -1237,7 +1347,6 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#part_price').val(response.part_price);
                         $('#available_stock').val(response.quantity);
                     } 
                     else {
@@ -1274,10 +1383,12 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
+                        $('#subtotal-reference').val(response.subtotal_reference);
                         $('#sub-total-summary').text(response.subTotal);
                         $('#total-discount-summary').text(response.discountAmount);
-                        $('#total-summary').text(response.total);
+                        $('#item-total-summary').text(response.total);
                         $('#add-on-total-summary').text(response.addOn);
+                        $('#total-summary').text(response.overallTotal);
                     } 
                     else {
                         if(response.isInactive){
@@ -1315,7 +1426,7 @@ function calculateTotals() {
 
   // Parse values with fallback to 0
   const price = Math.max(parseFloat(priceInput.value) || 0, 0);
-  const quantity = Math.max(parseInt(quantityInput.value) || 0, 0);
+  const quantity = Math.max(parseFloat(quantityInput.value) || 0, 0);
   const discount = Math.max(parseFloat(discountInput.value) || 0, 0);
   const addOn = Math.max(parseFloat(addOnInput.value) || 0, 0);
   const discountType = discountTypeSelect.value;
@@ -1341,3 +1452,39 @@ function calculateTotals() {
   const total = (subtotal + addOn) - discountAmount;
   totalInput.value = total.toFixed(2);
 }
+
+function calculateOverallTotals() {
+  const subtotal_reference = document.getElementById('subtotal-reference');
+  const overall_discount = document.getElementById('overall_discount');
+  const overall_discount_type = document.getElementById('overall_discount_type');
+  const overall_discount_total = document.getElementById('overall_discount_total');
+  const total_summary = document.getElementById('total-summary');
+
+  // Parse values safely
+  const subtotal = Math.max(parseFloat(subtotal_reference?.value) || 0, 0);
+  const discountValue = Math.max(parseFloat(overall_discount?.value) || 0, 0);
+  const discountType = overall_discount_type?.value;
+
+  // Calculate discount amount
+  let discountAmount = 0;
+  if (discountType === 'Percentage') {
+    discountAmount = subtotal * (discountValue / 100);
+  } else if (discountType === 'Amount') {
+    discountAmount = discountValue;
+  }
+
+  // Prevent discount from exceeding subtotal
+  discountAmount = Math.min(discountAmount, subtotal);
+
+  // Update the discount total field
+  if (overall_discount_total) {
+    overall_discount_total.value = discountAmount.toFixed(2);
+  }
+
+  // Calculate and display the final total summary
+  const finalTotal = subtotal - discountAmount;
+  if (total_summary) {
+    total_summary.textContent = `${finalTotal.toFixed(2)} PHP`;
+  }
+}
+

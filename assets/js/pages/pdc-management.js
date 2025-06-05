@@ -712,6 +712,8 @@
 
 function pdcManagementTable(datatable_name, buttons = false, show_all = false){
     const type = 'pdc management table';
+    var loan_number = $('#loan_number').val();
+
     var filter_check_date_start_date = $('#filter_check_date_start_date').val();
     var filter_check_date_end_date = $('#filter_check_date_end_date').val();
 
@@ -794,6 +796,7 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 
+                'loan_number' : loan_number, 
                 'filter_check_date_start_date' : filter_check_date_start_date, 
                 'filter_check_date_end_date' : filter_check_date_end_date, 
                 'filter_redeposit_date_start_date' : filter_redeposit_date_start_date, 

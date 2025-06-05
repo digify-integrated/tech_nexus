@@ -58,7 +58,7 @@
         $drNumber = $salesProposalDetails['dr_number'] ?? null;
         $releaseTo = $salesProposalDetails['release_to'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
-        $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
+        $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'] ?? null, 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
 
         $day = date('j', strtotime($startDate)); // Get the day without leading zeros
@@ -105,23 +105,28 @@
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
 
-        $customerName = strtoupper($customerDetails['file_as']) ?? null;
+        $customerName = strtoupper($customerDetails['file_as'] ?? '');
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
-        $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
+        $comakerName = strtoupper($comakerDetails['file_as'] ?? '');    
     
         $addcomakerDetails = $customerModel->getPersonalInformation($additional_maker_id);
-        $addcomakerName = strtoupper($addcomakerDetails['file_as']) ?? null;    
+        $addcomakerName = strtoupper($addcomakerDetails['file_as'] ?? '');    
     
         $comaker2Details = $customerModel->getPersonalInformation($comaker_id2);
-        $comaker2Name = strtoupper($comaker2Details['file_as']) ?? null;    
+        $comaker2Name = strtoupper($comaker2Details['file_as'] ?? '') ;   
     
         $customerPrimaryID = $customerModel->getCustomerPrimaryContactIdentification($customerID);
         $customeridTypeID = $customerPrimaryID['id_type_name'] ?? '';
         $customeridNumber = $customerPrimaryID['id_number'] ?? '';
 
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
-        $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
+        $customerAddress = 
+        ($customerPrimaryAddress['address'] ?? '') . ', ' .
+        ($customerPrimaryAddress['city_name'] ?? '') . ', ' .
+        ($customerPrimaryAddress['state_name'] ?? '') . ', ' .
+        ($customerPrimaryAddress['country_name'] ?? '');
+
     
         $comakerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($comakerID);
         $addcomakerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($additional_maker_id);
@@ -145,22 +150,34 @@
           $comakerIDNumber = '';
         }
     
-        if(!empty($comakerPrimaryAddress['address'])){
-          $comakerAddress = $comakerPrimaryAddress['address'] . ', ' . $comakerPrimaryAddress['city_name'] . ', ' . $comakerPrimaryAddress['state_name'] . ', ' . $comakerPrimaryAddress['country_name'];
+        if(!empty($comakerPrimaryAddress['address'] ?? null)){
+          $comakerAddress = 
+          ($comakerPrimaryAddress['address'] ?? '') . ', ' .
+          ($comakerPrimaryAddress['city_name'] ?? '') . ', ' .
+          ($comakerPrimaryAddress['state_name'] ?? '') . ', ' .
+          ($comakerPrimaryAddress['country_name'] ?? '');
         }
         else{
           $comakerAddress = '';
         }
     
-        if(!empty($addcomakerPrimaryAddress['address'])){
-          $addcomakerAddress = $addcomakerPrimaryAddress['address'] . ', ' . $addcomakerPrimaryAddress['city_name'] . ', ' . $addcomakerPrimaryAddress['state_name'] . ', ' . $addcomakerPrimaryAddress['country_name'];
+        if(!empty($addcomakerPrimaryAddress['address'] ?? null)){
+          $addcomakerAddress = 
+          ($addcomakerPrimaryAddress['address'] ?? '') . ', ' .
+          ($addcomakerPrimaryAddress['city_name'] ?? '') . ', ' .
+          ($addcomakerPrimaryAddress['state_name'] ?? '') . ', ' .
+          ($addcomakerPrimaryAddress['country_name'] ?? '');
         }
         else{
           $addcomakerAddress = '';
         }
     
-        if(!empty($comaker2PrimaryAddress['address'])){
-          $comaker2Address = $comaker2PrimaryAddress['address'] . ', ' . $comaker2PrimaryAddress['city_name'] . ', ' . $comaker2PrimaryAddress['state_name'] . ', ' . $comaker2PrimaryAddress['country_name'];
+       if(!empty($comaker2PrimaryAddress['address'] ?? null)){
+         $comaker2Address = 
+          ($comaker2PrimaryAddress['address'] ?? '') . ', ' .
+          ($comaker2PrimaryAddress['city_name'] ?? '') . ', ' .
+          ($comaker2PrimaryAddress['state_name'] ?? '') . ', ' .
+          ($comaker2PrimaryAddress['country_name'] ?? '');
         }
         else{
           $comaker2Address = '';
@@ -170,6 +187,11 @@
         $customerMobile = !empty($customerContactInformation['mobile']) ? $customerContactInformation['mobile'] : '--';
         $customerTelephone = !empty($customerContactInformation['telephone']) ? $customerContactInformation['telephone'] : '--';
         $customerEmail = !empty($customerContactInformation['email']) ? $customerContactInformation['email'] : '--';
+
+        $customerContactInformation = $customerModel->getCustomerPrimaryContactInformation($customerID);
+        $customerMobile = '--';
+        $customerTelephone = '--';
+        $customerEmail = '--';
 
     }
 
@@ -301,7 +323,7 @@
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
     $pdf->Cell(90, 8, 'MAKER', 0, 0, 'C');
     
-    $pdf->Ln(15);
+   $pdf->Ln(15);
     $pdf->Cell(90, 4, strtoupper($customerAddress), 'B', 0, 'L', 0, '', 1);
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(90, 4, strtoupper($addcomakerAddress), 'B', 0, 'L', 0, '', 1);
@@ -319,7 +341,7 @@
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(90, 8, 'ID NUMBER', 0, 0, 'C');
     $pdf->Ln(15);
-    $pdf->MultiCell(0, 0, 'NAME AND SIGNATURE OF CO-MAKER: '. strtoupper($comakerName), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+     $pdf->MultiCell(0, 0, 'NAME AND SIGNATURE OF CO-MAKER: '. strtoupper($comakerName), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'ADDRESS: '. strtoupper($comakerAddress), 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);

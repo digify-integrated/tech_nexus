@@ -1978,6 +1978,13 @@ BEGIN
 	ORDER BY company_name;
 END //
 
+CREATE PROCEDURE generateSalesOptions()
+BEGIN
+	SELECT user_id, file_as FROM users
+    WHERE user_id IN (SELECT created_by FROM sales_proposal)
+	ORDER BY file_as;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Email Setting Table Stored Procedures */
@@ -8391,18 +8398,53 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateAllSalesProposalTable(IN p_sales_proposal_status VARCHAR(50))
+CREATE PROCEDURE generateAllSalesProposalTable(IN p_filter_sale_proposal_status VARCHAR(500), IN p_filter_product_type VARCHAR(500), IN p_filter_company VARCHAR(500), IN p_filter_user VARCHAR(100), IN p_filter_created_date_start_date DATE, IN p_filter_created_date_end_date DATE, IN p_filter_released_date_start_date DATE, IN p_filter_released_date_end_date DATE)
 BEGIN
     DECLARE query VARCHAR(1000);
-    DECLARE conditionList VARCHAR(500);
+    DECLARE conditionList VARCHAR(5000);
 
-    SET query = 'SELECT * FROM sales_proposal';
+    SET query = 'SELECT * FROM sales_proposal WHERE 1=1';
 
     SET conditionList = '';
 
-    IF p_sales_proposal_status IS NOT NULL AND p_sales_proposal_status <> '' THEN
-        SET conditionList = CONCAT(conditionList, ' WHERE sales_proposal_status =');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_sales_proposal_status));
+     IF p_filter_sale_proposal_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND sales_proposal_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_sale_proposal_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_product_type IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND product_type IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_product_type);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_company IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_company);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_user IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND created_by IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_user);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_created_date_start_date IS NOT NULL AND p_filter_created_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_created_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_created_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_released_date_start_date IS NOT NULL AND p_filter_released_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(released_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
     SET query = CONCAT(query, conditionList);
@@ -8423,10 +8465,10 @@ BEGIN
     SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For Final Approval' AND final_approving_officer  = p_final_approving_officer;
 END //
 
-CREATE PROCEDURE generateOwnSalesProposalTable(IN p_contact_id INT, IN p_user_id INT, IN p_sales_proposal_status VARCHAR(50))
+CREATE PROCEDURE generateOwnSalesProposalTable(IN p_contact_id INT, IN p_user_id INT, IN p_filter_sale_proposal_status VARCHAR(500), IN p_filter_product_type VARCHAR(500), IN p_filter_company VARCHAR(500), IN p_filter_user VARCHAR(100), IN p_filter_created_date_start_date DATE, IN p_filter_created_date_end_date DATE, IN p_filter_released_date_start_date DATE, IN p_filter_released_date_end_date DATE)
 BEGIN
     DECLARE query VARCHAR(1000);
-    DECLARE conditionList VARCHAR(500);
+    DECLARE conditionList VARCHAR(5000);
 
     SET query = 'SELECT * FROM sales_proposal';
 
@@ -8434,9 +8476,44 @@ BEGIN
     SET conditionList = CONCAT(conditionList, ' WHERE created_by =');
     SET conditionList = CONCAT(conditionList, p_user_id);
 
-    IF p_sales_proposal_status IS NOT NULL AND p_sales_proposal_status <> '' THEN
-        SET conditionList = CONCAT(conditionList, ' AND sales_proposal_status =');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_sales_proposal_status));
+    IF p_filter_sale_proposal_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND sales_proposal_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_sale_proposal_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_product_type IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND product_type IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_product_type);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_company IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_company);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_user IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND created_by IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_user);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_created_date_start_date IS NOT NULL AND p_filter_created_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_created_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_created_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_released_date_start_date IS NOT NULL AND p_filter_released_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(released_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
     SET query = CONCAT(query, conditionList);
@@ -8446,6 +8523,7 @@ BEGIN
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END //
+
 
 CREATE PROCEDURE generateSalesProposalChangeRequestTable()
 BEGIN
@@ -10338,114 +10416,143 @@ BEGIN
     WHERE status = 'For Recommendation';
 END //
 
-CREATE PROCEDURE generatePDCManagementTable(IN p_pdc_management_status VARCHAR(500), IN p_pdc_management_company VARCHAR(500), IN p_check_start_date DATE, IN p_check_end_date DATE, IN p_redeposit_start_date DATE, IN p_redeposit_end_date DATE, IN p_onhold_start_date DATE, IN p_onhold_end_date DATE, IN p_for_deposit_start_date DATE, IN p_for_deposit_end_date DATE, IN p_deposit_start_date DATE, IN p_deposit_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_pulled_out_start_date DATE, IN p_pulled_out_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE, IN p_clear_start_date DATE, IN p_clear_end_date DATE)
+CREATE PROCEDURE generatePDCManagementTable(
+    IN p_pdc_management_status VARCHAR(500),
+    IN p_pdc_management_company VARCHAR(500),
+    IN p_check_start_date DATE,
+    IN p_check_end_date DATE,
+    IN p_redeposit_start_date DATE,
+    IN p_redeposit_end_date DATE,
+    IN p_onhold_start_date DATE,
+    IN p_onhold_end_date DATE,
+    IN p_for_deposit_start_date DATE,
+    IN p_for_deposit_end_date DATE,
+    IN p_deposit_start_date DATE,
+    IN p_deposit_end_date DATE,
+    IN p_reversed_start_date DATE,
+    IN p_reversed_end_date DATE,
+    IN p_pulled_out_start_date DATE,
+    IN p_pulled_out_end_date DATE,
+    IN p_cancellation_start_date DATE,
+    IN p_cancellation_end_date DATE,
+    IN p_clear_start_date DATE,
+    IN p_clear_end_date DATE
+)
 BEGIN
-    DECLARE query VARCHAR(5000);
-    DECLARE conditionList VARCHAR(1000);
+    DECLARE base_query TEXT DEFAULT 'SELECT * FROM loan_collections WHERE mode_of_payment = "Check"';
+    DECLARE cond TEXT DEFAULT '';
 
-    SET query = 'SELECT * FROM loan_collections';
-    SET conditionList = ' WHERE mode_of_payment = "Check"';
-    
-    IF p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL AND p_redeposit_start_date IS NOT NULL AND p_redeposit_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (check_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_check_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_check_end_date));
-        SET conditionList = CONCAT(conditionList, ' OR new_deposit_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_check_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_check_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
-    
-    IF p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL AND p_redeposit_start_date IS NULL AND p_redeposit_end_date IS NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (check_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_check_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_check_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
-    
-    IF p_check_start_date IS NULL AND p_check_end_date IS NULL AND p_redeposit_start_date IS NOT NULL AND p_redeposit_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (new_deposit_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_redeposit_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_redeposit_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
-    
-    IF p_onhold_start_date IS NOT NULL AND p_onhold_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (onhold_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_onhold_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_onhold_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
-    
-    IF p_for_deposit_start_date IS NOT NULL AND p_for_deposit_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (for_deposit_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_for_deposit_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_for_deposit_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
-    
-    IF p_deposit_start_date IS NOT NULL AND p_deposit_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (deposit_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_deposit_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_deposit_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
-    
-    IF p_reversed_start_date IS NOT NULL AND p_reversed_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (reversal_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_reversed_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_reversed_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
-    
-    IF p_pulled_out_start_date IS NOT NULL AND p_pulled_out_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (pulled_out_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_pulled_out_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_pulled_out_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
-    
-    IF p_cancellation_start_date IS NOT NULL AND p_cancellation_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (cancellation_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_cancellation_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_cancellation_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
-    
-    IF p_clear_start_date IS NOT NULL AND p_clear_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (clear_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_clear_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_clear_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
+    -- Utility macro for BETWEEN
+    SET cond = IF(p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL AND p_redeposit_start_date IS NOT NULL AND p_redeposit_end_date IS NOT NULL,
+        CONCAT(cond, ' AND ((check_date BETWEEN "', p_check_start_date, '" AND "', p_check_end_date, '") OR (new_deposit_date BETWEEN "', p_check_start_date, '" AND "', p_check_end_date, '"))'),
+        cond
+    );
 
-    IF p_pdc_management_status IS NOT NULL AND p_pdc_management_status <> '' THEN
-        SET conditionList = CONCAT(conditionList, ' AND collection_status IN (');
-        SET conditionList = CONCAT(conditionList, p_pdc_management_status);
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
+    SET cond = IF(p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL AND (p_redeposit_start_date IS NULL OR p_redeposit_end_date IS NULL),
+        CONCAT(cond, ' AND (check_date BETWEEN "', p_check_start_date, '" AND "', p_check_end_date, '")'),
+        cond
+    );
 
-    IF p_pdc_management_company IS NOT NULL AND p_pdc_management_company <> '' THEN
-        SET conditionList = CONCAT(conditionList, ' AND company_id IN (');
-        SET conditionList = CONCAT(conditionList, p_pdc_management_company);
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
+    SET cond = IF((p_check_start_date IS NULL OR p_check_end_date IS NULL) AND p_redeposit_start_date IS NOT NULL AND p_redeposit_end_date IS NOT NULL,
+        CONCAT(cond, ' AND (new_deposit_date BETWEEN "', p_redeposit_start_date, '" AND "', p_redeposit_end_date, '")'),
+        cond
+    );
 
-    SET query = CONCAT(query, conditionList);
-    SET query = CONCAT(query, ' ORDER BY loan_number ASC, check_date ASC;');
+    SET cond = IF(p_onhold_start_date IS NOT NULL AND p_onhold_end_date IS NOT NULL,
+        CONCAT(cond, ' AND (onhold_date BETWEEN "', p_onhold_start_date, '" AND "', p_onhold_end_date, '")'),
+        cond
+    );
 
-    PREPARE stmt FROM query;
+    SET cond = IF(p_for_deposit_start_date IS NOT NULL AND p_for_deposit_end_date IS NOT NULL,
+        CONCAT(cond, ' AND (for_deposit_date BETWEEN "', p_for_deposit_start_date, '" AND "', p_for_deposit_end_date, '")'),
+        cond
+    );
+
+    SET cond = IF(p_deposit_start_date IS NOT NULL AND p_deposit_end_date IS NOT NULL,
+        CONCAT(cond, ' AND (deposit_date BETWEEN "', p_deposit_start_date, '" AND "', p_deposit_end_date, '")'),
+        cond
+    );
+
+    SET cond = IF(p_reversed_start_date IS NOT NULL AND p_reversed_end_date IS NOT NULL,
+        CONCAT(cond, ' AND (reversal_date BETWEEN "', p_reversed_start_date, '" AND "', p_reversed_end_date, '")'),
+        cond
+    );
+
+    SET cond = IF(p_pulled_out_start_date IS NOT NULL AND p_pulled_out_end_date IS NOT NULL,
+        CONCAT(cond, ' AND (pulled_out_date BETWEEN "', p_pulled_out_start_date, '" AND "', p_pulled_out_end_date, '")'),
+        cond
+    );
+
+    SET cond = IF(p_cancellation_start_date IS NOT NULL AND p_cancellation_end_date IS NOT NULL,
+        CONCAT(cond, ' AND (cancellation_date BETWEEN "', p_cancellation_start_date, '" AND "', p_cancellation_end_date, '")'),
+        cond
+    );
+
+    SET cond = IF(p_clear_start_date IS NOT NULL AND p_clear_end_date IS NOT NULL,
+        CONCAT(cond, ' AND (clear_date BETWEEN "', p_clear_start_date, '" AND "', p_clear_end_date, '")'),
+        cond
+    );
+
+    SET cond = IF(p_pdc_management_status IS NOT NULL AND p_pdc_management_status <> '',
+        CONCAT(cond, ' AND collection_status IN (', p_pdc_management_status, ')'),
+        cond
+    );
+
+    SET cond = IF(p_pdc_management_company IS NOT NULL AND p_pdc_management_company <> '',
+        CONCAT(cond, ' AND company_id IN (', p_pdc_management_company, ')'),
+        cond
+    );
+
+    -- Final query
+    SET @final_query = CONCAT(base_query, cond, ' ORDER BY loan_number ASC, check_date ASC LIMIT 5000;');
+
+    PREPARE stmt FROM @final_query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generatePDCManagementTable(
+    IN p_loan_number VARCHAR(500),
+    IN p_pdc_management_status VARCHAR(500),
+    IN p_check_start_date DATE,
+    IN p_check_end_date DATE,
+    IN p_redeposit_start_date DATE,
+    IN p_redeposit_end_date DATE
+)
+BEGIN
+    DECLARE base_query TEXT DEFAULT 'SELECT * FROM loan_collections WHERE mode_of_payment = "Check"';
+    DECLARE cond TEXT DEFAULT '';
+
+    -- Utility macro for BETWEEN
+    SET cond = IF(p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL AND p_redeposit_start_date IS NOT NULL AND p_redeposit_end_date IS NOT NULL,
+        CONCAT(cond, ' AND ((check_date BETWEEN "', p_check_start_date, '" AND "', p_check_end_date, '") OR (new_deposit_date BETWEEN "', p_check_start_date, '" AND "', p_check_end_date, '"))'),
+        cond
+    );
+
+    SET cond = IF(p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL AND (p_redeposit_start_date IS NULL OR p_redeposit_end_date IS NULL),
+        CONCAT(cond, ' AND (check_date BETWEEN "', p_check_start_date, '" AND "', p_check_end_date, '")'),
+        cond
+    );
+
+    SET cond = IF((p_check_start_date IS NULL OR p_check_end_date IS NULL) AND p_redeposit_start_date IS NOT NULL AND p_redeposit_end_date IS NOT NULL,
+        CONCAT(cond, ' AND (new_deposit_date BETWEEN "', p_redeposit_start_date, '" AND "', p_redeposit_end_date, '")'),
+        cond
+    );
+
+    SET cond = IF(p_loan_number IS NOT NULL AND p_loan_number <> '',
+    CONCAT(cond, ' AND loan_number LIKE ''%', p_loan_number, '%'''),
+    cond
+);
+
+    SET cond = IF(p_pdc_management_status IS NOT NULL AND p_pdc_management_status <> '',
+        CONCAT(cond, ' AND collection_status IN (', p_pdc_management_status, ')'),
+        cond
+    );
+
+    -- Final query
+    SET @final_query = CONCAT(base_query, cond, ' ORDER BY loan_number ASC, check_date ASC;');
+
+    PREPARE stmt FROM @final_query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END //
@@ -13420,25 +13527,52 @@ BEGIN
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = 1;
 
     CASE p_company_id
-        WHEN 1 THEN
-            SET v_analytic_lines = 'CGMI';
-            SET v_analytic_distribution = '{"1": 100.0}';
-        WHEN 2 THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
-        WHEN 3 THEN
-            SET v_analytic_lines = 'FUSO';
-            SET v_analytic_distribution = '{"5": 100.0}';
-        WHEN 4 THEN
-            SET v_analytic_lines = 'PCG PROPERTY';
-            SET v_analytic_distribution = '{"4": 100.0}';
-        WHEN 5 THEN
-            SET v_analytic_lines = 'GCB PROPERTY';
-            SET v_analytic_distribution = '{"3": 100.0}';
-        ELSE
-            SET v_analytic_lines = 'DEFAULT';
-            SET v_analytic_distribution = '{"0": 0.0}';
-    END CASE;
+            WHEN 1 THEN
+                SET v_analytic_lines = 'CGMI';
+                SET v_analytic_distribution = '{"1": 100.0}';
+            WHEN 2 THEN
+                SET v_analytic_lines = 'NE TRUCK';
+                SET v_analytic_distribution = '{"2": 100.0}';
+            WHEN 3 THEN
+                SET v_analytic_lines = 'FUSO';
+                SET v_analytic_distribution = '{"1": 100.0}';
+            WHEN 4 THEN
+                SET v_analytic_lines = 'PCG PROPERTY';
+                SET v_analytic_distribution = '{"4": 100.0}';
+            WHEN 5 THEN
+                SET v_analytic_lines = 'GCB PROPERTY';
+                SET v_analytic_distribution = '{"3": 100.0}';
+            WHEN 6 THEN
+                SET v_analytic_lines = 'GCB FARMING';
+                SET v_analytic_distribution = '{"11": 100.0}';
+            WHEN 7 THEN
+                SET v_analytic_lines = 'PCG FARMING';
+                SET v_analytic_distribution = '{"15": 100.0}';
+            WHEN 8 THEN
+                SET v_analytic_lines = 'NE FUEL';
+                SET v_analytic_distribution = '{"6": 100.0}';
+            WHEN 9 THEN
+                SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
+                SET v_analytic_distribution = '{"17": 100.0}';
+            WHEN 10 THEN
+                SET v_analytic_lines = 'Avida';
+                SET v_analytic_distribution = '{"20": 100.0}';
+            WHEN 11 THEN
+                SET v_analytic_lines = 'Caalibangbangan';
+                SET v_analytic_distribution = '{"19": 100.0}';
+            WHEN 12 THEN
+                SET v_analytic_lines = 'Sta Rosa';
+                SET v_analytic_distribution = '{"18": 100.0}';
+            WHEN 13 THEN
+                SET v_analytic_lines = 'KPC VENTURE INC';
+                SET v_analytic_distribution = '{"16": 100.0}';
+            WHEN 14 THEN
+                SET v_analytic_lines = 'NE HAULING';
+                SET v_analytic_distribution = '{"7": 100.0}';
+            ELSE
+                SET v_analytic_lines = 'DEFAULT';
+                SET v_analytic_distribution = '{"0": 0.0}';
+        END CASE;
 
     -- Determine credit account based on fund source
     CASE p_chart_of_account_id
@@ -14915,14 +15049,7 @@ BEGIN
     DECLARE search_param1, search_param2, search_param3 VARCHAR(1000);
 
     -- Initialize base query
-    SET sql_query = 'SELECT * FROM part WHERE 1=1';
-
-    -- Add filters dynamically
-    IF p_part_status IS NOT NULL AND p_part_status <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND part_status = ', QUOTE(p_part_status));
-    ELSE
-        SET sql_query = CONCAT(sql_query, ' AND part_status != "Out of Stock"');
-    END IF;
+    SET sql_query = 'SELECT * FROM part WHERE 1=1';   
 
     IF p_created_start_date IS NOT NULL AND p_created_end_date IS NOT NULL THEN
         SET sql_query = CONCAT(sql_query, ' AND created_date BETWEEN ', 
@@ -14939,6 +15066,16 @@ BEGIN
         SET search_param1 = CONCAT('%', p_parts_search, '%');
         SET search_param2 = CONCAT('%', p_parts_search, '%');
         SET search_param3 = CONCAT('%', p_parts_search, '%');
+
+        IF p_part_status IS NOT NULL AND p_part_status <> '' THEN
+            SET sql_query = CONCAT(sql_query, ' AND part_status = ', QUOTE(p_part_status));
+        END IF;
+    ELSE
+        IF p_part_status IS NOT NULL AND p_part_status <> '' THEN
+            SET sql_query = CONCAT(sql_query, ' AND part_status = ', QUOTE(p_part_status));
+        ELSE
+            SET sql_query = CONCAT(sql_query, ' AND part_status != "Out of Stock"');
+        END IF;
     END IF;
 
     IF p_company_filter IS NOT NULL AND p_company_filter <> '' THEN
@@ -15038,7 +15175,7 @@ BEGIN
 	VALUES(p_part_transaction_id, p_customer_type, p_customer_id, p_company_id, p_issuance_date, p_issuance_no, p_reference_date, p_reference_number, p_remarks, p_last_log_by);
 END //
 
-CREATE PROCEDURE updatePartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_discount DOUBLE, IN p_discount_type VARCHAR(10), IN p_overall_total DOUBLE, IN p_last_log_by INT)
 BEGIN
     UPDATE part_transaction
     SET customer_type = p_customer_type,
@@ -15049,6 +15186,9 @@ BEGIN
     reference_date = p_reference_date,
     reference_number = p_reference_number,
     remarks = p_remarks,
+    discount = p_discount,
+    discount_type = p_discount_type,
+    overall_total = p_overall_total,
     last_log_by = p_last_log_by
     WHERE part_transaction_id = p_part_transaction_id;
 END //
@@ -15072,6 +15212,7 @@ BEGIN
     INSERT INTO part_transaction_cart (
         part_transaction_id,
         part_id,
+        price,
         quantity,
         sub_total,
         total,
@@ -15079,6 +15220,7 @@ BEGIN
     ) VALUES (
         p_part_transaction_id,
         p_part_id,
+        v_price,
         1,
         v_price,       -- sub_total = price * 1
         v_price,       -- total = price * 1 (no discount assumed)
@@ -15119,24 +15261,45 @@ BEGIN
     WHERE part_transaction_cart_id = p_part_transaction_cart_id;
 END //
 
-CREATE PROCEDURE getPartsTransactionCartTotal(IN p_part_transaction_id VARCHAR(100), IN p_type VARCHAR(10))
+CREATE PROCEDURE getPartsTransactionCartTotal(
+    IN p_part_transaction_id VARCHAR(100),
+    IN p_type VARCHAR(10)
+)
 BEGIN
-	IF p_type = 'subtotal' THEN
-        SELECT SUM(sub_total) AS total
+    IF p_type = 'subtotal' THEN
+        SELECT SUM(price * quantity) AS total
         FROM part_transaction_cart
         WHERE part_transaction_id = p_part_transaction_id;
+
     ELSEIF p_type = 'add-on' THEN
         SELECT SUM(add_on) AS total
         FROM part_transaction_cart
         WHERE part_transaction_id = p_part_transaction_id;
+
     ELSEIF p_type = 'discount' THEN
         SELECT SUM(discount_total) AS total
         FROM part_transaction_cart
         WHERE part_transaction_id = p_part_transaction_id;
-    ELSE
+
+    ELSEIF p_type = 'total' THEN
         SELECT SUM(total) AS total
         FROM part_transaction_cart
         WHERE part_transaction_id = p_part_transaction_id;
+
+    ELSE
+        SELECT 
+            IFNULL((
+                SELECT SUM(total) 
+                FROM part_transaction_cart 
+                WHERE part_transaction_id = p_part_transaction_id
+            ), 0)
+            -
+            IFNULL((
+                SELECT overall_total 
+                FROM part_transaction 
+                WHERE part_transaction_id = p_part_transaction_id
+                LIMIT 1
+            ), 0) AS total;
     END IF;
 END //
 
@@ -15300,6 +15463,14 @@ BEGIN
         SET cancellation_date = NOW(),
             part_transaction_status = p_part_transaction_status,
             cancellation_remarks = p_remarks,
+            last_log_by = p_last_log_by
+        WHERE part_transaction_id = p_parts_transaction_id;
+
+    ELSEIF p_part_transaction_status = 'Draft' THEN
+        UPDATE part_transaction
+        SET draft_date = NOW(),
+            part_transaction_status = p_part_transaction_status,
+            draft_reason = p_remarks,
             last_log_by = p_last_log_by
         WHERE part_transaction_id = p_parts_transaction_id;
 
@@ -15596,3 +15767,19 @@ BEGIN
         WHERE part_incoming_id = p_part_incoming_id;
     END IF;
 END //
+
+
+CREATE PROCEDURE getJournalEntriesByDisbursementId(
+    IN p_filter_start_date DATE,
+    IN p_filter_end_date DATE
+)
+BEGIN
+    SELECT *
+    FROM journal_entry
+    WHERE journal_id = 'Liquidation Operations' 
+      AND (
+          (p_filter_start_date IS NOT NULL AND p_filter_end_date IS NOT NULL AND journal_entry_date BETWEEN p_filter_start_date AND p_filter_end_date)
+          OR (p_filter_start_date IS NULL AND p_filter_end_date IS NULL AND journal_entry_date = CURDATE())
+      )
+    ORDER BY journal_entry_date;
+END;

@@ -98,6 +98,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 else if($status === 'Ready For Release'){
                     $status = '<span class="badge bg-info">' . $status . '</span>';
                 }
+                else if($status === 'Released' && $type === 'Internal Repair'){
+                    $status = '<span class="badge bg-success">Completed</span>';
+                }
                 else{
                     $status = '<span class="badge bg-success">' . $status . '</span>';
                 }
@@ -118,6 +121,94 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CREATED_DATE' => $created_date,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="back-job-monitoring.php?id='. $backjob_monitoring_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'backjob monitoring table2':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateBackJobMonitoringTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $backjobMonitoringDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'delete');
+
+            foreach ($options as $row) {
+                $backjob_monitoring_id = $row['backjob_monitoring_id'];
+                $type = $row['type'];
+                $product_id = $row['product_id'];
+                $sales_proposal_id = $row['sales_proposal_id'];
+                $status = $row['status'];
+                $created_date = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y', '');
+
+                $backjob_monitoring_id_encrypted = $securityModel->encryptData($backjob_monitoring_id);
+
+                if(!empty($sales_proposal_id)){
+                    $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                    $sales_proposal_number = $salesProposalDetails['sales_proposal_number'];
+                }
+                else{
+                    $sales_proposal_number = '--';
+                }
+
+                if(!empty($product_id)){
+                    $productDetails = $productModel->getProduct($product_id);
+                    $description = $productDetails['description'];
+                    $productSubategoryID = $productDetails['product_subcategory_id'];
+
+                    $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
+                    $productSubcategoryName = $productSubcategoryDetails['product_subcategory_name'] ?? null;
+                    $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+
+
+                    $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
+                    $fullStockNumber = $productSubcategoryCode . $stockNumber;
+
+                    $product = ' <div class="col">
+                                        <h6 class="mb-0">'. $fullStockNumber .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $description .'</p>
+                                        </div>';
+                }
+                else{
+                    $product = '--';
+                }
+
+                if($status === 'Draft'){
+                    $status = '<span class="badge bg-secondary">' . $status . '</span>';
+                }
+                else if($status === 'On-Process'){
+                    $status = '<span class="badge bg-warning">' . $status . '</span>';
+                }
+                else if($status === 'Ready For Release'){
+                    $status = '<span class="badge bg-info">' . $status . '</span>';
+                }
+                else if($status === 'Released' && $type === 'Internal Repair'){
+                    $status = '<span class="badge bg-success">Completed</span>';
+                }
+                else{
+                    $status = '<span class="badge bg-success">' . $status . '</span>';
+                }
+
+                $delete = '';
+                if($backjobMonitoringDeleteAccess['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-backjob-monitoring" data-backjob-monitoring-id="'. $backjob_monitoring_id .'" title="Delete Zoom API">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $backjob_monitoring_id .'">',
+                    'TYPE' => $type,
+                    'SALES_PROPOSAL' => $sales_proposal_number,
+                    'PRODUCT' =>$product,
+                    'STATUS' => $status,
+                    'CREATED_DATE' => $created_date,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="back-job-monitoring.php?id='. $backjob_monitoring_id_encrypted .'" class="btn btn-icon btn-primary" target="_blank" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

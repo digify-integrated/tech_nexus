@@ -19,61 +19,158 @@
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#sales-proposal-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Sales Proposal Status
                         </a>
-                        <div class="collapse show" id="sales-proposal-status-filter-collapse">
+                        <div class="collapse" id="sales-proposal-status-filter-collapse">
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-status-all" value="" checked />
-                                <label class="form-check-label" for="sales-proposal-status-all">All</label>
-                              </div>
-                              <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-status-draft" value="Draft" />
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-draft" value="Draft"/>
                                 <label class="form-check-label" for="sales-proposal-status-draft">Draft</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-status-for-review" value="For Review" />
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-review" value="For Review"/>
                                 <label class="form-check-label" for="sales-proposal-status-for-review">For Review</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-status-for-initial-approval" value="For Initial Approval" />
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-initial-approval" value="For Initial Approval"/>
                                 <label class="form-check-label" for="sales-proposal-status-for-initial-approval">For Initial Approval</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-status-for-final-approval" value="For Final Approval" />
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-final-approval" value="For Final Approval"/>
                                 <label class="form-check-label" for="sales-proposal-status-for-final-approval">For Final Approval</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-status-for-ci" value="For CI" />
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-ci" value="For CI"/>
                                 <label class="form-check-label" for="sales-proposal-status-for-ci">For CI</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-proceed" value="Proceed" />
-                                <label class="form-check-label" for="sales-proposal-proceed">Proceed</label>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-proceed" value="Proceed"/>
+                                <label class="form-check-label" for="sales-proposal-status-proceed">Proceed</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-on-process" value="On-Process" />
-                                <label class="form-check-label" for="sales-proposal-on-process">On-Process</label>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-on-process" value="On-Process"/>
+                                <label class="form-check-label" for="sales-proposal-status-on-process">On-Process</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-ready-for-release" value="Ready For Release" />
-                                <label class="form-check-label" for="sales-proposal-ready-for-release">Ready For Release</label>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-ready-for-release" value="Ready For Release"/>
+                                <label class="form-check-label" for="sales-proposal-status-ready-for-release">Ready For Release</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-for-dr" value="For DR" />
-                                <label class="form-check-label" for="sales-proposal-for-dr">For DR</label>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-dr" value="For DR"/>
+                                <label class="form-check-label" for="sales-proposal-status-for-dr">For DR</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-rejected" value="Rejected" />
-                                <label class="form-check-label" for="sales-proposal-rejected">Rejected</label>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-rejected" value="Rejected"/>
+                                <label class="form-check-label" for="sales-proposal-status-rejected">Rejected</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-cancelled" value="Cancelled" />
-                                <label class="form-check-label" for="sales-proposal-cancelled">Cancelled</label>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-cancelled" value="Cancelled"/>
+                                <label class="form-check-label" for="sales-proposal-status-cancelled">Cancelled</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-released" value="Released" />
-                                <label class="form-check-label" for="sales-proposal-released">Released</label>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-released" value="Released"/>
+                                <label class="form-check-label" for="sales-proposal-status-released">Released</label>
                               </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-type-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Product Type
+                        </a>
+                        <div class="collapse" id="product-type-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-type-filter" type="checkbox" id="product-type-unit" value="Unit"/>
+                                <label class="form-check-label" for="product-type-unit">Unit</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-type-filter" type="checkbox" id="product-type-fuel" value="Fuel"/>
+                                <label class="form-check-label" for="product-type-fuel">Fuel</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-type-filter" type="checkbox" id="product-type-parts" value="Parts"/>
+                                <label class="form-check-label" for="product-type-parts">Parts</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-type-filter" type="checkbox" id="product-type-repair" value="Repair"/>
+                                <label class="form-check-label" for="product-type-repair">Repair</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-type-filter" type="checkbox" id="product-type-rental" value="Rental"/>
+                                <label class="form-check-label" for="product-type-rental">Rental</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-type-filter" type="checkbox" id="product-type-consignment" value="Consignment"/>
+                                <label class="form-check-label" for="product-type-consignment">Consignment</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-type-filter" type="checkbox" id="product-type-brand-new" value="Brand New"/>
+                                <label class="form-check-label" for="product-type-brand-new">Brand New</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-type-filter" type="checkbox" id="product-type-refinancing" value="Refinancing"/>
+                                <label class="form-check-label" for="product-type-refinancing">Refinancing</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-type-filter" type="checkbox" id="product-type-restructure" value="Restructure"/>
+                                <label class="form-check-label" for="product-type-restructure">Restructure</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input product-type-filter" type="checkbox" id="product-type-real-estate" value="Real Estate"/>
+                                <label class="form-check-label" for="product-type-real-estate">Real Estate</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#company-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Company
+                        </a>
+                        <div class="collapse" id="company-filter-collapse">
+                          <div class="py-3">
+                            <?php
+                              echo $companyModel->generateCompanyCheckBox();
+                            ?>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#created-by-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Created By
+                        </a>
+                        <div class="collapse" id="created-by-filter-collapse">
+                          <div class="py-3">
+                            <?php
+                              echo $userModel->generateSalesOptions();
+                            ?>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#created-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Created Date
+                        </a>
+                        <div class="collapse" id="created-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_created_date_start_date" id="filter_created_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_created_date_end_date" id="filter_created_date_end_date" placeholder="End Date" >
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#released-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Released Date
+                        </a>
+                        <div class="collapse " id="released-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_released_date_start_date" id="filter_released_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_released_date_end_date" id="filter_released_date_end_date" placeholder="End Date" >
                             </div>
                           </div>
                         </div>

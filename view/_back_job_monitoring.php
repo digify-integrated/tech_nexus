@@ -4,7 +4,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h5>Back Job Monitoring List</h5>
+            <h5>Internal Job Order List</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <?php

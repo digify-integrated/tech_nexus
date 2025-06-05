@@ -34,6 +34,9 @@
 
         $print_type = $_GET['ptype'];
         
+        $filterTransactionDateStartDate = $systemModel->checkDate('empty', $_GET['sdate'], '', 'Y-m-d', '');
+        $filterTransactionDateEndDate = $systemModel->checkDate('empty', $_GET['edate'], '', 'Y-m-d', '');
+        
         $disbursementIDs = explode(',', $_GET['id']);
 
         $createdByDetails = $userModel->getUserByID($_SESSION['user_id']);
@@ -71,6 +74,7 @@
     $summaryTable4 = generatePrint4($pettyCashFund, $disbursementTotal, $replenishmentTotal);
     
     $summaryTable5 = generatePrint5($disbursementIDs);
+    $summaryTable6 = generatePrint6($filterTransactionDateStartDate, $filterTransactionDateEndDate);
 
 
     ob_start();
@@ -132,6 +136,12 @@
         $pdf->AddPage('L');
         $pdf->writeHTML($summaryTable5, true, false, true, false, '');
     }
+
+    $pdf->AddPage('L');
+    $pdf->SetFont('times', '', 15);
+    $pdf->MultiCell(0, 0, '<b>LIQUIDATION</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);  $pdf->Ln(5);
+    $pdf->SetFont('times', '', 8);
+    $pdf->writeHTML($summaryTable6, true, false, true, false, '');
 
 
     // Output the PDF to the browser
@@ -515,6 +525,47 @@
                                 <td style="text-align: center;"><b>'. number_format($totalDebit, 2) .'</b></td>
                                 <td style="text-align: center;"><b>'. number_format($totalCredit, 2) .'</b></td>
                             </tr>
+                        </tbody>
+                    </table>';
+
+        return $response;
+    }
+
+    function generatePrint6($filterTransactionDateStartDate, $filterTransactionDateEndDate){   
+        require_once 'model/database-model.php';
+        require_once 'model/disbursement-model.php';
+
+        $databaseModel = new DatabaseModel();
+        $disbursementModel = new DisbursementModel($databaseModel);
+        $list = '';    
+
+        $sql = $databaseModel->getConnection()->prepare('CALL getJournalEntriesByDisbursementId(:filterTransactionDateStartDate, :filterTransactionDateEndDate)');
+        $sql->bindValue(':filterTransactionDateStartDate', $filterTransactionDateStartDate, PDO::PARAM_STR);
+        $sql->bindValue(':filterTransactionDateEndDate', $filterTransactionDateEndDate, PDO::PARAM_STR);
+        $sql->execute();
+        $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+        $sql->closeCursor();
+
+        foreach ($options as $row) {
+            $journal_item = $row['journal_item'];
+            $debit = $row['debit'];
+            $credit = $row['credit'];
+                
+            $list .= '<tr>
+                <td>'. $journal_item .'</td>
+                <td style="text-align: center;">'. number_format($debit, 2) .'</td>
+                <td style="text-align: center;">'. number_format($credit, 2) .'</td>
+            </tr>';
+        }          
+
+        $response = '<table border="1" width="100%" cellpadding="5" align="left">
+                        <tbody>
+                            <tr>
+                                <td width="50%" style="text-align: center; background-color: #92CDDC;"><b>Journal Item</b></td>
+                                <td width="25%" style="text-align: center; background-color: #92CDDC;"><b>Debit</b></td>
+                                <td width="25%" style="text-align: center; background-color: #92CDDC;"><b>Credit</b></td>
+                            </tr>
+                            '. $list .'
                         </tbody>
                     </table>';
 

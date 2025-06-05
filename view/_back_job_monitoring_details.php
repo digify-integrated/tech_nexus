@@ -34,8 +34,8 @@
         <li><button class="dropdown-item" id="print-additional-job-order2-detailed">Print Additional Job Order Detailed</button></li>';
     }
 
-    if(($type == 'Internal Repair' || $type == 'Warranty') && $status == 'For DR'){
-        $releaseButton = '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#tag-as-released-offcanvas" aria-controls="tag-as-released-offcanvas">Tag As Released</button></li>';
+    if(($type == 'Internal Repair') && $status == 'Ready For Release'){
+        $releaseButton = '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#tag-as-released-offcanvas" aria-controls="tag-as-released-offcanvas">Tag As Completed</button></li>';
     }
   
     if(($type == 'Internal Repair' || $type == 'Warranty')){
@@ -52,11 +52,11 @@
         $releaseButton = '<li><button class="dropdown-item" id="tag-as-ready-for-release">Tag As Ready For Release</button></li>';
     }  
 
-    if($status == 'Ready For Release'){
+    if(($type == 'Backjob' || $type == 'Warranty') && $status == 'Ready For Release'){
         $releaseButton = '<li><button class="dropdown-item" id="tag-as-for-dr">Tag As For DR</button></li>';
     }  
 
-    if(($status != 'Cancelled' && $status != 'Released')){
+    if(($status != 'Cancelled' && $status != 'Released' && $status != 'Completed')){
         $cancelButton = '<li><button class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#tag-as-cancelled-offcanvas" aria-controls="tag-as-cancelled-offcanvas">Tag As Cancelled</button></li>';
     }
 ?>
@@ -614,7 +614,7 @@
 <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="tag-as-released-offcanvas" aria-labelledby="tag-as-released-offcanvas-label">
         <div class="offcanvas-header">
-            <h2 id="tag-as-released-offcanvas-label" style="margin-bottom:-0.5rem">Tag As Released </h2>
+            <h2 id="tag-as-released-offcanvas-label" style="margin-bottom:-0.5rem">Tag As Completed </h2>
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -623,7 +623,7 @@
                     <form id="tag-as-released-form" method="post" action="#">
                         <div class="form-group row">
                             <div class="col-lg-12 mt-3 mt-lg-0">
-                                <label class="form-label" for="release_remarks">Release Remarks <span class="text-danger">*</span></label>
+                                <label class="form-label" for="release_remarks">Completed Remarks <span class="text-danger">*</span></label>
                                 <textarea class="form-control" id="release_remarks" name="release_remarks" maxlength="500"></textarea>
                             </div>
                         </div>
