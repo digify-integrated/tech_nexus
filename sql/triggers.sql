@@ -7582,3 +7582,310 @@ BEGIN
         VALUES ('part_incoming', NEW.part_incoming_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
+
+-- cmap_report_type Triggers
+CREATE TRIGGER cmap_report_type_trigger_update
+AFTER UPDATE ON cmap_report_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.cmap_report_type_name <> OLD.cmap_report_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Report Type Name: ", OLD.cmap_report_type_name, " -> ", NEW.cmap_report_type_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('cmap_report_type', NEW.cmap_report_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER cmap_report_type_trigger_insert
+AFTER INSERT ON cmap_report_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Report type created. <br/>';
+    IF NEW.cmap_report_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Report Type Name: ", NEW.cmap_report_type_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('cmap_report_type', NEW.cmap_report_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+-- asset_type Triggers
+CREATE TRIGGER asset_type_trigger_update
+AFTER UPDATE ON asset_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.asset_type_name <> OLD.asset_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Asset Type Name: ", OLD.asset_type_name, " -> ", NEW.asset_type_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('asset_type', NEW.asset_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER asset_type_trigger_insert
+AFTER INSERT ON asset_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Asset type created. <br/>';
+    IF NEW.asset_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Asset Type Name: ", NEW.asset_type_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('asset_type', NEW.asset_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+-- loan_type Triggers
+CREATE TRIGGER loan_type_trigger_update
+AFTER UPDATE ON loan_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.loan_type_name <> OLD.loan_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Loan Type Name: ", OLD.loan_type_name, " -> ", NEW.loan_type_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('loan_type', NEW.loan_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER loan_type_trigger_insert
+AFTER INSERT ON loan_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Loan type created. <br/>';
+    IF NEW.loan_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Loan Type Name: ", NEW.loan_type_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('loan_type', NEW.loan_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+-- bank_handling_type Triggers
+CREATE TRIGGER bank_handling_type_trigger_update
+AFTER UPDATE ON bank_handling_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.bank_handling_type_name <> OLD.bank_handling_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Bank Handling Type Name: ", OLD.bank_handling_type_name, " -> ", NEW.bank_handling_type_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('bank_handling_type', NEW.bank_handling_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER bank_handling_type_trigger_insert
+AFTER INSERT ON bank_handling_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Bank handling type created. <br/>';
+    IF NEW.bank_handling_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bank Handling Type Name: ", NEW.bank_handling_type_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('bank_handling_type', NEW.bank_handling_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+-- residence_type Triggers
+CREATE TRIGGER residence_type_trigger_update
+AFTER UPDATE ON residence_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.residence_type_name <> OLD.residence_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Residence Type Name: ", OLD.residence_type_name, " -> ", NEW.residence_type_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('residence_type', NEW.residence_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER residence_type_trigger_insert
+AFTER INSERT ON residence_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Residence type created. <br/>';
+    IF NEW.residence_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Residence Type Name: ", NEW.residence_type_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('residence_type', NEW.residence_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+-- business_premises Triggers
+CREATE TRIGGER business_premises_trigger_update
+AFTER UPDATE ON business_premises
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.business_premises_name <> OLD.business_premises_name THEN
+        SET audit_log = CONCAT(audit_log, "Business Premises Name: ", OLD.business_premises_name, " -> ", NEW.business_premises_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('business_premises', NEW.business_premises_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER business_premises_trigger_insert
+AFTER INSERT ON business_premises
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Business premises created. <br/>';
+    IF NEW.business_premises_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Business Premises Name: ", NEW.business_premises_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('business_premises', NEW.business_premises_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+-- structure_type Triggers
+CREATE TRIGGER structure_type_trigger_update
+AFTER UPDATE ON structure_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.structure_type_name <> OLD.structure_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Structure Type Name: ", OLD.structure_type_name, " -> ", NEW.structure_type_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('structure_type', NEW.structure_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER structure_type_trigger_insert
+AFTER INSERT ON structure_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Structure type created. <br/>';
+    IF NEW.structure_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Structure Type Name: ", NEW.structure_type_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('structure_type', NEW.structure_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+-- building_make Triggers
+CREATE TRIGGER building_make_trigger_update
+AFTER UPDATE ON building_make
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.building_make_name <> OLD.building_make_name THEN
+        SET audit_log = CONCAT(audit_log, "Building Make Name: ", OLD.building_make_name, " -> ", NEW.building_make_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('building_make', NEW.building_make_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER building_make_trigger_insert
+AFTER INSERT ON building_make
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Building make created. <br/>';
+    IF NEW.building_make_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Building Make Name: ", NEW.building_make_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('building_make', NEW.building_make_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+-- neighborhood_type Triggers
+CREATE TRIGGER neighborhood_type_trigger_update
+AFTER UPDATE ON neighborhood_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.neighborhood_type_name <> OLD.neighborhood_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Neighborhood Type Name: ", OLD.neighborhood_type_name, " -> ", NEW.neighborhood_type_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('neighborhood_type', NEW.neighborhood_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER neighborhood_type_trigger_insert
+AFTER INSERT ON neighborhood_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Neighborhood type created. <br/>';
+    IF NEW.neighborhood_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Neighborhood Type Name: ", NEW.neighborhood_type_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('neighborhood_type', NEW.neighborhood_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+-- income_level Triggers
+CREATE TRIGGER income_level_trigger_update
+AFTER UPDATE ON income_level
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.income_level_name <> OLD.income_level_name THEN
+        SET audit_log = CONCAT(audit_log, "Income Level Name: ", OLD.income_level_name, " -> ", NEW.income_level_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('income_level', NEW.income_level_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER income_level_trigger_insert
+AFTER INSERT ON income_level
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Income level created. <br/>';
+    IF NEW.income_level_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Income Level Name: ", NEW.income_level_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('income_level', NEW.income_level_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+-- business_location_type Triggers
+CREATE TRIGGER business_location_type_trigger_update
+AFTER UPDATE ON business_location_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.business_location_type_name <> OLD.business_location_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Business Location Type Name: ", OLD.business_location_type_name, " -> ", NEW.business_location_type_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('business_location_type', NEW.business_location_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER business_location_type_trigger_insert
+AFTER INSERT ON business_location_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Business location type created. <br/>';
+    IF NEW.business_location_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Business Location Type Name: ", NEW.business_location_type_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('business_location_type', NEW.business_location_type_id, audit_log, NEW.last_log_by, NOW());
+END //

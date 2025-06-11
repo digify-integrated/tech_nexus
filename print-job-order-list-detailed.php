@@ -104,6 +104,31 @@
     $pdf->Cell(200, 8, $fullStockNumber, 'B', 0, 'L');
     $pdf->Ln(12);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
+    $pdf->Ln(5);
+
+    $pdf->SetFont('times', '', size: 8);
+    $pdf->Cell(20, 4, 'RATING:', '', 0, 'L', 0, '', 1);
+    $pdf->Cell(90, 4, '1 EXCELLENT - QUALITY OF WORK IS EXCELLENT', '', 0, 'L', 0, '', 1);
+    $pdf->Ln(5);
+    $pdf->Cell(20, 4, '', '', 0, 'L', 0, '', 1);
+    $pdf->Cell(90, 4, '2 GOOD - QUALITY OF WORK CAN BE IMPROVED', '', 0, 'L', 0, '', 1);
+    $pdf->Ln(5);
+    $pdf->Cell(20, 4, '', '', 0, 'L', 0, '', 1);
+    $pdf->Cell(90, 4, '3 NEEDS IMPROVEMENT - RETURN TO CONTRACTOR', '', 0, 'L', 0, '', 1);
+    $pdf->Ln(20);
+    
+    $pdf->SetFont('times', '', 10);
+    $pdf->Cell(90, 4, '', 'B', 0, 'L', 0, '', 1);
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(90, 4, '', 'B', 0, 'L', 0, '', 1);
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(90, 4, '', 'B', 0, 'L', 0, '', 1);
+    $pdf->Ln(5);
+    $pdf->Cell(90, 8, 'PREPARED BY', 0, 0, 'C');
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(90, 8, 'CONTRACTOR', 0, 0, 'C');
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(90, 8, 'CHECKED BY', 0, 0, 'C');
 
     // Output the PDF to the browser
     $pdf->Output('job-order-list.pdf', 'I');
@@ -154,6 +179,7 @@
                                 <td>'. $planned_finish_date .'</td>
                                 <td>'. $date_started .'</td>
                                 <td>'. $completion_date .'</td>
+                                <td></td>
                             </tr>';
         }
 
@@ -167,6 +193,7 @@
                                 <td><b>PLANNED FINISH DATE</b></td>
                                 <td><b>DATE STARTED</b></td>
                                 <td><b>COMPLETION DATE</b></td>
+                                <td><b>RATING</b></td>
                             </tr>
                         </thead>
                         <tbody>

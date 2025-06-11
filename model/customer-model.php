@@ -2466,6 +2466,19 @@ class CustomerModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function openCIReport($p_sales_proposal_id, $p_customer_id, $p_comaker_id, $p_additional_maker_id, $p_comaker_id2, $p_duplicate, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL openCIReport(:p_sales_proposal_id, :p_customer_id, :p_comaker_id, :p_additional_maker_id, :p_comaker_id2, :p_duplicate, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_comaker_id', $p_comaker_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_additional_maker_id', $p_additional_maker_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_comaker_id2', $p_comaker_id2, PDO::PARAM_INT);
+        $stmt->bindValue(':p_duplicate', $p_duplicate, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
     
     # -------------------------------------------------------------

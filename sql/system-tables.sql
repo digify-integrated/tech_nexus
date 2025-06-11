@@ -6275,3 +6275,366 @@ CREATE TABLE part_incoming_document(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE ci_report(
+	ci_report_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    sales_proposal_id INT UNSIGNED NOT NULL,
+    contact_id INT UNSIGNED NOT NULL,
+    appraiser INT UNSIGNED,
+    investigator INT UNSIGNED,
+    narrative_summary VARCHAR(5000),
+    ci_status VARCHAR(100) DEFAULT 'Draft',
+    for_completion_date DATETIME,
+    completed_date DATETIME,
+    valid_until DATE,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_residence (
+    ci_report_residence_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    contact_address_id INT UNSIGNED NOT NULL,
+    address TEXT NOT NULL,
+    city_id INT NOT NULL,
+    prev_address TEXT,
+    prev_city_id INT,
+    length_stay_year INT,
+    length_stay_month INT,
+    residence_type_id INT UNSIGNED,
+    rented_from TEXT,
+    rent_amount DOUBLE DEFAULT 0,
+    estimated_value DOUBLE DEFAULT 0,
+    structure_type_id INT UNSIGNED,
+    residence_age INT DEFAULT 0,
+    building_make_id INT UNSIGNED,
+    lot_area DOUBLE DEFAULT 0,
+    floor_area DOUBLE DEFAULT 0,
+    furnishing_appliance TEXT,
+    neighborhood_type_id INT UNSIGNED,
+    income_level_id INT UNSIGNED,
+    accessible_to TEXT,
+    nearest_corner TEXT,
+    informant TEXT,
+    informant_address TEXT,
+    personal_expense DOUBLE DEFAULT 0,
+    utilities_expense DOUBLE DEFAULT 0,
+    other_expense DOUBLE DEFAULT 0,
+    total DOUBLE DEFAULT 0,
+    remarks TEXT,
+    created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_residence_owned(
+	ci_report_residence_owned_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_residence_id INT UNSIGNED NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    type VARCHAR(100),
+    owned VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_dependents(
+	ci_report_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    name VARCHAR(500),
+    age INT DEFAULT 0,
+    school VARCHAR(500),
+    employment VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_business(
+	ci_report_business_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    business_name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    contact_address_id INT UNSIGNED NOT NULL,
+    address TEXT NOT NULL,
+	city_id INT NOT NULL,
+    length_stay_year INT,
+    length_stay_month INT,
+    registered_with TEXT,
+    organization TEXT,
+    date_organized TEXT,
+    no_employee INT,
+    customer TEXT,
+    major_bank_id INT UNSIGNED,
+    contact_person TEXT,
+    business_location_type_id INT UNSIGNED,
+    building_make_id INT UNSIGNED,
+    business_premises_id INT UNSIGNED,
+    landlord TEXT,
+    rental_amount DOUBLE DEFAULT 0,
+    machineries TEXT,
+    fixtures TEXT,
+    facility_condition TEXT,
+    gross_monthly_sale DOUBLE DEFAULT 0,
+    monthly_income DOUBLE DEFAULT 0,
+    inventory DOUBLE DEFAULT 0,
+    receivable DOUBLE DEFAULT 0,
+    fixed_asset DOUBLE DEFAULT 0,
+    liabilities DOUBLE DEFAULT 0,
+    capital DOUBLE DEFAULT 0,
+    remarks TEXT,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_business_branch(
+	ci_report_business_branch_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	ci_report_business_id INT NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    branch VARCHAR(1000) NOT NULL,
+    remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_business_vehicle(
+	ci_report_business_vehicle_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	ci_report_business_id INT NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    vehicle VARCHAR(1000) NOT NULL,
+    remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_business_trade_reference(
+	ci_report_business_trade_reference_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	ci_report_business_id INT NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    trade_reference VARCHAR(1000) NOT NULL,
+    remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_employment(
+	ci_report_employment_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    business_name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    contact_address_id INT UNSIGNED NOT NULL,
+    address TEXT NOT NULL,
+	city_id INT NOT NULL,
+    length_stay_year INT,
+    length_stay_month INT,
+    pres_length_stay_year INT,
+    pres_length_stay_month INT,
+    informant TEXT,
+    informant_address TEXT,
+    department TEXT,
+    rank TEXT,
+    position TEXT,
+    status TEXT,
+    net_salary DOUBLE DEFAULT 0,
+    commission DOUBLE DEFAULT 0,
+    allowance DOUBLE DEFAULT 0,
+    other_income DOUBLE DEFAULT 0,
+    grand_total DOUBLE DEFAULT 0,
+    remarks TEXT,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_bank(
+	ci_report_bank_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    bank_id INT UNSIGNED,
+    account_name VARCHAR(500),
+    account_number VARCHAR(500),
+    bank_account_type_id INT UNSIGNED,
+    currency_id INT UNSIGNED,
+    bank_handling_type_id INT UNSIGNED,
+    date_open DATE,
+    adb_id INT UNSIGNED,
+    informant VARCHAR(500),
+    remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_bank_deposits(
+	ci_report_bank_deposits_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	ci_report_bank_id INT UNSIGNED NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    deposit_month DATE NOT NULL,
+    amount DOUBLE DEFAULT 0,
+    remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_loan(
+	ci_report_loan_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    company VARCHAR(500),
+    informant VARCHAR(500),
+    account_name VARCHAR(500),
+    loan_type_id INT UNSIGNED,
+    availed_date DATE,
+    maturity_date DATE,
+    term INT,
+    pn_amount DOUBLE,
+    outstanding_balance DOUBLE,
+    repayment DOUBLE,
+    handling VARCHAR(50),
+    remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_asset(
+	ci_report_asset_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    asset_type_id INT UNSIGNED,
+    description VARCHAR(5000),
+    value DOUBLE DEFAULT 0,
+    remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_collateral(
+	ci_report_collateral_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    brand_id INT UNSIGNED,
+    description VARCHAR(5000),
+    color_id INT UNSIGNED,
+    year_model VARCHAR(10),
+    plate_no VARCHAR(100),
+    motor_no VARCHAR(100),
+    serial_no VARCHAR(100),
+    mvr_file_no VARCHAR(100),
+    cr_no VARCHAR(100),
+    or_no VARCHAR(100),
+    registered_owner VARCHAR(500),
+    appraised_value DOUBLE DEFAULT 0,
+    loannable_value DOUBLE DEFAULT 0,
+    remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_appraisal_source(
+	ci_report_appraisal_source_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	ci_report_collateral_id INT UNSIGNED NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    source VARCHAR(5000),
+    amount DOUBLE DEFAULT 0,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_cmap(
+	ci_report_cmap_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    cmap_report_type_id INT UNSIGNED,
+    defendants TEXT,
+    plaintiff TEXT,
+    nature_of_case TEXT,
+    trial_court TEXT,
+    sala_no TEXT,
+    case_no TEXT,
+    reported_date DATE,
+    remarks TEXT,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE cmap_report_type(
+	cmap_report_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    cmap_report_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE asset_type(
+	asset_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    asset_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE loan_type(
+	loan_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    loan_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE bank_handling_type(
+	bank_handling_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    bank_handling_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE residence_type(
+	residence_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    residence_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE business_premises(
+	business_premises_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    business_premises_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE structure_type(
+	structure_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    structure_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE building_make(
+	building_make_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    building_make_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE neighborhood_type(
+	neighborhood_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    neighborhood_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE income_level(
+	income_level_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    income_level_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE business_location_type(
+	business_location_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    business_location_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);

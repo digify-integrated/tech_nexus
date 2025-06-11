@@ -12,6 +12,7 @@ require_once '../model/work-center-model.php';
 require_once '../model/product-model.php';
 require_once '../model/product-category-model.php';
 require_once '../model/product-subcategory-model.php';
+require_once '../model/customer-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -23,6 +24,7 @@ $workCenterModel = new WorkCenterModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $productCategoryModel = new ProductCategoryModel($databaseModel);
 $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
+$customerModel = new CustomerModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -59,12 +61,28 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $backjob_monitoring_id_encrypted = $securityModel->encryptData($backjob_monitoring_id);
 
-                if(!empty($sales_proposal_id)){
-                    $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
-                    $sales_proposal_number = $salesProposalDetails['sales_proposal_number'];
+                if($type == 'Warranty'){
+                    $salesProposalDetails = $salesProposalModel->getWarrantySalesProposalFromProduct($product_id);
+                    $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+                    $customer_id = $salesProposalDetails['customer_id'] ?? null;
                 }
                 else{
-                    $sales_proposal_number = '--';
+                    if(!empty($sales_proposal_id)){
+                        $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                        $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+                        $customer_id = $salesProposalDetails['customer_id'] ?? null;
+                    }
+                    else{
+                        $sales_proposal_number = '--';
+                    }
+                }
+
+                if(!empty($customer_id)){
+                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                    $customerName = $customerDetails['file_as'] ?? null;
+                }
+                else{
+                    $customerName = '';
                 }
 
                 if(!empty($product_id)){
@@ -115,7 +133,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $backjob_monitoring_id .'">',
                     'TYPE' => $type,
-                    'SALES_PROPOSAL' => $sales_proposal_number,
+                    'SALES_PROPOSAL' => ' <div class="col">
+                                        <h6 class="mb-0">'. $sales_proposal_number .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $customerName .'</p>
+                                        </div>',
                     'PRODUCT' =>$product,
                     'STATUS' => $status,
                     'CREATED_DATE' => $created_date,
@@ -147,12 +168,28 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $backjob_monitoring_id_encrypted = $securityModel->encryptData($backjob_monitoring_id);
 
-                if(!empty($sales_proposal_id)){
-                    $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
-                    $sales_proposal_number = $salesProposalDetails['sales_proposal_number'];
+                if($type == 'Warranty'){
+                    $salesProposalDetails = $salesProposalModel->getWarrantySalesProposalFromProduct($product_id);
+                    $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+                    $customer_id = $salesProposalDetails['customer_id'] ?? null;
                 }
                 else{
-                    $sales_proposal_number = '--';
+                    if(!empty($sales_proposal_id)){
+                        $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                        $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+                        $customer_id = $salesProposalDetails['customer_id'] ?? null;
+                    }
+                    else{
+                        $sales_proposal_number = '--';
+                    }
+                }
+
+                if(!empty($customer_id)){
+                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                    $customerName = $customerDetails['file_as'] ?? null;
+                }
+                else{
+                    $customerName = '';
                 }
 
                 if(!empty($product_id)){
@@ -203,7 +240,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $backjob_monitoring_id .'">',
                     'TYPE' => $type,
-                    'SALES_PROPOSAL' => $sales_proposal_number,
+                    'SALES_PROPOSAL' => ' <div class="col">
+                                        <h6 class="mb-0">'. $sales_proposal_number .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $customerName .'</p>
+                                        </div>',
                     'PRODUCT' =>$product,
                     'STATUS' => $status,
                     'CREATED_DATE' => $created_date,

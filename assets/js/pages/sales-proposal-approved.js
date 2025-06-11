@@ -888,6 +888,9 @@
                                 else if (response.emptyStencil) {
                                     showNotification('For Review Error', 'Please upload the new engine stencil first.', 'danger');
                                 } 
+                                else if (response.zeroBalance) {
+                                    showNotification('For Review Error', 'The outstanding balance cannot be zero.', 'danger');
+                                } 
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }

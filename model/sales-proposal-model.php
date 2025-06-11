@@ -1706,6 +1706,13 @@ class SalesProposalModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    
+    public function getWarrantySalesProposalFromProduct($p_product_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getWarrantySalesProposalFromProduct(:p_product_id)');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     public function getJobOrderMonitoringTotalProgress($p_sales_proposal_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getJobOrderMonitoringTotalProgress(:p_sales_proposal_id)');

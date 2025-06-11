@@ -250,6 +250,16 @@
             calculateRenewalAmount();
         });
 
+        $(document).on('change','#transaction_type',function() {
+            $('#summary-transaction-type').text($(this).val());
+
+            if($(this).val() == 'Bank Financing'){
+                $('#term_length').val('45');
+                checkOptionExist('#term_type', 'Days', '');
+                checkOptionExist('#payment_frequency', 'Lumpsum', '');
+            }
+        });
+
         $(document).on('change','#term_type',function() {
             $('#payment_frequency').empty().append(new Option('--', '', false, false));
 

@@ -1588,6 +1588,15 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'emptyStencil' => true]);
             exit;
         }*/
+
+        $salesProposalPricingComputationDetails = $this->salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
+        $outstanding_balance = $salesProposalPricingComputationDetails['outstanding_balance'] ?? 0;
+
+        if($outstanding_balance == 0){
+            echo json_encode(['success' => false, 'zeroBalance' => true]);
+            exit;
+        }
+
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Review', '', $userID);
         $this->sendForReview('', $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null);
@@ -1633,6 +1642,14 @@ class SalesProposalController {
         }
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For CI', '', $userID);
+
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $customer_id = $salesProposalDetails['customer_id'] ?? null;
+        $comaker_id = $salesProposalDetails['comaker_id'] ?? null;
+        $additional_maker_id = $salesProposalDetails['additional_maker_id'] ?? null;
+        $comaker_id2 = $salesProposalDetails['comaker_id2'] ?? null;
+
+        $this->customerModel->openCIReport($salesProposalID, $customer_id, $comaker_id, $additional_maker_id, $comaker_id2, 'Yes', $userID);
             
         echo json_encode(['success' => true]);
         exit;
