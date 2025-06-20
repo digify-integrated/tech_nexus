@@ -18,7 +18,7 @@
         }
 
         if($('#parts-table').length){
-            partsTable('#parts-table');
+            partsTable('#parts-table', true, false);
         }
 
         if($('#parts-expense-table').length){

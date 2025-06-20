@@ -76,6 +76,7 @@
     <link rel="stylesheet" href="./assets/css/plugins/bootstrap-slider.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="./assets/css/plugins/buttons.bootstrap5.min.css" />
 </head>
 
 <body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="false" data-pc-theme="light">
@@ -142,7 +143,16 @@
     ?>
     <script src="./assets/js/plugins/bootstrap-maxlength.min.js"></script>
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
+    <script src="./assets/js/plugins/dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
+    <script src="./assets/js/plugins/buttons.colVis.min.js"></script>
+    <script src="./assets/js/plugins/buttons.print.min.js"></script>
+    <script src="./assets/js/plugins/pdfmake.min.js"></script>
+    <script src="./assets/js/plugins/jszip.min.js"></script>
+    <script src="./assets/js/plugins/dataTables.buttons.min.js"></script>
+    <script src="./assets/js/plugins/vfs_fonts.js"></script>
+    <script src="./assets/js/plugins/buttons.html5.min.js"></script>
+    <script src="./assets/js/plugins/buttons.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/bootstrap-slider.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>

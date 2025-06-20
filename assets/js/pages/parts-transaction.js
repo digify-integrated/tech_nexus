@@ -352,6 +352,7 @@ function partsTransactionTable(datatable_name, buttons = false, show_all = false
         { 'data' : 'SUB_TOTAL' },
         { 'data' : 'TOTAL_AMOUNT' },
         { 'data' : 'TRANSACTION_DATE' },
+        { 'data' : 'ISSUANCE_DATE' },
         { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
@@ -365,7 +366,8 @@ function partsTransactionTable(datatable_name, buttons = false, show_all = false
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
-        { 'width': '15%','bSortable': false, 'aTargets': 8 }
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': '15%','bSortable': false, 'aTargets': 9 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

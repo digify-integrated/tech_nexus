@@ -937,6 +937,23 @@ class UserModel {
 
         return $htmlOptions;
     }
+
+    public function generateCIInvestigatorOptions($p_generate_type) {
+        $stmt = $this->db->getConnection()->prepare('CALL generateCIInvestigatorOptions(:p_generate_type)');
+        $stmt->bindValue(':p_generate_type', $p_generate_type, PDO::PARAM_STR);
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $contactID = $row['user_id'];
+            $fileAs = ucwords(strtolower($row['file_as']));
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . htmlspecialchars($fileAs, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

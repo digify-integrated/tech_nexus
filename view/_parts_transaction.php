@@ -46,6 +46,7 @@
                 <th>Sub-Total</th>
                 <th>Total Amount</th>
                 <th>Transaction Date</th>
+                <th>Issuance Date</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>

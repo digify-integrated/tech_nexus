@@ -50,7 +50,7 @@
                   }
                 ?>
                 <th>Completion Date</th>
-                <th>Purchase Date</th>
+                <th>Delivery Date</th>
                 <th>Transaction Date</th>
                 <th>Status</th>
                 <th>Actions</th>

@@ -220,6 +220,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $incoming_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
                 $completion_date = $systemModel->checkDate('empty', $row['completion_date'], '', 'm/d/Y', '');
                 $purchase_date = $systemModel->checkDate('empty', $row['purchase_date'], '', 'm/d/Y', '');
+                $delivery_date = $systemModel->checkDate('empty', $row['delivery_date'], '', 'm/d/Y', '');
 
                 $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'cost')['total'];
                 $lines = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'lines')['total'];
@@ -250,7 +251,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'REMAINING' => number_format($remaining, 2),
                     'COST' => number_format($cost, 2) . ' PHP',
                     'COMPLETION_DATE' => $completion_date,
-                    'PURCHASE_DATE' => $purchase_date,
+                    'PURCHASE_DATE' => $delivery_date,
                     'TRANSACTION_DATE' => $incoming_date,
                     'STATUS' => $part_incoming_status,
                     'ACTION' => '<div class="d-flex gap-2">

@@ -6311,7 +6311,7 @@ CREATE TABLE ci_report_residence (
     building_make_id INT UNSIGNED,
     lot_area DOUBLE DEFAULT 0,
     floor_area DOUBLE DEFAULT 0,
-    furnishing_appliance TEXT,
+    furnishing_appliance TEXT, 
     neighborhood_type_id INT UNSIGNED,
     income_level_id INT UNSIGNED,
     accessible_to TEXT,
@@ -6322,29 +6322,22 @@ CREATE TABLE ci_report_residence (
     utilities_expense DOUBLE DEFAULT 0,
     other_expense DOUBLE DEFAULT 0,
     total DOUBLE DEFAULT 0,
+    vehicle_owned TEXT,
+    real_estate_owned TEXT,
     remarks TEXT,
     created_date DATETIME DEFAULT NOW(),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
-CREATE TABLE ci_report_residence_owned(
-	ci_report_residence_owned_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    ci_report_residence_id INT UNSIGNED NOT NULL,
-    ci_report_id INT UNSIGNED NOT NULL,
-    type VARCHAR(100),
-    owned VARCHAR(5000),
-	created_date DATETIME DEFAULT NOW(),
-    last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
-);
-
 CREATE TABLE ci_report_dependents(
-	ci_report_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	ci_report_dependents_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
     name VARCHAR(500),
     age INT DEFAULT 0,
     school VARCHAR(500),
     employment VARCHAR(500),
+    remarks TEXT,
 	created_date DATETIME DEFAULT NOW(),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
@@ -6382,40 +6375,10 @@ CREATE TABLE ci_report_business(
     fixed_asset DOUBLE DEFAULT 0,
     liabilities DOUBLE DEFAULT 0,
     capital DOUBLE DEFAULT 0,
+    branch TEXT,
+    vehicle TEXT,
+    trade_reference TEXT,
     remarks TEXT,
-	created_date DATETIME DEFAULT NOW(),
-    last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
-);
-
-CREATE TABLE ci_report_business_branch(
-	ci_report_business_branch_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	ci_report_business_id INT NOT NULL,
-    ci_report_id INT UNSIGNED NOT NULL,
-    branch VARCHAR(1000) NOT NULL,
-    remarks VARCHAR(5000),
-	created_date DATETIME DEFAULT NOW(),
-    last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
-);
-
-CREATE TABLE ci_report_business_vehicle(
-	ci_report_business_vehicle_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	ci_report_business_id INT NOT NULL,
-    ci_report_id INT UNSIGNED NOT NULL,
-    vehicle VARCHAR(1000) NOT NULL,
-    remarks VARCHAR(5000),
-	created_date DATETIME DEFAULT NOW(),
-    last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
-);
-
-CREATE TABLE ci_report_business_trade_reference(
-	ci_report_business_trade_reference_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	ci_report_business_id INT NOT NULL,
-    ci_report_id INT UNSIGNED NOT NULL,
-    trade_reference VARCHAR(1000) NOT NULL,
-    remarks VARCHAR(5000),
 	created_date DATETIME DEFAULT NOW(),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
@@ -6424,7 +6387,7 @@ CREATE TABLE ci_report_business_trade_reference(
 CREATE TABLE ci_report_employment(
 	ci_report_employment_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     ci_report_id INT UNSIGNED NOT NULL,
-    business_name TEXT NOT NULL,
+    employment_name TEXT NOT NULL,
     description TEXT NOT NULL,
     contact_address_id INT UNSIGNED NOT NULL,
     address TEXT NOT NULL,
@@ -6460,7 +6423,7 @@ CREATE TABLE ci_report_bank(
     currency_id INT UNSIGNED,
     bank_handling_type_id INT UNSIGNED,
     date_open DATE,
-    adb_id INT UNSIGNED,
+    adb VARCHAR(100),
     informant VARCHAR(500),
     remarks VARCHAR(5000),
 	created_date DATETIME DEFAULT NOW(),
@@ -6515,6 +6478,7 @@ CREATE TABLE ci_report_asset(
 CREATE TABLE ci_report_collateral(
 	ci_report_collateral_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     ci_report_id INT UNSIGNED NOT NULL,
+    appraisal_date DATE NOT NULL,
     brand_id INT UNSIGNED,
     description VARCHAR(5000),
     color_id INT UNSIGNED,
@@ -6540,6 +6504,7 @@ CREATE TABLE ci_report_appraisal_source(
     ci_report_id INT UNSIGNED NOT NULL,
     source VARCHAR(5000),
     amount DOUBLE DEFAULT 0,
+    remarks VARCHAR(5000),
 	created_date DATETIME DEFAULT NOW(),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)

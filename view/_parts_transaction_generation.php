@@ -217,6 +217,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $total_discount = $row['total_discount'];
                 $total_amount = $row['total_amount'];
                 $transaction_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
+                $issuance_date = $systemModel->checkDate('empty', $row['issuance_date'], '', 'm/d/Y', '');
 
                 if($part_transaction_status === 'Draft'){
                     $part_transaction_status = '<span class="badge bg-secondary">' . $part_transaction_status . '</span>';
@@ -241,6 +242,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'SUB_TOTAL' => number_format($sub_total, 2) . ' PHP',
                     'TOTAL_AMOUNT' => number_format($total_amount, 2) . ' PHP',
                     'TRANSACTION_DATE' => $transaction_date,
+                    'ISSUANCE_DATE' => $issuance_date,
                     'STATUS' => $part_transaction_status,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="parts-transaction.php?id='. $part_transaction_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
