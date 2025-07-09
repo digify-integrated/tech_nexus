@@ -69,6 +69,9 @@
                                 <td style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>NEW ENGINE</b></small><br/><span id="summary-new-engine"></span></td>
                             </tr>
                             <tr>
+                                <td colspan="8" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>FINAL NAME ON OR/CR</b></small><br/><span id="summary-final-name-on-orcr"></span></td>
+                            </tr>
+                            <tr>
                                 <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>DIESEL FUEL QUANTITY</b></small><br/><span id="summary-diesel-fuel-quantity"></span></td>
 
                                 <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>REGULAR FUEL QUANTITY</b></small><br/><span id="summary-regular-fuel-quantity"></span></td>

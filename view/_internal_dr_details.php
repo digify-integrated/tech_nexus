@@ -71,7 +71,7 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-lg-3 col-form-label">DR Number <span class="text-danger">*</span></label>
+                                <label class="col-lg-3 col-form-label">DR Number</label>
                                 <div class="col-lg-3">
                                     <input type="text" class="form-control" id="dr_number" name="dr_number" maxlength="50" autocomplete="off" <?php echo $disabled; ?>>
                                 </div>
@@ -80,6 +80,7 @@
                                     <select class="form-control select2" name="dr_type" id="dr_type" <?php echo $disabled; ?>>
                                         <option value="">--</option>
                                         <option value="Unit">Unit</option>
+                                        <option value="RTS">Return to Supplier</option>
                                         <option value="Fuel">Fuel</option>
                                         <option value="Repair">Repair</option>
                                         <option value="Backjob">Backjob</option>
@@ -90,8 +91,15 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Product</label>
+                                <div class="col-lg-3">
+                                    <select class="form-control select2" name="product_id" id="product_id" <?php echo $disabled; ?>>
+                                        <option value="">--</option>
+                                        <?php echo $productModel->generateNotDraftProductOptions(); ?>
+                                    </select>
+                                </div>
                                 <label class="col-lg-3 col-form-label">Internal Job Order</label>
-                                <div class="col-lg-9">
+                                <div class="col-lg-3">
                                     <select class="form-control select2" name="backjob_monitoring_id" id="backjob_monitoring_id" <?php echo $disabled; ?>>
                                         <option value="">--</option>
                                         <?php echo $backJobMonitoringModel->generateBackJobMonitoringOptions(); ?>
@@ -116,6 +124,17 @@
                                 <label class="col-lg-3 col-form-label">Plate Number </label>
                                 <div class="col-lg-3">
                                     <input type="text" class="form-control" id="plate_number" name="plate_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Estimated Return Date</label>
+                                <div class="col-lg-3">
+                                    <div class="input-group date">
+                                    <input type="text" class="form-control regular-datepicker" id="estimated_return_date" name="estimated_return_date" autocomplete="off" <?php echo $disabled; ?>>
+                                    <span class="input-group-text">
+                                        <i class="feather icon-calendar"></i>
+                                    </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -199,6 +218,12 @@
                                                             <td><small><?php echo date('d-M-Y'); ?></small></td>
                                                         </tr>
                                                         <tr>
+                                                            <td colspan="2"><small>Internal DR No.</small></td>
+                                                            <td><small><?php echo $internalDRID; ?></small></td>
+                                                            <td><small>Estimated Return Date</small></td>
+                                                            <td><small><?php echo strtoupper($estimated_return_date); ?></small></td>
+                                                        </tr>
+                                                        <tr>
                                                             <td colspan="6">
                                                                 <p class="text-center"><small>PARTICULARS</small></p>
                                                                 <p class="text-wrap"><b><small><?php echo $productDescription; ?></small></b></p>
@@ -265,6 +290,12 @@
                                                             <td><small><?php echo $drNumber; ?></small></td>
                                                             <td><small>DR Date</small></td>
                                                             <td><small><?php echo date('d-M-Y'); ?></small></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="2"><small>Internal DR No.</small></td>
+                                                            <td><small><?php echo $internalDRID; ?></small></td>
+                                                            <td><small>Estimated Return Date</small></td>
+                                                            <td><small><?php echo strtoupper($estimated_return_date); ?></small></td>
                                                         </tr>
                                                         <tr>
                                                             <td colspan="6">

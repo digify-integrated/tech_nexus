@@ -224,6 +224,7 @@
                                     <th>Status</th>
                                     <th>OS Number</th>
                                     <th>Product Type</th>
+                                    <th>Created Date</th>
                                     <th>Released Date</th>
                                     <th>Actions</th>
                                 </tr>

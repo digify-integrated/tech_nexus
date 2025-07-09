@@ -18,9 +18,12 @@
   require('model/brand-model.php');
   require('model/color-model.php');
   require('model/income-level-model.php');
+  require('model/ci-report-model.php');
+  require('model/bank-adb-model.php');
 
   $pageTitle = 'CI Report';
 
+  $ciReportModel = new CIReportModel($databaseModel);
   $cityModel = new CityModel($databaseModel);
   $residenceTypeModel = new ResidenceTypeModel($databaseModel);
   $structureTypeModel = new StructureTypeModel($databaseModel);
@@ -39,9 +42,13 @@
   $brandModel = new BrandModel($databaseModel);
   $colorModel = new ColorModel($databaseModel);
   $incomeLevelModel = new IncomeLevelModel($databaseModel);
+  $bankADBModel = new BankADBModel($databaseModel);
       
   $ciReportReadAccess = $userModel->checkMenuItemAccessRights($user_id, 159, 'read');
   $ciReportWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 159, 'write');
+
+  $tagForCompletion = $userModel->checkSystemActionAccessRights($user_id, 205);
+  $tagForCompleted = $userModel->checkSystemActionAccessRights($user_id, 206);
 
   if ($ciReportReadAccess['total'] == 0) {
     header('location: 404.php');

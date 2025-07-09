@@ -7027,7 +7027,7 @@ END //
 
 CREATE PROCEDURE generateProductDocument(IN p_product_id INT)
 BEGIN
-	SELECT product_document_id, product_document_type, document_path FROM product_document
+	SELECT * FROM product_document
     WHERE product_id = p_product_id
 	ORDER BY product_document_id;
 END //
@@ -7198,8 +7198,10 @@ CREATE PROCEDURE generateProductTable(
     IN p_search VARCHAR(500), 
     IN p_product_category VARCHAR(500), 
     IN p_product_subcategory VARCHAR(500), 
+    IN p_product_subcategory_2 VARCHAR(500), 
     IN p_company VARCHAR(500), 
     IN p_warehouse VARCHAR(500), 
+    IN p_supplier VARCHAR(500), 
     IN p_body_type VARCHAR(500), 
     IN p_color VARCHAR(500), 
     IN p_product_cost_min DOUBLE, 
@@ -7265,6 +7267,10 @@ BEGIN
         SET sql_query = CONCAT(sql_query, ' AND product_subcategory_id IN (', p_product_subcategory, ')');
     END IF;
 
+    IF p_product_subcategory_2 IS NOT NULL AND p_product_subcategory_2 <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_subcategory_id IN (', p_product_subcategory_2, ')');
+    END IF;
+
     -- Apply company and warehouse filters
     IF p_company IS NOT NULL AND p_company <> '' THEN
         SET sql_query = CONCAT(sql_query, ' AND company_id IN (', p_company, ')');
@@ -7272,6 +7278,10 @@ BEGIN
 
     IF p_warehouse IS NOT NULL AND p_warehouse <> '' THEN
         SET sql_query = CONCAT(sql_query, ' AND warehouse_id IN (', p_warehouse, ')');
+    END IF;
+
+    IF p_supplier IS NOT NULL AND p_supplier <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND supplier_id IN (', p_supplier, ')');
     END IF;
 
     -- Apply body type and color filters
@@ -7733,7 +7743,7 @@ BEGIN
       	
     SET p_sales_proposal_id = LAST_INSERT_ID();
 
-    IF p_product_type IN ('Unit', 'Rental') THEN
+    IF p_product_type IN ('Unit', 'Rental', 'Brand New') THEN
         INSERT INTO sales_proposal_job_order (sales_proposal_id, job_order, cost, last_log_by) 
 	    VALUES(p_sales_proposal_id, 'Quality Check', 0, p_last_log_by);
 
@@ -7984,7 +7994,7 @@ END //
 
 CREATE PROCEDURE cronSalesProposalOverdueForCI()
 BEGIN
-   SELECT * FROM sales_proposal WHERE for_ci_date IS NOT NULL AND ci_completion_date IS NULL AND for_ci_date < NOW() - INTERVAL 8 DAY AND sales_proposal_status NOT IN ('Draft', 'For Review', 'Cancelled', 'Rejected', 'For Initial Approval');
+   SELECT * FROM sales_proposal WHERE for_ci_date IS NOT NULL AND ci_completion_date IS NULL AND for_ci_date < NOW() - INTERVAL 8 DAY AND sales_proposal_status NOT IN ('Cancelled', 'Rejected');
 END //
 
 CREATE PROCEDURE updateSalesProposalStatus(IN p_sales_proposal_id INT, IN p_changed_by INT, IN p_sales_proposal_status VARCHAR(50), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
@@ -8594,12 +8604,12 @@ END //
 
 CREATE PROCEDURE generateSalesProposalForCITable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE (sales_proposal_status = 'For CI' OR (sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released') AND for_ci_date IS NOT NULL)) AND ci_status IS NULL AND ci_completion_date IS NULL;
+   SELECT * FROM sales_proposal WHERE (sales_proposal_status NOT IN ('Cancelled', 'Rejected') AND for_ci_date IS NOT NULL) AND ci_completion_date IS NULL;
 END //
 
 CREATE PROCEDURE generateInstallmentSalesApprovalTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE (sales_proposal_status = 'For CI' OR (sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released') AND for_ci_date IS NOT NULL)) AND (installment_sales_status IS NULL AND installment_sales_approval_date IS NULL) AND ((ci_status IS NULL AND ci_completion_date IS NULL) OR (ci_status IS NOT NULL AND ci_completion_date IS NOT NULL));
+   SELECT * FROM sales_proposal WHERE (sales_proposal_status NOT IN ('Cancelled', 'Rejected', 'Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released') AND for_ci_date IS NOT NULL) AND (installment_sales_status IS NULL AND installment_sales_approval_date IS NULL) AND ((ci_completion_date IS NULL) OR (ci_status IS NOT NULL AND ci_completion_date IS NOT NULL));
 END //
 
 CREATE PROCEDURE generateSalesProposalForBankFinancingTable()
@@ -9850,15 +9860,15 @@ BEGIN
     WHERE internal_dr_id = p_internal_dr_id;
 END //
 
-CREATE PROCEDURE insertInternalDR(IN p_release_to VARCHAR(1000), IN p_release_mobile VARCHAR(50), IN p_release_address VARCHAR(1000), IN p_dr_number VARCHAR(50), IN p_dr_type VARCHAR(50), IN p_backjob_monitoring_id INT, IN p_stock_number VARCHAR(100), IN p_product_description VARCHAR(1000), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_last_log_by INT, OUT p_internal_dr_id INT)
+CREATE PROCEDURE insertInternalDR(IN p_release_to VARCHAR(1000), IN p_release_mobile VARCHAR(50), IN p_release_address VARCHAR(1000), IN p_dr_number VARCHAR(50), IN p_dr_type VARCHAR(50), IN p_product_id INT, IN p_backjob_monitoring_id INT, IN p_stock_number VARCHAR(100), IN p_product_description VARCHAR(1000), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_estimated_return_date DATE, IN p_last_log_by INT, OUT p_internal_dr_id INT)
 BEGIN
-    INSERT INTO internal_dr (release_to, release_mobile, release_address, dr_number, dr_type, backjob_monitoring_id, stock_number, product_description, engine_number, chassis_number, plate_number, last_log_by) 
-	VALUES(p_release_to, p_release_mobile, p_release_address, p_dr_number, p_dr_type, p_backjob_monitoring_id, p_stock_number, p_product_description, p_engine_number, p_chassis_number, p_plate_number, p_last_log_by);
+    INSERT INTO internal_dr (release_to, release_mobile, release_address, dr_number, dr_type, product_id, backjob_monitoring_id, stock_number, product_description, engine_number, chassis_number, plate_number, estimated_return_date, last_log_by) 
+	VALUES(p_release_to, p_release_mobile, p_release_address, p_dr_number, p_dr_type, p_product_id, p_backjob_monitoring_id, p_stock_number, p_product_description, p_engine_number, p_chassis_number, p_plate_number, p_estimated_return_date, p_last_log_by);
 	
     SET p_internal_dr_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateInternalDR(IN p_internal_dr_id INT, IN p_release_to VARCHAR(1000), IN p_release_mobile VARCHAR(50), IN p_release_address VARCHAR(1000), IN p_dr_number VARCHAR(50), IN p_dr_type VARCHAR(50), IN p_backjob_monitoring_id INT, IN p_stock_number VARCHAR(100), IN p_product_description VARCHAR(1000), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updateInternalDR(IN p_internal_dr_id INT, IN p_release_to VARCHAR(1000), IN p_release_mobile VARCHAR(50), IN p_release_address VARCHAR(1000), IN p_dr_number VARCHAR(50), IN p_dr_type VARCHAR(50), IN p_product_id INT, IN p_backjob_monitoring_id INT, IN p_stock_number VARCHAR(100), IN p_product_description VARCHAR(1000), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_estimated_return_date DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE internal_dr
     SET release_to = p_release_to,
@@ -9866,12 +9876,14 @@ BEGIN
     release_address = p_release_address,
     dr_number = p_dr_number,
     dr_type = p_dr_type,
+    product_id = p_product_id,
     backjob_monitoring_id = p_backjob_monitoring_id,
     stock_number = p_stock_number,
     product_description = p_product_description,
     engine_number = p_engine_number,
     chassis_number = p_chassis_number,
     plate_number = p_plate_number,
+    estimated_return_date = p_estimated_return_date,
     last_log_by = p_last_log_by
     WHERE internal_dr_id = p_internal_dr_id;
 END //
@@ -12141,20 +12153,21 @@ BEGIN
     WHERE chart_of_account_id = p_chart_of_account_id;
 END //
 
-CREATE PROCEDURE insertChartOfAccount(IN p_code VARCHAR(100), IN p_name VARCHAR(500), IN p_account_type VARCHAR(500), IN p_last_log_by INT, OUT p_chart_of_account_id INT)
+CREATE PROCEDURE insertChartOfAccount(IN p_code VARCHAR(100), IN p_name VARCHAR(500), IN p_account_type VARCHAR(500), IN p_archived VARCHAR(5), IN p_last_log_by INT, OUT p_chart_of_account_id INT)
 BEGIN
-    INSERT INTO chart_of_account (code, name, account_type, last_log_by) 
-	VALUES(p_code, p_name, p_account_type, p_last_log_by);
+    INSERT INTO chart_of_account (code, name, account_type, archived, last_log_by) 
+	VALUES(p_code, p_name, p_account_type, p_archived, p_last_log_by);
 	
     SET p_chart_of_account_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateChartOfAccount(IN p_chart_of_account_id INT, IN p_code VARCHAR(100), IN p_name VARCHAR(500), IN p_account_type VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateChartOfAccount(IN p_chart_of_account_id INT, IN p_code VARCHAR(100), IN p_name VARCHAR(500), IN p_account_type VARCHAR(500), IN p_archived VARCHAR(5), IN p_last_log_by INT)
 BEGIN
 	UPDATE chart_of_account
     SET code = p_code,
         name = p_name,
         account_type = p_account_type,
+        archived = p_archived,
     last_log_by = p_last_log_by
     WHERE chart_of_account_id = p_chart_of_account_id;
 END //
@@ -12182,6 +12195,23 @@ BEGIN
     SELECT chart_of_account_id, code, name
     FROM chart_of_account
     WHERE account_type NOT IN ('Equity')
+    ORDER BY chart_of_account_id;
+END //
+
+CREATE PROCEDURE generateActiveChartOfAccountOptions()
+BEGIN
+    SELECT chart_of_account_id, code, name
+    FROM chart_of_account
+    WHERE archived = 'No'
+    ORDER BY chart_of_account_id;
+END //
+
+CREATE PROCEDURE generateActiveChartOfAccountDisbursementOptions()
+BEGIN
+    SELECT chart_of_account_id, code, name
+    FROM chart_of_account
+    WHERE account_type NOT IN ('Equity')
+    AND archived = 'No'
     ORDER BY chart_of_account_id;
 END //
 
@@ -14079,7 +14109,7 @@ BEGIN
 	SELECT COUNT(*) AS total
     FROM sales_proposal_job_order
     WHERE progress < 100
-    AND backjob = 'No' AND sales_proposal_id = p_sales_proposal_id;
+    AND backjob = 'No' AND cancellation_date IS NOT NULL AND sales_proposal_id = p_sales_proposal_id;
 END //
 
 CREATE PROCEDURE generateJobOrderBackjobOptions()
@@ -14107,7 +14137,7 @@ BEGIN
 	SELECT COUNT(*) AS total
     FROM sales_proposal_additional_job_order
     WHERE progress < 100
-    AND backjob = 'No' AND sales_proposal_id = p_sales_proposal_id;
+    AND backjob = 'No' AND cancellation_date IS NOT NULL AND sales_proposal_id = p_sales_proposal_id;
 END //
 
 CREATE PROCEDURE generateWorkCenterTable()
@@ -15161,6 +15191,33 @@ BEGIN
     WHERE part_transaction_id = p_parts_transaction_id
 	ORDER BY part_id;
 END //
+CREATE PROCEDURE generatePartItemTable2(IN p_part_id INT, IN p_parts_transaction_start_date DATE, IN p_parts_transaction_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM part_transaction_cart';
+    SET conditionList = ' WHERE 1 = 1';
+
+    
+    SET conditionList = CONCAT(conditionList, ' AND part_id =');
+    SET conditionList = CONCAT(conditionList, p_part_id);
+    
+    IF p_parts_transaction_start_date IS NOT NULL AND p_parts_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_parts_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_parts_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
 
 CREATE PROCEDURE checkPartsTransactionExist (IN p_part_transaction_id VARCHAR(100))
 BEGIN
@@ -15612,6 +15669,34 @@ BEGIN
 	SELECT * FROM part_incoming_cart
     WHERE part_incoming_id = p_part_incoming_id
 	ORDER BY part_id;
+END //
+
+CREATE PROCEDURE generatePartIncomingItemTable2(IN p_part_id INT, IN p_parts_incoming_start_date DATE, IN p_parts_incoming_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM part_incoming_cart';
+    SET conditionList = ' WHERE 1 = 1';
+
+    
+    SET conditionList = CONCAT(conditionList, ' AND part_id =');
+    SET conditionList = CONCAT(conditionList, p_part_id);
+    
+    IF p_parts_incoming_start_date IS NOT NULL AND p_parts_incoming_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_parts_incoming_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_parts_incoming_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 CREATE PROCEDURE generatePartsIncomingDocument(IN p_part_incoming_id INT)
@@ -16565,12 +16650,6 @@ BEGIN
 	ORDER BY business_location_type_name;
 END //
 
-
-CREATE PROCEDURE openCIReport(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_additional_maker_id INT, IN p_comaker_id2 INT, IN p_duplicate VARCHAR(10), IN p_last_log_by INT)
-BEGIN
-	
-END //
-
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS openCIReport//
@@ -16657,7 +16736,7 @@ BEGIN
 
             -- Insert Employment
             INSERT INTO ci_report_employment (
-                ci_report_id, contact_address_id, address, city_id, business_name,
+                ci_report_id, contact_address_id, address, city_id, employment_name,
                 description, last_log_by
             )
             SELECT
@@ -16923,12 +17002,13 @@ BEGIN
     WHERE ci_report_id = p_ci_report_id;
 END //
 
-CREATE PROCEDURE updateCIReport(IN p_ci_report_id INT, IN p_appraiser INT, IN p_investigator INT, IN p_narrative_summary VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updateCIReport(IN p_ci_report_id INT, IN p_appraiser INT, IN p_investigator INT, IN p_narrative_summary VARCHAR(5000), IN p_purpose_of_loan VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
 	UPDATE ci_report
     SET appraiser = p_appraiser,
     investigator = p_investigator,
     narrative_summary = p_narrative_summary,
+    purpose_of_loan = p_purpose_of_loan,
     last_log_by = p_last_log_by
     WHERE ci_report_id = p_ci_report_id;
 END //
@@ -17426,7 +17506,7 @@ CREATE PROCEDURE insertCIReportBank(
 BEGIN
     INSERT INTO ci_report_bank (
         ci_report_id, bank_id, account_name, account_number, bank_account_type_id,
-        currency_id, bank_handling_type_id, date_open, adb, informant,
+        currency_id, bank_handling_type_id, date_open, bank_adb_id, informant,
         remarks, last_log_by
     ) VALUES (
         p_ci_report_id, p_bank_id, p_account_name, p_account_number, p_bank_account_type_id,
@@ -17461,7 +17541,7 @@ BEGIN
         currency_id = p_currency_id,
         bank_handling_type_id = p_bank_handling_type_id,
         date_open = p_date_open,
-        adb = p_adb,
+        bank_adb_id = p_adb,
         informant = p_informant,
         remarks = p_remarks,
         last_log_by = p_last_log_by
@@ -17530,6 +17610,12 @@ CREATE PROCEDURE getCIReportBankDeposits(IN p_ci_report_bank_deposits_id INT)
 BEGIN
 	SELECT * FROM ci_report_bank_deposits
     WHERE ci_report_bank_deposits_id = p_ci_report_bank_deposits_id;
+END //
+
+CREATE PROCEDURE getBankDepositAverage(IN p_ci_report_bank_id INT)
+BEGIN
+	SELECT AVG(amount) AS total FROM ci_report_bank_deposits
+    WHERE ci_report_bank_id = p_ci_report_bank_id;
 END //
 
 CREATE PROCEDURE deleteCIReportBankDeposits(IN p_ci_report_bank_deposits_id INT)
@@ -17680,6 +17766,28 @@ CREATE PROCEDURE deleteCIReportLoan(IN p_ci_report_loan_id INT)
 BEGIN
 	DELETE FROM ci_report_loan 
     WHERE ci_report_loan_id = p_ci_report_loan_id;
+END //
+
+CREATE PROCEDURE getCIReportLoanTotal(
+    IN p_ci_report_id INT,
+    IN p_type VARCHAR(20)
+)
+BEGIN
+    IF p_type = 'pn amount' THEN
+        SELECT SUM(pn_amount) AS total
+        FROM ci_report_loan
+        WHERE ci_report_id = p_ci_report_id AND outstanding_balance > 0;
+
+    ELSEIF p_type = 'outstanding balance' THEN
+        SELECT SUM(outstanding_balance) AS total
+        FROM ci_report_loan
+        WHERE ci_report_id = p_ci_report_id;
+
+    ELSE
+        SELECT SUM(repayment) AS total
+        FROM ci_report_loan
+        WHERE ci_report_id = p_ci_report_id AND outstanding_balance > 0;
+    END IF;
 END //
 
 /* --------------------------------------------- */
@@ -17910,6 +18018,12 @@ BEGIN
     WHERE ci_report_asset_id = p_ci_report_asset_id;
 END //
 
+CREATE PROCEDURE getCIReportAssetsTotal(IN p_ci_report_id INT)
+BEGIN
+	SELECT SUM(value) AS total FROM ci_report_asset
+    WHERE ci_report_id = p_ci_report_id;
+END //
+
 CREATE PROCEDURE deleteCIReportAsset(IN p_ci_report_asset_id INT)
 BEGIN
 	DELETE FROM ci_report_asset 
@@ -17940,6 +18054,24 @@ BEGIN
         FROM ci_report_residence
         WHERE ci_report_id = p_ci_report_id;
     END IF;
+END //
+
+CREATE PROCEDURE generateCIReportBusinessSummary(
+    IN p_ci_report_id INT
+)
+BEGIN
+    SELECT *
+    FROM ci_report_business
+    WHERE ci_report_id = p_ci_report_id;
+END //
+
+CREATE PROCEDURE generateCIReportEmploymentSummary(
+    IN p_ci_report_id INT
+)
+BEGIN
+    SELECT *
+    FROM ci_report_employment
+    WHERE ci_report_id = p_ci_report_id;
 END //
 
 CREATE PROCEDURE getCIReportBusinessExpenseTotal(
@@ -17974,6 +18106,10 @@ BEGIN
 
     ELSEIF p_type = 'liabilities' THEN
         SELECT SUM(liabilities) AS total
+        FROM ci_report_business
+        WHERE ci_report_id = p_ci_report_id;
+    ELSEIF p_type = 'rental' THEN
+        SELECT SUM(rental_amount) AS total
         FROM ci_report_business
         WHERE ci_report_id = p_ci_report_id;
     ELSE
@@ -18013,4 +18149,320 @@ BEGIN
         FROM ci_report_employment
         WHERE ci_report_id = p_ci_report_id;
     END IF;
+END //
+
+CREATE PROCEDURE updateCIReportStatus
+(
+    IN p_ci_report_id  INT,
+    IN p_ci_status     VARCHAR(100),
+    IN p_remarks       VARCHAR(5000),
+    IN p_sales_proposal_id   INT,      -- caller no longer needs to pass proposal ID
+    IN p_last_log_by   INT      -- caller no longer needs to pass proposal ID
+)
+BEGIN
+    DECLARE v_sales_proposal_id INT;
+    DECLARE v_total INT;
+    DECLARE v_completed INT;
+
+    -- 1. Update the single CI report
+    IF p_ci_status = 'Draft' THEN
+        UPDATE ci_report
+        SET    ci_status         = p_ci_status,
+               set_to_draft_date = NOW(),
+               set_to_draft_reason = p_remarks,
+               last_log_by       = p_last_log_by
+        WHERE  ci_report_id = p_ci_report_id;
+
+    ELSEIF p_ci_status = 'For Completion' THEN
+        UPDATE ci_report
+        SET    ci_status           = p_ci_status,
+               for_completion_date = NOW(),
+               last_log_by         = p_last_log_by
+        WHERE  ci_report_id = p_ci_report_id;
+
+    ELSEIF p_ci_status = 'Completed' THEN
+        UPDATE ci_report
+        SET    ci_status      = p_ci_status,
+               completed_date = NOW(),
+               last_log_by    = p_last_log_by
+        WHERE  ci_report_id = p_ci_report_id;
+
+        -- 3. Are all reports for that proposal now completed?
+        SELECT COUNT(*)
+          INTO v_total
+          FROM ci_report
+         WHERE sales_proposal_id = p_sales_proposal_id;
+
+        SELECT COUNT(*)
+          INTO v_completed
+          FROM ci_report
+         WHERE sales_proposal_id = p_sales_proposal_id
+           AND ci_status = 'Completed';
+
+        IF v_total = v_completed THEN
+            UPDATE sales_proposal
+            SET    ci_status          = 'Completed',
+                   ci_completion_date = NOW(),
+                   last_log_by        = p_last_log_by
+            WHERE  sales_proposal_id  = p_sales_proposal_id;
+        END IF;
+    END IF;
+END //
+
+CREATE PROCEDURE insertUnitReturn(
+    IN p_internal_dr_id INT,
+    IN p_product_id INT,
+    IN p_estimated_return_date DATE,
+    IN p_last_log_by INT
+)
+BEGIN
+    INSERT INTO unit_return (
+        internal_dr_id, product_id, estimated_return_date, last_log_by
+    ) VALUES (
+        p_internal_dr_id, p_product_id, p_estimated_return_date, p_last_log_by
+    );
+END //
+
+CREATE PROCEDURE updateProductForReturn(IN p_product_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE product
+    SET product_status = 'For Return',
+    for_return_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE product_id = p_product_id;
+END //
+
+CREATE PROCEDURE getUnitReturn(IN p_unit_return_id INT)
+BEGIN
+	SELECT * FROM unit_return
+    WHERE unit_return_id = p_unit_return_id;
+END //
+
+CREATE PROCEDURE receiveUnit(IN p_unit_return_id INT, IN p_file_path VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE unit_return
+    SET return_date = NOW(),
+    incoming_checklist = p_file_path,
+    last_log_by = p_last_log_by
+    WHERE unit_return_id = p_unit_return_id;
+END //
+
+
+CREATE PROCEDURE cronUnitReturnOverdue()
+BEGIN
+    SELECT  *
+    FROM    unit_return
+    WHERE   return_date IS NULL
+    AND   estimated_return_date <= CURDATE()
+END //
+
+CREATE PROCEDURE openCustomerCIReport(
+    IN p_contact_id INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE new_ci_report_id INT;
+
+    INSERT INTO ci_report (
+        contact_id, last_log_by
+    ) VALUES (
+        p_contact_id, p_last_log_by
+    );
+    SET new_ci_report_id = LAST_INSERT_ID();
+
+    INSERT INTO ci_report_residence (
+        ci_report_id, contact_address_id, address, city_id, last_log_by
+    )
+    SELECT
+        new_ci_report_id, ca.contact_address_id, ca.address, ca.city_id, p_last_log_by
+    FROM contact_address ca
+    WHERE ca.contact_id = p_contact_id
+    AND ca.address_type_id IN (1,3,4,5);
+
+    -- Insert Business
+    INSERT INTO ci_report_business (
+        ci_report_id, contact_address_id, address, city_id, business_name,
+        description, last_log_by
+    )
+    SELECT
+        new_ci_report_id, ca.contact_address_id, ca.address, ca.city_id,
+        'N/A', 'N/A', p_last_log_by
+    FROM contact_address ca
+    WHERE ca.contact_id = p_contact_id
+    AND ca.address_type_id = 6;
+
+    -- Insert Employment
+    INSERT INTO ci_report_employment (
+        ci_report_id, contact_address_id, address, city_id, employment_name,
+        description, last_log_by
+    )
+    SELECT
+        new_ci_report_id, ca.contact_address_id, ca.address, ca.city_id,
+        'N/A', 'N/A', p_last_log_by
+    FROM contact_address ca
+    WHERE ca.contact_id = p_contact_id
+    AND ca.address_type_id = 2;
+END //
+
+
+CREATE PROCEDURE generateContactCIReportSummary(IN p_contact_id INT)
+BEGIN
+    SELECT *
+    FROM ci_report
+    WHERE contact_id = p_contact_id
+    ORDER BY created_date DESC;
+END //
+
+
+DELIMITER //
+
+CREATE PROCEDURE generateUnitReturnTable
+(
+    IN p_status_list               VARCHAR(5000),   
+    IN p_est_return_from           DATE,
+    IN p_est_return_to             DATE,
+    IN p_return_from               DATE,
+    IN p_return_to                 DATE
+)
+BEGIN
+    DECLARE v_status_csv  VARCHAR(5000);  
+    DECLARE v_sql         LONGTEXT;        
+
+    SET v_status_csv = REPLACE(p_status_list, '''',  '');  
+    SET v_status_csv = REPLACE(v_status_csv ,  ' ',  '');   
+
+    SET v_sql = '
+        SELECT *
+        FROM (
+            SELECT  ur.*,
+                    CASE
+                      WHEN ur.return_date IS NOT NULL
+                           AND ur.return_date <> ''0000-00-00''
+                      THEN ''Returned''
+                      WHEN (ur.return_date IS NULL
+                             OR ur.return_date = ''0000-00-00'')
+                           AND CURDATE() <= ur.estimated_return_date
+                      THEN ''On-going''
+                      ELSE ''Overdue''
+                    END AS computed_status
+            FROM unit_return AS ur
+        ) AS t
+        WHERE 1 = 1';
+
+    IF v_status_csv IS NOT NULL AND v_status_csv <> '' THEN
+        SET v_sql = CONCAT(
+            v_sql,
+            ' AND FIND_IN_SET(computed_status, ',
+            QUOTE(v_status_csv),     
+            ')'
+        );
+    END IF;
+
+    IF p_est_return_from IS NOT NULL AND p_est_return_to IS NOT NULL THEN
+        SET v_sql = CONCAT(
+            v_sql,
+            ' AND estimated_return_date BETWEEN ',
+            QUOTE(p_est_return_from), ' AND ', QUOTE(p_est_return_to)
+        );
+    END IF;
+
+    IF p_return_from IS NOT NULL AND p_return_to IS NOT NULL THEN
+        SET v_sql = CONCAT(
+            v_sql,
+            ' AND return_date BETWEEN ',
+            QUOTE(p_return_from), ' AND ', QUOTE(p_return_to)
+        );
+    END IF;
+
+    SET v_sql = CONCAT(v_sql, ' ORDER BY estimated_return_date DESC');
+
+    PREPARE stmt FROM v_sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+/* Bank ADB Table Stored Procedures */
+
+CREATE PROCEDURE checkBankADBExist (IN p_bank_adb_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM bank_adb
+    WHERE bank_adb_id = p_bank_adb_id;
+END //
+
+CREATE PROCEDURE insertBankADB(IN p_bank_adb_name VARCHAR(100), IN p_last_log_by INT, OUT p_bank_adb_id INT)
+BEGIN
+    INSERT INTO bank_adb (bank_adb_name, last_log_by) 
+	VALUES(p_bank_adb_name, p_last_log_by);
+	
+    SET p_bank_adb_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateBankADB(IN p_bank_adb_id INT, IN p_bank_adb_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE bank_adb
+    SET bank_adb_name = p_bank_adb_name,
+    last_log_by = p_last_log_by
+    WHERE bank_adb_id = p_bank_adb_id;
+END //
+
+CREATE PROCEDURE deleteBankADB(IN p_bank_adb_id INT)
+BEGIN
+    DELETE FROM bank_adb WHERE bank_adb_id = p_bank_adb_id;
+END //
+
+CREATE PROCEDURE getBankADB(IN p_bank_adb_id INT)
+BEGIN
+	SELECT * FROM bank_adb
+    WHERE bank_adb_id = p_bank_adb_id;
+END //
+
+CREATE PROCEDURE duplicateBankADB(IN p_bank_adb_id INT, IN p_last_log_by INT, OUT p_new_bank_adb_id INT)
+BEGIN
+    DECLARE p_bank_adb_name VARCHAR(100);
+    
+    SELECT bank_adb_name
+    INTO p_bank_adb_name
+    FROM bank_adb 
+    WHERE bank_adb_id = p_bank_adb_id;
+    
+    INSERT INTO bank_adb (bank_adb_name, last_log_by) 
+    VALUES(p_bank_adb_name, p_last_log_by);
+    
+    SET p_new_bank_adb_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateBankADBTable()
+BEGIN
+    SELECT bank_adb_id, bank_adb_name
+    FROM bank_adb
+    ORDER BY bank_adb_id;
+END //
+
+CREATE PROCEDURE generateBankADBOptions()
+BEGIN
+	SELECT bank_adb_id, bank_adb_name FROM bank_adb
+	ORDER BY bank_adb_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE PROCEDURE cancelSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cancellation_reason VARCHAR(5000), IN p_cancellation_confirmation VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_job_order
+    SET cancellation_date = NOW(),
+    cancellation_reason = p_cancellation_reason,
+    cancellation_confirmation = p_cancellation_confirmation,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
+END //
+
+CREATE PROCEDURE cancelSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cancellation_reason VARCHAR(5000), IN p_cancellation_confirmation VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_additional_job_order
+    SET cancellation_date = NOW(),
+    cancellation_reason = p_cancellation_reason,
+    cancellation_confirmation = p_cancellation_confirmation,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
 END //

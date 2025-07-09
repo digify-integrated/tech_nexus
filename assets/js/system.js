@@ -724,25 +724,57 @@ function createEmployeeQRCode(container, name, badgeID){
 }
 
 function createProductQRCode(container, product_id, description, stock_number) {
-    document.getElementById(container).innerHTML = '';
 
-    var card = 'BEGIN:VCARD\r\n';
-    card += 'VERSION:3.0\r\n';
-    card += 'PRODUCT_ID:' + product_id + '\r\n';
-    card += 'DESCRIPTION:' + description + '\r\n';
-    card += 'STOCK_NUMBER:' + stock_number + '\r\n';
-    card += 'END:VCARD';
+  const CR = '\n';              // one-byte line break
+  const node = typeof container === 'string'
+             ? document.getElementById(container)
+             : container;
 
-    var qrcode = new QRCode(document.getElementById(container), {
-        width: 400,
-        height: 400,
-        colorDark: "#000000", 
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-    });
+  // --- 1. Build a vCard *without the description* first --------------------
+  const header =
+        'BEGIN:VCARD'   + CR +
+        'VERSION:3.0'   + CR +
+        'X-PID:'   + product_id  + CR +
+        'NOTE:';                     // description comes later
+  const footer = CR + 'X-STOCK:' + stock_number + CR + 'END:VCARD';
 
-    qrcode.makeCode(card);
+  // --- 2. Work out how many bytes are still free at level H ---------------
+  const MAX_QR_H = 1_120;                         // byte ceiling for v40-H
+  const used     = new TextEncoder().encode(header + footer).length;
+  const room     = MAX_QR_H - used - 1;           // "-1" for possible ellipsis
+
+  // --- 3. Trim description until it fits ----------------------------------
+  let desc = description;
+  while (new TextEncoder().encode(desc).length > room) {
+    // drop 5 UTF-16 code units at a time for speed
+    desc = desc.slice(0, -5);
+  }
+  if (desc.length < description.length) desc += '…';  // show that it was cut
+
+  const card = header + desc + footer;
+
+  // --- 4. Render fresh QR instance ----------------------------------------
+  node.innerHTML = '';                            // clear previous SVG/Canvas
+
+  new QRCode(node, {
+    text        : card,            // pass payload here
+    correctLevel: QRCode.CorrectLevel.H,
+    typeNumber  : 0,               // up to Version-40
+    width       : 500,
+    height      : 500,
+    colorDark   : '#000000',
+    colorLight  : '#ffffff'
+  });
+
+  // --- 5. (Optional) log diagnostics --------------------------------------
+  console.log(
+    'QR at Level H, bytes:',
+    new TextEncoder().encode(card).length,
+    '— description chars kept:',
+    desc.length
+  );
 }
+
 
 function getLocation(containerID) {
     return new Promise((resolve, reject) => {

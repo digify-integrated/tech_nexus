@@ -389,6 +389,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'PRODUCT_TYPE' => $productType,
                         'PRODUCT' => $stockNumber,
                         'RELEASED_DATE' => $releasedDate,
+                        'CREATED_DATE' => $createdDate,
                         'STATUS' => $salesProposalStatus,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" target="_blank" title="View Details">
@@ -1329,6 +1330,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
                 $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
 
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
+                $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
+
                 $updateJobOrderProgress = $userModel->checkSystemActionAccessRights($user_id, 197);
 
                 $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalJobOrderTable(:salesProposalID)');
@@ -1344,12 +1348,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $contractor_id = $row['contractor_id'];
                     $work_center_id = $row['work_center_id'];
                     $backjob = $row['backjob'];
+                    $cancellation_reason = $row['cancellation_reason'];
                     $cost = number_format($row['cost'], 2);
                     $job_cost = number_format($row['job_cost'], 2);
                     $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
                     $planned_start_date = $systemModel->checkDate('summary', $row['planned_start_date'], '', 'm/d/Y', '');
                     $planned_finish_date = $systemModel->checkDate('summary', $row['planned_finish_date'], '', 'm/d/Y', '');
                     $date_started = $systemModel->checkDate('summary', $row['date_started'], '', 'm/d/Y', '');
+                    $cancellation_date = $systemModel->checkDate('summary', $row['cancellation_date'], '', 'm/d/Y', '');
 
                     if($backjob == 'No'){
                         $backjob =  '<span class="badge bg-success">' . $backjob . '</span>';
@@ -1365,10 +1371,25 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
                     $action = '';
-                    if($updateJobOrderProgress['total'] > 0){
+                    if($updateJobOrderProgress['total'] > 0 && $salesProposalStatus == 'On-Process'){
                         $action = '<button type="button" class="btn btn-icon btn-success update-sales-proposal-job-order-monitoring" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-monitoring-offcanvas" aria-controls="sales-proposal-job-order-monitoring-offcanvas" data-sales-proposal-job-order-id="'. $salesProposalJobOrderID .'" title="Update Job Order Progress">
                             <i class="ti ti-edit"></i>
                         </button>';
+
+                        if(empty($cancellation_reason)){
+                            $action .= '<button type="button" class="btn btn-icon btn-warning cancel-sales-proposal-job-order-monitoring" data-bs-target="#sales-proposal-job-order-cancel-offcanvas" aria-controls="sales-proposal-job-order-cancel-offcanvas" data-bs-toggle="offcanvas" data-sales-proposal-job-order-id="'. $salesProposalJobOrderID .'" title="Cancel Job Order Progress">
+                                <i class="ti ti-x"></i>
+                            </button>';
+                        }
+                    }
+
+                    if(!empty($cancellation_reason)){
+                        $cancellation_confirmation = $systemModel->checkImage($row['cancellation_confirmation'], 'default');
+
+                        $cancellation_confirmation = '<a href="'. $cancellation_confirmation .'">View Confirmation</a>';
+                    }
+                    else{
+                        $cancellation_confirmation = '';
                     }
 
                     $response[] = [
@@ -1384,6 +1405,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'PLANNED_FINISH_DATE' => $planned_finish_date,
                         'DATE_STARTED' => $date_started,
                         'PROGRESS' => number_format($progress, 2) . '%',
+                        'CANCELLATION_DATE' => $cancellation_date,
+                        'CANCELLATION_REASON' => $cancellation_reason,
+                        'CANCELLATION_CONFIRMATION' => $cancellation_confirmation,
                         'ACTION' => '<div class="d-flex gap-2">'.
                                     $action . 
                                     '</div>'
@@ -1505,6 +1529,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
                 $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
 
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
+                $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
+
                 $updateJobOrderProgress = $userModel->checkSystemActionAccessRights($user_id, 197);
 
                 $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalAdditionalJobOrderTable(:salesProposalID)');
@@ -1522,12 +1549,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $contractor_id = $row['contractor_id'];
                     $work_center_id = $row['work_center_id'];
                     $backjob = $row['backjob'];
+                    $cancellation_reason = $row['cancellation_reason'];
                     $cost = number_format($row['cost'], 2);
                     $job_cost = number_format($row['job_cost'], 2);
                     $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
                     $planned_start_date = $systemModel->checkDate('summary', $row['planned_start_date'], '', 'm/d/Y', '');
                     $planned_finish_date = $systemModel->checkDate('summary', $row['planned_finish_date'], '', 'm/d/Y', '');
                     $date_started = $systemModel->checkDate('summary', $row['date_started'], '', 'm/d/Y', '');
+                    $cancellation_date = $systemModel->checkDate('summary', $row['cancellation_date'], '', 'm/d/Y', '');
 
                     if($backjob == 'No'){
                         $backjob =  '<span class="badge bg-success">' . $backjob . '</span>';
@@ -1544,11 +1573,27 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
 
                     $action = '';
-                    if($updateJobOrderProgress['total'] > 0){
+                    if($updateJobOrderProgress['total'] > 0 && $salesProposalStatus == 'On-Process'){
                         $action = '<button type="button" class="btn btn-icon btn-success update-sales-proposal-additional-job-order-monitoring" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-monitoring-offcanvas" aria-controls="sales-proposal-additional-job-order-monitoring-offcanvas" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Update Additional Job Order Progress">
                             <i class="ti ti-edit"></i>
                         </button>';
+
+                        if(empty($cancellation_reason)){
+                            $action .= '<button type="button" class="btn btn-icon btn-warning cancel-sales-proposal-additional-job-order-monitoring" data-bs-target="#sales-proposal-additional-job-order-cancel-offcanvas" aria-controls="sales-proposal-additional-job-order-cancel-offcanvas" data-bs-toggle="offcanvas" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Cancel Additional Job Order Progress">
+                                <i class="ti ti-x"></i>
+                            </button>';
+                        }
                     }
+
+                    if(!empty($cancellation_reason)){
+                        $cancellation_confirmation = $systemModel->checkImage($row['cancellation_confirmation'], 'default');
+
+                        $cancellation_confirmation = '<a href="'. $cancellation_confirmation .'">View Confirmation</a>';
+                    }
+                    else{
+                        $cancellation_confirmation = '';
+                    }
+
 
                     $response[] = [
                         'CHECK_BOX' => '<input class="form-check-input additional-job-order-checkbox-children" type="checkbox" value="'. $salesProposalAdditionalJobOrderID .'">',
@@ -1565,6 +1610,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'PLANNED_FINISH_DATE' => $planned_finish_date,
                         'DATE_STARTED' => $date_started,
                         'PROGRESS' => number_format($progress, 2) . '%',
+                        'CANCELLATION_DATE' => $cancellation_date,
+                        'CANCELLATION_REASON' => $cancellation_reason,
+                        'CANCELLATION_CONFIRMATION' => $cancellation_confirmation,
                         'ACTION' => '<div class="d-flex gap-2">'.
                                     $action . 
                                     '</div>'

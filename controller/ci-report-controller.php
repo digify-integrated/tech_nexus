@@ -14,6 +14,7 @@ session_start();
 # -------------------------------------------------------------
 class CIReportController {
     private $ciReportModel;
+    private $salesProposalModel;
     private $userModel;
     private $systemModel;
     private $securityModel;
@@ -33,8 +34,9 @@ class CIReportController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(CIReportModel $ciReportModel, UserModel $userModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(CIReportModel $ciReportModel, SalesProposalModel $salesProposalModel, UserModel $userModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->ciReportModel = $ciReportModel;
+        $this->salesProposalModel = $salesProposalModel;
         $this->userModel = $userModel;
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
@@ -61,6 +63,9 @@ class CIReportController {
             switch ($transaction) {
                 case 'save ci report':
                     $this->saveCIReport();
+                    break;
+                case 'add customer ci report':
+                    $this->addCustomerCIReport();
                     break;
                 case 'save ci report residence':
                     $this->saveCIReportResidence();
@@ -131,6 +136,9 @@ class CIReportController {
                 case 'get ci report loan details':
                     $this->getCIReportLoanDetails();
                     break;
+                case 'get ci report loans total details':
+                    $this->getCIReportLoanTotalDetails();
+                    break;
                 case 'get ci report cmap details':
                     $this->getCIReportCMAPDetails();
                     break;
@@ -139,6 +147,12 @@ class CIReportController {
                     break;
                 case 'get ci report asset details':
                     $this->getCIReportAssetDetails();
+                    break;
+                case 'get ci report asset total details':
+                    $this->getCIReportAssetTotalDetails();
+                    break;
+                case 'get ci report summary details':
+                    $this->getCIReportSummaryDetails();
                     break;
                 case 'delete ci report residence':
                     $this->deleteCIReportResidence();
@@ -173,6 +187,15 @@ class CIReportController {
                 case 'delete ci report asset':
                     $this->deleteCIReportAsset();
                     break;
+                case 'ci report set to draft':
+                    $this->tagCIReportAsDraft();
+                    break;
+                case 'tag ci report for completion':
+                    $this->tagCIReportForCompletion();
+                    break;
+                case 'tag ci report as completed':
+                    $this->tagCIReportAsCompleted();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -180,6 +203,90 @@ class CIReportController {
         }
     }
     # -------------------------------------------------------------
+
+    public function addCustomerCIReport() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $customer_id = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->ciReportModel->openCustomerCIReport($customer_id, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+
+    public function tagCIReportAsDraft() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $ci_report_id = htmlspecialchars($_POST['ci_report_id'], ENT_QUOTES, 'UTF-8');
+        $set_to_draft_reason = htmlspecialchars($_POST['set_to_draft_reason'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->ciReportModel->updateCIReportStatus($ci_report_id, 'Draft', $set_to_draft_reason, '', $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+
+    public function tagCIReportForCompletion() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $ci_report_id = htmlspecialchars($_POST['ci_report_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->ciReportModel->updateCIReportStatus($ci_report_id, 'For Completion', '', '', $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+
+    public function tagCIReportAsCompleted() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $ci_report_id = htmlspecialchars($_POST['ci_report_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $ciReportDetails = $this->ciReportModel->getCIReport($ci_report_id);
+        $sales_proposal_id = $ciReportDetails['sales_proposal_id'] ?? '';
+
+        $this->ciReportModel->updateCIReportStatus($ci_report_id, 'Completed', '', $sales_proposal_id, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
 
     # -------------------------------------------------------------
     #   Save methods
@@ -206,6 +313,7 @@ class CIReportController {
         $appraiser = htmlspecialchars($_POST['appraiser'], ENT_QUOTES, 'UTF-8');
         $investigator = htmlspecialchars($_POST['investigator'], ENT_QUOTES, 'UTF-8');
         $narrative_summary = htmlspecialchars($_POST['narrative_summary'], ENT_QUOTES, 'UTF-8');
+        $purpose_of_loan = htmlspecialchars($_POST['purpose_of_loan'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -218,7 +326,7 @@ class CIReportController {
         $total = $checkCIReportExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->ciReportModel->updateCIReport($ciReportID, $appraiser, $investigator, $narrative_summary, $userID);
+            $this->ciReportModel->updateCIReport($ciReportID, $appraiser, $investigator, $narrative_summary, $purpose_of_loan, $userID);
         } 
         
         echo json_encode(['success' => true]);
@@ -1193,7 +1301,7 @@ class CIReportController {
         $ci_bank_currency_id = $_POST['ci_bank_currency_id'];
         $ci_bank_bank_handling_type_id = $_POST['ci_bank_bank_handling_type_id'];
         $ci_bank_date_open = $this->systemModel->checkDate('empty', $_POST['ci_bank_date_open'], '', 'Y-m-d', '');
-        $ci_bank_bank_adb = $_POST['ci_bank_bank_adb'];
+        $ci_bank_bank_adb_id = $_POST['ci_bank_bank_adb_id'];
         $ci_bank_informant = $_POST['ci_bank_informant'];
         $remarks = $_POST['ci_bank_remarks'];
     
@@ -1210,7 +1318,7 @@ class CIReportController {
         if ($total > 0) {
             $this->ciReportModel->updateCIReportBank(
                 $ci_report_bank_id, $ci_report_id, $ci_bank_bank_id, $ci_bank_account_name, $ci_bank_account_number,
-                $ci_bank_bank_account_type_id, $ci_bank_currency_id, $ci_bank_bank_handling_type_id, $ci_bank_date_open, $ci_bank_bank_adb,
+                $ci_bank_bank_account_type_id, $ci_bank_currency_id, $ci_bank_bank_handling_type_id, $ci_bank_date_open, $ci_bank_bank_adb_id,
                 $ci_bank_informant, $remarks, $userID
             );
             
@@ -1219,8 +1327,7 @@ class CIReportController {
         } else {
             $this->ciReportModel->insertCIReportBank(
                 $ci_report_id, $ci_bank_bank_id, $ci_bank_account_name, $ci_bank_account_number, $ci_bank_bank_account_type_id,
-                $ci_bank_currency_id, $ci_bank_bank_handling_type_id, $ci_bank_date_open, $ci_bank_bank_adb,
-                $ci_bank_informant, $remarks, $userID
+                $ci_bank_currency_id, $ci_bank_bank_handling_type_id, $ci_bank_date_open, $ci_bank_bank_adb_id,$ci_bank_informant, $remarks, $userID
             );
             
             echo json_encode(['success' => true]);
@@ -1291,7 +1398,7 @@ class CIReportController {
                 'currency_id' => $ciReportBankDetails['currency_id'],
                 'bank_handling_type_id' => $ciReportBankDetails['bank_handling_type_id'],
                 'date_open' =>  $this->systemModel->checkDate('empty', $ciReportBankDetails['date_open'], '', 'm/d/Y', ''),
-                'adb' => $ciReportBankDetails['adb'],
+                'bank_adb_id' => $ciReportBankDetails['bank_adb_id'],
                 'informant' => $ciReportBankDetails['informant'],
                 'remarks' => $ciReportBankDetails['remarks'],
             ];
@@ -1424,6 +1531,38 @@ class CIReportController {
                 'repayment' => $ciReportLoanDetails['repayment'],
                 'handling' => $ciReportLoanDetails['handling'],
                 'remarks' => $ciReportLoanDetails['remarks'],
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+
+    public function getCIReportLoanTotalDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['ci_report_id']) && !empty($_POST['ci_report_id'])) {
+            $userID = $_SESSION['user_id'];
+            $ci_report_id = $_POST['ci_report_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $pnAmount = $this->ciReportModel->getCIReportLoanTotal($ci_report_id, 'pn amount')['total'] ?? 0;
+            $outstandingBalance = $this->ciReportModel->getCIReportLoanTotal($ci_report_id, 'outstanding balance')['total'] ?? 0;
+            $repayment = $this->ciReportModel->getCIReportLoanTotal($ci_report_id, 'repayment')['total'] ?? 0;
+
+            $response = [
+                'success' => true,
+                'pnAmount' => number_format($pnAmount, 2) . ' Php',
+                'outstandingBalance' => number_format($outstandingBalance, 2) . ' Php',
+                'repayment' => number_format($repayment, 2) . ' Php',
             ];
 
             echo json_encode($response);
@@ -1799,6 +1938,33 @@ class CIReportController {
             exit;
         }
     }
+    public function getCIReportAssetTotalDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['ci_report_id']) && !empty($_POST['ci_report_id'])) {
+            $userID = $_SESSION['user_id'];
+            $ci_report_id = $_POST['ci_report_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $assetTotal = $this->ciReportModel->getCIReportAssetsTotal($ci_report_id)['total'] ?? 0;
+
+            $response = [
+                'success' => true,
+                'assetTotal' => number_format($assetTotal, 2) . ' Php'
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
 
     # -------------------------------------------------------------
 
@@ -1817,6 +1983,102 @@ class CIReportController {
     # Returns: Array
     #
     # -------------------------------------------------------------
+    public function getCIReportSummaryDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['ci_report_id']) && !empty($_POST['ci_report_id'])) {
+            $userID = $_SESSION['user_id'];
+            $ciReportID = $_POST['ci_report_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $businessTable = $this->ciReportModel->generateCIReportBusinessSummary($ciReportID);
+            $employmentTable = $this->ciReportModel->generateCIReportEmploymentSummary($ciReportID);
+
+            $monthlyIncomeTotal = $this->ciReportModel->getCIReportBusinessExpenseTotal($ciReportID, 'monthly income')['total'] ?? 0;
+            $grandTotal = $this->ciReportModel->getCIReportEmploymentExpenseTotal($ciReportID, 'grand total')['total'] ?? 0;
+            $totalIncome = $monthlyIncomeTotal + $grandTotal;
+
+            $ciReportDetails = $this->ciReportModel->getCIReport($ciReportID);
+            $sales_proposal_id = $ciReportDetails['sales_proposal_id'] ?? '';
+            $contact_id = $ciReportDetails['contact_id'] ?? '';
+
+            $salesProposalPricingComputationDetails = $this->salesProposalModel->getSalesProposalPricingComputation($sales_proposal_id);
+            $repaymentAmount = $salesProposalPricingComputationDetails['repayment_amount'] ?? 0;
+            $interest_rate = $salesProposalPricingComputationDetails['interest_rate'] ?? 0;
+            $pn_amount = $salesProposalPricingComputationDetails['pn_amount'] ?? 0;
+            $outstanding_balance = $salesProposalPricingComputationDetails['outstanding_balance'] ?? 0;
+            
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($sales_proposal_id);
+            $termLength = $salesProposalDetails['term_length'] ?? 0;
+            $term_type = $salesProposalDetails['term_type'] ?? 0;
+            $created_by = $salesProposalDetails['created_by'] ?? null;
+            $referred_by = $salesProposalDetails['referred_by'] ?? '--';
+            $renewal_tag = $salesProposalDetails['renewal_tag'] ?? 'New';
+
+            $salesExecDetails = $this->userModel->getUserByID($created_by);
+            $salesExec = $salesExecDetails['file_as'] ?? '--';
+
+            $salesProposalOtherChargesDetails = $this->salesProposalModel->getSalesProposalOtherProductDetails($sales_proposal_id);
+            $si = $salesProposalOtherChargesDetails['si'] ?? 0;
+            $di = $salesProposalOtherChargesDetails['di'] ?? 0;
+
+            $totalExpenseTotal = $this->ciReportModel->getCIReportResidenceExpenseTotal($ciReportID, 'total')['total'] ?? 0;
+            $rentalTotal = $this->ciReportModel->getCIReportBusinessExpenseTotal($ciReportID, 'rental')['total'] ?? 0;
+            $loanAmort = $this->ciReportModel->getCIReportLoanTotal($ciReportID, 'repayment')['total'] ?? 0;
+            $expensesTotal = $totalExpenseTotal + $rentalTotal;
+            $lessExpenseTotal = $expensesTotal + $loanAmort;
+            $ema = ($totalIncome - $lessExpenseTotal) * 0.6;
+            $ela = $ema * $termLength;
+
+            if(!empty($sales_proposal_id)){
+                $monthlyRate = $this->ciReportModel->rate(
+                    $termLength,
+                    -$repaymentAmount,
+                    $outstanding_balance
+                );
+
+                $effectiveAnnualYield = (pow(1 + $monthlyRate, 12) - 1) * 100;
+            }
+            else{
+                $effectiveAnnualYield = 0;
+            }
+
+            $response = [
+                'success' => true,
+                'businessTable' => $businessTable,
+                'employmentTable' => $employmentTable,
+                'renewal_tag' => $renewal_tag,
+                'salesExec' => $salesExec,
+                'referred_by' => $referred_by,
+                'effectiveAnnualYield' => number_format($effectiveAnnualYield, 2) . '%',
+                'totalIncome' => number_format($totalIncome, 2) . ' PHP',
+                'repaymentAmount' => number_format($repaymentAmount, 2) . ' PHP',
+                'loanAmort' => number_format($loanAmort, 2) . ' PHP',
+                'expensesTotal' => number_format($expensesTotal, 2) . ' PHP',
+                'lessExpenseTotal' => number_format($lessExpenseTotal, 2) . ' PHP',
+                'pn_amount' => number_format($pn_amount, 2) . ' PHP',
+                'outstanding_balance' => number_format($outstanding_balance, 2) . ' PHP',
+                'si' => number_format($si, 2) . ' PHP',
+                'di' => number_format($di, 2) . ' PHP',
+                'ema' => number_format($ema, 2),
+                'ela' => number_format($ela, 2),
+                'interest_rate' => number_format($interest_rate, 2) . '%',
+                'term' => $termLength . ' ' . $term_type,
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+
     public function getCIReportDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -1834,12 +2096,22 @@ class CIReportController {
             }
     
             $ciReportDetails = $this->ciReportModel->getCIReport($ciReportID);
+            $appraiserID = $ciReportDetails['appraiser'] ?? '';
+            $investigatorID = $ciReportDetails['investigator'] ?? '';
+
+            $appraiserDetails = $this->userModel->getUserByID($appraiserID);
+            $appraiserName = $appraiserDetails['file_as'] ?? '';
+            $investigatorDetails = $this->userModel->getUserByID($investigatorID);
+            $investigatorName = $investigatorDetails['file_as'] ?? '';
 
             $response = [
                 'success' => true,
-                'appraiser' => $ciReportDetails['appraiser'],
-                'investigator' => $ciReportDetails['investigator'],
-                'narrative_summary' => $ciReportDetails['narrative_summary']
+                'appraiser' => $appraiserID,
+                'investigator' => $investigatorID,
+                'appraiserName' => $appraiserName,
+                'investigatorName' => $investigatorName,
+                'narrative_summary' => $ciReportDetails['narrative_summary'],
+                'purpose_of_loan' => $ciReportDetails['purpose_of_loan'],
             ];
 
             echo json_encode($response);
@@ -1853,10 +2125,11 @@ class CIReportController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/ci-report-model.php';
+require_once '../model/sales-proposal-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new CIReportController(new CIReportModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SystemModel(), new SecurityModel());
+$controller = new CIReportController(new CIReportModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

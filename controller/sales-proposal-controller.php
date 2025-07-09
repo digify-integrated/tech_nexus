@@ -269,8 +269,14 @@ class SalesProposalController {
                 case 'save sales proposal progress job order':
                     $this->saveJobOrderProgress();
                     break;
+                case 'sales proposal job order cancel':
+                    $this->cancelJobOrderProgress();
+                    break;
                 case 'save sales proposal progress additional job order':
                     $this->saveAdditionalJobOrderProgress();
+                    break;
+                case 'sales proposal additional job order cancel':
+                    $this->cancelAdditionalJobOrderProgress();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -3339,8 +3345,6 @@ class SalesProposalController {
         echo json_encode(['success' => true]);
         exit;
     }
-
-    
     
     public function saveJobOrderProgress() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -3365,6 +3369,154 @@ class SalesProposalController {
         }
     
         $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $cost, $jobCost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $job_order_planned_start_date, $job_order_planned_finish_date, $job_order_date_started, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function cancelJobOrderProgress() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $job_order_cancellation_reason = htmlspecialchars($_POST['job_order_cancellation_reason'], ENT_QUOTES, 'UTF-8');
+
+        $jobOrderCancellationConfimationImageFileName = $_FILES['job_order_cancellation_confirmation_image']['name'];
+        $jobOrderCancellationConfimationImageFileSize = $_FILES['job_order_cancellation_confirmation_image']['size'];
+        $jobOrderCancellationConfimationImageFileError = $_FILES['job_order_cancellation_confirmation_image']['error'];
+        $jobOrderCancellationConfimationImageTempName = $_FILES['job_order_cancellation_confirmation_image']['tmp_name'];
+        $jobOrderCancellationConfimationImageFileExtension = explode('.', $jobOrderCancellationConfimationImageFileName);
+        $jobOrderCancellationConfimationImageActualFileExtension = strtolower(end($jobOrderCancellationConfimationImageFileExtension));
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(11);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(11);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($jobOrderCancellationConfimationImageActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+            
+        if(empty($jobOrderCancellationConfimationImageTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the cancellation confirmation image.']);
+            exit;
+        }
+            
+        if($jobOrderCancellationConfimationImageFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+            
+        if($jobOrderCancellationConfimationImageFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The cancellation confirmation image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $jobOrderCancellationConfimationImageActualFileExtension;
+
+        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/client_confirmation/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/client_confirmation/' . $fileNew;
+        $filePath = $directory . $fileNew;
+
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+             exit;
+        }
+
+        if(!move_uploaded_file($jobOrderCancellationConfimationImageTempName, $fileDestination)){
+            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+            exit;
+        }
+    
+        $this->salesProposalModel->cancelSalesProposalJobOrderProgress($salesProposalJobOrderID, $job_order_cancellation_reason, $filePath, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function cancelAdditionalJobOrderProgress() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalAdditionalJobOrderID = htmlspecialchars($_POST['sales_proposal_additional_job_order_id'], ENT_QUOTES, 'UTF-8');    
+        $additional_job_order_cancellation_reason = htmlspecialchars($_POST['additional_job_order_cancellation_reason'], ENT_QUOTES, 'UTF-8');
+    
+        $additionalJobOrderCancellationConfimationImageFileName = $_FILES['additional_job_order_cancellation_confirmation_image']['name'];
+        $additionalJobOrderCancellationConfimationImageFileSize = $_FILES['additional_job_order_cancellation_confirmation_image']['size'];
+        $additionalJobOrderCancellationConfimationImageFileError = $_FILES['additional_job_order_cancellation_confirmation_image']['error'];
+        $additionalJobOrderCancellationConfimationImageTempName = $_FILES['additional_job_order_cancellation_confirmation_image']['tmp_name'];
+        $additionalJobOrderCancellationConfimationImageFileExtension = explode('.', $additionalJobOrderCancellationConfimationImageFileName);
+        $additionalJobOrderCancellationConfimationImageActualFileExtension = strtolower(end($additionalJobOrderCancellationConfimationImageFileExtension));
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(11);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(11);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($additionalJobOrderCancellationConfimationImageActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+            
+        if(empty($additionalJobOrderCancellationConfimationImageTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the cancellation confirmation image.']);
+            exit;
+        }
+            
+        if($additionalJobOrderCancellationConfimationImageFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+            
+        if($additionalJobOrderCancellationConfimationImageFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The cancellation confirmation image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $additionalJobOrderCancellationConfimationImageActualFileExtension;
+
+        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/client_confirmation/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/client_confirmation/' . $fileNew;
+        $filePath = $directory . $fileNew;
+
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+             exit;
+        }
+
+        if(!move_uploaded_file($additionalJobOrderCancellationConfimationImageTempName, $fileDestination)){
+            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+            exit;
+        }
+
+        $this->salesProposalModel->cancelSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $additional_job_order_cancellation_reason, $filePath, $userID);
             
         echo json_encode(['success' => true]);
         exit;

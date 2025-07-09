@@ -91,7 +91,9 @@
           <li><a class="nav-link" id="sales-proposal-tab-10" data-bs-toggle="pill" href="#v-additional-job-order" role="tab" aria-controls="v-additional-job-order" aria-selected="false" disabled>Additional Job Order</a></li>
           <li><a class="nav-link" id="sales-proposal-tab-11" data-bs-toggle="pill" href="#v-confirmations" role="tab" aria-controls="v-confirmations" aria-selected="false" disabled>Confirmations</a></li>
           <li><a class="nav-link" id="sales-proposal-tab-12" data-bs-toggle="pill" href="#v-remarks" role="tab" aria-controls="v-remarks" aria-selected="false" disabled>Remarks</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-13" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-13" data-bs-toggle="pill" href="#v-ci-report" role="tab" aria-controls="v-ci-report" aria-selected="false" disabled>CI Report</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-14" data-bs-toggle="pill" href="#v-loan-proposal" role="tab" aria-controls="v-loan-proposal" aria-selected="false" disabled>Loan Proposal</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-15" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
         </ul>
       </div>
     </div>
@@ -172,7 +174,7 @@
                       </div>';
                 }
 
-                if(($salesProposalStatus == 'For CI' || (($salesProposalStatus == 'Proceed' || $salesProposalStatus == 'On-Process' || $salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR' || $salesProposalStatus == 'Released') && !empty($forCIDate))) && $tagCIAsComplete['total'] > 0 && empty($ciStatus)) {
+                if(($salesProposalStatus != 'Rejected' && $salesProposalStatus != 'Cancelled') && !empty($forCIDate) && $tagCIAsComplete['total'] > 0 && empty($ciStatus)) {
                   echo '<div class="previous me-2 d-none" id="complete-ci-button">
                           <button class="btn btn-info" id="complete-ci">Complete CI</button>
                       </div>';
@@ -477,19 +479,63 @@
                   <label class="col-lg-7 col-form-label" id="product_plate_number"></label>
                 </div>
                 <div class="form-group row">
+                  <label class="col-lg-5 col-form-label">For Registration? : <span class="text-danger">*</span></label>
+                  <div class="col-lg-7 mt-2">
+                    <select class="form-control select2" name="for_registration" id="for_registration">
+                      <option value="">--</option>
+                      <option value="Yes" selected>Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-lg-5 col-form-label">With CR? : <span class="text-danger">*</span></label>
+                  <div class="col-lg-7">
+                    <select class="form-control select2" name="with_cr" id="with_cr">
+                      <option value="">--</option>
+                      <option value="Yes" selected>Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-lg-5 col-form-label">For Transfer? : <span class="text-danger">*</span></label>
+                  <div class="col-lg-7">
+                    <select class="form-control select2" name="for_transfer" id="for_transfer">
+                      <option value="">--</option>
+                      <option value="Yes" selected>Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-lg-5 col-form-label">For Change Color? : <span class="text-danger">*</span></label>
+                  <div class="col-lg-7">
+                    <select class="form-control select2" name="for_change_color" id="for_change_color">
+                      <option value="">--</option>
+                      <option value="Yes" selected>Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
                   <label class="col-lg-5 col-form-label">Old Color :</label>
                   <div class="col-lg-7">
                     <input type="text" class="form-control text-uppercase" id="old_color" autocomplete="off" readonly>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <label class="col-lg-5 col-form-label">New Color :</label>
-                  <div class="col-lg-7">
-                    <input type="text" class="form-control text-uppercase" id="new_color" name="new_color" maxlength="100" autocomplete="off">
-                  </div>
-                </div>
               </div>
               <div class="col-lg-6">
+                <div class="form-group row">
+                  <label class="col-lg-5 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
+                  <div class="col-lg-7">
+                    <select class="form-control select2" name="for_change_body" id="for_change_body">
+                      <option value="">--</option>
+                      <option value="Yes" selected>Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                  </div>
+                </div>
                 <div class="form-group row">
                   <label class="col-lg-5 col-form-label">Old Body :</label>
                   <div class="col-lg-7">
@@ -528,6 +574,12 @@
                   <label class="col-lg-5 col-form-label">Final Name On OR/CR :</label>
                   <div class="col-lg-7">
                     <input type="text" class="form-control text-uppercase" id="final_orcr_name" name="final_orcr_name" maxlength="500" autocomplete="off">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-lg-5 col-form-label">New Color :</label>
+                  <div class="col-lg-7">
+                    <input type="text" class="form-control text-uppercase" id="new_color" name="new_color" maxlength="100" autocomplete="off">
                   </div>
                 </div>
               </div>
@@ -1253,8 +1305,8 @@
             </div>
           </div>
           <div class="tab-pane" id="v-summary">
-                        <?php include_once('_sales_proposal_summary_print.php'); ?>
-                    </div>
+            <?php include_once('_sales_proposal_summary_print.php'); ?>
+          </div>
         </div>
       </div>
     </div>

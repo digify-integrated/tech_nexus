@@ -84,14 +84,14 @@
             <div class="col-lg-4">
               <select class="form-control select2" name="debit" id="debit">
                     <option value="">--</option>
-                    <?php echo $chartOfAccountModel->generateChartOfAccountOptions(); ?>
+                    <?php echo $chartOfAccountModel->generateActiveChartOfAccountOptions(); ?>
                 </select>
             </div>
             <label class="col-lg-2 col-form-label">Credit <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="credit" id="credit">
               <option value="">--</option>
-                  <?php echo $chartOfAccountModel->generateChartOfAccountOptions(); ?>
+                  <?php echo $chartOfAccountModel->generateActiveChartOfAccountOptions(); ?>
                 </select>
             </div>
           </div>

@@ -16,6 +16,7 @@ class InternalDRController {
     private $internalDRModel;
     private $userModel;
     private $securityModel;
+    private $productModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
     private $systemModel;
@@ -35,10 +36,11 @@ class InternalDRController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(InternalDRModel $internalDRModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(InternalDRModel $internalDRModel, UserModel $userModel, ProductModel $productModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->internalDRModel = $internalDRModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
+        $this->productModel = $productModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
         $this->systemModel = $systemModel;
@@ -77,6 +79,9 @@ class InternalDRController {
                     break;
                 case 'tag for cancelled':
                     $this->tagInternalDRAsCancelled();
+                    break;
+                case 'receive unit':
+                    $this->receiveUnit();
                     break;
                 case 'delete internal DR':
                     $this->deleteInternalDR();
@@ -125,6 +130,8 @@ class InternalDRController {
         $plateNumber = htmlspecialchars($_POST['plate_number'], ENT_QUOTES, 'UTF-8');
         $productDescription = htmlspecialchars($_POST['product_description'], ENT_QUOTES, 'UTF-8');
         $backjob_monitoring_id = htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8');
+        $product_id = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+        $estimated_return_date = $this->systemModel->checkDate('empty', $_POST['estimated_return_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -137,13 +144,13 @@ class InternalDRController {
         $total = $checkInternalDRExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->internalDRModel->updateInternalDR($internalDRID, $releaseTo, $releaseMobile, $releaseAddress, $drNumber, $drType, $backjob_monitoring_id, $stockNumber, $productDescription, $engineNumber, $chassisNumber, $plateNumber, $userID);
+            $this->internalDRModel->updateInternalDR($internalDRID, $releaseTo, $releaseMobile, $releaseAddress, $drNumber, $drType, $product_id, $backjob_monitoring_id, $stockNumber, $productDescription, $engineNumber, $chassisNumber, $plateNumber, $estimated_return_date, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'internalDRID' => $this->securityModel->encryptData($internalDRID)]);
             exit;
         } 
         else {
-            $internalDRID = $this->internalDRModel->insertInternalDR($releaseTo, $releaseMobile, $releaseAddress, $drNumber, $drType, $backjob_monitoring_id, $stockNumber, $productDescription, $engineNumber, $chassisNumber, $plateNumber, $userID);
+            $internalDRID = $this->internalDRModel->insertInternalDR($releaseTo, $releaseMobile, $releaseAddress, $drNumber, $drType, $product_id, $backjob_monitoring_id, $stockNumber, $productDescription, $engineNumber, $chassisNumber, $plateNumber, $estimated_return_date, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'internalDRID' => $this->securityModel->encryptData($internalDRID)]);
             exit;
@@ -183,18 +190,18 @@ class InternalDRController {
         $total = $checkInternalDRExist['total'] ?? 0;
     
         if ($total > 0) {
-            $outgoingChecklistImageFileName = $_FILES['unit_image_image']['name'];
-            $outgoingChecklistImageFileSize = $_FILES['unit_image_image']['size'];
-            $outgoingChecklistImageFileError = $_FILES['unit_image_image']['error'];
-            $outgoingChecklistImageTempName = $_FILES['unit_image_image']['tmp_name'];
-            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
-            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+            $incomingChecklistImageFileName = $_FILES['unit_image_image']['name'];
+            $incomingChecklistImageFileSize = $_FILES['unit_image_image']['size'];
+            $incomingChecklistImageFileError = $_FILES['unit_image_image']['error'];
+            $incomingChecklistImageTempName = $_FILES['unit_image_image']['tmp_name'];
+            $incomingChecklistImageFileExtension = explode('.', $incomingChecklistImageFileName);
+            $incomingChecklistImageActualFileExtension = strtolower(end($incomingChecklistImageFileExtension));
 
             $internalDRDetails = $this->internalDRModel->getInternalDR($internalDRID);
-            $clientoutgoingChecklistImage = !empty($internalDRDetails['unit_image']) ? '.' . $internalDRDetails['unit_image'] : null;
+            $clientincomingChecklistImage = !empty($internalDRDetails['unit_image']) ? '.' . $internalDRDetails['unit_image'] : null;
     
-            if(file_exists($clientoutgoingChecklistImage)){
-                if (!unlink($clientoutgoingChecklistImage)) {
+            if(file_exists($clientincomingChecklistImage)){
+                if (!unlink($clientincomingChecklistImage)) {
                     echo json_encode(['success' => false, 'message' => 'Unit image cannot be deleted due to an error.']);
                     exit;
                 }
@@ -212,29 +219,29 @@ class InternalDRController {
                 $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
             }
 
-            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+            if (!in_array($incomingChecklistImageActualFileExtension, $allowedFileExtensions)) {
                 $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
                 echo json_encode($response);
                 exit;
             }
             
-            if(empty($outgoingChecklistImageTempName)){
+            if(empty($incomingChecklistImageTempName)){
                 echo json_encode(['success' => false, 'message' => 'Please choose the unit image.']);
                 exit;
             }
             
-            if($outgoingChecklistImageFileError){
+            if($incomingChecklistImageFileError){
                 echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
                 exit;
             }
             
-            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+            if($incomingChecklistImageFileSize > ($maxFileSize * 1048576)){
                 echo json_encode(['success' => false, 'message' => 'The unit image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
                 exit;
             }
 
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+            $fileNew = $fileName . '.' . $incomingChecklistImageActualFileExtension;
 
             $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/unit_image/';
             $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_image/' . $fileNew;
@@ -247,7 +254,7 @@ class InternalDRController {
                 exit;
             }
 
-            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+            if(!move_uploaded_file($incomingChecklistImageTempName, $fileDestination)){
                 echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
                 exit;
             }
@@ -308,6 +315,94 @@ class InternalDRController {
             
         echo json_encode(['success' => true]);
         exit;
+    }
+
+    public function receiveUnit() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $unit_return_id = htmlspecialchars($_POST['unit_return_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $incomingChecklistImageFileName = $_FILES['incoming_checklist']['name'];
+        $incomingChecklistImageFileSize = $_FILES['incoming_checklist']['size'];
+        $incomingChecklistImageFileError = $_FILES['incoming_checklist']['error'];
+        $incomingChecklistImageTempName = $_FILES['incoming_checklist']['tmp_name'];
+        $incomingChecklistImageFileExtension = explode('.', $incomingChecklistImageFileName);
+        $incomingChecklistImageActualFileExtension = strtolower(end($incomingChecklistImageFileExtension));
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($incomingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+            
+        if(empty($incomingChecklistImageTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the incoming checklist.']);
+            exit;
+        }
+            
+        if($incomingChecklistImageFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+            
+        if($incomingChecklistImageFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The incoming checklist exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $incomingChecklistImageActualFileExtension;
+
+        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/incoming_checklist/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/incoming_checklist/' . $fileNew;
+        $filePath = $directory . $fileNew;
+
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+            exit;
+        }
+
+        if(!move_uploaded_file($incomingChecklistImageTempName, $fileDestination)){
+            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+            exit;
+        }
+
+        $this->internalDRModel->receiveUnit($unit_return_id, $filePath, $userID);
+
+        $unitReturnDetails = $this->internalDRModel->getUnitReturn($unit_return_id);
+        $product_id = $unitReturnDetails['product_id'] ?? null;
+
+        $this->productModel->updateProductStatus($product_id, 'Returned', '', '', '', $userID);
+        $this->productModel->insertProductExpense($product_id, '', '', 0, 'Returned', 'Returned', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    
+        
     }
 
 
@@ -392,6 +487,13 @@ class InternalDRController {
         $internalDRDetails = $this->internalDRModel->getInternalDR($internalDRID);
         $drType = $internalDRDetails['dr_type'];
         $backjob_monitoring_id = $internalDRDetails['backjob_monitoring_id'];
+        $product_id = $internalDRDetails['product_id'];
+        $estimated_return_date = $internalDRDetails['estimated_return_date'];
+
+        if(!empty($estimated_return_date) && !empty($product_id)){
+            $this->internalDRModel->insertUnitReturn($internalDRID, $product_id, $estimated_return_date, $userID);
+            $this->internalDRModel->updateProductForReturn($product_id, $userID);
+        }
 
         if($drType === 'Backjob' || $drType === 'Warranty'){
             $this->internalDRModel->updateSalesProposalBackjobProgress($backjob_monitoring_id, $userID);
@@ -495,12 +597,14 @@ class InternalDRController {
                 'releaseAddress' => $internalDRDetails['release_address'],
                 'drNumber' => $internalDRDetails['dr_number'],
                 'drType' => $internalDRDetails['dr_type'],
+                'product_id' => $internalDRDetails['product_id'],
                 'stockNumber' => $internalDRDetails['stock_number'],
                 'productDescription' => $internalDRDetails['product_description'],
                 'engineNumber' => $internalDRDetails['engine_number'],
                 'chassisNumber' => $internalDRDetails['chassis_number'],
                 'plateNumber' => $internalDRDetails['plate_number'],
                 'backjobMonitoringID' => $internalDRDetails['backjob_monitoring_id'],
+                'estimated_return_date' =>  $this->systemModel->checkDate('empty', $internalDRDetails['estimated_return_date'], '', 'm/d/Y', ''),
                 'unitImage' =>  $this->systemModel->checkImage($internalDRDetails['unit_image'], 'default')
             ];
 
@@ -521,8 +625,9 @@ require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
+require_once '../model/product-model.php';
 require_once '../model/system-model.php';
 
-$controller = new InternalDRController(new InternalDRModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new InternalDRController(new InternalDRModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new ProductModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

@@ -31,6 +31,10 @@ if($addCustomerComaker['total'] > 0){
   $customerComakerAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-comaker-offcanvas" aria-controls="contact-comaker-offcanvas" id="add-contact-comaker"><i class="ti ti-plus"></i></button>';
 }
 
+if($createCIReport['total'] > 0){
+  $ciReportAdd = '<button class="btn btn-icon btn-link-success" type="button" id="add-contact-ci-report"><i class="ti ti-plus"></i></button>';
+}
+
 ?>
 
 <div class="row">
@@ -95,6 +99,11 @@ if($addCustomerComaker['total'] > 0){
                     <li class="nav-item"><a class="nav-link" id="v-customer-profile-customer-identification-tab" data-bs-toggle="tab" href="#v-customer-profile-customer-identification">Contact Identification</a></li>
                     <li class="nav-item"><a class="nav-link" id="v-customer-profile-family-background-tab" data-bs-toggle="tab" href="#v-customer-profile-family-background" role="tab" aria-controls="v-customer-profile-family-background">Family Background</a></li>
                     <li class="nav-item"><a class="nav-link" id="v-customer-profile-comaker-tab" data-bs-toggle="tab" href="#v-customer-profile-comaker" role="tab" aria-controls="v-customer-profile-comaker">Co-Maker</a></li>
+                    <?php
+                      if($viewCIReport['total'] > 0) { 
+                        echo '<li class="nav-item"><a class="nav-link" id="v-customer-ci-report-tab" data-bs-toggle="tab" href="#v-customer-ci-report" role="tab" aria-controls="v-customer-ci-report">CI Report</a></li>';
+                      }
+                    ?>
                   </ul>
                 </div>
               </div>
@@ -176,6 +185,19 @@ if($addCustomerComaker['total'] > 0){
                 </div>
                 <div class="card-body">
                   <ul class="list-group list-group-flush" id="contact-comaker-summary"></ul>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="v-customer-ci-report" role="tabpanel" aria-labelledby="v-customer-ci-report-tab">
+              <div class="card">
+                <div class="card-header">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <h5>CI Report</h5>
+                    <?php echo $ciReportAdd; ?>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush" id="contact-ci-report-summary"></ul>
                 </div>
               </div>
             </div>

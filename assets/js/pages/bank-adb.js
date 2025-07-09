@@ -2,25 +2,25 @@
     'use strict';
 
     $(function() {
-        if($('#chart-of-account-table').length){
-            chartOfAccountTable('#chart-of-account-table');
+        if($('#bank-adb-table').length){
+            bankADBTable('#bank-adb-table');
         }
 
-        if($('#chart-of-account-form').length){
-            chartOfAccountForm();
+        if($('#bank-adb-form').length){
+            bankADBForm();
         }
 
-        if($('#chart-of-account-id').length){
-            displayDetails('get chart of account details');
+        if($('#bank-adb-id').length){
+            displayDetails('get bank adb details');
         }
 
-        $(document).on('click','.delete-chart-of-account',function() {
-            const chart_of_account_id = $(this).data('chart-of-account-id');
-            const transaction = 'delete chart of account';
+        $(document).on('click','.delete-bank-adb',function() {
+            const bank_adb_id = $(this).data('bank-adb-id');
+            const transaction = 'delete bank adb';
     
             Swal.fire({
-                title: 'Confirm Chart of Account Deletion',
-                text: 'Are you sure you want to delete this chart of account?',
+                title: 'Confirm Bank ADB Deletion',
+                text: 'Are you sure you want to delete this bank adb?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -32,16 +32,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/chart-of-account-controller.php',
+                        url: 'controller/bank-adb-controller.php',
                         dataType: 'json',
                         data: {
-                            chart_of_account_id : chart_of_account_id, 
+                            bank_adb_id : bank_adb_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Chart of Account Success', 'The chart of account has been deleted successfully.', 'success');
-                                reloadDatatable('#chart-of-account-table');
+                                showNotification('Delete Bank ADB Success', 'The bank adb has been deleted successfully.', 'success');
+                                reloadDatatable('#bank-adb-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -49,11 +49,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Chart of Account Error', 'The chart of account does not exist.', 'danger');
-                                    reloadDatatable('#chart-of-account-table');
+                                    showNotification('Delete Bank ADB Error', 'The bank adb does not exist.', 'danger');
+                                    reloadDatatable('#bank-adb-table');
                                 }
                                 else {
-                                    showNotification('Delete Chart of Account Error', response.message, 'danger');
+                                    showNotification('Delete Bank ADB Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -70,20 +70,20 @@
             });
         });
 
-        $(document).on('click','#delete-chart-of-account',function() {
-            let chart_of_account_id = [];
-            const transaction = 'delete multiple chart of account';
+        $(document).on('click','#delete-bank-adb',function() {
+            let bank_adb_id = [];
+            const transaction = 'delete multiple bank adb';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
-                    chart_of_account_id.push(element.value);
+                    bank_adb_id.push(element.value);
                 }
             });
     
-            if(chart_of_account_id.length > 0){
+            if(bank_adb_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Chart of Accounts Deletion',
-                    text: 'Are you sure you want to delete these chart of accounts?',
+                    title: 'Confirm Multiple Bank ADBs Deletion',
+                    text: 'Are you sure you want to delete these bank adbs?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -95,16 +95,16 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller/chart-of-account-controller.php',
+                            url: 'controller/bank-adb-controller.php',
                             dataType: 'json',
                             data: {
-                                chart_of_account_id: chart_of_account_id,
+                                bank_adb_id: bank_adb_id,
                                 transaction : transaction
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Chart of Account Success', 'The selected chart of accounts have been deleted successfully.', 'success');
-                                    reloadDatatable('#chart-of-account-table');
+                                    showNotification('Delete Bank ADB Success', 'The selected bank adbs have been deleted successfully.', 'success');
+                                    reloadDatatable('#bank-adb-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -112,7 +112,7 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else {
-                                        showNotification('Delete Chart of Account Error', response.message, 'danger');
+                                        showNotification('Delete Bank ADB Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -133,17 +133,17 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Chart of Account Error', 'Please select the chart of accounts you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Bank ADB Error', 'Please select the bank adbs you wish to delete.', 'danger');
             }
         });
 
-        $(document).on('click','#delete-chart-of-account-details',function() {
-            const chart_of_account_id = $('#chart-of-account-id').text();
-            const transaction = 'delete chart of account';
+        $(document).on('click','#delete-bank-adb-details',function() {
+            const bank_adb_id = $('#bank-adb-id').text();
+            const transaction = 'delete bank adb';
     
             Swal.fire({
-                title: 'Confirm Chart of Account Deletion',
-                text: 'Are you sure you want to delete this chart of account?',
+                title: 'Confirm Bank ADB Deletion',
+                text: 'Are you sure you want to delete this bank adb?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -155,16 +155,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/chart-of-account-controller.php',
+                        url: 'controller/bank-adb-controller.php',
                         dataType: 'json',
                         data: {
-                            chart_of_account_id : chart_of_account_id, 
+                            bank_adb_id : bank_adb_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Deleted Chart of Account Success', 'The chart of account has been deleted successfully.', 'success');
-                                window.location = 'chart-of-account.php';
+                                setNotification('Deleted Bank ADB Success', 'The bank adb has been deleted successfully.', 'success');
+                                window.location = 'bank-adb.php';
                             }
                             else {
                                 if (response.isInactive) {
@@ -175,7 +175,7 @@
                                     window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Delete Chart of Account Error', response.message, 'danger');
+                                    showNotification('Delete Bank ADB Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -193,22 +193,22 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('chart-of-account.php');
+            discardCreate('bank-adb.php');
         });
 
         $(document).on('click','#edit-form',function() {
-            displayDetails('get chart of account details');
+            displayDetails('get bank adb details');
 
             enableForm();
         });
 
-        $(document).on('click','#duplicate-chart-of-account',function() {
-            const chart_of_account_id = $('#chart-of-account-id').text();
-            const transaction = 'duplicate chart of account';
+        $(document).on('click','#duplicate-bank-adb',function() {
+            const bank_adb_id = $('#bank-adb-id').text();
+            const transaction = 'duplicate bank adb';
     
             Swal.fire({
-                title: 'Confirm Chart of Account Duplication',
-                text: 'Are you sure you want to duplicate this chart of account?',
+                title: 'Confirm Bank ADB Duplication',
+                text: 'Are you sure you want to duplicate this bank adb?',
                 icon: 'info',
                 showCancelButton: !0,
                 confirmButtonText: 'Duplicate',
@@ -220,16 +220,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/chart-of-account-controller.php',
+                        url: 'controller/bank-adb-controller.php',
                         dataType: 'json',
                         data: {
-                            chart_of_account_id : chart_of_account_id, 
+                            bank_adb_id : bank_adb_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Duplicate Chart of Account Success', 'The chart of account has been duplicated successfully.', 'success');
-                                window.location = 'chart-of-account.php?id=' + response.chartOfAccountID;
+                                setNotification('Duplicate Bank ADB Success', 'The bank adb has been duplicated successfully.', 'success');
+                                window.location = 'bank-adb.php?id=' + response.bankADBID;
                             }
                             else {
                                 if (response.isInactive) {
@@ -237,11 +237,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Duplicate Chart of Account Error', 'The chart of account does not exist.', 'danger');
-                                    reloadDatatable('#chart-of-account-table');
+                                    showNotification('Duplicate Bank ADB Error', 'The bank adb does not exist.', 'danger');
+                                    reloadDatatable('#bank-adb-table');
                                 }
                                 else {
-                                    showNotification('Duplicate Chart of Account Error', response.message, 'danger');
+                                    showNotification('Duplicate Bank ADB Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -260,31 +260,27 @@
     });
 })(jQuery);
 
-function chartOfAccountTable(datatable_name, buttons = false, show_all = false){
-    const type = 'chart of account table';
+function bankADBTable(datatable_name, buttons = false, show_all = false){
+    const type = 'bank adb table';
     var settings;
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'CODE' },
-        { 'data' : 'NAME' },
-        { 'data' : 'ACCOUNT_TYPE' },
+        { 'data' : 'BLOOD_TYPE_NAME' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': 'auto', 'aTargets': 1 },
-        { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+        { 'width': '84%', 'aTargets': 1 },
+        { 'width': '15%','bSortable': false, 'aTargets': 2 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_chart_of_account_generation.php',
+            'url' : 'view/_bank_adb_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type},
@@ -319,34 +315,16 @@ function chartOfAccountTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function chartOfAccountForm(){
-    $('#chart-of-account-form').validate({
+function bankADBForm(){
+    $('#bank-adb-form').validate({
         rules: {
-            code: {
-                required: true
-            },
-            code_name: {
-                required: true
-            },
-            account_type: {
-                required: true
-            },
-            archived: {
+            bank_adb_name: {
                 required: true
             },
         },
         messages: {
-            code: {
-                required: 'Please enter the code'
-            },
-            code_name: {
-                required: 'Please enter the name'
-            },
-            account_type: {
-                required: 'Please choose the account type'
-            },
-            archived: {
-                required: 'Please choose the archived'
+            bank_adb_name: {
+                required: 'Please enter the bank adb name'
             },
         },
         errorPlacement: function (error, element) {
@@ -379,24 +357,24 @@ function chartOfAccountForm(){
             }
         },
         submitHandler: function(form) {
-            const chart_of_account_id = $('#chart-of-account-id').text();
-            const transaction = 'save chart of account';
+            const bank_adb_id = $('#bank-adb-id').text();
+            const transaction = 'save bank adb';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/chart-of-account-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&chart_of_account_id=' + chart_of_account_id,
+                url: 'controller/bank-adb-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&bank_adb_id=' + bank_adb_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Chart of Account Success' : 'Update Chart of Account Success';
-                        const notificationDescription = response.insertRecord ? 'The chart of account has been inserted successfully.' : 'The chart of account has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Bank ADB Success' : 'Update Bank ADB Success';
+                        const notificationDescription = response.insertRecord ? 'The bank adb has been inserted successfully.' : 'The bank adb has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'chart-of-account.php?id=' + response.chartOfAccountID;
+                        window.location = 'bank-adb.php?id=' + response.bankADBID;
                     }
                     else {
                         if (response.isInactive) {
@@ -427,35 +405,33 @@ function chartOfAccountForm(){
 
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get chart of account details':
-            const chart_of_account_id = $('#chart-of-account-id').text();
+        case 'get bank adb details':
+            const bank_adb_id = $('#bank-adb-id').text();
             
             $.ajax({
-                url: 'controller/chart-of-account-controller.php',
+                url: 'controller/bank-adb-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    chart_of_account_id : chart_of_account_id, 
+                    bank_adb_id : bank_adb_id, 
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetForm('chart-of-account-form');
+                    resetForm('bank-adb-form');
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#chart_of_account_id').val(chart_of_account_id);
-                        $('#code').val(response.code);
-                        $('#code_name').val(response.name);
+                        $('#bank_adb_id').val(bank_adb_id);
+                        $('#bank_adb_name').val(response.bankADBName);
 
-                        checkOptionExist('#account_type', response.accountType, '');
-                        checkOptionExist('#archived', response.archived, '');
+                        $('#bank_adb_name_label').text(response.bankADBName);
                     } 
                     else {
                         if(response.isInactive){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Chart of Account Details Error', response.message, 'danger');
+                            showNotification('Get Bank ADB Details Error', response.message, 'danger');
                         }
                     }
                 },

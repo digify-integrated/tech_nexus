@@ -18,6 +18,8 @@ require_once '../model/color-model.php';
 require_once '../model/loan-type-model.php';
 require_once '../model/cmap-report-type-model.php';
 require_once '../model/asset-type-model.php';
+require_once '../model/bank-adb-model.php';
+require_once '../model/ci-report-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -35,6 +37,8 @@ $colorModel = new ColorModel($databaseModel);
 $loanTypeModel = new LoanTypeModel($databaseModel);
 $cmapReportTypeModel = new CMAPReportTypeModel($databaseModel);
 $assetTypeModel = new AssetTypeModel($databaseModel);
+$ciReportModel = new CIReportModel($databaseModel);
+$bankADBModel = new BankADBModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -133,6 +137,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'ci report residence table':
                 $ci_report_id = $_POST['ci_report_id'];
+
+                $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportResidenceTable(:ci_report_id)');
                 $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
                 $sql->execute();
@@ -156,15 +164,20 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $contactAddress = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
 
+                    $delete = '';
+                    if($ci_status == 'Draft'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-residence" data-ci-report-residence-id="'. $ci_report_residence_id .'" title="Delete Residence">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                    }
+
                     $response[] = [
                         'ADDRESS' => $contactAddress,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-residence" data-bs-toggle="modal" data-bs-target="#ci-residence-modal" data-ci-report-residence-id="'. $ci_report_residence_id .'" title="Update Residence">
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-ci-report-residence" data-ci-report-residence-id="'. $ci_report_residence_id .'" title="Delete Residence">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        '. $delete .'
                                     </div>'
                         ];
                 }
@@ -173,6 +186,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'ci report dependents table':
                 $ci_report_id = $_POST['ci_report_id'];
+
+                $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportDependentsTable(:ci_report_id)');
                 $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
                 $sql->execute();
@@ -187,6 +204,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $employment = $row['employment'];
                     $remarks = $row['remarks'];
 
+                    $delete = '';
+                    if($ci_status == 'Draft'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-dependents" data-ci-report-dependents-id="'. $ci_report_dependents_id .'" title="Delete Residence">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
                     $response[] = [
                         'NAME' => $name,
                         'AGE' => $age,
@@ -197,9 +221,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-dependents" data-bs-toggle="modal" data-bs-target="#ci-dependents-modal" data-ci-report-dependents-id="'. $ci_report_dependents_id .'" title="Update Dependent">
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-ci-report-dependents" data-ci-report-dependents-id="'. $ci_report_dependents_id .'" title="Delete Residence">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        '. $delete .'
                                     </div>'
                         ];
                 }
@@ -208,6 +230,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'ci report business table':
                 $ci_report_id = $_POST['ci_report_id'];
+                
+                $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+                
                 $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportBusinessTable(:ci_report_id)');
                 $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
                 $sql->execute();
@@ -233,6 +259,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $contactAddress = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
 
+                    $delete = '';
+                    if($ci_status == 'Draft'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-business" data-ci-report-business-id="'. $ci_report_business_id .'" title="Delete Residence">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
                     $response[] = [
                         'BUSINESS_NAME' => '<div class="col">
                                             <h6 class="mb-0">'. $business_name .'</h6>
@@ -243,9 +276,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-business" data-bs-toggle="modal" data-bs-target="#ci-business-modal" data-ci-report-business-id="'. $ci_report_business_id .'" title="Update Business">
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-ci-report-business" data-ci-report-business-id="'. $ci_report_business_id .'" title="Delete Residence">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        '. $delete .'
                                     </div>'
                         ];
                 }
@@ -254,6 +285,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'ci report employment table':
                 $ci_report_id = $_POST['ci_report_id'];
+
+                $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportEmploymentTable(:ci_report_id)');
                 $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
                 $sql->execute();
@@ -282,6 +317,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $contactAddress = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
 
+                    $delete = '';
+                    if($ci_status == 'Draft'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-employment" data-ci-report-employment-id="'. $ci_report_employment_id .'" title="Delete Residence">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
                     $response[] = [
                         'EMPLOYMENT_NAME' => '<div class="col">
                                             <h6 class="mb-0">'. $employment_name .'</h6>
@@ -295,9 +337,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-employment" data-bs-toggle="modal" data-bs-target="#ci-employment-modal" data-ci-report-employment-id="'. $ci_report_employment_id .'" title="Update Employment">
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-ci-report-employment" data-ci-report-employment-id="'. $ci_report_employment_id .'" title="Delete Residence">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        '. $delete .'
                                     </div>'
                         ];
                 }
@@ -306,6 +346,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'ci report bank table':
                 $ci_report_id = $_POST['ci_report_id'];
+
+                $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportBankTable(:ci_report_id)');
                 $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
                 $sql->execute();
@@ -320,11 +364,22 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $account_number = $row['account_number'];
                     $currency_id = $row['currency_id'];                    
                     $date_open = $systemModel->checkDate('summary', $row['date_open'], '', 'm/d/Y', '');
-                    $adb = $row['adb'];
+                    $bank_adb_id = $row['bank_adb_id'];
 
                     $bankName = $bankModel->getBank($bank_id)['bank_name'] ?? null;
                     $bankAccountTypeName = $bankAccountTypeModel->getBankAccountType($bank_account_type_id)['bank_account_type_name'] ?? null;
                     $currencyName = $currencyModel->getCurrency($currency_id)['currency_name'] ?? null;
+
+                    $bankADBName = $bankADBModel->getBankADB($bank_adb_id)['bank_adb_name'] ?? null;
+
+                    $delete = '';
+                    if($ci_status == 'Draft'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-bank" data-ci-report-bank-id="'. $ci_report_bank_id .'" title="Delete Bank">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
+                    $average = $ciReportModel->getBankDepositAverage($ci_report_bank_id)['total'] ?? 0;
 
                     $response[] = [
                         'BANK' => $bankName,
@@ -333,14 +388,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'ACCOUNT_NUMBER' => $account_number,
                         'CURRENCY' => $currencyName,
                         'DATE_OPEN' => $date_open,
-                        'ADB' => $adb,
+                        'ADB' => $bankADBName,
+                        'AVERAGE' => number_format($average, 2) . ' PHP',
                         'ACTION' => '<div class="d-flex gap-2">
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-bank" data-bs-toggle="modal" data-bs-target="#ci-bank-modal" data-ci-report-bank-id="'. $ci_report_bank_id .'" title="Update Bank">
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-ci-report-bank" data-ci-report-bank-id="'. $ci_report_bank_id .'" title="Delete Bank">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        '. $delete .'
                                     </div>'
                         ];
                 }
@@ -349,6 +403,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'ci report bank deposits table':
                 $ci_report_bank_id = $_POST['ci_report_bank_id'];
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportBankDepositTable(:ci_report_bank_id)');
                 $sql->bindValue(':ci_report_bank_id', $ci_report_bank_id, PDO::PARAM_INT);
                 $sql->execute();
@@ -356,10 +411,22 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->closeCursor();
 
                 foreach ($options as $row) {
-                    $ci_report_bank_deposits_id = $row['ci_report_bank_deposits_id'];              
+                    $ci_report_bank_deposits_id = $row['ci_report_bank_deposits_id'];         
+                    $ci_report_id = $row['ci_report_id'];         
+                    
+                    $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                    $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+                    
                     $deposit_month = $systemModel->checkDate('summary', $row['deposit_month'], '', 'm/d/Y', '');
                     $amount = $row['amount'];
                     $remarks = $row['remarks'];
+
+                    $delete = '';
+                    if($ci_status == 'Draft'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-bank-deposits" data-ci-report-bank-deposits-id="'. $ci_report_bank_deposits_id .'" title="Delete Deposit">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
 
                     $response[] = [
                         'DEPOSIT_MONTH' => $deposit_month,
@@ -369,9 +436,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-bank-deposits" data-bs-toggle="modal" data-bs-target="#ci-bank-deposits-modal" data-ci-report-bank-deposits-id="'. $ci_report_bank_deposits_id .'" title="Update Deposit">
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-ci-report-bank-deposits" data-ci-report-bank-deposits-id="'. $ci_report_bank_deposits_id .'" title="Delete Deposit">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        '. $delete .'
                                     </div>'
                         ];
                 }
@@ -411,6 +476,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'ci report loan table':
                 $ci_report_id = $_POST['ci_report_id'];
+
+                $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportLoanTable(:ci_report_id)');
                 $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
                 $sql->execute();
@@ -432,6 +501,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $handling = $row['handling'];
                     $remarks = $row['remarks'];
 
+                    $delete = '';
+                    if($ci_status == 'Draft'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-loan" data-ci-report-loan-id="'. $ci_report_loan_id .'" title="Delete Loan">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
                     $loan_type_name = $loanTypeModel->getLoanType($loan_type_id)['loan_type_name'] ?? null;
 
                     $response[] = [
@@ -451,9 +527,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-loan" data-bs-toggle="modal" data-bs-target="#ci-loan-modal" data-ci-report-loan-id="'. $ci_report_loan_id .'" title="Update Loan">
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-ci-report-loan" data-ci-report-loan-id="'. $ci_report_loan_id .'" title="Delete Loan">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        '. $delete .'
                                     </div>'
                         ];
                 }
@@ -462,6 +536,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'ci report asset table':
                 $ci_report_id = $_POST['ci_report_id'];
+
+                $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportAssetTable(:ci_report_id)');
                 $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
                 $sql->execute();
@@ -477,6 +555,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $asset_type_name = $assetTypeModel->getAssetType($asset_type_id)['asset_type_name'] ?? null;
 
+                    $delete = '';
+                    if($ci_status == 'Draft'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-asset" data-ci-report-asset-id="'. $ci_report_asset_id .'" title="Delete Asset">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
                     $response[] = [
                         'ASSET_TYPE' => $asset_type_name,
                         'DESCRIPTION' => $description,
@@ -485,9 +570,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-asset" data-bs-toggle="modal" data-bs-target="#ci-asset-modal" data-ci-report-asset-id="'. $ci_report_asset_id .'" title="Update Asset">
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-ci-report-asset" data-ci-report-asset-id="'. $ci_report_asset_id .'" title="Delete Asset">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        '. $delete .'
                                     </div>'
                         ];
                 }
@@ -496,6 +579,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'ci report cmap table':
                 $ci_report_id = $_POST['ci_report_id'];
+
+                $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+                
                 $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportCMAPTable(:ci_report_id)');
                 $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
                 $sql->execute();
@@ -516,6 +603,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $cmap_report_type_name = $cmapReportTypeModel->getCMAPReportType($cmap_report_type_id)['cmap_report_type_name'] ?? null;
 
+                    $delete = '';
+                    if($ci_status == 'Draft'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-cmap" data-ci-report-cmap-id="'. $ci_report_cmap_id .'" title="Delete CMAP">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
                     $response[] = [
                         'REPORT_TYPE' => $cmap_report_type_name,
                         'DEFENDANTS' => $defendants,
@@ -530,9 +624,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-cmap" data-bs-toggle="modal" data-bs-target="#ci-cmap-modal" data-ci-report-cmap-id="'. $ci_report_cmap_id .'" title="Update CMAP">
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-ci-report-cmap" data-ci-report-cmap-id="'. $ci_report_cmap_id .'" title="Delete CMAP">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        '. $delete .'
                                     </div>'
                         ];
                 }
@@ -541,6 +633,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'ci report collateral table':
                 $ci_report_id = $_POST['ci_report_id'];
+
+                $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportCollateralTable(:ci_report_id)');
                 $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
                 $sql->execute();
@@ -568,6 +664,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $brand_name = $brandModel->getBrand($brand_id)['brand_id'] ?? null;
                     $color_name = $colorModel->getColor($color_id)['color_name'] ?? null;
 
+                    $delete = '';
+                    if($ci_status == 'Draft'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-collateral" data-ci-report-collateral-id="'. $ci_report_collateral_id .'" title="Delete Collateral">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
                     $response[] = [
                         'APPRAISAL_DATE' => $appraisal_date,
                         'BRAND' => $brand_name,
@@ -587,14 +690,75 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-collateral" data-bs-toggle="modal" data-bs-target="#ci-collateral-modal" data-ci-report-collateral-id="'. $ci_report_collateral_id .'" title="Update Collateral">
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-ci-report-collateral" data-ci-report-collateral-id="'. $ci_report_collateral_id .'" title="Delete Collateral">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        '. $delete .'
                                     </div>'
                         ];
                 }
 
                 echo json_encode($response);
+        break;
+
+        case 'customer ci report summary':
+            if(isset($_POST['customer_id']) && !empty($_POST['customer_id'])){
+                $details = '';
+                $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactCIReportSummary(:customerID)');
+                $sql->bindValue(':customerID', $customerID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $ci_report_id = $row['ci_report_id'];
+                    $sales_proposal_id = $row['sales_proposal_id'];
+                    $ci_status = $row['ci_status'];
+                    $created_date = $systemModel->checkDate('empty', $row['created_date'], '', 'F d, Y', '');
+                    $completed_date = $systemModel->checkDate('empty', $row['completed_date'], '', 'F d, Y', '');
+
+                    $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                    $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                    $ci_report_id_encrypted = $securityModel->encryptData($ci_report_id);
+
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
+
+                    if($ci_status === 'Draft'){
+                        $ci_status = '<span class="badge bg-secondary">' . $ci_status . '</span>';
+                    }
+                    else if($ci_status === 'For Completion'){
+                        $ci_status = '<span class="badge bg-info">' . $ci_status . '</span>';
+                    }
+                    else{
+                        $ci_status = '<span class="badge bg-success">' . $ci_status . '</span>';
+                    }
+
+                    $details .= ' <li class="list-group-item '. $listMargin .'">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-grow-1 me-2">
+                                            <a href="ci-report.php?&id='. $ci_report_id_encrypted .'" target="_blank">
+                                                <p class="mb-1">Sales Proposal Number: '. $sales_proposal_number .'</p>
+                                                <p class="mb-1">Created Date: ' . $created_date . '</p>
+                                                <p class="mb-3">Completed Date: ' . $completed_date . '</p>
+                                                <p class="mb-0">' . $ci_status . '</p>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No CI report found.';
+                }
+
+                $response[] = [
+                    'ciReportSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
         break;
         # -------------------------------------------------------------
     }

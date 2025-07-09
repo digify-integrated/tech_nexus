@@ -148,6 +148,54 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        case 'part item table 2':
+            $parts_id = $_POST['parts_id'];
+
+            $parts_incoming_start_date = $systemModel->checkDate('empty', $_POST['parts_incoming_start_date'], '', 'Y-m-d', '');
+            $parts_incoming_end_date = $systemModel->checkDate('empty', $_POST['parts_incoming_end_date'], '', 'Y-m-d', '');
+
+            $partDetails = $partsModel->getParts($parts_id);
+            $unitSale = $partDetails['unit_sale'] ?? null;
+
+            $unitCode = $unitModel->getUnit($unitSale);
+                $short_name = $unitCode['short_name'] ?? null;
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartIncomingItemTable2(:parts_id, :parts_incoming_start_date, :parts_incoming_end_date)');
+            $sql->bindValue(':parts_id', $parts_id, PDO::PARAM_STR);
+            $sql->bindValue(':parts_incoming_start_date', $parts_incoming_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':parts_incoming_end_date', $parts_incoming_end_date, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_incoming_cart_id = $row['part_incoming_cart_id'];
+                $parts_incoming_id = $row['part_incoming_id'];
+                $quantity = $row['quantity'];
+                $received_quantity = $row['received_quantity'];
+                $remaining_quantity = $row['remaining_quantity'];
+                $remarks = $row['remarks'];
+                $cost = $row['cost'];
+
+                $partIncomingDetails = $partsIncomingModel->getPartsIncoming($parts_incoming_id);
+                $reference_number = $partIncomingDetails['reference_number'] ?? '';
+
+                $part_incoming_id_encrypted = $securityModel->encryptData($parts_incoming_id);
+
+                $response[] = [
+                    'REFERENCE_NUMBER' => '<a href="parts-incoming.php?id='. $part_incoming_id_encrypted .'" target="_blank">
+                                        '. $reference_number .'
+                                    </a>',
+                    'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
+                    'RECEIVED_QUANTITY' => number_format($received_quantity, 2) . ' ' . $short_name,
+                    'COST' => number_format($cost, 2) . ' PHP',
+                    'TOTAL_COST' => number_format($cost * $quantity, 2) . ' PHP',
+                    'REMARKS' => $remarks
+                ];
+            }
+
+            echo json_encode($response);
+        break;
         case 'part incoming document table':
             $parts_incoming_id = $_POST['parts_incoming_id'];
             $sql = $databaseModel->getConnection()->prepare('CALL generatePartsIncomingDocument(:parts_incoming_id)');

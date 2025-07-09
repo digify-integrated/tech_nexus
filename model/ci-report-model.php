@@ -30,12 +30,22 @@ class CIReportModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateCIReport($p_ci_report_id, $p_appraiser, $p_investigator, $p_narrative_summary, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateCIReport(:p_ci_report_id, :p_appraiser, :p_investigator, :p_narrative_summary, :p_last_log_by)');
+    public function updateCIReport($p_ci_report_id, $p_appraiser, $p_investigator, $p_narrative_summary, $p_purpose_of_loan, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateCIReport(:p_ci_report_id, :p_appraiser, :p_investigator, :p_narrative_summary, :p_purpose_of_loan, :p_last_log_by)');
         $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_appraiser', $p_appraiser, PDO::PARAM_INT);
         $stmt->bindValue(':p_investigator', $p_investigator, PDO::PARAM_INT);
         $stmt->bindValue(':p_narrative_summary', $p_narrative_summary, PDO::PARAM_STR);
+        $stmt->bindValue(':p_purpose_of_loan', $p_purpose_of_loan, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateCIReportStatus($p_ci_report_id, $p_ci_status, $p_reason, $p_sales_proposal_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateCIReportStatus(:p_ci_report_id, :p_ci_status, :p_reason, :p_sales_proposal_id, :p_last_log_by)');
+        $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_ci_status', $p_ci_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reason', $p_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -343,6 +353,13 @@ class CIReportModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function openCustomerCIReport($p_customer_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL openCustomerCIReport(:p_customer_id, :p_last_log_by)');
+        $stmt->bindValue(':p_customer_id', $p_customer_id, type: PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function deleteCIReportBusiness($ci_report_business_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteCIReportBusiness(:ci_report_business_id)');
         $stmt->bindValue(':ci_report_business_id', $ci_report_business_id, PDO::PARAM_INT);
@@ -550,6 +567,13 @@ class CIReportModel {
         $stmt->execute();
     }
 
+    public function getBankDepositAverage($ci_report_bank_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getBankDepositAverage(:ci_report_bank_id)');
+        $stmt->bindValue(':ci_report_bank_id', $ci_report_bank_id, PDO::PARAM_INT);
+        $stmt->execute();
+         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function getCIReportBank($p_ci_report_bank_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getCIReportBank(:p_ci_report_bank_id)');
         $stmt->bindValue(':p_ci_report_bank_id', $p_ci_report_bank_id, PDO::PARAM_INT);
@@ -737,6 +761,14 @@ class CIReportModel {
     public function getCIReportLoan($p_ci_report_loan_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getCIReportLoan(:p_ci_report_loan_id)');
         $stmt->bindValue(':p_ci_report_loan_id', $p_ci_report_loan_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getCIReportLoanTotal($p_ci_report_id, $p_type) {
+        $stmt = $this->db->getConnection()->prepare('CALL getCIReportLoanTotal(:p_ci_report_id, :p_type)');
+        $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -976,6 +1008,13 @@ class CIReportModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getCIReportAssetsTotal($p_ci_report_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getCIReportAssetsTotal(:p_ci_report_id)');
+        $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -1023,6 +1062,101 @@ class CIReportModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function generateCIReportBusinessSummary($p_ci_report_id) {
+         $table = '<table class="table table-borderless text-sm ">
+                <tbody>
+                <tr>
+                    <td style="text-align: center !important;"><u>Business Name</u></td>
+                    <td style="text-align: center !important;"><u>Amount</u></td>
+                </tr>';
+
+        $stmt = $this->db->getConnection()->prepare('CALL generateCIReportBusinessSummary(:p_ci_report_id)');
+        $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+
+
+        foreach ($options as $row) {
+            $business_name = $row['business_name'];
+            $monthly_income = number_format($row['monthly_income'] ?? 0, 2);
+
+            $table .= '<tr>
+                            <td style="text-align: center !important;" class="text-wrap">'. $business_name .'</td>
+                            <td style="text-align: center !important;" class="text-wrap">'. $monthly_income .' PHP</td>
+                        </tr>';
+        }
+
+        $table .= '</tbody></table>';
+
+        return $table;
+    }
+
+    public function generateCIReportEmploymentSummary($p_ci_report_id) {
+         $table = '<table class="table table-borderless text-sm ">
+                <tbody>
+                <tr>
+                    <td style="text-align: center !important;"><u>Employment Name</u></td>
+                    <td style="text-align: center !important;"><u>Amount</u></td>
+                </tr>';
+
+        $stmt = $this->db->getConnection()->prepare('CALL generateCIReportEmploymentSummary(:p_ci_report_id)');
+        $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+
+
+        foreach ($options as $row) {
+            $employment_name = $row['employment_name'];
+            $grand_total = number_format($row['grand_total'] ?? 0, 2);
+
+            $table .= '<tr>
+                            <td style="text-align: center !important;" class="text-wrap">'. $employment_name .'</td>
+                            <td style="text-align: center !important;" class="text-wrap">'. $grand_total .' PHP</td>
+                        </tr>';
+        }
+
+        $table .= '</tbody></table>';
+
+        return $table;
+    }
     # -------------------------------------------------------------
+ 
+    public function rate(
+        int   $nper,
+        float $pmt,
+        float $pv,
+        float $fv = 0.0,
+        int   $type = 0,
+        float $guess = 0.1,
+        int   $maxIter = 128,
+        float $tol = 1.0e-8
+    ): float {
+        $rate = $guess;
+        for ($i = 0; $i < $maxIter; $i++) {
+            // Present-value formula f(rate) = 0
+            $pow = pow(1 + $rate, $nper);
+            $f   = $pv * $pow + $pmt * (1 + $rate * $type) * ($pow - 1) / $rate + $fv;
+
+            // Derivative f'(rate) for Newton–Raphson
+            $df = $pv * $nper * pow(1 + $rate, $nper - 1)
+                + $pmt * (1 + $rate * $type) * (
+                    $pow * $nper / $rate
+                - ($pow - 1) / ($rate * $rate)
+                )
+                + $pmt * $type * ($pow - 1) / $rate;
+
+            $newRate = $rate - $f / $df;
+
+            if (abs($newRate - $rate) <= $tol) {
+                return $newRate;
+            }
+            $rate = $newRate;
+        }
+        throw new RuntimeException('RATE did not converge');
+    }
+
 }
 ?>

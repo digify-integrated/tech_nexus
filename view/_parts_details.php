@@ -239,82 +239,182 @@ if($addPartExpense['total'] > 0){
   </div>
 </div>
 
-<?php
-  $classHidden = 'd-none';
-  $expenseHidden = 'd-none';
-
-  if($viewPartCost['total'] > 0){
-    $classHidden = '';
-  }
-
-  if($viewPartCost['total'] > 0 && $partsStatus != 'Draft'){
-    $expenseHidden = '';
-  }
-?>
-
-<div class="card table-card d-none">
-  <div class="card-header">
-    <div class="row align-items-center">
-      <div class="col-sm-6">
-        <h5>Expense</h5>
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card table-card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Parts Incoming</h5>
+          </div>
+          <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+            <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#parts-incoming-filter-offcanvas">
+              Filter
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-          <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
-            Filter
-          </button>
-          <?php echo $addPartsExpenseButton; ?>
+      <div class="card-body">
+        <div class="table-responsive w-100">
+          <table class="table mb-0" id="parts-incoming-table">
+            <thead>
+              <tr>
+                <th class="text-center">Reference Number</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-center">Received Quantity</th>
+                <?php
+                  if($viewPartCost['total'] > 0){
+                    echo '<th class="text-center">Cost</th>
+                    <th class="text-center">Total Cost</th>';
+                  }
+                ?>
+                <th class="text-center">Remarks</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-  <div class="card-body">
-    <div class="dt-responsive table-responsive">
-      <table id="parts-expense-table" class="table table-hover nowrap w-100 dataTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th class="all">Reference Type</th>
-            <th class="all">Reference Number</th>
-            <th class="all">Particulars</th>
-            <th class="all">Type</th>
-            <th class="all">Amount</th>
-            <th class="all">Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-        <tfoot>
-          <tr>
-              <td class="text-end" colspan="5"><b>TOTAL</b></td>
-              <td></td> 
-              <td></td>
-          </tr>
-      </tfoot>
-        </table>
+  <div class="col-lg-6">
+    <div class="card table-card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Parts Transaction</h5>
+          </div>
+          <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+            <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#parts-transaction-filter-offcanvas">
+              Filter
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive w-100">
+          <table class="table mb-0" id="parts-transaction-table">
+            <thead>
+              <tr>
+                <th class="text-end">Transaction No.</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-center">Add-On</th>
+                <th class="text-center">Discount</th>
+                <th class="text-center">Total Discount</th>
+                <th class="text-end">Sub-Total</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="card table-card">
-  <div class="card-header">
-    <div class="row align-items-center">
-      <div class="col-sm-6">
-        <h5>Parts Document</h5>
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card table-card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Parts Document</h5>
+          </div>
+          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+            <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#parts-document-offcanvas" aria-controls="parts-document-offcanvas" id="parts-document">Add Document</button>
+          </div>
+        </div>
       </div>
-      <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-        <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#parts-document-offcanvas" aria-controls="parts-document-offcanvas" id="parts-document">Add Document</button>
+      <div class="card-body">
+        <div class="table-responsive w-100">
+          <table id="parts-document-table" class="table table-hover nowrap w-100 dataTable">
+            <thead>
+              <tr>
+                <th class="w-100">Document Type</th>
+                <th class="w-100">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+            </table>
+        </div>
       </div>
     </div>
   </div>
-  <div class="card-body">
-    <div class="dt-responsive table-responsive">
-      <table id="parts-document-table" class="table table-hover nowrap w-100 dataTable">
-        <thead>
-          <tr>
-            <th class="all">Document Type</th>
-            <th class="all">Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-        </table>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="parts-transaction-filter-offcanvas" aria-labelledby="parts-transaction-filter-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="parts-transaction-filter-offcanvas-label" style="margin-bottom:-0.5rem">Filter</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Transaction Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="parts_transaction_start_date" name="parts_transaction_start_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+                <div class="input-group date mt-3">
+                  <input type="text" class="form-control regular-datepicker" id="parts_transaction_end_date" name="parts_transaction_end_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-parts-transaction-filter">Apply</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="parts-incoming-filter-offcanvas" aria-labelledby="parts-incoming-filter-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="parts-incoming-filter-offcanvas-label" style="margin-bottom:-0.5rem">Filter</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Transaction Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="parts_incoming_start_date" name="parts_incoming_start_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+                <div class="input-group date mt-3">
+                  <input type="text" class="form-control regular-datepicker" id="parts_incoming_end_date" name="parts_incoming_end_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-parts-incoming-filter">Apply</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -440,7 +540,7 @@ if($addPartExpense['total'] > 0){
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="filter-canvas">
   <div class="offcanvas-body p-0 sticky-xxl-top">
-  <div class="card">
+    <div class="card">
           <div class="card-header d-flex align-items-center justify-content-between">
             <h5>Filter</h5>
             <a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" data-bs-dismiss="offcanvas" data-bs-target="#filter-canvas">
@@ -505,26 +605,26 @@ if($addPartExpense['total'] > 0){
 </div>
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="parts-qr-code-offcanvas" aria-labelledby="parts-qr-code-offcanvas-label">
-                  <div class="offcanvas-header">
-                    <h2 id="parts-qr-code-offcanvas-label" style="margin-bottom:-0.5rem">QR Code</h2>
-                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                  </div>
-                  <div class="offcanvas-body">
-                    <div class="alert alert-success alert-dismissible mb-4" role="alert">
-                      This QR code serves as a secure and efficient means of identity verification and access control within our organization. Its primary purpose is to enhance the overall security and streamline various operational processes.
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    <div class="row mb-4 text-center">
-                      <div class="col-lg-12" id="parts-qr-code-container"></div>
-                    </div>
-                    <div class="row">
-                      <div class="col-lg-12">
-                        <button class="btn btn-light-success" id="print-qr"> Print </button>
-                        <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+  <div class="offcanvas-header">
+    <h2 id="parts-qr-code-offcanvas-label" style="margin-bottom:-0.5rem">QR Code</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="alert alert-success alert-dismissible mb-4" role="alert">
+      This QR code serves as a secure and efficient means of identity verification and access control within our organization. Its primary purpose is to enhance the overall security and streamline various operational processes.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div class="row mb-4 text-center">
+      <div class="col-lg-12" id="parts-qr-code-container"></div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <button class="btn btn-light-success" id="print-qr"> Print </button>
+        <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <?php
 if($viewPartLogNotes['total'] > 0){

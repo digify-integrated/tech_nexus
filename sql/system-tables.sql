@@ -6603,3 +6603,22 @@ CREATE TABLE business_location_type(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE unit_return(
+	unit_return_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	internal_dr_id INT NOT NULL,
+	product_id INT NOT NULL,
+    estimated_return_date DATE,
+    return_date DATE,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE bank_adb(
+	bank_adb_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	bank_adb_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX bank_adb_index_bank_adb_id ON bank_adb(bank_adb_id);

@@ -47,47 +47,47 @@
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
-                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-all" value="" checked />
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-all-2" value="" checked />
                                 <label class="form-check-label" for="product-status-all">All</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-draft" value="Draft" />
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-draft-2" value="Draft" />
                                 <label class="form-check-label" for="product-status-draft">Draft</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-for-sale" value="For Sale" />
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-for-sale-2" value="For Sale" />
                                 <label class="form-check-label" for="product-status-for-sale">For Sale</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-with-application" value="With Application" />
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-with-application-2" value="With Application" />
                                 <label class="form-check-label" for="product-status-with-application">With Application</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-on-process" value="On-Process" />
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-on-process-2" value="On-Process" />
                                 <label class="form-check-label" for="product-status-on-process">On-Process</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-ready-for-release" value="Ready For Release" />
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-ready-for-release-2" value="Ready For Release" />
                                 <label class="form-check-label" for="product-status-ready-for-release">Ready For Release</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-ready-for-dr" value="For DR" />
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-ready-for-dr-2" value="For DR" />
                                 <label class="form-check-label" for="product-status-ready-for-dr">For DR</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-sold" value="Sold" />
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-sold-2" value="Sold" />
                                 <label class="form-check-label" for="product-status-sold">Sold</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-rented" value="Rented" />
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-rented-2" value="Rented" />
                                 <label class="form-check-label" for="product-status-rented">Rented</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-returned" value="Returned" />
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-returned-2" value="Returned" />
                                 <label class="form-check-label" for="product-status-returned">Returned</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-ropa" value="ROPA" />
+                                <input class="form-check-input product-status-filter" type="radio" name="product-status-filter" id="product-status-ropa-2" value="ROPA" />
                                 <label class="form-check-label" for="product-status-ropa">ROPA</label>
                               </div>
                             </div>
@@ -114,6 +114,18 @@
                                 <div class="py-3">
                                     <?php
                                         echo $warehouseModel->generateWarehouseCheckBox();
+                                    ?>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item px-0 py-2">
+                            <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#supplier-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                                Supplier
+                            </a>
+                            <div class="collapse " id="supplier-filter-collapse">
+                                <div class="py-3">
+                                    <?php
+                                        echo $supplierModel->generateSupplierCheckBox();
                                     ?>
                                 </div>
                             </div>
@@ -241,53 +253,37 @@
                   </select>
                 </li>
               </ul>
-              <div class="col-auto">
-                <ul class="nav nav-pills nav-price" id="pills-tab" role="tablist">
-                  <!--<li class="nav-item" role="presentation">
-                    <button class="nav-link" id="card-view-tab" data-bs-toggle="pill" data-bs-target="#card-view" type="button" role="tab" aria-controls="card-view" aria-selected="true"><i data-feather="grid"></i></button>
-                  </li>-->
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="table-view-tab" data-bs-toggle="pill" data-bs-target="#table-view" type="button" role="tab" aria-controls="table-view" aria-selected="false"><i data-feather="align-justify"></i></button>
-                  </li>
-                </ul>
-              </div>
               <ul class="list-inline ms-auto my-1">
-                <?php
-                  if($productCreateAccess['total'] > 0){
-                    echo '<li class="list-inline-item align-bottom mr-0"><a href="product.php?new" class="btn btn-success">Create</a></li>';
-                  }
-
-                  if($importProduct['total'] > 0){
-                    echo ' <a href="product.php?import" class="btn btn-info">Import</a>';
-                  }
-                ?>
                 <li class="list-inline-item align-bottom">
-                <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                  <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                     <ul class="dropdown-menu dropdown-menu-end">
                       <li><button class="dropdown-item" type="button" id="print-qr-code">Print QR Code</button></li>
                     </ul>
                 </li>
+                <?php
+                  if($productCreateAccess['total'] > 0){
+                    echo '<li class="list-inline-item align-bottom"><a href="product.php?new" class="btn btn-success">Create</a></li>';
+                  }
+
+                  if($importProduct['total'] > 0){
+                    echo '<li class="list-inline-item align-bottom"> <a href="product.php?import" class="btn btn-info">Import</a></li>';
+                  }
+                ?>
                 <li class="list-inline-item align-bottom">
                   <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                     Filter
-                  </a>
+                  </button>
+                </li>
+                <li class="list-inline-item align-bottom">
+                  <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#quick-filter-modal">
+                    Quick Filter
+                  </button>
                 </li>
               </ul>
             </div>
           </div>
         </div>
         <div class="tab-content" id="pills-tabContent">
-          <!--<div class="tab-pane fade" id="card-view" role="tabpanel" aria-labelledby="card-view-tab" tabindex="0">
-            <div class="row" id="product-card"></div>
-              <div class="row" class="d-none" id="load-content">
-                <div class="col-lg-12 text-center">
-                  <div class="spinner-grow text-primary" role="status">
-                    <span class="sr-only">Loading...</span>
-                  </div>
-                </div>
-              </div>
-            </div>  
-          </div>-->
           <?php
             $viewSalesProposalProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
           ?>
@@ -331,4 +327,31 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="modal fade modal-animate" id="quick-filter-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quick Filter</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ci-appraisal-source-form" method="post" action="#">
+                    <input type="hidden" id="ci_report_appraisal_source_id" name="ci_report_appraisal_source_id">
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label">Product Subcategory</label>
+                            <?php
+                              echo $productSubcategoryModel->generateProductSubcategoryCheckBox2();
+                            ?>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ci-collateral-modal" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>

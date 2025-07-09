@@ -295,6 +295,24 @@ class ProductSubcategoryModel {
 
         return $htmlOptions;
     }
+    public function generateProductSubcategoryCheckbox2() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateProductSubcategoryOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $productSubcategoryID = $row['product_subcategory_id'];
+            $productSubcategoryName = $row['product_subcategory_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input product-subcategory-filter-2" type="checkbox" id="product-subcategory-2-' . htmlspecialchars($productSubcategoryID, ENT_QUOTES) . '" value="' . htmlspecialchars($productSubcategoryID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="product-subcategory-2-' . htmlspecialchars($productSubcategoryID, ENT_QUOTES) . '">' . htmlspecialchars($productSubcategoryName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 }
 ?>

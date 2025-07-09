@@ -59,8 +59,8 @@
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Account Type <span class="text-danger">*</span></label>
-            <div class="col-lg-10">
-                <select class="form-control select2" name="account_type" id="account_type" <?php echo $disabled;?>>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="account_type" id="account_type">
                     <option value="">--</option>
                     <option value="Current Assets">Current Assets</option>
                     <option value="Bank and Cash">Bank and Cash</option>
@@ -78,6 +78,14 @@
                     <option value="Current Year Earnings">Current Year Earnings</option>
                     <option value="Cost of Revenue">Cost of Revenue</option>
                     <option value="Depreciation">Depreciation</option>
+                </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Archive <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="archived" id="archived">
+                    <option value="">--</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
                 </select>
             </div>
           </div>

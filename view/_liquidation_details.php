@@ -191,7 +191,7 @@
                 <label class="form-label">Particulars <span class="text-danger">*</span></label>
                 <select class="form-control offcanvas-select2" name="chart_of_account_id" id="chart_of_account_id">
                   <option value="">--</option>
-                  <?php echo $chartOfAccountModel->generateChartOfAccountDisbursementOptions(); ?>
+                  <?php echo $chartOfAccountModel->generateActiveChartOfAccountDisbursementOptions(); ?>
                 </select>
               </div>
             </div>

@@ -283,7 +283,7 @@
                 <label class="col-lg-5 col-form-label">Plate Number :</label>
                 <label class="col-lg-7 col-form-label" id="product_plate_number"></label>
               </div>
-              <div class="form-group row d-none">
+              <div class="form-group row">
                 <label class="col-lg-4 col-form-label">For Registration? : <span class="text-danger">*</span></label>
                 <div class="col-lg-8 mt-2">
                   <select class="form-control select2" name="for_registration" id="for_registration">
@@ -293,7 +293,7 @@
                   </select>
                 </div>
               </div>
-              <div class="form-group row d-none">
+              <div class="form-group row">
                 <label class="col-lg-4 col-form-label">With CR? : <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
                   <select class="form-control select2" name="with_cr" id="with_cr">
@@ -303,7 +303,7 @@
                   </select>
                 </div>
               </div>
-              <div class="form-group row d-none">
+              <div class="form-group row">
                 <label class="col-lg-4 col-form-label">For Transfer? : <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
                   <select class="form-control select2" name="for_transfer" id="for_transfer">
@@ -313,7 +313,7 @@
                   </select>
                 </div>
               </div>
-              <div class="form-group row d-none">
+              <div class="form-group row">
                 <label class="col-lg-4 col-form-label">For Change Color? : <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
                   <select class="form-control select2" name="for_change_color" id="for_change_color">
@@ -337,7 +337,7 @@
               </div>
             </div>
             <div class="col-lg-6">
-              <div class="form-group row d-none">
+              <div class="form-group row">
                 <label class="col-lg-5 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
                 <div class="col-lg-7">
                   <select class="form-control select2" name="for_change_body" id="for_change_body">

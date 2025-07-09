@@ -94,6 +94,7 @@
             <div class="row align-items-center">
               <div class="col-md-12">
                 <ul class="breadcrumb">
+        <input type="hidden" id="view-cost" value="<?php echo $viewPartCost['total'] ?>">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
                     <li class="breadcrumb-item" aria-current="page"><a href="parts.php"><?php echo $pageTitle; ?></a></li>

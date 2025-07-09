@@ -312,6 +312,10 @@
             }
         });
 
+        $(document).on('click','.product-subcategory-filter-2',function() {
+            productTable('#product-table', true, true);
+        });
+
         $(document).on('click','.delete-product',function() {
             const product_id = $(this).data('product-id');
             const transaction = 'delete product';
@@ -1235,7 +1239,9 @@ function productTable(datatable_name, buttons = false, show_all = false){
     var company_filter_values = [];
     var product_category_filter_values = [];
     var product_subcategory_filter_values = [];
+    var product_subcategory_filter_values_2 = [];
     var warehouse_filter_values = [];
+    var supplier_filter_values = [];
     var body_type_filter_values = [];
     var color_filter_values = [];
 
@@ -1251,8 +1257,16 @@ function productTable(datatable_name, buttons = false, show_all = false){
         product_subcategory_filter_values.push($(this).val());
     });
 
+    $('.product-subcategory-filter-2:checked').each(function() {
+        product_subcategory_filter_values_2.push($(this).val());
+    });
+
     $('.warehouse-filter:checked').each(function() {
         warehouse_filter_values.push($(this).val());
+    });
+
+    $('.supplier-filter:checked').each(function() {
+        supplier_filter_values.push($(this).val());
     });
 
     $('.body-type-filter:checked').each(function() {
@@ -1266,7 +1280,9 @@ function productTable(datatable_name, buttons = false, show_all = false){
     var company_filter = company_filter_values.join(', ');
     var product_category_filter = product_category_filter_values.join(', ');
     var product_subcategory_filter = product_subcategory_filter_values.join(', ');
+    var product_subcategory_filter_2 = product_subcategory_filter_values_2.join(', ');
     var warehouse_filter = warehouse_filter_values.join(', ');
+    var supplier_filter = supplier_filter_values.join(', ');
     var body_type_filter = body_type_filter_values.join(', ');
     var color_filter = color_filter_values.join(', ');
     var settings;
@@ -1367,7 +1383,9 @@ function productTable(datatable_name, buttons = false, show_all = false){
                 'company_filter' : company_filter,
                 'product_category_filter' : product_category_filter,
                 'product_subcategory_filter' : product_subcategory_filter,
+                'product_subcategory_filter_2' : product_subcategory_filter_2,
                 'warehouse_filter' : warehouse_filter,
+                'supplier_filter' : supplier_filter,
                 'body_type_filter' : body_type_filter,
                 'color_filter' : color_filter
             },
@@ -1501,12 +1519,14 @@ function productDocumentTable(datatable_name, buttons = false, show_all = false)
 
     const column = [ 
         { 'data' : 'DOCUMENT_TYPE' },
+        { 'data' : 'UPLOAD_DATE' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': 'auto', 'aTargets': 0 },
-        { 'width': '5%','bSortable': false, 'aTargets': 1 }
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': '5%','bSortable': false, 'aTargets': 2 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -2225,8 +2245,6 @@ function displayDetails(transaction){
                         $(document).on('click','#print-qr',function() {
                             window.open(window.open('print-product-qr-code.php?product_id='+ product_id +'&description='+response.description+'&stock_number='+ response.fullStockNumber));
                         });
-
-                        createProductQRCode('product-qr-code-container', product_id, response.description, response.fullStockNumber);
                         $('#product_id').val(product_id);
                         $('#description').val(response.description);
                         $('#stock_number').val(response.fullStockNumber);
@@ -2299,6 +2317,8 @@ function displayDetails(transaction){
                         checkOptionExist('#mode_of_acquisition_id', response.mode_of_acquisition_id, '');
 
                         checkOptionExist('#received_from_id_type', response.receivedFromIDType, '');
+
+                        createProductQRCode('product-qr-code-container', product_id, response.description, response.fullStockNumber);
                     } 
                     else {
                         if(response.isInactive){

@@ -255,8 +255,8 @@
 
             if($(this).val() == 'Bank Financing'){
                 $('#term_length').val('45');
-                checkOptionExist('#term_type', 'Days', '');
                 checkOptionExist('#payment_frequency', 'Lumpsum', '');
+                checkOptionExist('#term_type', 'Days', '');
             }
         });
 

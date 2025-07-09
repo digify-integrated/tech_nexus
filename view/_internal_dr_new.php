@@ -35,7 +35,7 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">DR Number <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">DR Number</label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="dr_number" name="dr_number" maxlength="50" autocomplete="off">
             </div>
@@ -44,6 +44,7 @@
               <select class="form-control select2" name="dr_type" id="dr_type">
                 <option value="">--</option>
                 <option value="Unit">Unit</option>
+                <option value="RTS">Return to Supplier</option>
                 <option value="Fuel">Fuel</option>
                 <option value="Repair">Repair</option>
                 <option value="Backjob">Backjob</option>
@@ -54,8 +55,15 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Product</label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="product_id" id="product_id">
+                <option value="">--</option>
+                <?php echo $productModel->generateNotDraftProductOptions(); ?>
+              </select>
+            </div>
             <label class="col-lg-2 col-form-label">Internal Job Order</label>
-            <div class="col-lg-10">
+            <div class="col-lg-4">
               <select class="form-control select2" name="backjob_monitoring_id" id="backjob_monitoring_id">
                 <option value="">--</option>
                 <?php echo $backJobMonitoringModel->generateBackJobMonitoringOptions(); ?>
@@ -80,6 +88,17 @@
             <label class="col-lg-2 col-form-label">Plate Number </label>
             <div class="col-lg-4">
                 <input type="text" class="form-control" id="plate_number" name="plate_number" maxlength="100" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Estimated Return Date</label>
+            <div class="col-lg-4">
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="estimated_return_date" name="estimated_return_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
             </div>
           </div>
           <div class="form-group row">

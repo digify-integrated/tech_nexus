@@ -707,8 +707,9 @@ if($addProductExpense['total'] > 0){
       <table id="product-document-table" class="table table-hover nowrap w-100 dataTable">
         <thead>
           <tr>
-            <th class="all">Document Type</th>
-            <th class="all">Actions</th>
+            <th class="all w-100">Document Type</th>
+            <th class="all w-100">Upload Date</th>
+            <th class="all w-100">Actions</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -743,6 +744,7 @@ if($addProductExpense['total'] > 0){
                   <option value="Tare Weight Certificate">Tare Weight Certificate</option>
                   <option value="Chassis Number">Chassis Number</option>
                   <option value="Engine Number">Engine Number</option>
+                  <option value="Delivery Receipt">Delivery Receipt</option>
                 </select>
               </div>
               <div class="col-lg-12 mt-3 mt-lg-0">
@@ -784,6 +786,7 @@ if($addProductExpense['total'] > 0){
                   <option value="Contractor Report">Contractor Report</option>
                   <option value="Adjustment">Adjustment</option>
                   <option value="Stock Transfer Advice">Stock Transfer Advice</option>
+                  <option value="Purchase Order">Purchase Order</option>
                 </select>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">

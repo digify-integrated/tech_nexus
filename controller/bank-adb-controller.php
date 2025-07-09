@@ -3,17 +3,17 @@ session_start();
 
 # -------------------------------------------------------------
 #
-# Function: ChartOfAccountController
+# Function: BankADBController
 # Description: 
-# The ChartOfAccountController class handles chart of account related operations and interactions.
+# The BankADBController class handles bank adb related operations and interactions.
 #
 # Parameters: None
 #
 # Returns: None
 #
 # -------------------------------------------------------------
-class ChartOfAccountController {
-    private $chartOfAccountModel;
+class BankADBController {
+    private $bankADBModel;
     private $userModel;
     private $securityModel;
 
@@ -21,19 +21,19 @@ class ChartOfAccountController {
     #
     # Function: __construct
     # Description: 
-    # The constructor initializes the object with the provided ChartOfAccountModel, UserModel and SecurityModel instances.
-    # These instances are used for chart of account related, user related operations and security related operations, respectively.
+    # The constructor initializes the object with the provided BankADBModel, UserModel and SecurityModel instances.
+    # These instances are used for bank adb related, user related operations and security related operations, respectively.
     #
     # Parameters:
-    # - @param ChartOfAccountModel $chartOfAccountModel     The ChartOfAccountModel instance for chart of account related operations.
+    # - @param BankADBModel $bankADBModel     The BankADBModel instance for bank adb related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(ChartOfAccountModel $chartOfAccountModel, UserModel $userModel, SecurityModel $securityModel) {
-        $this->chartOfAccountModel = $chartOfAccountModel;
+    public function __construct(BankADBModel $bankADBModel, UserModel $userModel, SecurityModel $securityModel) {
+        $this->bankADBModel = $bankADBModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
     }
@@ -57,20 +57,20 @@ class ChartOfAccountController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'save chart of account':
-                    $this->saveChartOfAccount();
+                case 'save bank adb':
+                    $this->saveBankADB();
                     break;
-                case 'get chart of account details':
-                    $this->getChartOfAccountDetails();
+                case 'get bank adb details':
+                    $this->getBankADBDetails();
                     break;
-                case 'delete chart of account':
-                    $this->deleteChartOfAccount();
+                case 'delete bank adb':
+                    $this->deleteBankADB();
                     break;
-                case 'delete multiple chart of account':
-                    $this->deleteMultipleChartOfAccount();
+                case 'delete multiple bank adb':
+                    $this->deleteMultipleBankADB();
                     break;
-                case 'duplicate chart of account':
-                    $this->duplicateChartOfAccount();
+                case 'duplicate bank adb':
+                    $this->duplicateBankADB();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -86,26 +86,23 @@ class ChartOfAccountController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveChartOfAccount
+    # Function: saveBankADB
     # Description: 
-    # Updates the existing chart of account if it exists; otherwise, inserts a new chart of account.
+    # Updates the existing bank adb if it exists; otherwise, inserts a new bank adb.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveChartOfAccount() {
+    public function saveBankADB() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $chartOfAccountID = isset($_POST['chart_of_account_id']) ? htmlspecialchars($_POST['chart_of_account_id'], ENT_QUOTES, 'UTF-8') : null;
-        $code = htmlspecialchars($_POST['code'], ENT_QUOTES, 'UTF-8');
-        $codeName = htmlspecialchars($_POST['code_name'], ENT_QUOTES, 'UTF-8');
-        $accountType = $_POST['account_type'];
-        $archived = $_POST['archived'];
+        $bankADBID = isset($_POST['bank_adb_id']) ? htmlspecialchars($_POST['bank_adb_id'], ENT_QUOTES, 'UTF-8') : null;
+        $bankADBName = htmlspecialchars($_POST['bank_adb_name'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -114,19 +111,19 @@ class ChartOfAccountController {
             exit;
         }
     
-        $checkChartOfAccountExist = $this->chartOfAccountModel->checkChartOfAccountExist($chartOfAccountID);
-        $total = $checkChartOfAccountExist['total'] ?? 0;
+        $checkBankADBExist = $this->bankADBModel->checkBankADBExist($bankADBID);
+        $total = $checkBankADBExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->chartOfAccountModel->updateChartOfAccount($chartOfAccountID, $code, $codeName, $accountType, $archived, $userID);
+            $this->bankADBModel->updateBankADB($bankADBID, $bankADBName, $userID);
             
-            echo json_encode(['success' => true, 'insertRecord' => false, 'chartOfAccountID' => $this->securityModel->encryptData($chartOfAccountID)]);
+            echo json_encode(['success' => true, 'insertRecord' => false, 'bankADBID' => $this->securityModel->encryptData($bankADBID)]);
             exit;
         } 
         else {
-            $chartOfAccountID = $this->chartOfAccountModel->insertChartOfAccount($code, $codeName, $accountType, $archived, $userID);
+            $bankADBID = $this->bankADBModel->insertBankADB($bankADBName, $userID);
 
-            echo json_encode(['success' => true, 'insertRecord' => true, 'chartOfAccountID' => $this->securityModel->encryptData($chartOfAccountID)]);
+            echo json_encode(['success' => true, 'insertRecord' => true, 'bankADBID' => $this->securityModel->encryptData($bankADBID)]);
             exit;
         }
     }
@@ -138,22 +135,22 @@ class ChartOfAccountController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteChartOfAccount
+    # Function: deleteBankADB
     # Description: 
-    # Delete the chart of account if it exists; otherwise, return an error message.
+    # Delete the bank adb if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteChartOfAccount() {
+    public function deleteBankADB() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $chartOfAccountID = htmlspecialchars($_POST['chart_of_account_id'], ENT_QUOTES, 'UTF-8');
+        $bankADBID = htmlspecialchars($_POST['bank_adb_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -162,15 +159,15 @@ class ChartOfAccountController {
             exit;
         }
     
-        $checkChartOfAccountExist = $this->chartOfAccountModel->checkChartOfAccountExist($chartOfAccountID);
-        $total = $checkChartOfAccountExist['total'] ?? 0;
+        $checkBankADBExist = $this->bankADBModel->checkBankADBExist($bankADBID);
+        $total = $checkBankADBExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
     
-        $this->chartOfAccountModel->deleteChartOfAccount($chartOfAccountID);
+        $this->bankADBModel->deleteBankADB($bankADBID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -179,22 +176,22 @@ class ChartOfAccountController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteMultipleChartOfAccount
+    # Function: deleteMultipleBankADB
     # Description: 
-    # Delete the selected chart of accounts if it exists; otherwise, skip it.
+    # Delete the selected bank adbs if it exists; otherwise, skip it.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteMultipleChartOfAccount() {
+    public function deleteMultipleBankADB() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $chartOfAccountIDs = $_POST['chart_of_account_id'];
+        $bankADBIDs = $_POST['bank_adb_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -203,8 +200,8 @@ class ChartOfAccountController {
             exit;
         }
 
-        foreach($chartOfAccountIDs as $chartOfAccountID){
-            $this->chartOfAccountModel->deleteChartOfAccount($chartOfAccountID);
+        foreach($bankADBIDs as $bankADBID){
+            $this->bankADBModel->deleteBankADB($bankADBID);
         }
             
         echo json_encode(['success' => true]);
@@ -218,22 +215,22 @@ class ChartOfAccountController {
 
     # -------------------------------------------------------------
     #
-    # Function: duplicateChartOfAccount
+    # Function: duplicateBankADB
     # Description: 
-    # Duplicates the chart of account if it exists; otherwise, return an error message.
+    # Duplicates the bank adb if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function duplicateChartOfAccount() {
+    public function duplicateBankADB() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $chartOfAccountID = htmlspecialchars($_POST['chart_of_account_id'], ENT_QUOTES, 'UTF-8');
+        $bankADBID = htmlspecialchars($_POST['bank_adb_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -242,17 +239,17 @@ class ChartOfAccountController {
             exit;
         }
     
-        $checkChartOfAccountExist = $this->chartOfAccountModel->checkChartOfAccountExist($chartOfAccountID);
-        $total = $checkChartOfAccountExist['total'] ?? 0;
+        $checkBankADBExist = $this->bankADBModel->checkBankADBExist($bankADBID);
+        $total = $checkBankADBExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
 
-        $chartOfAccountID = $this->chartOfAccountModel->duplicateChartOfAccount($chartOfAccountID, $userID);
+        $bankADBID = $this->bankADBModel->duplicateBankADB($bankADBID, $userID);
 
-        echo json_encode(['success' => true, 'chartOfAccountID' =>  $this->securityModel->encryptData($chartOfAccountID)]);
+        echo json_encode(['success' => true, 'bankADBID' =>  $this->securityModel->encryptData($bankADBID)]);
         exit;
     }
     # -------------------------------------------------------------
@@ -263,23 +260,23 @@ class ChartOfAccountController {
 
     # -------------------------------------------------------------
     #
-    # Function: getChartOfAccountDetails
+    # Function: getBankADBDetails
     # Description: 
-    # Handles the retrieval of chart of account details such as chart of account name, etc.
+    # Handles the retrieval of bank adb details such as bank adb name, etc.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getChartOfAccountDetails() {
+    public function getBankADBDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
-        if (isset($_POST['chart_of_account_id']) && !empty($_POST['chart_of_account_id'])) {
+        if (isset($_POST['bank_adb_id']) && !empty($_POST['bank_adb_id'])) {
             $userID = $_SESSION['user_id'];
-            $chartOfAccountID = $_POST['chart_of_account_id'];
+            $bankADBID = $_POST['bank_adb_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -288,14 +285,11 @@ class ChartOfAccountController {
                 exit;
             }
     
-            $chartOfAccountDetails = $this->chartOfAccountModel->getChartOfAccount($chartOfAccountID);
+            $bankADBDetails = $this->bankADBModel->getBankADB($bankADBID);
 
             $response = [
                 'success' => true,
-                'code' => $chartOfAccountDetails['code'],
-                'name' => $chartOfAccountDetails['name'],
-                'accountType' => $chartOfAccountDetails['account_type'],
-                'archived' => $chartOfAccountDetails['archived'],
+                'bankADBName' => $bankADBDetails['bank_adb_name']
             ];
 
             echo json_encode($response);
@@ -308,11 +302,11 @@ class ChartOfAccountController {
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';
-require_once '../model/chart-of-account-model.php';
+require_once '../model/bank-adb-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new ChartOfAccountController(new ChartOfAccountModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
+$controller = new BankADBController(new BankADBModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
 ?>

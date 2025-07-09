@@ -6,12 +6,14 @@
   require('model/contractor-model.php');
   require('model/work-center-model.php');
   require('model/back-job-monitoring-model.php');
+  require('model/product-model.php');
   
   $internalDRModel = new InternalDRModel($databaseModel);
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $contractorModel = new ContractorModel($databaseModel);
   $workCenterModel = new WorkCenterModel($databaseModel);
   $backJobMonitoringModel = new BackJobMonitoringModel($databaseModel);
+  $productModel = new ProductModel($databaseModel);
 
   $pageTitle = 'Internal DR';
     
@@ -53,6 +55,7 @@
     $plateNumber = $internalDRDetails['plate_number'];
     $unitImage = $systemModel->checkImage($internalDRDetails['unit_image'], 'default');
     $createdDate = $systemModel->checkDate('default', $internalDRDetails['created_date'] ?? null, '', 'd-M-Y', '');
+    $estimated_return_date = $systemModel->checkDate('default', $internalDRDetails['estimated_return_date'] ?? null, '', 'd-M-Y', '');
 
     if($total == 0){
       header('location: 404.php');
@@ -73,6 +76,7 @@
 <head>
     <?php include_once('config/_title.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
+    <link rel="stylesheet" href="./assets/css/plugins/datepicker-bs5.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
@@ -139,6 +143,7 @@
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
+    <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/pages/internal-dr.js?v=<?php echo rand(); ?>"></script>
 </body>

@@ -57,6 +57,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $companyFilter = htmlspecialchars($_POST['company_filter'], ENT_QUOTES, 'UTF-8');
                 $productCategoryFilter = htmlspecialchars($_POST['product_category_filter'], ENT_QUOTES, 'UTF-8');
                 $productSubcategoryFilter = htmlspecialchars($_POST['product_subcategory_filter'], ENT_QUOTES, 'UTF-8');
+                $productSubcategoryFilter2 = htmlspecialchars($_POST['product_subcategory_filter_2'], ENT_QUOTES, 'UTF-8');
                 $warehouseFilter = htmlspecialchars($_POST['warehouse_filter'], ENT_QUOTES, 'UTF-8');
                 $bodyTypeFilter = htmlspecialchars($_POST['body_type_filter'], ENT_QUOTES, 'UTF-8');
                 $filterCreatedDateStartDate = $systemModel->checkDate('empty', $_POST['filter_created_date_start_date'], '', 'Y-m-d', '');
@@ -88,12 +89,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 
                 $offset = ($currentPage - 1) * $productPerPage;
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateProductCard(:offset, :productPerPage, :productSearch, :productCategoryFilter, :productSubcategoryFilter, :companyFilter, :warehouseFilter, :bodyTypeFilter, :colorFilter, :filterProductCostMin, :filterProductCostMax, :filterProductPriceMin, :filterProductPriceMax, :productStatusFilter, :filterCreatedDateStartDate, :filterCreatedDateEndDate)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateProductCard(:offset, :productPerPage, :productSearch, :productCategoryFilter, :productSubcategoryFilter, :productSubcategoryFilter2, :companyFilter, :warehouseFilter, :bodyTypeFilter, :colorFilter, :filterProductCostMin, :filterProductCostMax, :filterProductPriceMin, :filterProductPriceMax, :productStatusFilter, :filterCreatedDateStartDate, :filterCreatedDateEndDate)');
                 $sql->bindValue(':offset', $offset, PDO::PARAM_INT);
                 $sql->bindValue(':productPerPage', $productPerPage, PDO::PARAM_INT);
                 $sql->bindValue(':productSearch', $productSearch, PDO::PARAM_STR);
                 $sql->bindValue(':productCategoryFilter', $productCategoryFilter, PDO::PARAM_STR);
                 $sql->bindValue(':productSubcategoryFilter', $productSubcategoryFilter, PDO::PARAM_STR);
+                $sql->bindValue(':productSubcategoryFilter2', $productSubcategoryFilter2, PDO::PARAM_STR);
                 $sql->bindValue(':companyFilter', $companyFilter, PDO::PARAM_STR);
                 $sql->bindValue(':warehouseFilter', $warehouseFilter, PDO::PARAM_STR);
                 $sql->bindValue(':bodyTypeFilter', $bodyTypeFilter, PDO::PARAM_STR);
@@ -185,7 +187,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $companyFilter = htmlspecialchars($_POST['company_filter'], ENT_QUOTES, 'UTF-8');
                 $productCategoryFilter = htmlspecialchars($_POST['product_category_filter'], ENT_QUOTES, 'UTF-8');
                 $productSubcategoryFilter = htmlspecialchars($_POST['product_subcategory_filter'], ENT_QUOTES, 'UTF-8');
+                $productSubcategoryFilter2 = htmlspecialchars($_POST['product_subcategory_filter_2'], ENT_QUOTES, 'UTF-8');
                 $warehouseFilter = htmlspecialchars($_POST['warehouse_filter'], ENT_QUOTES, 'UTF-8');
+                $supplier_filter = htmlspecialchars($_POST['supplier_filter'], ENT_QUOTES, 'UTF-8');
                 $bodyTypeFilter = htmlspecialchars($_POST['body_type_filter'], ENT_QUOTES, 'UTF-8');
                 $filterCreatedDateStartDate = $systemModel->checkDate('empty', $_POST['filter_created_date_start_date'], '', 'Y-m-d', '');
                 $filterCreatedDateEndDate = $systemModel->checkDate('empty', $_POST['filter_created_date_end_date'], '', 'Y-m-d', '');
@@ -218,12 +222,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $filterProductPriceMax = htmlspecialchars($_POST['filter_product_price_max'], ENT_QUOTES, 'UTF-8');
                 }
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateProductTable(:productSearch, :productCategoryFilter, :productSubcategoryFilter, :companyFilter, :warehouseFilter, :bodyTypeFilter, :colorFilter, :filterProductCostMin, :filterProductCostMax, :filterProductPriceMin, :filterProductPriceMax, :productStatusFilter, :filterCreatedDateStartDate, :filterCreatedDateEndDate, :filter_for_sale_date_start_date, :filter_for_sale_date_end_date, :filter_sold_date_start_date, :filter_sold_date_end_date)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateProductTable(:productSearch, :productCategoryFilter, :productSubcategoryFilter, :productSubcategoryFilter2, :companyFilter, :warehouseFilter, :supplier_filter, :bodyTypeFilter, :colorFilter, :filterProductCostMin, :filterProductCostMax, :filterProductPriceMin, :filterProductPriceMax, :productStatusFilter, :filterCreatedDateStartDate, :filterCreatedDateEndDate, :filter_for_sale_date_start_date, :filter_for_sale_date_end_date, :filter_sold_date_start_date, :filter_sold_date_end_date)');
                 $sql->bindValue(':productSearch', $productSearch, PDO::PARAM_STR);
                 $sql->bindValue(':productCategoryFilter', $productCategoryFilter, PDO::PARAM_STR);
                 $sql->bindValue(':productSubcategoryFilter', $productSubcategoryFilter, PDO::PARAM_STR);
+                $sql->bindValue(':productSubcategoryFilter2', $productSubcategoryFilter2, PDO::PARAM_STR);
                 $sql->bindValue(':companyFilter', $companyFilter, PDO::PARAM_STR);
                 $sql->bindValue(':warehouseFilter', $warehouseFilter, PDO::PARAM_STR);
+                $sql->bindValue(':supplier_filter', $supplier_filter, PDO::PARAM_STR);
                 $sql->bindValue(':bodyTypeFilter', $bodyTypeFilter, PDO::PARAM_STR);
                 $sql->bindValue(':colorFilter', $colorFilter, PDO::PARAM_STR);
                 $sql->bindValue(':filterProductCostMin', $filterProductCostMin, PDO::PARAM_STR);
@@ -308,7 +314,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'PRODUCT_PRICE' => number_format($productPrice,2),
                         'PRODUCT_STATUS' => $productStatus,
                         'ACTION' => '<div class="d-flex gap-2">
-                                        <a href="product.php?id='. $productIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <a href="product.php?id='. $productIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
                                             <i class="ti ti-eye"></i>
                                         </a>
                                         '. $delete .'
@@ -446,6 +452,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productDocumentID = $row['product_document_id'];
                     $product_document_type = $row['product_document_type'];
                     $document_path = $row['document_path'];
+                    $created_date = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
 
                     $delete = '';
                     if($deleteProductExpense['total'] > 0){
@@ -463,6 +470,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
                     $response[] = [
                         'DOCUMENT_TYPE' => $documentType,
+                        'UPLOAD_DATE' => $created_date,
                         'ACTION' => '<div class="d-flex gap-2">
                                         '. $delete .'
                                     </div>'

@@ -1075,10 +1075,10 @@ class ProductController {
             exit;
         }
 
-        $productImageFileName = $_FILES['product_document']['name'];
-        $productImageFileSize = $_FILES['product_document']['size'];
-        $productImageFileError = $_FILES['product_document']['error'];
-        $productImageTempName = $_FILES['product_document']['tmp_name'];
+        $productImageFileName = $_FILES['product_other_image']['name'];
+        $productImageFileSize = $_FILES['product_other_image']['size'];
+        $productImageFileError = $_FILES['product_other_image']['error'];
+        $productImageTempName = $_FILES['product_other_image']['tmp_name'];
         $productImageFileExtension = explode('.', $productImageFileName);
         $productImageActualFileExtension = strtolower(end($productImageFileExtension));
 

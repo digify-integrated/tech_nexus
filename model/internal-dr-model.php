@@ -31,20 +31,22 @@ class InternalDRModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateInternalDR($p_internal_dr_id, $p_release_to, $p_release_mobile, $p_release_address, $p_dr_number, $p_dr_type, $p_backjob_monitoring_id, $p_stock_number, $p_product_description, $p_engine_number, $p_chassis_number, $p_plate_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateInternalDR(:p_internal_dr_id, :p_release_to, :p_release_mobile, :p_release_address, :p_dr_number, :p_dr_type, :p_backjob_monitoring_id, :p_stock_number, :p_product_description, :p_engine_number, :p_chassis_number, :p_plate_number, :p_last_log_by)');
+    public function updateInternalDR($p_internal_dr_id, $p_release_to, $p_release_mobile, $p_release_address, $p_dr_number, $p_dr_type, $p_product_id, $p_backjob_monitoring_id, $p_stock_number, $p_product_description, $p_engine_number, $p_chassis_number, $p_plate_number, $p_estimated_return_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateInternalDR(:p_internal_dr_id, :p_release_to, :p_release_mobile, :p_release_address, :p_dr_number, :p_dr_type, :p_product_id, :p_backjob_monitoring_id, :p_stock_number, :p_product_description, :p_engine_number, :p_chassis_number, :p_plate_number, :p_estimated_return_date, :p_last_log_by)');
         $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_release_to', $p_release_to, PDO::PARAM_STR);
         $stmt->bindValue(':p_release_mobile', $p_release_mobile, PDO::PARAM_STR);
         $stmt->bindValue(':p_release_address', $p_release_address, PDO::PARAM_STR);
         $stmt->bindValue(':p_dr_number', $p_dr_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_dr_type', $p_dr_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_description', $p_product_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_engine_number', $p_engine_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_chassis_number', $p_chassis_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_plate_number', $p_plate_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_estimated_return_date', $p_estimated_return_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -77,6 +79,12 @@ class InternalDRModel {
     public function updateSalesProposalBackjobProgress($p_backjob_monitoring_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalBackjobProgress(:p_backjob_monitoring_id, :p_last_log_by)');
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateProductForReturn($p_product_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateProductForReturn(:p_product_id, :p_last_log_by)');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -149,19 +157,21 @@ class InternalDRModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertInternalDR($p_release_to, $p_release_mobile, $p_release_address, $p_dr_number, $p_dr_type, $p_backjob_monitoring_id, $p_stock_number, $p_product_description, $p_engine_number, $p_chassis_number, $p_plate_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertInternalDR(:p_release_to, :p_release_mobile, :p_release_address, :p_dr_number, :p_dr_type, :p_backjob_monitoring_id, :p_stock_number, :p_product_description, :p_engine_number, :p_chassis_number, :p_plate_number, :p_last_log_by, @p_internal_dr_id)');
+    public function insertInternalDR($p_release_to, $p_release_mobile, $p_release_address, $p_dr_number, $p_dr_type, $p_product_id, $p_backjob_monitoring_id, $p_stock_number, $p_product_description, $p_engine_number, $p_chassis_number, $p_plate_number, $p_estimated_return_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertInternalDR(:p_release_to, :p_release_mobile, :p_release_address, :p_dr_number, :p_dr_type, :p_product_id, :p_backjob_monitoring_id, :p_stock_number, :p_product_description, :p_engine_number, :p_chassis_number, :p_plate_number, :p_estimated_return_date, :p_last_log_by, @p_internal_dr_id)');
         $stmt->bindValue(':p_release_to', $p_release_to, PDO::PARAM_STR);
         $stmt->bindValue(':p_release_mobile', $p_release_mobile, PDO::PARAM_STR);
         $stmt->bindValue(':p_release_address', $p_release_address, PDO::PARAM_STR);
         $stmt->bindValue(':p_dr_number', $p_dr_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_dr_type', $p_dr_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_description', $p_product_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_engine_number', $p_engine_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_chassis_number', $p_chassis_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_plate_number', $p_plate_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_estimated_return_date', $p_estimated_return_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -169,6 +179,21 @@ class InternalDRModel {
         $p_internal_dr_id = $result->fetch(PDO::FETCH_ASSOC)['p_internal_dr_id'];
 
         return $p_internal_dr_id;
+    }
+    public function insertUnitReturn($p_internal_dr_id, $p_product_id, $p_estimated_return_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertUnitReturn(:p_internal_dr_id, :p_product_id, :p_estimated_return_date, :p_last_log_by)');
+        $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_estimated_return_date', $p_estimated_return_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function receiveUnit($p_unit_return_id, $p_file_path, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL receiveUnit(:p_unit_return_id, :p_file_path, :p_last_log_by)');
+        $stmt->bindValue(':p_unit_return_id', $p_unit_return_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_file_path', $p_file_path, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
     }
     # -------------------------------------------------------------
 
@@ -278,6 +303,13 @@ class InternalDRModel {
         $stmt = $this->db->getConnection()->prepare('CALL getInternalDRJobOrderCount(:p_internal_dr_id, :p_type)');
         $stmt->bindValue(':p_internal_dr_id', $p_internal_dr_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getUnitReturn($p_unit_return_id): mixed {
+        $stmt = $this->db->getConnection()->prepare('CALL getUnitReturn(:p_unit_return_id)');
+        $stmt->bindValue(':p_unit_return_id', $p_unit_return_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

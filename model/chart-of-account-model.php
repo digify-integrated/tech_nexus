@@ -28,12 +28,13 @@ class ChartOfAccountModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateChartOfAccount($p_chart_of_account_id, $p_code, $p_name, $p_account_type, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateChartOfAccount(:p_chart_of_account_id, :p_code, :p_name, :p_account_type, :p_last_log_by)');
+    public function updateChartOfAccount($p_chart_of_account_id, $p_code, $p_name, $p_account_type, $p_archived, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateChartOfAccount(:p_chart_of_account_id, :p_code, :p_name, :p_account_type, :p_archived, :p_last_log_by)');
         $stmt->bindValue(':p_chart_of_account_id', $p_chart_of_account_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_code', $p_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_name', $p_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_account_type', $p_account_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_archived', $p_archived, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -55,11 +56,12 @@ class ChartOfAccountModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertChartOfAccount($p_code, $p_name, $p_account_type, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertChartOfAccount(:p_code, :p_name, :p_account_type, :p_last_log_by, @p_chart_of_account_id)');
+    public function insertChartOfAccount($p_code, $p_name, $p_account_type, $p_archived, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertChartOfAccount(:p_code, :p_name, :p_account_type, :p_archived, :p_last_log_by, @p_chart_of_account_id)');
         $stmt->bindValue(':p_code', $p_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_name', $p_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_account_type', $p_account_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_archived', $p_archived, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -198,9 +200,41 @@ class ChartOfAccountModel {
 
         return $htmlOptions;
     }
+    public function generateActiveChartOfAccountOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateActiveChartOfAccountOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $chartOfAccountID = $row['chart_of_account_id'];
+            $name = $row['name'];
+            $code = $row['code'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($chartOfAccountID, ENT_QUOTES) . '">' . $code . ' ' . $name .'</option>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
     public function generateChartOfAccountDisbursementOptions() {
         $stmt = $this->db->getConnection()->prepare('CALL generateChartOfAccountDisbursementOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $chartOfAccountID = $row['chart_of_account_id'];
+            $name = $row['name'];
+            $code = $row['code'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($chartOfAccountID, ENT_QUOTES) . '">' . $name .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    public function generateActiveChartOfAccountDisbursementOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateActiveChartOfAccountDisbursementOptions()');
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

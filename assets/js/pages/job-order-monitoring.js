@@ -22,6 +22,14 @@
             salesProposalAdditionalJobOrderProgressForm();
         }
 
+        if($('#sales-proposal-job-order-cancel-form').length){
+            salesProposalJobOrderCancelForm();
+        }
+
+        if($('#sales-proposal-additional-job-order-cancel-form').length){
+            salesProposalAdditionalJobOrderCancelForm();
+        }
+
         $(document).on('click','.update-sales-proposal-job-order-monitoring',function() {
             const sales_proposal_job_order_id = $(this).data('sales-proposal-job-order-id');
     
@@ -36,6 +44,22 @@
             sessionStorage.setItem('sales_proposal_additional_job_order_id', sales_proposal_additional_job_order_id);
             
             displayDetails('get sales proposal additional job order details');
+        });
+
+        $(document).on('click','.cancel-sales-proposal-job-order-monitoring',function() {
+            const sales_proposal_job_order_id = $(this).data('sales-proposal-job-order-id');
+    
+            sessionStorage.setItem('sales_proposal_job_order_id', sales_proposal_job_order_id);
+
+            resetModalForm('sales-proposal-job-order-cancel-form');
+        });
+
+        $(document).on('click','.cancel-sales-proposal-additional-job-order-monitoring',function() {
+            const sales_proposal_additional_job_order_id = $(this).data('sales-proposal-additional-job-order-id');
+    
+            sessionStorage.setItem('sales_proposal_additional_job_order_id', sales_proposal_additional_job_order_id);
+
+            resetModalForm('sales-proposal-additional-job-order-cancel-form');
         });
 
         $(document).on('click','#print-job-order',function() {
@@ -192,6 +216,9 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'data' : 'PLANNED_FINISH_DATE' },
         { 'data' : 'DATE_STARTED' },
         { 'data' : 'COMPLETION_DATE' },
+        { 'data' : 'CANCELLATION_DATE' },
+        { 'data' : 'CANCELLATION_REASON' },
+        { 'data' : 'CANCELLATION_CONFIRMATION' },
         { 'data' : 'BACKJOB' },
         { 'data' : 'ACTION' }
     ];
@@ -209,7 +236,10 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
         { 'width': 'auto', 'aTargets': 11 },
-        { 'width': '15%','bSortable': false, 'aTargets': 12 }
+        { 'width': 'auto', 'aTargets': 12 },
+        { 'width': 'auto', 'aTargets': 13 },
+        { 'width': 'auto', 'aTargets': 14 },
+        { 'width': '15%','bSortable': false, 'aTargets': 15 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -270,6 +300,9 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'data' : 'PLANNED_FINISH_DATE' },
         { 'data' : 'DATE_STARTED' },
         { 'data' : 'COMPLETION_DATE' },
+        { 'data' : 'CANCELLATION_DATE' },
+        { 'data' : 'CANCELLATION_REASON' },
+        { 'data' : 'CANCELLATION_CONFIRMATION' },
         { 'data' : 'BACKJOB' },
         { 'data' : 'ACTION' }
     ];
@@ -289,7 +322,10 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'width': 'auto', 'type': 'date', 'aTargets': 11 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 12 },
         { 'width': 'auto', 'aTargets': 13 },
-        { 'width': '15%','bSortable': false, 'aTargets': 14 }
+        { 'width': 'auto', 'aTargets': 14 },
+        { 'width': 'auto', 'aTargets': 15 },
+        { 'width': 'auto', 'aTargets': 16 },
+        { 'width': '15%','bSortable': false, 'aTargets': 17 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -650,4 +686,198 @@ function displayDetails(transaction){
             });
             break;
     }
+}
+
+function salesProposalJobOrderCancelForm(){
+    $('#sales-proposal-job-order-cancel-form').validate({
+        rules: {
+            job_order_cancellation_reason: {
+                required: true
+            },
+            job_order_cancellation_confirmation_image: {
+                required: true
+            },
+        },
+        messages: {
+            job_order_cancellation_reason: {
+                required: 'Please enter the cancellation reason'
+            },
+            job_order_cancellation_confirmation_image: {
+                required: 'Please choose the cancellation confirmation'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            var sales_proposal_job_order_id = sessionStorage.getItem('sales_proposal_job_order_id');
+            const transaction = 'sales proposal job order cancel';
+
+            var formData = new FormData(form);
+            formData.append('sales_proposal_job_order_id', sales_proposal_job_order_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-job-order-cancel');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Cancel Job Order Success', 'The job order has been cancelled successfully.', 'success');
+                        reloadDatatable('#job-order-progress-table');
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-job-order-cancel', 'Submit');
+                    $('#sales-proposal-job-order-cancel-offcanvas').offcanvas('hide');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalAdditionalJobOrderCancelForm(){
+    $('#sales-proposal-additional-job-order-cancel-form').validate({
+        rules: {
+            additional_job_order_cancellation_reason: {
+                required: true
+            },
+            additional_job_order_cancellation_confirmation_image: {
+                required: true
+            },
+        },
+        messages: {
+            additional_job_order_cancellation_reason: {
+                required: 'Please enter the cancellation reason'
+            },
+            job_order_cancellation_confirmation_image: {
+                required: 'Please choose the cancellation confirmation'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            var sales_proposal_additional_job_order_id = sessionStorage.getItem('sales_proposal_additional_job_order_id');
+            const transaction = 'sales proposal additional job order cancel';
+         
+            var formData = new FormData(form);
+            formData.append('sales_proposal_additional_job_order_id', sales_proposal_additional_job_order_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-additional-job-order-cancel');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Cancel Additional Job Order Success', 'The additional job order has been cancelled successfully.', 'success');
+                        reloadDatatable('#additional-job-order-progress-table');
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-additional-job-order-cancel', 'Submit');
+                    $('#sales-proposal-additional-job-order-cancel-offcanvas').offcanvas('hide');
+                }
+            });
+        
+            return false;
+        }
+    });
 }

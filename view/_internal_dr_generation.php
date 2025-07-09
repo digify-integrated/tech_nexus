@@ -9,6 +9,7 @@ require_once '../model/internal-dr-model.php';
 require_once '../model/sales-proposal-model.php';
 require_once '../model/contractor-model.php';
 require_once '../model/work-center-model.php';
+require_once '../model/product-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -17,6 +18,7 @@ $internalDRModel = new InternalDRModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $contractorModel = new ContractorModel($databaseModel);
 $workCenterModel = new WorkCenterModel($databaseModel);
+$productModel = new ProductModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -84,6 +86,113 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+
+        case 'unit return table':
+            $unit_return_status_filter = $_POST['filter_unit_return_status'];
+            $estimated_return_date_start_date = $systemModel->checkDate('empty', $_POST['estimated_return_date_start_date'], '', 'Y-m-d', '');
+            $estimated_return_date_end_date = $systemModel->checkDate('empty', $_POST['estimated_return_date_end_date'], '', 'Y-m-d', '');
+            $return_date_start_date = $systemModel->checkDate('empty', $_POST['return_date_start_date'], '', 'Y-m-d', '');
+            $return_date_end_date = $systemModel->checkDate('empty', $_POST['return_date_end_date'], '', 'Y-m-d', '');
+
+            if (!empty($unit_return_status_filter)) {
+                // Convert string to array and trim each value
+                $values_array = array_filter(array_map('trim', explode(',', $unit_return_status_filter)));
+
+                // Quote each value safely
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . addslashes($value) . "'";
+                }, $values_array);
+
+                // Implode into comma-separated string
+                $filter_unit_return_status = implode(', ', $quoted_values_array);
+            } else {
+                $filter_unit_return_status = null;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateUnitReturnTable(:filter_unit_return_status, :estimated_return_date_start_date, :estimated_return_date_end_date, :return_date_start_date, :return_date_end_date)');
+            $sql->bindValue(':filter_unit_return_status', $filter_unit_return_status, PDO::PARAM_STR);
+            $sql->bindValue(':estimated_return_date_start_date', $estimated_return_date_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':estimated_return_date_end_date', $estimated_return_date_end_date, PDO::PARAM_STR);
+            $sql->bindValue(':return_date_start_date', $return_date_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':return_date_end_date', $return_date_end_date, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            
+            $unitReturnWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 160, 'write');
+
+            foreach ($options as $row) {
+                $unit_return_id = $row['unit_return_id'];
+                $internal_dr_id = $row['internal_dr_id'];
+                $product_id = $row['product_id'];
+                $incoming_checklist = $systemModel->checkImage($row['incoming_checklist'], 'default');
+
+                $interDRDetails = $internalDRModel->getInternalDR($internal_dr_id);
+                $release_to = $interDRDetails['release_to'];
+                $product_description = $interDRDetails['product_description'];
+
+                $estimated_return_date = $systemModel->checkDate('empty', $row['estimated_return_date'], '', 'm/d/Y', '');
+                $return_date = $systemModel->checkDate('empty', $row['return_date'], '', 'm/d/Y', '');
+                
+                $productDetails = $productModel->getProduct($product_id);
+                $stockNumber = $productDetails['stock_number'] ?? null;
+                
+                if(empty($return_date)){
+                    $returnDate = DateTime::createFromFormat('m/d/Y', $estimated_return_date);
+                    $returnDate->setTime(0, 0, 0);
+                    $today = new DateTime('today');
+
+                    $daysDiff = (int) $returnDate->diff($today)->format('%R%a');
+
+                    if($daysDiff > 0){
+                        $status = '<span class="badge bg-light-danger">Overdue</span>';
+                    }
+                    else{
+                        $status = '<span class="badge bg-light-warning">On-Going</span>';
+                    }
+
+                    $incomingChecklist = '';
+                }
+                else{
+                    $daysDiff = 0;
+                    $status = '<span class="badge bg-light-success">Returned</span>';
+                    
+                    $incomingChecklist = '<a href="'. $incoming_checklist .'" target="_blank">View Incoming Checklist</a>';
+                }
+
+                if($daysDiff < 0){
+                    $daysDiff = 0;
+                }
+
+                $action = '';
+                if($unitReturnWriteAccess['total'] > 0 && empty($return_date)){
+                    $action = '<div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-icon btn-success receive-unit" data-unit-return-id="'. $unit_return_id .'" data-bs-toggle="offcanvas" data-bs-target="#receive-unit-offcanvas" aria-controls="receive-unit-offcanvas" title="Receive">
+                                        <i class="ti ti-check"></i>
+                                    </button>
+                                </div>';
+                }
+
+                $response[] = [
+                    'RELEASED_TO' => '<span class="text-wrap">'. $release_to . '</span>',
+                    'PRODUCT' => '<div class="row text-wrap">
+                                        <div class="col ">
+                                            <h6 class="mb-0">'. $stockNumber .'</h6>
+                                            <p class="f-12 mb-0">'. $product_description .'</p>
+                                        </div>
+                                    </div>',
+                    'ESTIMATED_RETURN_DATE' => $estimated_return_date,
+                    'RETURN_DATE' => $return_date,
+                    'OVERDUE' => $daysDiff . ' Day(s)',
+                    'STATUS' => $status,
+                    'INCOMING_CHECKLIST' => $incomingChecklist,
+                    'ACTION' => $action
                 ];
             }
 

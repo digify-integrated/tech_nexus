@@ -83,6 +83,7 @@
                   <option value="Contractor Report">Contractor Report</option>
                   <option value="Adjustment">Adjustment</option>
                   <option value="Stock Transfer Advice">Stock Transfer Advice</option>
+                  <option value="Purchase Order">Purchase Order</option>
                 </select>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">

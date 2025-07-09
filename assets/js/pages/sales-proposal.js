@@ -508,6 +508,12 @@
 
         $(document).on('change','#transaction_type',function() {
             $('#summary-transaction-type').text($(this).val());
+
+            if($(this).val() == 'Bank Financing'){
+                $('#term_length').val('45');
+                checkOptionExist('#payment_frequency', 'Lumpsum', '');
+                checkOptionExist('#term_type', 'Days', '');
+            }
         });
 
         $(document).on('change','#term_length',function() {
@@ -5351,6 +5357,7 @@ function displayDetails(transaction){
                         $('#old_engine').val(response.oldEngine);
                         $('#new_engine').val(response.newEngine);
                         $('#final_orcr_name').val(response.finalOrcrName);
+                        $('#summary-final-name-on-orcr').text(response.finalOrcrName);
 
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#for_registration', response.forRegistration, '');

@@ -228,6 +228,10 @@
                 customerComakerSummary();
             }
 
+            if($('#contact-ci-report-summary').length){
+                customerCIReportSummary();
+            }
+
             if($('#comaker-result-table').length){
                 searchComakerResultTable('#comaker-result-table');
             }
@@ -910,6 +914,49 @@
                     }
                 });
             });
+
+            $(document).on('click','#add-contact-ci-report',function() {
+                var customer_id = $('#customer-id').text();
+                const transaction = 'add customer ci report';
+        
+                Swal.fire({
+                    title: 'Confirm CI Report Creation',
+                    text: 'Are you sure you want to create the CI report?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Create',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/ci-report-controller.php',
+                            dataType: 'json',
+                            data: {
+                                customer_id : customer_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('CI Report Creation Success', 'The CI report has been created successfully.', 'success');
+                                    customerCIReportSummary();
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
         }
 
         $(document).on('click','#discard-create',function() {
@@ -1110,6 +1157,31 @@ function customerComakerSummary(){
         },
         success: function(response) {
             document.getElementById('contact-comaker-summary').innerHTML = response[0].contactComakerSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function customerCIReportSummary(){
+    const type = 'customer ci report summary';
+    var customer_id = $('#customer-id').text();
+            
+    $.ajax({
+        url: 'view/_ci_report_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            customer_id : customer_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-ci-report-summary').innerHTML = response[0].ciReportSummary;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

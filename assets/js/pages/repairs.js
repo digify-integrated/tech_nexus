@@ -9,6 +9,12 @@
          if($('#backjob-monitoring-table').length){
             backJobMonitoringTable('#backjob-monitoring-table');
         }
+
+        $(document).on('click','#apply-filter',function() {
+            if($('#all-sales-proposal-table').length){
+            allSalesProposalTable('#all-sales-proposal-table');
+        }
+        })
     });
 })(jQuery);
 
@@ -40,7 +46,6 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
     var filter_product_type = product_type_filter.join(', ');
     var filter_company = company_filter.join(', ');
     var filter_user = user_filter.join(', ');
-
     
     var filter_created_date_start_date = $('#filter_created_date_start_date').val();
     var filter_created_date_end_date = $('#filter_created_date_end_date').val();
@@ -57,6 +62,7 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
         { 'data' : 'SALES_PROPOSAL_NUMBER' },
         { 'data' : 'PRODUCT_TYPE' },
         { 'data' : 'RELEASED_DATE' },
+        { 'data' : 'CREATED_DATE' },
         { 'data' : 'ACTION' }
     ];
 
@@ -68,7 +74,8 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
         { 'width': '15%', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5},
         { 'width': '15%', 'type': 'date', 'aTargets': 6 },
-        { 'width': '10%','bSortable': false, 'aTargets': 7 }
+        { 'width': '15%', 'type': 'date', 'aTargets': 7 },
+        { 'width': '10%','bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

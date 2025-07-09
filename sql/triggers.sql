@@ -7889,3 +7889,38 @@ BEGIN
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
     VALUES ('business_location_type', NEW.business_location_type_id, audit_log, NEW.last_log_by, NOW());
 END //
+
+
+/* Bank ADB Table Triggers */
+
+CREATE TRIGGER bank_adb_trigger_update
+AFTER UPDATE ON bank_adb
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.bank_adb_name <> OLD.bank_adb_name THEN
+        SET audit_log = CONCAT(audit_log, "Bank ADB Name: ", OLD.bank_adb_name, " -> ", NEW.bank_adb_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('bank_adb', NEW.bank_adb_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER bank_adb_trigger_insert
+AFTER INSERT ON bank_adb
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Bank ADB created. <br/>';
+
+    IF NEW.bank_adb_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bank ADB Name: ", NEW.bank_adb_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('bank_adb', NEW.bank_adb_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

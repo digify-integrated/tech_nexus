@@ -70,6 +70,24 @@
             $('#gatepass-print-button').removeClass('d-none');
         });
 
+        $(document).on('change','#product_id',function() {
+            if($(this).val() != ''){
+                displayDetails('get product details');
+            }
+            else{
+                $('#stock_number').val('');
+                $('#engine_number').val('');
+                $('#chassis_number').val('');
+                $('#plate_number').val('');
+            }
+        });
+
+        $(document).on('change','#backjob_monitoring_id',function() {
+            if($(this).val() != ''){
+                displayDetails('get backjob monitoring details');
+            }           
+        });
+
         $(document).on('click','.delete-internal-dr',function() {
             const internal_dr_id = $(this).data('internal-dr-id');
             const transaction = 'delete internal DR';
@@ -421,133 +439,6 @@
                 }
             });
         });
-
-        $(document).on('click','.update-internal-dr-job-order',function() {
-            const internal_dr_job_order_id = $(this).data('internal-dr-job-order-id');
-    
-            sessionStorage.setItem('internal_dr_job_order_id', internal_dr_job_order_id);
-            
-            displayDetails('get internal dr job order details');
-        });
-
-        $(document).on('click','.update-internal-dr-additional-job-order',function() {
-            const internal_dr_job_order_id = $(this).data('internal-dr-job-order-id');
-    
-            sessionStorage.setItem('internal_dr_job_order_id', internal_dr_job_order_id);
-            
-            displayDetails('get internal dr additional job order details');
-        });
-
-        $(document).on('click','.delete-internal-dr-job-order',function() {
-            const internal_dr_job_order_id = $(this).data('internal-dr-job-order-id');
-            const transaction = 'delete internal dr job order';
-    
-            Swal.fire({
-                title: 'Confirm Job Order Deletion',
-                text: 'Are you sure you want to delete this job order?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-danger mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/internal-dr-controller.php',
-                        dataType: 'json',
-                        data: {
-                            internal_dr_job_order_id : internal_dr_job_order_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification('Delete Job Order Success', 'The job order has been deleted successfully.', 'success');
-                                reloadDatatable('#job-order-progress-table');
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.notExist) {
-                                    window.location = '404.php';
-                                }
-                                else {
-                                    showNotification('Delete Job Order Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
-
-        $(document).on('click','.delete-internal-dr-additional-job-order',function() {
-            const internal_dr_additional_job_order_id = $(this).data('internal-dr-additional-job-order-id');
-            const transaction = 'delete internal dr additional job order';
-    
-            Swal.fire({
-                title: 'Confirm Additional Job Order Deletion',
-                text: 'Are you sure you want to delete this additional job order?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-danger mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/internal-dr-controller.php',
-                        dataType: 'json',
-                        data: {
-                            internal_dr_additional_job_order_id : internal_dr_additional_job_order_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification('Delete Additional Job Order Success', 'The additional job order has been deleted successfully.', 'success');
-                                
-                                reloadDatatable('#additional-job-order-progress-table');
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.notExist) {
-                                    window.location = '404.php';
-                                }
-                                else {
-                                    showNotification('Delete Additional Job Order Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
     });
 })(jQuery);
 
@@ -882,14 +773,23 @@ function internalDRForm(){
                 release_address: {
                     required: true
                 },
-                dr_number: {
-                    required: true
-                },
                 dr_type: {
                     required: true
                 },
                 product_description: {
                     required: true
+                },
+                product_id: {
+                    required: function () {
+                        const type = $('#dr_type').val();
+                        return type === 'Unit' || type === 'RTS';
+                    }
+                },
+                estimated_return_date: {
+                    required: function () {
+                        const type = $('#dr_type').val();
+                        return type === 'Unit';
+                    }
                 },
                 backjob_monitoring_id: {
                     required: function () {
@@ -909,17 +809,20 @@ function internalDRForm(){
                 release_address: {
                     required: 'Please enter the release to address'
                 },
-                dr_number: {
-                    required: 'Please enter the DR number'
-                },
                 dr_type: {
                     required: 'Please enter the DR type'
                 },
                 product_description: {
                     required: 'Please enter the product description'
                 },
+                estimated_return_date: {
+                    required: 'Please select the estimated return date'
+                },
                 backjob_monitoring_id: {
                     required: 'Please select a internal job order'
+                },
+                product_id: {
+                    required: 'Please select a product'
                 }
             },
         errorPlacement: function (error, element) {
@@ -1732,6 +1635,11 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#internal_dr_id').val(internal_dr_id);
+
+                        checkOptionExist('#backjob_monitoring_id', response.backjobMonitoringID, '');
+                        checkOptionExist('#product_id', response.product_id, '');
+                        checkOptionExist('#dr_type', response.drType, '');
+
                         $('#release_to').val(response.releaseTo);
                         $('#release_mobile').val(response.releaseMobile);
                         $('#release_address').val(response.releaseAddress);
@@ -1741,9 +1649,7 @@ function displayDetails(transaction){
                         $('#chassis_number').val(response.chassisNumber);
                         $('#plate_number').val(response.plateNumber);
                         $('#product_description').val(response.productDescription);
-
-                        checkOptionExist('#backjob_monitoring_id', response.backjobMonitoringID, '');
-                        checkOptionExist('#dr_type', response.drType, '');
+                        $('#estimated_return_date').val(response.estimated_return_date);
 
                         if($('#unit-image').length){
                             document.getElementById('unit-image').src = response.unitImage;
@@ -1767,117 +1673,87 @@ function displayDetails(transaction){
                 }
             });
             break;
-            case 'get internal dr job order details':
-                var internal_dr_job_order_id = sessionStorage.getItem('internal_dr_job_order_id');
-                    
-                $.ajax({
-                    url: 'controller/internal-dr-controller.php',
-                    method: 'POST',
-                    dataType: 'json',
-                    data: {
-                        internal_dr_job_order_id : internal_dr_job_order_id, 
-                        transaction : transaction
-                    },
-                    success: function(response) {
-                        if (response.success) {                        
-                            $('#internal_dr_job_order_id').val(internal_dr_job_order_id);
-                            $('#job_order_progress').val(response.progress);
-    
-                            checkOptionExist('#job_order_contractor_id', response.contractorID, '');
-                            checkOptionExist('#job_order_work_center_id', response.workCenterID, '');
-                        } 
-                        else {
-                            if(response.isInactive){
-                                window.location = 'logout.php?logout';
+        case 'get product details':
+            const product_id = $('#product_id').val();
+            
+            $.ajax({
+                url: 'controller/product-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    product_id : product_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#stock_number').val(response.fullStockNumber);
+                        $('#engine_number').val(response.engineNumber);
+                        $('#chassis_number').val(response.chassisNumber);
+                        $('#plate_number').val(response.plateNumber);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Product Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get backjob monitoring details':
+            const backjob_monitoring_id = $('#backjob_monitoring_id').val();
+            
+            $.ajax({
+                url: 'controller/backjob-monitoring-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    backjob_monitoring_id : backjob_monitoring_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        checkOptionExist('#product_id', response.product_id, '');
+
+                        if(backjob_monitoring_id != ''){
+                             if($('#product_id').val() != ''){
+                                displayDetails('get product details');
                             }
                             else{
-                                showNotification('Get Internal DR Job Order Details Error', response.message, 'danger');
+                                $('#stock_number').val('');
+                                $('#engine_number').val('');
+                                $('#chassis_number').val('');
+                                $('#plate_number').val('');
                             }
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                        if (xhr.responseText) {
-                            fullErrorMessage += ', Response: ${xhr.responseText}';
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
                         }
-                        showErrorDialog(fullErrorMessage);
+                        else{
+                            showNotification('Get Backjob Monitoring Details Error', response.message, 'danger');
+                        }
                     }
-                });
-                break;
-            case 'get internal dr additional job order details':
-                var internal_dr_additional_job_order_id = sessionStorage.getItem('internal_dr_additional_job_order_id');
-                
-                $.ajax({
-                    url: 'controller/internal-dr-controller.php',
-                    method: 'POST',
-                    dataType: 'json',
-                    data: {
-                        internal_dr_additional_job_order_id : internal_dr_additional_job_order_id, 
-                        transaction : transaction
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            
-                            $('#internal_dr_additional_job_order_id').val(internal_dr_additional_job_order_id);
-                            $('#additional_job_order_progress').val(response.progress);
-    
-                            checkOptionExist('#additional_job_order_contractor_id', response.contractorID, '');
-                            checkOptionExist('#additional_job_order_work_center_id', response.workCenterID, '');
-                        } 
-                        else {
-                            if(response.isInactive){
-                                window.location = 'logout.php?logout';
-                            }
-                            else{
-                                showNotification('Get Internal DR Additional Job Order Details Error', response.message, 'danger');
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                        if (xhr.responseText) {
-                            fullErrorMessage += ', Response: ${xhr.responseText}';
-                        }
-                        showErrorDialog(fullErrorMessage);
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
                     }
-                });
-                break;
-            case 'get backjob monitoring details':
-                const backjob_monitoring_id = $('#backjob-monitoring-id').text();
-                
-                $.ajax({
-                    url: 'controller/backjob-monitoring-controller.php',
-                    method: 'POST',
-                    dataType: 'json',
-                    data: {
-                        backjob_monitoring_id : backjob_monitoring_id, 
-                        transaction : transaction
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            checkOptionExist('#type', response.type, '');
-                            checkOptionExist('#sales_proposal_id', response.sales_proposal_id, '');
-                            checkOptionExist('#product_id', response.product_id, '');
-                            checkOptionExist('#product_id2', response.product_id, '');
-                        } 
-                        else {
-                            if(response.isInactive){
-                                window.location = 'logout.php?logout';
-                            }
-                            else{
-                                showNotification('Get Backjob Monitoring Details Error', response.message, 'danger');
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                        if (xhr.responseText) {
-                            fullErrorMessage += `, Response: ${xhr.responseText}`;
-                        }
-                        showErrorDialog(fullErrorMessage);
-                    }
-                });
-                break;
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
     }
 }
 

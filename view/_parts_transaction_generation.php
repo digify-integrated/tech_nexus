@@ -147,6 +147,67 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        case 'part item table 2':
+            $parts_id = $_POST['parts_id'];
+
+            $parts_transaction_start_date = $systemModel->checkDate('empty', $_POST['parts_transaction_start_date'], '', 'Y-m-d', '');
+            $parts_transaction_end_date = $systemModel->checkDate('empty', $_POST['parts_transaction_end_date'], '', 'Y-m-d', '');
+
+            $partDetails = $partsModel->getParts($parts_id);
+            $unitSale = $partDetails['unit_sale'] ?? null;
+
+            $unitCode = $unitModel->getUnit($unitSale);
+            $short_name = $unitCode['short_name'] ?? null;            
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartItemTable2(:parts_id, :parts_transaction_start_date, :parts_transaction_end_date)');
+            $sql->bindValue(':parts_id', $parts_id, PDO::PARAM_STR);
+            $sql->bindValue(':parts_transaction_start_date', $parts_transaction_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':parts_transaction_end_date', $parts_transaction_end_date, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_transaction_cart_id = $row['part_transaction_cart_id'];
+                $part_transaction_id = $row['part_transaction_id'];
+                $quantity = $row['quantity'];
+                $discount = $row['discount'];
+                $discount_type = $row['discount_type'];
+                $discount_total = $row['discount_total'];
+                $sub_total = $row['sub_total'];
+                $total = $row['total'];
+                $add_on = $row['add_on'];
+                $price = $row['price'];
+
+                
+
+                $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
+
+                if($discount_type === 'Amount'){
+                    $discount = number_format($discount, 2) . ' PHP';
+                }
+                else{
+                    $discount = number_format($discount, decimals: 2) . '%';
+                }
+
+                $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
+                
+
+                $response[] = [
+                    'PART_TRANSACTION_NO' => '<a href="parts-transaction.php?id='. $part_transaction_id_encrypted .'" target="_blank">
+                                        '. $part_transaction_id .'
+                                    </a>',
+                    'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
+                    'ADD_ON' => number_format($add_on, 2) .' PHP',
+                    'DISCOUNT' => $discount,
+                    'DISCOUNT_TOTAL' => number_format($discount_total, 2) .' PHP',
+                    'SUBTOTAL' => number_format($sub_total, 2) .' PHP',
+                    'TOTAL' => number_format($total, 2) .' PHP',
+                ];
+            }
+
+            echo json_encode($response);
+        break;
         case 'part transaction document table':
             $parts_transaction_id = $_POST['parts_transaction_id'];
             $sql = $databaseModel->getConnection()->prepare('CALL generatePartsTransactionDocument(:parts_transaction_id)');

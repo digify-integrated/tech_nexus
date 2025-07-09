@@ -36,6 +36,9 @@
                     <th>Planned Finished Date</th>
                     <th>Date Started</th>
                     <th>Completion Date</th>
+                    <th>Cancellation Date</th>
+                    <th>Cancellation Reason</th>
+                    <th>Cancellation Confirmation</th>
                     <th>Backjob?</th>
                     <th>Actions</th>
                   </tr>
@@ -83,6 +86,9 @@
                     <th>Planned Finished Date</th>
                     <th>Date Started</th>
                     <th>Completion Date</th>
+                    <th>Cancellation Date</th>
+                    <th>Cancellation Reason</th>
+                    <th>Cancellation Confirmation</th>
                     <th>Backjob?</th>
                     <th>Actions</th>
                   </tr>
@@ -304,3 +310,71 @@
     </div>
   </div>
 </div>
+
+<div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-job-order-cancel-offcanvas" aria-labelledby="sales-proposal-job-order-cancel-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="sales-proposal-job-order-cancel-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Job Order</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-job-order-cancel-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Cancellation Reason <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="job_order_cancellation_reason" name="job_order_cancellation_reason" maxlength="500"></textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Client Confirmation Image <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="job_order_cancellation_confirmation_image" name="job_order_cancellation_confirmation_image">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-job-order-cancel" form="sales-proposal-job-order-cancel-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-additional-job-order-cancel-offcanvas" aria-labelledby="sales-proposal-additional-job-order-cancel-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="sales-proposal-additional-job-order-cancel-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Additional Job Order</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-additional-job-order-cancel-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Cancellation Reason <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="additional_job_order_cancellation_reason" name="additional_job_order_cancellation_reason" maxlength="500"></textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Client Confirmation Image <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="additional_job_order_cancellation_confirmation_image" name="additional_job_order_cancellation_confirmation_image">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-additional-job-order-cancel" form="sales-proposal-additional-job-order-cancel-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>

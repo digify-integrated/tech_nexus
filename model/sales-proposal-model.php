@@ -251,6 +251,15 @@ class SalesProposalModel {
         $stmt->execute();
     }
 
+    public function cancelSalesProposalJobOrderProgress($p_sales_proposal_job_order_id, $p_cancellation_reason, $p_cancellation_confirmation, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL cancelSalesProposalJobOrderProgress(:p_sales_proposal_job_order_id, :p_cancellation_reason, :p_cancellation_confirmation, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_job_order_id', $p_sales_proposal_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_cancellation_reason', $p_cancellation_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cancellation_confirmation', $p_cancellation_confirmation, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function updateSalesProposalAdditionalJobOrderProgress($sales_proposal_additional_job_order_id, $p_cost, $p_job_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderProgress(:sales_proposal_additional_job_order_id, :p_cost, :p_job_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_last_log_by)');
         $stmt->bindValue(':sales_proposal_additional_job_order_id', $sales_proposal_additional_job_order_id, PDO::PARAM_INT);
@@ -264,6 +273,15 @@ class SalesProposalModel {
         $stmt->bindValue(':p_planned_start_date', $p_planned_start_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_planned_finish_date', $p_planned_finish_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_date_started', $p_date_started, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function cancelSalesProposalAdditionalJobOrderProgress($sales_proposal_additional_job_order_id, $p_cancellation_reason, $p_cancellation_confirmation, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL cancelSalesProposalAdditionalJobOrderProgress(:sales_proposal_additional_job_order_id, :p_cancellation_reason, :p_cancellation_confirmation, :p_last_log_by)');
+        $stmt->bindValue(':sales_proposal_additional_job_order_id', $sales_proposal_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_cancellation_reason', $p_cancellation_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cancellation_confirmation', $p_cancellation_confirmation, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
