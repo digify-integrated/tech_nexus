@@ -7402,8 +7402,10 @@ END //
 
 CREATE PROCEDURE generateSoldProductOptions()
 BEGIN
-	SELECT product_id, description, stock_number FROM product
-    WHERE product_status = 'Sold'
+	SELECT product.product_id as product_id, sales_proposal_number, file_as, description, stock_number FROM product
+    LEFT OUTER JOIN sales_proposal on sales_proposal.product_id = product.product_id
+    LEFT OUTER JOIN personal_information on personal_information.contact_id = sales_proposal.customer_id
+    WHERE product_status = 'Sold' AND sales_proposal_status = 'Released'
 	ORDER BY stock_number;
 END //
 
@@ -17231,7 +17233,7 @@ CREATE PROCEDURE insertCIReportBusiness(
     IN p_date_organized TEXT,
     IN p_no_employee INT,
     IN p_customer TEXT,
-    IN p_major_bank_id INT,
+    IN p_major_bank_id VARCHAR(1000),
     IN p_contact_person TEXT,
     IN p_business_location_type_id INT,
     IN p_building_make_id INT,
@@ -17289,7 +17291,7 @@ CREATE PROCEDURE updateCIReportBusiness(
     IN p_date_organized TEXT,
     IN p_no_employee INT,
     IN p_customer TEXT,
-    IN p_major_bank_id INT,
+    IN p_major_bank_id VARCHAR(1000),
     IN p_contact_person TEXT,
     IN p_business_location_type_id INT,
     IN p_building_make_id INT,
@@ -17491,7 +17493,7 @@ END //
 
 CREATE PROCEDURE insertCIReportBank(
     IN p_ci_report_id INT,
-    IN p_bank_id INT,
+    IN p_bank_id VARCHAR(1000),
     IN p_account_name VARCHAR(500),
     IN p_account_number VARCHAR(500),
     IN p_bank_account_type_id INT,
@@ -17518,7 +17520,7 @@ END//
 CREATE PROCEDURE updateCIReportBank(
     IN p_ci_report_bank_id INT,
     IN p_ci_report_id INT,
-    IN p_bank_id INT,
+    IN p_bank_id VARCHAR(1000),
     IN p_account_name VARCHAR(500),
     IN p_account_number VARCHAR(500),
     IN p_bank_account_type_id INT,
@@ -17694,6 +17696,7 @@ END //
 CREATE PROCEDURE insertCIReportLoan(
     IN p_ci_report_id INT,
     IN p_company VARCHAR(500),
+    IN p_loan_source VARCHAR(10),
     IN p_informant VARCHAR(500),
     IN p_account_name VARCHAR(500),
     IN p_loan_type_id INT,
@@ -17709,11 +17712,11 @@ CREATE PROCEDURE insertCIReportLoan(
 )
 BEGIN
     INSERT INTO ci_report_loan (
-        ci_report_id, company, informant, account_name, loan_type_id,
+        ci_report_id, company, loan_source, informant, account_name, loan_type_id,
         availed_date, maturity_date, term, pn_amount, outstanding_balance,
         repayment, handling, remarks, last_log_by
     ) VALUES (
-        p_ci_report_id, p_company, p_informant, p_account_name, p_loan_type_id,
+        p_ci_report_id, p_company, p_loan_source, p_informant, p_account_name, p_loan_type_id,
         p_availed_date, p_maturity_date, p_term, p_pn_amount, p_outstanding_balance,
         p_repayment, p_handling, p_remarks, p_last_log_by
     );
@@ -17723,6 +17726,7 @@ CREATE PROCEDURE updateCIReportLoan(
     IN p_ci_report_loan_id INT,
     IN p_ci_report_id INT,
     IN p_company VARCHAR(500),
+    IN p_loan_source VARCHAR(10),
     IN p_informant VARCHAR(500),
     IN p_account_name VARCHAR(500),
     IN p_loan_type_id INT,
@@ -17741,6 +17745,7 @@ BEGIN
     SET
         ci_report_id = p_ci_report_id,
         company = p_company,
+        loan_source = p_loan_source,
         informant = p_informant,
         account_name = p_account_name,
         loan_type_id = p_loan_type_id,
@@ -17879,7 +17884,7 @@ CREATE PROCEDURE insertCIReportCollateral(
     IN p_appraisal_date DATE,
     IN p_brand_id INT,
     IN p_description VARCHAR(5000),
-    IN p_color_id INT,
+    IN p_color_id VARCHAR(200),
     IN p_year_model VARCHAR(10),
     IN p_plate_no VARCHAR(100),
     IN p_motor_no VARCHAR(100),
@@ -17913,7 +17918,7 @@ CREATE PROCEDURE updateCIReportCollateral(
     IN p_appraisal_date DATE,
     IN p_brand_id INT,
     IN p_description VARCHAR(5000),
-    IN p_color_id INT,
+    IN p_color_id VARCHAR(200),
     IN p_year_model VARCHAR(10),
     IN p_plate_no VARCHAR(100),
     IN p_motor_no VARCHAR(100),
@@ -18030,6 +18035,14 @@ BEGIN
     WHERE ci_report_asset_id = p_ci_report_asset_id;
 END //
 
+CREATE PROCEDURE generateCIReportAssetTable(IN p_ci_report_id INT)
+BEGIN
+    SELECT *
+    FROM ci_report_asset
+    WHERE ci_report_id = p_ci_report_id
+    ORDER BY description;
+END //
+
 CREATE PROCEDURE getCIReportResidenceExpenseTotal(
     IN p_ci_report_id INT,
     IN p_type VARCHAR(20)
@@ -18037,6 +18050,11 @@ CREATE PROCEDURE getCIReportResidenceExpenseTotal(
 BEGIN
     IF p_type = 'personal' THEN
         SELECT SUM(personal_expense) AS total
+        FROM ci_report_residence
+        WHERE ci_report_id = p_ci_report_id;
+
+    ELSEIF p_type = 'rental' THEN
+        SELECT SUM(rent_amount) AS total
         FROM ci_report_residence
         WHERE ci_report_id = p_ci_report_id;
 
@@ -18050,7 +18068,7 @@ BEGIN
         FROM ci_report_residence
         WHERE ci_report_id = p_ci_report_id;
     ELSE
-        SELECT SUM(total) AS total
+        SELECT (SUM(total + rent_amount)) AS total
         FROM ci_report_residence
         WHERE ci_report_id = p_ci_report_id;
     END IF;
@@ -18465,4 +18483,201 @@ BEGIN
     cancellation_confirmation = p_cancellation_confirmation,
     last_log_by = p_last_log_by
     WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE PROCEDURE checkCIReportTradeReferenceExist (IN p_ci_report_trade_reference_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM ci_report_trade_reference
+    WHERE ci_report_trade_reference_id = p_ci_report_trade_reference_id;
+END //
+
+CREATE PROCEDURE insertCIReportTradeReference(
+    IN p_ci_report_id INT,
+    IN p_ci_report_business_id INT,
+    IN p_supplier TEXT,
+    IN p_contact_person TEXT,
+    IN p_years_of_transaction TEXT,
+    IN p_remarks TEXT,
+    IN p_last_log_by INT
+)
+BEGIN
+    INSERT INTO ci_report_trade_reference (
+        ci_report_id, ci_report_business_id, supplier, contact_person, years_of_transaction,
+        remarks, last_log_by
+    ) VALUES (
+        p_ci_report_id, p_ci_report_business_id, p_supplier, p_contact_person, p_years_of_transaction,
+        p_remarks, p_last_log_by
+    );
+END //
+
+CREATE PROCEDURE updateCIReportTradeReference(
+    IN p_ci_report_trade_reference_id INT,
+    IN p_ci_report_id INT,
+    IN p_supplier TEXT,
+    IN p_contact_person TEXT,
+    IN p_years_of_transaction TEXT,
+    IN p_remarks TEXT,
+    IN p_last_log_by INT
+)
+BEGIN
+    UPDATE ci_report_trade_reference
+    SET
+        ci_report_id = p_ci_report_id,
+        supplier = p_supplier,
+        contact_person = p_contact_person,
+        years_of_transaction = p_years_of_transaction,
+        remarks = p_remarks,
+        last_log_by = p_last_log_by
+    WHERE ci_report_trade_reference_id = p_ci_report_trade_reference_id;
+END //
+
+CREATE PROCEDURE getCIReportTradeReference(IN p_ci_report_trade_reference_id INT)
+BEGIN
+	SELECT * FROM ci_report_trade_reference
+    WHERE ci_report_trade_reference_id = p_ci_report_trade_reference_id;
+END //
+
+CREATE PROCEDURE getCIReportTradeReferencesTotal(IN p_ci_report_id INT)
+BEGIN
+	SELECT SUM(value) AS total FROM ci_report_trade_reference
+    WHERE ci_report_id = p_ci_report_id;
+END //
+
+CREATE PROCEDURE deleteCIReportTradeReference(IN p_ci_report_trade_reference_id INT)
+BEGIN
+	DELETE FROM ci_report_trade_reference 
+    WHERE ci_report_trade_reference_id = p_ci_report_trade_reference_id;
+END //
+
+CREATE PROCEDURE generateCIReportTradeReferenceTable(IN p_ci_report_business_id INT)
+BEGIN
+    SELECT *
+    FROM ci_report_trade_reference
+    WHERE ci_report_business_id = p_ci_report_business_id
+    ORDER BY supplier;
+END //
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Bank Handling Type Table Stored Procedures */
+
+CREATE PROCEDURE checkCIFileTypeExist (IN p_ci_file_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM ci_file_type
+    WHERE ci_file_type_id = p_ci_file_type_id;
+END //
+
+CREATE PROCEDURE insertCIFileType(IN p_ci_file_type_name VARCHAR(100), IN p_last_log_by INT, OUT p_ci_file_type_id INT)
+BEGIN
+    INSERT INTO ci_file_type (ci_file_type_name, last_log_by) 
+	VALUES(p_ci_file_type_name, p_last_log_by);
+	
+    SET p_ci_file_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateCIFileType(IN p_ci_file_type_id INT, IN p_ci_file_type_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE ci_file_type
+    SET ci_file_type_name = p_ci_file_type_name,
+    last_log_by = p_last_log_by
+    WHERE ci_file_type_id = p_ci_file_type_id;
+END //
+
+CREATE PROCEDURE deleteCIFileType(IN p_ci_file_type_id INT)
+BEGIN
+    DELETE FROM ci_file_type WHERE ci_file_type_id = p_ci_file_type_id;
+END //
+
+CREATE PROCEDURE getCIFileType(IN p_ci_file_type_id INT)
+BEGIN
+	SELECT * FROM ci_file_type
+    WHERE ci_file_type_id = p_ci_file_type_id;
+END //
+
+CREATE PROCEDURE duplicateCIFileType(IN p_ci_file_type_id INT, IN p_last_log_by INT, OUT p_new_ci_file_type_id INT)
+BEGIN
+    DECLARE p_ci_file_type_name VARCHAR(100);
+    
+    SELECT ci_file_type_name
+    INTO p_ci_file_type_name
+    FROM ci_file_type 
+    WHERE ci_file_type_id = p_ci_file_type_id;
+    
+    INSERT INTO ci_file_type (ci_file_type_name, last_log_by) 
+    VALUES(p_ci_file_type_name, p_last_log_by);
+    
+    SET p_new_ci_file_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateCIFileTypeTable()
+BEGIN
+    SELECT ci_file_type_id, ci_file_type_name
+    FROM ci_file_type
+    ORDER BY ci_file_type_id;
+END //
+
+CREATE PROCEDURE generateCIFileTypeOptions()
+BEGIN
+	SELECT ci_file_type_id, ci_file_type_name FROM ci_file_type
+	ORDER BY ci_file_type_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+
+
+CREATE PROCEDURE insertCIReportFile(
+    IN p_ci_report_id INT,
+    IN p_file_name TEXT,
+    IN p_file_path TEXT,
+    IN p_ci_file_type_id INT,
+    IN p_remarks TEXT,
+    IN p_last_log_by INT
+)
+BEGIN
+    INSERT INTO ci_report_files (
+        ci_report_id, file_name, file_path, ci_file_type_id,
+        remarks, last_log_by
+    ) VALUES (
+        p_ci_report_id, p_file_name, p_file_path, p_ci_file_type_id,
+        p_remarks, p_last_log_by
+    );
+END //
+
+CREATE PROCEDURE deleteCIReportFile(IN p_ci_report_files_id INT)
+BEGIN
+    DELETE FROM ci_report_files WHERE ci_report_files_id = p_ci_report_files_id;
+END //
+
+CREATE PROCEDURE generateCIReportFileTable(IN p_ci_report_id INT)
+BEGIN
+    SELECT *
+    FROM ci_report_files
+    WHERE ci_report_id = p_ci_report_id
+    ORDER BY file_name;
+END //
+
+
+
+CREATE PROCEDURE updateCIReportRecommendation(IN p_ci_report_id INT, IN p_ci_character VARCHAR(10), IN p_ci_capacity VARCHAR(10), IN p_ci_capital VARCHAR(10), IN p_ci_collateral VARCHAR(10), IN p_ci_condition VARCHAR(10), IN p_acceptability VARCHAR(50), IN p_loanability VARCHAR(50), IN p_cmap_result VARCHAR(20), IN p_crif_result VARCHAR(20), IN p_adverse VARCHAR(20), IN p_times_accomodated INT, IN p_cgmi_client_since VARCHAR(100), IN p_recommendation TEXT, IN p_last_log_by INT)
+BEGIN
+	UPDATE ci_report
+    SET ci_character = p_ci_character,
+    ci_capacity = p_ci_capacity,
+    ci_capital = p_ci_capital,
+    ci_collateral = p_ci_collateral,
+    ci_condition = p_ci_condition,
+    acceptability = p_acceptability,
+    loanability = p_loanability,
+    cmap_result = p_cmap_result,
+    crif_result = p_crif_result,
+    adverse = p_adverse,
+    times_accomodated = p_times_accomodated,
+    cgmi_client_since = p_cgmi_client_since,
+    recommendation = p_recommendation,
+    last_log_by = p_last_log_by
+    WHERE ci_report_id = p_ci_report_id;
 END //

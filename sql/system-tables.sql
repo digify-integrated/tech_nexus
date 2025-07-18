@@ -6527,6 +6527,46 @@ CREATE TABLE ci_report_cmap(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
+CREATE TABLE ci_report_trade_reference(
+	ci_report_trade_reference_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    supplier TEXT,
+    contact_person TEXT,
+    years_of_transaction TEXT,
+    remarks TEXT,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_recommendation(
+	ci_report_recommendation_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    ci_character VARCHAR(10),
+    ci_capacity VARCHAR(10),
+    ci_capital VARCHAR(10),
+    ci_collateral VARCHAR(10),
+    ci_condition VARCHAR(10),
+    acceptability VARCHAR(50),
+    loanability VARCHAR(50),
+    recommendation TEXT,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE ci_report_files(
+	ci_report_files_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_report_id INT UNSIGNED NOT NULL,
+    file_name TEXT,
+    file_path TEXT,
+    ci_file_type_id INT UNSIGNED,
+    remarks TEXT,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
 CREATE TABLE cmap_report_type(
 	cmap_report_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     cmap_report_type_name VARCHAR(100) NOT NULL,
@@ -6622,3 +6662,10 @@ CREATE TABLE bank_adb(
 );
 
 CREATE INDEX bank_adb_index_bank_adb_id ON bank_adb(bank_adb_id);
+
+CREATE TABLE ci_file_type(
+	ci_file_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    ci_file_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);

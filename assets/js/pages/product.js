@@ -1297,6 +1297,7 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'CHECK_BOX' },
             { 'data' : 'IMAGE' },
             { 'data' : 'STOCK_NUMBER' },
+            { 'data' : 'REMARKS' },
             { 'data' : 'CATEGORY' },
             { 'data' : 'ENGINE_NUMBER' },
             { 'data' : 'CHASSIS_NUMBER' },
@@ -1304,6 +1305,40 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'COLOR' },
             { 'data' : 'WAREHOUSE' },
             { 'data' : 'PRODUCT_COST' },
+            { 'data' : 'PRODUCT_PRICE' },
+            { 'data' : 'PRODUCT_STATUS' },
+            { 'data' : 'ACTION' }
+        ];
+
+        column_definition = [
+            { 'width': '1%','bSortable': false, 'aTargets': 0 },
+            { 'width': '1%','bSortable': false, 'aTargets': 1 },
+            { 'width': '30%', 'aTargets': 2 },
+            { 'width': '30%', 'aTargets': 3 },
+            { 'width': 'auto', 'aTargets': 4 },
+            { 'width': 'auto', 'aTargets': 5 },
+            { 'width': 'auto', 'aTargets': 6 },
+            { 'width': 'auto', 'aTargets': 7 },
+            { 'width': 'auto', 'aTargets': 8 },
+            { 'width': 'auto', 'aTargets': 9 },
+            { 'width': 'auto', 'aTargets': 10 },
+            { 'width': 'auto', 'aTargets': 11 },
+            { 'width': 'auto', 'aTargets': 12 },
+            { 'width': '10%','bSortable': false, 'aTargets': 13 }
+        ];
+    }
+    else{
+        column = [ 
+            { 'data' : 'CHECK_BOX' },
+            { 'data' : 'IMAGE' },
+            { 'data' : 'STOCK_NUMBER' },
+            { 'data' : 'REMARKS' },
+            { 'data' : 'CATEGORY' },
+            { 'data' : 'ENGINE_NUMBER' },
+            { 'data' : 'CHASSIS_NUMBER' },
+            { 'data' : 'BODY_TYPE' },
+            { 'data' : 'COLOR' },
+            { 'data' : 'WAREHOUSE' },
             { 'data' : 'PRODUCT_PRICE' },
             { 'data' : 'PRODUCT_STATUS' },
             { 'data' : 'ACTION' }
@@ -1323,37 +1358,6 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 10 },
             { 'width': 'auto', 'aTargets': 11 },
             { 'width': '10%','bSortable': false, 'aTargets': 12 }
-        ];
-    }
-    else{
-        column = [ 
-            { 'data' : 'CHECK_BOX' },
-            { 'data' : 'IMAGE' },
-            { 'data' : 'STOCK_NUMBER' },
-            { 'data' : 'CATEGORY' },
-            { 'data' : 'ENGINE_NUMBER' },
-            { 'data' : 'CHASSIS_NUMBER' },
-            { 'data' : 'BODY_TYPE' },
-            { 'data' : 'COLOR' },
-            { 'data' : 'WAREHOUSE' },
-            { 'data' : 'PRODUCT_PRICE' },
-            { 'data' : 'PRODUCT_STATUS' },
-            { 'data' : 'ACTION' }
-        ];
-
-        column_definition = [
-            { 'width': '1%','bSortable': false, 'aTargets': 0 },
-            { 'width': '1%','bSortable': false, 'aTargets': 1 },
-            { 'width': '40%', 'aTargets': 2 },
-            { 'width': 'auto', 'aTargets': 3 },
-            { 'width': 'auto', 'aTargets': 4 },
-            { 'width': 'auto', 'aTargets': 5 },
-            { 'width': 'auto', 'aTargets': 6 },
-            { 'width': 'auto', 'aTargets': 7 },
-            { 'width': 'auto', 'aTargets': 8 },
-            { 'width': 'auto', 'aTargets': 9 },
-            { 'width': 'auto', 'aTargets': 10 },
-            { 'width': '10%','bSortable': false, 'aTargets': 11 }
         ];
     }
 

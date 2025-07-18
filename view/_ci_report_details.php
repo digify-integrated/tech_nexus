@@ -3,10 +3,10 @@
     $ciReportDetails = $ciReportModel->getCIReport($ciReportID);
     $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
 
-    $disabled = 'disabled';
+    $disabled = '';
 
-    if($ci_status == 'Draft'){
-        $disabled = '';
+    if($ci_status == 'Completed'){
+        $disabled = 'disabled';
     }
 ?>
 <div class="row">
@@ -96,7 +96,9 @@
         <li class="nav-item" role="presentation"><button class="nav-link" id="assets" data-bs-toggle="tab" data-bs-target="#assets-pane" type="button" role="tab" aria-controls="assets-pane" aria-selected="false" tabindex="-1">Assets</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="cmap" data-bs-toggle="tab" data-bs-target="#cmap-pane" type="button" role="tab" aria-controls="cmap-pane" aria-selected="false" tabindex="-1">CMAP</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="collateral" data-bs-toggle="tab" data-bs-target="#collateral-pane" type="button" role="tab" aria-controls="collateral-pane" aria-selected="false" tabindex="-1">Collateral</button></li>
-        <li class="nav-item" role="presentation"><a href="loan-proposal.php?id=<?php echo $ciReportID; ?>" class="nav-link" target="_blank" tabindex="-1">Summary</a></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="recommendation-tab" data-bs-toggle="tab" data-bs-target="#recommendation-pane" type="button" role="tab" aria-controls="recommendation-pane" aria-selected="false" tabindex="-1">Recommendation</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="ci-files" data-bs-toggle="tab" data-bs-target="#ci-files-pane" type="button" role="tab" aria-controls="ci-files-pane" aria-selected="false" tabindex="-1">CI Files</button></li>
+        <li class="nav-item" role="presentation"><a href="loan-proposal.php?id=<?php echo $ciReportID; ?>" class="nav-link" target="_blank" tabindex="-1">Summary (Coming Soon!)</a></li>
     </ul>
     <div class="tab-content" id="ciTabContent">
 
@@ -111,7 +113,7 @@
                                 </div>
                                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                                     <?php
-                                        if($ci_status == 'Draft'){
+                                        if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                                             echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-residence-modal" id="add-ci-report-residence">Add Residence</button>';
                                         }                                        
                                     ?>
@@ -139,6 +141,12 @@
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item px-0">
                                     <h5 class="mb-0">Expense Total</h5>
+                                </li>
+                                <li class="list-group-item px-0">
+                                    <div class="float-end">
+                                        <h5 class="mb-0" id="ci-residence-rental-amount-summary">0.00 PHP</h5>
+                                    </div>
+                                    <span class="text-muted">Rental Amount Total</span>
                                 </li>
                                 <li class="list-group-item px-0">
                                     <div class="float-end">
@@ -188,7 +196,7 @@
                                 </div>
                                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                                     <?php
-                                        if($ci_status == 'Draft'){
+                                        if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                                             echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-dependents-modal" id="add-ci-report-dependents">Add Dependents</button>';
                                         }                                        
                                     ?>
@@ -228,7 +236,7 @@
                                 </div>
                                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                                     <?php
-                                        if($ci_status == 'Draft'){
+                                        if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                                             echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-business-modal" id="add-ci-report-business">Add Business</button>';
                                         }                                        
                                     ?>
@@ -318,7 +326,7 @@
                                 </div>
                                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                                     <?php
-                                        if($ci_status == 'Draft'){
+                                        if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                                             echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-employment-modal" id="add-ci-report-employment">Add Employment</button>';
                                         }                                        
                                     ?>
@@ -405,7 +413,7 @@
                                 </div>
                                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                                     <?php
-                                        if($ci_status == 'Draft'){
+                                        if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                                             echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-bank-modal" id="add-ci-report-bank">Add Bank</button>';
                                         }
                                     ?>
@@ -448,7 +456,7 @@
                                 </div>
                                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                                     <?php
-                                        if($ci_status == 'Draft'){
+                                        if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                                             echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-loan-modal" id="add-ci-report-loan">Add Loan</button>';
                                         }
                                     ?>
@@ -462,7 +470,8 @@
                                     <tr>
                                         <th>Company</th>
                                         <th>Informant</th>
-                                        <th>Account Name</th>
+                                        <th>Account Name/Loan Number</th>
+                                        <th>Loan Source</th>
                                         <th>Loan Type</th>
                                         <th>Availed Date</th>
                                         <th>Maturity</th>
@@ -525,7 +534,7 @@
                                 </div>
                                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                                     <?php
-                                        if($ci_status == 'Draft'){
+                                        if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                                             echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-asset-modal" id="add-ci-report-asset">Add Asset</button>';
                                         }
                                     ?>
@@ -575,7 +584,7 @@
                                 </div>
                                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                                     <?php
-                                        if($ci_status == 'Draft'){
+                                        if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                                             echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-cmap-modal" id="add-ci-report-cmap">Add CMAP</button>';
                                         }
                                     ?>
@@ -619,7 +628,7 @@
                                 </div>
                                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                                     <?php
-                                        if($ci_status == 'Draft'){
+                                        if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                                             echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-collateral-modal" id="add-ci-report-collateral">Add Collateral</button>';
                                         }
                                     ?>
@@ -656,6 +665,177 @@
                 </div>
             </div>
         </div>
+
+        <div class="tab-pane fade" id="ci-files-pane" role="tabpanel" aria-labelledby="ci-files" tabindex="0">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card table-card">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-sm-6">
+                                    <h5>Files List</h5>
+                                </div>
+                                <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                                    <?php
+                                        if($ci_status == 'Draft' || $ci_status == 'For Completion'){
+                                            echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-files-modal" id="add-ci-report-files">Add Files</button>';
+                                        }
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive dt-responsive">
+                                <table id="ci-files-table" class="table table-hover nowrap w-100">
+                                    <thead>
+                                    <tr>
+                                        <th>File Type</th>
+                                        <th>Remarks</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="recommendation-pane" role="tabpanel" aria-labelledby="ci-recommendation" tabindex="0">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-sm-6">
+                                    <h5>Recommendation</h5>
+                                </div>
+                                <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                                    <?php
+                                        if ($ciReportWriteAccess['total'] > 0 && $ci_status == 'Draft') {
+                                            echo '<button type="submit" form="ci-report-recommendation-form" class="btn btn-success" id="submit-recommendation-data">Save</button>';
+                                        }
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form id="ci-report-recommendation-form" method="post" action="#">
+                                <div class="form-group row">
+                                    <label class="col-lg-2 col-form-label">Character <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                        <select class="form-control select2" name="ci_character" id="ci_character" <?php echo $disabled; ?>>
+                                            <option value="">--</option>
+                                            <option value="Passed">Passed</option>
+                                            <option value="Failed">Failed</option>
+                                        </select>
+                                    </div>
+                                    <label class="col-lg-2 col-form-label">Capacity <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                        <select class="form-control select2" name="ci_capacity" id="ci_capacity" <?php echo $disabled; ?>>
+                                            <option value="">--</option>
+                                            <option value="Passed">Passed</option>
+                                            <option value="Failed">Failed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-2 col-form-label">Capital <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                        <select class="form-control select2" name="ci_capital" id="ci_capital" <?php echo $disabled; ?>>
+                                            <option value="">--</option>
+                                            <option value="Passed">Passed</option>
+                                            <option value="Failed">Failed</option>
+                                        </select>
+                                    </div>
+                                    <label class="col-lg-2 col-form-label">Collateral <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                        <select class="form-control select2" name="ci_collateral" id="ci_collateral" <?php echo $disabled; ?>>
+                                            <option value="">--</option>
+                                            <option value="Passed">Passed</option>
+                                            <option value="Failed">Failed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-2 col-form-label">Condition <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                        <select class="form-control select2" name="ci_condition" id="ci_condition" <?php echo $disabled; ?>>
+                                            <option value="">--</option>
+                                            <option value="Passed">Passed</option>
+                                            <option value="Failed">Failed</option>
+                                        </select>
+                                    </div>
+                                    <label class="col-lg-2 col-form-label">Acceptability <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                        <select class="form-control select2" name="acceptability" id="acceptability" <?php echo $disabled; ?>>
+                                            <option value="">--</option>
+                                            <option value="Acceptable">Acceptable</option>
+                                            <option value="Not Acceptable">Not Acceptable</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-2 col-form-label">Loanability <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                        <select class="form-control select2" name="loanability" id="loanability" <?php echo $disabled; ?>>
+                                            <option value="">--</option>
+                                            <option value="Within Loanable Amount">Within Loanable Amount</option>
+                                            <option value="Not Within Loanable Amount">Not Within Loanable Amount</option>
+                                        </select>
+                                    </div>
+                                    <label class="col-lg-2 col-form-label">CMAP Result <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                        <select class="form-control select2" name="cmap_result" id="cmap_result" <?php echo $disabled; ?>>
+                                            <option value="">--</option>
+                                            <option value="Positive">Positive</option>
+                                            <option value="Negative">Negative</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-2 col-form-label">CRIF Result <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                        <select class="form-control select2" name="crif_result" id="crif_result" <?php echo $disabled; ?>>
+                                            <option value="">--</option>
+                                            <option value="Positive">Positive</option>
+                                            <option value="Negative">Negative</option>
+                                        </select>
+                                    </div>
+                                    <label class="col-lg-2 col-form-label">Adverse <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                        <select class="form-control select2" name="adverse" id="adverse" <?php echo $disabled; ?>>
+                                            <option value="">--</option>
+                                            <option value="Adverse">Adverse</option>
+                                            <option value="Nothing Adverse">Nothing Adverse</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-2 col-form-label">Times Accomodated <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                        <input type="number" class="form-control" id="times_accomodated" name="times_accomodated" min="0" step="1" <?php echo $disabled; ?>>
+                                    </div>
+                                    <label class="col-lg-2 col-form-label">CGMI Client Since <span class="text-danger">*</span></label>
+                                    <div class="col-lg-4">
+                                       <input type="text" class="form-control" id="cgmi_client_since" name="cgmi_client_since" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-2 col-form-label">Recommendation <span class="text-danger">*</span></label>
+                                    <div class="col-lg-10">
+                                        <textarea class="form-control" id="recommendation" name="recommendation" maxlength="3000" rows="3" <?php echo $disabled; ?>></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
   </div>
 </div>
@@ -876,7 +1056,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <?php
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         echo '<button type="submit" class="btn btn-primary" id="submit-ci-residence" form="ci-residence-form">Submit</button>';
                     }
                 ?>
@@ -926,7 +1106,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <?php
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         echo '<button type="submit" class="btn btn-primary" id="submit-ci-dependents" form="ci-dependents-form">Submit</button>';
                     }
                 ?>
@@ -1015,14 +1195,11 @@
                         </div>
                         <div class="col-lg-4">
                             <label class="form-label" for="ci_business_customer">Customer</label>
-                            <input type="text" class="form-control" id="ci_business_customer" name="ci_business_customer" maxlength="1000" autocomplete="off">
+                            <input type="text" class="form-control" id="ci_business_customer" name="ci_business_customer" maxlength="1000" autocomplete="off" <?php echo $disabled; ?>>
                         </div>
                         <div class="col-lg-4">
                             <label class="form-label" for="ci_business_major_bank_id">Major Bank</label>
-                            <select class="form-control modal-select2" name="ci_business_major_bank_id" id="ci_business_major_bank_id" <?php echo $disabled; ?>>
-                                <option value="">--</option>
-                                <?php echo $bankModel->generateBankOptions() ?>
-                            </select>
+                            <input type="text" class="form-control" id="ci_business_major_bank_id" name="ci_business_major_bank_id" maxlength="1000" autocomplete="off" <?php echo $disabled; ?>>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -1154,12 +1331,42 @@
                             <textarea class="form-control" id="ci_business_remarks" name="ci_business_remarks" maxlength="3000" rows="3" <?php echo $disabled; ?>></textarea>
                         </div>
                     </div>
+                    <div class="row align-items-center trade-reference-hide d-none">
+                        <div class="col-sm-6">
+                            <h5>Trade Reference</h5>
+                        </div>
+                        <div class="col-sm-6 text-sm-end mb-3">
+                            <?php
+                                if($ci_status == 'Draft' || $ci_status == 'For Completion'){
+                                    echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-trade-reference-modal" id="add-ci-report-trade-reference">Add Trade Reference</button>';
+                                }
+                            ?>
+                        </div>
+                    </div>
+                    <div class="form-group row trade-reference-hide d-none">
+                        <div class="col-lg-12">
+                            <div class="table-responsive dt-responsive">
+                                <table id="ci-trade-reference-table" class="table table-hover nowrap w-100">
+                                    <thead>
+                                    <tr>
+                                        <th>Supplier</th>
+                                        <th>Contact Person</th>
+                                        <th>Years of Transaction</th>
+                                        <th>Remarks</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <?php
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         echo '<button type="submit" class="btn btn-primary" id="submit-ci-business" form="ci-business-form">Submit</button>';
                     }
                 ?>
@@ -1312,7 +1519,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <?php
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         echo '<button type="submit" class="btn btn-primary" id="submit-ci-employment" form="ci-employment-form">Submit</button>';
                     }
                 ?>
@@ -1325,7 +1532,7 @@
     <div class="modal-dialog modal-dialog-scrollable modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Bank</h5>
+                <h5 class="modal-title">Bank Branch</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -1334,10 +1541,7 @@
                     <div class="form-group row">
                         <div class="col-lg-4">
                             <label class="form-label" for="ci_bank_bank_id">Bank <span class="text-danger">*</span></label>
-                            <select class="form-control modal-select2" name="ci_bank_bank_id" id="ci_bank_bank_id" <?php echo $disabled; ?>>
-                                <option value="">--</option>
-                                <?php echo $bankModel->generateBankOptions() ?>
-                            </select>
+                            <input type="text" class="form-control" id="ci_bank_bank_id" name="ci_bank_bank_id" maxlength="500" autocomplete="off" <?php echo $disabled; ?>>
                         </div>
                         <div class="col-lg-4">
                             <label class="form-label" for="ci_bank_bank_account_type_id">Account Type <span class="text-danger">*</span></label>
@@ -1406,7 +1610,7 @@
                         </div>
                         <div class="col-sm-6 text-sm-end mb-3">
                             <?php
-                                if($ci_status == 'Draft'){
+                                if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                                     echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-bank-deposits-modal" id="add-ci-report-bank-deposits">Add Deposits</button>';
                                 }
                             ?>
@@ -1434,7 +1638,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <?php
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         echo '<button type="submit" class="btn btn-primary" id="submit-ci-bank" form="ci-bank-form">Submit</button>';
                     }
                 ?>
@@ -1470,7 +1674,7 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-6">
-                            <label class="form-label" for="ci_loan_account_name">Account Name</label>
+                            <label class="form-label" for="ci_loan_account_name">Account Name/Loan Number</label>
                             <input type="text" class="form-control" id="ci_loan_account_name" name="ci_loan_account_name" maxlength="500" autocomplete="off" <?php echo $disabled; ?>>
                         </div>
                         <div class="col-lg-6">
@@ -1483,6 +1687,14 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-6">
+                            <label class="form-label" for="ci_loan_loan_source">Loan Source <span class="text-danger">*</span></label>
+                            <select class="form-control modal-select2" name="ci_loan_loan_source" id="ci_loan_loan_source" <?php echo $disabled; ?>>
+                                <option value="">--</option>
+                                <option value="CGMI">CGMI</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-6">
                             <label class="form-label" for="ci_loan_availed_date">Availed Date</label>
                             <div class="input-group date">
                                 <input type="text" class="form-control regular-datepicker" id="ci_loan_availed_date" name="ci_loan_availed_date" autocomplete="off" <?php echo $disabled; ?>>
@@ -1491,6 +1703,8 @@
                                 </span>
                             </div>
                         </div>
+                    </div>
+                    <div class="form-group row">
                         <div class="col-lg-6">
                             <label class="form-label" for="ci_loan_maturity_date">Maturity Date</label>
                             <div class="input-group date">
@@ -1500,28 +1714,26 @@
                                 </span>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
                         <div class="col-lg-6">
                             <label class="form-label" for="ci_loan_term">Term</label>
                             <input type="number" class="form-control" id="ci_loan_term" name="ci_loan_term" min="0" step="1" <?php echo $disabled; ?>>
                         </div>
+                    </div>
+                    <div class="form-group row">
                         <div class="col-lg-6">
                             <label class="form-label" for="ci_loan_pn_amount">PN Amount</label>
                             <input type="number" class="form-control" id="ci_loan_pn_amount" name="ci_loan_pn_amount" min="0" step="0.01" <?php echo $disabled; ?>>
                         </div>
-                    </div>
-                    <div class="form-group row">
                         <div class="col-lg-6">
                             <label class="form-label" for="ci_loan_outstanding_balance">Outstanding Balance</label>
                             <input type="number" class="form-control" id="ci_loan_outstanding_balance" name="ci_loan_outstanding_balance" min="0" step="0.01" <?php echo $disabled; ?>>
                         </div>
+                    </div>
+                    <div class="form-group row">
                         <div class="col-lg-6">
                             <label class="form-label" for="ci_loan_repayment">Repayment</label>
                             <input type="number" class="form-control" id="ci_loan_repayment" name="ci_loan_repayment" min="0" step="0.01" <?php echo $disabled; ?>>
                         </div>
-                    </div>
-                    <div class="form-group row">
                         <div class="col-lg-6">
                             <label class="form-label" for="ci_loan_handling">Handling</label>
                             <select class="form-control modal-select2" name="ci_loan_handling" id="ci_loan_handling" <?php echo $disabled; ?>>
@@ -1548,8 +1760,56 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <?php
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         echo '<button type="submit" class="btn btn-primary" id="submit-ci-loan" form="ci-loan-form">Submit</button>';
+                    }
+                ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-animate" id="ci-trade-reference-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Trade Reference</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ci-trade-reference-form" method="post" action="#">
+                    <input type="hidden" id="ci_report_trade_reference_id" name="ci_report_trade_reference_id">
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label" for="ci_report_trade_reference_supplier">Supplier <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="ci_report_trade_reference_supplier" name="ci_report_trade_reference_supplier" maxlength="3000" autocomplete="off" <?php echo $disabled; ?>>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label" for="ci_report_trade_reference_contact_person">Contact Person</label>
+                            <input type="text" class="form-control" id="ci_report_trade_reference_contact_person" name="ci_report_trade_reference_contact_person" maxlength="3000" autocomplete="off" <?php echo $disabled; ?>>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label" for="ci_report_trade_reference_years_of_transaction">Years of Transaction</label>
+                            <input type="text" class="form-control" id="ci_report_trade_reference_years_of_transaction" name="ci_report_trade_reference_years_of_transaction" maxlength="3000" autocomplete="off" <?php echo $disabled; ?>>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label" for="ci_report_trade_reference_remarks">Remarks</label>
+                            <textarea class="form-control" id="ci_report_trade_reference_remarks" name="ci_report_trade_reference_remarks" maxlength="3000" rows="3" <?php echo $disabled; ?>></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ci-business-modal" data-bs-dismiss="modal">Back</button>
+                <?php
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
+                        echo '<button type="submit" class="btn btn-primary" id="submit-ci-trade-reference" form="ci-trade-reference-form">Submit</button>';
                     }
                 ?>
             </div>
@@ -1597,7 +1857,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <?php
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         echo '<button type="submit" class="btn btn-primary" id="submit-ci-asset" form="ci-asset-form">Submit</button>';
                     }
                 ?>
@@ -1641,7 +1901,7 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-6">
-                            <label class="form-label" for="ci_cmap_trial_court">Plaintiff</label>
+                            <label class="form-label" for="ci_cmap_trial_court">Trial Court</label>
                             <input type="text" class="form-control" id="ci_cmap_trial_court" name="ci_cmap_trial_court" maxlength="1000" autocomplete="off" <?php echo $disabled; ?>>
                         </div>
                         <div class="col-lg-6">
@@ -1675,7 +1935,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <?php
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         echo '<button type="submit" class="btn btn-primary" id="submit-ci-cmap" form="ci-cmap-form">Submit</button>';
                     }
                 ?>
@@ -1717,10 +1977,7 @@
                         </div>
                         <div class="col-lg-3">
                             <label class="form-label" for="ci_collateral_color_id">Color</label>
-                            <select class="form-control modal-select2" name="ci_collateral_color_id" id="ci_collateral_color_id" <?php echo $disabled; ?>>
-                                <option value="">--</option>
-                                <?php echo $colorModel->generateColorOptions() ?>
-                            </select>
+                            <input type="text" class="form-control" id="ci_collateral_color_id" name="ci_collateral_color_id" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -1781,7 +2038,7 @@
                         </div>
                         <div class="col-sm-6 text-sm-end mb-3">
                             <?php
-                                if($ci_status == 'Draft'){
+                                if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                                     echo '<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#ci-appraisal-source-modal" id="add-ci-appraisal-source-deposits">Add Appraisal Source</button>';
                                 }
                             ?>
@@ -1790,7 +2047,7 @@
                     <div class="form-group row appraisal-source-hide d-none">
                         <div class="col-lg-12">
                             <div class="table-responsive dt-responsive">
-                                <table id="ci-appraisal-source-table" class="table table-hover nowrap w-100">
+                                <table id="ci-appraisal-source-table" class="table table-hover text-wrap w-100">
                                     <thead>
                                     <tr>
                                         <th>Source</th>
@@ -1809,8 +2066,53 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <?php
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         echo '<button type="submit" class="btn btn-primary" id="submit-ci-collateral" form="ci-collateral-form">Submit</button>';
+                    }
+                ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-animate" id="ci-files-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">File</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ci-report-files-form" method="post" action="#">
+                    <input type="hidden" id="ci_report_files_id" name="ci_report_files_id">
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label" for="ci_file_type_id">File Type <span class="text-danger">*</span></label>
+                            <select class="form-control modal-select2" name="ci_file_type_id" id="ci_file_type_id" <?php echo $disabled; ?>>
+                                <option value="">--</option>
+                                <?php echo $ciFileTypeModel->generateCIFileTypeOptions() ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label" for="ci_file">File <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="ci_file" name="ci_file">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label" for="ci_files_remarks">Remarks</label>
+                            <textarea class="form-control" id="ci_files_remarks" name="ci_files_remarks" maxlength="3000" rows="3" <?php echo $disabled; ?>></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <?php
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
+                        echo '<button type="submit" class="btn btn-primary" id="submit-ci-files" form="ci-report-files-form">Submit</button>';
                     }
                 ?>
             </div>
@@ -1854,7 +2156,7 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ci-bank-modal" data-bs-dismiss="modal">Back</button>
                 <?php
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         echo '<button type="submit" class="btn btn-primary" id="submit-ci-bank-deposits" form="ci-bank-deposits-form">Submit</button>';
                     }
                 ?>
@@ -1894,7 +2196,7 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ci-collateral-modal" data-bs-dismiss="modal">Back</button>
                 <?php
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         echo '<button type="submit" class="btn btn-primary" id="submit-ci-appraisal-source" form="ci-appraisal-source-form">Submit</button>';
                     }
                 ?>

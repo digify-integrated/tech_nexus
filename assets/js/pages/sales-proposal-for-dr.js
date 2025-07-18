@@ -5278,6 +5278,11 @@ function displayDetails(transaction){
                         if($('#term_length_2').length){
                             $('#term_length_2').val(response.termLength);
                         }
+
+
+                        if($('#other-document-file').length){
+                            document.getElementById('other-document-file').src = response.otherDocumentFile;
+                        }
                        
                         checkOptionExist('#renewal_tag', response.renewalTag, '');
                         checkOptionExist('#product_type', response.productType, '');
@@ -5371,6 +5376,8 @@ function displayDetails(transaction){
                         $('#new_body').val(response.newBody);
                         $('#old_engine').val(response.oldEngine);
                         $('#new_engine').val(response.newEngine);
+                        $('#final_orcr_name').val(response.finalOrcrName);
+                        $('#summary-final-name-on-orcr').text(response.finalOrcrName);
 
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#for_registration', response.forRegistration, '');

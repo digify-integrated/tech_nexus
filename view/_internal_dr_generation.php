@@ -76,6 +76,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <h6 class="mb-0">'. $releaseTo .'</h6>
                                         <p class="text-muted f-12 mb-0">'. $releaseAddress .'</p>
                                         </div>',
+                    'INTERNAL_DR_NUMBER' => $internalDRID,
                     'DR_TYPE' => $drType,
                     'DR_NUMBER' => $drNumber,
                     'STOCK_NUMBER' => $stockNumber,

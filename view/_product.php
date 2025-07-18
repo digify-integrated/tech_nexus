@@ -301,6 +301,7 @@
                         </th>
                         <th>Image</th>
                         <th>Stock No.</th>
+                        <th>Remarks</th>
                         <th>Category</th>
                         <th>Engine No.</th>
                         <th>Chassis No.</th>

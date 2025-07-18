@@ -42,8 +42,20 @@
             ciReportCollateralTable('#ci-collateral-table');
         }
 
+        if($('#ci-files-table').length){
+            ciReportFileTable('#ci-files-table');
+        }
+
         if($('#ci-report-form').length){
             ciReportForm();
+        }
+
+        if($('#ci-report-form').length){
+            ciReportForm();
+        }
+
+        if($('#ci-report-recommendation-form').length){
+            ciReportRecommendationForm();
         }
 
         if($('#ci-report-id').length){
@@ -54,6 +66,7 @@
             displayDetails('get ci report asset total details');
             displayDetails('get ci report loans total details');
             displayDetails('get ci report summary details');
+            displayDetails('get ci report recommendation details');
         }
 
         $(document).on('click','#discard-create',function() {
@@ -339,6 +352,8 @@
 
         $(document).on('click','#add-ci-report-business',function() {
             resetModalForm('ci-business-form');
+
+            $('.trade-reference-hide').addClass('d-none');
         });
 
         $(document).on('click','.update-ci-report-business',function() {
@@ -347,6 +362,12 @@
             sessionStorage.setItem('ci_report_business_id', ci_report_business_id);
             
             displayDetails('get ci report business details');
+
+            if($('#ci-trade-reference-table').length){
+                ciReportTradeReferenceTable('#ci-trade-reference-table');
+            }
+
+            $('.trade-reference-hide').removeClass('d-none');
         });
 
         $(document).on('click','.delete-ci-report-business',function() {
@@ -1058,6 +1079,146 @@
                 }
             });
         });
+
+        // ------------------------------------------------------------------------------
+
+        if($('#ci-trade-reference-form').length){
+            ciReportTradeReferenceForm();
+        }
+
+        $(document).on('click','#add-ci-report-trade-reference',function() {
+            resetModalForm('ci-trade-reference-form');             
+        });
+
+        $(document).on('click','.update-ci-report-trade-reference',function() {
+            const ci_report_trade_reference_id = $(this).data('ci-report-trade-reference-id');
+    
+            sessionStorage.setItem('ci_report_trade_reference_id', ci_report_trade_reference_id);
+            
+            displayDetails('get ci report trade reference details');
+        });
+
+        $(document).on('click','.delete-ci-report-trade-reference',function() {
+            const ci_report_trade_reference_id = $(this).data('ci-report-trade-reference-id');
+            const transaction = 'delete ci report trade reference';
+    
+            Swal.fire({
+                title: 'Confirm Trade Reference Deletion',
+                text: 'Are you sure you want to delete this trade reference?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/ci-report-controller.php',
+                        dataType: 'json',
+                        data: {
+                            ci_report_trade_reference_id : ci_report_trade_reference_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Trade Reference Success', 'The trade reference has been deleted successfully.', 'success');
+                                reloadDatatable('#ci-trade-reference-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Trade Reference Error', 'The trade reference does not exists.', 'danger');
+                                    reloadDatatable('#ci-trade-reference-table');
+                                }
+                                else {
+                                    showNotification('Delete Trade Reference Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        // ------------------------------------------------------------------------------
+
+        if($('#ci-report-files-form').length){
+            ciFileForm();
+        }
+
+        $(document).on('click','#add-ci-report-files',function() {
+            resetModalForm('ci-report-files-form');
+        });
+
+        $(document).on('click','.delete-ci-report-file',function() {
+            const ci_report_files_id = $(this).data('ci-report-files-id');
+            const transaction = 'delete ci report file';
+    
+            Swal.fire({
+                title: 'Confirm File Deletion',
+                text: 'Are you sure you want to delete this file?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/ci-report-controller.php',
+                        dataType: 'json',
+                        data: {
+                            ci_report_files_id : ci_report_files_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete File Success', 'The file has been deleted successfully.', 'success');
+                                reloadDatatable('#ci-files-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete File Error', 'The file does not exists.', 'danger');
+                                    reloadDatatable('#ci-files-table');
+                                }
+                                else {
+                                    showNotification('Delete File Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
     });
 })(jQuery);
 
@@ -1548,6 +1709,7 @@ function ciReportLoanTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'COMPANY' },
         { 'data' : 'INFORMANT' },
         { 'data' : 'ACCOUNT_NAME' },
+        { 'data' : 'LOAN_SOURCE' },
         { 'data' : 'LOAN_TYPE' },
         { 'data' : 'AVAILED_DATE' },
         { 'data' : 'MATURITY_DATE' },
@@ -1573,7 +1735,8 @@ function ciReportLoanTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 9  },
         { 'width': 'auto', 'aTargets': 10  },
         { 'width': 'auto', 'aTargets': 11  },
-        { 'width': '15%','bSortable': false, 'aTargets': 12 },
+        { 'width': 'auto', 'aTargets': 12  },
+        { 'width': '15%','bSortable': false, 'aTargets': 13 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1900,6 +2063,132 @@ function ciReportAppraisalSourceTable(datatable_name, buttons = false, show_all 
     $(datatable_name).dataTable(settings);
 }
 
+function ciReportTradeReferenceTable(datatable_name, buttons = false, show_all = false){
+    const type = 'ci report trade reference table';
+    const ci_report_id = $('#ci-report-id').text();
+    var ci_report_business_id = sessionStorage.getItem('ci_report_business_id');
+
+    var settings;
+
+    const column = [
+        { 'data' : 'SUPPLIER' },
+        { 'data' : 'CONTACT_PERSON' },
+        { 'data' : 'YEARS_OF_TRANSACTION' },
+        { 'data' : 'REMARKS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': '15%','bSortable': false, 'aTargets': 4 },
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_ci_report_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type, 
+                'ci_report_id' : ci_report_id, 
+                'ci_report_business_id' : ci_report_business_id
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function ciReportFileTable(datatable_name, buttons = false, show_all = false){
+    const type = 'ci report files table';
+    const ci_report_id = $('#ci-report-id').text();
+
+    var settings;
+
+    const column = [
+        { 'data' : 'CI_FILE_TYPE' },
+        { 'data' : 'REMARKS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': '15%','bSortable': false, 'aTargets': 2 },
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_ci_report_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type, 
+                'ci_report_id' : ci_report_id
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 function ciReportForm(){
     $('#ci-report-form').validate({
         rules: {
@@ -1989,6 +2278,126 @@ function ciReportForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Save');
                     displayDetails('get ci report summary details');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function ciReportRecommendationForm(){
+    $('#ci-report-recommendation-form').validate({
+        rules: {
+            ci_character: {
+                required: true
+            },
+            ci_capacity: {
+                required: true
+            },
+            ci_capital: {
+                required: true
+            },
+            ci_collateral: {
+                required: true
+            },
+            ci_condition: {
+                required: true
+            },
+            acceptability: {
+                required: true
+            },
+            loanability: {
+                required: true
+            },
+            cmap_result: {
+                required: true
+            },
+            crif_result: {
+                required: true
+            },
+            adverse: {
+                required: true
+            },
+            times_accomodated: {
+                required: true
+            },
+            cgmi_client_since: {
+                required: true
+            },
+            recommendation: {
+                required: true
+            },
+        },
+        messages: {
+            recommendation: {
+                required: 'Please enter the recommendation'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const ci_report_id = $('#ci-report-id').text();
+            const transaction = 'save ci report recommendation';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/ci-report-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&ci_report_id=' + ci_report_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-recommendation-data');
+                },
+                success: function (response) {
+                    if (response.success) {                        
+                        showNotification('Update Recommendation Success', 'The recommendation has been updated successfully.', 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-recommendation-data', 'Save');
                 }
             });
         
@@ -2424,7 +2833,7 @@ function ciReportBankForm(){
         },
         messages: {
             ci_bank_bank_id: {
-                required: 'Please choose the bank'
+                required: 'Please enter the bank'
             },
             ci_bank_bank_account_type_id: {
                 required: 'Please choose the account type'
@@ -2716,10 +3125,16 @@ function ciReportLoanForm(){
             ci_loan_company: {
                 required: true
             },
+            ci_loan_loan_source: {
+                required: true
+            },
         },
         messages: {
             ci_loan_company: {
                 required: 'Please enter the company'
+            },
+            ci_loan_loan_source: {
+                required: 'Please choose the loan source'
             },
         },
         errorPlacement: function (error, element) {
@@ -3189,6 +3604,196 @@ function ciReportSetToDraftForm(){
     });
 }
 
+function ciReportTradeReferenceForm(){
+    $('#ci-trade-reference-form').validate({
+        rules: {
+            ci_report_trade_reference_supplier: {
+                required: true
+            },
+        },
+        messages: {
+            ci_report_trade_reference_supplier: {
+                required: 'Please enter the supplier'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const ci_report_id = $('#ci-report-id').text();
+            var ci_report_business_id = sessionStorage.getItem('ci_report_business_id');
+            const transaction = 'save ci report trade reference';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/ci-report-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&ci_report_id=' + ci_report_id + '&ci_report_business_id=' + ci_report_business_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-ci-trade-reference');
+                },
+                success: function (response) {
+                    if (response.success) {                        
+                        const notificationMessage = response.insertRecord ? 'Insert Trade Reference Success' : 'Update Trade Reference Success';
+                        const notificationDescription = response.insertRecord ? 'The trade reference has been inserted successfully.' : 'The trade reference has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+
+                        ciReportTradeReferenceTable('#ci-trade-reference-table');
+                        $('#ci-trade-reference-modal').modal('hide');
+                        $('#ci-business-modal').modal('show');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-ci-trade-reference', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function ciFileForm(){
+    $('#ci-report-files-form').validate({
+        rules: {
+            ci_file_type_id: {
+                required: true
+            },
+            ci_file: {
+                required: true
+            },
+        },
+        messages: {
+            ci_file_type_id: {
+                required: 'Please choose the file type'
+            },
+            ci_file: {
+                required: 'Please choose the file'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const ci_report_id = $('#ci-report-id').text();
+            const transaction = 'save ci report file';
+    
+            var formData = new FormData(form);
+            formData.append('ci_report_id', ci_report_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/ci-report-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-ci-files');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Inser CI Report File Success', 'The CI report has been inserted successfully', 'success');
+                        reloadDatatable('#ci-files-table');
+                        $('#ci-files-modal').modal('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-ci-files', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get ci report details':
@@ -3216,6 +3821,55 @@ function displayDetails(transaction){
 
                         checkOptionExist('#appraiser', response.appraiser, '');
                         checkOptionExist('#investigator', response.investigator, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get CI Report Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get ci report recommendation details':
+            var ci_report_id = $('#ci-report-id').text();
+            
+            $.ajax({
+                url: 'controller/ci-report-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    ci_report_id : ci_report_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetForm('ci-report-recommendation-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#recommendation').val(response.recommendation);
+                        $('#times_accomodated').val(response.times_accomodated);
+                        $('#cgmi_client_since').val(response.cgmi_client_since);
+
+                        checkOptionExist('#ci_character', response.ci_character, '');
+                        checkOptionExist('#ci_capacity', response.ci_capacity, '');
+                        checkOptionExist('#ci_capital', response.ci_capital, '');
+                        checkOptionExist('#ci_collateral', response.ci_collateral, '');
+                        checkOptionExist('#ci_condition', response.ci_condition, '');
+                        checkOptionExist('#acceptability', response.acceptability, '');
+                        checkOptionExist('#loanability', response.loanability, '');
+                        checkOptionExist('#cmap_result', response.cmap_result, '');
+                        checkOptionExist('#crif_result', response.crif_result, '');
+                        checkOptionExist('#adverse', response.adverse, '');
                     } 
                     else {
                         if(response.isInactive){
@@ -3314,6 +3968,7 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
+                        $('#ci-residence-rental-amount-summary').text(response.rentalAmountTotal);
                         $('#ci-residence-personal-expense-summary').text(response.personalExpenseTotal);
                         $('#ci-residence-utilities-expense-summary').text(response.utilitiesExpenseTotal);
                         $('#ci-residence-other-expense-summary').text(response.otherExpenseTotal);
@@ -3380,9 +4035,9 @@ function displayDetails(transaction){
                         $('#ci_business_liabilities').val(response.liabilities);
                         $('#ci_business_capital').val(response.capital);
                         $('#ci_business_remarks').val(response.remarks);
+                        $('#ci_business_major_bank_id').val(response.major_bank_id);
 
                         checkOptionExist('#ci_business_city_id', response.city_id, '');
-                        checkOptionExist('#ci_business_major_bank_id', response.major_bank_id, '');
                         checkOptionExist('#ci_business_business_location_type_id', response.business_location_type_id, '');
                         checkOptionExist('#ci_business_building_make_id', response.building_make_id, '');
                         checkOptionExist('#ci_business_business_premises_id', response.business_premises_id, '');
@@ -3564,8 +4219,8 @@ function displayDetails(transaction){
                         $('#ci_bank_bank_adb_id').val(response.bank_adb_id);
                         $('#ci_bank_informant').val(response.informant);
                         $('#ci_bank_remarks').val(response.remarks);
+                        $('#ci_bank_bank_id').val(response.bank_id);
 
-                        checkOptionExist('#ci_bank_bank_id', response.bank_id, '');
                         checkOptionExist('#ci_bank_bank_account_type_id', response.bank_account_type_id, '');
                         checkOptionExist('#ci_bank_currency_id', response.currency_id, '');
                         checkOptionExist('#ci_bank_bank_handling_type_id', response.bank_handling_type_id, '');
@@ -3655,6 +4310,7 @@ function displayDetails(transaction){
                         $('#ci_loan_repayment').val(response.repayment);
                         $('#ci_loan_remarks').val(response.remarks);
 
+                        checkOptionExist('#ci_loan_loan_source', response.loan_source, '');
                         checkOptionExist('#ci_loan_loan_type_id', response.loan_type_id, '');
                         checkOptionExist('#ci_loan_handling', response.handling, '');
                     } 
@@ -3752,9 +4408,9 @@ function displayDetails(transaction){
                         $('#ci_collateral_appraised_value').val(response.appraised_value);
                         $('#ci_collateral_loannable_value').val(response.loannable_value);
                         $('#ci_collateral_remarks').val(response.remarks);
+                        $('#ci_collateral_color_id').val(response.color_id);
 
                         checkOptionExist('#ci_collateral_brand_id', response.brand_id, '');
-                        checkOptionExist('#ci_collateral_color_id', response.color_id, '');
                     } 
                     else {
                         if(response.isInactive){
@@ -3963,37 +4619,29 @@ function displayDetails(transaction){
                 }
             });
             break;
-        case 'get ci report summary details':
-            var ci_report_id = $('#ci-report-id').text();
+        case 'get ci report trade reference details':
+            var ci_report_trade_reference_id = sessionStorage.getItem('ci_report_trade_reference_id');
             
             $.ajax({
                 url: 'controller/ci-report-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    ci_report_id : ci_report_id, 
+                    ci_report_trade_reference_id : ci_report_trade_reference_id, 
                     transaction : transaction
+                },
+                beforeSend: function() {
+                    resetForm('ci-asset-form');
                 },
                 success: function(response) {
                     if (response.success) {
-                        document.getElementById('summary-business-table').innerHTML = response.businessTable;
-                        document.getElementById('summary-employment-table').innerHTML = response.employmentTable;
-                        $('#summary-income-total').text(response.totalIncome);
-                        $('#summary-loan-amortization-total').text(response.loanAmort);
-                        $('#summary-monthly-amort').text(response.repaymentAmount);
-                        $('#summary-expenses-total').text(response.expensesTotal);
-                        $('#summary-less-expenses-total').text(response.lessExpenseTotal);
-                        $('#summary-ema').text(response.ema);
-                        $('#summary-ela').text(response.ela);
-                        $('#summary-rate').text(response.interest_rate);
-                        $('#summary-term').text(response.term);
-                        $('#summary-pn-amount').text(response.pn_amount);
-                        $('#summary-si').text(response.si);
-                        $('#summary-di').text(response.di);
-                        $('#summary-sales-executive').text(response.salesExec);
-                        $('#summary-amount-applied').text(response.outstanding_balance);
-                        $('#summary-effective-yield').text(response.effectiveAnnualYield);
-                        $('#summary-sales-agent').text(response.referred_by);
+                        $('#ci_report_trade_reference_id').val(ci_report_trade_reference_id);
+                        $('#ci_report_trade_reference_supplier').val(response.supplier);
+                        $('#ci_report_trade_reference_contact_person').val(response.contact_person);
+                        $('#ci_report_trade_reference_years_of_transaction').val(response.years_of_transaction);
+                        $('#ci_report_trade_reference_remarks').val(response.remarks);
+
+                        checkOptionExist('#ci_asset_asset_type_id', response.asset_type_id, '');
                     } 
                     else {
                         if(response.isInactive){

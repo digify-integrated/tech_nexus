@@ -40,6 +40,25 @@ class CIReportModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function updateCIReportRecommendation($p_ci_report_id, $p_ci_character, $p_ci_capacity, $p_ci_capital, $p_ci_collateral, $p_ci_condition, $p_acceptability, $p_loanability, $p_cmap_result, $p_crif_result, $p_adverse, $p_times_accomodated, $p_cgmi_client_since, $p_recommendation, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateCIReportRecommendation(:p_ci_report_id, :p_ci_character, :p_ci_capacity, :p_ci_capital, :p_ci_collateral, :p_ci_condition, :p_acceptability, :p_loanability, :p_cmap_result, :p_crif_result, :p_adverse, :p_times_accomodated, :p_cgmi_client_since, :p_recommendation, :p_last_log_by)');
+        $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_ci_character', $p_ci_character, PDO::PARAM_STR);
+        $stmt->bindValue(':p_ci_capacity', $p_ci_capacity, PDO::PARAM_STR);
+        $stmt->bindValue(':p_ci_capital', $p_ci_capital, PDO::PARAM_STR);
+        $stmt->bindValue(':p_ci_collateral', $p_ci_collateral, PDO::PARAM_STR);
+        $stmt->bindValue(':p_ci_condition', $p_ci_condition, PDO::PARAM_STR);
+        $stmt->bindValue(':p_acceptability', $p_acceptability, PDO::PARAM_STR);
+        $stmt->bindValue(':p_loanability', $p_loanability, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cmap_result', $p_cmap_result, PDO::PARAM_STR);
+        $stmt->bindValue(':p_crif_result', $p_crif_result, PDO::PARAM_STR);
+        $stmt->bindValue(':p_adverse', $p_adverse, PDO::PARAM_STR);
+        $stmt->bindValue(':p_times_accomodated', $p_times_accomodated, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cgmi_client_since', $p_cgmi_client_since, PDO::PARAM_STR);
+        $stmt->bindValue(':p_recommendation', $p_recommendation, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     public function updateCIReportStatus($p_ci_report_id, $p_ci_status, $p_reason, $p_sales_proposal_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateCIReportStatus(:p_ci_report_id, :p_ci_status, :p_reason, :p_sales_proposal_id, :p_last_log_by)');
         $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
@@ -267,7 +286,7 @@ class CIReportModel {
         $stmt->bindValue(':p_date_organized', $p_date_organized);
         $stmt->bindValue(':p_no_employee', $p_no_employee, PDO::PARAM_INT);
         $stmt->bindValue(':p_customer', $p_customer);
-        $stmt->bindValue(':p_major_bank_id', $p_major_bank_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_major_bank_id', $p_major_bank_id);
         $stmt->bindValue(':p_contact_person', $p_contact_person);
         $stmt->bindValue(':p_business_location_type_id', $p_business_location_type_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_building_make_id', $p_building_make_id, PDO::PARAM_INT);
@@ -326,7 +345,7 @@ class CIReportModel {
         $stmt->bindValue(':p_date_organized', $p_date_organized);
         $stmt->bindValue(':p_no_employee', $p_no_employee, PDO::PARAM_INT);
         $stmt->bindValue(':p_customer', $p_customer);
-        $stmt->bindValue(':p_major_bank_id', $p_major_bank_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_major_bank_id', $p_major_bank_id);
         $stmt->bindValue(':p_contact_person', $p_contact_person);
         $stmt->bindValue(':p_business_location_type_id', $p_business_location_type_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_building_make_id', $p_building_make_id, PDO::PARAM_INT);
@@ -516,7 +535,7 @@ class CIReportModel {
         )');
 
         $stmt->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
-        $stmt->bindValue(':bank_id', $bank_id, PDO::PARAM_INT);
+        $stmt->bindValue(':bank_id', $bank_id);
         $stmt->bindValue(':account_name', $account_name);
         $stmt->bindValue(':account_number', $account_number);
         $stmt->bindValue(':bank_account_type_id', $bank_account_type_id, PDO::PARAM_INT);
@@ -545,7 +564,7 @@ class CIReportModel {
 
         $stmt->bindValue(':ci_report_bank_id', $ci_report_bank_id, PDO::PARAM_INT);
         $stmt->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
-        $stmt->bindValue(':bank_id', $bank_id, PDO::PARAM_INT);
+        $stmt->bindValue(':bank_id', $bank_id);
         $stmt->bindValue(':account_name', $account_name);
         $stmt->bindValue(':account_number', $account_number);
         $stmt->bindValue(':bank_account_type_id', $bank_account_type_id, PDO::PARAM_INT);
@@ -691,18 +710,19 @@ class CIReportModel {
     }
 
     public function insertCIReportLoan(
-        $ci_report_id, $company, $informant, $account_name, $loan_type_id,
+        $ci_report_id, $company, $loan_source, $informant, $account_name, $loan_type_id,
         $availed_date, $maturity_date, $term, $pn_amount, $outstanding_balance,
         $repayment, $handling, $remarks, $last_log_by
     ) {
         $stmt = $this->db->getConnection()->prepare('CALL insertCIReportLoan(
-            :ci_report_id, :company, :informant, :account_name, :loan_type_id,
+            :ci_report_id, :company, :loan_source, :informant, :account_name, :loan_type_id,
             :availed_date, :maturity_date, :term, :pn_amount, :outstanding_balance,
             :repayment, :handling, :remarks, :last_log_by
         )');
 
         $stmt->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
         $stmt->bindValue(':company', $company);
+        $stmt->bindValue(':loan_source', $loan_source);
         $stmt->bindValue(':informant', $informant);
         $stmt->bindValue(':account_name', $account_name);
         $stmt->bindValue(':loan_type_id', $loan_type_id, PDO::PARAM_INT);
@@ -722,12 +742,12 @@ class CIReportModel {
 
 
     public function updateCIReportLoan(
-        $ci_report_loan_id, $ci_report_id, $company, $informant, $account_name,
+        $ci_report_loan_id, $ci_report_id, $company, $loan_source, $informant, $account_name,
         $loan_type_id, $availed_date, $maturity_date, $term, $pn_amount,
         $outstanding_balance, $repayment, $handling, $remarks, $last_log_by
     ) {
         $stmt = $this->db->getConnection()->prepare('CALL updateCIReportLoan(
-            :ci_report_loan_id, :ci_report_id, :company, :informant, :account_name,
+            :ci_report_loan_id, :ci_report_id, :company, :loan_source, :informant, :account_name,
             :loan_type_id, :availed_date, :maturity_date, :term, :pn_amount,
             :outstanding_balance, :repayment, :handling, :remarks, :last_log_by
         )');
@@ -735,6 +755,7 @@ class CIReportModel {
         $stmt->bindValue(':ci_report_loan_id', $ci_report_loan_id, PDO::PARAM_INT);
         $stmt->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
         $stmt->bindValue(':company', $company);
+        $stmt->bindValue(':loan_source', $loan_source);
         $stmt->bindValue(':informant', $informant);
         $stmt->bindValue(':account_name', $account_name);
         $stmt->bindValue(':loan_type_id', $loan_type_id, PDO::PARAM_INT);
@@ -874,7 +895,7 @@ class CIReportModel {
         $stmt->bindValue(':appraisal_date', $appraisal_date);
         $stmt->bindValue(':brand_id', $brand_id, PDO::PARAM_INT);
         $stmt->bindValue(':description', $description);
-        $stmt->bindValue(':color_id', $color_id, PDO::PARAM_INT);
+        $stmt->bindValue(':color_id', $color_id, PDO::PARAM_STR);
         $stmt->bindValue(':year_model', $year_model);
         $stmt->bindValue(':plate_no', $plate_no);
         $stmt->bindValue(':motor_no', $motor_no);
@@ -911,7 +932,7 @@ class CIReportModel {
         $stmt->bindValue(':appraisal_date', $appraisal_date);
         $stmt->bindValue(':brand_id', $brand_id, PDO::PARAM_INT);
         $stmt->bindValue(':description', $description);
-        $stmt->bindValue(':color_id', $color_id, PDO::PARAM_INT);
+        $stmt->bindValue(':color_id', $color_id, PDO::PARAM_STR);
         $stmt->bindValue(':year_model', $year_model);
         $stmt->bindValue(':plate_no', $plate_no);
         $stmt->bindValue(':motor_no', $motor_no);
@@ -1018,6 +1039,95 @@ class CIReportModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+
+    public function checkCIReportTradeReferenceExist($p_ci_report_trade_reference_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkCIReportTradeReferenceExist(:p_ci_report_trade_reference_id)');
+        $stmt->bindValue(':p_ci_report_trade_reference_id', $p_ci_report_trade_reference_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function insertCIReportTradeReference(
+        $ci_report_id, $ci_report_business_id, $supplier, $contact_person, $years_of_transaction,
+        $remarks, $last_log_by
+    ) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertCIReportTradeReference(
+            :ci_report_id, :ci_report_business_id, :supplier, :contact_person, :years_of_transaction,
+            :remarks, :last_log_by
+        )');
+
+        $stmt->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
+        $stmt->bindValue(':ci_report_business_id', $ci_report_business_id);
+        $stmt->bindValue(':supplier', $supplier);
+        $stmt->bindValue(':contact_person', $contact_person);
+        $stmt->bindValue(':years_of_transaction', $years_of_transaction);
+        $stmt->bindValue(':remarks', $remarks);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
+    public function updateCIReportTradeReference(
+        $ci_report_trade_reference_id, $ci_report_id, $supplier, $contact_person, $years_of_transaction,
+        $remarks, $last_log_by
+    ) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateCIReportTradeReference(
+            :ci_report_trade_reference_id, :ci_report_id, :supplier, :contact_person, :years_of_transaction,
+            :remarks, :last_log_by
+        )');
+
+        $stmt->bindValue(':ci_report_trade_reference_id', $ci_report_trade_reference_id, PDO::PARAM_INT);
+        $stmt->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
+        $stmt->bindValue(':supplier', $supplier);
+        $stmt->bindValue(':contact_person', $contact_person);
+        $stmt->bindValue(':years_of_transaction', $years_of_transaction);
+        $stmt->bindValue(':remarks', $remarks);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
+    public function deleteCIReportTradeReference($ci_report_trade_reference_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteCIReportTradeReference(:ci_report_trade_reference_id)');
+        $stmt->bindValue(':ci_report_trade_reference_id', $ci_report_trade_reference_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function getCIReportTradeReference($p_ci_report_trade_reference_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getCIReportTradeReference(:p_ci_report_trade_reference_id)');
+        $stmt->bindValue(':p_ci_report_trade_reference_id', $p_ci_report_trade_reference_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    # -------------------------------------------------------------
+
+    
+    public function insertCIReportFile(
+        $ci_report_id, $ci_files_file_name, $filePath, $ci_file_type_id,
+        $remarks, $last_log_by
+    ) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertCIReportFile(
+            :ci_report_id, :ci_files_file_name, :filePath, :ci_file_type_id,
+            :remarks, :last_log_by
+        )');
+
+        $stmt->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
+        $stmt->bindValue(':ci_files_file_name', $ci_files_file_name);
+        $stmt->bindValue(':filePath', $filePath);
+        $stmt->bindValue(':ci_file_type_id', $ci_file_type_id);
+        $stmt->bindValue(':remarks', $remarks);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -1035,6 +1145,12 @@ class CIReportModel {
     public function deleteCIReport($p_ci_report_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteCIReport(:p_ci_report_id)');
         $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function deleteCIReportFile($p_ci_report_files_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteCIReportFile(:p_ci_report_files_id)');
+        $stmt->bindValue(':p_ci_report_files_id', $p_ci_report_files_id, PDO::PARAM_INT);
         $stmt->execute();
     }
 

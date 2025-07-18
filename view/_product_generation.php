@@ -261,6 +261,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $color_id  = $row['color_id'];
                     $total_landed_cost  = $row['total_landed_cost'];
                     $warehouseID = $row['warehouse_id'];
+                    $remarks = $row['remarks'];
                     $productStatus = $productModel->getProductStatus($row['product_status']);
                     $productImage = $systemModel->checkImage($row['product_image'], 'default');
 
@@ -305,6 +306,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         </div>
                                     </div>',
                         'CATEGORY' => $productCategoryName . ' <br/>(' . $productSubcategoryName . ')',
+                        'REMARKS' => '<span class="text-wrap w-100">' . $remarks . "</span>",
                         'ENGINE_NUMBER' => $engine_number,
                         'CHASSIS_NUMBER' => $chassis_number,
                         'BODY_TYPE' => $bodyTypeName,

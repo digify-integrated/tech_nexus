@@ -20,6 +20,7 @@
   require('model/income-level-model.php');
   require('model/ci-report-model.php');
   require('model/bank-adb-model.php');
+  require('model/ci-file-type-model.php');
 
   $pageTitle = 'CI Report';
 
@@ -42,6 +43,7 @@
   $brandModel = new BrandModel($databaseModel);
   $colorModel = new ColorModel($databaseModel);
   $incomeLevelModel = new IncomeLevelModel($databaseModel);
+  $ciFileTypeModel = new CIFileTypeModel($databaseModel);
   $bankADBModel = new BankADBModel($databaseModel);
       
   $ciReportReadAccess = $userModel->checkMenuItemAccessRights($user_id, 159, 'read');

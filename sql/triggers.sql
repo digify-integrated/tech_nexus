@@ -7924,3 +7924,29 @@ BEGIN
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE TRIGGER ci_file_type_trigger_update
+AFTER UPDATE ON ci_file_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+    IF NEW.ci_file_type_name <> OLD.ci_file_type_name THEN
+        SET audit_log = CONCAT(audit_log, "CI File Type Name: ", OLD.ci_file_type_name, " -> ", NEW.ci_file_type_name, "<br/>");
+    END IF;
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('ci_file_type', NEW.ci_file_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER ci_file_type_trigger_insert
+AFTER INSERT ON ci_file_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'CI file type created. <br/>';
+    IF NEW.ci_file_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>CI File Type Name: ", NEW.ci_file_type_name);
+    END IF;
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('ci_file_type', NEW.ci_file_type_id, audit_log, NEW.last_log_by, NOW());
+END //

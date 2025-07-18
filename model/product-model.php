@@ -943,8 +943,10 @@ class ProductModel {
             $productID = $row['product_id'];
             $description = $row['description'];
             $stockNumber = $row['stock_number'];
+            $file_as = $row['file_as'];
+            $sales_proposal_number = $row['sales_proposal_number'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($productID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($productID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) . ' - ' . $file_as . ' - ' . $sales_proposal_number .'</option>';
         }
 
         return $htmlOptions;

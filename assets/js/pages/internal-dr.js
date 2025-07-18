@@ -448,6 +448,7 @@ function internalDRTable(datatable_name, buttons = false, show_all = false){
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
+        { 'data' : 'INTERNAL_DR_NUMBER' },
         { 'data' : 'RELEASE_TO' },
         { 'data' : 'DR_TYPE' },
         { 'data' : 'DR_NUMBER' },
@@ -464,8 +465,9 @@ function internalDRTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
-        { 'width': '15%','bSortable': false, 'aTargets': 7 }
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+        { 'width': '15%','bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -485,7 +487,7 @@ function internalDRTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 6, 'desc' ]],
+        'order': [[ 1, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

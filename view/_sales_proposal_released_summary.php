@@ -1040,6 +1040,33 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="row">
+                        <div class="col-xl-12">
+                            <div class="card">
+                            <div class="card-body py-2">
+                                <ul class="list-group list-group-flush">
+                                <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                                    <h5 class="mb-0">Other Document</h5>
+                                    <?php
+                                    if($salesProposalStatus != 'Rejected' && $salesProposalStatus != 'Cancelled' && $salesProposalStatus != 'Released'){
+                                        echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-other-document-offcanvas" aria-controls="sales-proposal-other-document-offcanvas" id="sales-proposal-other-document">Other Document</button>';
+                                    }
+                                    ?>
+                                    
+                                </li>
+                                <li class="list-group-item px-0">
+                                    <div class="row align-items-center mb-3">
+                                    <div class="col-sm-12 mb-sm-0">
+                                        <embed id="other-document-file" width="100%" height="600" type="application/pdf" />
+                                    </div>                      
+                                    </div>
+                                </li>
+                                </ul>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
                     </div>
                     <div class="tab-pane" id="v-summary">
                         <?php include_once('_sales_proposal_summary_print.php'); ?>

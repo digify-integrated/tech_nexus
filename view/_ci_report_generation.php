@@ -20,6 +20,7 @@ require_once '../model/cmap-report-type-model.php';
 require_once '../model/asset-type-model.php';
 require_once '../model/bank-adb-model.php';
 require_once '../model/ci-report-model.php';
+require_once '../model/ci-file-type-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -39,6 +40,7 @@ $cmapReportTypeModel = new CMAPReportTypeModel($databaseModel);
 $assetTypeModel = new AssetTypeModel($databaseModel);
 $ciReportModel = new CIReportModel($databaseModel);
 $bankADBModel = new BankADBModel($databaseModel);
+$ciFileTypeModel = new CIFileTypeModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -165,7 +167,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $contactAddress = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
 
                     $delete = '';
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-residence" data-ci-report-residence-id="'. $ci_report_residence_id .'" title="Delete Residence">
                                         <i class="ti ti-trash"></i>
                                     </button>';
@@ -205,7 +207,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $remarks = $row['remarks'];
 
                     $delete = '';
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-dependents" data-ci-report-dependents-id="'. $ci_report_dependents_id .'" title="Delete Residence">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -260,7 +262,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $contactAddress = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
 
                     $delete = '';
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-business" data-ci-report-business-id="'. $ci_report_business_id .'" title="Delete Residence">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -318,7 +320,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $contactAddress = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
 
                     $delete = '';
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-employment" data-ci-report-employment-id="'. $ci_report_employment_id .'" title="Delete Residence">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -366,14 +368,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $date_open = $systemModel->checkDate('summary', $row['date_open'], '', 'm/d/Y', '');
                     $bank_adb_id = $row['bank_adb_id'];
 
-                    $bankName = $bankModel->getBank($bank_id)['bank_name'] ?? null;
                     $bankAccountTypeName = $bankAccountTypeModel->getBankAccountType($bank_account_type_id)['bank_account_type_name'] ?? null;
                     $currencyName = $currencyModel->getCurrency($currency_id)['currency_name'] ?? null;
 
                     $bankADBName = $bankADBModel->getBankADB($bank_adb_id)['bank_adb_name'] ?? null;
 
                     $delete = '';
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-bank" data-ci-report-bank-id="'. $ci_report_bank_id .'" title="Delete Bank">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -382,7 +383,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $average = $ciReportModel->getBankDepositAverage($ci_report_bank_id)['total'] ?? 0;
 
                     $response[] = [
-                        'BANK' => $bankName,
+                        'BANK' => $bank_id,
                         'BANK_ACCOUNT_TYPE' => $bankAccountTypeName,
                         'ACCOUNT_NAME' => $account_name,
                         'ACCOUNT_NUMBER' => $account_number,
@@ -422,7 +423,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $remarks = $row['remarks'];
 
                     $delete = '';
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-bank-deposits" data-ci-report-bank-deposits-id="'. $ci_report_bank_deposits_id .'" title="Delete Deposit">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -489,6 +490,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 foreach ($options as $row) {
                     $ci_report_loan_id = $row['ci_report_loan_id'];
                     $company = $row['company'];
+                    $loan_source = $row['loan_source'];
                     $informant = $row['informant'];
                     $account_name = $row['account_name'];
                     $loan_type_id = $row['loan_type_id'];             
@@ -502,7 +504,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $remarks = $row['remarks'];
 
                     $delete = '';
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-loan" data-ci-report-loan-id="'. $ci_report_loan_id .'" title="Delete Loan">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -512,6 +514,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $response[] = [
                         'COMPANY' => $company,
+                        'LOAN_SOURCE' => $loan_source,
                         'INFORMANT' => $informant,
                         'ACCOUNT_NAME' => $account_name,
                         'LOAN_TYPE' => $loan_type_name,
@@ -556,7 +559,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $asset_type_name = $assetTypeModel->getAssetType($asset_type_id)['asset_type_name'] ?? null;
 
                     $delete = '';
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-asset" data-ci-report-asset-id="'. $ci_report_asset_id .'" title="Delete Asset">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -568,6 +571,49 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'VALUE' => number_format($value, 2) . ' PHP',
                         'ACTION' => '<div class="d-flex gap-2">
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-asset" data-bs-toggle="modal" data-bs-target="#ci-asset-modal" data-ci-report-asset-id="'. $ci_report_asset_id .'" title="Update Asset">
+                                            <i class="ti ti-edit"></i>
+                                        </button>
+                                        '. $delete .'
+                                    </div>'
+                        ];
+                }
+
+                echo json_encode($response);
+        break;
+        case 'ci report trade reference table':
+                $ci_report_id = $_POST['ci_report_id'];
+                $ci_report_business_id = $_POST['ci_report_business_id'];
+
+                $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportTradeReferenceTable(:ci_report_business_id)');
+                $sql->bindValue(':ci_report_business_id', $ci_report_business_id, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $ci_report_trade_reference_id = $row['ci_report_trade_reference_id'];
+                    $supplier = $row['supplier'];
+                    $contact_person = $row['contact_person'];
+                    $years_of_transaction = $row['years_of_transaction'];
+                    $remarks = $row['remarks'];
+
+                    $delete = '';
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-trade-reference" data-ci-report-trade-reference-id="'. $ci_report_trade_reference_id .'" title="Delete Trade Reference">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
+                    $response[] = [
+                        'SUPPLIER' => $supplier,
+                        'CONTACT_PERSON' => $contact_person,
+                        'YEARS_OF_TRANSACTION' => $years_of_transaction,
+                        'REMARKS' => $remarks,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-icon btn-success update-ci-report-trade-reference" data-bs-toggle="modal" data-bs-target="#ci-trade-reference-modal" data-ci-report-trade-reference-id="'. $ci_report_trade_reference_id .'" title="Update Trade Reference">
                                             <i class="ti ti-edit"></i>
                                         </button>
                                         '. $delete .'
@@ -604,7 +650,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $cmap_report_type_name = $cmapReportTypeModel->getCMAPReportType($cmap_report_type_id)['cmap_report_type_name'] ?? null;
 
                     $delete = '';
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-cmap" data-ci-report-cmap-id="'. $ci_report_cmap_id .'" title="Delete CMAP">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -665,7 +711,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $color_name = $colorModel->getColor($color_id)['color_name'] ?? null;
 
                     $delete = '';
-                    if($ci_status == 'Draft'){
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-collateral" data-ci-report-collateral-id="'. $ci_report_collateral_id .'" title="Delete Collateral">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -690,6 +736,47 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-collateral" data-bs-toggle="modal" data-bs-target="#ci-collateral-modal" data-ci-report-collateral-id="'. $ci_report_collateral_id .'" title="Update Collateral">
                                             <i class="ti ti-edit"></i>
                                         </button>
+                                        '. $delete .'
+                                    </div>'
+                        ];
+                }
+
+                echo json_encode($response);
+        break;
+        case 'ci report files table':
+                $ci_report_id = $_POST['ci_report_id'];
+
+                $ciReportDetails = $ciReportModel->getCIReport($ci_report_id);
+                $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateCIReportFileTable(:ci_report_id)');
+                $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $ci_report_files_id = $row['ci_report_files_id'];
+                    $file_name = $row['file_name'];
+                    $ci_file_type_id = $row['ci_file_type_id'];
+                    $remarks = $row['remarks'];
+
+                    $ci_file_type = $ciFileTypeModel->getCIFileType($ci_file_type_id)['ci_file_type_name'] ?? null;
+
+                    
+                    $file = '<a href="'. $systemModel->checkImage($row['file_path'], 'default') .'" target="_blank">'. $ci_file_type .'</a>';
+
+                    $delete = '';
+                    if($ci_status == 'Draft' || $ci_status == 'For Completion'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-ci-report-file" data-ci-report-files-id="'. $ci_report_files_id .'" title="Delete File">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
+                    $response[] = [
+                        'CI_FILE_TYPE' => $file,
+                        'REMARKS' => $remarks,
+                        'ACTION' => '<div class="d-flex gap-2">
                                         '. $delete .'
                                     </div>'
                         ];

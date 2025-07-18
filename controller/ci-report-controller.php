@@ -15,7 +15,10 @@ session_start();
 class CIReportController {
     private $ciReportModel;
     private $salesProposalModel;
+    private $ciFileTypeModel;
     private $userModel;
+    private $uploadSettingModel;
+    private $fileExtensionModel;
     private $systemModel;
     private $securityModel;
 
@@ -34,11 +37,14 @@ class CIReportController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(CIReportModel $ciReportModel, SalesProposalModel $salesProposalModel, UserModel $userModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(CIReportModel $ciReportModel, SalesProposalModel $salesProposalModel, CIFileTypeModel $ciFileTypeModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->ciReportModel = $ciReportModel;
         $this->salesProposalModel = $salesProposalModel;
+        $this->ciFileTypeModel = $ciFileTypeModel;
         $this->userModel = $userModel;
         $this->systemModel = $systemModel;
+        $this->uploadSettingModel = $uploadSettingModel;
+        $this->fileExtensionModel = $fileExtensionModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -100,8 +106,17 @@ class CIReportController {
                 case 'save ci report asset':
                     $this->saveCIReportAsset();
                     break;
+                case 'save ci report trade reference':
+                    $this->saveCIReportTradeReference();
+                    break;
+                case 'save ci report recommendation':
+                    $this->saveCIReportRecommendation();
+                    break;
                 case 'get ci report details':
                     $this->getCIReportDetails();
+                    break;
+                case 'get ci report recommendation details':
+                    $this->getCIReportRecommendationDetails();
                     break;
                 case 'get ci report residence details':
                     $this->getCIReportResidenceDetails();
@@ -148,6 +163,9 @@ class CIReportController {
                 case 'get ci report asset details':
                     $this->getCIReportAssetDetails();
                     break;
+                case 'get ci report trade reference details':
+                    $this->getCIReportTradeReferenceDetails();
+                    break;
                 case 'get ci report asset total details':
                     $this->getCIReportAssetTotalDetails();
                     break;
@@ -187,6 +205,12 @@ class CIReportController {
                 case 'delete ci report asset':
                     $this->deleteCIReportAsset();
                     break;
+                case 'delete ci report trade reference':
+                    $this->deleteCIReportTradeReference();
+                    break;
+                case 'delete ci report file':
+                    $this->deleteCIReportFile();
+                    break;
                 case 'ci report set to draft':
                     $this->tagCIReportAsDraft();
                     break;
@@ -195,6 +219,9 @@ class CIReportController {
                     break;
                 case 'tag ci report as completed':
                     $this->tagCIReportAsCompleted();
+                    break;
+                case 'save ci report file':
+                    $this->insertCIReportFile();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -327,6 +354,45 @@ class CIReportController {
     
         if ($total > 0) {
             $this->ciReportModel->updateCIReport($ciReportID, $appraiser, $investigator, $narrative_summary, $purpose_of_loan, $userID);
+        } 
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function saveCIReportRecommendation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $ciReportID = isset($_POST['ci_report_id']) ? htmlspecialchars($_POST['ci_report_id'], ENT_QUOTES, 'UTF-8') : null;
+        $ci_character = htmlspecialchars($_POST['ci_character'], ENT_QUOTES, 'UTF-8');
+        $ci_capacity = htmlspecialchars($_POST['ci_capacity'], ENT_QUOTES, 'UTF-8');
+        $ci_capital = htmlspecialchars($_POST['ci_capital'], ENT_QUOTES, 'UTF-8');
+        $ci_collateral = htmlspecialchars($_POST['ci_collateral'], ENT_QUOTES, 'UTF-8');
+        $ci_condition = htmlspecialchars($_POST['ci_condition'], ENT_QUOTES, 'UTF-8');
+        $acceptability = htmlspecialchars($_POST['acceptability'], ENT_QUOTES, 'UTF-8');
+        $loanability = htmlspecialchars($_POST['loanability'], ENT_QUOTES, 'UTF-8');
+        $cmap_result = htmlspecialchars($_POST['cmap_result'], ENT_QUOTES, 'UTF-8');
+        $crif_result = htmlspecialchars($_POST['crif_result'], ENT_QUOTES, 'UTF-8');
+        $adverse = htmlspecialchars($_POST['adverse'], ENT_QUOTES, 'UTF-8');
+        $times_accomodated = htmlspecialchars($_POST['times_accomodated'], ENT_QUOTES, 'UTF-8');
+        $cgmi_client_since = htmlspecialchars($_POST['cgmi_client_since'], ENT_QUOTES, 'UTF-8');
+        $recommendation = htmlspecialchars($_POST['recommendation'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkCIReportExist = $this->ciReportModel->checkCIReportExist($ciReportID);
+        $total = $checkCIReportExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->ciReportModel->updateCIReportRecommendation($ciReportID, $ci_character, $ci_capacity, $ci_capital, $ci_collateral, $ci_condition, $acceptability, $loanability, $cmap_result, $crif_result, $adverse, $times_accomodated, $cgmi_client_since, $recommendation, $userID);
         } 
         
         echo json_encode(['success' => true]);
@@ -509,6 +575,7 @@ class CIReportController {
                 exit;
             }
     
+            $rentalAmountTotal = $this->ciReportModel->getCIReportResidenceExpenseTotal($ci_report_id, 'rental')['total'] ?? 0;
             $personalExpenseTotal = $this->ciReportModel->getCIReportResidenceExpenseTotal($ci_report_id, 'personal')['total'] ?? 0;
             $utilitiesExpenseTotal = $this->ciReportModel->getCIReportResidenceExpenseTotal($ci_report_id, 'utilities')['total'] ?? 0;
             $otherExpenseTotal = $this->ciReportModel->getCIReportResidenceExpenseTotal($ci_report_id, 'other')['total'] ?? 0;
@@ -516,6 +583,7 @@ class CIReportController {
 
             $response = [
                 'success' => true,
+                'rentalAmountTotal' => number_format($rentalAmountTotal, 2) . ' Php',
                 'personalExpenseTotal' => number_format($personalExpenseTotal, 2) . ' Php',
                 'utilitiesExpenseTotal' => number_format($utilitiesExpenseTotal, 2) . ' Php',
                 'otherExpenseTotal' => number_format($otherExpenseTotal, 2) . ' Php',
@@ -1425,6 +1493,7 @@ class CIReportController {
         $ci_report_loan_id = isset($_POST['ci_report_loan_id']) ? htmlspecialchars($_POST['ci_report_loan_id'], ENT_QUOTES, 'UTF-8') : null;
         $ci_report_id = $_POST['ci_report_id'];
         $company = $_POST['ci_loan_company'];
+        $loan_source = $_POST['ci_loan_loan_source'];
         $informant = $_POST['ci_loan_informant'];
         $account_name = $_POST['ci_loan_account_name'];
         $loan_type_id = $_POST['ci_loan_loan_type_id'];
@@ -1449,13 +1518,13 @@ class CIReportController {
     
         if ($total > 0) {
             $this->ciReportModel->updateCIReportLoan(
-                $ci_report_loan_id, $ci_report_id, $company, $informant, $account_name,
+                $ci_report_loan_id, $ci_report_id, $company, $loan_source, $informant, $account_name,
                 $loan_type_id, $availed_date, $maturity_date, $term, $pn_amount,
                 $outstanding_balance, $repayment, $handling, $remarks, $userID
             );
         } else {
             $this->ciReportModel->insertCIReportLoan(
-                $ci_report_id, $company, $informant, $account_name, $loan_type_id,
+                $ci_report_id, $company, $loan_source, $informant, $account_name, $loan_type_id,
                 $availed_date, $maturity_date, $term, $pn_amount, $outstanding_balance,
                 $repayment, $handling, $remarks, $userID
             );
@@ -1520,6 +1589,7 @@ class CIReportController {
             $response = [
                 'success' => true,
                 'company' => $ciReportLoanDetails['company'],
+                'loan_source' => $ciReportLoanDetails['loan_source'],
                 'informant' => $ciReportLoanDetails['informant'],
                 'account_name' => $ciReportLoanDetails['account_name'],
                 'loan_type_id' => $ciReportLoanDetails['loan_type_id'],
@@ -1969,6 +2039,232 @@ class CIReportController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    
+    public function saveCIReportTradeReference() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $ci_report_trade_reference_id = isset($_POST['ci_report_trade_reference_id']) ? htmlspecialchars($_POST['ci_report_trade_reference_id'], ENT_QUOTES, 'UTF-8') : null;
+        $ci_report_id = $_POST['ci_report_id'];
+        $ci_report_business_id = $_POST['ci_report_business_id'];
+        $supplier = $_POST['ci_report_trade_reference_supplier'];
+        $contact_person = $_POST['ci_report_trade_reference_contact_person'];
+        $years_of_transaction = $_POST['ci_report_trade_reference_years_of_transaction'];
+        $remarks = $_POST['ci_report_trade_reference_remarks'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkCIReportTradeReferenceExist = $this->ciReportModel->checkCIReportTradeReferenceExist($ci_report_trade_reference_id);
+        $total = $checkCIReportTradeReferenceExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->ciReportModel->updateCIReportTradeReference($ci_report_trade_reference_id, $ci_report_id, $supplier, $contact_person, $years_of_transaction, $remarks, $userID);
+        } else {
+            $this->ciReportModel->insertCIReportTradeReference($ci_report_id, $ci_report_business_id, $supplier, $contact_person, $years_of_transaction, $remarks, $userID);
+        }
+
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    public function deleteCIReportTradeReference() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $ci_report_trade_reference_id = isset($_POST['ci_report_trade_reference_id']) ? htmlspecialchars($_POST['ci_report_trade_reference_id'], ENT_QUOTES, 'UTF-8') : null;
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkCIReportAssetExist = $this->ciReportModel->checkCIReportTradeReferenceExist($ci_report_trade_reference_id);
+        $total = $checkCIReportAssetExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $this->ciReportModel->deleteCIReportTradeReference($ci_report_trade_reference_id);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function getCIReportTradeReferenceDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['ci_report_trade_reference_id']) && !empty($_POST['ci_report_trade_reference_id'])) {
+            $userID = $_SESSION['user_id'];
+            $ci_report_trade_reference_id = $_POST['ci_report_trade_reference_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $ciReportTradeReferenceDetails = $this->ciReportModel->getCIReportTradeReference($ci_report_trade_reference_id);
+
+            $response = [
+                'success' => true,
+                'supplier' => $ciReportTradeReferenceDetails['supplier'],
+                'contact_person' => $ciReportTradeReferenceDetails['contact_person'],
+                'years_of_transaction' => $ciReportTradeReferenceDetails['years_of_transaction'],
+                'remarks' => $ciReportTradeReferenceDetails['remarks'],
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+
+    public function insertCIReportFile() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $ci_report_id = htmlspecialchars($_POST['ci_report_id'], ENT_QUOTES, 'UTF-8');
+        $ci_file_type_id = htmlspecialchars($_POST['ci_file_type_id'], ENT_QUOTES, 'UTF-8');
+        $ci_files_remarks = htmlspecialchars($_POST['ci_files_remarks'], ENT_QUOTES, 'UTF-8');
+
+        $ci_files_file_name = $this->ciFileTypeModel->getCIFileType($ci_file_type_id)['ci_file_type_name'] ?? null;
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $ciFileFileName = $_FILES['ci_file']['name'];
+        $ciFileFileSize = $_FILES['ci_file']['size'];
+        $ciFileFileError = $_FILES['ci_file']['error'];
+        $ciFileTempName = $_FILES['ci_file']['tmp_name'];
+        $ciFileFileExtension = explode('.', $ciFileFileName);
+        $ciFileActualFileExtension = strtolower(end($ciFileFileExtension));
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(19);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(19);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($ciFileActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+            
+        if(empty($ciFileTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the CI file.']);
+            exit;
+        }
+            
+        if($ciFileFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+            
+        if($ciFileFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The CI file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $ciFileActualFileExtension;
+
+        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/ci_file/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/ci_file/' . $fileNew;
+        $filePath = $directory . $fileNew;
+
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+            exit;
+        }
+
+        if(!move_uploaded_file($ciFileTempName, $fileDestination)){
+            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+            exit;
+        }
+
+        $this->ciReportModel->insertCIReportFile($ci_report_id, $ci_files_file_name, $filePath, $ci_file_type_id, $ci_files_remarks, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function deleteCIReportFile() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $ci_report_files_id = isset($_POST['ci_report_files_id']) ? htmlspecialchars($_POST['ci_report_files_id'], ENT_QUOTES, 'UTF-8') : null;
+       
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->ciReportModel->deleteCIReportFile($ci_report_files_id);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get details methods
     # -------------------------------------------------------------
 
@@ -2118,6 +2414,46 @@ class CIReportController {
             exit;
         }
     }
+
+    public function getCIReportRecommendationDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['ci_report_id']) && !empty($_POST['ci_report_id'])) {
+            $userID = $_SESSION['user_id'];
+            $ciReportID = $_POST['ci_report_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $ciReportDetails = $this->ciReportModel->getCIReport($ciReportID);
+
+            $response = [
+                'success' => true,
+                'ci_character' => $ciReportDetails['ci_character'],
+                'ci_capacity' => $ciReportDetails['ci_capacity'],
+                'ci_capital' => $ciReportDetails['ci_capital'],
+                'ci_collateral' => $ciReportDetails['ci_collateral'],
+                'ci_condition' => $ciReportDetails['ci_condition'],
+                'acceptability' => $ciReportDetails['acceptability'],
+                'loanability' => $ciReportDetails['loanability'],
+                'cmap_result' => $ciReportDetails['cmap_result'],
+                'crif_result' => $ciReportDetails['crif_result'],
+                'adverse' => $ciReportDetails['adverse'],
+                'times_accomodated' => $ciReportDetails['times_accomodated'],
+                'cgmi_client_since' => $ciReportDetails['cgmi_client_since'],
+                'recommendation' => $ciReportDetails['recommendation'],
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
     # -------------------------------------------------------------
 }
 # -------------------------------------------------------------
@@ -2126,10 +2462,13 @@ require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/ci-report-model.php';
 require_once '../model/sales-proposal-model.php';
+require_once '../model/ci-file-type-model.php';
+require_once '../model/upload-setting-model.php';
+require_once '../model/file-extension-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new CIReportController(new CIReportModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SystemModel(), new SecurityModel());
+$controller = new CIReportController(new CIReportModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new CIFileTypeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

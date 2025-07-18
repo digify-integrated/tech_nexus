@@ -40,6 +40,7 @@
                     <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                   </div>
                 </th>
+                <th>Internal DR Number</th>
                 <th>Release To</th>
                 <th>DR Type</th>
                 <th>DR Number</th>
