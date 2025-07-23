@@ -76,11 +76,17 @@ function productExpenseTable(datatable_name, buttons = false, show_all = false){
     const product_id = $('#product-id').text();
     const reference_type_filter = $('#reference_type_filter').val();
     const expense_type_filter = $('#expense_type_filter').val();
+    
+    var filter_created_date_start_date = $('#filter_created_date_start_date').val();
+    var filter_created_date_end_date = $('#filter_created_date_end_date').val();
+    var filter_issuance_date_start_date = $('#filter_issuance_date_start_date').val();
+    var filter_issuance_date_end_date = $('#filter_issuance_date_end_date').val();
     var settings;
 
     const column = [ 
         { 'data' : 'PRODUCT' },
         { 'data' : 'CREATED_DATE' },
+        { 'data' : 'ISSUANCE_DATE' },
         { 'data' : 'REFERENCE_TYPE' },
         { 'data' : 'REFERENCE_NUMBER' },
         { 'data' : 'EXPENSE_AMOUNT' },
@@ -92,12 +98,13 @@ function productExpenseTable(datatable_name, buttons = false, show_all = false){
     const column_definition = [
         { 'width': '30%', 'aTargets': 0 },                             // PRODUCT (text)
         { 'width': 'auto', 'type': 'date', 'aTargets': 1 },            // CREATED_DATE (date)
-        { 'width': 'auto', 'aTargets': 2 },                            // REFERENCE_TYPE (text)
-        { 'width': 'auto', 'aTargets': 3 },                            // REFERENCE_NUMBER (text)
-        { 'width': 'auto', 'type': 'num-fmt', 'aTargets': 4 },         // EXPENSE_AMOUNT (formatted number)
-        { 'width': '30%', 'aTargets': 5 },                             // PARTICULARS (text)
-        { 'width': 'auto', 'aTargets': 6 },                            // EXPENSE_TYPE (text)
-        { 'width': '5%', 'bSortable': false, 'aTargets': 7 }           // ACTION (non-sortable)
+        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },            // CREATED_DATE (date)
+        { 'width': 'auto', 'aTargets': 3 },                            // REFERENCE_TYPE (text)
+        { 'width': 'auto', 'aTargets': 4 },                            // REFERENCE_NUMBER (text)
+        { 'width': 'auto', 'type': 'num-fmt', 'aTargets': 5 },         // EXPENSE_AMOUNT (formatted number)
+        { 'width': '30%', 'aTargets': 6 },                             // PARTICULARS (text)
+        { 'width': 'auto', 'aTargets': 7 },                            // EXPENSE_TYPE (text)
+        { 'width': '5%', 'bSortable': false, 'aTargets': 8 }           // ACTION (non-sortable)
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -111,7 +118,11 @@ function productExpenseTable(datatable_name, buttons = false, show_all = false){
                 'type' : type,
                 'product_id' : product_id,
                 'reference_type_filter' : reference_type_filter,
-                'expense_type_filter' : expense_type_filter
+                'expense_type_filter' : expense_type_filter,
+                'filter_created_date_start_date' : filter_created_date_start_date,
+                'filter_created_date_end_date' : filter_created_date_end_date,
+                'filter_issuance_date_start_date' : filter_issuance_date_start_date,
+                'filter_issuance_date_end_date' : filter_issuance_date_end_date,
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
@@ -150,6 +161,9 @@ function productExpenseForm(){
             product_id: {
                 required: true
             },
+            issuance_date: {
+                required: true
+            },
             reference_type: {
                 required: true
             },
@@ -169,6 +183,9 @@ function productExpenseForm(){
         messages: {
             product_id: {
                 required: 'Please choose the product'
+            },
+            issuance_date: {
+                required: 'Please choose the reference date'
             },
             reference_type: {
                 required: 'Please choose the reference type'

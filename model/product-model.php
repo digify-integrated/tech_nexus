@@ -319,14 +319,15 @@ class ProductModel {
     # -------------------------------------------------------------
     
     # -------------------------------------------------------------
-    public function insertProductExpense($p_product_id, $p_reference_type, $p_reference_number, $p_expense_amount, $p_expense_type, $p_particulars, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertProductExpense(:p_product_id, :p_reference_type, :p_reference_number, :p_expense_amount, :p_expense_type, :p_particulars, :p_last_log_by)');
+    public function insertProductExpense($p_product_id, $p_reference_type, $p_reference_number, $p_expense_amount, $p_expense_type, $p_particulars, $p_issuance_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertProductExpense(:p_product_id, :p_reference_type, :p_reference_number, :p_expense_amount, :p_expense_type, :p_particulars, :p_issuance_date, :p_last_log_by)');
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_reference_type', $p_reference_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_expense_amount', $p_expense_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_expense_type', $p_expense_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_particulars', $p_particulars, PDO::PARAM_STR);
+        $stmt->bindValue(':p_issuance_date', $p_issuance_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

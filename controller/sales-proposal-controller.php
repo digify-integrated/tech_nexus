@@ -1655,7 +1655,21 @@ class SalesProposalController {
         $additional_maker_id = $salesProposalDetails['additional_maker_id'] ?? null;
         $comaker_id2 = $salesProposalDetails['comaker_id2'] ?? null;
 
-        $this->customerModel->openCIReport($salesProposalID, $customer_id, $comaker_id, $additional_maker_id, $comaker_id2, 'No', $userID);
+        if(!empty($customer_id)){
+            $this->customerModel->openCIReport($salesProposalID, $customer_id, 'No', $userID);    
+        }
+
+        if(!empty($comaker_id)){
+            $this->customerModel->openCIReport($salesProposalID, $comaker_id, 'No', $userID);    
+        }
+
+        if(!empty($additional_maker_id)){
+            $this->customerModel->openCIReport($salesProposalID, $additional_maker_id, 'No', $userID);    
+        }
+
+        if(!empty($comaker_id2)){
+            $this->customerModel->openCIReport($salesProposalID, $comaker_id2, 'No', $userID);    
+        }
             
         echo json_encode(['success' => true]);
         exit;
@@ -3098,6 +3112,14 @@ class SalesProposalController {
                 }
     
                 $date->setDate($year, $month, $day);
+                break;
+    
+            case 'Semi-Annual':
+                $date->modify("+". ($iteration * 6). " months");
+                break;
+
+            case 'Quarterly':
+                $date->modify("+$iteration months")->modify('+2 months');
                 break;
     
             case 'Daily':

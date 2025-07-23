@@ -707,10 +707,10 @@ class DocumentController {
         
         $documentName = $documentDetails['document_name'];
     
-        if($isConfidential == 'Yes' && empty($documentPassword)){
+        /*if($isConfidential == 'Yes' && empty($documentPassword)){
             echo json_encode(['success' => false, 'isConfidential' =>  true]);
             exit;
-        }
+        }*/
 
         if($documentStatus != 'Draft'){
             echo json_encode(['success' => false, 'notExist' =>  true]);
@@ -718,7 +718,10 @@ class DocumentController {
         }
 
         $this->documentModel->updateDocumentStatus($documentID, 'Published', $userID);
-        $this->sendPublish($documentID, $documentName);
+
+        if($isConfidential == 'No'){
+            $this->sendPublish($documentID, $documentName);
+        }        
             
         echo json_encode(['success' => true]);
         exit;

@@ -424,6 +424,7 @@ class CIReportController {
         $rent_amount = $_POST['ci_residence_rent_amount'];
         $estimated_value = $_POST['ci_residence_estimated_value'];
         $structure_type_id = $_POST['ci_residence_structure_type_id'];
+        $tct_no = $_POST['ci_residence_tct_no'];
         $residence_age = $_POST['ci_residence_residence_age'];
         $building_make_id = $_POST['ci_residence_building_make_id'];
         $lot_area = $_POST['ci_residence_lot_area'];
@@ -454,13 +455,13 @@ class CIReportController {
         $total = $checkCIReportResidenceExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->ciReportModel->updateCIReportResidence($ci_report_residence_id, $ci_report_id, $address, $city_id, $prev_address, $prev_city_id, $length_stay_year, $length_stay_month, $residence_type_id, $rented_from, $rent_amount, $estimated_value, $structure_type_id, $residence_age, $building_make_id, $lot_area, $floor_area, $furnishing_appliance, $neighborhood_type_id, $income_level_id, $accessible_to, $nearest_corner, $informant, $informant_address, $personal_expense, $utilities_expense, $other_expense, $total_expense, $vehicle_owned, $real_estate_owned, $remarks, $userID);
+            $this->ciReportModel->updateCIReportResidence($ci_report_residence_id, $ci_report_id, $address, $city_id, $prev_address, $prev_city_id, $length_stay_year, $length_stay_month, $residence_type_id, $rented_from, $rent_amount, $estimated_value, $structure_type_id, $residence_age, $building_make_id, $lot_area, $floor_area, $furnishing_appliance, $neighborhood_type_id, $income_level_id, $accessible_to, $nearest_corner, $informant, $informant_address, $personal_expense, $utilities_expense, $other_expense, $total_expense, $vehicle_owned, $real_estate_owned, $tct_no, $remarks, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->ciReportModel->insertCIReportResidence($ci_report_id, $address, $city_id, $prev_address, $prev_city_id, $length_stay_year, $length_stay_month, $residence_type_id, $rented_from, $rent_amount, $estimated_value, $structure_type_id, $residence_age, $building_make_id, $lot_area, $floor_area, $furnishing_appliance, $neighborhood_type_id, $income_level_id, $accessible_to, $nearest_corner, $informant, $informant_address, $personal_expense, $utilities_expense, $other_expense, $total_expense, $vehicle_owned, $real_estate_owned, $remarks, $userID);
+            $this->ciReportModel->insertCIReportResidence($ci_report_id, $address, $city_id, $prev_address, $prev_city_id, $length_stay_year, $length_stay_month, $residence_type_id, $rented_from, $rent_amount, $estimated_value, $structure_type_id, $residence_age, $building_make_id, $lot_area, $floor_area, $furnishing_appliance, $neighborhood_type_id, $income_level_id, $accessible_to, $nearest_corner, $informant, $informant_address, $personal_expense, $utilities_expense, $other_expense, $total_expense, $vehicle_owned, $real_estate_owned, $tct_no, $remarks, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -534,6 +535,7 @@ class CIReportController {
                 'rent_amount' => $ciReportResidenceDetails['rent_amount'],
                 'estimated_value' => $ciReportResidenceDetails['estimated_value'],
                 'structure_type_id' => $ciReportResidenceDetails['structure_type_id'],
+                'tct_no' => $ciReportResidenceDetails['tct_no'],
                 'residence_age' => $ciReportResidenceDetails['residence_age'],
                 'building_make_id' => $ciReportResidenceDetails['building_make_id'],
                 'lot_area' => $ciReportResidenceDetails['lot_area'],

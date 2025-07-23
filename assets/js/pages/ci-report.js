@@ -3927,6 +3927,7 @@ function displayDetails(transaction){
                         $('#ci_residence_utilities_expense').val(response.utilities_expense);
                         $('#ci_residence_other_expense').val(response.other_expense);
                         $('#ci_residence_total_expense').val(response.total);
+                        $('#ci_residence_tct_no').val(response.tct_no);
                         $('#ci_residence_remarks').val(response.remarks);
 
                         checkOptionExist('#ci_residence_city_id', response.city_id, '');

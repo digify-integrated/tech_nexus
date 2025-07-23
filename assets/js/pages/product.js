@@ -1435,6 +1435,7 @@ function productExpenseTable(datatable_name, buttons = false, show_all = false){
 
     const column = [ 
         { 'data' : 'CREATED_DATE' },
+        { 'data' : 'ISSUANCE_DATE' },
         { 'data' : 'REFERENCE_TYPE' },
         { 'data' : 'REFERENCE_NUMBER' },
         { 'data' : 'PARTICULARS' },
@@ -1444,13 +1445,14 @@ function productExpenseTable(datatable_name, buttons = false, show_all = false){
     ];
 
     const column_definition = [
-        { 'width': 'auto', 'aTargets': 0 },
-        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 0 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': '20%', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': '5%','bSortable': false, 'aTargets': 6 }
+        { 'width': '5%','bSortable': false, 'aTargets': 6 },
+        { 'width': '5%','bSortable': false, 'aTargets': 7 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1491,7 +1493,7 @@ function productExpenseTable(datatable_name, buttons = false, show_all = false){
 
             // Calculate the total for EXPENSE_AMOUNT across all pages
             var total = api
-                .column(5, { page: 'all' })  // Use { page: 'all' } for total of all pages
+                .column(6, { page: 'all' })  // Use { page: 'all' } for total of all pages
                 .data()
                 .reduce(function (a, b) {
                     // Remove commas and parse each amount as a float
@@ -1804,6 +1806,9 @@ function productExpenseForm(){
             reference_type: {
                 required: true
             },
+            issuance_date: {
+                required: true
+            },
             reference_number: {
                 required: true
             },
@@ -1820,6 +1825,9 @@ function productExpenseForm(){
         messages: {
             reference_type: {
                 required: 'Please choose the reference type'
+            },
+            issuance_date: {
+                required: 'Please choose the reference date'
             },
             reference_number: {
                 required: 'Please enter the reference number'

@@ -670,6 +670,7 @@ if($addProductExpense['total'] > 0){
         <thead>
           <tr>
             <th>Date</th>
+            <th>Issuance Date</th>
             <th class="all">Reference Type</th>
             <th class="all">Reference Number</th>
             <th class="all">Particulars</th>
@@ -681,7 +682,7 @@ if($addProductExpense['total'] > 0){
         <tbody></tbody>
         <tfoot>
           <tr>
-              <td class="text-end" colspan="5"><b>TOTAL</b></td>
+              <td class="text-end" colspan="6"><b>TOTAL</b></td>
               <td></td> 
               <td></td>
           </tr>
@@ -721,7 +722,7 @@ if($addProductExpense['total'] > 0){
 <div>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="product-document-offcanvas" aria-labelledby="product-document-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="product-document-offcanvas-label" style="margin-bottom:-0.5rem">Add Expense</h2>
+      <h2 id="product-document-offcanvas-label" style="margin-bottom:-0.5rem">Add Document</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -818,6 +819,17 @@ if($addProductExpense['total'] > 0){
                   <option value="Supplies">Supplies</option>
                   <option value="Journal Voucher">Journal Voucher</option>
                 </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Reference Date <span class="text-danger">*</span></label>
+               <div class="input-group date">
+                    <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                  </div>
               </div>
             </div>
             <div class="form-group row">

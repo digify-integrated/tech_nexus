@@ -653,6 +653,7 @@ class ProductController {
         $reference_number = $_POST['reference_number'];
         $expense_amount = $_POST['expense_amount'];
         $expense_type = $_POST['expense_type'];
+        $issuance_date = $this->systemModel->checkDate('empty', $_POST['issuance_date'], '', 'Y-m-d', '');
         $particulars = $_POST['particulars'];
         
         $user = $this->userModel->getUserByID($userID);
@@ -666,7 +667,7 @@ class ProductController {
         $total = $checkProductExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->productModel->insertProductExpense($productID, $reference_type, $reference_number, $expense_amount, $expense_type, $particulars, $userID);
+            $this->productModel->insertProductExpense($productID, $reference_type, $reference_number, $expense_amount, $expense_type, $particulars, $issuance_date, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;

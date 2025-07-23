@@ -354,6 +354,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $expense_amount = number_format($row['expense_amount'], 2);
 
                     $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                    $issuance_date = $systemModel->checkDate('summary', $row['issuance_date'], '', 'm/d/Y', '');
 
                     $delete = '';
                     if($deleteProductExpense['total'] > 0){
@@ -364,6 +365,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
                     $response[] = [
                         'CREATED_DATE' => $createdDate,
+                        'ISSUANCE_DATE' => $issuance_date,
                         'REFERENCE_TYPE' => $reference_type,
                         'REFERENCE_NUMBER' => $reference_number,
                         'EXPENSE_AMOUNT' => $expense_amount,
@@ -384,11 +386,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
             $referenceTypeFilter = htmlspecialchars($_POST['reference_type_filter'], ENT_QUOTES, 'UTF-8');
             $expenseTypeFilter = htmlspecialchars($_POST['expense_type_filter'], ENT_QUOTES, 'UTF-8');
+            $filter_created_date_start_date = $systemModel->checkDate('empty', $_POST['filter_created_date_start_date'], '', 'Y-m-d', '');
+            $filter_created_date_end_date = $systemModel->checkDate('empty', $_POST['filter_created_date_end_date'], '', 'Y-m-d', '');
+            $filter_issuance_date_start_date = $systemModel->checkDate('empty', $_POST['filter_issuance_date_start_date'], '', 'Y-m-d', '');
+            $filter_issuance_date_end_date = $systemModel->checkDate('empty', $_POST['filter_issuance_date_end_date'], '', 'Y-m-d', '');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateProductExpenseTable2(:referenceTypeFilter, :expenseTypeFilter)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateProductExpenseTable2(:referenceTypeFilter, :expenseTypeFilter, :filter_created_date_start_date, :filter_created_date_end_date, :filter_issuance_date_start_date, :filter_issuance_date_end_date)');
                 $sql->bindValue(':referenceTypeFilter', $referenceTypeFilter, PDO::PARAM_STR);
                 $sql->bindValue(':referenceTypeFilter', $referenceTypeFilter, PDO::PARAM_STR);
                 $sql->bindValue(':expenseTypeFilter', $expenseTypeFilter, PDO::PARAM_STR);
+                $sql->bindValue(':filter_created_date_start_date', $filter_created_date_start_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_created_date_end_date', $filter_created_date_end_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_issuance_date_start_date', $filter_issuance_date_start_date, PDO::PARAM_STR);
+                $sql->bindValue(':filter_issuance_date_end_date', $filter_issuance_date_end_date, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -411,6 +421,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productIDEncrypted = $securityModel->encryptData($productID);
 
                     $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                    $issuance_date = $systemModel->checkDate('summary', $row['issuance_date'], '', 'm/d/Y', '');
 
                     $delete = '';
                     if($deleteProductExpense['total'] > 0){
@@ -422,6 +433,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $response[] = [
                         'PRODUCT' => ' <a href="product.php?id='. $productIDEncrypted .'"><b>' .$stockNumber . '</b><br/><small class="text-wrap">' . $description .'</small></a>',
                         'CREATED_DATE' => $createdDate,
+                        'ISSUANCE_DATE' => $issuance_date,
                         'REFERENCE_TYPE' => $reference_type,
                         'REFERENCE_NUMBER' => $reference_number,
                         'EXPENSE_AMOUNT' => $expense_amount,

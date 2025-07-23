@@ -36,6 +36,7 @@
                   <tr>
                     <th>Product</th>
                     <th>Date</th>
+                    <th>Issuance Date</th>
                     <th>Reference Type</th>
                     <th>Reference Number</th>
                     <th>Amount</th>
@@ -116,6 +117,17 @@
               </div>
             </div>
             <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Reference Date <span class="text-danger">*</span></label>
+               <div class="input-group date">
+                    <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                  </div>
+              </div>
+            </div>
+            <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Particulars <span class="text-danger">*</span></label>
                 <textarea class="form-control" id="particulars" name="particulars" maxlength="2000"></textarea>
@@ -152,7 +164,7 @@
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#reference-type-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Reference Type
                         </a>
-                        <div class="collapse show" id="reference-type-filter-collapse">
+                        <div class="collapse" id="reference-type-filter-collapse">
                           <div class="py-3">
                             <select class="form-control" id="reference_type_filter">
                               <option value="">--</option>
@@ -170,7 +182,7 @@
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#expense-type-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Expense Type
                         </a>
-                        <div class="collapse show" id="expense-type-filter-collapse">
+                        <div class="collapse" id="expense-type-filter-collapse">
                           <div class="py-3">
                             <select class="form-control" id="expense_type_filter">
                               <option value="">--</option>
@@ -187,6 +199,32 @@
                               <option value="Repairs & Maintenance">Repairs & Maintenance</option>
                               <option value="Supplies">Supplies</option>
                             </select>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#created-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Transaction Date
+                        </a>
+                        <div class="collapse " id="created-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_created_date_start_date" id="filter_created_date_start_date" placeholder="Start Date" value="<?php echo date('01/01/Y');?>">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_created_date_end_date" id="filter_created_date_end_date" placeholder="End Date" value="<?php echo date('m/d/Y');?>">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#issuance-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Reference Date
+                        </a>
+                        <div class="collapse" id="issuance-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_issuance_date_start_date" id="filter_issuance_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_issuance_date_end_date" id="filter_issuance_date_end_date" placeholder="End Date">
+                            </div>
                           </div>
                         </div>
                       </li>

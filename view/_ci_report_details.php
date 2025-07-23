@@ -19,14 +19,14 @@
                     </div>
                     <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                         <?php
-                            if(($tagForCompletion['total'] > 0 && $ci_status == 'Draft') || ($tagForCompleted['total'] > 0 && $ci_status == 'For Completion') || ($ci_status == 'For Completion')){
+                            if(($tagForCompletion['total'] > 0 && ($ci_status == 'Draft' || $ci_status == 'For Completion')) || ($tagForCompleted['total'] > 0 && $ci_status == 'For Completion') || ($ci_status == 'For Completion')){
                                 $dropdown = '<div class="btn-group m-r-5">
                                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
                                                     Action
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">';
 
-                                if ($tagForCompletion['total'] > 0 && $ci_status == 'Draft') {
+                                if ($tagForCompletion['total'] > 0 && ($ci_status == 'Draft' || $ci_status == 'For Completion')) {
                                     $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-for-completion">Tag For Completion</button></li>';
                                 }
 
@@ -44,7 +44,7 @@
                                 echo $dropdown;
                             }                           
 
-                            if ($ciReportWriteAccess['total'] > 0 && $ci_status == 'Draft') {
+                            if ($ciReportWriteAccess['total'] > 0 && ($ci_status == 'Draft' || $ci_status == 'For Completion')) {
                                 echo '<button type="submit" form="ci-report-form" class="btn btn-success" id="submit-data">Save</button>';
                             }
                         ?>
@@ -714,7 +714,7 @@
                                 </div>
                                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                                     <?php
-                                        if ($ciReportWriteAccess['total'] > 0 && $ci_status == 'Draft') {
+                                        if ($ciReportWriteAccess['total'] > 0 && ($ci_status == 'Draft' || $ci_status == 'For Completion')) {
                                             echo '<button type="submit" form="ci-report-recommendation-form" class="btn btn-success" id="submit-recommendation-data">Save</button>';
                                         }
                                     ?>
@@ -937,11 +937,15 @@
                             </select>
                         </div>
                         <div class="col-lg-4">
-                            <label class="form-label" for="ci_residence_residence_age">Residence Age</label>
-                            <input type="number" class="form-control" id="ci_residence_residence_age" name="ci_residence_residence_age" min="0" step="1" <?php echo $disabled; ?>>
+                            <label class="form-label" for="ci_residence_tct_no">TCT No.</label>
+                            <input type="text" class="form-control" id="ci_residence_tct_no" name="ci_residence_tct_no" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
                         </div>
                     </div>
                     <div class="form-group row">
+                        <div class="col-lg-4">
+                            <label class="form-label" for="ci_residence_residence_age">Residence Age</label>
+                            <input type="number" class="form-control" id="ci_residence_residence_age" name="ci_residence_residence_age" min="0" step="1" <?php echo $disabled; ?>>
+                        </div>
                         <div class="col-lg-4">
                             <label class="form-label" for="ci_residence_building_make_id">Building Make</label>
                             <select class="form-control modal-select2" name="ci_residence_building_make_id" id="ci_residence_building_make_id" <?php echo $disabled; ?>>
@@ -953,6 +957,8 @@
                             <label class="form-label" for="ci_residence_lot_area">Lot Area (SQM)</label>
                             <input type="number" class="form-control" id="ci_residence_lot_area" name="ci_residence_lot_area" min="0" step="0.01" <?php echo $disabled; ?>>
                         </div>
+                    </div>
+                    <div class="form-group row">
                         <div class="col-lg-4">
                             <label class="form-label" for="ci_residence_floor_area">Floor Area (SQM)</label>
                             <input type="number" class="form-control" id="ci_residence_floor_area" name="ci_residence_floor_area" min="0" step="0.01" <?php echo $disabled; ?>>

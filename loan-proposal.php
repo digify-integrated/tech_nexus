@@ -122,6 +122,12 @@
     $businessTable = generateBusinessTable($ci_report_id);
     $employmentTable = generateEmploymentTable($ci_report_id);
     $bankStatementTable = generateBankStatementTable($ci_report_id);
+    $salesIncomeTable = generateSalesIncomeTable($ci_report_id, $totalExpenseTotal, $loanAmort, $ema, $ela);
+    $tradeReferenceTable = generateTradeReferenceTable($ci_report_id);
+    $assetsTable = generateAssetsTable($ci_report_id, $outstanding_balance);
+    $dependentsTable = generateDependentsTable($ci_report_id);
+    $residenceTable = generateResidenceTable($ci_report_id);
+    $propertyTable = generatePropertyTable($ci_report_id);
 
     ob_start();
 
@@ -136,8 +142,8 @@
     // Set PDF metadata
     $pdf->SetCreator('CGMI');
     $pdf->SetAuthor('CGMI');
-    $pdf->SetTitle('Job Order List');
-    $pdf->SetSubject('Job Order List');
+    $pdf->SetTitle('Loan Proposal');
+    $pdf->SetSubject('Loan Proposal');
 
     // Set margins and auto page break
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
@@ -269,6 +275,9 @@
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(80, 5, "5C'S OF CREDIT", 0, 0, 'L');$pdf->Ln(0);
      $pdf->Ln(5);
+
+    //CHARACTER
+
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(80, 5, 'CHARACTER', 0, 0, 'L');
     $pdf->Cell(5, 5, '', 1, 0, 'L');
@@ -277,7 +286,7 @@
     $pdf->Cell(5, 5, '', 1, 0, 'L');
     $pdf->Cell(3, 5, '', 0, 0, 'L');
     $pdf->Cell(50, 5, 'FAILED', 0, 0, 'L');
-     $pdf->Ln(5);
+     $pdf->Ln(8);
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(80, 5, 'CMAP RESULT', 0, 0, 'L');
     $pdf->Cell(5, 5, '', 1, 0, 'L');
@@ -286,7 +295,7 @@
     $pdf->Cell(5, 5, '', 1, 0, 'L');
     $pdf->Cell(3, 5, '', 0, 0, 'L');
     $pdf->Cell(50, 5, 'FAILED', 0, 0, 'L');
-     $pdf->Ln(5);
+     $pdf->Ln(8);
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(80, 5, 'CRIF RESULT', 0, 0, 'L');
     $pdf->Cell(5, 5, '', 1, 0, 'L');
@@ -295,7 +304,7 @@
     $pdf->Cell(5, 5, '', 1, 0, 'L');
     $pdf->Cell(3, 5, '', 0, 0, 'L');
     $pdf->Cell(50, 5, 'FAILED', 0, 0, 'L');
-     $pdf->Ln(5);
+     $pdf->Ln(8);
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(55, 5, 'TIMES ACCOMMODATION', 0, 0, 'L');
     $pdf->Cell(5, 5, '', 0, 0, 'L');
@@ -308,6 +317,8 @@
     $pdf->Cell(3, 5, '', 0, 0, 'L');
     $pdf->Cell(50, 5, 'NOTHING ADVERSE', 0, 0, 'L');
     
+    //CAPACITY
+
     $pdf->Ln(10);
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(80, 5, 'CAPACITY', 0, 0, 'L');
@@ -321,25 +332,152 @@
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(80, 5, "BANK STATEMENT", 0, 0, 'L');
 
-    $pdf->Ln(10);
+    $pdf->Ln(8);
       $pdf->SetFont('times', '', 8);
     $pdf->writeHTML($bankStatementTable, true, false, true, false, '');
 
-     $pdf->Ln(0);
+     $pdf->Ln(-2);
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(80, 5, "MONTHLY SALES INCOME", 0, 0, 'L');
 
+    $pdf->Ln(8);
+      $pdf->SetFont('times',  '', 8);
+    $pdf->writeHTML($salesIncomeTable, true, false, true, false, '');
+
+    
+     $pdf->Ln(-2);
+    $pdf->SetFont('times', 'B', 10);
+    $pdf->Cell(80, 5, "TRADE REFERENCES", 0, 0, 'L');
+
+    $pdf->Ln(8);
+      $pdf->SetFont('times',  '', 8);
+    $pdf->writeHTML($tradeReferenceTable, true, false, true, false, '');
+
+    
+    //CAPITAL
+
+    $pdf->Ln(-2);
+    $pdf->SetFont('times', 'B', 10);
+    $pdf->Cell(80, 5, 'CAPITAL', 0, 0, 'L');
+    $pdf->Cell(5, 5, '', 1, 0, 'L');
+    $pdf->Cell(3, 5, '', 0, 0, 'L');
+    $pdf->Cell(40, 5, 'PASSED', 0, 0, 'L');
+    $pdf->Cell(5, 5, '', 1, 0, 'L');
+    $pdf->Cell(3, 5, '', 0, 0, 'L');
+    $pdf->Cell(50, 5, 'FAILED', 0, 0, 'L');
+
+    $pdf->Ln(8);
+      $pdf->SetFont('times',  '', 8);
+    $pdf->writeHTML($assetsTable, true, false, true, false, '');
+    
+    //COLLATERAL
+
+    $pdf->Ln(-2);
+    $pdf->SetFont('times', 'B', 10);
+    $pdf->Cell(80, 5, 'COLLATERAL', 0, 0, 'L');
+    $pdf->Cell(5, 5, '', 1, 0, 'L');
+    $pdf->Cell(3, 5, '', 0, 0, 'L');
+    $pdf->Cell(40, 5, 'PASSED', 0, 0, 'L');
+    $pdf->Cell(5, 5, '', 1, 0, 'L');
+    $pdf->Cell(3, 5, '', 0, 0, 'L');
+    $pdf->Cell(50, 5, 'FAILED', 0, 0, 'L');
+    
+    $pdf->Ln(8);
+    $pdf->SetFont('times', 'B', 10);
+    $pdf->Cell(5, 5, '', 1, 0, 'L');
+    $pdf->Cell(3, 5, '', 0, 0, 'L');
+    $pdf->Cell(80, 5, 'ACCEPTABLE', 0, 0, 'L');
+    $pdf->Ln(8);
+    $pdf->SetFont('times', 'B', 10);
+    $pdf->Cell(5, 5, '', 1, 0, 'L');
+    $pdf->Cell(3, 5, '', 0, 0, 'L');
+    $pdf->Cell(80, 5, 'NOT ACCEPTABLE', 0, 0, 'L');
+    $pdf->Ln(8);
+    $pdf->SetFont('times', 'B', 10);
+    $pdf->Cell(5, 5, '', 1, 0, 'L');
+    $pdf->Cell(3, 5, '', 0, 0, 'L');
+    $pdf->Cell(80, 5, 'WITHIN LOANABLE AMOUNT', 0, 0, 'L');
+    $pdf->Ln(8);
+    $pdf->SetFont('times', 'B', 10);
+    $pdf->Cell(5, 5, '', 1, 0, 'L');
+    $pdf->Cell(3, 5, '', 0, 0, 'L');
+    $pdf->Cell(80, 5, 'NOT WITHIN LOANABLE AMOUNT', 0, 0, 'L');
+
+    
     $pdf->Ln(10);
-      $pdf->SetFont('times', '', 8);
-    $pdf->writeHTML($bankStatementTable, true, false, true, false, '');
+    $pdf->Cell(40, 5, 'CO-MAKER 1:', 0, 0, 'L');
+    $pdf->MultiCell(145, 5, strtoupper($purpose_of_loan), 'B', 'L');
+    
+    $pdf->Ln(6);
+    $pdf->Cell(40, 5, 'RELATIONSHIP:', 0, 0, 'L');
+    $pdf->MultiCell(145, 5, strtoupper($purpose_of_loan), 'B', 'L');
+    
+    $pdf->Ln(6);
+    $pdf->Cell(40, 5, 'CO-MAKER 2:', 0, 0, 'L');
+    $pdf->MultiCell(145, 5, strtoupper($purpose_of_loan), 'B', 'L');
+    
+    $pdf->Ln(6);
+    $pdf->Cell(40, 5, 'RELATIONSHIP:', 0, 0, 'L');
+    $pdf->MultiCell(145, 5, strtoupper($purpose_of_loan), 'B', 'L');
+
+    //CONDITION
+    
+    $pdf->Ln(8);
+    $pdf->SetFont('times', 'B', 10);
+    $pdf->Cell(80, 5, 'CONDITION', 0, 0, 'L');
+    $pdf->Cell(5, 5, '', 1, 0, 'L');
+    $pdf->Cell(3, 5, '', 0, 0, 'L');
+    $pdf->Cell(40, 5, 'PASSED', 0, 0, 'L');
+    $pdf->Cell(5, 5, '', 1, 0, 'L');
+    $pdf->Cell(3, 5, '', 0, 0, 'L');
+    $pdf->Cell(50, 5, 'FAILED', 0, 0, 'L');
+
+    
+    $pdf->Ln(8);
+    $pdf->SetFont('times',  '', 8);
+    $pdf->writeHTML($dependentsTable, true, false, true, false, '');
+
+    
+    $pdf->Ln(-2);
+    $pdf->Cell(40, 5, 'AGE OF APPLICANT:', 0, 0, 'L');
+    $pdf->Cell(15, 5, '0:', 'B', 0, 'L');
+    $pdf->Cell(40, 5, 'Y/O', 0, 0, 'L');
+
+    $pdf->Ln(8);
+    $pdf->Cell(40, 5, 'AGE OF SPOUSE:', 0, 0, 'L');
+    $pdf->Cell(15, 5, '0:', 'B', 0, 'L');
+    $pdf->Cell(40, 5, 'Y/O', 0, 0, 'L');
+
+    $pdf->Ln(8);
+    $pdf->SetFont('times',  '', 8);
+    $pdf->writeHTML($residenceTable, true, false, true, false, '');
+
+    
+    
+    $pdf->Ln(-2);
+    $pdf->Cell(50, 5, 'HIGHEST AMOUNT EXPOSURE:', 0, 0, 'L');
+    $pdf->Cell(40, 5, 'PHP 0.00', 'B', 0, 'L');
+    $pdf->Cell(20, 5, '', 0, 0, 'L');
+    $pdf->Cell(15, 5, 'DATE:', 0, 0, 'L');
+    $pdf->Cell(30, 5, '01/01/2025', 'B', 0, 'L');
+    $pdf->Ln(8);
+    $pdf->Cell(40, 5, 'CGMI CLIENT SINCE:', 0, 0, 'L');
+    $pdf->Cell(40, 5, 'PHP 0.00', 'B', 0, 'L');
+    $pdf->Ln(8);
+    $pdf->Cell(40, 5, 'PURPOSE OF LOAN:', 0, 0, 'L');
+    $pdf->MultiCell(145, 5, strtoupper($purpose_of_loan), 'B', 'L');
+
+    $pdf->Ln(10);
+    $pdf->SetFont('times', 'B', 10);
+    $pdf->Cell(80, 5, 'VEHICLE/PROPERTY (S) OWNED', 0, 0, 'L');
+
+    $pdf->Ln(8);
+    $pdf->SetFont('times',  '', 8);
+    $pdf->writeHTML($propertyTable, true, false, true, false, '');
     
     $pdf->Ln(10);
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(80, 5, 'V. EXCEPTIONS', 0, 0, 'L');
-
-    $pdf->Ln(10);
-    $pdf->SetFont('times', 'B', 10);
-    $pdf->Cell(80, 5, 'VI. EVALUATION & JUSTIFICATION', 0, 0, 'L');
 
     //$pdf->writeHTML($summaryTable, true, false, true, false, '');
 
@@ -980,7 +1118,7 @@
         return $response;
     }
 
-    function generateSalesIncomeTable($ci_report_id){
+    function generateSalesIncomeTable($ci_report_id, $residenceExpenseTotal, $loanAmort, $ema, $ela){
         
         require_once 'model/database-model.php';
         require_once 'model/pdc-management-model.php';
@@ -1015,8 +1153,10 @@
         $bankHandlingTypeModel = new BankHandlingTypeModel($databaseModel);
     
         $list = '';
-        $appraised_value_total = 0;
-        $loannable_value_total = 0;
+        $monthly_income_total = 0;
+        $gross_monthly_sale_total = 0;
+        $capital_total = 0;
+        $rental_total = 0;
             
         $sql = $databaseModel->getConnection()->prepare('SELECT * FROM ci_report_business WHERE ci_report_id = :ci_report_id');
         $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
@@ -1030,14 +1170,18 @@
             $gross_monthly_sale  = $row['gross_monthly_sale'];
             $monthly_income  = $row['monthly_income'];
             $capital  = $row['capital'];
+            $rental_amount  = $row['rental_amount'];
 
-            $averageTotal = $averageTotal + $average;
+            $monthly_income_total = $monthly_income_total + $monthly_income;
+            $gross_monthly_sale_total = $gross_monthly_sale_total + $gross_monthly_sale;
+            $capital_total = $capital_total + $capital;
+            $rental_total = $rental_total + $rental_amount;
             
             $list .= '<tr>
                         <td>'. strtoupper($business_name) .'</td>
-                        <td>PHP '. number_format($monthly_income, 2) .'</td>
-                        <td>PHP '. number_format($gross_monthly_sale, 2) .'</td>
-                        <td>PHP '. number_format($capital, 2) .'</td>
+                        <td style="text-align:center">PHP '. number_format($monthly_income, 2) .'</td>
+                        <td style="text-align:center">PHP '. number_format($gross_monthly_sale, 2) .'</td>
+                        <td style="text-align:center">PHP '. number_format($capital, 2) .'</td>
                     </tr>';
         }
 
@@ -1054,10 +1198,478 @@
                             '.$list.'
                             
                             <tr style="text-align:center">
-                                <td colspan="3"></td>
                                 <td style="text-align:right"><b>Total</b></td>
-                                <td>PHP '. number_format($averageTotal,2) .'</td>
+                                <td>PHP '. number_format($monthly_income_total,2) .'</td>
+                                <td>PHP '. number_format($gross_monthly_sale_total,2) .'</td>
+                                <td>PHP '. number_format($capital_total,2) .'</td>
                             </tr>
+                            <tr style="text-align:center">
+                                <td colspan="2" style="text-align:right"><b>LESS: CGMI & OTHER LOAN AMORT</b></td>
+                                <td>PHP '. number_format($loanAmort,2) .'</td>
+                                <td colspan="2"></td>
+                            </tr>
+                            <tr style="text-align:center">
+                                <td colspan="2" style="text-align:right"><b>Personal Expenses</b></td>
+                                <td>PHP '. number_format(($residenceExpenseTotal + $rental_total),2) .'</td>
+                                <td colspan="2"></td>
+                            </tr>
+                            <tr style="text-align:center">
+                                <td colspan="2" style="text-align:right"><b>EMA</b></td>
+                                <td>'. number_format($ema,2) .'</td>
+                                <td colspan="2"></td>
+                            </tr>
+                            <tr style="text-align:center">
+                                <td colspan="2" style="text-align:right"><b>EMA</b></td>
+                                <td>'. number_format($ela,2) .'</td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tbody>
+                    </table>';
+
+        return $response;
+    }
+
+    function generateTradeReferenceTable($ci_report_id){
+        
+        require_once 'model/database-model.php';
+        require_once 'model/pdc-management-model.php';
+        require_once 'model/system-model.php';
+        require_once 'model/user-model.php';
+        require_once 'model/contractor-model.php';
+        require_once 'model/employee-model.php';
+        require_once 'model/work-center-model.php';
+        require_once 'model/sales-proposal-model.php';
+        require_once 'model/state-model.php';
+        require_once 'model/city-model.php';
+        require_once 'model/country-model.php';
+        require_once 'model/bank-adb-model.php';
+        require_once 'model/bank-model.php';
+        require_once 'model/bank-account-type-model.php';
+        require_once 'model/ci-report-model.php';
+        require_once 'model/bank-handling-type-model.php';
+
+        $databaseModel = new DatabaseModel();
+        $systemModel = new SystemModel();
+        $userModel = new UserModel(new DatabaseModel, new SystemModel);
+        $contractorModel = new ContractorModel($databaseModel);
+        $workCenterModel = new WorkCenterModel($databaseModel);
+        $salesProposalModel = new SalesProposalModel($databaseModel);
+        $stateModel = new StateModel($databaseModel);
+        $cityModel = new CityModel($databaseModel);
+        $countryModel = new CountryModel($databaseModel);
+        $bankADBModel = new BankADBModel($databaseModel);
+        $bankModel = new BankModel($databaseModel);
+        $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
+        $ciReportModel = new CIReportModel($databaseModel);
+        $bankHandlingTypeModel = new BankHandlingTypeModel($databaseModel);
+    
+        $list = '';
+        $monthly_income_total = 0;
+        $gross_monthly_sale_total = 0;
+        $capital_total = 0;
+        $rental_total = 0;
+            
+        $sql = $databaseModel->getConnection()->prepare('SELECT * FROM ci_report_trade_reference WHERE ci_report_id = :ci_report_id ORDER BY ci_report_business_id');
+        $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
+        $sql->execute();
+        $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+        $sql->closeCursor();
+
+        $averageTotal = 0;
+        foreach ($options as $row) {
+            $ci_report_business_id  = $row['ci_report_business_id'];
+            $supplier  = $row['supplier'];
+            $contact_person  = $row['contact_person'];
+            $years_of_transaction  = $row['years_of_transaction'];
+            $remarks  = $row['remarks'];
+
+            $business_name = $ciReportModel->getCIReportBusiness($ci_report_business_id)['business_name'];
+            
+            $list .= '<tr>
+                        <td>'. strtoupper($business_name) .'</td>
+                        <td>'. strtoupper($supplier) .'</td>
+                        <td>'. strtoupper($contact_person) .'</td>
+                        <td>'. strtoupper($years_of_transaction) .'</td>
+                        <td>'. strtoupper($remarks) .'</td>
+                    </tr>';
+        }
+
+        $response = '<table border="1" width="100%" cellpadding="5" align="left">
+                        <thead>
+                            <tr style="text-align:center">
+                                <td><b>Business</b></td>
+                                <td><b>Supplier</b></td>
+                                <td><b>Contact Person</b></td>
+                                <td><b>Years of Transaction</b></td>
+                                <td><b>Remarks</b></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            '.$list.'
+                        </tbody>
+                    </table>';
+
+        return $response;
+    }
+
+    
+
+     function generateAssetsTable($ci_report_id, $apply_ob){
+        
+        require_once 'model/database-model.php';
+        require_once 'model/pdc-management-model.php';
+        require_once 'model/system-model.php';
+        require_once 'model/user-model.php';
+        require_once 'model/contractor-model.php';
+        require_once 'model/employee-model.php';
+        require_once 'model/work-center-model.php';
+        require_once 'model/sales-proposal-model.php';
+        require_once 'model/state-model.php';
+        require_once 'model/city-model.php';
+        require_once 'model/country-model.php';
+        require_once 'model/bank-adb-model.php';
+        require_once 'model/bank-model.php';
+        require_once 'model/bank-account-type-model.php';
+        require_once 'model/ci-report-model.php';
+        require_once 'model/bank-handling-type-model.php';
+
+        $databaseModel = new DatabaseModel();
+        $systemModel = new SystemModel();
+        $userModel = new UserModel(new DatabaseModel, new SystemModel);
+        $contractorModel = new ContractorModel($databaseModel);
+        $workCenterModel = new WorkCenterModel($databaseModel);
+        $salesProposalModel = new SalesProposalModel($databaseModel);
+        $stateModel = new StateModel($databaseModel);
+        $cityModel = new CityModel($databaseModel);
+        $countryModel = new CountryModel($databaseModel);
+        $bankADBModel = new BankADBModel($databaseModel);
+        $bankModel = new BankModel($databaseModel);
+        $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
+        $ciReportModel = new CIReportModel($databaseModel);
+        $bankHandlingTypeModel = new BankHandlingTypeModel($databaseModel);
+
+        $assetTotal = $ciReportModel->getCIReportAssetsTotal($ci_report_id)['total'] ?? 0;
+        $receivableTotal = $ciReportModel->getCIReportBusinessExpenseTotal($ci_report_id, 'receivable')['total'] ?? 0;
+        $outstandingBalance = $ciReportModel->getCIReportLoanTotal($ci_report_id, 'outstanding balance')['total'] ?? 0;
+        $totalAsset = $receivableTotal + $assetTotal;
+        $liability = $apply_ob + $outstandingBalance;
+
+        $response = '<table border="1" width="100%" cellpadding="5" align="left">
+                        <tbody>
+                            
+                            <tr style="text-align:center">
+                                <td style="text-align:right"><b>Total Asset</b></td>
+                                <td>PHP '. number_format($assetTotal,2) .'</td>
+                            </tr>
+                            <tr style="text-align:center">
+                                <td style="text-align:right"><b>Total Receivable</b></td>
+                                <td>PHP '. number_format($receivableTotal,2) .'</td>
+                            </tr>
+                            <tr style="text-align:center">
+                                <td style="text-align:right"><b>Total</b></td>
+                                <td>PHP '. number_format($totalAsset,2) .'</td>
+                            </tr>
+                            <tr style="text-align:center">
+                                <td style="text-align:right"><b>Less Liabilities</b></td>
+                                <td>PHP '. number_format(($liability),2) .'</td>
+                            </tr>
+                            <tr style="text-align:center">
+                                <td style="text-align:right"><b>Net Worth</b></td>
+                                <td>PHP '. number_format(($totalAsset - $liability),2) .'</td>
+                            </tr>
+                        </tbody>
+                    </table>';
+
+        return $response;
+    }
+
+    function generateDependentsTable($ci_report_id){
+        
+        require_once 'model/database-model.php';
+        require_once 'model/pdc-management-model.php';
+        require_once 'model/system-model.php';
+        require_once 'model/user-model.php';
+        require_once 'model/contractor-model.php';
+        require_once 'model/employee-model.php';
+        require_once 'model/work-center-model.php';
+        require_once 'model/sales-proposal-model.php';
+        require_once 'model/state-model.php';
+        require_once 'model/city-model.php';
+        require_once 'model/country-model.php';
+        require_once 'model/bank-adb-model.php';
+        require_once 'model/bank-model.php';
+        require_once 'model/bank-account-type-model.php';
+        require_once 'model/ci-report-model.php';
+        require_once 'model/bank-handling-type-model.php';
+
+        $databaseModel = new DatabaseModel();
+        $systemModel = new SystemModel();
+        $userModel = new UserModel(new DatabaseModel, new SystemModel);
+        $contractorModel = new ContractorModel($databaseModel);
+        $workCenterModel = new WorkCenterModel($databaseModel);
+        $salesProposalModel = new SalesProposalModel($databaseModel);
+        $stateModel = new StateModel($databaseModel);
+        $cityModel = new CityModel($databaseModel);
+        $countryModel = new CountryModel($databaseModel);
+        $bankADBModel = new BankADBModel($databaseModel);
+        $bankModel = new BankModel($databaseModel);
+        $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
+        $ciReportModel = new CIReportModel($databaseModel);
+        $bankHandlingTypeModel = new BankHandlingTypeModel($databaseModel);
+    
+        $list = '';
+        $monthly_income_total = 0;
+        $gross_monthly_sale_total = 0;
+        $capital_total = 0;
+        $rental_total = 0;
+            
+        $sql = $databaseModel->getConnection()->prepare('SELECT * FROM ci_report_dependents WHERE ci_report_id = :ci_report_id ORDER BY name');
+        $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
+        $sql->execute();
+        $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+        $sql->closeCursor();
+
+        $averageTotal = 0;
+        foreach ($options as $row) {
+            $name  = $row['name'];
+            $age  = $row['age'];
+            $school  = $row['school'];
+            $employment  = $row['employment'];
+
+            $list .= '<tr>
+                        <td>'. strtoupper($name) .'</td>
+                        <td style="text-align:center">'. strtoupper($age) .'</td>
+                        <td>'. strtoupper($school) .'</td>
+                        <td>'. strtoupper($employment) .'</td>
+                    </tr>';
+        }
+
+        $response = '<table border="1" width="100%" cellpadding="5" align="left">
+                        <thead>
+                            <tr>
+                                <td colspan="4"><b>CHILDREN/DEPENDENTS</b></td>
+                            </tr>
+                            <tr style="text-align:center">
+                                <td><b>Name</b></td>
+                                <td><b>Age</b></td>
+                                <td><b>School</b></td>
+                                <td><b>Employment</b></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            '.$list.'
+                        </tbody>
+                    </table>';
+
+        return $response;
+    }
+
+    function generateResidenceTable($ci_report_id){
+        
+        require_once 'model/database-model.php';
+        require_once 'model/pdc-management-model.php';
+        require_once 'model/system-model.php';
+        require_once 'model/user-model.php';
+        require_once 'model/contractor-model.php';
+        require_once 'model/employee-model.php';
+        require_once 'model/work-center-model.php';
+        require_once 'model/sales-proposal-model.php';
+        require_once 'model/state-model.php';
+        require_once 'model/city-model.php';
+        require_once 'model/country-model.php';
+        require_once 'model/bank-adb-model.php';
+        require_once 'model/bank-model.php';
+        require_once 'model/bank-account-type-model.php';
+        require_once 'model/ci-report-model.php';
+        require_once 'model/bank-handling-type-model.php';
+        require_once 'model/structure-type-model.php';
+
+        $databaseModel = new DatabaseModel();
+        $systemModel = new SystemModel();
+        $userModel = new UserModel(new DatabaseModel, new SystemModel);
+        $contractorModel = new ContractorModel($databaseModel);
+        $workCenterModel = new WorkCenterModel($databaseModel);
+        $salesProposalModel = new SalesProposalModel($databaseModel);
+        $stateModel = new StateModel($databaseModel);
+        $cityModel = new CityModel($databaseModel);
+        $countryModel = new CountryModel($databaseModel);
+        $bankADBModel = new BankADBModel($databaseModel);
+        $bankModel = new BankModel($databaseModel);
+        $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
+        $ciReportModel = new CIReportModel($databaseModel);
+        $bankHandlingTypeModel = new BankHandlingTypeModel($databaseModel);
+        $structureTypeModel = new StructureTypeModel($databaseModel);
+    
+        $list = '';
+        $monthly_income_total = 0;
+        $gross_monthly_sale_total = 0;
+        $capital_total = 0;
+        $rental_total = 0;
+            
+        $sql = $databaseModel->getConnection()->prepare('SELECT * FROM ci_report_residence WHERE ci_report_id = :ci_report_id ORDER BY address');
+        $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
+        $sql->execute();
+        $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+        $sql->closeCursor();
+
+        $averageTotal = 0;
+        foreach ($options as $row) {
+            $address  = $row['address'];
+            $city_id  = $row['city_id'];
+            $length_stay_year  = $row['length_stay_year'];
+            $length_stay_month  = $row['length_stay_month'];
+            $structure_type_id  = $row['structure_type_id'];
+            $remarks  = $row['remarks'];
+            $tct_no  = $row['tct_no'];
+            $rented_from  = $row['rented_from'];
+
+            $ownership = $structureTypeModel->getStructureType($structure_type_id)['structure_type_name'] ?? '';
+
+             $cityDetails = $cityModel->getCity($city_id);
+            $cityName = $cityDetails['city_name'];
+            $stateID = $cityDetails['state_id'];
+    
+            $stateDetails = $stateModel->getState($stateID);
+            $stateName = $stateDetails['state_name'];
+            $countryID = $stateDetails['country_id'];
+    
+            $countryName = $countryModel->getCountry($countryID)['country_name'];
+
+            $contactAddress = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
+
+             $lenstayYear = '';
+            $lenstayMonth = '';
+            $lenstay = '';
+            
+            if($length_stay_year > 0) {
+                if($length_stay_year == 1){
+                    $lenstayYear .= '1 YEAR';
+                }
+                else{
+                    $lenstayYear .= $length_stay_year . ' YEARS';
+                }
+            }
+            
+            if($length_stay_month > 0) {
+                if($length_stay_month == 1){
+                    $lenstayMonth .= '1 MONTH';
+                }
+                else{
+                    $lenstayMonth .= $length_stay_month . ' MONTHS';
+                }
+            }
+
+            if(!empty($lenstayYear) && !empty($lenstayMonth)){
+                $lenstay = $lenstayYear . ' AND ' . $lenstayMonth;
+            }
+            else if(empty($lenstayYear) && !empty($lenstayMonth)){
+                $lenstay = $lenstayMonth;
+            }
+            else if(!empty($lenstayYear) && empty($lenstayMonth)){
+                $lenstay = $lenstayYear;
+            }
+
+
+            $list .= '<tr>
+                        <td>'. strtoupper($contactAddress) .'</td>
+                        <td style="text-align:center">'. strtoupper($lenstay) .'</td>
+                        <td style="text-align:center">'. strtoupper($ownership) .'</td>
+                        <td>'. strtoupper($tct_no) .'</td>
+                        <td>'. strtoupper($rented_from) .'</td>
+                        <td>'. strtoupper($remarks) .'</td>
+                    </tr>';
+        }
+
+        $response = '<table border="1" width="100%" cellpadding="5" align="left">
+                        <thead>
+                            <tr style="text-align:center">
+                                <td><b>Address</b></td>
+                                <td><b>Length of Stay</b></td>
+                                <td><b>Ownership Type</b></td>
+                                <td><b>TCT No.</b></td>
+                                <td><b>Landlord</b></td>
+                                <td><b>Remarks</b></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            '.$list.'
+                        </tbody>
+                    </table>';
+
+        return $response;
+    }
+
+    function generatePropertyTable($ci_report_id){
+        
+        require_once 'model/database-model.php';
+        require_once 'model/pdc-management-model.php';
+        require_once 'model/system-model.php';
+        require_once 'model/user-model.php';
+        require_once 'model/contractor-model.php';
+        require_once 'model/employee-model.php';
+        require_once 'model/work-center-model.php';
+        require_once 'model/sales-proposal-model.php';
+        require_once 'model/state-model.php';
+        require_once 'model/city-model.php';
+        require_once 'model/country-model.php';
+        require_once 'model/bank-adb-model.php';
+        require_once 'model/bank-model.php';
+        require_once 'model/bank-account-type-model.php';
+        require_once 'model/ci-report-model.php';
+        require_once 'model/bank-handling-type-model.php';
+        require_once 'model/structure-type-model.php';
+
+        $databaseModel = new DatabaseModel();
+        $systemModel = new SystemModel();
+        $userModel = new UserModel(new DatabaseModel, new SystemModel);
+        $contractorModel = new ContractorModel($databaseModel);
+        $workCenterModel = new WorkCenterModel($databaseModel);
+        $salesProposalModel = new SalesProposalModel($databaseModel);
+        $stateModel = new StateModel($databaseModel);
+        $cityModel = new CityModel($databaseModel);
+        $countryModel = new CountryModel($databaseModel);
+        $bankADBModel = new BankADBModel($databaseModel);
+        $bankModel = new BankModel($databaseModel);
+        $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
+        $ciReportModel = new CIReportModel($databaseModel);
+        $bankHandlingTypeModel = new BankHandlingTypeModel($databaseModel);
+        $structureTypeModel = new StructureTypeModel($databaseModel);
+    
+        $list = '';
+        $monthly_income_total = 0;
+        $gross_monthly_sale_total = 0;
+        $capital_total = 0;
+        $rental_total = 0;
+            
+        $sql = $databaseModel->getConnection()->prepare('SELECT * FROM ci_report_asset WHERE ci_report_id = :ci_report_id ORDER BY value desc');
+        $sql->bindValue(':ci_report_id', $ci_report_id, PDO::PARAM_INT);
+        $sql->execute();
+        $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+        $sql->closeCursor();
+
+        $averageTotal = 0;
+        foreach ($options as $row) {
+            $description  = $row['description'];
+            $value  = $row['value'];
+            $remarks  = $row['remarks'];
+
+            $list .= '<tr>
+                        <td>'. strtoupper($description) .'</td>
+                        <td style="text-align:center">PHP '. number_format($value, 2) .'</td>
+                        <td>'. strtoupper($remarks) .'</td>
+                    </tr>';
+        }
+
+        $response = '<table border="1" width="100%" cellpadding="5" align="left">
+                        <thead>
+                            <tr style="text-align:center">
+                                <td><b>Unit</b></td>
+                                <td><b>Valuation</b></td>
+                                <td><b>Remarks</b></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            '.$list.'
                         </tbody>
                     </table>';
 

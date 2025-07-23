@@ -12252,7 +12252,7 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateProductExpenseTable2(IN p_reference_type VARCHAR(100), IN p_expense_type VARCHAR(100))
+CREATE PROCEDURE generateProductExpenseTable2(IN p_reference_type VARCHAR(100), IN p_expense_type VARCHAR(100), IN p_create_start_date DATE, IN p_create_end_date DATE, IN p_issuance_start_date DATE, IN p_issuance_end_date DATE)
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -12269,6 +12269,20 @@ BEGIN
         SET conditionList = CONCAT(conditionList, ' AND expense_type = ', QUOTE(p_expense_type));
     ELSE
         SET conditionList = CONCAT(conditionList, ' AND expense_type != "Landed Cost"');
+    END IF;
+
+    IF p_create_start_date IS NOT NULL AND p_create_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_create_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_create_end_date));
+    END IF;
+
+    IF p_issuance_start_date IS NOT NULL AND p_issuance_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND issuance_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_issuance_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_issuance_end_date));
     END IF;
 
     SET query = CONCAT(query, conditionList);
@@ -12334,10 +12348,10 @@ BEGIN
     END IF;
 END //
 
-CREATE PROCEDURE insertProductExpense(IN p_product_id INT, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(200), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE insertProductExpense(IN p_product_id INT, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(200), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_issuance_date DATE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO product_expense (product_id, reference_type, reference_number, expense_amount, expense_type, particulars, last_log_by) 
-	VALUES(p_product_id, p_reference_type, p_reference_number, p_expense_amount, p_expense_type, p_particulars, p_last_log_by);
+    INSERT INTO product_expense (product_id, reference_type, reference_number, expense_amount, expense_type, particulars, issuance_date, last_log_by) 
+	VALUES(p_product_id, p_reference_type, p_reference_number, p_expense_amount, p_expense_type, p_particulars, p_issuance_date, p_last_log_by);
 END //
 
 CREATE PROCEDURE deleteProductExpense(IN p_product_expense_id INT)
@@ -16656,298 +16670,239 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS openCIReport//
 
-CREATE PROCEDURE openCIReport(
+CREATE PROCEDURE openCIReport (
     IN p_sales_proposal_id INT,
-    IN p_customer_id INT,
-    IN p_comaker_id INT,
-    IN p_additional_maker_id INT,
-    IN p_comaker_id2 INT,
+    IN p_contact_id INT, 
     IN p_duplicate VARCHAR(10),
     IN p_last_log_by INT
 )
 BEGIN
     DECLARE contact_id INT;
-    DECLARE done INT DEFAULT 0;
-    DECLARE new_ci_report_id INT;
     DECLARE source_ci_report_id INT;
+    DECLARE new_ci_report_id INT;
 
-    DECLARE contact_cursor CURSOR FOR
-        SELECT c FROM (
-            SELECT p_customer_id AS c
-            UNION ALL SELECT p_comaker_id
-            UNION ALL SELECT p_additional_maker_id
-            UNION ALL SELECT p_comaker_id2
-        ) AS tmp WHERE c IS NOT NULL;
+    -- If duplicate, find latest source CI report
+    IF p_duplicate = 'Yes' THEN
+        SELECT ci_report_id
+          INTO source_ci_report_id
+        FROM ci_report
+        WHERE contact_id = p_contact_id AND ci_status = 'Completed' AND completed_date IS NOT NULL
+        ORDER BY created_date DESC
+        LIMIT 1;
+    END IF;
 
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    -- Case 1: New Report
+    IF p_duplicate = 'No' THEN
 
-    OPEN contact_cursor;
+        INSERT INTO ci_report (
+            sales_proposal_id, contact_id, last_log_by
+        ) VALUES (
+            p_sales_proposal_id, p_contact_id, p_last_log_by
+        );
+        SET new_ci_report_id = LAST_INSERT_ID();
 
-    read_loop: LOOP
-        FETCH contact_cursor INTO contact_id;
-        IF done THEN 
-            LEAVE read_loop;
-        END IF;
+        INSERT INTO ci_report_residence (
+            ci_report_id, contact_address_id, address, city_id, last_log_by
+        )
+        SELECT
+            new_ci_report_id, ca.contact_address_id, ca.address, ca.city_id, p_last_log_by
+        FROM contact_address ca
+        WHERE ca.contact_id = contact_id
+          AND ca.address_type_id IN (1, 3, 4, 5);
 
-        -- Initialize source_ci_report_id as NULL
-        SET source_ci_report_id = NULL;
+        INSERT INTO ci_report_business (
+            ci_report_id, contact_address_id, address, city_id, business_name, description, last_log_by
+        )
+        SELECT
+            new_ci_report_id, ca.contact_address_id, ca.address, ca.city_id,
+            'N/A', 'N/A', p_last_log_by
+        FROM contact_address ca
+        WHERE ca.contact_id = contact_id
+          AND ca.address_type_id = 6;
 
-        -- Attempt to get the most recent completed CI report
-        IF p_duplicate = 'Yes' THEN
-            SELECT ci_report_id
-            INTO source_ci_report_id
-            FROM ci_report
-            WHERE contact_id = contact_id
-              AND ci_status = 'Completed'
-              AND completed_date IS NOT NULL
-            ORDER BY completed_date DESC
-            LIMIT 1;
-        END IF;
+        INSERT INTO ci_report_employment (
+            ci_report_id, contact_address_id, address, city_id, employment_name, description, last_log_by
+        )
+        SELECT
+            new_ci_report_id, ca.contact_address_id, ca.address, ca.city_id,
+            'N/A', 'N/A', p_last_log_by
+        FROM contact_address ca
+        WHERE ca.contact_id = contact_id
+          AND ca.address_type_id = 2;
 
-        -- Unified condition: fresh insert if 'No' or no duplicate source found
-        IF p_duplicate = 'No' OR source_ci_report_id IS NULL THEN
-            -- Insert new CI report
-            INSERT INTO ci_report (
-                sales_proposal_id, contact_id, last_log_by
-            ) VALUES (
-                p_sales_proposal_id, contact_id, p_last_log_by
-            );
-            SET new_ci_report_id = LAST_INSERT_ID();
+    ELSEIF p_duplicate = 'Yes' THEN
 
-            -- Insert Residence
-            INSERT INTO ci_report_residence (
-                ci_report_id, contact_address_id, address, city_id, last_log_by
-            )
-            SELECT
-                new_ci_report_id, ca.contact_address_id, ca.address, ca.city_id, p_last_log_by
-            FROM contact_address ca
-            WHERE ca.contact_id = contact_id
-              AND ca.address_type_id IN (1,3,4,5);
+        -- Clone master record
+        INSERT INTO ci_report (
+            sales_proposal_id, contact_id, appraiser, investigator,
+            narrative_summary, ci_status, for_completion_date,
+            completed_date, valid_until, created_date, last_log_by
+        )
+        SELECT
+            p_sales_proposal_id, contact_id, appraiser, investigator,
+            narrative_summary, 'Draft', NOW(), NULL, valid_until, NOW(), p_last_log_by
+        FROM ci_report
+        WHERE ci_report_id = source_ci_report_id;
+        SET new_ci_report_id = LAST_INSERT_ID();
 
-            -- Insert Business
-            INSERT INTO ci_report_business (
-                ci_report_id, contact_address_id, address, city_id, business_name,
-                description, last_log_by
-            )
-            SELECT
-                new_ci_report_id, ca.contact_address_id, ca.address, ca.city_id,
-                'N/A', 'N/A', p_last_log_by
-            FROM contact_address ca
-            WHERE ca.contact_id = contact_id
-              AND ca.address_type_id = 6;
+        -- Clone child tables
+        INSERT INTO ci_report_appraisal_source (
+            ci_report_collateral_id, ci_report_id, source, amount, remarks, last_log_by
+        )
+        SELECT
+            ci_report_collateral_id, new_ci_report_id, source, amount, remarks, p_last_log_by
+        FROM ci_report_appraisal_source
+        WHERE ci_report_id = source_ci_report_id;
 
-            -- Insert Employment
-            INSERT INTO ci_report_employment (
-                ci_report_id, contact_address_id, address, city_id, employment_name,
-                description, last_log_by
-            )
-            SELECT
-                new_ci_report_id, ca.contact_address_id, ca.address, ca.city_id,
-                'N/A', 'N/A', p_last_log_by
-            FROM contact_address ca
-            WHERE ca.contact_id = contact_id
-              AND ca.address_type_id = 2;
+        INSERT INTO ci_report_asset (
+            ci_report_id, asset_type_id, description, value, remarks, last_log_by
+        )
+        SELECT
+            new_ci_report_id, asset_type_id, description, value, remarks, p_last_log_by
+        FROM ci_report_asset
+        WHERE ci_report_id = source_ci_report_id;
 
-        ELSE
-            -- Duplicate CI report
-                INSERT INTO ci_report (
-                    sales_proposal_id, contact_id, appraiser, investigator,
-                    narrative_summary, ci_status, for_completion_date,
-                    completed_date, valid_until, created_date, last_log_by
-                )
-                SELECT
-                    p_sales_proposal_id, contact_id, appraiser, investigator,
-                    narrative_summary, 'Draft', NOW(),
-                    NULL, valid_until, NOW(), p_last_log_by
-                FROM ci_report
-                WHERE ci_report_id = source_ci_report_id;
-                SET new_ci_report_id = LAST_INSERT_ID();
+        INSERT INTO ci_report_bank (
+            ci_report_id, bank_id, account_name, account_number, bank_account_type_id,
+            currency_id, bank_handling_type_id, date_open, bank_adb_id,
+            informant, remarks, last_log_by
+        )
+        SELECT
+            new_ci_report_id, bank_id, account_name, account_number, bank_account_type_id,
+            currency_id, bank_handling_type_id, date_open, bank_adb_id,
+            informant, remarks, p_last_log_by
+        FROM ci_report_bank
+        WHERE ci_report_id = source_ci_report_id;
 
-                -- Duplicate all related tables
+        INSERT INTO ci_report_bank_deposits (
+            ci_report_bank_id, ci_report_id, deposit_month, amount, remarks, last_log_by
+        )
+        SELECT
+            ci_report_bank_id, new_ci_report_id, deposit_month, amount, remarks, p_last_log_by
+        FROM ci_report_bank_deposits
+        WHERE ci_report_id = source_ci_report_id;
 
-                INSERT INTO ci_report_residence (
-                    ci_report_id, contact_address_id, address, city_id,
-                    prev_address, prev_city_id, length_stay_year, length_stay_month,
-                    residence_type_id, rented_from, rent_amount, estimated_value,
-                    structure_type_id, residence_age, building_make_id,
-                    lot_area, floor_area, furnishing_appliance,
-                    neighborhood_type_id, income_level_id, accessible_to,
-                    nearest_corner, informant, informant_address,
-                    personal_expense, utilities_expense, other_expense,
-                    total, vehicle_owned, real_estate_owned, remarks, created_date, last_log_by
-                )
-                SELECT
-                    new_ci_report_id, contact_address_id, address, city_id,
-                    prev_address, prev_city_id, length_stay_year, length_stay_month,
-                    residence_type_id, rented_from, rent_amount, estimated_value,
-                    structure_type_id, residence_age, building_make_id,
-                    lot_area, floor_area, furnishing_appliance,
-                    neighborhood_type_id, income_level_id, accessible_to,
-                    nearest_corner, informant, informant_address,
-                    personal_expense, utilities_expense, other_expense,
-                    total, vehicle_owned, real_estate_owned, remarks, NOW(), p_last_log_by
-                FROM ci_report_residence
-                WHERE ci_report_id = source_ci_report_id;
+        INSERT INTO ci_report_business (
+            ci_report_id, contact_address_id, address, city_id, business_name, description, last_log_by
+        )
+        SELECT
+            new_ci_report_id, contact_address_id, address, city_id, business_name, description, p_last_log_by
+        FROM ci_report_business
+        WHERE ci_report_id = source_ci_report_id;
 
-                INSERT INTO ci_report_business (
-                    ci_report_id, business_name, description, contact_address_id,
-                    address, city_id, length_stay_year, length_stay_month,
-                    registered_with, organization, date_organized, no_employee,
-                    customer, major_bank_id, contact_person,
-                    business_location_type_id, building_make_id, business_premises_id,
-                    landlord, rental_amount, machineries, fixtures,
-                    facility_condition, gross_monthly_sale,
-                    monthly_income, inventory, receivable,
-                    fixed_asset, liabilities, capital, branch, vehicle, trade_reference, remarks,
-                    created_date, last_log_by
-                )
-                SELECT
-                    new_ci_report_id, business_name, description, contact_address_id,
-                    address, city_id, length_stay_year, length_stay_month,
-                    registered_with, organization, date_organized, no_employee,
-                    customer, major_bank_id, contact_person,
-                    business_location_type_id, building_make_id, business_premises_id,
-                    landlord, rental_amount, machineries, fixtures,
-                    facility_condition, gross_monthly_sale,
-                    monthly_income, inventory, receivable,
-                    fixed_asset, liabilities, capital, branch, vehicle, trade_reference, remarks,
-                    NOW(), p_last_log_by
-                FROM ci_report_business
-                WHERE ci_report_id = source_ci_report_id;
+        INSERT INTO ci_report_cmap (
+            ci_report_id, cmap_report_type_id, defendants, plaintiff, nature_of_case,
+            trial_court, sala_no, case_no, reported_date, remarks, last_log_by
+        )
+        SELECT
+            new_ci_report_id, cmap_report_type_id, defendants, plaintiff, nature_of_case,
+            trial_court, sala_no, case_no, reported_date, remarks, p_last_log_by
+        FROM ci_report_cmap
+        WHERE ci_report_id = source_ci_report_id;
 
-                INSERT INTO ci_report_employment (
-                    ci_report_id, employment_name, description,
-                    contact_address_id, address, city_id, length_stay_year,
-                    length_stay_month, pres_length_stay_year,
-                    pres_length_stay_month, informant,
-                    informant_address, department, rank, position,
-                    status, net_salary, commission, allowance,
-                    other_income, grand_total, remarks,
-                    created_date, last_log_by
-                )
-                SELECT
-                    new_ci_report_id, employment_name, description,
-                    contact_address_id, address, city_id, length_stay_year,
-                    length_stay_month, pres_length_stay_year,
-                    pres_length_stay_month, informant,
-                    informant_address, department, rank, position,
-                    status, net_salary, commission, allowance,
-                    other_income, grand_total, remarks,
-                    NOW(), p_last_log_by
-                FROM ci_report_employment
-                WHERE ci_report_id = source_ci_report_id;
+        INSERT INTO ci_report_collateral (
+            ci_report_id, appraisal_date, brand_id, description, color_id, year_model,
+            plate_no, motor_no, serial_no, mvr_file_no, cr_no, or_no,
+            registered_owner, appraised_value, loannable_value, remarks, last_log_by
+        )
+        SELECT
+            new_ci_report_id, appraisal_date, brand_id, description, color_id, year_model,
+            plate_no, motor_no, serial_no, mvr_file_no, cr_no, or_no,
+            registered_owner, appraised_value, loannable_value, remarks, p_last_log_by
+        FROM ci_report_collateral
+        WHERE ci_report_id = source_ci_report_id;
 
-                INSERT INTO ci_report_dependents (
-                    ci_report_id, name, age, school,
-                    employment, remarks,
-                    created_date, last_log_by
-                )
-                SELECT
-                    new_ci_report_id, name, age, school,
-                    employment, remarks, NOW(), p_last_log_by
-                FROM ci_report_dependents
-                WHERE ci_report_id = source_ci_report_id;
+        INSERT INTO ci_report_dependents (
+            ci_report_id, name, age, school, employment, remarks, last_log_by
+        )
+        SELECT
+            new_ci_report_id, name, age, school, employment, remarks, p_last_log_by
+        FROM ci_report_dependents
+        WHERE ci_report_id = source_ci_report_id;
 
-                INSERT INTO ci_report_bank (
-                    ci_report_id, bank_id, account_name, account_number,
-                    bank_account_type_id, currency_id, bank_handling_type_id,
-                    date_open, adb, informant, remarks,
-                    created_date, last_log_by
-                )
-                SELECT
-                    new_ci_report_id, bank_id, account_name, account_number,
-                    bank_account_type_id, currency_id, bank_handling_type_id,
-                    date_open, adb, informant, remarks,
-                    NOW(), p_last_log_by
-                FROM ci_report_bank
-                WHERE ci_report_id = source_ci_report_id;
+        INSERT INTO ci_report_employment (
+            ci_report_id, employment_name, description, contact_address_id, address, city_id,
+            length_stay_year, length_stay_month, pres_length_stay_year, pres_length_stay_month,
+            informant, informant_address, department, rank, position, status,
+            net_salary, commission, allowance, other_income, grand_total,
+            remarks, last_log_by
+        )
+        SELECT
+            new_ci_report_id, employment_name, description, contact_address_id, address, city_id,
+            length_stay_year, length_stay_month, pres_length_stay_year, pres_length_stay_month,
+            informant, informant_address, department, rank, position, status,
+            net_salary, commission, allowance, other_income, grand_total,
+            remarks, p_last_log_by
+        FROM ci_report_employment
+        WHERE ci_report_id = source_ci_report_id;
 
-                INSERT INTO ci_report_bank_deposits (
-                    ci_report_bank_id, ci_report_id, deposit_month,
-                    amount, remarks, created_date, last_log_by
-                )
-                SELECT
-                    ci_report_bank_id, new_ci_report_id, deposit_month,
-                    amount, remarks, NOW(), p_last_log_by
-                FROM ci_report_bank_deposits
-                WHERE ci_report_id = source_ci_report_id;
+        INSERT INTO ci_report_files (
+            ci_report_id, file_name, file_path, ci_file_type_id, remarks, last_log_by
+        )
+        SELECT
+            new_ci_report_id, file_name, file_path, ci_file_type_id, remarks, p_last_log_by
+        FROM ci_report_files
+        WHERE ci_report_id = source_ci_report_id;
 
-                INSERT INTO ci_report_loan (
-                    ci_report_id, company, informant, account_name,
-                    loan_type_id, availed_date, maturity_date,
-                    term, pn_amount, outstanding_balance,
-                    repayment, handling, remarks,
-                    created_date, last_log_by
-                )
-                SELECT
-                    new_ci_report_id, company, informant, account_name,
-                    loan_type_id, availed_date, maturity_date,
-                    term, pn_amount, outstanding_balance,
-                    repayment, handling, remarks,
-                    NOW(), p_last_log_by
-                FROM ci_report_loan
-                WHERE ci_report_id = source_ci_report_id;
+        INSERT INTO ci_report_loan (
+            ci_report_id, loan_source, company, informant, account_name, loan_type_id,
+            availed_date, maturity_date, term, pn_amount, outstanding_balance,
+            repayment, handling, remarks, last_log_by
+        )
+        SELECT
+            new_ci_report_id, loan_source, company, informant, account_name, loan_type_id,
+            availed_date, maturity_date, term, pn_amount, outstanding_balance,
+            repayment, handling, remarks, p_last_log_by
+        FROM ci_report_loan
+        WHERE ci_report_id = source_ci_report_id;
 
-                INSERT INTO ci_report_asset (
-                    ci_report_id, asset_type_id, description,
-                    value, remarks, created_date, last_log_by
-                )
-                SELECT
-                    new_ci_report_id, asset_type_id, description,
-                    value, remarks, NOW(), p_last_log_by
-                FROM ci_report_asset
-                WHERE ci_report_id = source_ci_report_id;
+        INSERT INTO ci_report_residence (
+            ci_report_id, contact_address_id, address, city_id,
+            prev_address, prev_city_id, length_stay_year, length_stay_month,
+            residence_type_id, rented_from, rent_amount, estimated_value,
+            structure_type_id, residence_age, building_make_id, lot_area,
+            floor_area, furnishing_appliance, neighborhood_type_id,
+            income_level_id, accessible_to, nearest_corner, informant,
+            informant_address, personal_expense, utilities_expense,
+            other_expense, total, vehicle_owned, real_estate_owned,
+            tct_no, remarks, last_log_by
+        )
+        SELECT
+            new_ci_report_id, contact_address_id, address, city_id,
+            prev_address, prev_city_id, length_stay_year, length_stay_month,
+            residence_type_id, rented_from, rent_amount, estimated_value,
+            structure_type_id, residence_age, building_make_id, lot_area,
+            floor_area, furnishing_appliance, neighborhood_type_id,
+            income_level_id, accessible_to, nearest_corner, informant,
+            informant_address, personal_expense, utilities_expense,
+            other_expense, total, vehicle_owned, real_estate_owned,
+            tct_no, remarks, p_last_log_by
+        FROM ci_report_residence
+        WHERE ci_report_id = source_ci_report_id;
 
-                INSERT INTO ci_report_collateral (
-                    ci_report_id, appraisal_date, brand_id, description,
-                    color_id, year_model, plate_no,
-                    motor_no, serial_no, mvr_file_no,
-                    cr_no, or_no, registered_owner,
-                    appraised_value, loannable_value,
-                    remarks, created_date, last_log_by
-                )
-                SELECT
-                    new_ci_report_id, appraisal_date, brand_id, description,
-                    color_id, year_model, plate_no,
-                    motor_no, serial_no, mvr_file_no,
-                    cr_no, or_no, registered_owner,
-                    appraised_value, loannable_value,
-                    remarks, NOW(), p_last_log_by
-                FROM ci_report_collateral
-                WHERE ci_report_id = source_ci_report_id;
+        INSERT INTO ci_report_residence_owned (
+            ci_report_residence_id, ci_report_id, type, owned, last_log_by
+        )
+        SELECT
+            ci_report_residence_owned_id, new_ci_report_id, type, owned, p_last_log_by
+        FROM ci_report_residence_owned
+        WHERE ci_report_id = source_ci_report_id;
 
-                INSERT INTO ci_report_appraisal_source (
-                    ci_report_collateral_id, ci_report_id, source,
-                    amount, created_date, last_log_by
-                )
-                SELECT
-                    ci_report_collateral_id, new_ci_report_id, source,
-                    amount, NOW(), p_last_log_by
-                FROM ci_report_appraisal_source
-                WHERE ci_report_id = source_ci_report_id;
+        INSERT INTO ci_report_trade_reference (
+            ci_report_business_id, ci_report_id, supplier, contact_person,
+            years_of_transaction, remarks, last_log_by
+        )
+        SELECT
+            ci_report_business_id, new_ci_report_id, supplier, contact_person,
+            years_of_transaction, remarks, p_last_log_by
+        FROM ci_report_trade_reference
+        WHERE ci_report_id = source_ci_report_id;
 
-                INSERT INTO ci_report_cmap (
-                    ci_report_id, cmap_report_type_id, defendants,
-                    plaintiff, nature_of_case, trial_court,
-                    sala_no, case_no, reported_date,
-                    remarks, created_date, last_log_by
-                )
-                SELECT
-                    new_ci_report_id, cmap_report_type_id, defendants,
-                    plaintiff, nature_of_case, trial_court,
-                    sala_no, case_no, reported_date,
-                    remarks, NOW(), p_last_log_by
-                FROM ci_report_cmap
-                WHERE ci_report_id = source_ci_report_id;
-        END IF;
+    END IF;
 
-    END LOOP;
-
-    CLOSE contact_cursor;
 END;
 //
 
-DELIMITER ;
 
 CREATE PROCEDURE generateCIReportTable(IN p_filter_ci_report_status VARCHAR(500), IN p_filter_created_date_start_date DATE, IN p_filter_created_date_end_date DATE, IN p_filter_completed_date_start_date DATE, IN p_filter_completed_date_end_date DATE)
 BEGIN
@@ -17116,13 +17071,13 @@ BEGIN
     WHERE ci_report_residence_id = p_ci_report_residence_id;
 END //
 
-CREATE PROCEDURE insertCIReportResidence(IN p_ci_report_id INT, IN p_address TEXT, IN p_city_id INT, IN p_prev_address TEXT, IN p_prev_city_id INT, IN p_length_stay_year INT, IN p_length_stay_month INT, IN p_residence_type_id INT, IN p_rented_from TEXT, IN p_rent_amount DOUBLE, IN p_estimated_value DOUBLE, IN p_structure_type_id INT, IN p_residence_age INT, IN p_building_make_id INT, IN p_lot_area DOUBLE, IN p_floor_area DOUBLE, IN p_furnishing_appliance TEXT, IN p_neighborhood_type_id INT, IN p_income_level_id INT, IN p_accessible_to TEXT, IN p_nearest_corner TEXT, IN p_informant TEXT, IN p_informant_address TEXT, IN p_personal_expense DOUBLE, IN p_utilities_expense DOUBLE, IN p_other_expense DOUBLE, IN p_total_expense DOUBLE, IN p_vehicle_owned TEXT, IN p_real_estate_owned TEXT, IN p_remarks TEXT, IN p_last_log_by INT)
+CREATE PROCEDURE insertCIReportResidence(IN p_ci_report_id INT, IN p_address TEXT, IN p_city_id INT, IN p_prev_address TEXT, IN p_prev_city_id INT, IN p_length_stay_year INT, IN p_length_stay_month INT, IN p_residence_type_id INT, IN p_rented_from TEXT, IN p_rent_amount DOUBLE, IN p_estimated_value DOUBLE, IN p_structure_type_id INT, IN p_residence_age INT, IN p_building_make_id INT, IN p_lot_area DOUBLE, IN p_floor_area DOUBLE, IN p_furnishing_appliance TEXT, IN p_neighborhood_type_id INT, IN p_income_level_id INT, IN p_accessible_to TEXT, IN p_nearest_corner TEXT, IN p_informant TEXT, IN p_informant_address TEXT, IN p_personal_expense DOUBLE, IN p_utilities_expense DOUBLE, IN p_other_expense DOUBLE, IN p_total_expense DOUBLE, IN p_vehicle_owned TEXT, IN p_real_estate_owned TEXT, IN p_tct_no VARCHAR(100), IN p_remarks TEXT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO ci_report_residence (ci_report_id, address, city_id, prev_address, prev_city_id, length_stay_year, length_stay_month, residence_type_id, rented_from, rent_amount, estimated_value, structure_type_id, residence_age, building_make_id, lot_area, floor_area, furnishing_appliance, neighborhood_type_id, income_level_id, accessible_to, nearest_corner, informant, informant_address, personal_expense, utilities_expense, other_expense, total, vehicle_owned, real_estate_owned, remarks, last_log_by) 
-	VALUES(p_ci_report_id, p_address, p_city_id, p_prev_address, p_prev_city_id, p_length_stay_year, p_length_stay_month, p_residence_type_id, p_rented_from, p_rent_amount, p_estimated_value, p_structure_type_id, p_residence_age, p_building_make_id, p_lot_area, p_floor_area, p_furnishing_appliance, p_neighborhood_type_id, p_income_level_id, p_accessible_to, p_nearest_corner, p_informant, p_informant_address, p_personal_expense, p_utilities_expense, p_other_expense, p_total_expense, p_vehicle_owned, p_real_estate_owned, p_remarks, p_last_log_by);
+    INSERT INTO ci_report_residence (ci_report_id, address, city_id, prev_address, prev_city_id, length_stay_year, length_stay_month, residence_type_id, rented_from, rent_amount, estimated_value, structure_type_id, residence_age, building_make_id, lot_area, floor_area, furnishing_appliance, neighborhood_type_id, income_level_id, accessible_to, nearest_corner, informant, informant_address, personal_expense, utilities_expense, other_expense, total, vehicle_owned, real_estate_owned, tct_no, remarks, last_log_by) 
+	VALUES(p_ci_report_id, p_address, p_city_id, p_prev_address, p_prev_city_id, p_length_stay_year, p_length_stay_month, p_residence_type_id, p_rented_from, p_rent_amount, p_estimated_value, p_structure_type_id, p_residence_age, p_building_make_id, p_lot_area, p_floor_area, p_furnishing_appliance, p_neighborhood_type_id, p_income_level_id, p_accessible_to, p_nearest_corner, p_informant, p_informant_address, p_personal_expense, p_utilities_expense, p_other_expense, p_total_expense, p_vehicle_owned, p_real_estate_owned, p_tct_no, p_remarks, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateCIReportResidence(IN p_ci_report_residence_id INT, IN p_ci_report_id INT, IN p_address TEXT, IN p_city_id INT, IN p_prev_address TEXT, IN p_prev_city_id INT, IN p_length_stay_year INT, IN p_length_stay_month INT, IN p_residence_type_id INT, IN p_rented_from TEXT, IN p_rent_amount DOUBLE, IN p_estimated_value DOUBLE, IN p_structure_type_id INT, IN p_residence_age INT, IN p_building_make_id INT, IN p_lot_area DOUBLE, IN p_floor_area DOUBLE, IN p_furnishing_appliance TEXT, IN p_neighborhood_type_id INT, IN p_income_level_id INT, IN p_accessible_to TEXT, IN p_nearest_corner TEXT, IN p_informant TEXT, IN p_informant_address TEXT, IN p_personal_expense DOUBLE, IN p_utilities_expense DOUBLE, IN p_other_expense DOUBLE, IN p_total_expense DOUBLE, IN p_vehicle_owned TEXT, IN p_real_estate_owned TEXT, IN p_remarks TEXT, IN p_last_log_by INT)
+CREATE PROCEDURE updateCIReportResidence(IN p_ci_report_residence_id INT, IN p_ci_report_id INT, IN p_address TEXT, IN p_city_id INT, IN p_prev_address TEXT, IN p_prev_city_id INT, IN p_length_stay_year INT, IN p_length_stay_month INT, IN p_residence_type_id INT, IN p_rented_from TEXT, IN p_rent_amount DOUBLE, IN p_estimated_value DOUBLE, IN p_structure_type_id INT, IN p_residence_age INT, IN p_building_make_id INT, IN p_lot_area DOUBLE, IN p_floor_area DOUBLE, IN p_furnishing_appliance TEXT, IN p_neighborhood_type_id INT, IN p_income_level_id INT, IN p_accessible_to TEXT, IN p_nearest_corner TEXT, IN p_informant TEXT, IN p_informant_address TEXT, IN p_personal_expense DOUBLE, IN p_utilities_expense DOUBLE, IN p_other_expense DOUBLE, IN p_total_expense DOUBLE, IN p_vehicle_owned TEXT, IN p_real_estate_owned TEXT, IN p_tct_no VARCHAR(100), IN p_remarks TEXT, IN p_last_log_by INT)
 BEGIN
 	UPDATE ci_report_residence
     SET ci_report_id = p_ci_report_id,
@@ -17154,6 +17109,7 @@ BEGIN
     total = p_total_expense,
     vehicle_owned = p_vehicle_owned,
     real_estate_owned = p_real_estate_owned,
+    tct_no = p_tct_no,
     remarks = p_remarks,
     last_log_by = p_last_log_by
     WHERE ci_report_residence_id = p_ci_report_residence_id;

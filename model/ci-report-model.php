@@ -101,8 +101,8 @@ class CIReportModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function updateCIReportResidence($p_ci_report_residence_id, $p_ci_report_id, $p_address, $p_city_id, $p_prev_address, $p_prev_city_id, $p_length_stay_year, $p_length_stay_month, $p_residence_type_id, $p_rented_from, $p_rent_amount, $p_estimated_value, $p_structure_type_id, $p_residence_age, $p_building_make_id, $p_lot_area, $p_floor_area, $p_furnishing_appliance, $p_neighborhood_type_id, $p_income_level_id, $p_accessible_to, $p_nearest_corner, $p_informant, $p_informant_address, $p_personal_expense, $p_utilities_expense, $p_other_expense, $p_total_expense, $p_vehicle_owned, $p_real_estate_owned, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateCIReportResidence(:p_ci_report_residence_id, :p_ci_report_id, :p_address, :p_city_id, :p_prev_address, :p_prev_city_id, :p_length_stay_year, :p_length_stay_month, :p_residence_type_id, :p_rented_from, :p_rent_amount, :p_estimated_value, :p_structure_type_id, :p_residence_age, :p_building_make_id, :p_lot_area, :p_floor_area, :p_furnishing_appliance, :p_neighborhood_type_id, :p_income_level_id, :p_accessible_to, :p_nearest_corner, :p_informant, :p_informant_address, :p_personal_expense, :p_utilities_expense, :p_other_expense, :p_total_expense, :p_vehicle_owned, :p_real_estate_owned, :p_remarks, :p_last_log_by)');
+    public function updateCIReportResidence($p_ci_report_residence_id, $p_ci_report_id, $p_address, $p_city_id, $p_prev_address, $p_prev_city_id, $p_length_stay_year, $p_length_stay_month, $p_residence_type_id, $p_rented_from, $p_rent_amount, $p_estimated_value, $p_structure_type_id, $p_residence_age, $p_building_make_id, $p_lot_area, $p_floor_area, $p_furnishing_appliance, $p_neighborhood_type_id, $p_income_level_id, $p_accessible_to, $p_nearest_corner, $p_informant, $p_informant_address, $p_personal_expense, $p_utilities_expense, $p_other_expense, $p_total_expense, $p_vehicle_owned, $p_real_estate_owned, $p_tct_no, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateCIReportResidence(:p_ci_report_residence_id, :p_ci_report_id, :p_address, :p_city_id, :p_prev_address, :p_prev_city_id, :p_length_stay_year, :p_length_stay_month, :p_residence_type_id, :p_rented_from, :p_rent_amount, :p_estimated_value, :p_structure_type_id, :p_residence_age, :p_building_make_id, :p_lot_area, :p_floor_area, :p_furnishing_appliance, :p_neighborhood_type_id, :p_income_level_id, :p_accessible_to, :p_nearest_corner, :p_informant, :p_informant_address, :p_personal_expense, :p_utilities_expense, :p_other_expense, :p_total_expense, :p_vehicle_owned, :p_real_estate_owned, :p_tct_no, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_ci_report_residence_id', $p_ci_report_residence_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
@@ -133,14 +133,15 @@ class CIReportModel {
         $stmt->bindValue(':p_total_expense', $p_total_expense, PDO::PARAM_STR);
         $stmt->bindValue(':p_vehicle_owned', $p_vehicle_owned, PDO::PARAM_STR);
         $stmt->bindValue(':p_real_estate_owned', $p_real_estate_owned, PDO::PARAM_STR);
+        $stmt->bindValue(':p_tct_no', $p_tct_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function insertCIReportResidence($p_ci_report_id, $p_address, $p_city_id, $p_prev_address, $p_prev_city_id, $p_length_stay_year, $p_length_stay_month, $p_residence_type_id, $p_rented_from, $p_rent_amount, $p_estimated_value, $p_structure_type_id, $p_residence_age, $p_building_make_id, $p_lot_area, $p_floor_area, $p_furnishing_appliance, $p_neighborhood_type_id, $p_income_level_id, $p_accessible_to, $p_nearest_corner, $p_informant, $p_informant_address, $p_personal_expense, $p_utilities_expense, $p_other_expense, $p_total_expense, $p_vehicle_owned, $p_real_estate_owned, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertCIReportResidence(:p_ci_report_id, :p_address, :p_city_id, :p_prev_address, :p_prev_city_id, :p_length_stay_year, :p_length_stay_month, :p_residence_type_id, :p_rented_from, :p_rent_amount, :p_estimated_value, :p_structure_type_id, :p_residence_age, :p_building_make_id, :p_lot_area, :p_floor_area, :p_furnishing_appliance, :p_neighborhood_type_id, :p_income_level_id, :p_accessible_to, :p_nearest_corner, :p_informant, :p_informant_address, :p_personal_expense, :p_utilities_expense, :p_other_expense, :p_total_expense, :p_vehicle_owned, :p_real_estate_owned, :p_remarks, :p_last_log_by)');
+    public function insertCIReportResidence($p_ci_report_id, $p_address, $p_city_id, $p_prev_address, $p_prev_city_id, $p_length_stay_year, $p_length_stay_month, $p_residence_type_id, $p_rented_from, $p_rent_amount, $p_estimated_value, $p_structure_type_id, $p_residence_age, $p_building_make_id, $p_lot_area, $p_floor_area, $p_furnishing_appliance, $p_neighborhood_type_id, $p_income_level_id, $p_accessible_to, $p_nearest_corner, $p_informant, $p_informant_address, $p_personal_expense, $p_utilities_expense, $p_other_expense, $p_total_expense, $p_vehicle_owned, $p_real_estate_owned, $p_tct_no, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertCIReportResidence(:p_ci_report_id, :p_address, :p_city_id, :p_prev_address, :p_prev_city_id, :p_length_stay_year, :p_length_stay_month, :p_residence_type_id, :p_rented_from, :p_rent_amount, :p_estimated_value, :p_structure_type_id, :p_residence_age, :p_building_make_id, :p_lot_area, :p_floor_area, :p_furnishing_appliance, :p_neighborhood_type_id, :p_income_level_id, :p_accessible_to, :p_nearest_corner, :p_informant, :p_informant_address, :p_personal_expense, :p_utilities_expense, :p_other_expense, :p_total_expense, :p_vehicle_owned, :p_real_estate_owned, :p_tct_no, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
         $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);
@@ -170,6 +171,7 @@ class CIReportModel {
         $stmt->bindValue(':p_total_expense', $p_total_expense, PDO::PARAM_STR);
         $stmt->bindValue(':p_vehicle_owned', $p_vehicle_owned, PDO::PARAM_STR);
         $stmt->bindValue(':p_real_estate_owned', $p_real_estate_owned, PDO::PARAM_STR);
+        $stmt->bindValue(':p_tct_no', $p_tct_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
