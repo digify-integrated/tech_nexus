@@ -21,7 +21,12 @@
                   }
 
                 if($partsTransactionCreateAccess['total'] > 0){
-                   $action .= '<a href="parts-transaction.php?new" class="btn btn-success">Create</a>';
+                  if($company == '2'){
+                    $action .= '<a href="netruck-parts-transaction.php?new" class="btn btn-success">Create</a>';
+                  }
+                  else{
+                    $action .= '<a href="parts-transaction.php?new" class="btn btn-success">Create</a>';
+                  }
                 }
                               
                 echo $action;
@@ -121,6 +126,10 @@
                         <div class="form-check my-2">
                           <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-approved" value="Approved"/>
                           <label class="form-check-label" for="transaction-status-approved">Approved</label>
+                        </div>
+                        <div class="form-check my-2">
+                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-released" value="Released"/>
+                          <label class="form-check-label" for="transaction-status-released">Released</label>
                         </div>
                         <div class="form-check my-2">
                           <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-cancelled" value="Cancelled"/>

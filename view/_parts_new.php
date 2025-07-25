@@ -65,19 +65,10 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-3 col-form-label">Company <span class="text-danger">*</span></label>
-            <div class="col-lg-3">
-              <select class="form-control select2" name="company_id" id="company_id">
-                <option value="">--</option>
-                <?php echo $companyModel->generateCompanyOptions(); ?>
-              </select>
-            </div>
             <label class="col-lg-3 col-form-label d-none">Quantity <span class="text-danger">*</span></label>
             <div class="col-lg-3 d-none">
               <input type="number" class="form-control" id="quantity" name="quantity" value="0" min="0" step="0.01">
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Unit Sale <span class="text-danger">*</span></label>
             <div class="col-lg-3">
               <select class="form-control select2" name="unit_sale" id="unit_sale">

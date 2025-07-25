@@ -39,6 +39,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # -------------------------------------------------------------
         case 'parts table':
             $parts_search = htmlspecialchars($_POST['parts_search'], ENT_QUOTES, 'UTF-8');
+            $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
                 $company_filter = htmlspecialchars($_POST['company_filter'], ENT_QUOTES, 'UTF-8');
                 $brand_filter = htmlspecialchars($_POST['brand_filter'], ENT_QUOTES, 'UTF-8');
                 $parts_category_filter = htmlspecialchars($_POST['parts_category_filter'], ENT_QUOTES, 'UTF-8');
@@ -106,6 +107,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <i class="ti ti-trash"></i>
                                 </button>';
                     }
+
+                    if($company_id == '2'){
+                        $link = 'netruck-parts';
+                    }
+                    else{
+                        $link = 'parts';
+                    }
     
                     $response[] = [
                         'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $partsID .'">',
@@ -123,7 +131,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'PRODUCT_PRICE' => number_format($part_price,2),
                         'PRODUCT_STATUS' => $partsStatus,
                         'ACTION' => '<div class="d-flex gap-2">
-                                        <a href="parts.php?id='. $partsIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <a href="'. $link .'.php?id='. $partsIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                             <i class="ti ti-eye"></i>
                                         </a>
                                         '. $delete .'

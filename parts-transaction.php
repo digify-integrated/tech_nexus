@@ -3,15 +3,15 @@
   require('config/_check_user_active.php');
   require('model/parts-transaction-model.php');
   require('model/customer-model.php');
-  require('model/company-model.php');
+  require('model/product-model.php');
   require('model/miscellaneous-client-model.php');
 
   $partsTransactionModel = new PartsTransactionModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
   $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
-  $companyModel = new CompanyModel($databaseModel);
+  $productModel = new ProductModel($databaseModel);
 
-  $pageTitle = 'Parts Transaction';
+  $pageTitle = 'Fuso Parts Issuance';
     
   $partsTransactionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'read');
   $partsTransactionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'create');
@@ -43,6 +43,8 @@
   else{
     $partsTransactionID = null;
   }
+
+  $company = '3';
 
   $newRecord = isset($_GET['new']);
 
@@ -96,6 +98,7 @@
             </div>
           </div>
         </div>
+        <input type="hidden" id="page-company" value="<?php echo $company ?>">
         <?php
           if($newRecord && $partsTransactionCreateAccess['total'] > 0){
             require_once('view/_parts_transaction_new.php');

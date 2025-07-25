@@ -18,10 +18,16 @@
                                   <li><button class="dropdown-item" type="button" id="delete-parts-incoming">Delete Parts Incoming</button></li>
                                 </ul>
                               </div>';
-                  }
+                }
 
                 if($partsIncomingCreateAccess['total'] > 0){
-                   $action .= '<a href="parts-incoming.php?new" class="btn btn-success">Create</a>';
+                  if($company == '2'){
+                    $action .= '<a href="netruck-parts-incoming.php?new" class="btn btn-success">Create</a>';
+                  }
+                  else{
+                    $action .= '<a href="parts-incoming.php?new" class="btn btn-success">Create</a>';
+                  }
+                   
                 }
                               
                 echo $action;
@@ -127,6 +133,10 @@
                         <div class="form-check my-2">
                           <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-draft" value="Draft"/>
                           <label class="form-check-label" for="incoming-status-draft">Draft</label>
+                        </div>
+                        <div class="form-check my-2">
+                          <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-for-approval" value="For Approval"/>
+                          <label class="form-check-label" for="incoming-status-for-approval">For Approval</label>
                         </div>
                         <div class="form-check my-2">
                           <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-onprocess" value="On-Process"/>

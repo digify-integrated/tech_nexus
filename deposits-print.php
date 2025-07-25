@@ -87,7 +87,10 @@
     // Disable header and footer
     $pdf->setPrintHeader(false);
     $pdf->setPrintFooter(false);
+
+    // Ensure Landscape Orientation is set (redundant but safe)
     $pdf->SetPageOrientation('L');
+    $pdf->SetDisplayMode('fullwidth', 'SinglePage');
 
     // Set PDF metadata
     $pdf->SetCreator('CGMI');
@@ -95,29 +98,34 @@
     $pdf->SetTitle('Collections Print');
     $pdf->SetSubject('Collections Print');
 
-    // Set margins and auto page break
-    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-    $pdf->SetMargins(15, 15, 15);
+    // Set margins (adjust if you need tighter content)
+    $pdf->SetMargins(10, 10, 10);
     $pdf->SetHeaderMargin(5);
-    $pdf->SetFooterMargin(10);
-    $pdf->SetAutoPageBreak(TRUE, 15);
+    $pdf->SetFooterMargin(5);
 
-    // Add a page
-    $pdf->AddPage();
-    $pdf->SetFont('times', '', 10);
+    // Enable Auto Page Break
+    $pdf->SetAutoPageBreak(TRUE, 10);
 
+    // **Ensure correct Page Size & Orientation (Legal Landscape)**
+    $pdf->AddPage('L', array(215.9, 330.2));
+
+    // Set default font
+    $pdf->SetFont('times', '', 9);
+
+    // Content rendering
     $pdf->writeHTML($combinedTablesHTML, true, false, true, false, '');
     $pdf->writeHTML($onhandSummaryTable, true, false, true, false, '');
     $pdf->Ln(0);
-    
+
     $pdf->MultiCell(0, 0, '<b>COLLECTIONS AS OF '. strtoupper($dateAsOf) .'</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(8);
     $pdf->writeHTML($collectionsSummaryTable, true, false, true, false, '');
-    $pdf->Ln(5);
-    
+    $pdf->Ln(2);
+
     $pdf->MultiCell(0, 0, '<b>DEPOSITS AS OF '. strtoupper($dateAsOf) .'</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(8);
+    $pdf->Ln(4);
     $pdf->writeHTML($depositsSummaryTable, true, false, true, false, '');
+
 
 
     // Output the PDF to the browser
@@ -148,18 +156,18 @@
         $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
         <thead style="font-weight: bold; background-color: red;">
             <tr>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>OR DATE</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>OR NO.</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>PAYMENT AMOUNT</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>PAYMENT DATE</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>CUSTOMER</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>STOCK NO.</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>LOAN NO.</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>COLLECTED FROM</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>DEPOSITED TO</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>PYMT DETAILS</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>MODE OF PAYMENT</b></td>
-                <td style="background-color: rgba(220, 38, 38, .8);"><b>REMARKS</b></td>
+                <td width="6%" style="background-color: rgba(220, 38, 38, .8);"><b>OR DATE</b></td>
+                <td width="4%" style="background-color: rgba(220, 38, 38, .8);"><b>OR NO.</b></td>
+                <td width="8%" style="background-color: rgba(220, 38, 38, .8);"><b>PAYMENT AMOUNT</b></td>
+                <td width="8%" style="background-color: rgba(220, 38, 38, .8);"><b>PAYMENT DATE</b></td>
+                <td width="12%" style="background-color: rgba(220, 38, 38, .8);"><b>CUSTOMER</b></td>
+                <td width="7%" style="background-color: rgba(220, 38, 38, .8);"><b>STOCK NO.</b></td>
+                <td width="7%" style="background-color: rgba(220, 38, 38, .8);"><b>LOAN NO.</b></td>
+                <td width="10%" style="background-color: rgba(220, 38, 38, .8);"><b>COLLECTED FROM</b></td>
+                <td width="10%" style="background-color: rgba(220, 38, 38, .8);"><b>DEPOSITED TO</b></td>
+                <td width="7%" style="background-color: rgba(220, 38, 38, .8);"><b>PYMT DETAILS</b></td>
+                <td width="6%" style="background-color: rgba(220, 38, 38, .8);"><b>MODE OF PAYMENT</b></td>
+                <td width="15%" style="background-color: rgba(220, 38, 38, .8);"><b>REMARKS</b></td>
             </tr>
         </thead>
         <tbody style="font-weight: normal;">';
@@ -224,20 +232,20 @@
                 $or_date = $systemModel->checkDate('empty', $row['or_date'], '', 'm/d/Y', '');
             }
 
-            $response.= ' <tr>
-                                <td>'. $or_date .'</td>
-                                <td>'. $or_number .'</td>
-                                <td>'. number_format($payment_amount, 2) .'</td>
-                                <td>'. $payment_date .'</td>
-                                <td>'. $customerName .'</td>
-                                <td>'. $stockNumber .'</td>
-                                <td>'. $loan_number .'</td>
-                                <td>'. $miscellaneous_client_name .'</td>
-                                <td>'. $bank_name .'</td>
-                                <td>'. $payment_details .'</td>
-                                <td>'. $mode_of_payment .'</td>
-                                <td>'. $remarks .'</td>
-                            </tr>';
+            $response .= '<tr>
+                            <td width="6%">' . $or_date . '</td>
+                            <td width="4%">' . $or_number . '</td>
+                            <td width="8%">' . number_format($payment_amount, 2) . '</td>
+                            <td width="8%">' . $payment_date . '</td>
+                            <td width="12%">' . $customerName . '</td>
+                            <td width="7%">' . $stockNumber . '</td>
+                            <td width="7%">' . $loan_number . '</td>
+                            <td width="10%">' . $miscellaneous_client_name . '</td>
+                            <td width="10%">' . $bank_name . '</td>
+                            <td width="7%">' . $payment_details . '</td>
+                            <td width="6%">' . $mode_of_payment . '</td>
+                            <td width="15%" style="width: 15%; font-size: 10px; white-space: nowrap;">'. $remarks .'</td>
+                        </tr>';
             
                         
         }

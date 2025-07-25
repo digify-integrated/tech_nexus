@@ -39,8 +39,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # -------------------------------------------------------------
         case 'add part table':
             $parts_incoming_id = $_POST['parts_incoming_id'];
-            $sql = $databaseModel->getConnection()->prepare('CALL generateAllPartOptions(:parts_incoming_id)');
+            $company_id = $_POST['company_id'];
+            $sql = $databaseModel->getConnection()->prepare('CALL generateAllPartOptions(:parts_incoming_id, :company_id)');
             $sql->bindValue(':parts_incoming_id', $parts_incoming_id, PDO::PARAM_STR);
+            $sql->bindValue(':company_id', $company_id, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -100,7 +102,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
 
                 $action = '';
-                if($part_incoming_status == 'Draft' || ($part_incoming_status == 'On-Process' && $updatePartCost['total'] > 0)){
+                if($part_incoming_status == 'Draft' || ($part_incoming_status == 'On-Process' && $updatePartCost['total'] > 0 && $received_quantity == 0 && $remaining_quantity != 0)){
                     $action .= '
                     <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#part-cart-offcanvas" aria-controls="part-cart-offcanvas" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Update Part Item">
                                         <i class="ti ti-edit"></i>
@@ -108,11 +110,25 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
                
                 if($part_incoming_status == 'On-Process' && $remaining_quantity > 0){
-                    $action .= ' <button type="button" class="btn btn-icon btn-warning receive-quantity" data-bs-toggle="offcanvas" data-bs-target="#receive-item-offcanvas" aria-controls="receive-item-offcanvas" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Receive Item">
-                                        <i class="ti ti-arrow-bar-to-down"></i>
-                                    </button>';
-                }
+                    $action .= ' <button type="button" class="btn btn-icon btn-info receive-quantity" data-bs-toggle="offcanvas" data-bs-target="#receive-item-offcanvas" aria-controls="receive-item-offcanvas" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Receive Item">
+                                            <i class="ti ti-arrow-bar-to-down"></i>
+                                        </button>';
 
+                    if($received_quantity > 0){
+                        $action .= ' <button type="button" class="btn btn-icon btn-warning cancel-receive-quantity" data-bs-toggle="offcanvas" data-bs-target="#cancel-receive-item-offcanvas" aria-controls="cancel-receive-item-offcanvas" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Cancel Remaining Quantity">
+                                            <i class="ti ti-arrow-forward"></i>
+                                        </button>';
+                    }
+                    
+                }
+               
+                if($part_incoming_status == 'On-Process' && $received_quantity == 0 && $remaining_quantity != 0){
+                    $action .= ' <button type="button" class="btn btn-icon btn-danger cancel-item-quantity"  data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Cancel Remaining Quantity">
+                                            <i class="ti ti-x"></i>
+                                        </button>';
+                }
+               
+                
                 if($part_incoming_status == 'Draft'){
                     $action .= '<button type="button" class="btn btn-icon btn-danger delete-part-cart" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Delete Part Item">
                                         <i class="ti ti-trash"></i>
@@ -127,7 +143,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $short_name = $unitCode['short_name'] ?? null;
 
                 $response[] = [
-                    'PART' => '<div class="d-flex align-items-center"><img src="'. $partsImage .'" alt="image" class="bg-light wid-50 rounded">
+                    'PART' => '<div class="d-flex align-items-center">
                                     <div class="flex-grow-1 ms-3">
                                         <h5 class="mb-1">'. $description .'</h5>
                                         <p class="text-sm text-muted mb-0">'. $bar_code .'</p>
@@ -137,7 +153,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'RECEIVED_QUANTITY' => number_format($received_quantity, 2) . ' ' . $short_name,
                     'REMAINING_QUANTITY' => number_format($remaining_quantity, 2) . ' ' . $short_name,
                     'COST' => number_format($cost, 2) . ' PHP',
-                    'TOTAL_COST' => number_format($cost * $quantity, 2) . ' PHP',
+                    'TOTAL_COST' => number_format($cost * ($received_quantity + $remaining_quantity), 2) . ' PHP',
                     'AVAILABLE_STOCK' => number_format($partQuantity, 0, '', ',') . ' ' . $short_name,
                     'REMARKS' => $remarks,
                     'ACTION' => '<div class="d-flex gap-2">
@@ -158,7 +174,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $unitSale = $partDetails['unit_sale'] ?? null;
 
             $unitCode = $unitModel->getUnit($unitSale);
-                $short_name = $unitCode['short_name'] ?? null;
+            $short_name = $unitCode['short_name'] ?? null;
 
             $sql = $databaseModel->getConnection()->prepare('CALL generatePartIncomingItemTable2(:parts_id, :parts_incoming_start_date, :parts_incoming_end_date)');
             $sql->bindValue(':parts_id', $parts_id, PDO::PARAM_STR);
@@ -233,6 +249,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $filter_purchased_date_start_date = $systemModel->checkDate('empty', $_POST['filter_purchased_date_start_date'], '', 'Y-m-d', '');
             $filter_purchased_date_end_date = $systemModel->checkDate('empty', $_POST['filter_purchased_date_end_date'], '', 'Y-m-d', '');
             $incoming_status_filter = $_POST['filter_incoming_status'];
+            $company = $_POST['company'];
 
             if (!empty($incoming_status_filter)) {
                 // Convert string to array and trim each value
@@ -249,7 +266,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filter_incoming_status = null;
             }
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsIncomingTable(:filterIncomingDateStartDate, :filterIncomingDateEndDate, :filter_released_date_start_date, :filter_released_date_end_date, :filter_purchased_date_start_date, :filter_purchased_date_end_date, :filter_incoming_status)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsIncomingTable(:company, :filterIncomingDateStartDate, :filterIncomingDateEndDate, :filter_released_date_start_date, :filter_released_date_end_date, :filter_purchased_date_start_date, :filter_purchased_date_end_date, :filter_incoming_status)');
+            $sql->bindValue(':company', $company, PDO::PARAM_STR);
             $sql->bindValue(':filterIncomingDateStartDate', $filterIncomingDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterIncomingDateEndDate', $filterIncomingDateEndDate, PDO::PARAM_STR);
             $sql->bindValue(':filter_released_date_start_date', $filter_released_date_start_date, PDO::PARAM_STR);
@@ -290,6 +308,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $part_incoming_id_encrypted = $securityModel->encryptData($part_incoming_id);
+                if($company == '2'){
+                    $link = 'netruck-parts-incoming';
+                }
+                else{
+                    $link = 'parts-incoming';
+                }
 
                 $response[] = [
                     'TRANSACTION_ID' => $reference_number,
@@ -303,7 +327,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TRANSACTION_DATE' => $incoming_date,
                     'STATUS' => $part_incoming_status,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="parts-incoming.php?id='. $part_incoming_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="'. $link .'.php?id='. $part_incoming_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

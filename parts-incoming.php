@@ -3,11 +3,13 @@
   require('config/_check_user_active.php');
   require('model/parts-incoming-model.php');
   require('model/supplier-model.php');
+  require('model/product-model.php');
 
   $partsIncomingModel = new PartsIncomingModel($databaseModel);
   $supplierModel = new SupplierModel($databaseModel);
+  $productModel = new ProductModel($databaseModel);
 
-  $pageTitle = 'Parts Incoming';
+  $pageTitle = 'Fuso Parts Incoming';
     
   $partsIncomingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'read');
   $partsIncomingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'create');
@@ -16,6 +18,7 @@
   $partsIncomingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'duplicate');
   $viewPartCost = $userModel->checkSystemActionAccessRights($user_id, 203);
   $updatePartCost = $userModel->checkSystemActionAccessRights($user_id, 204);
+  $approvePartsIncoming = $userModel->checkSystemActionAccessRights($user_id, 209);
 
   if ($partsIncomingReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -41,6 +44,8 @@
   else{
     $partsIncomingID = null;
   }
+
+  $company = '3';
 
   $newRecord = isset($_GET['new']);
 
@@ -96,6 +101,7 @@
         </div>
         <input type="hidden" id="view-cost" value="<?php echo $viewPartCost['total'] ?>">
         <input type="hidden" id="update-cost" value="<?php echo $updatePartCost['total'] ?>">
+        <input type="hidden" id="page-company" value="<?php echo $company ?>">
         <?php
           if($newRecord && $partsIncomingCreateAccess['total'] > 0){
             require_once('view/_parts_incoming_new.php');

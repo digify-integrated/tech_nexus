@@ -1008,26 +1008,6 @@
                                 <div class="card">
                                     <div class="card-body py-2">
                                         <ul class="list-group list-group-flush">
-                                            <li class="list-group-item px-0">
-                                                <h5 class="mb-0">Unit Image </h5>
-                                            </li>
-                                            <li class="list-group-item px-0">
-                                                <div class="row align-items-center mb-3">
-                                                    <div class="col-sm-12 mb-sm-0">
-                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Image" id="unit-image" class="img-fluid rounded">
-                                                    </div>                      
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xl-6">
-                                <div class="card">
-                                    <div class="card-body py-2">
-                                        <ul class="list-group list-group-flush">
                                             <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                                                 <h5 class="mb-0">Additional Job Order Confirmation</h5>
                                                 <?php
@@ -1043,6 +1023,102 @@
                                                     <div class="col-sm-12 mb-sm-0">
                                                         <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Image" id="additional-job-order-confirmation-image" class="img-fluid rounded">
                                                     </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item px-0">
+                                                <h5 class="mb-0">Unit (Front) </h5>
+                                            </li>
+                                            <li class="list-group-item px-0">
+                                                <div class="row align-items-center mb-3">
+                                                    <div class="col-sm-12 mb-sm-0">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Front" id="unit-image" class="img-fluid rounded">
+                                                    </div>                      
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item px-0">
+                                                <h5 class="mb-0">Unit (Back) </h5>
+                                            </li>
+                                            <li class="list-group-item px-0">
+                                                <div class="row align-items-center mb-3">
+                                                    <div class="col-sm-12 mb-sm-0">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Back" id="unit-back" class="img-fluid rounded">
+                                                    </div>                      
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item px-0">
+                                                <h5 class="mb-0">Unit (Left Side) </h5>
+                                            </li>
+                                            <li class="list-group-item px-0">
+                                                <div class="row align-items-center mb-3">
+                                                    <div class="col-sm-12 mb-sm-0">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Left Side" id="unit-left" class="img-fluid rounded">
+                                                    </div>                      
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item px-0">
+                                                <h5 class="mb-0">Unit (Right Side) </h5>
+                                            </li>
+                                            <li class="list-group-item px-0">
+                                                <div class="row align-items-center mb-3">
+                                                    <div class="col-sm-12 mb-sm-0">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Right Side" id="unit-right" class="img-fluid rounded">
+                                                    </div>                      
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item px-0">
+                                                <h5 class="mb-0">Unit (Interior) </h5>
+                                            </li>
+                                            <li class="list-group-item px-0">
+                                                <div class="row align-items-center mb-3">
+                                                    <div class="col-sm-12 mb-sm-0">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Interior" id="unit-interior" class="img-fluid rounded">
+                                                    </div>                      
                                                 </div>
                                             </li>
                                         </ul>

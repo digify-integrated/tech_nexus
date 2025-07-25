@@ -26,9 +26,11 @@
                 <select class="form-control select2" name="customer_type" id="customer_type">
                   <option value="Customer">Customer</option>
                   <option value="Miscellaneous">Miscellaneous</option>
+                  <option value="Internal">Internal</option>
                 </select>
             </div>
-            <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label" id="customer-label">Customer <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label d-none" id="internal-label">Product <span class="text-danger">*</span></label>
             <div class="col-lg-4" id="customer-select">
                 <select class="form-control select2" name="customer_id" id="customer_id">
                   <option value="">--</option>
@@ -41,21 +43,18 @@
                   <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>
                 </select>
             </div>
+            <div class="col-lg-4 d-none" id="internal-select">
+                <select class="form-control select2" name="product_id" id="product_id">
+                  <option value="">--</option>
+                  <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
+                </select>
+            </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Issuance Number</label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off">
             </div>
-            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-            <select class="form-control select2" name="company_id" id="company_id">
-                  <option value="">--</option>
-                  <?php echo $companyModel->generateCompanyOptions(); ?>
-                </select>
-            </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Issuance Date</label>
             <div class="col-lg-4">
               <div class="input-group date">
@@ -65,9 +64,15 @@
                 </span>
               </div>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Reference Number</label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off">
+            </div>
+            <label class="col-lg-2 col-form-label">Request By <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">

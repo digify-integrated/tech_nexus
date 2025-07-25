@@ -42,8 +42,32 @@
             CancelForm();
         }
 
+        if($('#approve-form').length){
+            ApproveForm();
+        }
+
+        if($('#draft-form').length){
+            DraftForm();
+        }
+
         if($('#unit-image-form').length){
             UnitImageForm();
+        }
+
+        if($('#unit-back-form').length){
+            UnitBackForm();
+        }
+
+        if($('#unit-left-form').length){
+            UnitLeftForm();
+        }
+
+        if($('#unit-right-form').length){
+            UnitRightForm();
+        }
+
+        if($('#unit-interior-form').length){
+            UnitInteriorForm();
         }
 
         if($('#outgoing-checklist-form').length){
@@ -259,6 +283,64 @@
 
         $(document).on('click','#discard-create',function() {
             discardCreate('backjob-monitoring.php');
+        });
+
+        $(document).on('click','#tag-for-approval',function() {
+            const backjob_monitoring_id = $('#backjob-monitoring-id').text();
+            const transaction = 'tag for approval';
+    
+            Swal.fire({
+                title: 'Confirm Tagging Backjob For Approval',
+                text: 'Are you sure you want to tag this backjob for approval?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'For Approval',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/backjob-monitoring-controller.php',
+                        dataType: 'json',
+                        data: {
+                            backjob_monitoring_id : backjob_monitoring_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tagging Backjob For Approval Success', 'This has been tagged successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.noJobOrder) {
+                                    showNotification('Tagging Backjob For Approval Error', 'There is no job order loaded.', 'danger');
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tagging Backjob For Approval Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
         });
 
         $(document).on('click','#tag-as-on-process',function() {
@@ -1121,7 +1203,7 @@ function CancelForm(){
         },
         messages: {
             cancellation_reason: {
-                required: 'Please eneter the cancellation remarks'
+                required: 'Please enter the cancellation remarks'
             },
         },
         errorPlacement: function (error, element) {
@@ -1187,6 +1269,172 @@ function CancelForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-tag-as-cancelled', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function ApproveForm(){
+    $('#approve-form').validate({
+        rules: {
+            approval_remarks: {
+                required: true
+            },
+        },
+        messages: {
+            approval_remarks: {
+                required: 'Please enter the approval remarks'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const backjob_monitoring_id = $('#backjob-monitoring-id').text();
+            const transaction = 'approve';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/backjob-monitoring-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&backjob_monitoring_id=' + backjob_monitoring_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-approve');
+                },
+                success: function (response) {
+                    if (!response.success) {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                    else{
+                        window.location.reload();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-approve', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function DraftForm(){
+    $('#draft-form').validate({
+        rules: {
+            set_to_draft_reason: {
+                required: true
+            },
+        },
+        messages: {
+            set_to_draft_reason: {
+                required: 'Please enter the set to draft reason'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const backjob_monitoring_id = $('#backjob-monitoring-id').text();
+            const transaction = 'set to draft';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/backjob-monitoring-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&backjob_monitoring_id=' + backjob_monitoring_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-draft');
+                },
+                success: function (response) {
+                    if (!response.success) {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                    else{
+                        window.location.reload();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-draft', 'Submit');
                 }
             });
         
@@ -1278,6 +1526,370 @@ function UnitImageForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-unit-image', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function UnitBackForm(){
+    $('#unit-back-form').validate({
+        rules: {
+            unit_back_image: {
+                required: true
+            },
+        },
+        messages: {
+            unit_back_image: {
+                required: 'Please choose the image'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const backjob_monitoring_id = $('#backjob-monitoring-id').text();
+            const transaction = 'save unit back';
+    
+            var formData = new FormData(form);
+            formData.append('backjob_monitoring_id', backjob_monitoring_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/backjob-monitoring-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-unit-back');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Image Upload Success', 'The image has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-unit-back', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function UnitLeftForm(){
+    $('#unit-left-form').validate({
+        rules: {
+            unit_left_image: {
+                required: true
+            },
+        },
+        messages: {
+            unit_left_image: {
+                required: 'Please choose the image'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const backjob_monitoring_id = $('#backjob-monitoring-id').text();
+            const transaction = 'save unit left';
+    
+            var formData = new FormData(form);
+            formData.append('backjob_monitoring_id', backjob_monitoring_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/backjob-monitoring-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-unit-left');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Image Upload Success', 'The image has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-unit-left', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function UnitRightForm(){
+    $('#unit-right-form').validate({
+        rules: {
+            unit_right_image: {
+                required: true
+            },
+        },
+        messages: {
+            unit_right_image: {
+                required: 'Please choose the image'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const backjob_monitoring_id = $('#backjob-monitoring-id').text();
+            const transaction = 'save unit right';
+    
+            var formData = new FormData(form);
+            formData.append('backjob_monitoring_id', backjob_monitoring_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/backjob-monitoring-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-unit-right');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Image Upload Success', 'The image has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-unit-right', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function UnitInteriorForm(){
+    $('#unit-interior-form').validate({
+        rules: {
+            unit_interior_image: {
+                required: true
+            },
+        },
+        messages: {
+            unit_interior_image: {
+                required: 'Please choose the image'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const backjob_monitoring_id = $('#backjob-monitoring-id').text();
+            const transaction = 'save unit interior';
+    
+            var formData = new FormData(form);
+            formData.append('backjob_monitoring_id', backjob_monitoring_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/backjob-monitoring-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-unit-interior');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Image Upload Success', 'The image has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-unit-interior', 'Submit');
                 }
             });
         

@@ -1,6 +1,7 @@
 <?php
     $partTransactionDetails = $partsTransactionModel->getPartsTransaction($partsTransactionID);
     $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
+    $customer_type = $partTransactionDetails['customer_type'];
     $number_of_items = $partTransactionDetails['number_of_items'] ?? 0;
     $total_discount = $partTransactionDetails['total_discount'] ?? 0;
     
@@ -23,36 +24,61 @@
           </div>
            <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
           <?php
-            if($part_transaction_status == 'Draft'){
-              echo '<button class="btn btn-info ms-2" type="button" id="on-process">On-Process</button>';
-            }
-
-            if($part_transaction_status == 'Draft' || $part_transaction_status == 'Approved' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'On-Process'){
-              echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
-            }
-
-            if($part_transaction_status == 'On-Process' || $part_transaction_status == 'For Approval'){
-              echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
-            }
-
-            if($part_transaction_status == 'On-Process'){
-              if($total_discount > 0){
+            if($customer_type == 'Internal'){
+              if($part_transaction_status == 'Draft'){
                 echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Approval</button>';
+              }
+
+              if($part_transaction_status == 'For Approval' && $approvePartsTransaction['total'] > 0){
+                echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-transaction-offcanvas" aria-controls="approve-transaction-offcanvas" id="approved">Approved</button>';
+              }
+
+              if($part_transaction_status == 'Approved'){
+                echo '<button class="btn btn-info ms-2" type="button" id="on-process">On-Process</button>';
+              }
+
+              if($part_transaction_status == 'On-Process' && $releasePartsTransaction['total'] > 0){
+                echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
+              }
+
+              if($part_transaction_status == 'Draft' || $part_transaction_status == 'For Approval'){
+                echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
+              }
+
+               if($part_transaction_status == 'On-Process' && $company == '2'){
+                  echo '<a href="parts-transaction-requisition-slip.php?id='. $partsTransactionID .'" class="button btn btn-info ms-2" target="_blank">Print Requisition Slip</a>';
+                }
+            }
+            else{
+              if($part_transaction_status == 'Draft'){
+                echo '<button class="btn btn-info ms-2" type="button" id="on-process">On-Process</button>';
+              }
+
+              if($part_transaction_status == 'Draft' || $part_transaction_status == 'Approved' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'On-Process'){
+                echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
+              }
+
+              if($part_transaction_status == 'On-Process' || $part_transaction_status == 'For Approval'){
+                echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
+              }
+
+              if($part_transaction_status == 'On-Process' && $total_discount > 0){
+                echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Approval</button>';
+              }
+
+              if((($total_discount > 0 && $part_transaction_status == 'Approved') ||( $total_discount <= 0 && $part_transaction_status == 'On-Process')) && $releasePartsTransaction['total'] > 0){
+                echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
+              }
+
+              if($part_transaction_status == 'For Approval' && $total_discount > 0 && $approvePartsTransaction['total'] > 0){
+                echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-transaction-offcanvas" aria-controls="approve-transaction-offcanvas" id="approved">Approved</button>';
               }
             }
 
-            if((($total_discount > 0 && $part_transaction_status == 'Approved') || $total_discount == 0) && $releasePartsTransaction['total'] > 0){
-              echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
-            }
-
-            if($part_transaction_status == 'For Approval' && $approvePartsTransaction['total'] > 0){
-              echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-transaction-offcanvas" aria-controls="approve-transaction-offcanvas" id="approved">Approved</button>';
-            }
-
             if ($partsTransactionCreateAccess['total'] > 0 && $part_transaction_status == 'Draft') {
-              echo '<button type="submit" form="parts-transaction-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
-                      <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
-            }
+                echo '<button type="submit" form="parts-transaction-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
+                        <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
+              }
           ?>
           </div>
         </div>
@@ -65,10 +91,12 @@
               <select class="form-control select2" name="customer_type" id="customer_type" <?php echo $disabled; ?>>
                 <option value="Customer">Customer</option>
                 <option value="Miscellaneous">Miscellaneous</option>
+                  <option value="Internal">Internal</option>
               </select>
             </div>
             <div class="col-lg-6 mt-3 mt-lg-0">
-              <label class="form-label">Customer <span class="text-danger">*</span></label>
+               <label class="form-label" id="customer-label">Customer <span class="text-danger">*</span></label>
+               <label class="form-label" id="internal-label">Product <span class="text-danger">*</span></label>
               <div id="customer-select">
                 <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
@@ -81,21 +109,20 @@
                   <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>
                 </select>
               </div>
+              <div class="d-none" id="internal-select"> 
+                  <select class="form-control select2" name="product_id" id="product_id" <?php echo $disabled; ?>>
+                    <option value="">--</option>
+                    <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
+                  </select>
+              </div>
             </div>
           </div>
           <div class="form-group row">
-            <div class="col-lg-4 mt-3 mt-lg-0">
+            <div class="col-lg-6 mt-3 mt-lg-0">
               <label class="form-label">Issuance Number</label>
               <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
             </div>
-            <div class="col-lg-4 mt-3 mt-lg-0">
-              <label class="form-label">Company <span class="text-danger">*</span></label>
-              <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
-                <option value="">--</option>
-                <?php echo $companyModel->generateCompanyOptions(); ?>
-              </select>
-            </div>
-            <div class="col-lg-4 mt-3 mt-lg-0">
+            <div class="col-lg-6 mt-3 mt-lg-0">
               <label class="form-label">Issuance Date</label>
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off" <?php echo $disabled; ?>>
@@ -106,11 +133,17 @@
             </div>
           </div>
           <div class="form-group row">
-            <div class="col-lg-4 mt-3 mt-lg-0">
+            <div class="col-lg-6 mt-3 mt-lg-0">
               <label class="form-label">Reference Number</label>
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
             </div>
-            <div class="col-lg-4 mt-3 mt-lg-0">
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Request By <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off" <?php echo $disabled; ?>>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-6 mt-3 mt-lg-0">
               <label class="form-label">Reference Date</label>
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="reference_date" name="reference_date" autocomplete="off" <?php echo $disabled; ?>>
@@ -145,14 +178,14 @@
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Remarks</label>
-                <textarea class="form-control" id="remarks" name="remarks" maxlength="2000" <?php echo $disabled; ?>></textarea>
-              </div>
+          <div class="form-group row">
+            <div class="col-lg-12 mt-3 mt-lg-0">
+              <label class="form-label">Remarks</label>
+              <textarea class="form-control" id="remarks" name="remarks" maxlength="2000" <?php echo $disabled; ?>></textarea>
             </div>
-        </div>
+          </div>
         </form>
       </div>
     </div>

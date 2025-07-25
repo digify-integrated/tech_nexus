@@ -223,6 +223,9 @@
                                 disbursement_id: disbursement_id,
                                 transaction : transaction
                             },
+                            beforeSend: function(){
+                                 $(this).addClass('d-none');
+                            },
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Post Disbursements Success', 'The selected disbursement have been posted successfully.', 'success');
@@ -248,6 +251,7 @@
                             },
                             complete: function(){
                                 toggleHideActionDropdown();
+                                $(this).addClass('d-none');
                             }
                         });
                         
@@ -476,6 +480,9 @@
                             disbursement_id : disbursement_id, 
                             transaction : transaction
                         },
+                        beforeSend: function(){
+                            $(this).addClass('d-none');
+                        },
                         success: function (response) {
                             if (response.success) {
                                 setNotification('Post Disbursement Success', 'The disbursement has been posted successfully.', 'success');
@@ -505,6 +512,9 @@
                                     showNotification('Post Disbursement Error', response.message, 'danger');
                                 }
                             }
+                        },
+                        complete: function(){
+                            $(this).addClass('d-none');
                         },
                         error: function(xhr, status, error) {
                             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

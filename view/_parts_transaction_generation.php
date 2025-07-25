@@ -39,8 +39,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # -------------------------------------------------------------
         case 'add part table':
             $parts_transaction_id = $_POST['parts_transaction_id'];
-            $sql = $databaseModel->getConnection()->prepare('CALL generateInStockPartOptions(:parts_transaction_id)');
+            $company = $_POST['company'];
+            $sql = $databaseModel->getConnection()->prepare('CALL generateInStockPartOptions(:parts_transaction_id, :company)');
             $sql->bindValue(':parts_transaction_id', $parts_transaction_id, PDO::PARAM_STR);
+            $sql->bindValue(':company', $company, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -243,6 +245,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $filter_approval_date_start_date = $systemModel->checkDate('empty', $_POST['filter_approval_date_start_date'], '', 'Y-m-d', '');
             $filter_approval_date_end_date = $systemModel->checkDate('empty', $_POST['filter_approval_date_end_date'], '', 'Y-m-d', '');
             $transaction_status_filter = $_POST['filter_transaction_status'];
+            $company = $_POST['company'];
 
             if (!empty($transaction_status_filter)) {
                 // Convert string to array and trim each value
@@ -259,7 +262,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filter_transaction_status = null;
             }
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsTransactionTable(:filterTransactionDateStartDate, :filterTransactionDateEndDate, :filter_approval_date_start_date, :filter_approval_date_end_date, :filter_transaction_status)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsTransactionTable(:company, :filterTransactionDateStartDate, :filterTransactionDateEndDate, :filter_approval_date_start_date, :filter_approval_date_end_date, :filter_transaction_status)');
+            $sql->bindValue(':company', $company, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateStartDate', $filterTransactionDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateEndDate', $filterTransactionDateEndDate, PDO::PARAM_STR);
             $sql->bindValue(':filter_approval_date_start_date', $filter_approval_date_start_date, PDO::PARAM_STR);
@@ -295,6 +299,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
 
+                if($company == '2'){
+                    $link = 'netruck-parts-transaction';
+                }
+                else{
+                    $link = 'parts-transaction';
+                }
+
                 $response[] = [
                     'TRANSACTION_ID' => $part_transaction_id,
                     'NUMBER_OF_ITEMS' => number_format($number_of_items, 0),
@@ -306,7 +317,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'ISSUANCE_DATE' => $issuance_date,
                     'STATUS' => $part_transaction_status,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="parts-transaction.php?id='. $part_transaction_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

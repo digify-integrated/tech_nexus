@@ -69,6 +69,18 @@ class BackJobMonitoringController {
                 case 'save unit image':
                     $this->saveBackJobMonitoringUnitImage();
                     break;
+                case 'save unit back':
+                    $this->saveBackJobMonitoringUnitBack();
+                    break;
+                case 'save unit left':
+                    $this->saveBackJobMonitoringUnitLeft();
+                    break;
+                case 'save unit right':
+                    $this->saveBackJobMonitoringUnitRight();
+                    break;
+                case 'save unit interior':
+                    $this->saveBackJobMonitoringUnitInterior();
+                    break;
                 case 'save outgoing checklist':
                     $this->saveBackJobMonitoringOutgoingChecklist();
                     break;
@@ -93,8 +105,17 @@ class BackJobMonitoringController {
                 case 'tag for cancelled':
                     $this->tagBackJobMonitoringAsCancelled();
                     break;
+                case 'approve':
+                    $this->tagBackJobMonitoringApprove();
+                    break;
+                case 'set to draft':
+                    $this->tagBackJobMonitoringSetToDraft();
+                    break;
                 case 'tag for release':
                     $this->tagBackJobMonitoringAsReleased();
+                    break;
+                case 'tag for approval':
+                    $this->tagBackJobMonitoringForApproval();
                     break;
                 case 'tag as on process':
                     $this->tagBackJobMonitoringAsOnProcess();
@@ -371,6 +392,406 @@ class BackJobMonitoringController {
             }
 
             $this->backJobMonitoringModel->updateBackJobMonitoringUnitImage($backjobMonitoringID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The back job monitoring does not exists.']);
+            exit;
+        }
+    }
+
+    public function saveBackJobMonitoringUnitBack() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $backjobMonitoringID = htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkBackJobMonitoringExist = $this->backJobMonitoringModel->checkBackJobMonitoringExist($backjobMonitoringID);
+        $total = $checkBackJobMonitoringExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['unit_back_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['unit_back_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['unit_back_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['unit_back_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
+            $clientoutgoingChecklistImage = !empty($backJobMonitoringDetails['unit_back']) ? '.' . $backJobMonitoringDetails['unit_back'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the image.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_BACKJOB_RELATIVE_PATH_FILE.'/unit_back/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_BACKJOB_FULL_PATH_FILE . '/unit_back/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->backJobMonitoringModel->updateBackJobMonitoringUnitBack($backjobMonitoringID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The back job monitoring does not exists.']);
+            exit;
+        }
+    }
+
+    public function saveBackJobMonitoringUnitLeft() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $backjobMonitoringID = htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkBackJobMonitoringExist = $this->backJobMonitoringModel->checkBackJobMonitoringExist($backjobMonitoringID);
+        $total = $checkBackJobMonitoringExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['unit_left_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['unit_left_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['unit_left_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['unit_left_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
+            $clientoutgoingChecklistImage = !empty($backJobMonitoringDetails['unit_left']) ? '.' . $backJobMonitoringDetails['unit_left'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the image.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_BACKJOB_RELATIVE_PATH_FILE.'/unit_left/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_BACKJOB_FULL_PATH_FILE . '/unit_left/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->backJobMonitoringModel->updateBackJobMonitoringUnitLeft($backjobMonitoringID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The back job monitoring does not exists.']);
+            exit;
+        }
+    }
+
+    public function saveBackJobMonitoringUnitRight() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $backjobMonitoringID = htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkBackJobMonitoringExist = $this->backJobMonitoringModel->checkBackJobMonitoringExist($backjobMonitoringID);
+        $total = $checkBackJobMonitoringExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['unit_right_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['unit_right_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['unit_right_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['unit_right_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
+            $clientoutgoingChecklistImage = !empty($backJobMonitoringDetails['unit_right']) ? '.' . $backJobMonitoringDetails['unit_right'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the image.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_BACKJOB_RELATIVE_PATH_FILE.'/unit_right/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_BACKJOB_FULL_PATH_FILE . '/unit_right/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->backJobMonitoringModel->updateBackJobMonitoringUnitRight($backjobMonitoringID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The back job monitoring does not exists.']);
+            exit;
+        }
+    }
+
+    public function saveBackJobMonitoringUnitInterior() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $backjobMonitoringID = htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkBackJobMonitoringExist = $this->backJobMonitoringModel->checkBackJobMonitoringExist($backjobMonitoringID);
+        $total = $checkBackJobMonitoringExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['unit_interior_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['unit_interior_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['unit_interior_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['unit_interior_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
+            $clientoutgoingChecklistImage = !empty($backJobMonitoringDetails['unit_interior']) ? '.' . $backJobMonitoringDetails['unit_interior'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the image.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_BACKJOB_RELATIVE_PATH_FILE.'/unit_interior/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_BACKJOB_FULL_PATH_FILE . '/unit_interior/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->backJobMonitoringModel->updateBackJobMonitoringUnitInterior($backjobMonitoringID, $filePath, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -777,6 +1198,64 @@ class BackJobMonitoringController {
         echo json_encode(['success' => true]);
     }
 
+    public function tagBackJobMonitoringApprove() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $backjobMonitoringID = htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8');
+        $approval_remarks = $_POST['approval_remarks'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkBackJobMonitoringExist = $this->backJobMonitoringModel->checkBackJobMonitoringExist($backjobMonitoringID);
+        $total = $checkBackJobMonitoringExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->backJobMonitoringModel->updateBackJobMonitoringAsApproved($backjobMonitoringID, 'Approved', $approval_remarks, $userID);
+
+        echo json_encode(['success' => true]);
+    }
+
+    public function tagBackJobMonitoringSetToDraft() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $backjobMonitoringID = htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8');
+        $set_to_draft_reason = $_POST['set_to_draft_reason'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkBackJobMonitoringExist = $this->backJobMonitoringModel->checkBackJobMonitoringExist($backjobMonitoringID);
+        $total = $checkBackJobMonitoringExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->backJobMonitoringModel->updateBackJobMonitoringAsDraft($backjobMonitoringID, 'Draft', $set_to_draft_reason, $userID);
+
+        echo json_encode(['success' => true]);
+    }
+
     # -------------------------------------------------------------
     #
     # Function: tagBackJobMonitoringAsCancelled
@@ -890,6 +1369,34 @@ class BackJobMonitoringController {
         }
     
         $this->backJobMonitoringModel->updateBackJobMonitoringAsForDR($backjobMonitoringID, 'For DR', $userID);
+
+        echo json_encode(['success' => true]);
+    }
+
+    public function tagBackJobMonitoringForApproval() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $backjobMonitoringID = htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkBackJobMonitoringExist = $this->backJobMonitoringModel->checkBackJobMonitoringExist($backjobMonitoringID);
+        $total = $checkBackJobMonitoringExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->backJobMonitoringModel->updateBackJobMonitoringAsForApproval($backjobMonitoringID, 'For Approval', $userID);
 
         echo json_encode(['success' => true]);
     }

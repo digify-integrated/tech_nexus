@@ -148,10 +148,12 @@ class PartsTransactionController {
         $customer_type = htmlspecialchars($_POST['customer_type'], ENT_QUOTES, 'UTF-8');
         $customer_id = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
         $misc_id = htmlspecialchars($_POST['misc_id'], ENT_QUOTES, 'UTF-8');
+        $product_id = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
         $issuance_no = htmlspecialchars($_POST['issuance_no'], ENT_QUOTES, 'UTF-8');
         $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
+        $request_by = htmlspecialchars($_POST['request_by'], ENT_QUOTES, 'UTF-8');
         $issuance_date = $this->systemModel->checkDate('empty', $_POST['issuance_date'], '', 'Y-m-d', '');
         $reference_date = $this->systemModel->checkDate('empty', $_POST['reference_date'], '', 'Y-m-d', '');
     
@@ -166,6 +168,10 @@ class PartsTransactionController {
             $customer_id = $misc_id;
         }
 
+        if($customer_type == 'Internal'){
+            $customer_id = $product_id;
+        }
+
         $checkPartsTransactionExist = $this->partsTransactionModel->checkPartsTransactionExist($parts_transaction_id);
         $total = $checkPartsTransactionExist['total'] ?? 0;
     
@@ -174,14 +180,14 @@ class PartsTransactionController {
             $overall_discount_type = htmlspecialchars($_POST['overall_discount_type'], ENT_QUOTES, 'UTF-8');
             $overall_discount_total = htmlspecialchars($_POST['overall_discount_total'], ENT_QUOTES, 'UTF-8');
 
-            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $overall_discount, $overall_discount_type, $overall_discount_total, $userID);
+            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $overall_discount, $overall_discount_type, $overall_discount_total, $request_by, $userID);
             
             echo json_encode(value: ['success' => true, 'insertRecord' => false, 'partsTransactionID' => $this->securityModel->encryptData($parts_transaction_id)]);
             exit;
         } 
         else {
             $partsTransactionID = $this->generateTransactionID();
-            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $userID);
+            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $request_by, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => true, 'partsTransactionID' => $this->securityModel->encryptData($partsTransactionID)]);
             exit;
@@ -281,6 +287,14 @@ class PartsTransactionController {
         
         if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+         $partTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
+        $number_of_items = $partTransactionDetails['number_of_items'] ?? 0;
+
+        if($number_of_items == 0){
+            echo json_encode(['success' => false, 'noItem' => true]);
             exit;
         }
 
@@ -399,6 +413,18 @@ class PartsTransactionController {
         if($quantityCheck > 0){
             echo json_encode(['success' => false, 'cartQuantity' => true]);
             exit;
+        }
+
+        $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
+        $customer_type = $partsTransactionDetails['customer_type'];
+
+        if($customer_type == 'Internal'){
+            $reference_number = (int)$this->systemSettingModel->getSystemSetting(32)['value'] + 1;
+
+            $this->partsTransactionModel->updatePartsTransactionSlipReferenceNumber($parts_transaction_id, $reference_number, $userID);
+
+            $this->systemSettingModel->updateSystemSettingValue(32, $reference_number, $userID);
+
         }
     
         $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Approved', $approval_remarks, $userID);
@@ -686,6 +712,7 @@ class PartsTransactionController {
                 'issuance_no' => $partsTransactionDetails['issuance_no'],
                 'reference_number' => $partsTransactionDetails['reference_number'],
                 'remarks' => $partsTransactionDetails['remarks'],
+                'request_by' => $partsTransactionDetails['request_by'],
                 'discount' => $partsTransactionDetails['discount'],
                 'discount_type' => $partsTransactionDetails['discount_type'],
                 'overall_total' => $partsTransactionDetails['overall_total'],

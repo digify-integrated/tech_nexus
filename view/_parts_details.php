@@ -91,7 +91,12 @@ if($addPartExpense['total'] > 0){
                         }
 
                         if ($partsCreateAccess['total'] > 0) {
-                          echo '<a class="btn btn-success m-r-5 form-details" href="parts.php?new">Create</a>';
+                          if($company == '2'){
+                            echo '<a class="btn btn-success m-r-5 form-details" href="netruck-parts.php?new">Create</a>';
+                          }
+                          else{
+                            echo '<a class="btn btn-success m-r-5 form-details" href="parts.php?new">Create</a>';
+                          }
                         }
             ?>
           </div>
@@ -176,13 +181,6 @@ if($addPartExpense['total'] > 0){
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-3 col-form-label">Company <span class="text-danger">*</span></label>
-                <div class="col-lg-3">
-                  <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabledPartsForm; ?>>
-                    <option value="">--</option>
-                    <?php echo $companyModel->generateCompanyOptions(); ?>
-                  </select>
-                </div>
                 <label class="col-lg-3 col-form-label d-none">Quantity <span class="text-danger">*</span></label>
                 <div class="col-lg-3 d-none">
                   <input type="number" class="form-control" id="quantity" name="quantity" value="0" min="0" step="0.01" <?php echo $disabledPartsForm; ?>>
@@ -194,12 +192,12 @@ if($addPartExpense['total'] > 0){
                     <?php echo $unitModel->generateUnitOptions(); ?>
                   </select>
                 </div>
-              </div>
-              <div class="form-group row">
                 <label class="col-lg-3 col-form-label">Stock Alert <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <input type="number" class="form-control" id="stock_alert" name="stock_alert" value="0" min="0" step="1" <?php echo $disabledPartsForm; ?>>
                 </div>
+              </div>
+              <div class="form-group row">
                 <label class="col-lg-3 col-form-label">Part Price (SRP) <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <input type="number" class="form-control" id="part_price" name="part_price" min="0" step="0.01" <?php echo $disabledLandedCostForm2; ?>>

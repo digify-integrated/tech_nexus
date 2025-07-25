@@ -150,6 +150,7 @@
 
         $(document).on('click','#delete-parts-details',function() {
             const parts_id = $('#part-id').text();
+            const company_id = $('#page-company').val();
             const transaction = 'delete parts';
     
             Swal.fire({
@@ -175,7 +176,13 @@
                         success: function (response) {
                             if (response.success) {
                                 setNotification('Deleted Part Success', 'The parts has been deleted successfully.', 'success');
-                                window.location = 'parts.php';
+                                
+                                if(company_id == '2'){
+                                    window.location = 'netruck-parts.php';
+                                }
+                                else{
+                                    window.location = 'parts.php';
+                                }
                             }
                             else {
                                 if (response.isInactive) {
@@ -543,7 +550,15 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('parts.php');
+            
+            const company_id = $('#page-company').val();
+
+             if(company_id == '2'){
+                discardCreate('netruck-parts.php');
+            }
+            else{
+                discardCreate('parts.php');
+            }
         });
 
         $(document).on('click','#apply-filter',function() {
@@ -608,9 +623,6 @@ function partsForm(){
             part_subclass_id: {
                 required: true
             },
-            company_id: {
-                required: true
-            },
             quantity: {
                 required: true
             },
@@ -645,9 +657,6 @@ function partsForm(){
             },
             part_subclass_id: {
                 required: 'Please choose the subclass'
-            },
-            company_id: {
-                required: 'Please choose the company'
             },
             quantity: {
                 required: 'Please enter the quantity'
@@ -699,12 +708,13 @@ function partsForm(){
         },
         submitHandler: function(form) {
             const parts_id = $('#part-id').text();
+            const company_id = $('#page-company').val();
             const transaction = 'save new parts';
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/parts-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&parts_id=' + parts_id,
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_id=' + parts_id + '&company_id=' + company_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
@@ -715,7 +725,13 @@ function partsForm(){
                         const notificationDescription = response.insertRecord ? 'The parts has been inserted successfully.' : 'The parts has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'parts.php?id=' + response.partsID;
+                        if(company_id == '2'){
+                            window.location = 'netruck-parts.php?id=' + response.partsID;
+                        }
+                        else{
+                            window.location = 'parts.php?id=' + response.partsID;
+                        }
+                        
                     }
                     else {
                         if (response.isInactive) {
@@ -758,6 +774,7 @@ function partsTable(datatable_name, buttons = false, show_all = false){
     var parts_class_filter_values = [];
     var parts_subclass_filter_values = [];
     var warehouse_filter_values = [];
+    const company_id = $('#page-company').val();
 
     $('.brand-filter:checked').each(function() {
         brand_filter_values.push($(this).val());
@@ -868,6 +885,7 @@ function partsTable(datatable_name, buttons = false, show_all = false){
                 'filter_for_sale_date_start_date' : filter_for_sale_date_start_date,
                 'filter_for_sale_date_end_date' : filter_for_sale_date_end_date,
                 'parts_status_filter' : parts_status_filter,
+                'company_id' : company_id,
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
@@ -1184,11 +1202,12 @@ function partsDetailsForm(){
         submitHandler: function(form) {
             const parts_id = $('#part-id').text();
             const transaction = 'save parts details';
+            const company_id = $('#page-company').val();
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/parts-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&parts_id=' + parts_id,
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_id=' + parts_id + '&company_id=' + company_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-parts-details-data');
@@ -1475,7 +1494,6 @@ function displayDetails(transaction){
                         checkOptionExist('#part_category_id', response.part_category_id, '');
                         checkOptionExist('#part_class_id', response.part_class_id, '');
                         checkOptionExist('#part_subclass_id', response.part_subclass_id, '');
-                        checkOptionExist('#company_id', response.company_id, '');
                         checkOptionExist('#unit_sale', response.unit_sale, '');
                         checkOptionExist('#warehouse_id', response.warehouse_id, '');
                     } 

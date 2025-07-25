@@ -1,54 +1,51 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/back-job-monitoring-model.php');
+  require('model/parts-incoming-model.php');
+  require('model/supplier-model.php');
   require('model/product-model.php');
-  require('model/sales-proposal-model.php');
-  require('model/contractor-model.php');
-  require('model/work-center-model.php');
-  
-  $backJobMonitoringModel = new BackJobMonitoringModel($databaseModel);
 
-  $pageTitle = 'Internal Job Order';
-  
+  $partsIncomingModel = new PartsIncomingModel($databaseModel);
+  $supplierModel = new SupplierModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
-  $salesProposalModel = new SalesProposalModel($databaseModel);
-  $contractorModel = new ContractorModel($databaseModel);
-  $workCenterModel = new WorkCenterModel($databaseModel);
-    
-  $backJobMonitoringReadAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'read');
-  $backJobMonitoringCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'create');
-  $backJobMonitoringWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'write');
-  $backJobMonitoringDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'delete');
-  $backJobMonitoringDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'duplicate');
-  $approveInternalJobOrder = $userModel->checkSystemActionAccessRights($user_id, 210);
 
-  if ($backJobMonitoringReadAccess['total'] == 0) {
+  $pageTitle = 'Parts Incoming';
+    
+  $partsIncomingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 163, 'read');
+  $partsIncomingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 163, 'create');
+  $partsIncomingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 163, 'write');
+  $partsIncomingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 163, 'delete');
+  $partsIncomingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 163, 'duplicate');
+  $viewPartCost = $userModel->checkSystemActionAccessRights($user_id, 203);
+  $updatePartCost = $userModel->checkSystemActionAccessRights($user_id, 204);
+  $approvePartsIncoming = $userModel->checkSystemActionAccessRights($user_id, 209);
+
+  if ($partsIncomingReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: back-job-monitoring.php');
+      header('location: netruck-parts-incoming.php');
       exit;
     }
 
-    $backJobMonitoringID = $securityModel->decryptData($_GET['id']);
+    $partsIncomingID = $securityModel->decryptData($_GET['id']);
 
-    $checkBackJobMonitoringExist = $backJobMonitoringModel->checkBackJobMonitoringExist($backJobMonitoringID);
-    $total = $checkBackJobMonitoringExist['total'] ?? 0;
+    $checkPartsIncomingExist = $partsIncomingModel->checkPartsIncomingExist($partsIncomingID);
+    $total = $checkPartsIncomingExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
       exit;
     }
-
-    
   }
   else{
-    $backJobMonitoringID = null;
+    $partsIncomingID = null;
   }
+
+  $company = '2';
 
   $newRecord = isset($_GET['new']);
 
@@ -81,11 +78,11 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item">Production</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="back-job-monitoring.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item">Inventory</li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="netruck-parts-incoming.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($backJobMonitoringID)){
-                            echo '<li class="breadcrumb-item" id="backjob-monitoring-id">'. $backJobMonitoringID .'</li>';
+                        if(!$newRecord && !empty($partsIncomingID)){
+                            echo '<li class="breadcrumb-item" id="parts-incoming-id">'. $partsIncomingID .'</li>';
                         }
 
                         if($newRecord){
@@ -102,15 +99,18 @@
             </div>
           </div>
         </div>
+        <input type="hidden" id="view-cost" value="<?php echo $viewPartCost['total'] ?>">
+        <input type="hidden" id="update-cost" value="<?php echo $updatePartCost['total'] ?>">
+        <input type="hidden" id="page-company" value="<?php echo $company ?>">
         <?php
-          if($newRecord && $backJobMonitoringCreateAccess['total'] > 0){
-            require_once('view/_back_job_monitoring_new.php');
+          if($newRecord && $partsIncomingCreateAccess['total'] > 0){
+            require_once('view/_parts_incoming_new.php');
           }
-          else if(!empty($backJobMonitoringID)){
-            require_once('view/_back_job_monitoring_details.php');
+          else if(!empty($partsIncomingID) && $partsIncomingWriteAccess['total'] > 0){
+            require_once('view/_parts_incoming_details.php');
           }
           else{
-            require_once('view/_back_job_monitoring.php');
+            require_once('view/_parts_incoming.php');
           }
         ?>
       </div>
@@ -129,7 +129,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/back-job-monitoring.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/parts-incoming.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

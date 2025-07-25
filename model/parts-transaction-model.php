@@ -75,8 +75,8 @@ class PartsTransactionModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertPartsTransaction($p_part_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPartsTransaction(:p_part_transaction_id, :customer_type, :customer_id, :company_id, :issuance_date, :issuance_no, :reference_date, :reference_number, :remarks, :p_last_log_by)');
+    public function insertPartsTransaction($p_part_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $request_by, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartsTransaction(:p_part_transaction_id, :customer_type, :customer_id, :company_id, :issuance_date, :issuance_no, :reference_date, :reference_number, :remarks, :request_by, :p_last_log_by)');
         $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
         $stmt->bindValue(':customer_id', $customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':company_id', $company_id, PDO::PARAM_INT);
@@ -86,12 +86,13 @@ class PartsTransactionModel {
         $stmt->bindValue(':reference_date',  $reference_date, PDO::PARAM_STR);
         $stmt->bindValue(':reference_number',  $reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':remarks',  $remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':request_by',  $request_by, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
 
-    public function updatePartsTransaction($p_part_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $discount, $discount_type, $overall_total, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePartsTransaction(:p_part_transaction_id, :customer_type, :customer_id, :company_id, :issuance_date, :issuance_no, :reference_date, :reference_number, :remarks, :discount, :discount_type, :overall_total, :p_last_log_by)');
+    public function updatePartsTransaction($p_part_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $discount, $discount_type, $overall_total, $request_by, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsTransaction(:p_part_transaction_id, :customer_type, :customer_id, :company_id, :issuance_date, :issuance_no, :reference_date, :reference_number, :remarks, :discount, :discount_type, :overall_total, :request_by, :p_last_log_by)');
         $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
         $stmt->bindValue(':customer_id', $customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':company_id', $company_id, PDO::PARAM_INT);
@@ -104,6 +105,15 @@ class PartsTransactionModel {
         $stmt->bindValue(':discount', $discount, PDO::PARAM_STR);
         $stmt->bindValue(':discount_type', $discount_type, PDO::PARAM_STR);
         $stmt->bindValue(':overall_total', $overall_total, PDO::PARAM_STR);
+        $stmt->bindValue(':request_by', $request_by, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updatePartsTransactionSlipReferenceNumber($p_part_transaction_id, $slip_reference_no, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsTransactionSlipReferenceNumber(:p_part_transaction_id, :slip_reference_no, :p_last_log_by)');
+        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+        $stmt->bindValue(':slip_reference_no', $slip_reference_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

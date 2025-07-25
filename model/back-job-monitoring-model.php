@@ -116,6 +116,32 @@ class BackJobMonitoringModel {
         $stmt->execute();
     }
 
+    public function updateBackJobMonitoringAsApproved($p_backjob_monitoring_id, $p_status, $p_approval_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringAsApproved(:p_backjob_monitoring_id, :p_status, :p_approval_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_status', $p_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_approval_remarks', $p_approval_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateBackJobMonitoringAsDraft($p_backjob_monitoring_id, $p_status, $p_set_to_draft_reason, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringAsDraft(:p_backjob_monitoring_id, :p_status, :p_set_to_draft_reason, :p_last_log_by)');
+        $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_status', $p_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_set_to_draft_reason', $p_set_to_draft_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateBackJobMonitoringAsForApproval($p_backjob_monitoring_id, $p_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringAsForApproval(:p_backjob_monitoring_id, :p_status, :p_last_log_by)');
+        $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_status', $p_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function updateBackJobMonitoringAsOnProcess($p_backjob_monitoring_id, $p_status, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringAsOnProcess(:p_backjob_monitoring_id, :p_status, :p_last_log_by)');
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);

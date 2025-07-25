@@ -249,16 +249,6 @@ function documentCard(current_page, is_loading){
 
 function previewProtectedDocumentForm(){
     $('#preview-protected-document-form').validate({
-        rules: {
-            document_password: {
-              required: true,
-            },
-        },
-        messages: {
-            document_password: {
-              required: 'Please enter the document password'
-            }
-        },
       errorPlacement: function (error, element) {
         if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
           error.insertAfter(element.next('.select2-container'));

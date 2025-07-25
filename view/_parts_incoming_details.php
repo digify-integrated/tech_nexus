@@ -32,15 +32,27 @@
                 }
 
                 if($part_incoming_status == 'Draft'){
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="on-process">On-Process</button></li>';
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="for-approval">For Approval</button></li>';
                 }
 
-                if($part_incoming_status == 'Draft' || $part_incoming_status == 'On-Process'){
+                if($part_incoming_status == 'For Approval'){
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="on-process">Approve</button></li>';
+                }
+
+                if($part_incoming_status == 'Draft' || $part_incoming_status == 'For Approval' || $part_incoming_status == 'On-Process'){
                   $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-incoming-offcanvas" aria-controls="cancel-incoming-offcanvas" id="cancelled">Cancel</button></li>';
                 }
 
+                if($part_incoming_status == 'For Approval' || $part_incoming_status == 'On-Process'){
+                  $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-incoming-offcanvas" aria-controls="draft-incoming-offcanvas" id="draft">Set to Draft</button></li>';
+                }
+
                 if($releaseIncomingParts['total'] > 0 && $part_incoming_status == 'On-Process'){
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="release">Complete</button></li>';
+                  $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#release-incoming-offcanvas" aria-controls="release-incoming-offcanvas">Complete</button></li>';
+                }
+
+                if($part_incoming_status == 'On-Process'){
+                   $dropdown .= '<li><a href="parts-incoming-purchase-order.php?id='. $partsIncomingID .'" class="dropdown-item"  target="_blank">Print Purchase Order</a></li>';
                 }
                         
                 $dropdown .= '</ul>
@@ -61,10 +73,22 @@
       </div>
       <div class="card-body">
         <form id="parts-incoming-form" method="post" action="#">
+          <?php
+            $readonly = '';
+            if($company == '2'){
+              $readonly = 'readonly';
+            }
+          ?>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Reference Number <span class="text-danger">*</span></label>
+            <div class="col-lg-10">
+              <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="300" autocomplete="off" <?php echo $disabled; echo $readonly; ?>>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Request By <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="300" autocomplete="off" <?php echo $disabled; ?>>
+              <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off" <?php echo $disabled; ?>>
             </div>
              <label class="col-lg-2 col-form-label">Purchase Date <span class="text-danger">*</span></label>
             <div class="col-lg-4">
@@ -77,36 +101,19 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Supplier</label>
+            <label class="col-lg-2 col-form-label">Supplier <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="supplier_id" id="supplier_id" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <?php echo $supplierModel->generateSupplierOptions(); ?>
               </select>
             </div>
-             <label class="col-lg-2 col-form-label">Delivery Date <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Product <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <div class="input-group date">
-                <input type="text" class="form-control regular-datepicker" id="delivery_date" name="delivery_date" autocomplete="off" <?php echo $disabled; ?>>
-                <span class="input-group-text">
-                  <i class="feather icon-calendar"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-2 col-form-label">RR Number</label>
-            <div class="col-lg-4">
-              <input type="text" class="form-control" id="rr_no" name="rr_no" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
-            </div>
-             <label class="col-lg-2 col-form-label">RR Date</label>
-            <div class="col-lg-4">
-              <div class="input-group date">
-                <input type="text" class="form-control regular-datepicker" id="rr_date" name="rr_date" autocomplete="off" <?php echo $disabled; ?>>
-                <span class="input-group-text">
-                  <i class="feather icon-calendar"></i>
-                </span>
-              </div>
+              <select class="form-control select2" name="product_id" id="product_id" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
+              </select>
             </div>
           </div>
         </form>
@@ -139,9 +146,9 @@
                         <tr>
                             <th class="text-end"></th>
                             <th>Part</th>
-                            <th class="text-center">Quantity</th>
-                            <th class="text-center">Received Quantity</th>
-                            <th class="text-center">Remaining Quantity</th>
+                            <th class="text-center">Qty.</th>
+                            <th class="text-center">Received Qty.</th>
+                            <th class="text-center">Remaining Qty.</th>
                             <?php
                               if($viewPartCost['total'] > 0){
                                 echo '<th class="text-center">Cost</th>
@@ -317,6 +324,73 @@
 </div>
 
 <div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="draft-incoming-offcanvas" aria-labelledby="draft-incoming-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="draft-incoming-offcanvas-label" style="margin-bottom:-0.5rem">Set To Draft Incoming</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="draft-incoming-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Set to Draft Reason <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="set_to_draft_reason" name="set_to_draft_reason" maxlength="500"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-draft-incoming" form="draft-incoming-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="release-incoming-offcanvas" aria-labelledby="release-incoming-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="release-incoming-offcanvas-label" style="margin-bottom:-0.5rem">Complete Incoming</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="release-incoming-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0"> 
+                <label class="form-label">Invoice Number <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="invoice_number" name="invoice_number" maxlength="200" autocomplete="off">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0"> 
+                <label class="form-label">Delivery Date <span class="text-danger">*</span></label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="delivery_date" name="delivery_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-release-incoming" form="release-incoming-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="receive-item-offcanvas" aria-labelledby="receive-item-offcanvas-label">
       <div class="offcanvas-header">
         <h2 id="receive-item-offcanvas-label" style="margin-bottom:-0.5rem">Receive Item</h2>
@@ -342,6 +416,38 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-receive" form="receive-item-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cancel-receive-item-offcanvas" aria-labelledby="cancel-receive-item-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="cancel-receive-item-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Remaining Quantity</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="cancel-receive-item-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Cancel Quantity <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="cancel_received_quantity" name="cancel_received_quantity" min="0.01" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Remaining Quantity</label>
+                <input type="number" class="form-control" id="cancel_remaining_quantity" name="cancel_remaining_quantity" min="0.01" step="0.01" readonly>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-cancel-receive" form="cancel-receive-item-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

@@ -183,6 +183,10 @@
             salesProposalClientConfirmationForm();
         }
 
+        if($('#sales-proposal-comaker-confirmation-form').length){
+            salesProposalComakerConfirmationForm();
+        }
+
         if($('#sales-proposal-engine-stencil-form').length){
             salesProposalEngineStencilForm();
         }
@@ -935,6 +939,12 @@
                                 else if (response.zeroBalance) {
                                     showNotification('For Review Error', 'The outstanding balance cannot be zero.', 'danger');
                                 } 
+                                else if (response.clientConfirmation) {
+                                    showNotification('For Review Error', 'Please upload the client confirmation first.', 'danger');
+                                } 
+                                else if (response.comakerConfirmation) {
+                                    showNotification('For Review Error', 'Please upload the comaker confirmation first.', 'danger');
+                                } 
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }
@@ -1236,7 +1246,7 @@
             const transaction = 'tag for DR';
     
             Swal.fire({
-                title: 'Confirm Tagging of Sales Proposeal For DR',
+                title: 'Confirm Tagging of Sales Proposal For DR',
                 text: 'Are you sure you want to tag this sales proposal for DR?',
                 icon: 'info',
                 showCancelButton: !0,
@@ -3723,6 +3733,97 @@ function salesProposalClientConfirmationForm(){
     });
 }
 
+function salesProposalComakerConfirmationForm(){
+    $('#sales-proposal-comaker-confirmation-form').validate({
+        rules: {
+            comaker_confirmation_image: {
+                required: true
+            },
+        },
+        messages: {
+            comaker_confirmation_image: {
+                required: 'Please choose the comaker confirmation image'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal comaker confirmation';
+    
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-comaker-confirmation');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Comaker Confirmation Upload Success', 'The comaker confirmation has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-comaker-confirmation', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function salesProposalCreditAdviceForm(){
     $('#sales-proposal-credit-advice-form').validate({
         rules: {
@@ -5891,6 +5992,10 @@ function displayDetails(transaction){
                             document.getElementById('client-confirmation-image').src = response.clientConfirmation;
                         }
 
+                        if($('#comaker-confirmation-image').length){
+                            document.getElementById('comaker-confirmation-image').src = response.comakerConfirmation;
+                        }
+
                         if($('#credit-advice-image').length){
                             document.getElementById('credit-advice-image').src = response.creditAdvice;
                         }
@@ -5913,6 +6018,22 @@ function displayDetails(transaction){
 
                         if($('#unit-image').length){
                             document.getElementById('unit-image').src = response.unitImage;
+                        }
+
+                        if($('#unit-back').length){
+                            document.getElementById('unit-back').src = response.unitBack;
+                        }
+
+                        if($('#unit-left').length){
+                            document.getElementById('unit-left').src = response.unitLeft;
+                        }
+
+                        if($('#unit-right').length){
+                            document.getElementById('unit-right').src = response.unitRight;
+                        }
+
+                        if($('#unit-interior').length){
+                            document.getElementById('unit-interior').src = response.unitInterior;
                         }
                     } 
                     else {

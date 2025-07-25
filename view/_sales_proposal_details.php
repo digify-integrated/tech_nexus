@@ -91,9 +91,7 @@
           <li><a class="nav-link" id="sales-proposal-tab-10" data-bs-toggle="pill" href="#v-additional-job-order" role="tab" aria-controls="v-additional-job-order" aria-selected="false" disabled>Additional Job Order</a></li>
           <li><a class="nav-link" id="sales-proposal-tab-11" data-bs-toggle="pill" href="#v-confirmations" role="tab" aria-controls="v-confirmations" aria-selected="false" disabled>Confirmations</a></li>
           <li><a class="nav-link" id="sales-proposal-tab-12" data-bs-toggle="pill" href="#v-remarks" role="tab" aria-controls="v-remarks" aria-selected="false" disabled>Remarks</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-13" data-bs-toggle="pill" href="#v-ci-report" role="tab" aria-controls="v-ci-report" aria-selected="false" disabled>CI Report</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-14" data-bs-toggle="pill" href="#v-loan-proposal" role="tab" aria-controls="v-loan-proposal" aria-selected="false" disabled>Loan Proposal</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-15" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-14" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
         </ul>
       </div>
     </div>
@@ -1077,29 +1075,6 @@
                   <div class="card-body py-2">
                     <ul class="list-group list-group-flush">
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0">New Engine Stencil </h5>
-                        <?php
-                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
-                            echo '<button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-new-engine-stencil-offcanvas" aria-controls="sales-proposal-new-engine-stencil-offcanvas" id="sales-proposal-new-engine-stencil">New Engine Stencil</button>';
-                          }
-                        ?>
-                      </li>
-                      <li class="list-group-item px-0">
-                        <div class="row align-items-center mb-3">
-                          <div class="col-sm-12 mb-sm-0">
-                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Engine Stencil Image" id="new-engine-stencil-image" class="img-fluid rounded">
-                          </div>                      
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-6">
-                <div class="card">
-                  <div class="card-body py-2">
-                    <ul class="list-group list-group-flush">
-                      <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Client Confirmation </h5>
                         <?php
                           if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
@@ -1118,8 +1093,54 @@
                   </div>
                 </div>
               </div>
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Comaker Confirmation </h5>
+                        <?php
+                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
+                            echo '<button class="btn btn-success me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-comaker-confirmation-offcanvas" aria-controls="sales-proposal-comaker-confirmation-offcanvas" id="sales-proposal-comaker-confirmation">Comaker Confirmation</button>';
+                          }
+                        ?>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Comaker Confirmation Image" id="comaker-confirmation-image" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="row">
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">New Engine Stencil </h5>
+                        <?php
+                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
+                            echo '<button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-new-engine-stencil-offcanvas" aria-controls="sales-proposal-new-engine-stencil-offcanvas" id="sales-proposal-new-engine-stencil">New Engine Stencil</button>';
+                          }
+                        ?>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Engine Stencil Image" id="new-engine-stencil-image" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
               <div class="col-xl-6">
                 <div class="card">
                   <div class="card-body py-2">
@@ -1145,6 +1166,8 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="row">
               <div class="col-xl-6">
                 <div class="card">
                   <div class="card-body py-2">
@@ -1163,8 +1186,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="row">
               <div class="col-xl-6">
                 <div class="card">
                   <div class="card-body py-2">
@@ -1176,24 +1197,6 @@
                         <div class="row align-items-center mb-3">
                           <div class="col-sm-12 mb-sm-0">
                             <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Outgoing Checklist Image" id="outgoing-checklist-image" class="img-fluid rounded">
-                          </div>                      
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-6">
-                <div class="card">
-                  <div class="card-body py-2">
-                    <ul class="list-group list-group-flush">
-                      <li class="list-group-item px-0">
-                        <h5 class="mb-0">Unit Image </h5>
-                      </li>
-                      <li class="list-group-item px-0">
-                        <div class="row align-items-center mb-3">
-                          <div class="col-sm-12 mb-sm-0">
-                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Image" id="unit-image" class="img-fluid rounded">
                           </div>                      
                         </div>
                       </li>
@@ -1219,6 +1222,100 @@
                         <div class="row align-items-center mb-3">
                           <div class="col-sm-12 mb-sm-0">
                             <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Image" id="additional-job-order-confirmation-image" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0">
+                        <h5 class="mb-0">Unit (Front)</h5>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Front" id="unit-image" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0">
+                        <h5 class="mb-0">Unit (Back)</h5>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Back" id="unit-back" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0">
+                        <h5 class="mb-0">Unit (Left Side)</h5>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Left" id="unit-left" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0">
+                        <h5 class="mb-0">Unit (Right Side)</h5>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Right" id="unit-right" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0">
+                        <h5 class="mb-0">Unit (Interior)</h5>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Interior" id="unit-interior" class="img-fluid rounded">
                           </div>                      
                         </div>
                       </li>
@@ -1496,6 +1593,35 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-sales-proposal-client-confirmation" form="sales-proposal-client-confirmation-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-comaker-confirmation-offcanvas" aria-labelledby="sales-proposal-client-confirmation-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-comaker-confirmation-offcanvas-label" style="margin-bottom:-0.5rem">Co-maker Confirmantion</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-comaker-confirmation-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Comaker Confirmation Image <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="comaker_confirmation_image" name="comaker_confirmation_image">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-comaker-confirmation" form="sales-proposal-comaker-confirmation-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

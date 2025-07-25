@@ -236,6 +236,9 @@ class SalesProposalController {
                 case 'save sales proposal client confirmation':
                     $this->saveSalesProposalClientConfirmation();
                     break;
+                case 'save sales proposal comaker confirmation':
+                    $this->saveSalesProposalComakerConfirmation();
+                    break;
                 case 'save sales proposal quality control form':
                     $this->saveSalesProposalQualityControlForm();
                     break;
@@ -244,6 +247,18 @@ class SalesProposalController {
                     break;
                 case 'save sales proposal unit image':
                     $this->saveSalesProposalUnitImage();
+                    break;
+                case 'save sales proposal unit back':
+                    $this->saveSalesProposalUnitBack();
+                    break;
+                case 'save sales proposal unit left':
+                    $this->saveSalesProposalUnitLeft();
+                    break;
+                case 'save sales proposal unit right':
+                    $this->saveSalesProposalUnitRight();
+                    break;
+                case 'save sales proposal unit interior':
+                    $this->saveSalesProposalUnitInterior();
                     break;
                 case 'save sales proposal additional job order confirmation':
                     $this->saveSalesProposalAdditionalJobOrderConfirmationImage();
@@ -749,6 +764,106 @@ class SalesProposalController {
             exit;
         }
     }
+
+    public function saveSalesProposalComakerConfirmation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $confirmationImageFileName = $_FILES['comaker_confirmation_image']['name'];
+            $confirmationImageFileSize = $_FILES['comaker_confirmation_image']['size'];
+            $confirmationImageFileError = $_FILES['comaker_confirmation_image']['error'];
+            $confirmationImageTempName = $_FILES['comaker_confirmation_image']['tmp_name'];
+            $confirmationImageFileExtension = explode('.', $confirmationImageFileName);
+            $confirmationImageActualFileExtension = strtolower(end($confirmationImageFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientConfirmationImage = !empty($salesProposalDetails['comaker_confirmation']) ? '.' . $salesProposalDetails['comaker_confirmation'] : null;
+    
+            if(file_exists($clientConfirmationImage)){
+                if (!unlink($clientConfirmationImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Comaker confirmation image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(11);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(11);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($confirmationImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($confirmationImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the comaker confirmation image.']);
+                exit;
+            }
+            
+            if($confirmationImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($confirmationImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The comaker confirmation image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $confirmationImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/comaker_confirmation/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/comaker_confirmation/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($confirmationImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalComakerConfirmation($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -1076,6 +1191,406 @@ class SalesProposalController {
             }
 
             $this->salesProposalModel->updateSalesProposalUnitImage($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
+
+    public function saveSalesProposalUnitBack() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['unit_back_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['unit_back_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['unit_back_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['unit_back_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientoutgoingChecklistImage = !empty($salesProposalDetails['unit_back']) ? '.' . $salesProposalDetails['unit_back'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Unit back cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the unit back.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The unit back exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/unit_back/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_back/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalUnitBack($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
+
+    public function saveSalesProposalUnitLeft() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['unit_left_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['unit_left_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['unit_left_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['unit_left_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientoutgoingChecklistImage = !empty($salesProposalDetails['unit_left']) ? '.' . $salesProposalDetails['unit_left'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Unit left cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the unit left.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The unit left exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/unit_left/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_left/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalUnitLeft($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
+
+    public function saveSalesProposalUnitRight() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['unit_right_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['unit_right_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['unit_right_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['unit_right_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientoutgoingChecklistImage = !empty($salesProposalDetails['unit_right']) ? '.' . $salesProposalDetails['unit_right'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Unit right cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the unit right.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The unit right exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/unit_right/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_right/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalUnitRight($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
+
+    public function saveSalesProposalUnitInterior() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['unit_interior_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['unit_interior_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['unit_interior_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['unit_interior_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientoutgoingChecklistImage = !empty($salesProposalDetails['unit_interior']) ? '.' . $salesProposalDetails['unit_interior'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Unit interior cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the unit interior.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The unit interior exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/unit_interior/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_interior/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalUnitInterior($salesProposalID, $filePath, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -1580,6 +2095,9 @@ class SalesProposalController {
         $productType = $salesProposalDetails['product_type'];
         $productID = $salesProposalDetails['product_id'];
         $customerID = $salesProposalDetails['customer_id'];
+        $client_confirmation = $salesProposalDetails['client_confirmation'];
+        $comaker_confirmation = $salesProposalDetails['comaker_confirmation'];
+        $transaction_type = $salesProposalDetails['transaction_type'];
 
         $customerDetails = $this->customerModel->getPersonalInformation($customerID);
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
@@ -1603,6 +2121,15 @@ class SalesProposalController {
             exit;
         }
 
+        if(empty($client_confirmation)){
+            echo json_encode(['success' => false, 'clientConfirmation' => true]);
+            exit;
+        }
+
+        if(empty($comaker_confirmation) && $transaction_type == 'Installment Sales'){
+            echo json_encode(['success' => false, 'comakerConfirmation' => true]);
+            exit;
+        }
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Review', '', $userID);
         $this->sendForReview('', $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null);
@@ -2329,7 +2856,7 @@ class SalesProposalController {
                 $expense_type = 'Rented';
             }
 
-            $this->productModel->insertProductExpense($productID, '', $loanNumber, 0, $expense_type, $particulars, $userID);
+            $this->productModel->insertProductExpense($productID, '', $loanNumber, 0, $expense_type, $particulars, date('Y-m-d'), $userID);
             $this->productModel->updateProductStatus($productID, $status, '', '', '', $userID);
         }
 
@@ -3987,10 +4514,15 @@ class SalesProposalController {
                 'success' => true,
                 'creditAdvice' => $this->systemModel->checkImage($salesProposalDetails['credit_advice'], 'default'),
                 'clientConfirmation' => $this->systemModel->checkImage($salesProposalDetails['client_confirmation'], 'default'),
+                'comakerConfirmation' => $this->systemModel->checkImage($salesProposalDetails['comaker_confirmation'], 'default'),
                 'newEngineStencil' => $this->systemModel->checkImage($salesProposalDetails['new_engine_stencil'], 'default'),
                 'qualityControlForm' => $this->systemModel->checkImage($salesProposalDetails['quality_control_form'], 'default'),
                 'outgoingChecklist' => $this->systemModel->checkImage($salesProposalDetails['outgoing_checklist'], 'default'),
                 'unitImage' => $this->systemModel->checkImage($salesProposalDetails['unit_image'], 'default'),
+                'unitBack' => $this->systemModel->checkImage($salesProposalDetails['unit_back'], 'default'),
+                'unitLeft' => $this->systemModel->checkImage($salesProposalDetails['unit_left'], 'default'),
+                'unitRight' => $this->systemModel->checkImage($salesProposalDetails['unit_right'], 'default'),
+                'unitInterior' => $this->systemModel->checkImage($salesProposalDetails['unit_interior'], 'default'),
                 'additionalJobOrderConfirmationImage' => $this->systemModel->checkImage($salesProposalDetails['additional_job_order_confirmation'], 'default'),
             ];
 

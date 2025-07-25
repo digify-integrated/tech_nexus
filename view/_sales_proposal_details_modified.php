@@ -203,31 +203,6 @@ $getAdditionalJobOrderBackjobCount = $salesProposalModel->getAdditionalJobOrderB
                   <div class="card-body py-2">
                     <ul class="list-group list-group-flush">
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0">Unit Image </h5>
-                        <?php
-                          if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
-                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
-                              echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-image-offcanvas" aria-controls="sales-proposal-unit-image-offcanvas" id="sales-proposal-unit-image">Unit Image</button>';
-                            }
-                          }
-                        ?>
-                      </li>
-                      <li class="list-group-item px-0">
-                        <div class="row align-items-center mb-3">
-                          <div class="col-sm-12 mb-sm-0">
-                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Image" id="unit-image" class="img-fluid rounded">
-                          </div>                      
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-6">
-                <div class="card">
-                  <div class="card-body py-2">
-                    <ul class="list-group list-group-flush">
-                      <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Additional Job Order Confirmation</h5>
                         <?php
                           if($salesProposalStatus != 'For DR' && $additionalJobOrderCount['total'] > 0){
@@ -241,6 +216,135 @@ $getAdditionalJobOrderBackjobCount = $salesProposalModel->getAdditionalJobOrderB
                         <div class="row align-items-center mb-3">
                           <div class="col-sm-12 mb-sm-0">
                             <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Image" id="additional-job-order-confirmation-image" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Unit (Front)</h5>
+                        <?php
+                          if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
+                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
+                              echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-image-offcanvas" aria-controls="sales-proposal-unit-image-offcanvas" id="sales-proposal-unit-image">Unit Front</button>';
+                            }
+                          }
+                        ?>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Front" id="unit-image" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Unit (Back)</h5>
+                        <?php
+                          if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
+                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
+                              echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-back-offcanvas" aria-controls="sales-proposal-unit-back-offcanvas" id="sales-proposal-unit-back">Unit Back</button>';
+                            }
+                          }
+                        ?>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Back" id="unit-back" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Unit (Left Side)</h5>
+                        <?php
+                          if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
+                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
+                              echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-left-offcanvas" aria-controls="sales-proposal-unit-left-offcanvas" id="sales-proposal-unit-left">Unit Left Side</button>';
+                            }
+                          }
+                        ?>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Left Side" id="unit-left" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Unit (Right Side)</h5>
+                        <?php
+                          if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
+                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
+                              echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-right-offcanvas" aria-controls="sales-proposal-unit-right-offcanvas" id="sales-proposal-unit-right">Unit Right Side</button>';
+                            }
+                          }
+                        ?>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Right Side" id="unit-right" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Unit (Interior)</h5>
+                        <?php
+                          if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
+                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
+                              echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-interior-offcanvas" aria-controls="sales-proposal-unit-interior-offcanvas" id="sales-proposal-unit-interior">Unit Interior</button>';
+                            }
+                          }
+                        ?>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Interior" id="unit-interior" class="img-fluid rounded">
                           </div>                      
                         </div>
                       </li>
@@ -400,7 +504,7 @@ $getAdditionalJobOrderBackjobCount = $salesProposalModel->getAdditionalJobOrderB
 <div>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-unit-image-offcanvas" aria-labelledby="sales-proposal-unit-image-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-unit-image-offcanvas-label" style="margin-bottom:-0.5rem">Unit Image</h2>
+      <h2 id="sales-proposal-unit-image-offcanvas-label" style="margin-bottom:-0.5rem">Unit (Front)</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -409,7 +513,7 @@ $getAdditionalJobOrderBackjobCount = $salesProposalModel->getAdditionalJobOrderB
           <form id="sales-proposal-unit-image-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Unit Image <span class="text-danger">*</span></label>
+                <label class="form-label">Unit (Front) <span class="text-danger">*</span></label>
                 <input type="file" class="form-control" id="unit_image_image" name="unit_image_image">
               </div>
             </div>
@@ -419,6 +523,122 @@ $getAdditionalJobOrderBackjobCount = $salesProposalModel->getAdditionalJobOrderB
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-sales-proposal-unit-image" form="sales-proposal-unit-image-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-unit-back-offcanvas" aria-labelledby="sales-proposal-unit-back-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-unit-back-offcanvas-label" style="margin-bottom:-0.5rem">Unit (Back)</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-unit-back-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Unit (Back) <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="unit_back_image" name="unit_back_image">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-unit-back" form="sales-proposal-unit-back-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-unit-left-offcanvas" aria-labelledby="sales-proposal-unit-left-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-unit-left-offcanvas-label" style="margin-bottom:-0.5rem">Unit (Left Side)</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-unit-left-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Unit (Left Side) <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="unit_left_image" name="unit_left_image">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-unit-left" form="sales-proposal-unit-left-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-unit-right-offcanvas" aria-labelledby="sales-proposal-unit-right-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-unit-right-offcanvas-label" style="margin-bottom:-0.5rem">Unit (Right Side)</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-unit-right-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Unit (Right Side) <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="unit_right_image" name="unit_right_image">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-unit-right" form="sales-proposal-unit-right-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-unit-interior-offcanvas" aria-labelledby="sales-proposal-unit-interior-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-unit-interior-offcanvas-label" style="margin-bottom:-0.5rem">Unit (Interior)</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-unit-interior-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Unit (Interior) <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="unit_interior_image" name="unit_interior_image">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-unit-interior" form="sales-proposal-unit-interior-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

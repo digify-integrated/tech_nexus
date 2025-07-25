@@ -913,6 +913,25 @@ class ProductModel {
 
         return $htmlOptions;
     }
+
+    public function generateAllProductWithStockNumberOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateAllProductOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $productID = $row['product_id'];
+            $description = $row['description'];
+            $stockNumber = $row['stock_number'];
+
+            if(!empty($stockNumber)){
+                $htmlOptions .= '<option value="' . htmlspecialchars($productID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) .'</option>';
+            }            
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

@@ -1166,7 +1166,7 @@
             const transaction = 'tag for DR';
     
             Swal.fire({
-                title: 'Confirm Tagging of Sales Proposeal For DR',
+                title: 'Confirm Tagging of Sales Proposal For DR',
                 text: 'Are you sure you want to tag this sales proposal for DR?',
                 icon: 'info',
                 showCancelButton: !0,
@@ -5940,6 +5940,22 @@ function displayDetails(transaction){
 
                         if($('#unit-image').length){
                             document.getElementById('unit-image').src = response.unitImage;
+                        }
+
+                        if($('#unit-back').length){
+                            document.getElementById('unit-back').src = response.unitBack;
+                        }
+
+                        if($('#unit-left').length){
+                            document.getElementById('unit-left').src = response.unitLeft;
+                        }
+
+                        if($('#unit-right').length){
+                            document.getElementById('unit-right').src = response.unitRight;
+                        }
+
+                        if($('#unit-interior').length){
+                            document.getElementById('unit-interior').src = response.unitInterior;
                         }
                     } 
                     else {

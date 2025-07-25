@@ -96,8 +96,20 @@
                         </a>
                         <div class="collapse " id="company-filter-collapse">
                           <div class="py-3">
+                           
                             <?php
-                              echo $companyModel->generateCompanyCheckBox();
+                              if($company == '2'){
+                                echo '<div class="form-check my-2">
+                                          <input class="form-check-input company-filter" type="checkbox" id="company-2" value="2" checked/>
+                                          <label class="form-check-label" for="company-2">NE TRUCK</label>
+                                      </div>';
+                              }
+                              else{
+                                echo '<div class="form-check my-2">
+                                          <input class="form-check-input company-filter" type="checkbox" id="company-3" value="3" checked/>
+                                          <label class="form-check-label" for="company-3">FUSO TARLAC</label>
+                                      </div>';
+                              }
                             ?>
                           </div>
                         </div>
@@ -184,7 +196,12 @@
               <ul class="list-inline ms-auto my-1">
                 <?php
                   if($partsCreateAccess['total'] > 0){
-                    echo '<li class="list-inline-item align-bottom mr-0"><a href="parts.php?new" class="btn btn-success">Create</a></li>';
+                    if($company == '2'){
+                      echo '<li class="list-inline-item align-bottom mr-0"><a href="netruck-parts.php?new" class="btn btn-success">Create</a></li>';
+                    }
+                    else{
+                      echo '<li class="list-inline-item align-bottom mr-0"><a href="parts.php?new" class="btn btn-success">Create</a></li>';
+                    }
                   }
                 ?>
                 <li class="list-inline-item align-bottom">
@@ -213,24 +230,24 @@
                   <table id="parts-table" class="table table-hover wrap w-100">
                     <thead>
                       <tr>
-                        <th class="all">
+                        <th>
                           <div class="form-check">
                             <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                           </div>
                         </th>
                         <th>Image</th>
-                        <th>Part</th>
-                        <th>Category</th>
-                        <th>Class</th>
-                        <th>Quantity</th>
+                        <th class="w-100">Part</th>
+                        <th class="w-100">Category</th>
+                        <th class="w-100">Class</th>
+                        <th class="w-100">Quantity</th>
                         <?php
                           if($viewSalesProposalPartCost['total'] > 0){
-                            echo '<th id="cost_column">Cost</th>';
+                            echo '<th id="cost_column" class="w-100">Cost</th>';
                           }
                         ?>
-                        <th>Price</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th class="w-100">Price</th>
+                        <th class="w-100">Status</th>
+                        <th class="w-100">Actions</th>
                       </tr>
                     </thead>
                     <tbody></tbody>

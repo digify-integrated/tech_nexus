@@ -18,10 +18,22 @@
       </div>
       <div class="card-body">
         <form id="parts-incoming-form" method="post" action="#">
-          <div class="form-group row">
+          <?php
+            $hidden = '';
+            if($company == '2'){
+              $hidden = 'd-none';
+            }
+          ?>
+          <div class="form-group row <?php echo $hidden; ?>">
             <label class="col-lg-2 col-form-label">Reference Number <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
+            <div class="col-lg-10">
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="300" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Requested By <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off">
             </div>
              <label class="col-lg-2 col-form-label">Purchase Date <span class="text-danger">*</span></label>
             <div class="col-lg-4">
@@ -41,29 +53,12 @@
                 <?php echo $supplierModel->generateSupplierOptions(); ?>
               </select>
             </div>
-            <label class="col-lg-2 col-form-label">Delivery Date <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Product <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <div class="input-group date">
-                <input type="text" class="form-control regular-datepicker" id="delivery_date" name="delivery_date" autocomplete="off">
-                <span class="input-group-text">
-                  <i class="feather icon-calendar"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-2 col-form-label">RR Number</label>
-            <div class="col-lg-4">
-              <input type="text" class="form-control" id="rr_no" name="rr_no" maxlength="100" autocomplete="off">
-            </div>
-             <label class="col-lg-2 col-form-label">RR Date</label>
-            <div class="col-lg-4">
-              <div class="input-group date">
-                <input type="text" class="form-control regular-datepicker" id="rr_date" name="rr_date" autocomplete="off">
-                <span class="input-group-text">
-                  <i class="feather icon-calendar"></i>
-                </span>
-              </div>
+              <select class="form-control select2" name="product_id" id="product_id">
+                <option value="">--</option>
+                <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
+              </select>
             </div>
           </div>
         </form>

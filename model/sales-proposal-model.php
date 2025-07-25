@@ -307,6 +307,14 @@ class SalesProposalModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    public function updateSalesProposalComakerConfirmation($p_sales_proposal_id, $p_comaker_confirmation, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalComakerConfirmation(:p_sales_proposal_id, :p_comaker_confirmation, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_comaker_confirmation', $p_comaker_confirmation, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -398,6 +406,34 @@ class SalesProposalModel {
     # -------------------------------------------------------------
     public function updateSalesProposalUnitImage($p_sales_proposal_id, $p_unit_image, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalUnitImage(:p_sales_proposal_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateSalesProposalUnitBack($p_sales_proposal_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalUnitBack(:p_sales_proposal_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateSalesProposalUnitLeft($p_sales_proposal_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalUnitLeft(:p_sales_proposal_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateSalesProposalUnitRight($p_sales_proposal_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalUnitRight(:p_sales_proposal_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateSalesProposalUnitInterior($p_sales_proposal_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalUnitInterior(:p_sales_proposal_id, :p_unit_image, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);

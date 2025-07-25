@@ -226,6 +226,22 @@
         if($('#sales-proposal-unit-image-form').length){
             salesProposalUnitImageForm();
         }
+        
+        if($('#sales-proposal-unit-back-form').length){
+            salesProposalUnitBackForm();
+        }
+        
+        if($('#sales-proposal-unit-left-form').length){
+            salesProposalUnitLeftForm();
+        }
+        
+        if($('#sales-proposal-unit-right-form').length){
+            salesProposalUnitRightForm();
+        }
+        
+        if($('#sales-proposal-unit-interior-form').length){
+            salesProposalUnitInteriorForm();
+        }
 
         if($('#sales-proposal-job-order-confirmation-form').length){
             salesProposalAdditionalJobOrderConfirmationImageForm();
@@ -891,6 +907,12 @@
                                 else if (response.zeroBalance) {
                                     showNotification('For Review Error', 'The outstanding balance cannot be zero.', 'danger');
                                 } 
+                                else if (response.clientConfirmation) {
+                                    showNotification('For Review Error', 'Please upload the client confirmation first.', 'danger');
+                                } 
+                                else if (response.comakerConfirmation) {
+                                    showNotification('For Review Error', 'Please upload the comaker confirmation first.', 'danger');
+                                } 
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }
@@ -1192,7 +1214,7 @@
             const transaction = 'tag for DR';
     
             Swal.fire({
-                title: 'Confirm Tagging of Sales Proposeal For DR',
+                title: 'Confirm Tagging of Sales Proposal For DR',
                 text: 'Are you sure you want to tag this sales proposal for DR?',
                 icon: 'info',
                 showCancelButton: !0,
@@ -4835,6 +4857,370 @@ function salesProposalUnitImageForm(){
     });
 }
 
+function salesProposalUnitBackForm(){
+    $('#sales-proposal-unit-back-form').validate({
+        rules: {
+            unit_back_image: {
+                required: true
+            },
+        },
+        messages: {
+            unit_back_image: {
+                required: 'Please choose the unit back'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal unit back';
+    
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-unit-back');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Unit Image Upload Success', 'The unit back has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-unit-back', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalUnitLeftForm(){
+    $('#sales-proposal-unit-left-form').validate({
+        rules: {
+            unit_left_image: {
+                required: true
+            },
+        },
+        messages: {
+            unit_left_image: {
+                required: 'Please choose the unit left'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal unit left';
+    
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-unit-left');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Unit Image Upload Success', 'The unit left has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-unit-left', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalUnitRightForm(){
+    $('#sales-proposal-unit-right-form').validate({
+        rules: {
+            unit_right_image: {
+                required: true
+            },
+        },
+        messages: {
+            unit_right_image: {
+                required: 'Please choose the unit right'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal unit right';
+    
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-unit-right');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Unit Image Upload Success', 'The unit right has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-unit-right', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalUnitInteriorForm(){
+    $('#sales-proposal-unit-interior-form').validate({
+        rules: {
+            unit_interior_image: {
+                required: true
+            },
+        },
+        messages: {
+            unit_interior_image: {
+                required: 'Please choose the unit interior'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal unit interior';
+    
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-unit-interior');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Unit Image Upload Success', 'The unit interior has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-unit-interior', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function salesProposalAdditionalJobOrderConfirmationImageForm(){
     $('#sales-proposal-job-order-confirmation-form').validate({
         rules: {
@@ -5903,6 +6289,22 @@ function displayDetails(transaction){
 
                         if($('#unit-image').length){
                             document.getElementById('unit-image').src = response.unitImage;
+                        }
+
+                        if($('#unit-back').length){
+                            document.getElementById('unit-back').src = response.unitBack;
+                        }
+
+                        if($('#unit-left').length){
+                            document.getElementById('unit-left').src = response.unitLeft;
+                        }
+
+                        if($('#unit-right').length){
+                            document.getElementById('unit-right').src = response.unitRight;
+                        }
+
+                        if($('#unit-interior').length){
+                            document.getElementById('unit-interior').src = response.unitInterior;
                         }
                     } 
                     else {

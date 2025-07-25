@@ -172,6 +172,9 @@
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
                                 }
+                                else if (response.noItem) {
+                                    showNotification('Transaction For Approval Error', 'No parts added. Cannot be processed.', 'danger');
+                                }
                                 else if (response.cartQuantity) {
                                     showNotification('Transaction For Approval Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
                                 }
@@ -308,20 +311,42 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('parts-transaction.php');
+            if($('#page-company').val() == '2'){
+                discardCreate('netruck-parts-transaction.php');
+            }
+            else{
+                discardCreate('parts-transaction.php');
+            }
         });
 
         $(document).on('change','#customer_type',function() {
-            checkOptionExist('#customer_id', '', '');
             checkOptionExist('#misc_id', '', '');
+            checkOptionExist('#product_id', '', '');
+            checkOptionExist('#customer_id', '', '');
 
-            if($(this).val() === 'Customer'){
+            if($(this).val() == 'Customer'){
                 $('#misc-select').addClass('d-none');
+                $('#internal-select').addClass('d-none');
+                $('#internal-label').addClass('d-none');
+
                 $('#customer-select').removeClass('d-none');
+                $('#customer-label').removeClass('d-none');
+            }
+            else if($(this).val() == 'Miscellaneous'){
+                $('#customer-select').addClass('d-none');
+                $('#internal-select').addClass('d-none');
+                $('#internal-label').addClass('d-none');
+
+                $('#misc-select').removeClass('d-none');
+                $('#customer-label').removeClass('d-none');
             }
             else{
                 $('#customer-select').addClass('d-none');
-                $('#misc-select').removeClass('d-none');
+                $('#misc-select').addClass('d-none');
+                $('#customer-label').addClass('d-none');
+
+                $('#internal-select').removeClass('d-none');
+                $('#internal-label').removeClass('d-none');
             }
         });
     });
@@ -333,6 +358,7 @@ function partsTransactionTable(datatable_name, buttons = false, show_all = false
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
     var filter_approval_date_start_date = $('#filter_approval_date_start_date').val();
     var filter_approval_date_end_date = $('#filter_approval_date_end_date').val();
+    var company = $('#page-company').val();
 
     var transaction_status_filter = [];
 
@@ -383,6 +409,7 @@ function partsTransactionTable(datatable_name, buttons = false, show_all = false
                 'filter_approval_date_start_date' : filter_approval_date_start_date,
                 'filter_approval_date_end_date' : filter_approval_date_end_date,
                 'filter_transaction_status' : filter_transaction_status,
+                'company' : company,
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
@@ -417,6 +444,7 @@ function partsTransactionTable(datatable_name, buttons = false, show_all = false
 
 function addPartTable(datatable_name, buttons = false, show_all = false){
     var parts_transaction_id = $('#parts-transaction-id').text();
+    var company = $('#page-company').val();
     const type = 'add part table';
     var settings;
 
@@ -441,7 +469,7 @@ function addPartTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_parts_transaction_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'parts_transaction_id' : parts_transaction_id},
+            'data': {'type' : type, 'parts_transaction_id' : parts_transaction_id, 'company' : company},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -616,7 +644,14 @@ function partsTransactionForm(){
                     }
                 }
             },
-            company_id: {
+            product_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='customer_type']").val() === 'Internal';
+                    }
+                }
+            },
+            request_by: {
                 required: true
             },
         },
@@ -627,8 +662,11 @@ function partsTransactionForm(){
             misc_id: {
                 required: 'Please choose the customer'
             },
-            company_id: {
-                required: 'Please choose the company'
+            product_id: {
+                required: 'Please choose the product'
+            },
+            request_by: {
+                required: 'Please enter the request by'
             },
         },
         errorPlacement: function (error, element) {
@@ -663,11 +701,12 @@ function partsTransactionForm(){
         submitHandler: function(form) {
             const parts_transaction_id = $('#parts-transaction-id').text();
             const transaction = 'save parts transaction';
+            const company_id = $('#page-company').val();
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/parts-transaction-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&parts_transaction_id=' + parts_transaction_id,
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_transaction_id=' + parts_transaction_id + '&company_id=' + company_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
@@ -678,7 +717,14 @@ function partsTransactionForm(){
                         const notificationDescription = response.insertRecord ? 'The transaction has been inserted successfully.' : 'The transaction  has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'parts-transaction.php?id=' + response.partsTransactionID;
+
+                        if(company_id == '2'){
+                             window.location = 'netruck-parts-transaction.php?id=' + response.partsTransactionID;
+                        }
+                        else{
+                             window.location = 'parts-transaction.php?id=' + response.partsTransactionID;
+                        }
+                       
                     }
                     else {
                         if (response.isInactive) {
@@ -1258,6 +1304,7 @@ function displayDetails(transaction){
                         $('#reference_number').val(response.reference_number);
                         $('#reference_date').val(response.reference_date);
                         $('#remarks').val(response.remarks);
+                        $('#request_by').val(response.request_by);
                         $('#overall_discount').val(response.discount);
                         $('#overall_discount_total').val(response.overall_total);
                         $('#total-overall-discount-summary').text(response.addOnDiscount);
@@ -1268,6 +1315,9 @@ function displayDetails(transaction){
 
                         if(response.customer_type == 'Customer'){
                             checkOptionExist('#customer_id', response.customer_id, '');
+                        }
+                        else if(response.customer_type == 'Internal'){
+                            checkOptionExist('#product_id', response.customer_id, '');
                         }
                         else{
                             checkOptionExist('#misc_id', response.customer_id, '');

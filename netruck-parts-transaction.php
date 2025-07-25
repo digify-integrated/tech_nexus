@@ -1,54 +1,50 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/back-job-monitoring-model.php');
+  require('model/parts-transaction-model.php');
+  require('model/customer-model.php');
   require('model/product-model.php');
-  require('model/sales-proposal-model.php');
-  require('model/contractor-model.php');
-  require('model/work-center-model.php');
-  
-  $backJobMonitoringModel = new BackJobMonitoringModel($databaseModel);
+  require('model/miscellaneous-client-model.php');
 
-  $pageTitle = 'Internal Job Order';
-  
+  $partsTransactionModel = new PartsTransactionModel($databaseModel);
+  $customerModel = new CustomerModel($databaseModel);
+  $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
-  $salesProposalModel = new SalesProposalModel($databaseModel);
-  $contractorModel = new ContractorModel($databaseModel);
-  $workCenterModel = new WorkCenterModel($databaseModel);
-    
-  $backJobMonitoringReadAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'read');
-  $backJobMonitoringCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'create');
-  $backJobMonitoringWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'write');
-  $backJobMonitoringDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'delete');
-  $backJobMonitoringDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'duplicate');
-  $approveInternalJobOrder = $userModel->checkSystemActionAccessRights($user_id, 210);
 
-  if ($backJobMonitoringReadAccess['total'] == 0) {
+  $pageTitle = 'Parts Issuance';
+    
+  $partsTransactionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 164, 'read');
+  $partsTransactionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 164, 'create');
+  $partsTransactionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 164, 'write');
+  $partsTransactionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 164, 'delete');
+  $partsTransactionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 164, 'duplicate');
+
+  if ($partsTransactionReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: back-job-monitoring.php');
+      header('location: parts-transaction.php');
       exit;
     }
 
-    $backJobMonitoringID = $securityModel->decryptData($_GET['id']);
+    $partsTransactionID = $securityModel->decryptData($_GET['id']);
 
-    $checkBackJobMonitoringExist = $backJobMonitoringModel->checkBackJobMonitoringExist($backJobMonitoringID);
-    $total = $checkBackJobMonitoringExist['total'] ?? 0;
+    $checkPartsTransactionExist = $partsTransactionModel->checkPartsTransactionExist($partsTransactionID);
+    $total = $checkPartsTransactionExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
       exit;
     }
-
-    
   }
   else{
-    $backJobMonitoringID = null;
+    $partsTransactionID = null;
   }
+
+  $company = '2';
 
   $newRecord = isset($_GET['new']);
 
@@ -81,11 +77,11 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item">Production</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="back-job-monitoring.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item">Inventory</li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="netruck-parts-transaction.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($backJobMonitoringID)){
-                            echo '<li class="breadcrumb-item" id="backjob-monitoring-id">'. $backJobMonitoringID .'</li>';
+                        if(!$newRecord && !empty($partsTransactionID)){
+                            echo '<li class="breadcrumb-item" id="parts-transaction-id">'. $partsTransactionID .'</li>';
                         }
 
                         if($newRecord){
@@ -102,15 +98,16 @@
             </div>
           </div>
         </div>
+        <input type="hidden" id="page-company" value="<?php echo $company ?>">
         <?php
-          if($newRecord && $backJobMonitoringCreateAccess['total'] > 0){
-            require_once('view/_back_job_monitoring_new.php');
+          if($newRecord && $partsTransactionCreateAccess['total'] > 0){
+            require_once('view/_parts_transaction_new.php');
           }
-          else if(!empty($backJobMonitoringID)){
-            require_once('view/_back_job_monitoring_details.php');
+          else if(!empty($partsTransactionID) && $partsTransactionWriteAccess['total'] > 0){
+            require_once('view/_parts_transaction_details.php');
           }
           else{
-            require_once('view/_back_job_monitoring.php');
+            require_once('view/_parts_transaction.php');
           }
         ?>
       </div>
@@ -129,7 +126,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/back-job-monitoring.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/parts-transaction.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

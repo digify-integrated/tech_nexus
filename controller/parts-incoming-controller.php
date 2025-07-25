@@ -76,6 +76,9 @@ class PartsIncomingController {
                 case 'save received part item':
                     $this->saveReceivedPartsItem();
                     break;
+                case 'save cancel received part item':
+                    $this->saveCancelReceivedPartsItem();
+                    break;
                 case 'add parts incoming item':
                     $this->addPartsIncomingItem();
                     break;
@@ -91,6 +94,9 @@ class PartsIncomingController {
                 case 'delete part item':
                     $this->deletePartsIncomingCart();
                     break;
+                case 'cancel part item':
+                    $this->cancelPartsIncomingCart();
+                    break;
                 case 'add parts incoming document':
                     $this->addPartsDocument();
                     break;
@@ -103,8 +109,14 @@ class PartsIncomingController {
                 case 'tag incoming as on-process':
                     $this->tagAsOnProcess();
                     break;
+                case 'tag incoming as for approval':
+                    $this->tagForApproval();
+                    break;
                 case 'tag incoming as cancelled':
                     $this->tagAsCancelled();
+                    break;
+                case 'tag incoming as draft':
+                    $this->tagAsDraft();
                     break;
                 case 'get parts incoming details':
                     $this->getPartsIncomingDetails();
@@ -142,12 +154,14 @@ class PartsIncomingController {
     
         $userID = $_SESSION['user_id'];
         $parts_incoming_id = isset($_POST['parts_incoming_id']) ? htmlspecialchars($_POST['parts_incoming_id'], ENT_QUOTES, 'UTF-8') : null;
-        $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
+        $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
+        $product_id = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+        $request_by = htmlspecialchars($_POST['request_by'], ENT_QUOTES, 'UTF-8');
         $purchase_date = $this->systemModel->checkDate('empty', $_POST['purchase_date'], '', 'Y-m-d', '');
         $supplier_id = htmlspecialchars($_POST['supplier_id'], ENT_QUOTES, 'UTF-8');
-        $delivery_date = $this->systemModel->checkDate('empty', $_POST['delivery_date'], '', 'Y-m-d', '');
-        $rr_no = htmlspecialchars($_POST['rr_no'], ENT_QUOTES, 'UTF-8');
-        $rr_date = $this->systemModel->checkDate('empty', $_POST['rr_date'], '', 'Y-m-d', '');
+        $delivery_date = '';
+        $rr_no = '';
+        $rr_date = '';
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -160,13 +174,24 @@ class PartsIncomingController {
         $total = $checkPartsIncomingExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->partsIncomingModel->updatePartsIncoming($parts_incoming_id, $reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $userID);
+            $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
+
+            $this->partsIncomingModel->updatePartsIncoming($parts_incoming_id, $reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $request_by, $product_id, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'partsIncomingID' => $this->securityModel->encryptData($parts_incoming_id)]);
             exit;
         } 
         else {
-            $parts_incoming_id = $this->partsIncomingModel->insertPartsIncoming($reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $userID);
+            if($company_id == '3'){
+                $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
+            }
+            else{
+                $reference_number = (int)$this->systemSettingModel->getSystemSetting(31)['value'] + 1;
+            }
+
+            $parts_incoming_id = $this->partsIncomingModel->insertPartsIncoming($reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $company_id, $request_by, $product_id, $userID);
+
+            $this->systemSettingModel->updateSystemSettingValue(31, $reference_number, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'partsIncomingID' => $this->securityModel->encryptData($parts_incoming_id)]);
             exit;
@@ -226,6 +251,34 @@ class PartsIncomingController {
         exit;
     }
 
+    public function tagForApproval() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $parts_incoming_id = htmlspecialchars($_POST['parts_incoming_id'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+         $lines = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'lines')['total'];
+
+        if($lines == 0){
+            echo json_encode(['success' => false, 'noItem' => true]);
+            exit;
+        }
+
+        $this->partsIncomingModel->updatePartsIncomingStatus($parts_incoming_id, 'For Approval', '', $userID);
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     public function tagAsReleased() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -233,6 +286,8 @@ class PartsIncomingController {
         
         $userID = $_SESSION['user_id'];
         $parts_incoming_id = htmlspecialchars($_POST['parts_incoming_id'], ENT_QUOTES, 'UTF-8');
+        $invoice_number = htmlspecialchars($_POST['invoice_number'], ENT_QUOTES, 'UTF-8');
+        $delivery_date = $this->systemModel->checkDate('empty', $_POST['delivery_date'], '', 'Y-m-d', '');
         
         $user = $this->userModel->getUserByID($userID);
         
@@ -249,7 +304,14 @@ class PartsIncomingController {
             exit;
         }
 
-        $this->partsIncomingModel->updatePartsIncomingStatus($parts_incoming_id, 'Completed', '', $userID);
+        $rr_no = (int)$this->systemSettingModel->getSystemSetting(33)['value'] + 1;
+
+           
+
+        $this->partsIncomingModel->updatePartsIncomingReleased($parts_incoming_id, 'Completed', $invoice_number, $delivery_date, $rr_no, $userID);
+
+        $this->systemSettingModel->updateSystemSettingValue(33, $rr_no, $userID);
+
         
         echo json_encode(['success' => true]);
         exit;
@@ -272,6 +334,28 @@ class PartsIncomingController {
         }
 
         $this->partsIncomingModel->updatePartsIncomingStatus($parts_incoming_id, 'Cancelled', $cancellation_reason, $userID);
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function tagAsDraft() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $parts_incoming_id = htmlspecialchars($_POST['parts_incoming_id'], ENT_QUOTES, 'UTF-8');
+        $set_to_draft_reason = htmlspecialchars($_POST['set_to_draft_reason'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->partsIncomingModel->updatePartsIncomingStatus($parts_incoming_id, 'Draft', $set_to_draft_reason, $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -334,6 +418,33 @@ class PartsIncomingController {
             $part_id = $partsIncomingCartDetails['part_id'];
 
             $this->partsIncomingModel->updatePartsReceivedIncomingCart($part_incoming_cart_id, $part_id, $received_quantity, $userID);
+        } 
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function saveCancelReceivedPartsItem() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $part_incoming_cart_id = htmlspecialchars($_POST['part_incoming_cart_id'], ENT_QUOTES, 'UTF-8');
+        $cancel_received_quantity = $_POST['cancel_received_quantity'];
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $checkPartsIncomingCartExist = $this->partsIncomingModel->checkPartsIncomingCartExist($part_incoming_cart_id);
+        $total = $checkPartsIncomingCartExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->partsIncomingModel->updatePartsReceivedCancelIncomingCart($part_incoming_cart_id, $cancel_received_quantity, $userID);
         } 
         
         echo json_encode(['success' => true]);
@@ -462,6 +573,27 @@ class PartsIncomingController {
         }
     
         $this->partsIncomingModel->deletePartsIncoming($partsIncomingID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function cancelPartsIncomingCart() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $parts_incoming_cart_id = htmlspecialchars($_POST['parts_incoming_cart_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->partsIncomingModel->cancelPartsIncomingCart($parts_incoming_cart_id);
             
         echo json_encode(['success' => true]);
         exit;
@@ -620,6 +752,8 @@ class PartsIncomingController {
             $response = [
                 'success' => true,
                 'reference_number' => $partsIncomingDetails['reference_number'],
+                'request_by' => $partsIncomingDetails['request_by'],
+                'product_id' => $partsIncomingDetails['product_id'],
                 'purchase_date' =>  $this->systemModel->checkDate('empty', $partsIncomingDetails['purchase_date'], '', 'm/d/Y', ''),
                 'supplier_id' => $partsIncomingDetails['supplier_id'],
                 'delivery_date' =>  $this->systemModel->checkDate('empty', $partsIncomingDetails['delivery_date'], '', 'm/d/Y', ''),
@@ -659,6 +793,7 @@ class PartsIncomingController {
                 'cost' => number_format($cost, 2) . ' PHP',
                 'quantity' => number_format($quantity, 2),
                 'received' => number_format($received, 2),
+                'total_received' => $received,
                 'remaining' => number_format($remaining, 2),
                 'lines' => number_format($lines, 0, '', ','),
             ];
