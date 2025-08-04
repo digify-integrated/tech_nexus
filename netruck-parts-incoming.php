@@ -16,9 +16,11 @@
   $partsIncomingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 163, 'write');
   $partsIncomingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 163, 'delete');
   $partsIncomingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 163, 'duplicate');
-  $viewPartCost = $userModel->checkSystemActionAccessRights($user_id, 203);
-  $updatePartCost = $userModel->checkSystemActionAccessRights($user_id, 204);
+  $viewPartCost = $userModel->checkSystemActionAccessRights($user_id, 212);
+  $updatePartCost = $userModel->checkSystemActionAccessRights($user_id, 211);
+  $updatePartIncomingCompletedCost = $userModel->checkSystemActionAccessRights($user_id, 213);
   $approvePartsIncoming = $userModel->checkSystemActionAccessRights($user_id, 209);
+  $postPartsIncoming = $userModel->checkSystemActionAccessRights($user_id, 214);
 
   if ($partsIncomingReadAccess['total'] == 0) {
     header('location: 404.php');

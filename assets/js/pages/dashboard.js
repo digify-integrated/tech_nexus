@@ -10,8 +10,16 @@
             transmittalTable('#dashboard-transmittal-table');
         }
 
+        if($('#dashboard-transmittal-list').length){
+            transmittalList();
+        }
+
         if($('#travel-approval-form-table').length){
             travelApprovalFormTable('#travel-approval-form-table');
+        }
+
+        if($('#travel-approval-form-list').length){
+            travelApprovalFormList();
         }
 
         if($('#dashboard-sales-proposal-for-initial-approval-table').length){
@@ -28,6 +36,10 @@
 
         if($('#leave-dashboard-approval-table').length){
             leaveDashboardApprovalTable('#leave-dashboard-approval-table');
+        }
+
+        if($('#leave-dashboard-approval-list').length){
+            leaveDashboardApprovalList();
         }
 
         if($('#daily-employee-status-dashboard-table').length){
@@ -57,6 +69,34 @@
 
         if($('#official-business-employee-list').length){
             generateOfficialBusinessEmployeeList();
+        }
+
+        if($('#for-initial-approval-list').length){
+            dashboardInitialApprovalList();
+        }
+
+        if($('#for-final-approval-list').length){
+            dashboardFinalApprovalList();
+        }
+        
+        if($('#parts-incoming-dashboard-table').length){
+            partsIncomingTable('#parts-incoming-dashboard-table');
+        }
+        
+        if($('#parts-incoming-dashboard-list').length){
+            partsIncomingList();
+        }
+
+        if($('#parts-transaction-dashboard-list').length){
+            partsTransactionList();
+        }
+
+        if($('#dashboard-internal-job-order-list').length){
+            internalJobOrderList();
+        }
+
+        if($('#parts-transaction-dashboard-table').length){
+            partsTransactionTable('#parts-transaction-dashboard-table');
         }
 
         /*document.querySelector('#record-attendance').addEventListener('click', async function() {
@@ -396,6 +436,48 @@ function recordAttendanceForm(){
     });
 }
 
+function dashboardInitialApprovalList(){
+    const type = 'dashboard for initial approval list';
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_sales_proposal_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('for-initial-approval-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function dashboardFinalApprovalList(){
+    const type = 'dashboard for final approval list';
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_sales_proposal_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('for-final-approval-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
 function leaveDashboardApprovalTable(datatable_name, buttons = false, show_all = false){
     const type = 'leave dashboard approval table';
     var settings;
@@ -455,6 +537,27 @@ function leaveDashboardApprovalTable(datatable_name, buttons = false, show_all =
     $(datatable_name).dataTable(settings);
 }
 
+function leaveDashboardApprovalList(){
+    const type = 'leave dashboard approval list';
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_leave_application_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('leave-dashboard-approval-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
 function transmittalTable(datatable_name, buttons = false, show_all = false){
     const type = 'transmittal dashboard table';
     var settings;
@@ -512,6 +615,27 @@ function transmittalTable(datatable_name, buttons = false, show_all = false){
     destroyDatatable(datatable_name);
 
     $(datatable_name).dataTable(settings);
+}
+
+function transmittalList(){
+    const type = 'transmittal dashboard list';
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_transmittal_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('dashboard-transmittal-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
 }
 
 function dashboardInitialApproval(datatable_name, buttons = false, show_all = false){
@@ -760,4 +884,246 @@ function travelApprovalFormTable(datatable_name, buttons = false, show_all = fal
     destroyDatatable(datatable_name);
 
     $(datatable_name).dataTable(settings);
+}
+
+function travelApprovalFormList(){
+    const type = 'travel form dashboard list';
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_travel_form_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('travel-approval-form-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function partsIncomingTable(datatable_name, buttons = false, show_all = false){
+    const type = 'parts incoming dashboard table';
+    var view_cost = $('#view-cost').val();
+
+    var settings;
+
+    if(view_cost > 0){
+        var column = [
+            { 'data' : 'TRANSACTION_ID' },
+            { 'data' : 'PRODUCT' },
+            { 'data' : 'LINES' },
+            { 'data' : 'QUANTITY' },
+            { 'data' : 'COST' },
+            { 'data' : 'TRANSACTION_DATE' },
+            { 'data' : 'STATUS' },
+            { 'data' : 'ACTION' }
+        ];
+
+        var column_definition = [
+            { 'width': 'auto', 'aTargets': 0 },
+            { 'width': 'auto', 'aTargets': 1 },
+            { 'width': 'auto', 'aTargets': 2 },
+            { 'width': 'auto', 'aTargets': 3 },
+            { 'width': 'auto', 'aTargets': 4 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 5 },
+            { 'width': 'auto', 'aTargets': 6 },
+            { 'width': '15%','bSortable': false, 'aTargets': 7 }
+        ];
+    }
+    else{
+          var column = [
+            { 'data' : 'TRANSACTION_ID' },
+            { 'data' : 'PRODUCT' },
+            { 'data' : 'LINES' },
+            { 'data' : 'QUANTITY' },
+            { 'data' : 'TRANSACTION_DATE' },
+            { 'data' : 'STATUS' },
+            { 'data' : 'ACTION' }
+        ];
+
+        var column_definition = [
+            { 'width': 'auto', 'aTargets': 0 },
+            { 'width': 'auto', 'aTargets': 1 },
+            { 'width': 'auto', 'aTargets': 2 },
+            { 'width': 'auto', 'aTargets': 3 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 4 },
+            { 'width': 'auto', 'aTargets': 5 },
+            { 'width': '15%','bSortable': false, 'aTargets': 6 }
+        ];
+    }
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_parts_incoming_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function partsIncomingList(){
+    const type = 'parts incoming dashboard list';
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_parts_incoming_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('parts-incoming-dashboard-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function partsTransactionTable(datatable_name, buttons = false, show_all = false){
+    const type = 'parts transaction dashboard table';
+
+    var settings;
+
+    const column = [
+        { 'data' : 'TRANSACTION_ID' },
+        { 'data' : 'CUSTOMER_TYPE' },
+        { 'data' : 'REFERENCE' },
+        { 'data' : 'NUMBER_OF_ITEMS' },
+        { 'data' : 'TOTAL_AMOUNT' },
+        { 'data' : 'TRANSACTION_DATE' },
+        { 'data' : 'ISSUANCE_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '15%','bSortable': false, 'aTargets': 8 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_parts_transaction_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function partsTransactionList(){
+    const type = 'parts transaction dashboard list';
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_parts_transaction_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('parts-transaction-dashboard-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function internalJobOrderList(){
+    const type = 'backjob monitoring list';
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_back_job_monitoring_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('dashboard-internal-job-order-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
 }

@@ -1,5 +1,4 @@
 <div class="row">
-  
   <div class="col-xl-12 col-md-12">
     <div class="card table-card">
       <div class="card-header">
@@ -67,53 +66,53 @@
 </div>
 
 <div class="ecom-wrapper">
-<div class="offcanvas offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
-        <div class="offcanvas-body p-0 sticky-top">
-          <div id="ecom-filter" class="show collapse collapse-horizontal">
-            <div class="ecom-filter">
-              <div class="card">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                  <h5>Filter</h5>
-                  <a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" data-bs-dismiss="offcanvas" data-bs-target="#filter-canvas">
-                    <i class="ti ti-x f-20"></i>
-                  </a>
-                </div>
-                <div class="scroll-block">
-                  <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                      <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#transaction-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Attendance Date
-                        </a>
-                        <div class="collapse " id="transaction-date-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_attendance_date" id="filter_attendance_date" placeholder="Attendance Date" value="<?php echo date('m/d/Y') ?>">
-                            </div>
-                          </div>
+  <div class="offcanvas offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
+    <div class="offcanvas-body p-0 sticky-top">
+      <div id="ecom-filter" class="show collapse collapse-horizontal">
+        <div class="ecom-filter">
+          <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <h5>Filter</h5>
+              <a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" data-bs-dismiss="offcanvas" data-bs-target="#filter-canvas">
+                <i class="ti ti-x f-20"></i>
+              </a>
+            </div>
+            <div class="scroll-block">
+              <div class="card-body">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0 py-2">
+                    <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#transaction-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                      Attendance Date
+                    </a>
+                    <div class="collapse " id="transaction-date-filter-collapse">
+                      <div class="row py-3">
+                        <div class="col-12">
+                          <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_attendance_date" id="filter_attendance_date" placeholder="Attendance Date" value="<?php echo date('m/d/Y') ?>">
                         </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#branch-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Branch
-                        </a>
-                        <div class="collapse" id="branch-filter-collapse">
-                          <div class="py-3">
-                            <?php
-                              echo $branchModel->generateBranchCheckBox();
-                            ?>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
-                        <button type="button" class="btn btn-light-success w-100" id="apply-dashboard-filter-attendance-status">Apply</a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+                      </div>
+                    </div>
+                  </li>
+                  <li class="list-group-item px-0 py-2">
+                    <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#branch-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                      Branch
+                    </a>
+                    <div class="collapse" id="branch-filter-collapse">
+                      <div class="py-3">
+                        <?php
+                          echo $branchModel->generateBranchCheckBox();
+                        ?>
+                      </div>
+                    </div>
+                  </li>
+                  <li class="list-group-item px-0 py-2">
+                    <button type="button" class="btn btn-light-success w-100" id="apply-dashboard-filter-attendance-status">Apply</button>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
       </div>
-      </div>
+    </div>
+  </div>
+</div>

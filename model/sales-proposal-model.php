@@ -234,8 +234,8 @@ class SalesProposalModel {
         $stmt->execute();
     }
 
-    public function updateSalesProposalJobOrderProgress($p_sales_proposal_job_order_id, $p_cost, $p_job_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalJobOrderProgress(:p_sales_proposal_job_order_id, :p_cost, :p_job_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_last_log_by)');
+    public function updateSalesProposalJobOrderProgress($p_sales_proposal_job_order_id, $p_cost, $p_job_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalJobOrderProgress(:p_sales_proposal_job_order_id, :p_cost, :p_job_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_job_order_id', $p_sales_proposal_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_job_cost', $p_job_cost, PDO::PARAM_STR);
@@ -247,6 +247,7 @@ class SalesProposalModel {
         $stmt->bindValue(':p_planned_start_date', $p_planned_start_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_planned_finish_date', $p_planned_finish_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_date_started', $p_date_started, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -260,8 +261,8 @@ class SalesProposalModel {
         $stmt->execute();
     }
 
-    public function updateSalesProposalAdditionalJobOrderProgress($sales_proposal_additional_job_order_id, $p_cost, $p_job_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderProgress(:sales_proposal_additional_job_order_id, :p_cost, :p_job_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_last_log_by)');
+    public function updateSalesProposalAdditionalJobOrderProgress($sales_proposal_additional_job_order_id, $p_cost, $p_job_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderProgress(:sales_proposal_additional_job_order_id, :p_cost, :p_job_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':sales_proposal_additional_job_order_id', $sales_proposal_additional_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_job_cost', $p_job_cost, PDO::PARAM_STR);
@@ -273,6 +274,7 @@ class SalesProposalModel {
         $stmt->bindValue(':p_planned_start_date', $p_planned_start_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_planned_finish_date', $p_planned_finish_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_date_started', $p_date_started, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

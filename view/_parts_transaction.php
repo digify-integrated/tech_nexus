@@ -44,11 +44,8 @@
           <table id="parts-transaction-table" class="table table-hover nowrap w-100">
             <thead>
               <tr>
-                <th>Parts Transaction</th>
-                <th>Number of Items</th>
-                <th>Add-On</th>
-                <th>Discount</th>
-                <th>Sub-Total</th>
+                <th>Issuance No.</th>
+                <th>Product</th>
                 <th>Total Amount</th>
                 <th>Transaction Date</th>
                 <th>Issuance Date</th>
@@ -112,19 +109,19 @@
                     <div class="row py-3">
                       <div class="col-12">
                         <div class="form-check my-2">
-                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-draft" value="Draft"/>
+                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-draft" value="Draft" checked/>
                           <label class="form-check-label" for="transaction-status-draft">Draft</label>
                         </div>
                         <div class="form-check my-2">
-                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-on-process" value="On-Process"/>
+                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-on-process" value="On-Process" checked/>
                           <label class="form-check-label" for="transaction-status-on-process">On-Process</label>
                         </div>
                         <div class="form-check my-2">
-                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-for-approval" value="For Approval"/>
+                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-for-approval" value="For Approval" checked/>
                           <label class="form-check-label" for="transaction-status-for-approval">For Approval</label>
                         </div>
                         <div class="form-check my-2">
-                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-approved" value="Approved"/>
+                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-approved" value="Approved" checked/>
                           <label class="form-check-label" for="transaction-status-approved">Approved</label>
                         </div>
                         <div class="form-check my-2">

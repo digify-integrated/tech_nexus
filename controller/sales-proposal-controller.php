@@ -3815,6 +3815,7 @@ class SalesProposalController {
         $additional_job_order_planned_start_date = $this->systemModel->checkDate('empty', $_POST['additional_job_order_planned_start_date'], '', 'Y-m-d', '');
         $additional_job_order_planned_finish_date = $this->systemModel->checkDate('empty', $_POST['additional_job_order_planned_finish_date'], '', 'Y-m-d', '');
         $additional_ob_order_date_started = $this->systemModel->checkDate('empty', $_POST['additional_job_order_date_started'], '', 'Y-m-d', '');
+        $additional_job_order_remarks = htmlspecialchars($_POST['additional_job_order_remarks'], ENT_QUOTES, 'UTF-8');
         
 
         if($progress < 100){
@@ -3889,7 +3890,7 @@ class SalesProposalController {
             $this->salesProposalModel->updateSalesProposalAdditionalJobOrderApprovalDocument($salesProposalAdditionalJobOrderID, $filePath, $userID);
         }
     
-        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $cost, $additionalJobCost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $additional_job_order_planned_start_date, $additional_job_order_planned_finish_date, $additional_ob_order_date_started, $userID);
+        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderProgress($salesProposalAdditionalJobOrderID, $cost, $additionalJobCost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $additional_job_order_planned_start_date, $additional_job_order_planned_finish_date, $additional_ob_order_date_started, $additional_job_order_remarks, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -3912,12 +3913,13 @@ class SalesProposalController {
         $job_order_planned_start_date = $this->systemModel->checkDate('empty', $_POST['job_order_planned_start_date'], '', 'Y-m-d', '');
         $job_order_planned_finish_date = $this->systemModel->checkDate('empty', $_POST['job_order_planned_finish_date'], '', 'Y-m-d', '');
         $job_order_date_started = $this->systemModel->checkDate('empty', $_POST['job_order_date_started'], '', 'Y-m-d', '');
+        $job_order_remarks = htmlspecialchars($_POST['job_order_remarks'], ENT_QUOTES, 'UTF-8');
 
         if($progress < 100){
             $completionDate = null;
         }
     
-        $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $cost, $jobCost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $job_order_planned_start_date, $job_order_planned_finish_date, $job_order_date_started, $userID);
+        $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $cost, $jobCost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $job_order_planned_start_date, $job_order_planned_finish_date, $job_order_date_started, $job_order_remarks, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -4699,6 +4701,7 @@ class SalesProposalController {
                 'cost' => $salesProposalJobOrderDetails['cost'],
                 'jobCost' => $salesProposalJobOrderDetails['job_cost'],
                 'progress' => $salesProposalJobOrderDetails['progress'],
+                'remarks' => $salesProposalJobOrderDetails['remarks'],
                 'contractorID' => $salesProposalJobOrderDetails['contractor_id'],
                 'workCenterID' => $salesProposalJobOrderDetails['work_center_id'],
                 'backjob' => $salesProposalJobOrderDetails['backjob'],
@@ -4791,6 +4794,7 @@ class SalesProposalController {
                 'cost' => $salesProposalAdditionalJobOrderDetails['cost'],
                 'jobCost' => $salesProposalAdditionalJobOrderDetails['job_cost'],
                 'progress' => $salesProposalAdditionalJobOrderDetails['progress'],
+                'remarks' => $salesProposalAdditionalJobOrderDetails['remarks'],
                 'contractorID' => $salesProposalAdditionalJobOrderDetails['contractor_id'],
                 'workCenterID' => $salesProposalAdditionalJobOrderDetails['work_center_id'],
                 'backjob' => $salesProposalAdditionalJobOrderDetails['backjob'],

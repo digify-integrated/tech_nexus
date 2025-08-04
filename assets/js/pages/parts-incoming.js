@@ -6,6 +6,10 @@
             partsIncomingTable('#parts-incoming-table');
         }
 
+        if($('#parts-incoming-posting-table').length){
+            partsIncomingPostingTable('#parts-incoming-posting-table');
+        }
+
         if($('#parts-incoming-form').length){
             partsIncomingForm();
         }
@@ -137,8 +141,67 @@
                                 else if (response.noItem) {
                                     showNotification('Incoming Approve Error', 'No parts added. Cannot be approved.', 'danger');
                                 }
+                                
+                                else if (response.withoutCost) {
+                                    showNotification('Incoming Approve Error', 'There are parts without cost added. Cannot be for approval.', 'danger');
+                                }
                                 else {
                                     showNotification('Incoming Approve Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#post',function() {
+            var parts_incoming_id = $('#parts-incoming-id').text();
+            const transaction = 'tag incoming as posted';
+    
+            Swal.fire({
+                title: 'Confirm Incoming Posting',
+                text: 'Are you sure you want to post this incoming?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Post',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/parts-incoming-controller.php',
+                        dataType: 'json',
+                        data: {
+                            parts_incoming_id : parts_incoming_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Incoming Post Success', 'The incoming has been tagged as posted successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.noItem) {
+                                    showNotification('Incoming Post Error', 'No parts added. Cannot be posted.', 'danger');
+                                }
+                                else {
+                                    showNotification('Incoming Post Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -191,6 +254,9 @@
                                 }
                                 else if (response.noItem) {
                                     showNotification('Incoming For Approval Error', 'No parts added. Cannot be for approval.', 'danger');
+                                }
+                                else if (response.withoutCost) {
+                                    showNotification('Incoming For Approval Error', 'There are parts without cost added. Cannot be for approval.', 'danger');
                                 }
                                 else {
                                     showNotification('Incoming For Approval Error', response.message, 'danger');
@@ -479,11 +545,42 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
     if(view_cost > 0){
         var column = [
             { 'data' : 'TRANSACTION_ID' },
+            { 'data' : 'PRODUCT' },
             { 'data' : 'LINES' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED' },
             { 'data' : 'REMAINING' },
             { 'data' : 'COST' },
+            { 'data' : 'COMPLETION_DATE' },
+            { 'data' : 'PURCHASE_DATE' },
+            { 'data' : 'TRANSACTION_DATE' },
+            { 'data' : 'STATUS' },
+            { 'data' : 'ACTION' }
+        ];
+
+        var column_definition = [
+            { 'width': 'auto', 'aTargets': 0 },
+            { 'width': 'auto', 'aTargets': 1 },
+            { 'width': 'auto', 'aTargets': 2 },
+            { 'width': 'auto', 'aTargets': 3 },
+            { 'width': 'auto', 'aTargets': 4 },
+            { 'width': 'auto', 'aTargets': 5 },
+            { 'width': 'auto', 'aTargets': 6 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+            { 'width': 'auto', 'aTargets': 10 },
+            { 'width': '15%','bSortable': false, 'aTargets': 11 }
+        ];
+    }
+    else{
+        var column = [
+            { 'data' : 'TRANSACTION_ID' },
+            { 'data' : 'PRODUCT' },
+            { 'data' : 'LINES' },
+            { 'data' : 'QUANTITY' },
+            { 'data' : 'RECEIVED' },
+            { 'data' : 'REMAINING' },
             { 'data' : 'COMPLETION_DATE' },
             { 'data' : 'PURCHASE_DATE' },
             { 'data' : 'TRANSACTION_DATE' },
@@ -505,9 +602,110 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'width': '15%','bSortable': false, 'aTargets': 10 }
         ];
     }
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_parts_incoming_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 
+                'company' : company, 
+                'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
+                'filter_transaction_date_end_date' : filter_transaction_date_end_date,
+                'filter_released_date_start_date' : filter_released_date_start_date,
+                'filter_released_date_end_date' : filter_released_date_end_date,
+                'filter_purchased_date_start_date' : filter_purchased_date_start_date,
+                'filter_purchased_date_end_date' : filter_purchased_date_end_date,
+                'filter_incoming_status' : filter_incoming_status
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function partsIncomingPostingTable(datatable_name, buttons = false, show_all = false){
+    const type = 'parts incoming posting table';
+    var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
+    var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
+    var filter_released_date_start_date = $('#filter_released_date_start_date').val();
+    var filter_released_date_end_date = $('#filter_released_date_end_date').val();
+    var filter_purchased_date_start_date = $('#filter_purchased_date_start_date').val();
+    var filter_purchased_date_end_date = $('#filter_purchased_date_end_date').val();
+    var view_cost = $('#view-cost').val();
+
+    var incoming_status_filter = [];
+
+    $('.incoming-status-checkbox:checked').each(function() {
+        incoming_status_filter.push($(this).val());
+    });
+
+    var filter_incoming_status = incoming_status_filter.join(', ');
+
+    var settings;
+
+    if(view_cost > 0){
+        var column = [
+            { 'data' : 'TRANSACTION_ID' },
+            { 'data' : 'PRODUCT' },
+            { 'data' : 'LINES' },
+            { 'data' : 'QUANTITY' },
+            { 'data' : 'RECEIVED' },
+            { 'data' : 'REMAINING' },
+            { 'data' : 'COST' },
+            { 'data' : 'COMPLETION_DATE' },
+            { 'data' : 'PURCHASE_DATE' },
+            { 'data' : 'TRANSACTION_DATE' },
+            { 'data' : 'STATUS' },
+            { 'data' : 'ACTION' }
+        ];
+
+        var column_definition = [
+            { 'width': 'auto', 'aTargets': 0 },
+            { 'width': 'auto', 'aTargets': 1 },
+            { 'width': 'auto', 'aTargets': 2 },
+            { 'width': 'auto', 'aTargets': 3 },
+            { 'width': 'auto', 'aTargets': 4 },
+            { 'width': 'auto', 'aTargets': 5 },
+            { 'width': 'auto', 'aTargets': 6 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+            { 'width': 'auto', 'aTargets': 10 },
+            { 'width': '15%','bSortable': false, 'aTargets': 11 }
+        ];
+    }
     else{
         var column = [
             { 'data' : 'TRANSACTION_ID' },
+            { 'data' : 'PRODUCT' },
             { 'data' : 'LINES' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED' },
@@ -525,11 +723,12 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 2 },
             { 'width': 'auto', 'aTargets': 3 },
             { 'width': 'auto', 'aTargets': 4 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 5 },
+            { 'width': 'auto', 'aTargets': 5 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
-            { 'width': 'auto', 'aTargets': 8 },
-            { 'width': '15%','bSortable': false, 'aTargets': 9 }
+            { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+            { 'width': 'auto', 'aTargets': 9 },
+            { 'width': '15%','bSortable': false, 'aTargets': 10 }
         ];
     }
 
@@ -541,7 +740,6 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 
-                'company' : company, 
                 'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
                 'filter_transaction_date_end_date' : filter_transaction_date_end_date,
                 'filter_released_date_start_date' : filter_released_date_start_date,
@@ -1128,6 +1326,9 @@ function releaseIncomingForm(){
             invoice_number: {
                 required: true
             },
+            invoice_price: {
+                required: true
+            },
             delivery_date: {
                 required: true
             },
@@ -1135,6 +1336,9 @@ function releaseIncomingForm(){
         messages: {
             invoice_number: {
                 required: 'Please enter the invoice number'
+            },
+            invoice_price: {
+                required: 'Please enter the invoice price'
             },
             delivery_date: {
                 required: 'Please enter the delivery date'
@@ -1194,6 +1398,9 @@ function releaseIncomingForm(){
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
                         }
+                        else if (response.invoicePrice) {
+                            showNotification('Incoming Complete Error', 'The total cost does not match the invoice price.', 'danger');
+                        }
                         else if (response.remaining) {
                             showNotification('Incoming Complete Error', 'Some items have not been fully received yet. Please complete the receipt before proceeding.', 'danger');
                         }
@@ -1225,10 +1432,16 @@ function partItemForm(){
             quantity: {
                 required: true,
             },
+            cost: {
+                required: true,
+            },
         },
         messages: {
             quantity: {
                 required: 'Please enter the quantity',
+            },
+            cost: {
+                required: 'Please enter the cost',
             },
         },
         errorPlacement: function (error, element) {

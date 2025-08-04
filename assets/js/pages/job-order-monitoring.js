@@ -220,6 +220,7 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CANCELLATION_REASON' },
         { 'data' : 'CANCELLATION_CONFIRMATION' },
         { 'data' : 'BACKJOB' },
+        { 'data' : 'REMARKS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -239,7 +240,8 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 12 },
         { 'width': 'auto', 'aTargets': 13 },
         { 'width': 'auto', 'aTargets': 14 },
-        { 'width': '15%','bSortable': false, 'aTargets': 15 }
+        { 'width': 'auto', 'aTargets': 15 },
+        { 'width': '15%','bSortable': false, 'aTargets': 16 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -304,6 +306,7 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'data' : 'CANCELLATION_REASON' },
         { 'data' : 'CANCELLATION_CONFIRMATION' },
         { 'data' : 'BACKJOB' },
+        { 'data' : 'REMARKS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -325,7 +328,8 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'width': 'auto', 'aTargets': 14 },
         { 'width': 'auto', 'aTargets': 15 },
         { 'width': 'auto', 'aTargets': 16 },
-        { 'width': '15%','bSortable': false, 'aTargets': 17 }
+        { 'width': 'auto', 'aTargets': 17 },
+        { 'width': '15%','bSortable': false, 'aTargets': 18 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -619,6 +623,7 @@ function displayDetails(transaction){
                         $('#job_order_planned_start_date').val(response.plannedStartDate);
                         $('#job_order_planned_finish_date').val(response.plannedFinishDate);
                         $('#job_order_date_started').val(response.dateStarted);
+                        $('#job_order_remarks').val(response.remarks);
 
                         checkOptionExist('#job_order_contractor_id', response.contractorID, '');
                         checkOptionExist('#job_order_work_center_id', response.workCenterID, '');
@@ -659,6 +664,7 @@ function displayDetails(transaction){
                         $('#additional_job_order_progress').val(response.progress);
                         $('#additional_job_order_cost').val(response.cost);
                         $('#additional_job_cost').val(response.jobCost);
+                        $('#additional_job_remarks').val(response.remarks);
                         $('#additional_job_order_completion_date').val(response.completionDate);
                         $('#additional_job_order_planned_start_date').val(response.plannedStartDate);
                         $('#additional_job_order_planned_finish_date').val(response.plannedFinishDate);

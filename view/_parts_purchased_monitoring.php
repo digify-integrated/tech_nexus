@@ -1,22 +1,22 @@
-<div class="col-lg-12">
+<div class="row">
+  <div class="col-lg-12">
     <div class="card table-card">
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h5>Document List</h5>
+            <h5>Parts Purchased Monitoring List</h5>
           </div>
         </div>
       </div>
       <div class="card-body">
         <div class="table-responsive dt-responsive">
-          <table id="dashboard-document-table" class="table table-hover wrap w-100">
+          <table id="parts-purchased-monitoring-table" class="table table-hover nowrap w-100">
             <thead>
               <tr>
-                <th>Document</th>
-                <th>Document Category</th>
-                <th>Author</th>
-                <th>Upload Date</th>
+                <th>Product</th>
                 <th>Status</th>
+                <th>Progress</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -25,3 +25,4 @@
       </div>
     </div>
   </div>
+</div>

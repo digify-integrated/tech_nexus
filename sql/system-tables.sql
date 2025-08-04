@@ -6231,6 +6231,26 @@ CREATE TABLE part_transaction_cart(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
+CREATE TABLE part_transaction_job_order(
+	part_transaction_job_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    part_transaction_id VARCHAR(100) NOT NULL,
+	job_order_id INT NOT NULL,
+	type VARCHAR(100) NOT NULL,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part_transaction_additional_job_order(
+	part_transaction_additional_job_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    part_transaction_id VARCHAR(100) NOT NULL,
+	additional_job_order_id INT NOT NULL,
+	type VARCHAR(100) NOT NULL,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
 CREATE TABLE part_transaction_document(
 	part_transaction_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     part_transaction_id VARCHAR(100) NOT NULL,
@@ -6666,6 +6686,34 @@ CREATE INDEX bank_adb_index_bank_adb_id ON bank_adb(bank_adb_id);
 CREATE TABLE ci_file_type(
 	ci_file_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     ci_file_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part_purchased_monitoring(
+	part_purchased_monitoring_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	part_incoming_id INT UNSIGNED NOT NULL,
+	product_id INT UNSIGNED NOT NULL,
+	complete_date DATETIME,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part_purchased_monitoring_item(
+	part_purchased_monitoring_item_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    part_purchased_monitoring_id INT UNSIGNED NOT NULL,
+	part_id INT NOT NULL,
+	quantity INT NOT NULL DEFAULT 0,
+    quantity_issued INT NOT NULL DEFAULT 0,
+    not_issued_quantity INT NOT NULL DEFAULT 0,
+	part_purchased_item_status VARCHAR(50) NOT NULL DEFAULT 'For Issuance',
+	remarks VARCHAR(5000),
+    reference_number VARCHAR(500),
+    issuance_date DATE,
+	cancellation_date DATETIME,
+	cancellation_remarks VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );

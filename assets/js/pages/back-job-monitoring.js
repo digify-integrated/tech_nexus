@@ -867,6 +867,7 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'data' : 'DATE_STARTED' },
         { 'data' : 'COMPLETION_DATE' },
         { 'data' : 'PROGRESS' },
+        { 'data' : 'REMARKS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -881,7 +882,8 @@ function jobOrderProgress(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
         { 'width': 'auto', 'aTargets': 9 },
-        { 'width': '15%','bSortable': false, 'aTargets': 10 }
+        { 'width': 'auto', 'aTargets': 10 },
+        { 'width': '15%','bSortable': false, 'aTargets': 11 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -941,6 +943,7 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'data' : 'PLANNED_FINISH_DATE' },
         { 'data' : 'DATE_STARTED' },
         { 'data' : 'COMPLETION_DATE' },
+        { 'data' : 'REMARKS' },
         { 'data' : 'ACTION' }
     ];
 
@@ -957,7 +960,8 @@ function additionalJobOrderProgress(datatable_name, buttons = false, show_all = 
         { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 11 },
-        { 'width': '15%','bSortable': false, 'aTargets': 12 }
+        { 'width': 'auto', 'aTargets': 12},
+        { 'width': '15%','bSortable': false, 'aTargets': 13 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -2346,6 +2350,7 @@ function displayDetails(transaction){
                             $('#job_order_cost').val(response.cost);
                             $('#job_order_completion_date').val(response.completionDate);
                             $('#job_order').val(response.jobOrder);
+                            $('#job_order_remarks').val(response.remarks);
                             
                             $('#job_order_planned_start_date').val(response.plannedStartDate);
                             $('#job_order_planned_finish_date').val(response.plannedFinishDate);
@@ -2390,6 +2395,7 @@ function displayDetails(transaction){
                             $('#additional_job_order_progress').val(response.progress);
                             $('#additional_job_order_cost').val(response.cost);
                             $('#additional_job_order_completion_date').val(response.completionDate);
+                            $('#additional_job_order_remarks').val(response.remarks);
                             $('#job_order_number').val(response.jobOrderNumber);
                             $('#job_order_date').val(response.jobOrderDate);
                             $('#particulars').val(response.particulars);

@@ -39,6 +39,14 @@
                   $dropdown .= '<li><button class="dropdown-item" type="button" id="on-process">Approve</button></li>';
                 }
 
+                if($part_incoming_status == 'Completed' && $postPartsIncoming['total'] > 0){
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="post">Post</button></li>';
+                }
+
+                if($part_incoming_status == 'Posted'){
+                   $dropdown .= '<li><a href="parts-incoming-receiving-report.php?id='. $partsIncomingID .'" class="dropdown-item"  target="_blank">Print Receiving Report</a></li>';
+                }
+
                 if($part_incoming_status == 'Draft' || $part_incoming_status == 'For Approval' || $part_incoming_status == 'On-Process'){
                   $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-incoming-offcanvas" aria-controls="cancel-incoming-offcanvas" id="cancelled">Cancel</button></li>';
                 }
@@ -369,6 +377,12 @@
             </div>
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0"> 
+                <label class="form-label">Invoice Price <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="invoice_price" name="invoice_price" min="0.01" step="0.01">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0"> 
                 <label class="form-label">Delivery Date <span class="text-danger">*</span></label>
                 <div class="input-group date">
                   <input type="text" class="form-control regular-datepicker" id="delivery_date" name="delivery_date" autocomplete="off">
@@ -456,7 +470,8 @@
 
 <?php
   $readOnly = '';
-  if($part_incoming_status == 'On-Process' && $viewPartCost['total'] > 0 && $updatePartCost['total'] > 0){
+  if(($part_incoming_status == 'On-Process' && $viewPartCost['total'] > 0 && $updatePartCost['total'] > 0) || 
+     ($part_incoming_status == 'Completed' && $viewPartCost['total'] > 0 && $updatePartIncomingCompletedCost['total'] > 0)){
     $readOnly = 'readonly';
   }
 ?>
@@ -492,8 +507,8 @@
             </div>
             <div class="form-group row" id="cost-row">
               <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Cost</label>
-                <input type="number" class="form-control" id="cost" name="cost" min="0" step="0.01">
+                <label class="form-label">Cost <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="cost" name="cost" min="1" step="0.01">
               </div>
             </div>
             <div class="form-group row">

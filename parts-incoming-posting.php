@@ -9,13 +9,13 @@
   $supplierModel = new SupplierModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
 
-  $pageTitle = 'Fuso Parts Incoming';
+  $pageTitle = 'Parts Incoming Posting';
     
-  $partsIncomingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'read');
-  $partsIncomingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'create');
-  $partsIncomingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'write');
-  $partsIncomingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'delete');
-  $partsIncomingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 146, 'duplicate');
+  $partsIncomingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 167, 'read');
+  $partsIncomingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 167, 'create');
+  $partsIncomingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 167, 'write');
+  $partsIncomingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 167, 'delete');
+  $partsIncomingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 167, 'duplicate');
   $viewPartCost = $userModel->checkSystemActionAccessRights($user_id, 212);
   $updatePartCost = $userModel->checkSystemActionAccessRights($user_id, 211);
   $updatePartIncomingCompletedCost = $userModel->checkSystemActionAccessRights($user_id, 213);
@@ -46,8 +46,6 @@
   else{
     $partsIncomingID = null;
   }
-
-  $company = '3';
 
   $newRecord = isset($_GET['new']);
 
@@ -103,17 +101,8 @@
         </div>
         <input type="hidden" id="view-cost" value="<?php echo $viewPartCost['total'] ?>">
         <input type="hidden" id="update-cost" value="<?php echo $updatePartCost['total'] ?>">
-        <input type="hidden" id="page-company" value="<?php echo $company ?>">
         <?php
-          if($newRecord && $partsIncomingCreateAccess['total'] > 0){
-            require_once('view/_parts_incoming_new.php');
-          }
-          else if(!empty($partsIncomingID) && $partsIncomingWriteAccess['total'] > 0){
-            require_once('view/_parts_incoming_details.php');
-          }
-          else{
-            require_once('view/_parts_incoming.php');
-          }
+          require_once('view/_parts_incoming_posting.php');
         ?>
       </div>
     </section>

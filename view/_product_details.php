@@ -735,6 +735,7 @@ if($addProductExpense['total'] > 0){
                 <select class="form-control offcanvas-select2" name="document_type" id="document_type">
                   <option value="">--</option>
                   <option value="Certificate of Registration (CR)">Certificate of Registration (CR)</option>
+                  <option value="Certificate of Stock Report (CSR)">Certificate of Stock Report (CSR)</option>
                   <option value="Incoming Checklist">Incoming Checklist</option>
                   <option value="Official Receipt (OR)">Official Receipt (OR)</option>
                   <option value="LTO Registration">LTO Registration</option>

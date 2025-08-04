@@ -324,6 +324,73 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        case 'leave dashboard approval list':
+            $contactID = $_SESSION['contact_id'];
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateLeaveDashboardApprovalTable(:contactID)');
+            $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $list = '';
+            foreach ($options as $row) {
+                $leaveApplicationID = $row['leave_application_id'];
+                $contact_id = $row['contact_id'];
+                $status = $row['status'];
+                $leaveTypeID = $row['leave_type_id'];
+                $application_type = $row['application_type'];
+                $reason = $row['reason'];
+                $leaveDate = $systemModel->checkDate('empty', $row['leave_date'], '', 'm/d/Y', '');
+                $leaveStartTime = $systemModel->checkDate('empty', $row['leave_start_time'], '', 'h:i a', '');
+                $leaveEndTime = $systemModel->checkDate('empty', $row['leave_end_time'], '', 'h:i a', '');
+                $applicationDate = $systemModel->checkDate('empty', $row['application_date'], '', 'm/d/Y', '');
+
+                $leaveApplicationIDEncrypted = $securityModel->encryptData($leaveApplicationID);
+
+                $leaveTypeDetails = $leaveTypeModel->getLeaveType($leaveTypeID);
+                $leaveTypeName = $leaveTypeDetails['leave_type_name'] ?? null;
+
+                $employeeDetails = $employeeModel->getPersonalInformation($contact_id);
+                $fileAs = $employeeDetails['file_as'] ?? '';
+                $customerImage = $systemModel->checkImage($employeeDetails['contact_image'], 'profile');
+
+                if($leaveTypeID == '1'){
+                    $leaveDateDetails =  ' <p class="text-muted mb-0"><small>Leave Date: '. $leaveDate .'</small></p>
+                    <p class="text-muted mb-0"><small>Application Type: '. $application_type .'</small></p>';
+                }
+                else{
+                    $leaveDateDetails =  ' <p class="text-muted mb-0"><small>Leave Date: '. $leaveDate .'</small></p>
+                    <p class="text-muted mb-0"><small>Leave Time: '. $leaveStartTime . ' - ' . $leaveEndTime .'</small></p>';
+                }
+
+                $list .= ' <li class="list-group-item">
+                          <div class="d-flex align-items-center">
+                              <div class="flex-shrink-0">
+                                <img src="'. $customerImage .'" alt="user-image" class="user-avtar rounded wid-50 hie-50">
+                              </div>
+                              <div class="flex-grow-1 ms-3">
+                                  <div class="row g-1">
+                                        <div class="col-12">
+                                            <a href="leave-approval.php?id='. $leaveApplicationIDEncrypted .'" target="_blank">
+                                                <p class="mb-0"><b>'. strtoupper($fileAs) .'</b></p>
+                                                <p class="text-muted mb-0"><small>Leave Type: '. $leaveTypeName .'</small></p>'. $leaveDateDetails .'
+                                                <p class="text-muted mb-0"><small>Application Date: '. $applicationDate .'</small></p>
+                                                <p class="text-muted mb-0"><small>Reason: '. $reason .'</small></p>
+                                            </a>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>';
+            }
+
+            if(empty($list)){
+                $list = ' <li class="list-group-item text-center"><b>No Leave Application For Approval Found</b></li>';
+            }
+
+            echo json_encode(['LIST' => $list]);
+        break;
         case 'leave summary table':
             
             $leaveStatusFilter = htmlspecialchars($_POST['leave_status_filter'], ENT_QUOTES, 'UTF-8');

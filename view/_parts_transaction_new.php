@@ -50,36 +50,34 @@
                 </select>
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Issuance Number</label>
+          <div class="form-group row <?php if($company == '2') echo 'd-none'; ?>">
+            <label class="col-lg-2 col-form-label">Reference Number</label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off">
+              <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off">
             </div>
-            <label class="col-lg-2 col-form-label">Issuance Date</label>
+            <label class="col-lg-2 col-form-label">Reference Date</label>
             <div class="col-lg-4">
               <div class="input-group date">
-                <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off">
+                <input type="text" class="form-control regular-datepicker" id="reference_date" name="reference_date" autocomplete="off">
                 <span class="input-group-text">
                   <i class="feather icon-calendar"></i>
                 </span>
               </div>
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Reference Number</label>
-            <div class="col-lg-4">
-              <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off">
+          <div class="form-group row ">
+            <label class="col-lg-2 col-form-label d-none">Issuance Number</label>
+            <div class="col-lg-4 d-none">
+              <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off">
             </div>
             <label class="col-lg-2 col-form-label">Request By <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off">
             </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Reference Date</label>
-            <div class="col-lg-4">
+            <label class="col-lg-2 col-form-label <?php if($company == '3') echo 'd-none'; ?>">Issuance Date</label>
+            <div class="col-lg-4 <?php if($company == '3') echo 'd-none'; ?>">
               <div class="input-group date">
-                <input type="text" class="form-control regular-datepicker" id="reference_date" name="reference_date" autocomplete="off">
+                <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off">
                 <span class="input-group-text">
                   <i class="feather icon-calendar"></i>
                 </span>

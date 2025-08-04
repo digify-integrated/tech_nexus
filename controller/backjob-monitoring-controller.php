@@ -231,6 +231,7 @@ class BackJobMonitoringController {
         $contractor_id = htmlspecialchars($_POST['job_order_contractor_id'], ENT_QUOTES, 'UTF-8');
         $work_center_id = htmlspecialchars($_POST['job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
         $job_order = htmlspecialchars($_POST['job_order'], ENT_QUOTES, 'UTF-8');
+        $job_order_remarks = htmlspecialchars($_POST['job_order_remarks'], ENT_QUOTES, 'UTF-8');
         $completionDate = $this->systemModel->checkDate('empty', $_POST['job_order_completion_date'], '', 'Y-m-d', '');
         $job_order_planned_start_date = $this->systemModel->checkDate('empty', $_POST['job_order_planned_start_date'], '', 'Y-m-d', '');
         $job_order_planned_finish_date = $this->systemModel->checkDate('empty', $_POST['job_order_planned_finish_date'], '', 'Y-m-d', '');
@@ -247,7 +248,7 @@ class BackJobMonitoringController {
             exit;
         }
     
-        $this->backJobMonitoringModel->updateBackJobMonitoringJobOrder($backjob_monitoring_id, $backjob_monitoring_job_order_id, $progress, $contractor_id, $work_center_id, $completionDate, $cost, $job_order, $job_order_planned_start_date, $job_order_planned_finish_date, $job_order_date_started, $userID);
+        $this->backJobMonitoringModel->updateBackJobMonitoringJobOrder($backjob_monitoring_id, $backjob_monitoring_job_order_id, $progress, $contractor_id, $work_center_id, $completionDate, $cost, $job_order, $job_order_planned_start_date, $job_order_planned_finish_date, $job_order_date_started, $job_order_remarks, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -265,6 +266,7 @@ class BackJobMonitoringController {
         $cost = htmlspecialchars($_POST['additional_job_order_cost'], ENT_QUOTES, 'UTF-8');
         $contractor_id = htmlspecialchars($_POST['additional_job_order_contractor_id'], ENT_QUOTES, 'UTF-8');
         $work_center_id = htmlspecialchars($_POST['additional_job_order_work_center_id'], ENT_QUOTES, 'UTF-8');
+        $additional_job_order_remarks = htmlspecialchars($_POST['additional_job_order_remarks'], ENT_QUOTES, 'UTF-8');
         $job_order_number = htmlspecialchars($_POST['job_order_number'], ENT_QUOTES, 'UTF-8');
         $job_order_date = $this->systemModel->checkDate('empty', $_POST['job_order_date'], '', 'Y-m-d', '');
         $particulars = htmlspecialchars($_POST['particulars'], ENT_QUOTES, 'UTF-8');
@@ -284,7 +286,7 @@ class BackJobMonitoringController {
             exit;
         }
     
-        $this->backJobMonitoringModel->updateBackJobMonitoringAdditionalJobOrder($backjob_monitoring_id, $backjob_monitoring_additional_job_order_id, $progress, $contractor_id, $work_center_id, $completionDate, $cost, $job_order_number, $job_order_date, $particulars, $additional_job_order_planned_start_date, $additional_job_order_planned_finish_date, $additional_job_order_date_started, $userID);
+        $this->backJobMonitoringModel->updateBackJobMonitoringAdditionalJobOrder($backjob_monitoring_id, $backjob_monitoring_additional_job_order_id, $progress, $contractor_id, $work_center_id, $completionDate, $cost, $job_order_number, $job_order_date, $particulars, $additional_job_order_planned_start_date, $additional_job_order_planned_finish_date, $additional_job_order_date_started, $additional_job_order_remarks, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -1473,6 +1475,7 @@ class BackJobMonitoringController {
                 'cost' => $backJobMonitoringDetails['cost'],
                 'jobOrder' => $backJobMonitoringDetails['job_order'],
                 'progress' => $backJobMonitoringDetails['progress'],
+                'remarks' => $backJobMonitoringDetails['remarks'],
                 'contractorID' => $backJobMonitoringDetails['contractor_id'],
                 'completionDate' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['completion_date'], '', 'm/d/Y', ''),
                 'plannedStartDate' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['planned_start_date'], '', 'm/d/Y', ''),
@@ -1508,6 +1511,7 @@ class BackJobMonitoringController {
                 'cost' => $backJobMonitoringDetails['cost'],
                 'jobOrderNumber' => $backJobMonitoringDetails['job_order_number'],
                 'progress' => $backJobMonitoringDetails['progress'],
+                'remarks' => $backJobMonitoringDetails['remarks'],
                 'contractorID' => $backJobMonitoringDetails['contractor_id'],
                 'particulars' => $backJobMonitoringDetails['particulars'],
                 'completionDate' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['completion_date'], '', 'm/d/Y', ''),

@@ -1,59 +1,32 @@
-<div class="row">
-  <div class="col-lg-12">
-    <div class="card table-card">
-      <div class="card-header">
-        <div class="row align-items-center">
-          <div class="col-sm-6">
-            <h5>For Initial Approval List</h5>
-          </div>
+<div class="col-xl-6 col-md-12">
+  <div class="card">
+    <div class="card-header">
+      <div class="row align-items-center">
+        <div class="col-sm-12">
+          <h5 class="mb-0">Sales Proposal For Initial Approval</h5>
         </div>
       </div>
-      <div class="card-body">
-        <div class="table-responsive dt-responsive">
-          <table id="dashboard-sales-proposal-for-initial-approval-table" class="table table-hover nowrap w-100">
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Stock</th>
-                <th>Status</th>
-                <th>OS Number</th>
-                <th>Product Type</th>
-                <th>Created Date</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="customer-scroll" style="max-height: 415px; position: relative; overflow: auto;">
+        <ul class="list-group list-group-flush" id="for-initial-approval-list"></ul>
       </div>
     </div>
   </div>
 </div>
-<div class="row">
-  <div class="col-lg-12">
-    <div class="card table-card">
-      <div class="card-header">
-        <div class="row align-items-center">
-          <div class="col-sm-6">
-            <h5>For Final Approval List</h5>
-          </div>
+
+<div class="col-xl-6 col-md-12">
+  <div class="card">
+    <div class="card-header">
+      <div class="row align-items-center">
+        <div class="col-sm-12">
+          <h5 class="mb-0">Sales Proposal For Final Approval</h5>
         </div>
       </div>
-      <div class="card-body">
-        <div class="table-responsive dt-responsive">
-          <table id="dashboard-sales-proposal-for-final-approval-table" class="table table-hover nowrap w-100">
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Stock</th>
-                <th>Status</th>
-                <th>OS Number</th>
-                <th>Product Type</th>
-                <th>Created Date</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="customer-scroll" style="max-height: 415px; position: relative; overflow: auto;">
+        <ul class="list-group list-group-flush" id="for-final-approval-list"></ul>
       </div>
     </div>
   </div>

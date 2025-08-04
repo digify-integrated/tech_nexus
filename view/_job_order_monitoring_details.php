@@ -40,6 +40,7 @@
                     <th>Cancellation Reason</th>
                     <th>Cancellation Confirmation</th>
                     <th>Backjob?</th>
+                    <th>Remarks</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -90,6 +91,7 @@
                     <th>Cancellation Reason</th>
                     <th>Cancellation Confirmation</th>
                     <th>Backjob?</th>
+                    <th>Remarks</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -188,6 +190,12 @@
                       <i class="feather icon-calendar"></i>
                     </span>
                 </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label" for="job_order_remarks">Remarks</label>
+                <textarea class="form-control" id="job_order_remarks" name="job_order_remarks" maxlength="1000"></textarea>
               </div>
             </div>
           </form>
@@ -296,6 +304,12 @@
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Approval Document</label>
                 <input type="file" class="form-control" id="approval_document" name="approval_document">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label" for="additional_job_order_remarks">Remarks</label>
+                <textarea class="form-control" id="additional_job_order_remarks" name="additional_job_order_remarks" maxlength="1000"></textarea>
               </div>
             </div>
           </form>

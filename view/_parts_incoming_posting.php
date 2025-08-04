@@ -42,7 +42,7 @@
       </div>
       <div class="card-body">
         <div class="table-responsive dt-responsive">
-          <table id="parts-incoming-table" class="table table-hover nowrap w-100">
+          <table id="parts-incoming-posting-table" class="table table-hover nowrap w-100">
             <thead>
               <tr>
                 <th>Reference Number</th>
@@ -124,7 +124,7 @@
                     </div>
                   </div>
                 </li>
-                <li class="list-group-item px-0 py-2">
+                <li class="list-group-item px-0 py-2 d-none">
                   <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#incoming-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                     Incoming Status
                   </a>
@@ -144,7 +144,7 @@
                           <label class="form-check-label" for="incoming-status-onprocess">On-Process</label>
                         </div>
                         <div class="form-check my-2">
-                          <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-completed" value="Completed"/>
+                          <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-completed" value="Completed" checked/>
                           <label class="form-check-label" for="incoming-status-completed">Completed</label>
                         </div>
                         <div class="form-check my-2">

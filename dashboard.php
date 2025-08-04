@@ -49,38 +49,60 @@
                   <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        <?php
-          #require_once('view/_dashboard_attendance.php');
+            </div> <!-- END: row align-items-center (1st block) -->
 
-          $viewDashboardSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 181);
-          $viewDashboardTravelForm = $userModel->checkSystemActionAccessRights($user_id, 182);
-          $viewDashboardLeaveApprovalForm = $userModel->checkSystemActionAccessRights($user_id, 183);
-          $viewDashboardEmployeeDailyStatusForm = $userModel->checkSystemActionAccessRights($user_id, 198);
+            <?php
+              // Check access and include daily employee status dashboard
+              $viewDashboardEmployeeDailyStatusForm = $userModel->checkSystemActionAccessRights($user_id, 198);
 
-          if($viewDashboardEmployeeDailyStatusForm['total'] > 0){
-            require_once('view/_daily_employee_status_dashboard.php');
-          }
+              if ($viewDashboardEmployeeDailyStatusForm['total'] > 0) {
+                require_once('view/_daily_employee_status_dashboard.php');
+              }
+            ?>
 
-          if($viewDashboardSalesProposal['total'] > 0){
-            require_once('view/_sales_proposal_dashboard.php');
-          }
+            <div class="row align-items-center"> <!-- 2nd row -->
+              <?php
+                $viewDashboardSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 181);
+                $viewDashboardTravelForm = $userModel->checkSystemActionAccessRights($user_id, 182);
+                $viewDashboardLeaveApprovalForm = $userModel->checkSystemActionAccessRights($user_id, 183);
+                $viewPartsIncomingForApprovalDashboard = $userModel->checkSystemActionAccessRights($user_id, 215);
+                $viewPartsIssuanceForApprovalDashboard = $userModel->checkSystemActionAccessRights($user_id, 216);
+                $viewInternalJobOrderForApprovalDashboard = $userModel->checkSystemActionAccessRights($user_id, 217);
 
-          if($viewDashboardTravelForm['total'] > 0){
-            require_once('view/_travel_form_dashboard.php');
-          }
+                if ($viewDashboardSalesProposal['total'] > 0) {
+                  require_once('view/_sales_proposal_dashboard.php');
+                }
 
-          if($viewDashboardLeaveApprovalForm['total'] > 0){
-            require_once('view/_dashboard_leave_approval.php');
-          }
-          
-          require_once('view/_transmittal_dashboard.php');
-          require_once('view/_document_dashboard.php');
-        ?>
-      </div>
+                if ($viewInternalJobOrderForApprovalDashboard['total'] > 0) {
+                  require_once('view/_internal_job_order_dashboard.php');
+                }
+
+                if ($viewPartsIncomingForApprovalDashboard['total'] > 0) {
+                  require_once('view/_dashboard_parts_incoming.php');
+                }
+
+                if ($viewPartsIssuanceForApprovalDashboard['total'] > 0) {
+                  require_once('view/_dashboard_parts_issuance.php');
+                }
+
+                if ($viewDashboardTravelForm['total'] > 0) {
+                  #require_once('view/_travel_form_dashboard.php');
+                }
+
+                if ($viewDashboardLeaveApprovalForm['total'] > 0) {
+                  require_once('view/_dashboard_leave_approval.php');
+                }
+
+                #require_once('view/_transmittal_dashboard.php');
+                require_once('view/_document_dashboard.php');
+              ?>
+            </div> <!-- ✅ MISSING closing tag added here (2nd row align-items-center) -->
+
+          </div> <!-- page-block -->
+        </div> <!-- page-header -->
+      </div> <!-- pc-content -->
     </section>
+
 
     <?php
         include_once('config/_footer.php');

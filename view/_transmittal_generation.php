@@ -181,6 +181,69 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        case 'transmittal dashboard list':
+            $contactID = $_SESSION['contact_id'];
+            $employmentDetails = $employeeModel->getEmploymentInformation($contactID);
+            $contactDepartment = $employmentDetails['department_id'] ?? '';
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardTransmittalTable(:contactID, :contactDepartment)');
+            $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
+            $sql->bindValue(':contactDepartment', $contactDepartment, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $list = '';
+            foreach ($options as $row) {
+              $transmittalID = $row['transmittal_id'];
+                $transmittalDescription = $row['transmittal_description'];
+                $transmitterID = $row['transmitter_id'];
+                $transmitterDepartment = $row['transmitter_department'];
+                $receiverID = $row['receiver_id'];
+                $receiverDepartment = $row['receiver_department'];
+                $transmittalStatus = $row['transmittal_status'];
+                $transmittalDate = $systemModel->checkDate('empty', $row['transmittal_date'], '', 'm/d/Y g:i:s a', '');
+
+                $transmittalStatusBadge = $transmittalModel->getTransmittalStatus($transmittalStatus);
+
+                $employeeDetails = $employeeModel->getPersonalInformation($transmitterID);
+                $transmitterName = $employeeDetails['file_as'] ?? null;
+
+                $employeeDetails = $employeeModel->getPersonalInformation($receiverID);
+                $receiverName = $employeeDetails['file_as'] ?? 'Anyone';
+
+                $transmitterDepartmentName = $departmentModel->getDepartment($transmitterDepartment)['department_name'] ?? null;
+                $receiverDepartmentName = $departmentModel->getDepartment($receiverDepartment)['department_name'] ?? null;
+
+                $transmittalIDEncrypted = $securityModel->encryptData($transmittalID);
+
+                $list .= ' <li class="list-group-item">
+                          <div class="d-flex align-items-center">
+                              <div class="flex-grow-1 ms-3">
+                                  <div class="row g-1">
+                                        <div class="col-8">
+                                            <a href="transmittal.php?id='. $transmittalIDEncrypted .'" target="_blank">
+                                                <p class="mb-0"><b>'. strtoupper($transmittalDescription) .'</b></p>
+                                                <p class="text-muted mb-0"><small>Transmitted By: '. $transmitterName .' - '. $transmitterDepartmentName .'</small></p>
+                                                <p class="text-muted mb-0"><small>Transmitted To: '. $receiverName .' - '. $receiverDepartmentName .'</small></p>
+                                                <p class="text-muted mb-0"><small>Transamittal Date: '. $transmittalDate .'</small></p>
+                                            </a>
+                                      </div>
+                                      <div class="col-4 text-end">
+                                          '. $transmittalStatusBadge .'
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>';
+            }
+
+            if(empty($list)){
+                $list = ' <li class="list-group-item text-center"><b>No Transmittal Found</b></li>';
+            }
+
+            echo json_encode(['LIST' => $list]);
+        break;
         # -------------------------------------------------------------
 
         # -------------------------------------------------------------

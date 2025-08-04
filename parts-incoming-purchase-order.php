@@ -157,28 +157,28 @@
         foreach ($options as $row) {
             $part_id  = $row['part_id'];
             $quantity = $row['quantity'];
+            $remarks = $row['remarks'];
 
             $partDetails = $partsModel->getParts($part_id);
             $unitSale = $partDetails['unit_sale'] ?? null;
             $description = $partDetails['description'];
-            $remarks = $partDetails['remarks'];
 
             $unitCode = $unitModel->getUnit($unitSale);
             $short_name = $unitCode['short_name'] ?? null;
 
             $list .= '<tr>
-                        <td style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
-                        <td style="text-align:center">'. strtoupper($description) .'</td>
-                        <td>'. strtoupper($remarks) .'</td>
+                        <td width="20%" style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
+                        <td width="35%" style="text-align:center">'. strtoupper($description) .'</td>
+                        <td width="45%">'. strtoupper($remarks) .'</td>
                     </tr>';
         }
 
         $response = '<table border="1" width="100%" cellpadding="5" align="left">
                         <thead>
                             <tr style="text-align:center">
-                                <td><b>Quantity</b></td>
-                                <td><b>Particulars</b></td>
-                                <td><b>Remarks</b></td>
+                                <td width="20%"><b>Quantity</b></td>
+                                <td width="35%"><b>Particulars</b></td>
+                                <td width="45%"><b>Remarks</b></td>
                             </tr>
                         </thead>
                         <tbody>

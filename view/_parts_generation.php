@@ -86,6 +86,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $bar_code = $row['bar_code'];
                     $quantity = $row['quantity'];
                     $part_price = $row['part_price'];
+                    $part_cost = $row['part_cost'];
                    
                     $partsStatus = $partsModel->getPartsStatus($row['part_status']);
                     $partsImage = $systemModel->checkImage($row['part_image'], 'default');
@@ -127,11 +128,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'CATEGORY' => $part_category_name,
                         'CLASS' => $part_class_name . ' <br/>(' . $part_subclass_name . ')',
                         'QUANTITY' => number_format($quantity, 2),
-                        'PRODUCT_COST' => number_format(0,2),
-                        'PRODUCT_PRICE' => number_format($part_price,2),
+                        'PRODUCT_COST' => number_format($part_cost,2) . ' PHP',
+                        'PRODUCT_PRICE' => number_format($part_price,2) . ' PHP',
                         'PRODUCT_STATUS' => $partsStatus,
                         'ACTION' => '<div class="d-flex gap-2">
-                                        <a href="'. $link .'.php?id='. $partsIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <a href="'. $link .'.php?id='. $partsIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
                                             <i class="ti ti-eye"></i>
                                         </a>
                                         '. $delete .'

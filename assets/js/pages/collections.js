@@ -157,6 +157,62 @@
             });
         });
 
+        $(document).on('click','.delete-collections',function() {
+            const loan_collection_id = $(this).data('collections-id');
+            const transaction = 'delete collection';
+    
+            Swal.fire({
+                title: 'Confirm Collection Deletion',
+                text: 'Are you sure you want to delete this collection?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/collections-controller.php',
+                        dataType: 'json',
+                        data: {
+                            loan_collection_id : loan_collection_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Collection Success', 'The collection has been deleted successfully.', 'success');
+                                reloadDatatable('#collections-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Collection Error', 'The collection does not exist.', 'danger');
+                                    reloadDatatable('#collections-table');
+                                }
+                                else {
+                                    showNotification('Delete Collection Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('click','#delete-collections',function() {
             let loan_collection_id = [];
             const transaction = 'delete multiple collections';
@@ -224,60 +280,23 @@
             }
         });
 
-        $(document).on('click','#delete-collections-details',function() {
-            const loan_collection_id = $('#loan-collection-id').text();
-            const transaction = 'delete collections';
-    
-            Swal.fire({
-                title: 'Confirm Collection Deletion',
-                text: 'Are you sure you want to delete this collection?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-danger mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/collections-controller.php',
-                        dataType: 'json',
-                        data: {
-                            loan_collection_id : loan_collection_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                setNotification('Deleted Collection Success', 'The collection has been deleted successfully.', 'success');
-                                window.location = 'collections.php';
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.notExist) {
-                                    window.location = '404.php';
-                                }
-                                else {
-                                    showNotification('Delete Collection Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
+         $(document).on('click','#print-reversal',function() {
+            var checkedBoxes = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
                 }
             });
+
+            if(checkedBoxes != ''){
+                window.open('pdc-print-reversal.php?id=' + checkedBoxes, '_blank');
+            }
+            else{
+                showNotification('Print Check Error', 'No selected pdc.', 'danger');
+            }
         });
+
 
         $(document).on('click','#discard-create',function() {
             discardCreate('collections.php');

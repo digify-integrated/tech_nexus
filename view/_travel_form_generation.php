@@ -98,6 +98,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+
         # -------------------------------------------------------------
 
         # -------------------------------------------------------------
@@ -242,6 +243,78 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
 
             echo json_encode($response);
+        break;
+
+        case 'travel form dashboard list':
+            $contactID = $_SESSION['contact_id'];
+            $sql = $databaseModel->getConnection()->prepare('CALL generateTravelDashboardTable(:contactID)');
+            $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $list = '';
+            foreach ($options as $row) {
+                $travelFormID = $row['travel_form_id'];
+                $checkedBy = $row['checked_by'];
+                $checkedDate = $systemModel->checkDate('empty', $row['checked_date'], '', 'm/d/Y', '');
+                $recommendedBy = $row['recommended_by'];
+                $recommendedDate = $systemModel->checkDate('empty', $row['recommended_date'], '', 'm/d/Y', '');
+                $approvalBy = $row['approval_by'];
+                $approvalDate = $systemModel->checkDate('empty', $row['approval_date'], '', 'm/d/Y', '');
+                $travelFormStatus = $row['travel_form_status'];
+                $createdBy = $row['created_by'];
+
+                $checkedByName = !empty($checkedBy) ? ($employeeModel->getPersonalInformation($checkedBy)['file_as'] ?? '--') : '--';
+
+                $recommendedByName = !empty($recommendedBy) ? ($employeeModel->getPersonalInformation($recommendedBy)['file_as'] ?? '--') : '--';
+
+                $approvalByName = !empty($approvalBy) ? ($employeeModel->getPersonalInformation($approvalBy)['file_as'] ?? '--') : '--';
+
+                $createdByDetails = $userModel->getUserByID($createdBy);
+                $createdByName = $createdByDetails['file_as'] ?? null;
+
+                $statusClasses = [
+                    'Draft' => 'info',
+                    'For Checking' => 'warning',
+                    'Checked' => 'success',
+                    'For Recommendation' => 'warning',
+                    'Recommended' => 'success',
+                    'For Approval' => 'warning',
+                    'Approved' => 'success'
+                ];
+                
+                $defaultClass = 'dark';
+                
+                $class = $statusClasses[$travelFormStatus] ?? $defaultClass;
+                
+                $badge = '<span class="badge bg-' . $class . '">' . $travelFormStatus . '</span>';
+
+                $travelFormIDEncrypted = $securityModel->encryptData($travelFormID);
+
+                $list .= '<li class="list-group-item">
+                            <a href="travel-form.php?id='. $travelFormIDEncrypted .'" title="View Details" target="_blank">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-grow-1 me-2">
+                                        <p class="mb-0">Request By: '. $createdByName .'</p>
+                                        <p class="my-1 text-sm text-muted">Checked By: '. $checkedByName .'</p>
+                                        <p class="my-1 text-sm text-muted">Checked Date: '. $checkedDate .'</p>
+                                        <p class="my-1 text-sm text-muted">Recommended By: '. $recommendedByName .'</p>
+                                        <p class="my-1 text-sm text-muted">Recommended Date: '. $recommendedDate .'</p>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        '. $badge .'
+                                    </div>
+                                </div>   
+                            </a>                               
+                        </li>';
+            }
+
+            if(empty($list)){
+                $list = ' <li class="list-group-item text-center"><b>No Travel Form For Approval Found</b></li>';
+            }
+
+            echo json_encode(['LIST' => $list]);
         break;
         # -------------------------------------------------------------
 

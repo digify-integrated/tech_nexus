@@ -109,6 +109,9 @@ class PartsIncomingController {
                 case 'tag incoming as on-process':
                     $this->tagAsOnProcess();
                     break;
+                case 'tag incoming as posted':
+                    $this->tagAsPosted();
+                    break;
                 case 'tag incoming as for approval':
                     $this->tagForApproval();
                     break;
@@ -223,6 +226,56 @@ class PartsIncomingController {
         exit;
     }
 
+    public function tagAsPosted() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $parts_incoming_id = htmlspecialchars($_POST['parts_incoming_id'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $lines = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'lines')['total'];
+
+        if($lines == 0){
+            echo json_encode(['success' => false, 'noItem' => true]);
+            exit;
+        }
+
+        $partsIncomingDetails = $this->partsIncomingModel->getPartsIncoming($parts_incoming_id);
+        $company_id = $partsIncomingDetails['company_id'] ?? '';
+        $reference_number = $partsIncomingDetails['reference_number'] ?? '';
+
+        $cost = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'cost')['total'] ?? 0;
+
+        if($company_id == '2'){
+            $rr_no = (int)$this->systemSettingModel->getSystemSetting(35)['value'] + 1;
+        }
+        else{
+            $rr_no = (int)$this->systemSettingModel->getSystemSetting(36)['value'] + 1;
+        }
+
+        $this->partsIncomingModel->updatePartsIncomingPosted($parts_incoming_id, $rr_no, $userID);
+
+        if($company_id == '2'){
+            $this->systemSettingModel->updateSystemSettingValue(35, $rr_no, $userID);
+        }
+        else{
+            $this->systemSettingModel->updateSystemSettingValue(36, $rr_no, $userID);
+        }
+
+        $this->partsIncomingModel->createPartsIncomingEntry($parts_incoming_id, $company_id, $reference_number, $cost, $userID);
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     public function tagAsOnProcess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -242,6 +295,13 @@ class PartsIncomingController {
 
         if($lines == 0){
             echo json_encode(['success' => false, 'noItem' => true]);
+            exit;
+        }
+
+        $lines = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'without cost')['total'];
+
+        if($lines > 0){
+            echo json_encode(['success' => false, 'withoutCost' => true]);
             exit;
         }
 
@@ -266,10 +326,17 @@ class PartsIncomingController {
             exit;
         }
 
-         $lines = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'lines')['total'];
+        $lines = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'lines')['total'];
 
         if($lines == 0){
             echo json_encode(['success' => false, 'noItem' => true]);
+            exit;
+        }
+
+        $lines = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'without cost')['total'];
+
+        if($lines > 0){
+            echo json_encode(['success' => false, 'withoutCost' => true]);
             exit;
         }
 
@@ -287,6 +354,7 @@ class PartsIncomingController {
         $userID = $_SESSION['user_id'];
         $parts_incoming_id = htmlspecialchars($_POST['parts_incoming_id'], ENT_QUOTES, 'UTF-8');
         $invoice_number = htmlspecialchars($_POST['invoice_number'], ENT_QUOTES, 'UTF-8');
+        $invoice_price = htmlspecialchars($_POST['invoice_price'], ENT_QUOTES, 'UTF-8');
         $delivery_date = $this->systemModel->checkDate('empty', $_POST['delivery_date'], '', 'Y-m-d', '');
         
         $user = $this->userModel->getUserByID($userID);
@@ -296,7 +364,6 @@ class PartsIncomingController {
             exit;
         }
 
-        
         $remaining = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'remaining')['total'];
 
         if($remaining > 0){
@@ -304,15 +371,22 @@ class PartsIncomingController {
             exit;
         }
 
-        $rr_no = (int)$this->systemSettingModel->getSystemSetting(33)['value'] + 1;
+        $cost = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'cost')['total'] ?? 0;
 
-           
+        if($cost != $invoice_price){
+            echo json_encode(['success' => false, 'invoicePrice' => true]);
+            exit;
+        }
 
-        $this->partsIncomingModel->updatePartsIncomingReleased($parts_incoming_id, 'Completed', $invoice_number, $delivery_date, $rr_no, $userID);
-
-        $this->systemSettingModel->updateSystemSettingValue(33, $rr_no, $userID);
-
+        $this->partsIncomingModel->updatePartsIncomingReleased($parts_incoming_id, 'Completed', $invoice_number, $invoice_price, $delivery_date, $userID);
         
+        $partsIncomingDetails = $this->partsIncomingModel->getPartsIncoming($parts_incoming_id);
+        $product_id = $partsIncomingDetails['product_id'] ?? '';
+
+
+        if(!empty($product_id) && $product_id != '958'){
+            $this->partsIncomingModel->generatePartsIssuanceMonitoring($parts_incoming_id, $userID);
+        }
         echo json_encode(['success' => true]);
         exit;
     }
@@ -416,11 +490,18 @@ class PartsIncomingController {
         if ($total > 0) {
             $partsIncomingCartDetails = $this->partsIncomingModel->getPartsIncomingCart($part_incoming_cart_id);
             $part_id = $partsIncomingCartDetails['part_id'];
+            $part_incoming_id = $partsIncomingCartDetails['part_incoming_id'];
+            $cost = $partsIncomingCartDetails['cost'];
+
+            $partsIncomingDetails = $this->partsIncomingModel->getPartsIncoming($part_incoming_id);
+            $company_id = $partsIncomingDetails['company_id'] ?? '';
+
+            $this->partsIncomingModel->updatePartsAverageCostAndSRP( $part_id, $company_id, $received_quantity, $cost, $userID);
 
             $this->partsIncomingModel->updatePartsReceivedIncomingCart($part_incoming_cart_id, $part_id, $received_quantity, $userID);
         } 
         
-        echo json_encode(['success' => true]);
+        echo json_encode(['success' => $received_quantity]);
         exit;
     }
     

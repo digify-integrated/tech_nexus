@@ -52,8 +52,6 @@
     $changeCustomerStatusToForUpdating = $userModel->checkSystemActionAccessRights($user_id, 115);
     $viewSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 116);
     $addCustomerComaker = $userModel->checkSystemActionAccessRights($user_id, 120);
-    $createCIReport = $userModel->checkSystemActionAccessRights($user_id, 207);
-    $viewCIReport = $userModel->checkSystemActionAccessRights($user_id, 208);
 
     if ($customerReadAccess['total'] == 0) {
         header('location: 404.php');

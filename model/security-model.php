@@ -57,7 +57,7 @@ class SecurityModel {
         $iv = substr($ciphertext, 0, $iv_length);
         $ciphertext = substr($ciphertext, $iv_length);
         
-        $plainText = openssl_decrypt($ciphertext, 'aes-256-cbc', ENCRYPTION_KEY, OPENSSL_RAW_DATA, $iv);
+        $plainText = openssl_decrypt($ciphertext, 'aes-256-cbc', '4b$Gy#89%q*aX@^p&cT!sPv6(5w)zSd+R', OPENSSL_RAW_DATA, $iv);
         
         if (!$plainText) {
             return false;

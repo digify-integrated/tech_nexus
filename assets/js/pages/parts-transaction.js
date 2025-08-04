@@ -117,6 +117,9 @@
                                 else if (response.noItem) {
                                     showNotification('Transaction On-Process Error', 'No parts added. Cannot be processed.', 'danger');
                                 }
+                                else if (response.partQuantityExceed) {
+                                    showNotification('Transaction On-Process Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                }
                                 else if (response.cartQuantity) {
                                     showNotification('Transaction On-Process Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
                                 }
@@ -143,11 +146,11 @@
             const transaction = 'tag transaction as for approval';
     
             Swal.fire({
-                title: 'Confirm Transaction For Approval',
-                text: 'Are you sure you want to tag this transaction as for approval?',
+                title: 'Confirm Transaction For Validation',
+                text: 'Are you sure you want to tag this transaction as for validation?',
                 icon: 'warning',
                 showCancelButton: !0,
-                confirmButtonText: 'For Approval',
+                confirmButtonText: 'For Validation',
                 cancelButtonText: 'Cancel',
                 confirmButtonClass: 'btn btn-info mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
@@ -164,7 +167,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Transaction For Approval Success', 'The transaction has been tagged as for approval successfully.', 'success');
+                                setNotification('Transaction For Validation Success', 'The transaction has been tagged as for validation successfully.', 'success');
                                 window.location.reload();
                             }
                             else {
@@ -172,14 +175,18 @@
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
                                 }
+                                
+                                else if (response.partQuantityExceed) {
+                                    showNotification('Transaction Released Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                }
                                 else if (response.noItem) {
-                                    showNotification('Transaction For Approval Error', 'No parts added. Cannot be processed.', 'danger');
+                                    showNotification('Transaction For Validation Error', 'No parts added. Cannot be processed.', 'danger');
                                 }
                                 else if (response.cartQuantity) {
-                                    showNotification('Transaction For Approval Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                    showNotification('Transaction For Validation Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
                                 }
                                 else {
-                                    showNotification('Transaction For Approval Error', response.message, 'danger');
+                                    showNotification('Transaction For Validation Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -229,6 +236,9 @@
                                 if (response.isInactive) {
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
+                                }
+                                else if (response.partQuantityExceed) {
+                                    showNotification('Transaction Released Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
                                 }
                                 else if (response.cartQuantity) {
                                     showNotification('Transaction Released Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
@@ -349,6 +359,38 @@
                 $('#internal-label').removeClass('d-none');
             }
         });
+
+        $(document).on('click','#add-job-order',function() {
+            $('#generate-job-order').val('job order');
+
+            if($('#add-job-order-table').length){
+                addJobOrderTable('#add-job-order-table');
+            }
+        });
+
+        $(document).on('click','#add-internal-job-order',function() {
+            $('#generate-job-order').val('internal job order');
+
+            if($('#add-job-order-table').length){
+                addJobOrderTable('#add-job-order-table');
+            }
+        });
+
+        $(document).on('click','#add-additional-job-order',function() {
+            $('#generate-additional-job-order').val('additional job order');
+
+            if($('#add-additional-job-order-table').length){
+                addAdditionalJobOrderTable('#add-additional-job-order-table');
+            }
+        });
+
+        $(document).on('click','#add-internal-additional-job-order',function() {
+            $('#generate-additional-job-order').val('internal additional job order');
+
+            if($('#add-additional-job-order-table').length){
+                addAdditionalJobOrderTable('#add-additional-job-order-table');
+            }
+        });
     });
 })(jQuery);
 
@@ -372,10 +414,7 @@ function partsTransactionTable(datatable_name, buttons = false, show_all = false
 
     const column = [
         { 'data' : 'TRANSACTION_ID' },
-        { 'data' : 'NUMBER_OF_ITEMS' },
-        { 'data' : 'ADD_ON' },
-        { 'data' : 'DISCOUNT' },
-        { 'data' : 'SUB_TOTAL' },
+        { 'data' : 'PRODUCT' },
         { 'data' : 'TOTAL_AMOUNT' },
         { 'data' : 'TRANSACTION_DATE' },
         { 'data' : 'ISSUANCE_DATE' },
@@ -387,13 +426,10 @@ function partsTransactionTable(datatable_name, buttons = false, show_all = false
         { 'width': 'auto', 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
-        { 'width': 'auto', 'aTargets': 7 },
-        { 'width': 'auto', 'aTargets': 8 },
-        { 'width': '15%','bSortable': false, 'aTargets': 9 }
+        { 'width': '15%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -480,6 +516,122 @@ function addPartTable(datatable_name, buttons = false, show_all = false){
             }
         },
         'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function addJobOrderTable(datatable_name, buttons = false, show_all = false){
+    var parts_transaction_id = $('#parts-transaction-id').text();
+    var company = $('#page-company').val();
+    var generate_job_order = $('#generate-job-order').val();
+    const type = 'add job order table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'JOB_ORDER' },
+        { 'data' : 'TYPE' },
+        { 'data' : 'ASSIGN' }
+    ];
+
+    const column_definition = [
+        { 'width': '80%', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 2 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_parts_transaction_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'parts_transaction_id' : parts_transaction_id, 'company' : company, 'generate_job_order' : generate_job_order},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function addAdditionalJobOrderTable(datatable_name, buttons = false, show_all = false){
+    var parts_transaction_id = $('#parts-transaction-id').text();
+    var company = $('#page-company').val();
+    var generate_job_order = $('#generate-additional-job-order').val();
+    const type = 'add additional job order table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'JOB_ORDER' },
+        { 'data' : 'TYPE' },
+        { 'data' : 'ASSIGN' }
+    ];
+
+    const column_definition = [
+        { 'width': '80%', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 2 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_parts_transaction_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'parts_transaction_id' : parts_transaction_id, 'company' : company, 'generate_job_order' : generate_job_order},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -806,6 +958,113 @@ function addPartsForm(){
     });
 }
 
+function addJobOrderForm(){
+    $('#add-job-order-form').validate({
+        submitHandler: function(form) {
+          var parts_transaction_id = $('#parts-transaction-id').text();
+          var generate_job_order = $('#generate-job-order').val();
+            const transaction = 'add job order';
+
+            var job_order_id = [];
+
+            $('.assign-job-order').each(function(){
+                if ($(this).is(':checked')){  
+                    job_order_id.push(this.value);  
+                }
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/parts-transaction-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_transaction_id=' + parts_transaction_id + '&job_order_id=' + job_order_id + '&generate_job_order=' + generate_job_order,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-add-job-order');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotification('Link Job Order Success', 'The job order has been linked successfully.', 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-add-job-order', 'Submit');
+                    $('#add-job-order-offcanvas').offcanvas('hide');
+                    reloadDatatable('#job-order-table');
+                }
+            });
+            return false;
+        }
+    });
+}
+
+function addAdditionalJobOrderForm(){
+    $('#add-additional-job-order-form').validate({
+        submitHandler: function(form) {
+          var parts_transaction_id = $('#parts-transaction-id').text();
+          var generate_job_order = $('#generate-additional-job-order').val();
+            const transaction = 'add additional job order';
+
+            var additional_job_order_id = [];
+
+            $('.assign-job-order').each(function(){
+                if ($(this).is(':checked')){  
+                    additional_job_order_id.push(this.value);  
+                }
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/parts-transaction-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_transaction_id=' + parts_transaction_id + '&additional_job_order_id=' + additional_job_order_id + '&generate_job_order=' + generate_job_order,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-additional-job-order');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotification('Link Additional Job Order Success', 'The additional job order has been linked successfully.', 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-additional-job-order', 'Submit');
+                    $('#add-additional-job-order-offcanvas').offcanvas('hide');
+                    reloadDatatable('#additional-job-order-table');
+                }
+            });
+            return false;
+        }
+    });
+}
+
+
 function partsDocumentForm(){
     $('#add-part-document-form').validate({
         rules: {
@@ -1095,7 +1354,7 @@ function approveTransactionForm(){
         },
         messages: {
             approval_remarks: {
-                required: 'Please enter the approval remarks'
+                required: 'Please enter the validation remarks'
             },
         },
         errorPlacement: function (error, element) {
@@ -1141,8 +1400,8 @@ function approveTransactionForm(){
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = 'Approve Transaction Success';
-                        const notificationDescription = 'The transaction has been tag as approved successfully.';
+                        const notificationMessage = 'Validate Transaction Success';
+                        const notificationDescription = 'The transaction has been tag as validated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
                         window.location.reload();
@@ -1153,7 +1412,7 @@ function approveTransactionForm(){
                             window.location = 'logout.php?logout';
                         }
                         else if (response.cartQuantity) {
-                            showNotification('Approve Transaction Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                            showNotification('Validate Transaction Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
                         }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');

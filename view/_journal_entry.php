@@ -51,6 +51,14 @@
                                 <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-4" value="Liquidation Operations" checked/>
                                 <label class="form-check-label" for="journal-id-4">Liquidation Operations</label>
                               </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-5" value="Parts Purchase" checked/>
+                                <label class="form-check-label" for="journal-id-5">Parts Purchase</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-6" value="Parts Issuance" checked/>
+                                <label class="form-check-label" for="journal-id-6">Parts Issuance</label>
+                              </div>
                             </div>
                           </div>
                         </div>

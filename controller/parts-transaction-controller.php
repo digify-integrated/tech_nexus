@@ -76,6 +76,9 @@ class PartsTransactionController {
                 case 'add parts transaction item':
                     $this->addPartsTransactionItem();
                     break;
+                case 'add job order':
+                    $this->addJobOrder();
+                    break;
                 case 'get parts transaction details':
                     $this->getPartsTransactionDetails();
                     break;
@@ -90,6 +93,9 @@ class PartsTransactionController {
                     break;
                 case 'delete part item':
                     $this->deletePartsTransactionCart();
+                    break;
+                case 'delete job order':
+                    $this->deleteJobOrder();
                     break;
                 case 'add parts transaction document':
                     $this->addPartsDocument();
@@ -239,6 +245,60 @@ class PartsTransactionController {
         exit;
     }
 
+    public function addJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $generate_job_order = $_POST['generate_job_order'];
+        $job_order_ids = explode(',', $_POST['job_order_id']);
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+        
+        foreach ($job_order_ids as $job_order_id) {
+            if(!empty($job_order_id)){
+                $this->partsTransactionModel->insertPartsTransactionJobOrder($parts_transaction_id, $job_order_id, $generate_job_order, $userID);
+            }
+        }
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function addAdditionalJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $generate_job_order = $_POST['generate_job_order'];
+        $additional_job_order_ids = explode(',', $_POST['additional_job_order_id']);
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+        
+        foreach ($additional_job_order_ids as $additional_job_order_id) {
+            if(!empty($additional_job_order_id)){
+                $this->partsTransactionModel->insertPartsTransactionAdditionalJobOrder($parts_transaction_id, $additional_job_order_id, $generate_job_order, $userID);
+            }
+        }
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     public function tagAsOnProcess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -266,6 +326,13 @@ class PartsTransactionController {
 
         if($quantityCheck > 0){
             echo json_encode(['success' => false, 'cartQuantity' => true]);
+            exit;
+        }
+
+         $check_exceed_part_quantity = $this->partsTransactionModel->check_exceed_part_quantity($parts_transaction_id)['total'] ?? 0;
+
+        if($check_exceed_part_quantity > 0){
+            echo json_encode(['success' => false, 'partQuantityExceed' => true]);
             exit;
         }
     
@@ -305,8 +372,14 @@ class PartsTransactionController {
             exit;
         }
 
+        $check_exceed_part_quantity = $this->partsTransactionModel->check_exceed_part_quantity($parts_transaction_id)['total'] ?? 0;
+
+        if($check_exceed_part_quantity > 0){
+            echo json_encode(['success' => false, 'partQuantityExceed' => true]);
+            exit;
+        }
     
-       $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'For Approval', '', $userID);
+       $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'For Validation', '', $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -327,6 +400,13 @@ class PartsTransactionController {
             exit;
         }
 
+        $check_exceed_part_quantity = $this->partsTransactionModel->check_exceed_part_quantity($parts_transaction_id)['total'] ?? 0;
+
+        if($check_exceed_part_quantity > 0){
+            echo json_encode(['success' => false, 'partQuantityExceed' => true]);
+            exit;
+        }
+
         $quantityCheck = $this->partsTransactionModel->get_exceeded_part_quantity_count($parts_transaction_id)['total'] ?? 0;
 
         if($quantityCheck > 0){
@@ -334,7 +414,28 @@ class PartsTransactionController {
             exit;
         }
 
-       $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Released', '', $userID);
+        $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
+        $company_id = $partsTransactionDetails['company_id'] ?? '';
+        $customer_type = $partsTransactionDetails['customer_type'] ?? '';
+        $customer_id = $partsTransactionDetails['customer_id'] ?? '';
+        $remarks = $partsTransactionDetails['remarks'] ?? '';
+        
+        if($company_id == '2'){
+            $p_reference_number = $partsTransactionDetails['issuance_no'] ?? '';
+        }
+        else{
+            $p_reference_number = $partsTransactionDetails['reference_number'] ?? '';
+        }
+
+        $cost = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'cost')['total'] ?? 0;
+        $overallTotal = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'overall total')['total'] ?? 0;
+
+        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Released', '', $userID);
+       
+        if($customer_type == 'Internal'){
+            $this->partsTransactionModel->createPartsTransactionEntry($parts_transaction_id, $company_id, $p_reference_number, $cost, $overallTotal, $userID);     
+            $this->partsTransactionModel->createPartsTransactionProductExpense($customer_id, 'Issuance Slip', $parts_transaction_id, $overallTotal, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, $userID);     
+        }        
         
         echo json_encode(['success' => true]);
         exit;
@@ -417,17 +518,27 @@ class PartsTransactionController {
 
         $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
         $customer_type = $partsTransactionDetails['customer_type'];
+        $company_id = $partsTransactionDetails['company_id'];
 
         if($customer_type == 'Internal'){
-            $reference_number = (int)$this->systemSettingModel->getSystemSetting(32)['value'] + 1;
+            if($company_id == '2'){
+                $reference_number = (int)$this->systemSettingModel->getSystemSetting(32)['value'] + 1;
+            }
+            else{
+                $reference_number = (int)$this->systemSettingModel->getSystemSetting(34)['value'] + 1;
+            }
 
             $this->partsTransactionModel->updatePartsTransactionSlipReferenceNumber($parts_transaction_id, $reference_number, $userID);
 
-            $this->systemSettingModel->updateSystemSettingValue(32, $reference_number, $userID);
-
+            if($company_id == '2'){
+                $this->systemSettingModel->updateSystemSettingValue(32, $reference_number, $userID);
+            }
+            else{
+                $this->systemSettingModel->updateSystemSettingValue(34, $reference_number, $userID);
+            }
         }
     
-        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Approved', $approval_remarks, $userID);
+        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Validated', $approval_remarks, $userID);
         
         echo json_encode(['success' => true]);
         exit;

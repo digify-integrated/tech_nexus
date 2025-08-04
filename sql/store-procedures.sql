@@ -8153,7 +8153,7 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id AND sales_proposal_status = 'For CI';
 END //
 
-CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cost DOUBLE, IN p_job_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cost DOUBLE, IN p_job_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_job_order
     SET progress = p_progress,
@@ -8166,11 +8166,12 @@ BEGIN
     planned_start_date = p_planned_start_date,
     planned_finish_date = p_planned_finish_date,
     date_started = p_date_started,
+    remarks = p_remarks,
     last_log_by = p_last_log_by
     WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
 END //
 
-CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cost DOUBLE, IN p_job_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cost DOUBLE, IN p_job_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_additional_job_order
     SET progress = p_progress,
@@ -8183,6 +8184,7 @@ BEGIN
     planned_start_date = p_planned_start_date,
     planned_finish_date = p_planned_finish_date,
     date_started = p_date_started,
+    remarks = p_remarks,
     last_log_by = p_last_log_by
     WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
 END //
@@ -14445,6 +14447,7 @@ CREATE PROCEDURE updateBackJobMonitoringJobOrder(
     IN p_planned_start_date DATE, 
     IN p_planned_finish_date DATE, 
     IN p_date_started DATE, 
+    IN p_remarks VARCHAR(5000), 
     IN p_last_log_by INT
 )
 BEGIN
@@ -14468,6 +14471,7 @@ BEGIN
             planned_start_date = p_planned_start_date,
             planned_finish_date = p_planned_finish_date,
             date_started = p_date_started,
+            remarks = p_remarks,
             last_log_by = p_last_log_by
         WHERE backjob_monitoring_job_order_id = p_backjob_monitoring_job_order_id;
     ELSE
@@ -14484,6 +14488,7 @@ BEGIN
             planned_start_date, 
             planned_finish_date, 
             date_started, 
+            remarks, 
             last_log_by
         ) VALUES (
             p_backjob_monitoring_job_order_id, 
@@ -14497,6 +14502,7 @@ BEGIN
             p_planned_start_date, 
             p_planned_finish_date, 
             p_date_started, 
+            p_remarks, 
             p_last_log_by
         );
     END IF;
@@ -14517,6 +14523,7 @@ CREATE PROCEDURE updateBackJobMonitoringAdditionalJobOrder(
     IN p_planned_start_date DATE, 
     IN p_planned_finish_date DATE, 
     IN p_date_started DATE, 
+    IN p_remarks VARCHAR(5000), 
     IN p_last_log_by INT
 )
 BEGIN
@@ -14542,6 +14549,7 @@ BEGIN
             planned_start_date = p_planned_start_date,
             planned_finish_date = p_planned_finish_date,
             date_started = p_date_started,
+            remarks = p_remarks,
             last_log_by = p_last_log_by
         WHERE backjob_monitoring_additional_job_order_id = p_backjob_monitoring_additional_job_order_id;
     ELSE
@@ -14560,6 +14568,7 @@ BEGIN
             planned_start_date, 
             planned_finish_date, 
             date_started, 
+            remarks, 
             last_log_by
         ) VALUES (
             p_backjob_monitoring_additional_job_order_id, 
@@ -14575,6 +14584,7 @@ BEGIN
             p_planned_start_date, 
             p_planned_finish_date, 
             p_date_started, 
+            p_remarks, 
             p_last_log_by
         );
     END IF;
@@ -15380,6 +15390,7 @@ CREATE PROCEDURE updatePartsTransactionSlipReferenceNumber(IN p_part_transaction
 BEGIN
     UPDATE part_transaction
     SET slip_reference_no = p_slip_reference_no,
+        issuance_no = p_slip_reference_no,
     last_log_by = p_last_log_by
     WHERE part_transaction_id = p_part_transaction_id;
 END //
@@ -15393,9 +15404,10 @@ CREATE PROCEDURE insertPartItem(
 )
 BEGIN
     DECLARE v_price DECIMAL(10, 2);
+    DECLARE v_cost DECIMAL(10, 2);
 
     -- Fetch the price from the part table
-    SELECT part_price INTO v_price
+    SELECT part_price, part_cost INTO v_price, v_cost
     FROM part
     WHERE part_id = p_part_id;
 
@@ -15404,6 +15416,7 @@ BEGIN
         part_transaction_id,
         part_id,
         price,
+        cost,
         quantity,
         sub_total,
         total,
@@ -15412,9 +15425,52 @@ BEGIN
         p_part_transaction_id,
         p_part_id,
         v_price,
+        v_cost,
         1,
         v_price,       -- sub_total = price * 1
         v_price,       -- total = price * 1 (no discount assumed)
+        p_last_log_by
+    );
+END //
+
+CREATE PROCEDURE insertPartsTransactionJobOrder(
+    IN p_part_transaction_id VARCHAR(100),
+    IN p_job_order_id INT,
+    IN p_type VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Insert into the cart with quantity = 1 and no discount applied
+    INSERT INTO part_transaction_job_order (
+        part_transaction_id,
+        job_order_id,
+        type,
+        last_log_by
+    ) VALUES (
+        p_part_transaction_id,
+        p_job_order_id,
+        p_type,
+        p_last_log_by
+    );
+END //
+
+CREATE PROCEDURE insertPartsTransactionAdditionalJobOrder(
+    IN p_part_transaction_id VARCHAR(100),
+    IN p_additional_job_order_id INT,
+    IN p_type VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Insert into the cart with quantity = 1 and no discount applied
+    INSERT INTO part_transaction_additional_job_order (
+        part_transaction_id,
+        additional_job_order_id,
+        type,
+        last_log_by
+    ) VALUES (
+        p_part_transaction_id,
+        p_additional_job_order_id,
+        p_type,
         p_last_log_by
     );
 END //
@@ -15454,11 +15510,16 @@ END //
 
 CREATE PROCEDURE getPartsTransactionCartTotal(
     IN p_part_transaction_id VARCHAR(100),
-    IN p_type VARCHAR(10)
+    IN p_type VARCHAR(20)
 )
 BEGIN
     IF p_type = 'subtotal' THEN
         SELECT SUM(price * quantity) AS total
+        FROM part_transaction_cart
+        WHERE part_transaction_id = p_part_transaction_id;
+
+    ELSEIF p_type = 'cost' THEN
+        SELECT SUM(cost * quantity) AS total
         FROM part_transaction_cart
         WHERE part_transaction_id = p_part_transaction_id;
 
@@ -15493,6 +15554,7 @@ BEGIN
             ), 0) AS total;
     END IF;
 END //
+
 
 CREATE PROCEDURE deletePartsTransactionCart(IN p_part_transaction_cart_id INT)
 BEGIN
@@ -15541,6 +15603,11 @@ BEGIN
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generatePartsTransactionDashboardTable()
+BEGIN
+    SELECT * FROM part_transaction WHERE part_transaction_status = 'For Approval'; 
 END //
 
 
@@ -15626,7 +15693,7 @@ BEGIN
             last_log_by = p_last_log_by
         WHERE part_transaction_id = p_parts_transaction_id;
 
-    ELSEIF p_part_transaction_status = 'For Approval' THEN
+    ELSEIF p_part_transaction_status = 'For Validation' THEN
 
         UPDATE part_transaction
         SET 
@@ -15733,6 +15800,17 @@ BEGIN
     JOIN part p ON ptc.part_id = p.part_id
     WHERE ptc.part_transaction_id = p_transaction_id
       AND ptc.quantity > p.quantity;
+END //
+
+CREATE PROCEDURE check_exceed_part_quantity(
+    IN p_transaction_id VARCHAR(100)
+)
+BEGIN
+    SELECT COUNT(*) AS total
+    FROM part_transaction_cart ptc
+    INNER JOIN part p ON ptc.part_id = p.part_id
+    WHERE ptc.part_transaction_id = p_transaction_id
+    AND (p.quantity - ptc.quantity) < 0;
 END //
 
 CREATE PROCEDURE generatePDCInsuranceExtractionTable(IN p_check_start_date DATE, IN p_check_end_date DATE)
@@ -15842,26 +15920,42 @@ BEGIN
 	ORDER BY document_name;
 END //
 
+DELIMITER //
+
 CREATE PROCEDURE insertPartIncomingItem(
-    IN p_part_incoming_id VARCHAR(100),
+    IN p_part_incoming_id INT,
     IN p_part_id INT,
     IN p_last_log_by INT
 )
 BEGIN
+    DECLARE v_part_cost DOUBLE;
+
+    -- Check if part exists
+    SELECT part_cost INTO v_part_cost
+    FROM part
+    WHERE part_id = p_part_id
+    LIMIT 1;
+
+    -- Insert into part_incoming_cart
     INSERT INTO part_incoming_cart (
         part_incoming_id,
         part_id,
         quantity,
         remaining_quantity,
+        cost,
         last_log_by
     ) VALUES (
         p_part_incoming_id,
         p_part_id,
         1,
         1,
+        COALESCE(v_part_cost, 0),
         p_last_log_by
     );
 END //
+
+DELIMITER ;
+
 
 CREATE PROCEDURE getPartsIncomingCart(IN p_part_incoming_cart_id INT)
 BEGIN
@@ -15899,15 +15993,15 @@ BEGIN
         part_incoming_cart_id = p_part_incoming_cart_id;
 
     -- Update part quantity and status conditionally
-    UPDATE part
+   UPDATE part
     SET 
         quantity = quantity + p_received_quantity,
         part_status = CASE 
-                         WHEN part_status = 'Out of Stock' THEN 'For Sale'
-                         ELSE part_status
-                     END,
+                        WHEN part_status IN ('Out of Stock', 'Draft') THEN 'For Sale'
+                        ELSE part_status
+                    END,
         for_sale_date = CASE 
-                            WHEN part_status = 'Out of Stock' THEN NOW()
+                            WHEN part_status IN ('Out of Stock', 'Draft') THEN NOW()
                             ELSE for_sale_date
                         END,
         last_log_by = p_last_log_by
@@ -15915,6 +16009,62 @@ BEGIN
         part_id = p_part_id;
 
 END //
+
+CREATE PROCEDURE updatePartsAverageCostAndSRP (
+    IN p_part_id INT,
+    IN p_company_id INT,
+    IN p_received_quantity DOUBLE,
+    IN p_cost DOUBLE,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE current_part_cost DECIMAL(10,2);
+    DECLARE current_quantity DOUBLE;
+    DECLARE current_part_price DECIMAL(10,2);
+    DECLARE total_cost_of_parts DECIMAL(10,2);
+    DECLARE total_cost_of_received DECIMAL(10,2);
+    DECLARE total_quantity DOUBLE;
+    DECLARE overall_total_cost DECIMAL(10,2);
+    DECLARE new_part_cost DECIMAL(10,2);
+    DECLARE new_part_price DECIMAL(10,2);
+
+    -- Step 1: Get current part cost and quantity
+    SELECT part_cost, quantity, part_price 
+    INTO current_part_cost, current_quantity, current_part_price
+    FROM part
+    WHERE part_id = p_part_id;
+
+    -- Step 2: Compute total costs and new part cost
+    SET total_cost_of_parts = current_quantity * current_part_cost;
+    SET total_cost_of_received = p_received_quantity * p_cost;
+    SET total_quantity = current_quantity + p_received_quantity;
+
+    IF total_quantity > 0 THEN
+        SET overall_total_cost = total_cost_of_parts + total_cost_of_received;
+        SET new_part_cost = ROUND(overall_total_cost / total_quantity, 2);
+    ELSE
+        SET new_part_cost = current_part_cost; -- avoid division by zero
+    END IF;
+
+    -- Step 3: Compute new part price
+    IF p_company_id = 2 THEN
+        SET new_part_price = ROUND(new_part_cost * 1.3, 2);
+    ELSE
+        SET new_part_price = current_part_price; -- retain old price or customize as needed
+    END IF;
+
+    -- Step 4: Update the part table
+    UPDATE part
+    SET part_cost = new_part_cost,
+        part_price = new_part_price,
+        last_log_by = p_last_log_by -- assuming this column exists for tracking logs
+    WHERE part_id = p_part_id;
+
+END //
+
+DELIMITER ;
+
+
 DELIMITER //
 CREATE PROCEDURE updatePartsReceivedCancelIncomingCart (
     IN p_part_incoming_cart_id INT,
@@ -16009,6 +16159,11 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generatePartsIncomingDashboardTable()
+BEGIN
+    SELECT * FROM part_incoming WHERE part_incoming_status = 'For Approval';
+END //
+
 
 DELIMITER //
 DROP PROCEDURE updatePartsIncomingStatus//
@@ -16065,8 +16220,8 @@ CREATE PROCEDURE updatePartsIncomingReleased(
     IN p_parts_incoming_id VARCHAR(100),
     IN p_part_incoming_status VARCHAR(50),
     IN p_invoice_number VARCHAR(200),
+    IN p_invoice_price DOUBLE,
     IN p_delivery_date DATE,
-    IN p_rr_no VARCHAR(100),
     IN p_last_log_by INT
 )
 BEGIN
@@ -16076,15 +16231,100 @@ BEGIN
     UPDATE part_incoming
         SET completion_date = NOW(),
             rr_date = NOW(),
-            rr_no = p_rr_no,
             invoice_number = p_invoice_number,
+            invoice_price = p_invoice_price,
             delivery_date = p_delivery_date,
             part_incoming_status = p_part_incoming_status,
             last_log_by = p_last_log_by
         WHERE part_incoming_id = p_parts_incoming_id;
 END //
 
-CREATE PROCEDURE getPartsIncomingCartTotal(IN p_part_incoming_id INT, IN p_type VARCHAR(10))
+CREATE PROCEDURE generatePartsIssuanceMonitoring(
+    IN p_parts_incoming_id VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_part_incoming_id INT;
+    DECLARE v_product_id INT;
+    DECLARE v_part_purchased_monitoring_id INT;
+    
+    -- Set timezone
+    SET time_zone = '+08:00';
+    
+    -- Get part_incoming_id and product_id from part_incoming table
+    SELECT part_incoming_id, product_id
+    INTO v_part_incoming_id, v_product_id
+    FROM part_incoming
+    WHERE part_incoming_id = p_parts_incoming_id;
+    
+    -- Insert into part_purchased_monitoring
+    INSERT INTO part_purchased_monitoring (
+        part_incoming_id,
+        product_id,
+        complete_date,
+        created_date,
+        last_log_by
+    ) VALUES (
+        v_part_incoming_id,
+        v_product_id,
+        NULL,
+        NOW(),
+        p_last_log_by
+    );
+    
+    -- Get the last inserted ID for part_purchased_monitoring_id
+    SET v_part_purchased_monitoring_id = LAST_INSERT_ID();
+    
+    -- Insert into part_purchased_monitoring_item by selecting from part_incoming_cart
+    INSERT INTO part_purchased_monitoring_item (
+        part_purchased_monitoring_id,
+        part_id,
+        quantity,
+        quantity_issued,
+        not_issued_quantity,
+        part_purchased_item_status,
+        created_date,
+        last_log_by
+    )
+    SELECT 
+        v_part_purchased_monitoring_id,
+        pic.part_id,
+        pic.received_quantity,
+        0, -- quantity_issued default
+        pic.received_quantity, -- not_issued_quantity starts as received_quantity
+        'For Issuance',
+        NOW(),
+        p_last_log_by
+    FROM 
+        part_incoming_cart pic
+    WHERE 
+        pic.part_incoming_id = p_parts_incoming_id
+        AND pic.received_quantity > 0;
+    
+END //
+
+DELIMITER ;
+
+
+CREATE PROCEDURE updatePartsIncomingPosted(
+    IN p_parts_incoming_id VARCHAR(100),
+    IN p_rr_no VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- ===== Now we can set values =====
+    SET time_zone = '+08:00';
+
+    UPDATE part_incoming
+        SET posted_date = NOW(),
+            rr_date = NOW(),
+            rr_no = p_rr_no,
+            part_incoming_status = 'Posted',
+            last_log_by = p_last_log_by
+        WHERE part_incoming_id = p_parts_incoming_id;
+END //
+
+CREATE PROCEDURE getPartsIncomingCartTotal(IN p_part_incoming_id INT, IN p_type VARCHAR(20))
 BEGIN
 	IF p_type = 'cost' THEN
         SELECT SUM(cost * (received_quantity + remaining_quantity)) AS total
@@ -16102,6 +16342,11 @@ BEGIN
         SELECT SUM(remaining_quantity) AS total
         FROM part_incoming_cart
         WHERE part_incoming_id = p_part_incoming_id;
+	ELSEIF p_type = 'without cost' THEN
+        SELECT COUNT(part_incoming_cart_id) AS total
+        FROM part_incoming_cart
+        WHERE part_incoming_id = p_part_incoming_id
+          AND cost = 0;
     ELSE
         SELECT SUM(quantity) AS total
         FROM part_incoming_cart
@@ -18820,4 +19065,443 @@ BEGIN
     recommendation = p_recommendation,
     last_log_by = p_last_log_by
     WHERE ci_report_id = p_ci_report_id;
+END //
+
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS createPartsIncomingEntry //
+CREATE PROCEDURE createPartsIncomingEntry(
+    IN p_part_incoming_id INT,
+    IN p_company_id INT,
+    IN p_reference_number VARCHAR(500),
+    IN p_cost DECIMAL(15,2),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_chart_item VARCHAR(100);
+    DECLARE v_credit VARCHAR(100);
+
+    CASE p_company_id
+        WHEN 1 THEN
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_analytic_lines = 'NE TRUCK';
+            SET v_analytic_distribution = '{"2": 100.0}';
+        WHEN 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 4 THEN
+            SET v_analytic_lines = 'PCG PROPERTY';
+            SET v_analytic_distribution = '{"4": 100.0}';
+        WHEN 5 THEN
+            SET v_analytic_lines = 'GCB PROPERTY';
+            SET v_analytic_distribution = '{"3": 100.0}';
+        WHEN 6 THEN
+            SET v_analytic_lines = 'GCB FARMING';
+            SET v_analytic_distribution = '{"11": 100.0}';
+        WHEN 7 THEN
+            SET v_analytic_lines = 'PCG FARMING';
+            SET v_analytic_distribution = '{"15": 100.0}';
+        WHEN 8 THEN
+            SET v_analytic_lines = 'NE FUEL';
+            SET v_analytic_distribution = '{"6": 100.0}';
+        WHEN 9 THEN
+            SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
+            SET v_analytic_distribution = '{"17": 100.0}';
+        WHEN 10 THEN
+            SET v_analytic_lines = 'Avida';
+            SET v_analytic_distribution = '{"20": 100.0}';
+        WHEN 11 THEN
+            SET v_analytic_lines = 'Caalibangbangan';
+            SET v_analytic_distribution = '{"19": 100.0}';
+        WHEN 12 THEN
+            SET v_analytic_lines = 'Sta Rosa';
+            SET v_analytic_distribution = '{"18": 100.0}';
+        WHEN 13 THEN
+            SET v_analytic_lines = 'KPC VENTURE INC';
+            SET v_analytic_distribution = '{"16": 100.0}';
+        WHEN 14 THEN
+            SET v_analytic_lines = 'NE HAULING';
+            SET v_analytic_distribution = '{"7": 100.0}';
+        ELSE
+            SET v_analytic_lines = 'DEFAULT';
+            SET v_analytic_distribution = '{"0": 0.0}';
+    END CASE;
+
+    SET v_chart_item = '10501020 Inventory Parts';
+    SET v_credit = '20101020 Accounts Payable Parts';
+    
+    -- Insert debit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_part_incoming_id, 
+        NOW(), 
+        p_reference_number, 
+        'Parts Purchase', 
+        v_chart_item, 
+        p_cost, 
+        0, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert credit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_part_incoming_id, 
+        NOW(), 
+        p_reference_number, 
+        'Parts Purchase', 
+        v_credit, 
+        0, 
+        p_cost, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+END//
+
+DROP PROCEDURE IF EXISTS createPartsTransactionEntry //
+CREATE PROCEDURE createPartsTransactionEntry(
+    IN p_part_transaction_id INT,
+    IN p_company_id INT,
+    IN p_reference_number VARCHAR(500),
+    IN p_cost DECIMAL(15,2),
+    IN p_price DECIMAL(15,2),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_chart_item VARCHAR(100);
+    DECLARE v_credit VARCHAR(100);
+
+    CASE p_company_id
+        WHEN 1 THEN
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_analytic_lines = 'NE TRUCK';
+            SET v_analytic_distribution = '{"2": 100.0}';
+        WHEN 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 4 THEN
+            SET v_analytic_lines = 'PCG PROPERTY';
+            SET v_analytic_distribution = '{"4": 100.0}';
+        WHEN 5 THEN
+            SET v_analytic_lines = 'GCB PROPERTY';
+            SET v_analytic_distribution = '{"3": 100.0}';
+        WHEN 6 THEN
+            SET v_analytic_lines = 'GCB FARMING';
+            SET v_analytic_distribution = '{"11": 100.0}';
+        WHEN 7 THEN
+            SET v_analytic_lines = 'PCG FARMING';
+            SET v_analytic_distribution = '{"15": 100.0}';
+        WHEN 8 THEN
+            SET v_analytic_lines = 'NE FUEL';
+            SET v_analytic_distribution = '{"6": 100.0}';
+        WHEN 9 THEN
+            SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
+            SET v_analytic_distribution = '{"17": 100.0}';
+        WHEN 10 THEN
+            SET v_analytic_lines = 'Avida';
+            SET v_analytic_distribution = '{"20": 100.0}';
+        WHEN 11 THEN
+            SET v_analytic_lines = 'Caalibangbangan';
+            SET v_analytic_distribution = '{"19": 100.0}';
+        WHEN 12 THEN
+            SET v_analytic_lines = 'Sta Rosa';
+            SET v_analytic_distribution = '{"18": 100.0}';
+        WHEN 13 THEN
+            SET v_analytic_lines = 'KPC VENTURE INC';
+            SET v_analytic_distribution = '{"16": 100.0}';
+        WHEN 14 THEN
+            SET v_analytic_lines = 'NE HAULING';
+            SET v_analytic_distribution = '{"7": 100.0}';
+        ELSE
+            SET v_analytic_lines = 'DEFAULT';
+            SET v_analytic_distribution = '{"0": 0.0}';
+    END CASE;
+
+    SET v_chart_item = '10501010 Inventory Unit';
+    SET v_credit = '40102020 Cash Sales Parts';
+    SET v_chart_item_2 = '50402020 Cost of Sales Parts';
+    SET v_credit_2 = '10501020 Inventory Parts';
+    
+    -- Insert debit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_part_transaction_id, 
+        NOW(), 
+        p_reference_number, 
+        'Parts Issuance', 
+        v_chart_item, 
+        p_price, 
+        0, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert debit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_part_transaction_id, 
+        NOW(), 
+        p_reference_number, 
+        'Parts Issuance', 
+        v_chart_item_2, 
+        p_cost, 
+        0, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert credit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_part_transaction_id, 
+        NOW(), 
+        p_reference_number, 
+        'Parts Issuance', 
+        v_credit, 
+        0, 
+        p_price, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert credit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_part_transaction_id, 
+        NOW(), 
+        p_reference_number, 
+        'Parts Issuance', 
+        v_credit_2, 
+        0, 
+        p_cost, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+END//
+
+
+
+
+CREATE PROCEDURE createPartsTransactionProductExpense(IN p_product_id INT, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(200), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO product_expense (product_id, reference_type, reference_number, expense_amount, expense_type, particulars, issuance_date, last_log_by) 
+	VALUES(p_product_id, p_reference_type, p_reference_number, p_expense_amount, p_expense_type, p_particulars, NOW(), p_last_log_by);
+END //
+
+CREATE PROCEDURE generatePartsPurchasedMonitoringTable()
+BEGIN
+    SELECT *
+    FROM part_purchased_monitoring
+    ORDER BY created_date;
+END //
+
+CREATE PROCEDURE generatePartsPurchasedMonitoringItemTable(IN p_parts_purchased_monitoring_id INT)
+BEGIN
+    SELECT *
+    FROM part_purchased_monitoring_item
+    WHERE part_purchased_monitoring_id = p_parts_purchased_monitoring_id
+    ORDER BY created_date;
+END //
+
+CREATE PROCEDURE checkPartsPurchasedMonitoringExist (IN p_part_purchased_monitoring_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM part_purchased_monitoring
+    WHERE part_purchased_monitoring_id = p_part_purchased_monitoring_id;
+END //
+
+CREATE PROCEDURE updatePartsPurchased(IN p_part_purchased_monitoring_id INT, IN p_part_purchased_monitoring_name VARCHAR(100), IN p_description VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE part_purchased_monitoring
+    SET part_purchased_monitoring_name = p_part_purchased_monitoring_name,
+    description = p_description,
+    last_log_by = p_last_log_by
+    WHERE part_purchased_monitoring_id = p_part_purchased_monitoring_id;
+END //
+
+CREATE PROCEDURE cancelPartsPurchasedMonitoringStatus(IN p_part_purchased_monitoring_item_id INT, IN p_cancellation_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE part_purchased_monitoring_item
+    SET part_purchased_item_status = 'Cancelled',
+    cancellation_date = NOW(),
+    cancellation_remarks = p_cancellation_remarks,
+    last_log_by = p_last_log_by
+    WHERE part_purchased_monitoring_item_id = p_part_purchased_monitoring_item_id;
+END //
+
+CREATE PROCEDURE issuePartsPurchasedMonitoringStatus(IN p_part_purchased_monitoring_item_id INT, IN p_reference_number VARCHAR(500), IN p_issued_quantity INT, IN p_issuance_date DATE, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+BEGIN
+	UPDATE part_purchased_monitoring_item
+    SET reference_number = p_reference_number,
+    quantity_issued = p_issued_quantity,
+    not_issued_quantity = (quantity - p_issued_quantity),
+    issuance_date = p_issuance_date,
+    remarks = p_remarks,
+    last_log_by = p_last_log_by
+    WHERE part_purchased_monitoring_item_id = p_part_purchased_monitoring_item_id;
+END //
+
+CREATE PROCEDURE tagPartsPurchasedMonitoringAsIssued(IN p_part_purchased_monitoring_item_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE part_purchased_monitoring_item
+    SET part_purchased_item_status = 'Issued',
+    last_log_by = p_last_log_by
+    WHERE part_purchased_monitoring_item_id = p_part_purchased_monitoring_item_id;
+END //
+
+CREATE PROCEDURE getPartsPurchasedMonitoringProgress(IN p_parts_purchased_monitoring_id INT, IN p_type VARCHAR(20))
+BEGIN
+	IF p_type = 'issued' THEN
+        SELECT COUNT(part_purchased_monitoring_item_id) AS total
+        FROM part_purchased_monitoring_item
+        WHERE part_purchased_monitoring_id = p_parts_purchased_monitoring_id AND (part_purchased_item_status = 'Issued' OR part_purchased_item_status = 'Cancelled');
+    ELSE
+        SELECT COUNT(part_purchased_monitoring_item_id) AS total
+        FROM part_purchased_monitoring_item
+        WHERE part_purchased_monitoring_id = p_parts_purchased_monitoring_id AND part_purchased_item_status = 'For Issuance';
+    END IF;
+END //
+
+CREATE PROCEDURE checkPartsPurchasedMonitoringItem (IN p_part_purchased_monitoring_item_id INT)
+BEGIN
+	SELECT *
+    FROM part_purchased_monitoring_item
+    WHERE part_purchased_monitoring_item_id = p_part_purchased_monitoring_item_id;
+END //
+
+
+
+CREATE PROCEDURE generatePartsTransactionJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
+BEGIN
+    IF p_type = 'job order' THEN
+        SELECT * FROM sales_proposal_job_order
+        WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
+        AND progress < 100
+        ORDER BY job_order;
+    ELSE
+        SELECT * FROM backjob_monitoring_job_order
+        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
+        AND progress < 100
+        ORDER BY job_order;
+    END IF;	
+END //
+
+
+CREATE PROCEDURE generatePartsTransactionAdditionalJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
+BEGIN
+    IF p_type = 'additional job order' THEN
+        SELECT * FROM sales_proposal_additional_job_order
+        WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
+        AND progress < 100
+        ORDER BY particulars;
+    ELSE
+        SELECT * FROM backjob_monitoring_additional_job_order
+        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
+        AND progress < 100
+        ORDER BY particulars;
+    END IF;	
 END //

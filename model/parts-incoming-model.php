@@ -62,12 +62,27 @@ class PartsIncomingModel {
         $stmt->execute();
     }
 
-    public function updatePartsIncomingReleased($p_parts_incoming_id, $p_part_incoming_status, $p_invoice_number, $p_delivery_date, $p_rr_no, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePartsIncomingReleased(:p_parts_incoming_id, :p_part_incoming_status, :p_invoice_number, :p_delivery_date, :p_rr_no, :p_last_log_by)');
+    public function updatePartsIncomingReleased($p_parts_incoming_id, $p_part_incoming_status, $p_invoice_number, $p_invoice_price, $p_delivery_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsIncomingReleased(:p_parts_incoming_id, :p_part_incoming_status, :p_invoice_number, :p_invoice_price, :p_delivery_date, :p_last_log_by)');
         $stmt->bindValue(':p_parts_incoming_id', $p_parts_incoming_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_part_incoming_status', $p_part_incoming_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_invoice_number', $p_invoice_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_invoice_price', $p_invoice_price, PDO::PARAM_STR);
         $stmt->bindValue(':p_delivery_date', $p_delivery_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function generatePartsIssuanceMonitoring($p_parts_incoming_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL generatePartsIssuanceMonitoring(:p_parts_incoming_id, :p_last_log_by)');
+        $stmt->bindValue(':p_parts_incoming_id', $p_parts_incoming_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updatePartsIncomingPosted($p_parts_incoming_id, $p_rr_no, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsIncomingPosted(:p_parts_incoming_id, :p_rr_no, :p_last_log_by)');
+        $stmt->bindValue(':p_parts_incoming_id', $p_parts_incoming_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_rr_no', $p_rr_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -78,6 +93,16 @@ class PartsIncomingModel {
         $stmt->bindValue(':p_part_incoming_cart_id', $p_part_incoming_cart_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_received_quantity', $p_received_quantity, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updatePartsAverageCostAndSRP($p_part_id, $p_company_id, $p_received_quantity, $p_cost, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsAverageCostAndSRP(:p_part_id, :p_company_id, :p_received_quantity, :p_cost, :p_last_log_by)');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_received_quantity', $p_received_quantity, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -140,6 +165,16 @@ class PartsIncomingModel {
         $stmt->bindValue(':p_part_incoming_id', $p_part_incoming_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_document_name', $p_document_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_document_file_path', $p_document_file_path, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function createPartsIncomingEntry($p_part_incoming_id, $p_company_id, $p_reference_number, $p_cost, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createPartsIncomingEntry(:p_part_incoming_id, :p_company_id, :p_reference_number, :p_cost, :p_last_log_by)');
+        $stmt->bindValue(':p_part_incoming_id', $p_part_incoming_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

@@ -177,6 +177,7 @@
                                                         <th>Date Started</th>
                                                         <th>Completion Date</th>
                                                         <th>Progress</th>
+                                                        <th>Remarks</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
@@ -207,6 +208,7 @@
                                                     <th>Planned Finished Date</th>
                                                     <th>Date Started</th>
                                                     <th>Completion Date</th>
+                                                    <th>Remarks</th>
                                                     <th>Actions</th>
                                                 </tr>
                                                 </thead>
@@ -764,6 +766,13 @@
                 </div>
               </div>
             </div>
+            
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label" for="job_order_remarks">Remarks</label>
+                <textarea class="form-control" id="job_order_remarks" name="job_order_remarks" maxlength="1000"></textarea>
+              </div>
+            </div>
           </form>
         </div>
       </div>
@@ -877,6 +886,12 @@
                       <i class="feather icon-calendar"></i>
                     </span>
                 </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label" for="additional_job_order_remarks">Remarks</label>
+                <textarea class="form-control" id="additional_job_order_remarks" name="additional_job_order_remarks" maxlength="1000"></textarea>
               </div>
             </div>
           </form>

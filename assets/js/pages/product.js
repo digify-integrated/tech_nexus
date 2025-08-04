@@ -1304,6 +1304,7 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'BODY_TYPE' },
             { 'data' : 'COLOR' },
             { 'data' : 'WAREHOUSE' },
+            { 'data' : 'RR_NO' },
             { 'data' : 'PRODUCT_COST' },
             { 'data' : 'PRODUCT_PRICE' },
             { 'data' : 'PRODUCT_STATUS' },
@@ -1324,7 +1325,8 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 10 },
             { 'width': 'auto', 'aTargets': 11 },
             { 'width': 'auto', 'aTargets': 12 },
-            { 'width': '10%','bSortable': false, 'aTargets': 13 }
+            { 'width': 'auto', 'aTargets': 13 },
+            { 'width': '10%','bSortable': false, 'aTargets': 14 }
         ];
     }
     else{
@@ -1339,6 +1341,7 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'BODY_TYPE' },
             { 'data' : 'COLOR' },
             { 'data' : 'WAREHOUSE' },
+            { 'data' : 'RR_NO' },
             { 'data' : 'PRODUCT_PRICE' },
             { 'data' : 'PRODUCT_STATUS' },
             { 'data' : 'ACTION' }
@@ -1357,7 +1360,8 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 9 },
             { 'width': 'auto', 'aTargets': 10 },
             { 'width': 'auto', 'aTargets': 11 },
-            { 'width': '10%','bSortable': false, 'aTargets': 12 }
+            { 'width': 'auto', 'aTargets': 12 },
+            { 'width': '10%','bSortable': false, 'aTargets': 13 }
         ];
     }
 

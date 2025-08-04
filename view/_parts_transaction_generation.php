@@ -10,6 +10,9 @@ require_once '../model/parts-transaction-model.php';
 require_once '../model/parts-subclass-model.php';
 require_once '../model/parts-class-model.php';
 require_once '../model/unit-model.php';
+require_once '../model/product-model.php';
+require_once '../model/miscellaneous-client-model.php';
+require_once '../model/customer-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -19,6 +22,9 @@ $partsTransactionModel = new PartsTransactionModel($databaseModel);
 $partsSubclassModel = new PartsSubclassModel($databaseModel);
 $partsClassModel = new PartsClassModel($databaseModel);
 $unitModel = new UnitModel($databaseModel);
+$productModel = new ProductModel($databaseModel);
+$miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
+$customerModel = new CustomerModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -65,6 +71,80 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PRICE' => number_format($part_price, 2) . ' PHP',
                     'STOCK' => $quantity,
                     'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-part" type="checkbox" value="'. $part_id.'"></div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'add job order table':
+            $parts_transaction_id = $_POST['parts_transaction_id'];
+            $generate_job_order = $_POST['generate_job_order'];
+
+            $partsTransactionDetails = $partsTransactionModel->getPartsTransaction($parts_transaction_id);
+            $customer_id = $partsTransactionDetails['customer_id'] ?? null;
+
+            #$company = $_POST['company'];
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsTransactionJobOrderOptions(:parts_transaction_id, :customer_id, :generate_job_order)');
+            $sql->bindValue(':parts_transaction_id', $parts_transaction_id, PDO::PARAM_STR);
+            $sql->bindValue(':customer_id', $customer_id, PDO::PARAM_STR);
+            $sql->bindValue(':generate_job_order', $generate_job_order, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                if($generate_job_order === 'job order'){
+                    $job_order_id = $row['sales_proposal_job_order_id'];
+                    $type = 'Sales Proposal Job Order';
+                }
+                else{
+                    $job_order_id = $row['backjob_monitoring_job_order_id'];
+                    $type = 'Internal Job Order';
+                }
+
+                $job_order = $row['job_order'];
+
+                $response[] = [
+                    'JOB_ORDER' => $job_order,
+                    'TYPE' => $type,
+                    'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-job-order" type="checkbox" value="'. $job_order_id.'"></div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'add additional job order table':
+            $parts_transaction_id = $_POST['parts_transaction_id'];
+            $generate_job_order = $_POST['generate_job_order'];
+
+            $partsTransactionDetails = $partsTransactionModel->getPartsTransaction($parts_transaction_id);
+            $customer_id = $partsTransactionDetails['customer_id'] ?? null;
+
+            #$company = $_POST['company'];
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsTransactionAdditionalJobOrderOptions(:parts_transaction_id, :customer_id, :generate_job_order)');
+            $sql->bindValue(':parts_transaction_id', $parts_transaction_id, PDO::PARAM_STR);
+            $sql->bindValue(':customer_id', $customer_id, PDO::PARAM_STR);
+            $sql->bindValue(':generate_job_order', $generate_job_order, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                if($generate_job_order === 'job order'){
+                    $job_order_id = $row['sales_proposal_additional_job_order_id'];
+                    $type = 'Sales Proposal Job Order';
+                }
+                else{
+                    $job_order_id = $row['backjob_monitoring_additional_job_order_id'];
+                    $type = 'Internal Job Order';
+                }
+
+                $job_order = $row['job_order'];
+
+                $response[] = [
+                    'JOB_ORDER' => $job_order,
+                    'TYPE' => $type,
+                    'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-additional-job-order" type="checkbox" value="'. $job_order_id.'"></div>'
                 ];
             }
 
@@ -281,6 +361,99 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sub_total = $row['sub_total'];
                 $total_discount = $row['total_discount'];
                 $total_amount = $row['total_amount'];
+                $issuance_no = $row['issuance_no'];
+                $reference_number = $row['reference_number'];
+                $customer_type = $row['customer_type'];
+                $customer_id = $row['customer_id'];
+                $transaction_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
+                $issuance_date = $systemModel->checkDate('empty', $row['issuance_date'], '', 'm/d/Y', '');
+
+                if($part_transaction_status === 'Draft'){
+                    $part_transaction_status = '<span class="badge bg-secondary">' . $part_transaction_status . '</span>';
+                }
+                else if($part_transaction_status === 'Cancelled'){
+                    $part_transaction_status = '<span class="badge bg-warning">' . $part_transaction_status . '</span>';
+                }
+                else if($part_transaction_status === 'For Approval' || $part_transaction_status === 'For Validation'){
+                    $part_transaction_status = '<span class="badge bg-info">For Validation</span>';
+                }
+                else if($part_transaction_status === 'Approved' || $part_transaction_status === 'Validated'){
+                    $part_transaction_status = '<span class="badge bg-success">Validated</span>';
+                }
+                else{
+                    $part_transaction_status = '<span class="badge bg-success">' . $part_transaction_status . '</span>';
+                }
+
+                 if($customer_type === 'Miscellaneous'){
+                    $customerDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+                    $transaction_reference = $customerDetails['client_name'] ?? 'N/A';
+                }
+                else if($customer_type === 'Customer'){
+                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                    $transaction_reference = $customerDetails['file_as'] ?? null;
+                }
+                else{
+                    $productDetails = $productModel->getProduct($customer_id);
+                    $stock_number = $productDetails['stock_number'];
+                    $description = $productDetails['description'];
+                    $transaction_reference = '<div class="col">
+                                        <h6 class="mb-0">'. $stock_number .'</h6>
+                                            <p class="text-muted f-12 mb-0">'. $description .'</p>
+                                        </div>';
+                }
+
+                $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
+
+                if($company == '2'){
+                    $link = 'netruck-parts-transaction';
+                    $number = $issuance_no;
+                }
+                else{
+                    $link = 'parts-transaction';
+                    $number = $reference_number;
+                }
+
+                $response[] = [
+                    'TRANSACTION_ID' => $number,
+                    'PRODUCT' => $transaction_reference,
+                    'NUMBER_OF_ITEMS' => number_format($number_of_items, 0),
+                    'ADD_ON' => number_format($add_on, 2) . ' PHP',
+                    'DISCOUNT' => number_format($total_discount, 2) . ' PHP',
+                    'SUB_TOTAL' => number_format($sub_total, 2) . ' PHP',
+                    'TOTAL_AMOUNT' => number_format($total_amount, 2) . ' PHP',
+                    'TRANSACTION_DATE' => $transaction_date,
+                    'ISSUANCE_DATE' => $issuance_date,
+                    'STATUS' => $part_transaction_status,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'parts transaction dashboard table':
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsTransactionDashboardTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_transaction_id = $row['part_transaction_id'];
+                $part_transaction_status = $row['part_transaction_status'];
+                $customer_type = $row['customer_type'];
+                $customer_id = $row['customer_id'];
+                $number_of_items = $row['number_of_items'];
+                $add_on = $row['add_on'];
+                $sub_total = $row['sub_total'];
+                $total_discount = $row['total_discount'];
+                $total_amount = $row['total_amount'];
+                $issuance_no = $row['issuance_no'];
+                $company_id = $row['company_id'];
+                $reference_number = $row['reference_number'];
                 $transaction_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
                 $issuance_date = $systemModel->checkDate('empty', $row['issuance_date'], '', 'm/d/Y', '');
 
@@ -299,25 +472,46 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
 
-                if($company == '2'){
+                if($company_id == '2'){
                     $link = 'netruck-parts-transaction';
+                    $number = $issuance_no;
                 }
                 else{
                     $link = 'parts-transaction';
+                    $number = $reference_number;
+                }
+
+                if($customer_type === 'Miscellaneous'){
+                    $customerDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+                    $transaction_reference = $customerDetails['client_name'] ?? 'N/A';
+                }
+                else if($customer_type === 'Customer'){
+                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                    $transaction_reference = $customerDetails['file_as'] ?? null;
+                }
+                else{
+                    $productDetails = $productModel->getProduct($customer_id);
+                    $stock_number = $productDetails['stock_number'];
+                    $description = $productDetails['description'];
+                    $transaction_reference = '<div class="col">
+                                        <h6 class="mb-0">'. $stock_number .'</h6>
+                                            <p class="text-muted f-12 mb-0">'. $description .'</p>
+                                        </div>';
                 }
 
                 $response[] = [
-                    'TRANSACTION_ID' => $part_transaction_id,
+                    'TRANSACTION_ID' => '<a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" title="View Details" target="_blank">
+                                       '. $number .'
+                                    </a>',
+                    'CUSTOMER_TYPE' => $customer_type,
+                    'REFERENCE' => $transaction_reference,
                     'NUMBER_OF_ITEMS' => number_format($number_of_items, 0),
-                    'ADD_ON' => number_format($add_on, 2) . ' PHP',
-                    'DISCOUNT' => number_format($total_discount, 2) . ' PHP',
-                    'SUB_TOTAL' => number_format($sub_total, 2) . ' PHP',
                     'TOTAL_AMOUNT' => number_format($total_amount, 2) . ' PHP',
                     'TRANSACTION_DATE' => $transaction_date,
                     'ISSUANCE_DATE' => $issuance_date,
                     'STATUS' => $part_transaction_status,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
@@ -325,6 +519,105 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
 
             echo json_encode($response);
+        break;
+
+        case 'parts transaction dashboard list':
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsTransactionDashboardTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $list = '';
+            foreach ($options as $row) {
+               $part_transaction_id = $row['part_transaction_id'];
+                $part_transaction_status = $row['part_transaction_status'];
+                $customer_type = $row['customer_type'];
+                $customer_id = $row['customer_id'];
+                $number_of_items = $row['number_of_items'];
+                $add_on = $row['add_on'];
+                $sub_total = $row['sub_total'];
+                $total_discount = $row['total_discount'];
+                $total_amount = $row['total_amount'];
+                $issuance_no = $row['issuance_no'];
+                $company_id = $row['company_id'];
+                $reference_number = $row['reference_number'];
+                $transaction_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
+                $issuance_date = $systemModel->checkDate('empty', $row['issuance_date'], '', 'm/d/Y', '');
+
+                if($part_transaction_status === 'Draft'){
+                    $part_transaction_status = '<span class="badge bg-secondary">' . $part_transaction_status . '</span>';
+                }
+                else if($part_transaction_status === 'Cancelled'){
+                    $part_transaction_status = '<span class="badge bg-warning">' . $part_transaction_status . '</span>';
+                }
+                else if($part_transaction_status === 'For Approval' || $part_transaction_status === 'For Validation'){
+                    $part_transaction_status = '<span class="badge bg-info">For Validation</span>';
+                }
+                else if($part_transaction_status === 'Approved' || $part_transaction_status === 'Validated'){
+                    $part_transaction_status = '<span class="badge bg-success">Validated</span>';
+                }
+                else{
+                    $part_transaction_status = '<span class="badge bg-success">' . $part_transaction_status . '</span>';
+                }
+
+
+                $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
+
+                if($company_id == '2'){
+                    $link = 'netruck-parts-transaction';
+                    $number = $issuance_no;
+                }
+                else{
+                    $link = 'parts-transaction';
+                    $number = $reference_number;
+                }
+
+                if($customer_type === 'Miscellaneous'){
+                    $customerDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+                    $transaction_reference = $customerDetails['client_name'] ?? 'N/A';
+                }
+                else if($customer_type === 'Customer'){
+                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                    $transaction_reference = $customerDetails['file_as'] ?? null;
+                }
+                else{
+                    $productDetails = $productModel->getProduct($customer_id);
+                    $stock_number = $productDetails['stock_number'];
+                    $description = $productDetails['description'];
+                    $transaction_reference = '<div class="col">
+                                        <h6 class="mb-0">'. $stock_number .'</h6>
+                                            <p class="text-muted f-12 mb-0">'. $description .'</p>
+                                        </div>';
+                }
+
+                 $list .= ' <li class="list-group-item">
+                          <div class="d-flex align-items-center">
+                              <div class="flex-grow-1 ms-3">
+                                  <div class="row g-1">
+                                        <div class="col-9">
+                                            <a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" title="View Details" target="_blank">
+                                                <p class="mb-0"><b>'. strtoupper($transaction_reference) .'</b></p>
+                                                <p class="text-muted mb-0"><small>Issuance Number: '. $number .'</small></p>
+                                                <p class="text-muted mb-0"><small>Transaction Type: '. strtoupper($customer_type) .'</small></p>
+                                                <p class="text-muted mb-0"><small>No. Items: '. number_format($number_of_items, 0) .'</small></p>
+                                                <p class="text-muted mb-0"><small>Net Amount: '. number_format($total_amount, 2) .' PHP</small></p>
+                                                <p class="text-muted mb-0"><small>Transaction Date: '. $transaction_date .'</small></p>
+                                            </a>
+                                      </div>
+                                      <div class="col-3 text-end">
+                                          '. $part_transaction_status .'
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>';
+            }
+
+            if(empty($list)){
+                $list = ' <li class="list-group-item text-center"><b>No Parts Issuance For Approval Found</b></li>';
+            }
+
+            echo json_encode(['LIST' => $list]);
         break;
         # -------------------------------------------------------------
     }

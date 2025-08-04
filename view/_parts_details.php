@@ -73,7 +73,7 @@ if($addPartExpense['total'] > 0){
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">';
 
-                        if ($tagForSale['total'] > 0 && $partsStatus == 'Draft') {
+                        if ($tagForSale['total'] > 0 && $partsStatus == 'Draft' && $company != '2') {
                             $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-parts-for-sale">Tag For Sale</button></li>';
                         }
 
@@ -198,7 +198,7 @@ if($addPartExpense['total'] > 0){
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-3 col-form-label">Part Price (SRP) <span class="text-danger">*</span></label>
+                <label class="col-lg-3 col-form-label">Part Price (SRP) <span class="text-danger <?php if($company == '2') echo 'd-none'; ?>">*</span></label>
                 <div class="col-lg-3">
                   <input type="number" class="form-control" id="part_price" name="part_price" min="0" step="0.01" <?php echo $disabledLandedCostForm2; ?>>
                 </div>

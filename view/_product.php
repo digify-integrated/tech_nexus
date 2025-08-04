@@ -308,6 +308,7 @@
                         <th>Body Type</th>
                         <th>Color</th>
                         <th>Location</th>
+                        <th>RR Number</th>
                         <?php
                           if($viewSalesProposalProductCost['total'] > 0){
                             echo '<th id="cost_column">Cost</th>';

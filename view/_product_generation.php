@@ -13,7 +13,9 @@ require_once '../model/warehouse-model.php';
 require_once '../model/body-type-model.php';
 require_once '../model/unit-model.php';
 require_once '../model/color-model.php';
+require_once '../model/color-model.php';
 require_once '../model/system-setting-model.php';
+require_once '../model/parts-transaction-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -27,6 +29,7 @@ $warehouseModel = new WarehouseModel($databaseModel);
 $bodyTypeModel = new BodyTypeModel($databaseModel);
 $unitModel = new UnitModel($databaseModel);
 $colorModel = new ColorModel($databaseModel);
+$partsTransactionModel = new PartsTransactionModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -262,6 +265,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $total_landed_cost  = $row['total_landed_cost'];
                     $warehouseID = $row['warehouse_id'];
                     $remarks = $row['remarks'];
+                    $rr_no = $row['rr_no'];
                     $productStatus = $productModel->getProductStatus($row['product_status']);
                     $productImage = $systemModel->checkImage($row['product_image'], 'default');
 
@@ -312,6 +316,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'BODY_TYPE' => $bodyTypeName,
                         'COLOR' => $colorName,
                         'WAREHOUSE' => $warehouseName,
+                        'RR_NO' => $rr_no,
                         'PRODUCT_COST' => number_format($productCost,2),
                         'PRODUCT_PRICE' => number_format($productPrice,2),
                         'PRODUCT_STATUS' => $productStatus,
@@ -362,6 +367,30 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <i class="ti ti-trash"></i>
                                 </button>';
                     }
+
+                    
+
+                    $view = '';
+                    if($reference_type == 'Issuance Slip'){
+                        $partTransactionDetails = $partsTransactionModel->getPartsTransaction($reference_number);
+                        $company = $partTransactionDetails['company_id'] ?? '';
+                        $part_transaction_id_encrypted = $securityModel->encryptData($reference_number);
+
+                        if($company == '2'){
+                            $link = 'netruck-parts-transaction';
+                        }
+                        else{
+                            $link = 'parts-transaction';
+                        }
+
+                        if (substr($reference_number, 0, 3) === 'PRT') {
+                            $view = '<a href="' . $link . '.php?id=' . $part_transaction_id_encrypted . '" class="btn btn-icon btn-primary" title="View Details" target="_blank">
+                                        <i class="ti ti-eye"></i>
+                                    </a>';
+                        } else {
+                            $view = ''; // Or handle the else case accordingly
+                        }
+                    }
     
                     $response[] = [
                         'CREATED_DATE' => $createdDate,
@@ -372,6 +401,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'PARTICULARS' => $particulars,
                         'EXPENSE_TYPE' => $expenseType,
                         'ACTION' => '<div class="d-flex gap-2">
+                                        '. $view .'
                                         '. $delete .'
                                     </div>'
                     ];

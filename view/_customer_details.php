@@ -7,6 +7,10 @@ $customerFamilyBackgroundAdd = '';
 $changeCustomerStatusButton = '';
 $customerComakerAdd = '';
 
+
+    $createCIReport = $userModel->checkSystemActionAccessRights($user_id, 207);
+    $viewCIReport = $userModel->checkSystemActionAccessRights($user_id, 208);
+
 if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customerStatus == 'For Updating')){
   $customerCustomerInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#personal-information-offcanvas" aria-controls="personal-information-offcanvas" id="update-personal-information"><i class="ti ti-pencil"></i></button>';
 

@@ -9,6 +9,7 @@ require_once '../model/parts-model.php';
 require_once '../model/parts-incoming-model.php';
 require_once '../model/parts-subclass-model.php';
 require_once '../model/parts-class-model.php';
+require_once '../model/product-model.php';
 require_once '../model/unit-model.php';
 
 $databaseModel = new DatabaseModel();
@@ -18,6 +19,7 @@ $partsModel = new PartsModel($databaseModel);
 $partsIncomingModel = new PartsIncomingModel($databaseModel);
 $partsSubclassModel = new PartsSubclassModel($databaseModel);
 $partsClassModel = new PartsClassModel($databaseModel);
+$productModel = new ProductModel($databaseModel);
 $unitModel = new UnitModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -78,6 +80,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $partIncomingDetails = $partsIncomingModel->getPartsIncoming($parts_incoming_id);
             $part_incoming_status = $partIncomingDetails['part_incoming_status'] ?? 'Draft';
             $updatePartCost = $userModel->checkSystemActionAccessRights($user_id, 204);
+            $updatePartIncomingCompletedCost = $userModel->checkSystemActionAccessRights($user_id, 213);
 
             $sql = $databaseModel->getConnection()->prepare('CALL generatePartIncomingItemTable(:parts_incoming_id)');
             $sql->bindValue(':parts_incoming_id', $parts_incoming_id, PDO::PARAM_STR);
@@ -102,9 +105,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
 
                 $action = '';
+                #if($part_incoming_status == 'Draft' || ($part_incoming_status == 'On-Process' && $updatePartCost['total'] > 0 && $received_quantity == 0 && $remaining_quantity != 0) || ($part_incoming_status == 'Completed' && $updatePartIncomingCompletedCost['total'] > 0)){
                 if($part_incoming_status == 'Draft' || ($part_incoming_status == 'On-Process' && $updatePartCost['total'] > 0 && $received_quantity == 0 && $remaining_quantity != 0)){
                     $action .= '
-                    <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#part-cart-offcanvas" aria-controls="part-cart-offcanvas" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Update Part Item">
+                    <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#part-cart-offcanvas" aria-controls="part-cart-offcanvas" data-parts-incoming-cart-id="'. $part_incoming_cart_id .'" title="Update Cost">
                                         <i class="ti ti-edit"></i>
                                     </button>';
                 }
@@ -283,6 +287,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $part_incoming_id = $row['part_incoming_id'];
                 $reference_number = $row['reference_number'];
                 $part_incoming_status = $row['part_incoming_status'];
+                $product_id = $row['product_id'];
                 $incoming_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
                 $completion_date = $systemModel->checkDate('empty', $row['completion_date'], '', 'm/d/Y', '');
                 $purchase_date = $systemModel->checkDate('empty', $row['purchase_date'], '', 'm/d/Y', '');
@@ -293,6 +298,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $quantity = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'quantity')['total'];
                 $received = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'received')['total'];
                 $remaining = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'remaining')['total'];
+
+                $productDetails = $productModel->getProduct($product_id);
+                $stock_number = $productDetails['stock_number'] ?? '';
+                $description = $productDetails['description'] ?? '';
 
                 if($part_incoming_status === 'Draft'){
                     $part_incoming_status = '<span class="badge bg-secondary">' . $part_incoming_status . '</span>';
@@ -317,6 +326,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'TRANSACTION_ID' => $reference_number,
+                    'PRODUCT' => '<div class="col">
+                                        <h6 class="mb-0">'. $stock_number .'</h6>
+                                            <p class="text-muted f-12 mb-0">'. $description .'</p>
+                                        </div>',
                     'LINES' => number_format($lines, 0),
                     'QUANTITY' => number_format($quantity, 2),
                     'RECEIVED' => number_format($received, 2),
@@ -335,6 +348,259 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
 
             echo json_encode($response);
+        break;
+        case 'parts incoming posting table':
+            $filterIncomingDateStartDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_start_date'], '', 'Y-m-d', '');
+            $filterIncomingDateEndDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_end_date'], '', 'Y-m-d', '');
+            $filter_released_date_start_date = $systemModel->checkDate('empty', $_POST['filter_released_date_start_date'], '', 'Y-m-d', '');
+            $filter_released_date_end_date = $systemModel->checkDate('empty', $_POST['filter_released_date_end_date'], '', 'Y-m-d', '');
+            $filter_purchased_date_start_date = $systemModel->checkDate('empty', $_POST['filter_purchased_date_start_date'], '', 'Y-m-d', '');
+            $filter_purchased_date_end_date = $systemModel->checkDate('empty', $_POST['filter_purchased_date_end_date'], '', 'Y-m-d', '');
+            $incoming_status_filter = $_POST['filter_incoming_status'];
+            $company = null;
+
+            if (!empty($incoming_status_filter)) {
+                // Convert string to array and trim each value
+                $values_array = array_filter(array_map('trim', explode(',', $incoming_status_filter)));
+
+                // Quote each value safely
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . addslashes($value) . "'";
+                }, $values_array);
+
+                // Implode into comma-separated string
+                $filter_incoming_status = implode(', ', $quoted_values_array);
+            } else {
+                $filter_incoming_status = null;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsIncomingTable(:company, :filterIncomingDateStartDate, :filterIncomingDateEndDate, :filter_released_date_start_date, :filter_released_date_end_date, :filter_purchased_date_start_date, :filter_purchased_date_end_date, :filter_incoming_status)');
+            $sql->bindValue(':company', $company, PDO::PARAM_STR);
+            $sql->bindValue(':filterIncomingDateStartDate', $filterIncomingDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterIncomingDateEndDate', $filterIncomingDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filter_released_date_start_date', $filter_released_date_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_released_date_end_date', $filter_released_date_end_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_purchased_date_start_date', $filter_purchased_date_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_purchased_date_end_date', $filter_purchased_date_end_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_incoming_status', $filter_incoming_status, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_incoming_id = $row['part_incoming_id'];
+                $reference_number = $row['reference_number'];
+                $part_incoming_status = $row['part_incoming_status'];
+                $product_id = $row['product_id'];
+                $incoming_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
+                $completion_date = $systemModel->checkDate('empty', $row['completion_date'], '', 'm/d/Y', '');
+                $purchase_date = $systemModel->checkDate('empty', $row['purchase_date'], '', 'm/d/Y', '');
+                $delivery_date = $systemModel->checkDate('empty', $row['delivery_date'], '', 'm/d/Y', '');
+
+                $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'cost')['total'];
+                $lines = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'lines')['total'];
+                $quantity = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'quantity')['total'];
+                $received = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'received')['total'];
+                $remaining = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'remaining')['total'];
+
+                if($part_incoming_status === 'Draft'){
+                    $part_incoming_status = '<span class="badge bg-secondary">' . $part_incoming_status . '</span>';
+                }
+                else if($part_incoming_status === 'Cancelled'){
+                    $part_incoming_status = '<span class="badge bg-warning">' . $part_incoming_status . '</span>';
+                }
+                else if($part_incoming_status === 'On-Process'){
+                    $part_incoming_status = '<span class="badge bg-info">' . $part_incoming_status . '</span>';
+                }
+                else{
+                    $part_incoming_status = '<span class="badge bg-success">' . $part_incoming_status . '</span>';
+                }
+                
+                $productDetails = $productModel->getProduct($product_id);
+                $stock_number = $productDetails['stock_number'] ?? '';
+                $description = $productDetails['description'] ?? '';
+
+                $part_incoming_id_encrypted = $securityModel->encryptData($part_incoming_id);
+                if($company == '2'){
+                    $link = 'netruck-parts-incoming';
+                }
+                else{
+                    $link = 'parts-incoming';
+                }
+
+                $response[] = [
+                    'TRANSACTION_ID' => $reference_number,
+                    'PRODUCT' => '<div class="col">
+                                        <h6 class="mb-0">'. $stock_number .'</h6>
+                                            <p class="text-muted f-12 mb-0">'. $description .'</p>
+                                        </div>',
+                    'LINES' => number_format($lines, 0),
+                    'QUANTITY' => number_format($quantity, 2),
+                    'RECEIVED' => number_format($received, 2),
+                    'REMAINING' => number_format($remaining, 2),
+                    'COST' => number_format($cost, 2) . ' PHP',
+                    'COMPLETION_DATE' => $completion_date,
+                    'PURCHASE_DATE' => $delivery_date,
+                    'TRANSACTION_DATE' => $incoming_date,
+                    'STATUS' => $part_incoming_status,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="'. $link .'.php?id='. $part_incoming_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'parts incoming dashboard table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsIncomingDashboardTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_incoming_id = $row['part_incoming_id'];
+                $reference_number = $row['reference_number'];
+                $company_id = $row['company_id'];
+                $product_id = $row['product_id'];
+                $part_incoming_status = $row['part_incoming_status'];
+                $incoming_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
+                $completion_date = $systemModel->checkDate('empty', $row['completion_date'], '', 'm/d/Y', '');
+                $purchase_date = $systemModel->checkDate('empty', $row['purchase_date'], '', 'm/d/Y', '');
+                $delivery_date = $systemModel->checkDate('empty', $row['delivery_date'], '', 'm/d/Y', '');
+
+                $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'cost')['total'];
+                $lines = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'lines')['total'];
+                $quantity = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'quantity')['total'];
+                $received = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'received')['total'];
+                $remaining = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'remaining')['total'];
+
+                $productDetails = $productModel->getProduct($product_id);
+                $stock_number = $productDetails['stock_number'];
+                $description = $productDetails['description'];
+
+                if($part_incoming_status === 'Draft'){
+                    $part_incoming_status = '<span class="badge bg-secondary">' . $part_incoming_status . '</span>';
+                }
+                else if($part_incoming_status === 'Cancelled'){
+                    $part_incoming_status = '<span class="badge bg-warning">' . $part_incoming_status . '</span>';
+                }
+                else if($part_incoming_status === 'On-Process'){
+                    $part_incoming_status = '<span class="badge bg-info">' . $part_incoming_status . '</span>';
+                }
+                else{
+                    $part_incoming_status = '<span class="badge bg-success">' . $part_incoming_status . '</span>';
+                }
+
+                $part_incoming_id_encrypted = $securityModel->encryptData($part_incoming_id);
+                if($company_id == '2'){
+                    $link = 'netruck-parts-incoming';
+                }
+                else{
+                    $link = 'parts-incoming';
+                }
+
+                $response[] = [
+                    'TRANSACTION_ID' =>'<a href="'. $link .'.php?id='. $part_incoming_id_encrypted .'" title="View Details" target="_blank">
+                                        '. $reference_number .'
+                                    </a>', 
+                    'PRODUCT' => '<div class="col">
+                                        <h6 class="mb-0">'. $stock_number .'</h6>
+                                            <p class="text-muted f-12 mb-0">'. $description .'</p>
+                                        </div>',
+                    'LINES' => number_format($lines, 0),
+                    'QUANTITY' => number_format($quantity, 2),
+                    'COST' => number_format($cost, 2) . ' PHP',
+                    'TRANSACTION_DATE' => $incoming_date,
+                    'STATUS' => $part_incoming_status,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="'. $link .'.php?id='. $part_incoming_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'parts incoming dashboard list':
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsIncomingDashboardTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $list = '';
+            foreach ($options as $row) {
+                $part_incoming_id = $row['part_incoming_id'];
+                $reference_number = $row['reference_number'];
+                $company_id = $row['company_id'];
+                $product_id = $row['product_id'];
+                $part_incoming_status = $row['part_incoming_status'];
+                $incoming_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
+                $completion_date = $systemModel->checkDate('empty', $row['completion_date'], '', 'm/d/Y', '');
+                $purchase_date = $systemModel->checkDate('empty', $row['purchase_date'], '', 'm/d/Y', '');
+                $delivery_date = $systemModel->checkDate('empty', $row['delivery_date'], '', 'm/d/Y', '');
+
+                $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'cost')['total'];
+                $lines = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'lines')['total'];
+                $quantity = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'quantity')['total'];
+                $received = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'received')['total'];
+                $remaining = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'remaining')['total'];
+
+                $productDetails = $productModel->getProduct($product_id);
+                $stock_number = $productDetails['stock_number'] ?? '';
+                $description = $productDetails['description'] ?? '';
+
+                if($part_incoming_status === 'Draft'){
+                    $part_incoming_status = '<span class="badge bg-secondary">' . $part_incoming_status . '</span>';
+                }
+                else if($part_incoming_status === 'Cancelled'){
+                    $part_incoming_status = '<span class="badge bg-warning">' . $part_incoming_status . '</span>';
+                }
+                else if($part_incoming_status === 'On-Process'){
+                    $part_incoming_status = '<span class="badge bg-info">' . $part_incoming_status . '</span>';
+                }
+                else{
+                    $part_incoming_status = '<span class="badge bg-success">' . $part_incoming_status . '</span>';
+                }
+
+                $part_incoming_id_encrypted = $securityModel->encryptData($part_incoming_id);
+                if($company_id == '2'){
+                    $link = 'netruck-parts-incoming';
+                }
+                else{
+                    $link = 'parts-incoming';
+                }
+
+                 $list .= ' <li class="list-group-item">
+                          <div class="d-flex align-items-center">
+                              <div class="flex-grow-1 ms-3">
+                                  <div class="row g-1">
+                                        <div class="col-9">
+                                            <a href="'. $link .'.php?id='. $part_incoming_id_encrypted .'" title="View Details" target="_blank">
+                                                <p class="mb-0"><b>'. strtoupper($description) .'</b></p>
+                                                <p class="text-muted mb-0"><small>Stock Number: '. strtoupper($stock_number) .'</small></p>
+                                                <p class="text-muted mb-0"><small>Reference Number: '. $reference_number .'</small></p>
+                                                <p class="text-muted mb-0"><small>Quantity: '. number_format($quantity, 2) .'</small></p>
+                                                <p class="text-muted mb-0"><small>Cost: '. number_format($cost, 2) .' PHP</small></p>
+                                                <p class="text-muted mb-0"><small>Transaction Date: '. $incoming_date .'</small></p>
+                                            </a>
+                                      </div>
+                                      <div class="col-3 text-end">
+                                          '. $part_incoming_status .'
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>';
+            }
+
+            if(empty($list)){
+                $list = ' <li class="list-group-item text-center"><b>No Parts Purchase For Approval Found</b></li>';
+            }
+
+            echo json_encode(['LIST' => $list]);
         break;
         # -------------------------------------------------------------
     }

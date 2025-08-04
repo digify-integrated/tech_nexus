@@ -150,6 +150,116 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        case 'backjob monitoring list':
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM backjob_monitoring WHERE status = "For Approval"');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $list = '';
+            foreach ($options as $row) {
+              $backjob_monitoring_id = $row['backjob_monitoring_id'];
+                $type = $row['type'];
+                $product_id = $row['product_id'];
+                $sales_proposal_id = $row['sales_proposal_id'];
+                $status = $row['status'];
+                $created_date = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y', '');
+
+                $backjob_monitoring_id_encrypted = $securityModel->encryptData($backjob_monitoring_id);
+
+                if($type == 'Warranty'){
+                    $salesProposalDetails = $salesProposalModel->getWarrantySalesProposalFromProduct($product_id);
+                    $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+                    $customer_id = $salesProposalDetails['customer_id'] ?? null;
+                }
+                else{
+                    if(!empty($sales_proposal_id)){
+                        $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                        $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+                        $customer_id = $salesProposalDetails['customer_id'] ?? null;
+                    }
+                    else{
+                        $sales_proposal_number = '--';
+                    }
+                }
+
+                if(!empty($customer_id)){
+                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                    $customerName = $customerDetails['file_as'] ?? null;
+                }
+                else{
+                    $customerName = '--';
+                }
+
+                if(!empty($product_id)){
+                    $productDetails = $productModel->getProduct($product_id);
+                    $description = $productDetails['description'];
+                    $productSubategoryID = $productDetails['product_subcategory_id'];
+
+                    $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
+                    $productSubcategoryName = $productSubcategoryDetails['product_subcategory_name'] ?? null;
+                    $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+
+
+                    $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
+                    $fullStockNumber = $productSubcategoryCode . $stockNumber;
+
+                    $product = ' <div class="col">
+                                        <h6 class="mb-0">'. $fullStockNumber .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $description .'</p>
+                                        </div>';
+                }
+                else{
+                    $fullStockNumber = '--';
+                    $description = '--';
+                    $product = '--';
+                }
+
+                if($status === 'Draft'){
+                    $status = '<span class="badge bg-secondary">' . $status . '</span>';
+                }
+                else if($status === 'On-Process'){
+                    $status = '<span class="badge bg-warning">' . $status . '</span>';
+                }
+                else if($status === 'Ready For Release'){
+                    $status = '<span class="badge bg-info">' . $status . '</span>';
+                }
+                else if($status === 'Released' && $type === 'Internal Repair'){
+                    $status = '<span class="badge bg-success">Completed</span>';
+                }
+                else{
+                    $status = '<span class="badge bg-success">' . $status . '</span>';
+                }
+
+                $list .= ' <li class="list-group-item">
+                          <div class="d-flex align-items-center">
+                              <div class="flex-grow-1 ms-3">
+                                  <div class="row g-1">
+                                        <div class="col-8">
+                                            <a href="back-job-monitoring.php?id='. $backjob_monitoring_id_encrypted .'" target="_blank">
+                                                <p class="mb-0"><b>'. strtoupper($type) .'</b></p>
+                                                <p class="text-muted mb-0"><small>OS Number: '. $sales_proposal_number .'</small></p>
+                                                <p class="text-muted mb-0"><small>Customer: '. $customerName .'</small></p>
+                                                <p class="text-muted mb-0"><small>Stock Number: '. $fullStockNumber .'</small></p>
+                                                <p class="text-muted mb-0"><small>Product Description: '. $description .'</small></p>
+                                                <p class="text-muted mb-0"><small>Transaction Date: '. $created_date .'</small></p>
+                                            </a>
+                                      </div>
+                                      <div class="col-4 text-end">
+                                          '. $status .'
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>';
+            }
+
+            if(empty($list)){
+                $list = ' <li class="list-group-item text-center"><b>No Internal Job Order For Approval Found</b></li>';
+            }
+
+            echo json_encode(['LIST' => $list]);
+        break;
         case 'backjob monitoring table2':
             $sql = $databaseModel->getConnection()->prepare('CALL generateBackJobMonitoringTable()');
             $sql->execute();
@@ -275,6 +385,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $progress = $row['progress'];
                 $contractor_id = $row['contractor_id'];
                 $work_center_id = $row['work_center_id'];
+                $remarks = $row['remarks'];
                 $cost = number_format($row['cost'], 2);
                 $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
                 $planned_start_date = $systemModel->checkDate('summary', $row['planned_start_date'], '', 'm/d/Y', '');
@@ -310,6 +421,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PLANNED_START_DATE' => $planned_start_date,
                     'PLANNED_FINISH_DATE' => $planned_finish_date,
                     'DATE_STARTED' => $date_started,
+                    'REMARKS' => $remarks,
                     'PROGRESS' => number_format($progress, 2) . '%',
                     'ACTION' => '<div class="d-flex gap-2">'.
                                 $update . 
@@ -339,6 +451,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $progress = $row['progress'];
                 $contractor_id = $row['contractor_id'];
                 $work_center_id = $row['work_center_id'];
+                $remarks = $row['remarks'];
                 $cost = number_format($row['cost'], 2);
                 $completionDate = $systemModel->checkDate('summary', $row['completion_date'], '', 'm/d/Y', '');
                 $planned_start_date = $systemModel->checkDate('summary', $row['planned_start_date'], '', 'm/d/Y', '');
@@ -378,6 +491,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PLANNED_START_DATE' => $planned_start_date,
                     'PLANNED_FINISH_DATE' => $planned_finish_date,
                     'DATE_STARTED' => $date_started,
+                    'REMARKS' => $remarks,
                     'PROGRESS' => number_format($progress, 2) . '%',
                     'ACTION' => '<div class="d-flex gap-2">'.
                                 $update . 

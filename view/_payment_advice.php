@@ -182,6 +182,9 @@
                 <button type="button" class="btn btn-warning" id="print">
                   Print
                 </button>
+                <button type="button" class="btn btn-danger" id="print-reversal">
+                  Print Reversal
+                </button>
                 <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                   Filter
                 </button>

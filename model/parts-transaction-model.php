@@ -91,6 +91,18 @@ class PartsTransactionModel {
         $stmt->execute();
     }
 
+    public function createPartsTransactionProductExpense($p_product_id, $p_reference_type, $p_reference_number, $p_expense_amount, $p_expense_type, $p_particulars, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createPartsTransactionProductExpense(:p_product_id, :p_reference_type, :p_reference_number, :p_expense_amount, :p_expense_type, :p_particulars, :p_last_log_by)');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reference_type', $p_reference_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_expense_amount', $p_expense_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_expense_type', $p_expense_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_particulars', $p_particulars, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function updatePartsTransaction($p_part_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $discount, $discount_type, $overall_total, $request_by, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updatePartsTransaction(:p_part_transaction_id, :customer_type, :customer_id, :company_id, :issuance_date, :issuance_no, :reference_date, :reference_number, :remarks, :discount, :discount_type, :overall_total, :request_by, :p_last_log_by)');
         $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
@@ -126,11 +138,40 @@ class PartsTransactionModel {
         $stmt->execute();
     }
 
+    public function insertPartsTransactionJobOrder($p_part_transaction_id, $p_job_order_id, $p_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartsTransactionJobOrder(:p_part_transaction_id, :p_job_order_id, :p_type, :p_last_log_by)');
+        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_job_order_id', $p_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function insertPartsTransactionAdditionalJobOrder($p_part_transaction_id, $p_additional_job_order_id, $p_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartsTransactionAdditionalJobOrder(:p_part_transaction_id, :p_additional_job_order_id, :p_type, :p_last_log_by)');
+        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_additional_job_order_id', $p_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function insertPartsTransactionDocument($p_part_transaction_id, $p_document_name, $p_document_file_path, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL insertPartsTransactionDocument(:p_part_transaction_id, :p_document_name, :p_document_file_path, :p_last_log_by)');
         $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_document_name', $p_document_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_document_file_path', $p_document_file_path, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function createPartsTransactionEntry($p_part_transaction_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createPartsTransactionEntry(:p_part_transaction_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_last_log_by)');
+        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_price', $p_price, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -160,6 +201,13 @@ class PartsTransactionModel {
 
     public function get_exceeded_part_quantity_count($p_parts_transaction_id) {
         $stmt = $this->db->getConnection()->prepare('CALL get_exceeded_part_quantity_count(:p_parts_transaction_id)');
+        $stmt->bindValue(':p_parts_transaction_id', $p_parts_transaction_id, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function check_exceed_part_quantity($p_parts_transaction_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL check_exceed_part_quantity(:p_parts_transaction_id)');
         $stmt->bindValue(':p_parts_transaction_id', $p_parts_transaction_id, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);

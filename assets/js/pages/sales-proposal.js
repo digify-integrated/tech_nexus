@@ -5488,8 +5488,7 @@ function displayDetails(transaction){
                     }
                     showErrorDialog(fullErrorMessage);
                 },
-                complete: function(){                    
-                    calculateRenewalAmount();
+                complete: function(){
                     displayDetails('get sales proposal pricing computation details');
                 }
             });
