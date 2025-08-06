@@ -391,6 +391,14 @@
                 addAdditionalJobOrderTable('#add-additional-job-order-table');
             }
         });
+
+        if($('#add-job-order-form').length){
+            addJobOrderForm();
+        }
+
+        if($('#add-additional-job-order-form').length){
+            addAdditionalJobOrderForm();
+        }
     });
 })(jQuery);
 
@@ -957,6 +965,7 @@ function addPartsForm(){
         }
     });
 }
+
 
 function addJobOrderForm(){
     $('#add-job-order-form').validate({

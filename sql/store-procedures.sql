@@ -19480,11 +19480,13 @@ BEGIN
     IF p_type = 'job order' THEN
         SELECT * FROM sales_proposal_job_order
         WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
+        AND sales_proposal_job_order_id NOT IN (select job_order_id from part_transaction_job_order WHERE part_transaction_id = p_parts_transaction_id)
         AND progress < 100
         ORDER BY job_order;
     ELSE
         SELECT * FROM backjob_monitoring_job_order
         WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
+        AND backjob_monitoring_job_order_id NOT IN (select job_order_id from part_transaction_job_order WHERE part_transaction_id = p_parts_transaction_id)
         AND progress < 100
         ORDER BY job_order;
     END IF;	
@@ -19496,11 +19498,13 @@ BEGIN
     IF p_type = 'additional job order' THEN
         SELECT * FROM sales_proposal_additional_job_order
         WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
+        AND sales_proposal_additional_job_order_id NOT IN (select additional_job_order_id from part_transaction_additional_job_order WHERE part_transaction_id = p_parts_transaction_id)
         AND progress < 100
         ORDER BY particulars;
     ELSE
         SELECT * FROM backjob_monitoring_additional_job_order
         WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
+        AND backjob_monitoring_additional_job_order_id NOT IN (select additional_job_order_id from part_transaction_additional_job_order WHERE part_transaction_id = p_parts_transaction_id)
         AND progress < 100
         ORDER BY particulars;
     END IF;	

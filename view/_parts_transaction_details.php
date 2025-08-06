@@ -232,7 +232,7 @@
             </div>
         </div>
     </div>
-    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status == 'For Validation') echo 'd-none'; ?>">
+    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status != 'For Validation' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-6">
@@ -271,7 +271,7 @@
             </div>
         </div>
     </div>
-    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status == 'For Validation') echo 'd-none'; ?>">
+    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status != 'For Validation' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-6">
@@ -284,8 +284,8 @@
                                 Action
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                              <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas"  data-bs-target="#add-additional-job-order-offcanvas" aria-controls="add-additional-job-order-offcanvas" id="add-additional-job-order">Link Job Order</button></li>
-                              <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas"  data-bs-target="#add-additional-job-order-offcanvas" aria-controls="add-additional-job-order-offcanvas" id="add-internal-additional-job-order">Link Internal Job Order</button></li>
+                              <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas"  data-bs-target="#add-additional-job-order-offcanvas" aria-controls="add-additional-job-order-offcanvas" id="add-additional-job-order">Link Additional Job Order</button></li>
+                              <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas"  data-bs-target="#add-additional-job-order-offcanvas" aria-controls="add-additional-job-order-offcanvas" id="add-internal-additional-job-order">Link Internal Additional Job Order</button></li>
                             </ul>';
                         }
                     ?>

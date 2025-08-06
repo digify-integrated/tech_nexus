@@ -13,6 +13,8 @@ require_once '../model/unit-model.php';
 require_once '../model/product-model.php';
 require_once '../model/miscellaneous-client-model.php';
 require_once '../model/customer-model.php';
+require_once '../model/back-job-monitoring-model.php';
+require_once '../model/sales-proposal-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -25,6 +27,8 @@ $unitModel = new UnitModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
+$backjobMonitoringModel = new BackJobMonitoringModel($databaseModel);
+$salesProposalModel = new SalesProposalModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
