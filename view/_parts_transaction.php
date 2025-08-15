@@ -125,6 +125,14 @@
                           <label class="form-check-label" for="transaction-status-approved">Approved</label>
                         </div>
                         <div class="form-check my-2">
+                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-for-validation" value="For Validation" checked/>
+                          <label class="form-check-label" for="transaction-status-for-validation">For Validation</label>
+                        </div>
+                        <div class="form-check my-2">
+                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-validated" value="Validated" checked/>
+                          <label class="form-check-label" for="transaction-status-validated">Validated</label>
+                        </div>
+                        <div class="form-check my-2">
                           <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-released" value="Released"/>
                           <label class="form-check-label" for="transaction-status-released">Released</label>
                         </div>

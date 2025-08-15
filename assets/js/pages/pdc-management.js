@@ -263,6 +263,7 @@
             if(selectValue === '') {
                 $('#pdc-management-status-pending').prop('checked', true);
                 $('#pdc-management-status-redeposit').prop('checked', true);
+                $('#pdc-management-status-on-hold').prop('checked', true);
             } else if(selectValue === 'For Deposit') {
                 $('#pdc-management-status-for-deposit').prop('checked', true);
             } else if(selectValue === 'Deposited') {
@@ -1082,6 +1083,9 @@ function pdcOnHoldForm(){
             onhold_attachment: {
                 required: true
             },
+            hold_redeposit_date: {
+                required: true
+            },
         },
         messages: {
             on_hold_reason: {
@@ -1089,6 +1093,9 @@ function pdcOnHoldForm(){
             },
             onhold_attachment: {
                 required: 'Please choose the on-hold attachment'
+            },
+            hold_redeposit_date: {
+                required: 'Please choose the redeposit date'
             }
         },
         errorPlacement: function (error, element) {

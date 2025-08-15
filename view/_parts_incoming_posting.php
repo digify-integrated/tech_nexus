@@ -58,6 +58,9 @@
                 ?>
                 <th>Completion Date</th>
                 <th>Delivery Date</th>
+                <th>Invoice Number</th>
+                <th>Invoice Date</th>
+                <th>Invoice Price</th>
                 <th>Transaction Date</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -124,7 +127,7 @@
                     </div>
                   </div>
                 </li>
-                <li class="list-group-item px-0 py-2 d-none">
+                <li class="list-group-item px-0 py-2">
                   <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#incoming-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                     Incoming Status
                   </a>
@@ -132,28 +135,12 @@
                     <div class="row py-3">
                       <div class="col-12">
                         <div class="form-check my-2">
-                          <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-draft" value="Draft"/>
-                          <label class="form-check-label" for="incoming-status-draft">Draft</label>
-                        </div>
-                        <div class="form-check my-2">
-                          <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-for-approval" value="For Approval"/>
-                          <label class="form-check-label" for="incoming-status-for-approval">For Approval</label>
-                        </div>
-                        <div class="form-check my-2">
-                          <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-onprocess" value="On-Process"/>
-                          <label class="form-check-label" for="incoming-status-onprocess">On-Process</label>
+                          <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-posted" value="Posted" checked/>
+                          <label class="form-check-label" for="incoming-status-posted">Posted</label>
                         </div>
                         <div class="form-check my-2">
                           <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-completed" value="Completed" checked/>
                           <label class="form-check-label" for="incoming-status-completed">Completed</label>
-                        </div>
-                        <div class="form-check my-2">
-                          <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-posted" value="Posted"/>
-                          <label class="form-check-label" for="incoming-status-posted">Posted</label>
-                        </div>
-                        <div class="form-check my-2">
-                          <input class="form-check-input incoming-status-checkbox" type="checkbox" id="incoming-status-cancelled" value="Cancelled"/>
-                          <label class="form-check-label" for="incoming-status-cancelled">Cancelled</label>
                         </div>
                       </div>
                     </div>

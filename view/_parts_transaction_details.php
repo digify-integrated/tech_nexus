@@ -45,9 +45,13 @@
                 echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
               }
 
-               if($part_transaction_status == 'On-Process' && $company == '2'){
-                  echo '<a href="parts-transaction-requisition-slip.php?id='. $partsTransactionID .'" class="button btn btn-info ms-2" target="_blank">Print Requisition Slip</a>';
-                }
+              if($part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
+                echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
+              }
+
+              if($part_transaction_status == 'On-Process' && $company == '2'){
+                echo '<a href="parts-transaction-requisition-slip.php?id='. $partsTransactionID .'" class="button btn btn-info ms-2" target="_blank">Print Issuance Slip</a>';
+              }
             }
             else{
               if($part_transaction_status == 'Draft'){
@@ -58,7 +62,7 @@
                 echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
               }
 
-              if($part_transaction_status == 'On-Process' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
+              if($part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
                 echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
               }
 
@@ -137,11 +141,20 @@
               <label class="form-label">Request By <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off" <?php echo $disabled; ?>>
             </div>
+             <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Customer Reference <span class="text-danger">*</span></label>
+              <select class="form-control select2" name="customer_ref_id" id="customer_ref_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
+                </select>
+            </div>
             <div class="col-lg-6 mt-3 mt-lg-0 d-none">
               <label class="form-label">Issuance Number</label>
               <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
             </div>
-            <div class="col-lg-6 mt-3 mt-lg-0" <?php if($company == '3') echo 'd-none'; ?>>
+          </div>
+          <div class="form-group row <?php if($company == '3') echo 'd-none'; ?>">
+            <div class="col-lg-6 mt-3 mt-lg-0">
               <label class="form-label">Issuance Date</label>
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off" <?php echo $disabled; ?>>
@@ -232,7 +245,7 @@
             </div>
         </div>
     </div>
-    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status != 'For Validation' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
+    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-6">
@@ -240,7 +253,7 @@
                 </div>
                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                     <?php
-                        if($part_transaction_status == 'Draft'){
+                       if($part_transaction_status == 'For Validation'){
                             echo '<button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
                                 Action
                             </button>
@@ -256,22 +269,45 @@
         <div class="card-body p-0">
             <div class="dt-responsive table-responsive">
                 <input type="hidden" id="generate-job-order">
-                <table class="table mb-0" id="job-order-table">
-                    <thead>
+                <ul class="nav nav-tabs analytics-tab" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation"><button class="nav-link active" id="job-order-sales-proposal" data-bs-toggle="tab" data-bs-target="#job-order-sales-proposal-pane" type="button" role="tab" aria-controls="job-order-sales-proposal-pane" aria-selected="true">Sales Proposal</button></li>
+                    <li class="nav-item" role="presentation"><button class="nav-link" id="internal-job-order" data-bs-toggle="tab" data-bs-target="#internal-job-order-pane" type="button" role="tab" aria-controls="internal-job-order-pane" aria-selected="false" tabindex="-1">Internal Job Order</button></li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                  <div class="tab-pane fade active show" id="job-order-sales-proposal-pane" role="tabpanel" aria-labelledby="job-order-sales-proposal" tabindex="0">
+                    <table class="table mb-0" id="job-order-table">
+                      <thead>
                         <tr>
-                            <th>Job Order</th>
-                            <th>Contractor</th>
-                            <th>Work Center</th>
-                            <th>Type</th>
-                            <th class="text-end"></th>
+                          <th>OS Number</th>
+                          <th>Job Order</th>
+                          <th>Contractor</th>
+                          <th>Work Center</th>
+                          <th class="text-end"></th>
                         </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                  <div class="tab-pane fade" id="internal-job-order-pane" role="tabpanel" aria-labelledby="internal-job-order" tabindex="0">
+                    <table class="table w-100 mb-0" id="internal-job-order-table">
+                      <thead>
+                        <tr>
+                          <th>Type</th>
+                          <th>OS Number</th>
+                          <th>Job Order</th>
+                          <th>Contractor</th>
+                          <th>Work Center</th>
+                          <th class="text-end"></th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status != 'For Validation' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
+    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-6">
@@ -279,7 +315,7 @@
                 </div>
                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                     <?php
-                        if($part_transaction_status == 'Draft'){
+                        if($part_transaction_status == 'For Validation'){
                             echo '<button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
                                 Action
                             </button>
@@ -293,21 +329,46 @@
             </div>
         </div>
         <div class="card-body p-0">
-            <div class="dt-responsive table-responsive">
-                <input type="hidden" id="generate-additional-job-order">
+          <input type="hidden" id="generate-additional-job-order">
+          <ul class="nav nav-tabs analytics-tab" id="myTab2" role="tablist">
+            <li class="nav-item" role="presentation"><button class="nav-link active" id="additional-job-order-sales-proposal" data-bs-toggle="tab" data-bs-target="#additional-job-order-sales-proposal-pane" type="button" role="tab" aria-controls="additional-job-order-sales-proposal-pane" aria-selected="true">Sales Proposal</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="internal-additional-job-order" data-bs-toggle="tab" data-bs-target="#internal-additional-job-order-pane" type="button" role="tab" aria-controls="internal-additional-job-order-pane" aria-selected="false" tabindex="-1">Internal Job Order</button></li>
+          </ul>
+          <div class="tab-content" id="myTabContent2">
+            <div class="tab-pane fade active show" id="additional-job-order-sales-proposal-pane" role="tabpanel" aria-labelledby="additional-job-order-sales-proposal" tabindex="0">
+              <div class="dt-responsive table-responsive">
                 <table class="table mb-0" id="additional-job-order-table">
-                    <thead>
-                        <tr>
-                            <th>Additional Job Order</th>
-                            <th>Contractor</th>
-                            <th>Work Center</th>
-                            <th>Type</th>
-                            <th class="text-end"></th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
+                  <thead>
+                    <tr>
+                      <th>OS Number</th>
+                      <th>Job Order</th>
+                      <th>Contractor</th>
+                      <th>Work Center</th>
+                      <th class="text-end"></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
                 </table>
+              </div>
             </div>
+            <div class="tab-pane fade" id="internal-additional-job-order-pane" role="tabpanel" aria-labelledby="internal-additional-job-order" tabindex="0">
+              <div class="dt-responsive table-responsive w-100">
+                <table class="table w-100 mb-0" id="internal-additional-job-order-table">
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>OS Number</th>
+                      <th>Job Order</th>
+                      <th>Contractor</th>
+                      <th>Work Center</th>
+                      <th class="text-end"></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
     </div>
     <div class="card">
@@ -446,13 +507,14 @@
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        <div class="row mb-4 text-center">
+        <div class="row mb-4">
             <form id="add-job-order-form" method="post" action="#">
                 <table id="add-job-order-table" class="table table-hover nowrap w-100 dataTable">
                     <thead>
                         <tr>
+                            <th>Customer</th>
+                            <th>Reference ID</th>
                             <th>Job Order</th>
-                            <th>Type</th>
                             <th class="all">Link</th>
                         </tr>
                     </thead>
@@ -475,13 +537,14 @@
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        <div class="row mb-4 text-center">
+        <div class="row mb-4">
             <form id="add-additional-job-order-form" method="post" action="#">
                 <table id="add-additional-job-order-table" class="table table-hover nowrap w-100 dataTable">
                     <thead>
                         <tr>
+                            <th>Customer</th>
+                            <th>Reference ID</th>
                             <th>Additional Job Order</th>
-                            <th>Type</th>
                             <th class="all">Link</th>
                         </tr>
                     </thead>
@@ -491,7 +554,7 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
-                <button type="submit" class="btn btn-primary" id="submit-add-additional-job-order" form="add-additional-job-order-form">Submit</button>
+                <button type="submit" class="btn btn-primary" id="submit-additional-job-order" form="add-additional-job-order-form">Submit</button>
                 <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
             </div>
         </div>

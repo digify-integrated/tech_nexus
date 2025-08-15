@@ -5531,6 +5531,16 @@ CREATE TABLE leave_application(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
+CREATE TABLE leave_document(
+	leave_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    leave_application_id INT UNSIGNED NOT NULL,
+	document_name VARCHAR(500),
+	document_file_path VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
 CREATE TABLE loan_collections (
     loan_collection_id INT AUTO_INCREMENT PRIMARY KEY,
     sales_proposal_id INT UNSIGNED,

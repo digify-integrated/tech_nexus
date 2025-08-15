@@ -31,6 +31,7 @@
   $cancelDisbursement = $userModel->checkSystemActionAccessRights( $user_id, 188);
   $reverseDisbursement = $userModel->checkSystemActionAccessRights($user_id, 189);
   $replenishmentDisbursement = $userModel->checkSystemActionAccessRights($user_id, 191);
+  $noRestriction = $userModel->checkSystemActionAccessRights($user_id, 218);
 
   if ($disbursementReadAccess['total'] == 0) {
     header('location: 404.php');

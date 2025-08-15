@@ -478,6 +478,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             $disbursementDetails = $disbursementModel->getDisbursement($disbursement_id);
             $disburse_status = $disbursementDetails['disburse_status'] ?? '';
+            $noRestriction = $userModel->checkSystemActionAccessRights($user_id, 218);
 
             $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementParticularsTable(:disbursement_id)');
             $sql->bindValue(':disbursement_id', $disbursement_id, PDO::PARAM_INT);
@@ -509,7 +510,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
 
                 $action = '';
-                if($disburse_status === 'Draft' || ($disburse_status == 'Replenished' && $updateReplenished['total'] > 0)){
+                if(($disburse_status === 'Draft' || ($disburse_status == 'Replenished' && $updateReplenished['total'] > 0)) || $noRestriction['total'] > 0){
                     $action = '<div class="d-flex gap-2">
                                     <button type="button" class="btn btn-icon btn-success update-disbursement-particulars" data-bs-toggle="offcanvas" data-bs-target="#particulars-offcanvas" aria-controls="particulars-offcanvas" data-disbursement-particulars-id="'. $disbursement_particulars_id .'" title="Update Particular">
                                         <i class="ti ti-edit"></i>

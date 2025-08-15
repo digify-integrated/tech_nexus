@@ -46,6 +46,38 @@ class BackJobMonitoringModel {
         $stmt->execute();
     }
 
+    public function updateBackJobMonitoringUnitBack($p_backjob_monitoring_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringUnitBack(:p_backjob_monitoring_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateBackJobMonitoringUnitLeft($p_backjob_monitoring_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringUnitLeft(:p_backjob_monitoring_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateBackJobMonitoringUnitRight($p_backjob_monitoring_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringUnitRight(:p_backjob_monitoring_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateBackJobMonitoringUnitInterior($p_backjob_monitoring_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringUnitInterior(:p_backjob_monitoring_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function updateBackJobMonitoringOutgoingChecklist($p_backjob_monitoring_id, $p_unit_image, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringOutgoingChecklist(:p_backjob_monitoring_id, :p_unit_image, :p_last_log_by)');
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
@@ -56,6 +88,14 @@ class BackJobMonitoringModel {
 
     public function updateBackJobMonitoringQualityControlForm($p_backjob_monitoring_id, $p_unit_image, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringQualityControlForm(:p_backjob_monitoring_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateBackJobMonitoringApprovalForm($p_backjob_monitoring_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringApprovalForm(:p_backjob_monitoring_id, :p_unit_image, :p_last_log_by)');
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);

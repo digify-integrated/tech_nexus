@@ -50,7 +50,7 @@
                 <th>Item Lines</th>
                 <th>Item Quantity</th>
                 <th>Received Items</th>
-                <th>Remaining Items</th>
+                <th>Supplier</th>
                 <?php
                   if($viewPartCost['total'] > 0){
                     echo '<th>Total Cost</th>';

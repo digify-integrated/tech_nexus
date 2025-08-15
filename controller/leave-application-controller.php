@@ -103,6 +103,12 @@ class LeaveApplicationController {
                 case 'save leave form image':
                     $this->saveLeaveForm();
                     break;
+                case 'add leave document':
+                    $this->addLeaveDocument();
+                    break;
+                case 'delete leave document':
+                    $this->deleteLeaveDocument();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -213,6 +219,88 @@ class LeaveApplicationController {
             echo json_encode(['success' => false, 'message' => 'The leave application does not exists.']);
             exit;
         }
+    }
+
+    public function addLeaveDocument() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $document_name = htmlspecialchars($_POST['document_name'], ENT_QUOTES, 'UTF-8');
+        $leave_application_id = htmlspecialchars($_POST['leave_application_id'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        $isActive = $user['is_active'] ?? 0;
+    
+        if (!$isActive) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $leaveDocumentFileName = $_FILES['leave_document']['name'];
+        $leaveDocumentFileSize = $_FILES['leave_document']['size'];
+        $leaveDocumentFileError = $_FILES['leave_document']['error'];
+        $leaveDocumentTempName = $_FILES['leave_document']['tmp_name'];
+        $leaveDocumentFileExtension = explode('.', $leaveDocumentFileName);
+        $leaveDocumentActualFileExtension = strtolower(end($leaveDocumentFileExtension));
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(18);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(18);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($leaveDocumentActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+        
+        if(empty($leaveDocumentTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the incoming document.']);
+            exit;
+        }
+        
+        if($leaveDocumentFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+        
+        if($leaveDocumentFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The incoming document exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $leaveDocumentActualFileExtension;
+
+        $directory = DEFAULT_PRODUCT_RELATIVE_PATH_FILE . $leave_application_id  . '/leave_application/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_PRODUCT_FULL_PATH_FILE . $leave_application_id . '/leave_application/' . $fileNew;
+        $filePath = $directory . $fileNew;
+
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+            exit;
+        }
+
+        if(!move_uploaded_file($leaveDocumentTempName, $fileDestination)){
+            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+            exit;
+        }
+
+        $this->leaveApplicationModel->insertLeaveDocument($leave_application_id, $document_name, $filePath, $userID);
+
+        echo json_encode(['success' => true]);
+        exit;
     }
 
     # -------------------------------------------------------------
@@ -332,6 +420,30 @@ class LeaveApplicationController {
             $leave_date = $leaveApplicationDetails['leave_date'];
             $contact_id = $leaveApplicationDetails['contact_id'];
 
+            $leaveApplicationDetails = $this->leaveApplicationModel->getLeaveApplication($leaveApplicationID);
+            $creation_type = $leaveApplicationDetails['creation_type'] ?? 'own';
+            $leave_form = $leaveApplicationDetails['leave_form'] ?? null;
+
+            if($creation_type === 'own'){
+                $getLeaveConfirmationDocument = $this->leaveApplicationModel->getLeaveConfirmationDocument($leaveApplicationID)['total'] ?? 0;
+
+                if($getLeaveConfirmationDocument == 0){
+                    echo json_encode(['success' => false, 'leaveConfirmation' => true]);
+                    exit;
+                }
+                
+                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Recommendation', '', $userID);
+                
+            }
+            else{
+                if(empty($leave_form)){
+                    echo json_encode(['success' => false, 'leaveFormEmpty' => true]);
+                    exit;
+                }
+
+                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'Approved', '', $userID);
+            }
+
             if($leaveTypeID == '1'){    
                 if($application_type === 'Whole Day'){
                     $application_amount = 8;
@@ -341,22 +453,6 @@ class LeaveApplicationController {
                 }
     
                 $this->leaveApplicationModel->updateLeaveEntitlementAmount($contact_id, $leaveTypeID, $leave_date, $application_amount, 'decrease', $userID);
-            }
-
-            $leaveApplicationDetails = $this->leaveApplicationModel->getLeaveApplication($leaveApplicationID);
-            $creation_type = $leaveApplicationDetails['creation_type'] ?? 'own';
-            $leave_form = $leaveApplicationDetails['leave_form'] ?? null;
-
-            if($creation_type === 'own'){
-                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Recommendation', '', $userID);
-            }
-            else{
-                if(empty($leave_form)){
-                    echo json_encode(['success' => false, 'leaveFormEmpty' => true]);
-                    exit;
-                }
-
-                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'Approved', '', $userID);
             }
 
             echo json_encode(['success' => true]);
@@ -640,6 +736,28 @@ class LeaveApplicationController {
         echo json_encode(['success' => true]);
         exit;
     }
+    public function deleteLeaveDocument() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $leave_document_id  = htmlspecialchars($_POST['leave_document_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->leaveApplicationModel->deleteLeaveDocument($leave_document_id);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

@@ -93,6 +93,36 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+
+        case 'leave document table':
+            $leave_application_id = $_POST['leave_application_id'];
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM leave_document WHERE leave_application_id = :leave_application_id');
+            $sql->bindValue(':leave_application_id', $leave_application_id, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $leave_document_id = $row['leave_document_id'];
+                $document_name = $row['document_name'];
+                $document_file_path = $row['document_file_path'];
+                $incoming_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
+
+                $documentType = '<a href="'. $document_file_path .'" target="_blank">' . $document_name . "</a>";
+
+                $response[] = [
+                    'DOCUMENT' => $documentType,
+                    'UPLOAD_DATE' => $incoming_date,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-icon btn-danger delete-leave-document" data-leave-document-id="'. $leave_document_id .'" title="Delete Leave Document">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
         case 'manual leave application table':
             $sql = $databaseModel->getConnection()->prepare('CALL generateManualLeaveApplicationTable()');
             $sql->execute();

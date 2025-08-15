@@ -24,7 +24,7 @@
                     }
              
                     if (($disbursementStatus == 'Draft' || $disbursementStatus == 'Posted')) {
-                      $dropdown .= '<li><a href="print-bir-2307.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print BIR Form 2307 (DO NOT USE YET - FOR VALIDATION BY ACCOUNTING)</a></li>';
+                      $dropdown .= '<li><a href="print-bir-2307.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print BIR Form 2307 (FOR VALIDATION BY ACCOUNTING)</a></li>';
                     }
              
                     if ($postDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
@@ -53,7 +53,7 @@
                       
                   echo $dropdown;
 
-                  if ($disbursementWriteAccess['total'] > 0 && $disbursementStatus == 'Draft') {
+                  if (($disbursementWriteAccess['total'] > 0 && $disbursementStatus == 'Draft') || $noRestriction['total'] > 0) {
                     echo '<button type="submit" form="disbursement-form" class="btn btn-success" id="submit-data">Save</button>
                           <button type="button" id="discard-create" class="btn btn-outline-danger me-2">Discard</button>';
                   }
@@ -75,7 +75,7 @@
         <input type="hidden" id="disbursement_category" name="disbursement_category" value="<?php echo $disbursementCategory; ?>">
           <?php
             $disabled = 'disabled';
-            if ($disbursementWriteAccess['total'] > 0 && $disbursementStatus == 'Draft') {
+            if (($disbursementWriteAccess['total'] > 0 && $disbursementStatus == 'Draft') || $noRestriction['total'] > 0) {
               $disabled = '';
             }
           ?>
@@ -188,7 +188,7 @@
           </div>
           <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
               <?php 
-                if ($disbursementWriteAccess['total'] > 0 && $disbursementStatus == 'Draft') {
+                if (($disbursementWriteAccess['total'] > 0 && $disbursementStatus == 'Draft') || $noRestriction['total'] > 0) {
                   echo '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#particulars-offcanvas" aria-controls="particulars-offcanvas" id="add-particulars">Add Particulars</button>';
                 }
               ?>
@@ -245,7 +245,7 @@
           </div>
           <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
               <?php 
-                if ($disbursementWriteAccess['total'] > 0 && $disbursementStatus === 'Draft') {
+                if (($disbursementWriteAccess['total'] > 0 && $disbursementStatus === 'Draft') || $noRestriction['total'] > 0) {
                   echo '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#check-offcanvas" aria-controls="check-offcanvas" id="add-check">Add Check</button>';
                 }
               ?>

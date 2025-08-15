@@ -54,6 +54,30 @@ class LeaveApplicationModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    public function insertLeaveDocument($p_leave_application_id, $p_document_name, $p_document_file_path, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertLeaveDocument(:p_leave_application_id, :p_document_name, :p_document_file_path, :p_last_log_by)');
+        $stmt->bindValue(':p_leave_application_id', $p_leave_application_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_document_name', $p_document_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_document_file_path', $p_document_file_path, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    
+    public function deleteLeaveDocument($p_leave_document_id) {
+        $stmt = $this->db->getConnection()->prepare( 'CALL deleteLeaveDocument(:p_leave_document_id)');
+        $stmt->bindValue(':p_leave_document_id', $p_leave_document_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    
+    public function getLeaveConfirmationDocument($p_leave_application_id) {
+        $stmt = $this->db->getConnection()->prepare( 'SELECT COUNT(leave_document_id) AS total FROM leave_document WHERE document_name = :document_name AND leave_application_id = :p_leave_application_id');
+        $stmt->bindValue(':document_name', 'Leave Confirmation', PDO::PARAM_STR);
+        $stmt->bindValue(':p_leave_application_id', $p_leave_application_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

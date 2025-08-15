@@ -28,8 +28,8 @@ class PartsIncomingModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updatePartsIncoming($p_parts_incoming_id, $p_reference_number, $p_supplier_id, $p_rr_no, $p_rr_date, $p_delivery_date, $p_purchase_date, $p_requested_by, $p_product_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePartsIncoming(:p_parts_incoming_id, :p_reference_number, :p_supplier_id, :p_rr_no, :p_rr_date, :p_delivery_date, :p_purchase_date, :p_requested_by, :p_product_id, :p_last_log_by)');
+    public function updatePartsIncoming($p_parts_incoming_id, $p_reference_number, $p_supplier_id, $p_rr_no, $p_rr_date, $p_delivery_date, $p_purchase_date, $p_requested_by, $p_product_id, $p_customer_ref_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsIncoming(:p_parts_incoming_id, :p_reference_number, :p_supplier_id, :p_rr_no, :p_rr_date, :p_delivery_date, :p_purchase_date, :p_requested_by, :p_product_id, :p_customer_ref_id, :p_last_log_by)');
         $stmt->bindValue(':p_parts_incoming_id', $p_parts_incoming_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_supplier_id', $p_supplier_id, PDO::PARAM_INT);
@@ -39,6 +39,7 @@ class PartsIncomingModel {
         $stmt->bindValue(':p_purchase_date', $p_purchase_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_requested_by', $p_requested_by, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_customer_ref_id', $p_customer_ref_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -62,12 +63,13 @@ class PartsIncomingModel {
         $stmt->execute();
     }
 
-    public function updatePartsIncomingReleased($p_parts_incoming_id, $p_part_incoming_status, $p_invoice_number, $p_invoice_price, $p_delivery_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePartsIncomingReleased(:p_parts_incoming_id, :p_part_incoming_status, :p_invoice_number, :p_invoice_price, :p_delivery_date, :p_last_log_by)');
+    public function updatePartsIncomingReleased($p_parts_incoming_id, $p_part_incoming_status, $p_invoice_number, $p_invoice_price, $p_invoice_date, $p_delivery_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsIncomingReleased(:p_parts_incoming_id, :p_part_incoming_status, :p_invoice_number, :p_invoice_price, :p_invoice_date, :p_delivery_date, :p_last_log_by)');
         $stmt->bindValue(':p_parts_incoming_id', $p_parts_incoming_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_part_incoming_status', $p_part_incoming_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_invoice_number', $p_invoice_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_invoice_price', $p_invoice_price, PDO::PARAM_STR);
+        $stmt->bindValue(':p_invoice_date', $p_invoice_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_delivery_date', $p_delivery_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -132,8 +134,8 @@ class PartsIncomingModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-      public function insertPartsIncoming($p_reference_number, $p_supplier_id, $p_rr_no, $p_rr_date, $p_delivery_date, $p_purchase_date, $p_company_id, $p_requested_by, $p_product_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPartsIncoming(:p_reference_number, :p_supplier_id, :p_rr_no, :p_rr_date, :p_delivery_date, :p_purchase_date, :p_company_id, :p_requested_by, :p_product_id, :p_last_log_by, @p_part_incoming_id)');
+      public function insertPartsIncoming($p_reference_number, $p_supplier_id, $p_rr_no, $p_rr_date, $p_delivery_date, $p_purchase_date, $p_company_id, $p_requested_by, $p_product_id, $p_customer_ref_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartsIncoming(:p_reference_number, :p_supplier_id, :p_rr_no, :p_rr_date, :p_delivery_date, :p_purchase_date, :p_company_id, :p_requested_by, :p_product_id, :p_customer_ref_id, :p_last_log_by, @p_part_incoming_id)');
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_supplier_id', $p_supplier_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_rr_no', $p_rr_no, PDO::PARAM_STR);
@@ -143,6 +145,7 @@ class PartsIncomingModel {
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_requested_by', $p_requested_by, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_customer_ref_id', $p_customer_ref_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -283,6 +286,13 @@ class PartsIncomingModel {
         $stmt->bindValue(':p_part_incoming_cart_id', $p_part_incoming_cart_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getPartsIncomingCartByID($p_parts_incoming_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM part_incoming_cart WHERE part_incoming_id = :p_parts_incoming_id');
+        $stmt->bindValue(':p_parts_incoming_id', $p_parts_incoming_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getPartsIncomingCartTotal($p_part_incoming_id, $p_type) {

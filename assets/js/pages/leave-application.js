@@ -41,6 +41,14 @@
             leaveFormImageForm();
         }
 
+        if($('#leave-document-table').length){
+            leaveDocumentTable('#leave-document-table');
+        }
+
+        if($('#add-leave-document-form').length){
+            leaveDocumentForm();
+        }
+
         $(document).on('change', '#leave_type_id', function() {
             const type = $(this).val();
             const $silGroup = $('.sil-group');
@@ -273,6 +281,9 @@
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
                                 }
+                                else if (response.leaveConfirmation) {
+                                    showNotification('Leave Application For Recommendation Error', 'Please upload the leave confirmation.', 'danger');
+                                }
                                 else if (response.leaveFormEmpty) {
                                     showNotification('Leave Application For Recommendation Error', 'The leave form is empty.', 'danger');
                                 }
@@ -500,6 +511,62 @@
             if($('#leave-summary-table').length){
                 leaveSummaryTable('#leave-summary-table', true, true);
             }            
+        });
+
+        $(document).on('click','.delete-leave-document',function() {
+            const leave_document_id = $(this).data('leave-document-id');
+            const transaction = 'delete leave document';
+    
+            Swal.fire({
+                title: 'Confirm Leave Document Deletion',
+                text: 'Are you sure you want to delete this leave document?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/leave-application-controller.php',
+                        dataType: 'json',
+                        data: {
+                            leave_document_id : leave_document_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Leave Document Success', 'The leave document has been deleted successfully.', 'success');
+                                reloadDatatable('#leave-document-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Leave Document Error', 'The leave document does not exist.', 'danger');
+                                    reloadDatatable('#leave-document-table');
+                                }
+                                else {
+                                    showNotification('Delete Leave Document Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
         });
     });
 })(jQuery);
@@ -826,6 +893,62 @@ function leaveSummaryTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
+function leaveDocumentTable(datatable_name, buttons = false, show_all = false){
+    var leave_application_id = $('#leave-application-id').text();
+    const type = 'leave document table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'DOCUMENT' },
+        { 'data' : 'UPLOAD_DATE' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': '5%', 'bSortable': false, 'aTargets': 2 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_leave_application_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'leave_application_id' : leave_application_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 function leaveApplicationForm(){
     $('#leave-application-form').validate({
         rules: {
@@ -957,6 +1080,107 @@ function leaveApplicationForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function leaveDocumentForm(){
+    $('#add-leave-document-form').validate({
+        rules: {
+            document_name: {
+                required: true
+            },
+            leave_document: {
+                required: true
+            },
+        },
+        messages: {
+            document_name: {
+                required: 'Please choose the document name'
+            },
+            leave_document: {
+                required: 'Please choose the document'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const leave_application_id = $('#leave-application-id').text();
+            const transaction = 'add leave document';
+            var formData = new FormData(form);
+            formData.append('transaction', transaction);
+            formData.append('leave_application_id', leave_application_id);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/leave-application-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-add-leave-document');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Insert Document Success';
+                        const notificationDescription = 'The document has been inserted successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Incoming Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-add-leave-document', 'Submit');
+                    reloadDatatable('#leave-document-table');
+                    $('#add-leave-document-offcanvas').offcanvas('hide');
+                    resetModalForm('add-leave-document-form');
                 }
             });
         

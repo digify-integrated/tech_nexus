@@ -7950,3 +7950,137 @@ BEGIN
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
     VALUES ('ci_file_type', NEW.ci_file_type_id, audit_log, NEW.last_log_by, NOW());
 END //
+
+DELIMITER //
+
+-- Trigger for UPDATE
+CREATE TRIGGER backjob_monitoring_trigger_update
+AFTER UPDATE ON backjob_monitoring
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.type <> OLD.type THEN
+        SET audit_log = CONCAT(audit_log, "Type: ", OLD.type, " -> ", NEW.type, "<br/>");
+    END IF;
+    IF NEW.product_id <> OLD.product_id THEN
+        SET audit_log = CONCAT(audit_log, "Product ID: ", OLD.product_id, " -> ", NEW.product_id, "<br/>");
+    END IF;
+    IF NEW.sales_proposal_id <> OLD.sales_proposal_id THEN
+        SET audit_log = CONCAT(audit_log, "Sales Proposal ID: ", OLD.sales_proposal_id, " -> ", NEW.sales_proposal_id, "<br/>");
+    END IF;
+    IF NEW.status <> OLD.status THEN
+        SET audit_log = CONCAT(audit_log, "Status: ", OLD.status, " -> ", NEW.status, "<br/>");
+    END IF;
+    IF NEW.for_approval_date <> OLD.for_approval_date THEN
+        SET audit_log = CONCAT(audit_log, "For Approval Date: ", OLD.for_approval_date, " -> ", NEW.for_approval_date, "<br/>");
+    END IF;
+    IF NEW.approval_date <> OLD.approval_date THEN
+        SET audit_log = CONCAT(audit_log, "Approval Date: ", OLD.approval_date, " -> ", NEW.approval_date, "<br/>");
+    END IF;
+    IF NEW.approval_remarks <> OLD.approval_remarks THEN
+        SET audit_log = CONCAT(audit_log, "Approval Remarks: ", OLD.approval_remarks, " -> ", NEW.approval_remarks, "<br/>");
+    END IF;
+    IF NEW.approval_by <> OLD.approval_by THEN
+        SET audit_log = CONCAT(audit_log, "Approval By: ", OLD.approval_by, " -> ", NEW.approval_by, "<br/>");
+    END IF;
+    IF NEW.set_to_draft_date <> OLD.set_to_draft_date THEN
+        SET audit_log = CONCAT(audit_log, "Set to Draft Date: ", OLD.set_to_draft_date, " -> ", NEW.set_to_draft_date, "<br/>");
+    END IF;
+    IF NEW.set_to_draft_reason <> OLD.set_to_draft_reason THEN
+        SET audit_log = CONCAT(audit_log, "Set to Draft Reason: ", OLD.set_to_draft_reason, " -> ", NEW.set_to_draft_reason, "<br/>");
+    END IF;
+    IF NEW.on_process_date <> OLD.on_process_date THEN
+        SET audit_log = CONCAT(audit_log, "On Process Date: ", OLD.on_process_date, " -> ", NEW.on_process_date, "<br/>");
+    END IF;
+    IF NEW.ready_for_release_date <> OLD.ready_for_release_date THEN
+        SET audit_log = CONCAT(audit_log, "Ready for Release Date: ", OLD.ready_for_release_date, " -> ", NEW.ready_for_release_date, "<br/>");
+    END IF;
+    IF NEW.for_dr_date <> OLD.for_dr_date THEN
+        SET audit_log = CONCAT(audit_log, "For DR Date: ", OLD.for_dr_date, " -> ", NEW.for_dr_date, "<br/>");
+    END IF;
+    IF NEW.cancellation_date <> OLD.cancellation_date THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Date: ", OLD.cancellation_date, " -> ", NEW.cancellation_date, "<br/>");
+    END IF;
+    IF NEW.cancellation_reason <> OLD.cancellation_reason THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Reason: ", OLD.cancellation_reason, " -> ", NEW.cancellation_reason, "<br/>");
+    END IF;
+    IF NEW.release_date <> OLD.release_date THEN
+        SET audit_log = CONCAT(audit_log, "Release Date: ", OLD.release_date, " -> ", NEW.release_date, "<br/>");
+    END IF;
+    IF NEW.released_remarks <> OLD.released_remarks THEN
+        SET audit_log = CONCAT(audit_log, "Released Remarks: ", OLD.released_remarks, " -> ", NEW.released_remarks, "<br/>");
+    END IF;
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+        VALUES ('backjob_monitoring', NEW.backjob_monitoring_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END;
+
+DELIMITER //
+
+CREATE TRIGGER backjob_monitoring_trigger_insert
+AFTER INSERT ON backjob_monitoring
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Backjob monitoring record created. <br/>';
+
+    IF NEW.type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Type: ", NEW.type);
+    END IF;
+    IF NEW.product_id IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product ID: ", NEW.product_id);
+    END IF;
+    IF NEW.sales_proposal_id IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Sales Proposal ID: ", NEW.sales_proposal_id);
+    END IF;
+    IF NEW.status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Status: ", NEW.status);
+    END IF;
+    IF NEW.for_approval_date IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For Approval Date: ", NEW.for_approval_date);
+    END IF;
+    IF NEW.approval_date IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Approval Date: ", NEW.approval_date);
+    END IF;
+    IF NEW.approval_remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Approval Remarks: ", NEW.approval_remarks);
+    END IF;
+    IF NEW.approval_by IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Approval By: ", NEW.approval_by);
+    END IF;
+    IF NEW.set_to_draft_date IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Set to Draft Date: ", NEW.set_to_draft_date);
+    END IF;
+    IF NEW.set_to_draft_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Set to Draft Reason: ", NEW.set_to_draft_reason);
+    END IF;
+    IF NEW.on_process_date IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>On Process Date: ", NEW.on_process_date);
+    END IF;
+    IF NEW.ready_for_release_date IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Ready for Release Date: ", NEW.ready_for_release_date);
+    END IF;
+    IF NEW.for_dr_date IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For DR Date: ", NEW.for_dr_date);
+    END IF;
+    IF NEW.cancellation_date IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cancellation Date: ", NEW.cancellation_date);
+    END IF;
+    IF NEW.cancellation_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cancellation Reason: ", NEW.cancellation_reason);
+    END IF;
+    IF NEW.release_date IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Release Date: ", NEW.release_date);
+    END IF;
+    IF NEW.released_remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Released Remarks: ", NEW.released_remarks);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
+    VALUES ('backjob_monitoring', NEW.backjob_monitoring_id, audit_log, NEW.last_log_by, NOW());
+END;
+//
+
+DELIMITER ;

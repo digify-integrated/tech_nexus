@@ -407,6 +407,7 @@ class PDCManagementController {
     
         $userID = $_SESSION['user_id'];
         $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $redepositDate = $this->systemModel->checkDate('empty', $_POST['hold_redeposit_date'], '', 'Y-m-d', '');
         $onHoldReason = $_POST['on_hold_reason'];
     
         $user = $this->userModel->getUserByID($userID);
@@ -497,7 +498,7 @@ class PDCManagementController {
         
         $this->pdcManagementModel->updateLoanCollectionOnHoldAttachment($loanCollectionID, $filePath, $userID);
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'On-Hold', $onHoldReason, '', '', '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'On-Hold', $onHoldReason, '', $redepositDate, '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;

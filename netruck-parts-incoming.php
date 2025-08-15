@@ -2,10 +2,12 @@
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
   require('model/parts-incoming-model.php');
+  require('model/customer-model.php');
   require('model/supplier-model.php');
   require('model/product-model.php');
 
   $partsIncomingModel = new PartsIncomingModel($databaseModel);
+  $customerModel = new CustomerModel($databaseModel);
   $supplierModel = new SupplierModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
 

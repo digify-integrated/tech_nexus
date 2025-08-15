@@ -87,6 +87,9 @@ class BackJobMonitoringController {
                 case 'save quality control form':
                     $this->saveBackJobMonitoringQualityControlForm();
                     break;
+                case 'save approval form':
+                    $this->saveBackJobMonitoringApprovalForm();
+                    break;
                 case 'save progress job order':
                     $this->saveBackJobMonitoringJobOrder();
                     break;
@@ -1003,6 +1006,106 @@ class BackJobMonitoringController {
             exit;
         }
     }
+
+    public function saveBackJobMonitoringApprovalForm() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $backjobMonitoringID = htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkBackJobMonitoringExist = $this->backJobMonitoringModel->checkBackJobMonitoringExist($backjobMonitoringID);
+        $total = $checkBackJobMonitoringExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $approvalFormFileName = $_FILES['approval_form']['name'];
+            $approvalFormFileSize = $_FILES['approval_form']['size'];
+            $approvalFormFileError = $_FILES['approval_form']['error'];
+            $approvalFormTempName = $_FILES['approval_form']['tmp_name'];
+            $approvalFormFileExtension = explode('.', $approvalFormFileName);
+            $approvalFormActualFileExtension = strtolower(end($approvalFormFileExtension));
+
+            $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
+            $clientapprovalForm = !empty($backJobMonitoringDetails['approval_form']) ? '.' . $backJobMonitoringDetails['approval_form'] : null;
+    
+            if(file_exists($clientapprovalForm)){
+                if (!unlink($clientapprovalForm)) {
+                    echo json_encode(['success' => false, 'message' => 'Quality control form cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($approvalFormActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($approvalFormTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the quality control form.']);
+                exit;
+            }
+            
+            if($approvalFormFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($approvalFormFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The quality control form exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $approvalFormActualFileExtension;
+
+            $directory = DEFAULT_BACKJOB_RELATIVE_PATH_FILE.'/approval_form/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_BACKJOB_FULL_PATH_FILE . '/approval_form/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($approvalFormTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->backJobMonitoringModel->updateBackJobMonitoringApprovalForm($backjobMonitoringID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -1444,7 +1547,8 @@ class BackJobMonitoringController {
                 'sales_proposal_id' => $backJobMonitoringDetails['sales_proposal_id'],
                 'unitImage' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_image'], 'default'),
                 'outgoingChecklist' =>  $this->systemModel->checkImage($backJobMonitoringDetails['outgoing_checklist'], 'default'),
-                'qualityControlForm' =>  $this->systemModel->checkImage($backJobMonitoringDetails['quality_control_form'], 'default')
+                'qualityControlForm' =>  $this->systemModel->checkImage($backJobMonitoringDetails['quality_control_form'], 'default'),
+                'approvalForm' =>  $this->systemModel->checkImage($backJobMonitoringDetails['approval_form'], 'default')
             ];
 
             echo json_encode($response);

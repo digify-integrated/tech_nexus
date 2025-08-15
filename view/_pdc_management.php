@@ -83,7 +83,7 @@
                                   <label class="form-check-label" for="pdc-management-status-pulled-out">Pulled-Out</label>
                               </div>
                               <div class="form-check my-2">
-                                  <input class="form-check-input pdc-management-status-filter" type="checkbox" id="pdc-management-status-on-hold" value="On-Hold" />
+                                  <input class="form-check-input pdc-management-status-filter" type="checkbox" id="pdc-management-status-on-hold" value="On-Hold" checked/>
                                   <label class="form-check-label" for="pdc-management-status-on-hold">On-Hold</label>
                               </div>
                             </div>

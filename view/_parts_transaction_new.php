@@ -74,8 +74,17 @@
             <div class="col-lg-4">
               <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off">
             </div>
-            <label class="col-lg-2 col-form-label <?php if($company == '3') echo 'd-none'; ?>">Issuance Date</label>
-            <div class="col-lg-4 <?php if($company == '3') echo 'd-none'; ?>">
+            <label class="col-lg-2 col-form-label">Customer Reference <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="customer_ref_id" id="customer_ref_id">
+                  <option value="">--</option>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
+                </select>
+            </div>
+          </div>
+          <div class="form-group row <?php if($company == '3') echo 'd-none'; ?>">
+            <label class="col-lg-2 col-form-label">Issuance Date</label>
+            <div class="col-lg-4">
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off">
                 <span class="input-group-text">

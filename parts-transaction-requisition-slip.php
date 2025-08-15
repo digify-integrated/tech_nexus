@@ -48,9 +48,13 @@
         $customer_id = $partTransactionDetails['customer_id'] ?? '';
         $slip_reference_no = $partTransactionDetails['slip_reference_no'] ?? '';
         $request_by = $partTransactionDetails['request_by'] ?? '';
+        $customer_ref_id = $partsIncomingDetails['customer_ref_id'] ?? '';
 
         $productDetails = $productModel->getProduct($customer_id);
         $productSubategoryID = $productDetails['product_subcategory_id'] ?? '';
+
+        $customerDetails = $customerModel->getPersonalInformation($customer_ref_id);
+        $last_name = $customerDetails['last_name'] ?? '';
 
         $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
         $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
@@ -85,8 +89,8 @@
     // Set PDF metadata
     $pdf->SetCreator('CGMI');
     $pdf->SetAuthor('CGMI');
-    $pdf->SetTitle('Purchase Order List');
-    $pdf->SetSubject('Purchase Order List');
+    $pdf->SetTitle('Issuance Slip');
+    $pdf->SetSubject('Issuance Slip List');
 
     // Set margins and auto page break
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
@@ -120,7 +124,7 @@
     $pdf->Cell(40, 8, '', 'B', 0, 'C');
     $pdf->Ln(10);
     $pdf->Cell(30, 8, 'UNIT NO.:', 0, 0, 'L');
-    $pdf->Cell(70, 8, $fullStockNumber, 'B', 0, 'L');
+    $pdf->Cell(70, 8, $fullStockNumber . ' - ' . strtoupper($last_name), 'B', 0, 'L');
     $pdf->Cell(25, 8, '', 0, 0, 'L');
     $pdf->Cell(18, 8, 'AJO NO:', 0, 0, 'L');
     $pdf->Cell(40, 8, '', 'B', 0, 'C');

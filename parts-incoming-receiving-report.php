@@ -59,7 +59,7 @@
 
     $summaryTable = generatePrint($part_incoming_id);
     $summaryTable2 = generatePrint2($part_incoming_id);
-    $summaryTable3 = generatePrint3($fileAs);
+    $summaryTable3 = generatePrint3($fileAs, $part_incoming_id);
 
     ob_start();
 
@@ -141,6 +141,7 @@
         $partIncomingDetails = $partsIncomingModel->getPartsIncoming($part_incoming_id);
         $product_id = $partIncomingDetails['product_id'];
         $supplier_id = $partIncomingDetails['supplier_id'];
+        $invoice_number = $partIncomingDetails['invoice_number'];
         $reference_number = $partIncomingDetails['reference_number'];
 
         $productDetails = $productModel->getProduct($product_id);
@@ -149,6 +150,7 @@
         $supplierName = $supplierModel->getSupplier($supplier_id)['supplier_name'] ?? null;
 
         $rrDate = $systemModel->checkDate('summary', $partIncomingDetails['rr_date'], '', 'm/d/Y', '');
+        $invoice_date = $systemModel->checkDate('summary', $partIncomingDetails['invoice_date'], '', 'm/d/Y', '');
 
         $response = '<table border="1" width="100%" cellpadding="2" align="left">
                         <tbody>
@@ -214,10 +216,11 @@
         $sql->closeCursor();
 
         $total = 0;
+        $total_cost = 0;
         foreach ($options as $row) {
             $part_id  = $row['part_id'];
             $quantity = $row['quantity'];
-            $cost = $row['cost'];
+            $cost = $row['total_cost'];
             $received_quantity = $row['received_quantity'];
             $remaining_quantity = $row['remaining_quantity'];
 
@@ -229,27 +232,30 @@
             $short_name = $unitCode['short_name'] ?? null;
 
             $total = $total + ($cost * ($received_quantity + $remaining_quantity));
+            $total_cost = $total_cost + $cost;
 
-            $list .= '<tr>
-                        <td width="65%">'. strtoupper($description) .'</td>
-                        <td width="15%" style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
-                        <td width="20%" style="text-align:center">'. number_format($cost * ($received_quantity + $remaining_quantity), 2) .' PHP</td>
+            if($received_quantity > 0){
+                $list .= '<tr>
+                        <td width="60%">'. strtoupper($description) .'</td>
+                        <td width="20%" style="text-align:center">'. number_format($received_quantity, 2) . ' ' . strtoupper($short_name) .'</td>
+                        <td width="20%" style="text-align:center">'. number_format($cost, 2) .' PHP</td>
                     </tr>';
+            }
         }
 
                    $response = '<table border="1" width="100%" cellpadding="5" align="left">
                         <thead>
                             <tr style="text-align:center">
-                                <td width="65%"><b style="text-align:center">PARTICULARS</b></td>
-                                <td width="15%"><b style="text-align:center">QTY</b></td>
-                                <td width="20%"><b style="text-align:center">AMOUNT</b></td>
+                                <td width="60%"><b style="text-align:center">PARTICULARS</b></td>
+                                <td width="20%"><b style="text-align:center">QTY</b></td>
+                                <td width="20%"><b style="text-align:center">TOTAL COST</b></td>
                             </tr>
                         </thead>
                         <tbody>
                             '.$list.'
                             <tr>
                                 <td style="text-align:right;" colspan="2"><b>TOTAL</b></td>
-                                <td style="text-align:center;"><b>'. number_format($total, 2) .' PHP</b></td>
+                                <td style="text-align:center;"><b>'. number_format($total_cost, 2) .' PHP</b></td>
                             </tr>
                         </tbody>
                     </table>';
@@ -257,31 +263,65 @@
         return $response;
     }
 
-    function generatePrint3($fileAs){
+    function generatePrint3($fileAs, $part_incoming_id){
 
+        require_once 'model/database-model.php';
+        require_once 'model/product-model.php';
+        require_once 'model/parts-incoming-model.php';
+        require_once 'model/product-category-model.php';
+        require_once 'model/product-subcategory-model.php';
+        require_once 'model/company-model.php';
+        require_once 'model/body-type-model.php';
+        require_once 'model/warehouse-model.php';
+        require_once 'model/unit-model.php';
+        require_once 'model/color-model.php';
+        require_once 'model/brand-model.php';
+        require_once 'model/cabin-model.php';
+        require_once 'model/make-model.php';
+        require_once 'model/supplier-model.php';
+        require_once 'model/model-model.php';
+    
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
+        $userModel = new UserModel(new DatabaseModel, new SystemModel);
         $productModel = new ProductModel($databaseModel);
+        $partsIncomingModel = new PartsIncomingModel($databaseModel);
+        $productCategoryModel = new ProductCategoryModel($databaseModel);
+        $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
+        $companyModel = new CompanyModel($databaseModel);
+        $bodyTypeModel = new BodyTypeModel($databaseModel);
+        $warehouseModel = new WarehouseModel($databaseModel);
+        $unitModel = new UnitModel($databaseModel);
+        $colorModel = new ColorModel($databaseModel);
+        $brandModel = new BrandModel($databaseModel);
+        $cabinModel = new CabinModel($databaseModel);
+        $makeModel = new MakeModel($databaseModel);
+        $modelModel = new ModelModel($databaseModel);
+        $supplierModel = new SupplierModel($databaseModel);
        
+        $partIncomingDetails = $partsIncomingModel->getPartsIncoming($part_incoming_id);
+        $invoice_number = $partIncomingDetails['invoice_number'];
+        $invoice_price = $partIncomingDetails['invoice_price'];
 
+        $invoice_date = $systemModel->checkDate('summary', $partIncomingDetails['invoice_date'], '', 'm/d/Y', '');
 
         $response = '<table border="0.5" width="100%" cellpadding="2" align="left">
                         <tbody>
                         <tr>
                             <td width="25%">REF NO.</td>
-                            <td width="25%"></td>
+                            <td width="25%">'. strtoupper( $invoice_number) .'</td>
                             <td width="25%">PREPARED BY: </td>
                             <td width="25%">'. strtoupper($fileAs) .'</td>
                         </tr>
                         <tr>
                             <td width="25%">REF DATE</td>
-                            <td width="25%"></td>
+                            <td width="25%">'. $invoice_date .'</td>
                             <td width="25%">CHECKED BY: </td>
                             <td width="25%"></td>
                         </tr>
                         <tr>
                             <td width="25%">REF AMOUNT</td>
-                            <td width="25%"></td>
+                            <td width="25%">'. number_format($invoice_price, 2) .' PHP</td>
                             <td width="25%">NOTED BY: </td>
                             <td width="25%"></td>
                         </tr>

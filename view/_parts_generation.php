@@ -58,14 +58,30 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $partsStatusFilter = $_POST['parts_status_filter'] ?? null;
                 }
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generatePartsTable(:parts_search, :company_filter, :brand_filter, :parts_category_filter, :parts_class_filter, :parts_subclass_filter, :warehouse_filter, :filter_created_date_start_date, :filter_created_date_end_date, :filter_for_sale_date_start_date, :filter_for_sale_date_end_date, :partsStatusFilter)');
-                $sql->bindValue(':parts_search', $parts_search, PDO::PARAM_STR);
+                $sql = $databaseModel->getConnection()->prepare('
+                    CALL generatePartsTable(
+                        :company_filter, 
+                        :parts_search, 
+                        :brand_filter, 
+                        :parts_category_filter, 
+                        :parts_class_filter, 
+                        :warehouse_filter, 
+                        :parts_subclass_filter, 
+                        :filter_created_date_start_date, 
+                        :filter_created_date_end_date, 
+                        :filter_for_sale_date_start_date, 
+                        :filter_for_sale_date_end_date, 
+                        :partsStatusFilter
+                    )
+                ');
+
                 $sql->bindValue(':company_filter', $company_filter, PDO::PARAM_STR);
+                $sql->bindValue(':parts_search', $parts_search, PDO::PARAM_STR);
                 $sql->bindValue(':brand_filter', $brand_filter, PDO::PARAM_STR);
                 $sql->bindValue(':parts_category_filter', $parts_category_filter, PDO::PARAM_STR);
                 $sql->bindValue(':parts_class_filter', $parts_class_filter, PDO::PARAM_STR);
-                $sql->bindValue(':parts_subclass_filter', $parts_subclass_filter, PDO::PARAM_STR);
                 $sql->bindValue(':warehouse_filter', $warehouse_filter, PDO::PARAM_STR);
+                $sql->bindValue(':parts_subclass_filter', $parts_subclass_filter, PDO::PARAM_STR);
                 $sql->bindValue(':filter_created_date_start_date', $filter_created_date_start_date, PDO::PARAM_STR);
                 $sql->bindValue(':filter_created_date_end_date', $filter_created_date_end_date, PDO::PARAM_STR);
                 $sql->bindValue(':filter_for_sale_date_start_date', $filter_for_sale_date_start_date, PDO::PARAM_STR);

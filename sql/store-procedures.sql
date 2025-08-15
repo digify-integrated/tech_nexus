@@ -7255,7 +7255,7 @@ BEGIN
 
     -- Apply search filter
     IF p_search IS NOT NULL AND p_search <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND (stock_number LIKE ? OR description LIKE ?)');
+        SET sql_query = CONCAT(sql_query, ' AND (stock_number LIKE ? OR description LIKE ? OR engine_number LIKE ? OR chassis_number LIKE ?)');
     END IF;
 
     -- Apply category and subcategory filters
@@ -7311,13 +7311,13 @@ BEGIN
     -- Execute statement with appropriate parameters based on conditions
     IF p_search IS NOT NULL AND p_search <> '' THEN
         IF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL AND p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
-            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), p_product_cost_min, p_product_cost_max, p_product_price_min, p_product_price_max;
+            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), p_product_cost_min, p_product_cost_max, p_product_price_min, p_product_price_max;
         ELSEIF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL THEN
-            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), p_product_cost_min, p_product_cost_max;
+            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), p_product_cost_min, p_product_cost_max;
         ELSEIF p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
-            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), p_product_price_min, p_product_price_max;
+            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), p_product_price_min, p_product_price_max;
         ELSE
-            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%');
+            EXECUTE stmt USING CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%'), CONCAT('%', p_search, '%');
         END IF;
     ELSE
         IF p_product_cost_min IS NOT NULL AND p_product_cost_max IS NOT NULL AND p_product_price_min IS NOT NULL AND p_product_price_max IS NOT NULL THEN
@@ -7375,7 +7375,7 @@ END //
 CREATE PROCEDURE generateForSaleProductOptions()
 BEGIN
 	SELECT product_id, description, stock_number FROM product
-    WHERE product_status = 'For Sale'
+    WHERE product_status IN ('For Sale', 'Rented', 'For Return')
 	ORDER BY stock_number;
 END //
 
@@ -7945,6 +7945,16 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
+CREATE PROCEDURE updateSalesProposalRepairProduct(IN p_sales_proposal_id INT, IN p_product_id INT, IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+	UPDATE sales_proposal
+    SET product_id = p_product_id,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
 CREATE PROCEDURE updateSalesProposalFuel(IN p_sales_proposal_id INT, IN p_diesel_fuel_quantity DOUBLE, IN p_diesel_price_per_liter DOUBLE, IN p_regular_fuel_quantity DOUBLE, IN p_regular_price_per_liter DOUBLE, IN p_premium_fuel_quantity DOUBLE, IN p_premium_price_per_liter DOUBLE, IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
@@ -8409,25 +8419,26 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateSalesProposalReleasedTable(IN p_filter_released_date_start_date DATE, IN p_filter_released_date_end_date DATE)
+CREATE PROCEDURE generateSalesProposalReleasedTable(
+    IN p_filter_released_date_start_date DATE, 
+    IN p_filter_released_date_end_date DATE
+)
 BEGIN
-    DECLARE query VARCHAR(1000);
-    DECLARE conditionList VARCHAR(500);
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(5000);
 
     SET query = 'SELECT * FROM sales_proposal';
-    
-    SET conditionList = ' WHERE 1';
+    SET conditionList = ' WHERE sales_proposal_status = ''Released''';
 
-    IF p_filter_released_date_start_date IS NOT NULL AND p_filter_released_date_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND released_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_end_date));
+    IF p_filter_released_date_start_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND DATE(released_date) >= ', QUOTE(p_filter_released_date_start_date));
     END IF;
 
-    SET query = CONCAT(query, conditionList);
+    IF p_filter_released_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND DATE(released_date) <= ', QUOTE(p_filter_released_date_end_date));
+    END IF;
 
-    SET query = CONCAT(query, ' AND sales_proposal_status = "Released" ORDER BY sales_proposal_number;');
+    SET query = CONCAT(query, conditionList, ' ORDER BY sales_proposal_number;');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -10010,6 +10021,13 @@ CREATE PROCEDURE updateSalesProposalBackjobProgress(
     IN p_last_log_by INT
 )
 BEGIN
+    -- Update sales_proposal_job_order table
+    UPDATE backjob_monitoring
+    SET status = 'Released',
+        release_date = NOW(),
+        last_log_by = p_last_log_by
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id AND status = 'For DR';
+
     -- Update sales_proposal_job_order table
     UPDATE sales_proposal_job_order
     SET progress = 100,
@@ -11611,6 +11629,7 @@ BEGIN
         UPDATE loan_collections
         SET collection_status = p_collection_status,
         onhold_date = NOW(),
+        new_deposit_date = p_new_deposit_date,
         onhold_reason = p_reason,
         last_log_by = p_last_log_by
         WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending', 'For Deposit', 'Redeposit');
@@ -14167,7 +14186,7 @@ BEGIN
 	SELECT COUNT(*) AS total
     FROM sales_proposal_job_order
     WHERE progress < 100
-    AND backjob = 'No' AND cancellation_date IS NOT NULL AND sales_proposal_id = p_sales_proposal_id;
+    AND backjob = 'No' AND cancellation_date IS NULL AND sales_proposal_id = p_sales_proposal_id;
 END //
 
 CREATE PROCEDURE generateJobOrderBackjobOptions()
@@ -14195,7 +14214,7 @@ BEGIN
 	SELECT COUNT(*) AS total
     FROM sales_proposal_additional_job_order
     WHERE progress < 100
-    AND backjob = 'No' AND cancellation_date IS NOT NULL AND sales_proposal_id = p_sales_proposal_id;
+    AND backjob = 'No' AND cancellation_date IS NULL AND sales_proposal_id = p_sales_proposal_id;
 END //
 
 CREATE PROCEDURE generateWorkCenterTable()
@@ -14250,6 +14269,28 @@ BEGIN
     ORDER BY backjob_monitoring_id;
 END //
 
+CREATE PROCEDURE generateBackJobMonitoringTable2(IN p_status VARCHAR(5000))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM backjob_monitoring';
+    SET conditionList = ' WHERE 1';
+
+    IF p_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 CREATE PROCEDURE generateBackJobMonitoringOptions()
 BEGIN
 	SELECT backjob_monitoring_id, backjob_monitoring.type AS type, backjob_monitoring.sales_proposal_id AS sales_proposal_id, sales_proposal_number, description, stock_number FROM backjob_monitoring
@@ -14285,6 +14326,7 @@ BEGIN
     SET status = p_status,
     approval_remarks = p_approval_remarks,
     approval_date = NOW(),
+    approval_by = p_last_log_by,
     last_log_by = p_last_log_by
     WHERE backjob_monitoring_id = p_backjob_monitoring_id;
 END //
@@ -14387,6 +14429,14 @@ CREATE PROCEDURE updateBackJobMonitoringQualityControlForm(IN p_backjob_monitori
 BEGIN
       UPDATE backjob_monitoring
         SET quality_control_form = p_quality_control_form,
+        last_log_by = p_last_log_by
+        WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+END //
+
+CREATE PROCEDURE updateBackJobMonitoringApprovalForm(IN p_backjob_monitoring_id INT, IN p_approval_form VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE backjob_monitoring
+        SET approval_form = p_approval_form,
         last_log_by = p_last_log_by
         WHERE backjob_monitoring_id = p_backjob_monitoring_id;
 END //
@@ -15195,7 +15245,7 @@ END //
 DELIMITER //
 
 CREATE PROCEDURE generatePartsTable(
-    IN p_company_id INT, 
+    IN p_company_id VARCHAR(500), 
     IN p_parts_search VARCHAR(1000), 
     IN p_brand_filter VARCHAR(500),
     IN p_parts_category_filter VARCHAR(500),
@@ -15210,74 +15260,107 @@ CREATE PROCEDURE generatePartsTable(
 )
 BEGIN
     DECLARE sql_query LONGTEXT;
-    DECLARE search_param1, search_param2, search_param3 VARCHAR(1000);
 
-    -- Initialize base query
-    SET sql_query = 'SELECT * FROM part WHERE 1=1';   
+    -- Start base query
+    SET sql_query = 'SELECT * FROM part WHERE 1=1';
 
+    -- Created date filter
     IF p_created_start_date IS NOT NULL AND p_created_end_date IS NOT NULL THEN
-        SET sql_query = CONCAT(sql_query, ' AND created_date BETWEEN ', 
-                               QUOTE(p_created_start_date), ' AND ', QUOTE(p_created_end_date));
+        SET sql_query = CONCAT(sql_query, 
+            ' AND created_date BETWEEN ',
+            QUOTE(p_created_start_date), 
+            ' AND ', 
+            QUOTE(p_created_end_date)
+        );
     END IF;
 
+    -- For sale date filter
     IF p_for_sale_start_date IS NOT NULL AND p_for_sale_end_date IS NOT NULL THEN
-        SET sql_query = CONCAT(sql_query, ' AND for_sale_date BETWEEN ', 
-                               QUOTE(p_for_sale_start_date), ' AND ', QUOTE(p_for_sale_end_date));
+        SET sql_query = CONCAT(sql_query, 
+            ' AND for_sale_date BETWEEN ',
+            QUOTE(p_for_sale_start_date), 
+            ' AND ', 
+            QUOTE(p_for_sale_end_date)
+        );
     END IF;
 
+    -- Parts search
     IF p_parts_search IS NOT NULL AND p_parts_search <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND (bar_code LIKE ? OR part_number LIKE ? OR description LIKE ?)');
-        SET search_param1 = CONCAT('%', p_parts_search, '%');
-        SET search_param2 = CONCAT('%', p_parts_search, '%');
-        SET search_param3 = CONCAT('%', p_parts_search, '%');
+        SET sql_query = CONCAT(
+            sql_query,
+            ' AND (bar_code LIKE ', QUOTE(CONCAT('%', p_parts_search, '%')),
+            ' OR part_number LIKE ', QUOTE(CONCAT('%', p_parts_search, '%')),
+            ' OR description LIKE ', QUOTE(CONCAT('%', p_parts_search, '%')), ')'
+        );
 
         IF p_part_status IS NOT NULL AND p_part_status <> '' THEN
-            SET sql_query = CONCAT(sql_query, ' AND part_status = ', QUOTE(p_part_status));
+            SET sql_query = CONCAT(sql_query, 
+                ' AND part_status = ', QUOTE(p_part_status)
+            );
         END IF;
     ELSE
         IF p_part_status IS NOT NULL AND p_part_status <> '' THEN
-            SET sql_query = CONCAT(sql_query, ' AND part_status = ', QUOTE(p_part_status));
+            SET sql_query = CONCAT(sql_query, 
+                ' AND part_status = ', QUOTE(p_part_status)
+            );
         ELSE
-            SET sql_query = CONCAT(sql_query, ' AND part_status != "Out of Stock"');
+            SET sql_query = CONCAT(sql_query, 
+                ' AND part_status != "Out of Stock"'
+            );
         END IF;
     END IF;
 
+    -- Company filter
     IF p_company_id IS NOT NULL AND p_company_id <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND company_id IN (', p_company_id, ')');
+        SET sql_query = CONCAT(sql_query, 
+            ' AND company_id IN (', p_company_id, ')'
+        );
     END IF;
 
+    -- Brand filter
     IF p_brand_filter IS NOT NULL AND p_brand_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND brand_id IN (', p_brand_filter, ')');
+        SET sql_query = CONCAT(sql_query, 
+            ' AND brand_id IN (', p_brand_filter, ')'
+        );
     END IF;
 
+    -- Category filter
     IF p_parts_category_filter IS NOT NULL AND p_parts_category_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND part_category_id IN (', p_parts_category_filter, ')');
+        SET sql_query = CONCAT(sql_query, 
+            ' AND part_category_id IN (', p_parts_category_filter, ')'
+        );
     END IF;
 
+    -- Class filter
     IF p_parts_class_filter IS NOT NULL AND p_parts_class_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND part_class_id IN (', p_parts_class_filter, ')');
+        SET sql_query = CONCAT(sql_query, 
+            ' AND part_class_id IN (', p_parts_class_filter, ')'
+        );
     END IF;
 
+    -- Subclass filter
     IF p_parts_subclass_filter IS NOT NULL AND p_parts_subclass_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND part_subclass_id IN (', p_parts_subclass_filter, ')');
+        SET sql_query = CONCAT(sql_query, 
+            ' AND part_subclass_id IN (', p_parts_subclass_filter, ')'
+        );
     END IF;
 
+    -- Warehouse filter
     IF p_warehouse_filter IS NOT NULL AND p_warehouse_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND warehouse_id IN (', p_warehouse_filter, ')');
+        SET sql_query = CONCAT(sql_query, 
+            ' AND warehouse_id IN (', p_warehouse_filter, ')'
+        );
     END IF;
 
     -- Add ordering
-    SET sql_query = CONCAT(sql_query, ' ORDER BY description LIMIT 500 ');
+    SET sql_query = CONCAT(sql_query, ' ORDER BY description LIMIT 500');
+
+    -- Debugging (optional)
+    -- SELECT sql_query;
 
     -- Prepare and execute
     PREPARE stmt FROM sql_query;
-
-    IF p_parts_search IS NOT NULL AND p_parts_search <> '' THEN
-        EXECUTE stmt USING @search_param1 := search_param1, @search_param2 := search_param2, @search_param3 := search_param3;
-    ELSE
-        EXECUTE stmt;
-    END IF;
-
+    EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END //
 
@@ -15319,33 +15402,41 @@ BEGIN
     WHERE part_transaction_id = p_parts_transaction_id
 	ORDER BY part_id;
 END //
-CREATE PROCEDURE generatePartItemTable2(IN p_part_id INT, IN p_parts_transaction_start_date DATE, IN p_parts_transaction_end_date DATE)
+CREATE PROCEDURE generatePartItemTable2(
+    IN p_part_id INT,
+    IN p_parts_transaction_start_date DATE,
+    IN p_parts_transaction_end_date DATE
+)
 BEGIN
-    DECLARE query VARCHAR(5000);
-    DECLARE conditionList VARCHAR(1000);
+    DECLARE query TEXT;
 
-    SET query = 'SELECT * FROM part_transaction_cart';
-    SET conditionList = ' WHERE 1 = 1';
+    SET query = 
+        'SELECT * FROM part_transaction_cart WHERE part_transaction_id IN (
+            SELECT part_transaction_id 
+            FROM part_transaction 
+            WHERE part_transaction_status = "Released"
+        )';
 
-    
-    SET conditionList = CONCAT(conditionList, ' AND part_id =');
-    SET conditionList = CONCAT(conditionList, p_part_id);
-    
-    IF p_parts_transaction_start_date IS NOT NULL AND p_parts_transaction_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_parts_transaction_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_parts_transaction_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
+    SET query = CONCAT(query, ' AND part_id = ', p_part_id);
+
+    IF p_parts_transaction_start_date IS NOT NULL 
+       AND p_parts_transaction_end_date IS NOT NULL THEN
+        SET query = CONCAT(
+            query,
+            ' AND DATE(created_date) BETWEEN ',
+            QUOTE(p_parts_transaction_start_date),
+            ' AND ',
+            QUOTE(p_parts_transaction_end_date)
+        );
     END IF;
 
-    SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY created_date DESC;');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
-END //
+END;
+
 
 CREATE PROCEDURE checkPartsTransactionExist (IN p_part_transaction_id VARCHAR(100))
 BEGIN
@@ -15361,13 +15452,13 @@ BEGIN
     WHERE part_transaction_cart_id = p_part_transaction_cart_id;
 END //
 
-CREATE PROCEDURE insertPartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_request_by VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE insertPartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_request_by VARCHAR(500), IN p_customer_ref_id INT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO part_transaction (part_transaction_id, customer_type, customer_id, company_id, issuance_date, issuance_no, reference_date, reference_number, remarks, request_by, last_log_by) 
-	VALUES(p_part_transaction_id, p_customer_type, p_customer_id, p_company_id, p_issuance_date, p_issuance_no, p_reference_date, p_reference_number, p_remarks, p_request_by, p_last_log_by);
+    INSERT INTO part_transaction (part_transaction_id, customer_type, customer_id, company_id, issuance_date, issuance_no, reference_date, reference_number, remarks, request_by, customer_ref_id, last_log_by) 
+	VALUES(p_part_transaction_id, p_customer_type, p_customer_id, p_company_id, p_issuance_date, p_issuance_no, p_reference_date, p_reference_number, p_remarks, p_request_by, p_customer_ref_id, p_last_log_by);
 END //
 
-CREATE PROCEDURE updatePartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_discount DOUBLE, IN p_discount_type VARCHAR(10), IN p_overall_total DOUBLE, IN p_request_by VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_discount DOUBLE, IN p_discount_type VARCHAR(10), IN p_overall_total DOUBLE, IN p_request_by VARCHAR(500), IN p_customer_ref_id INT, IN p_last_log_by INT)
 BEGIN
     UPDATE part_transaction
     SET customer_type = p_customer_type,
@@ -15382,6 +15473,7 @@ BEGIN
     discount_type = p_discount_type,
     overall_total = p_overall_total,
     request_by = p_request_by,
+    customer_ref_id = p_customer_ref_id,
     last_log_by = p_last_log_by
     WHERE part_transaction_id = p_part_transaction_id;
 END //
@@ -15813,6 +15905,23 @@ BEGIN
     AND (p.quantity - ptc.quantity) < 0;
 END //
 
+CREATE PROCEDURE check_linked_job_order(
+    IN p_part_transaction_id VARCHAR(100)
+)
+BEGIN
+    SELECT 
+        (
+            SELECT COUNT(*) 
+            FROM part_transaction_additional_job_order 
+            WHERE part_transaction_id = p_part_transaction_id
+        ) +
+        (
+            SELECT COUNT(*) 
+            FROM part_transaction_job_order 
+            WHERE part_transaction_id = p_part_transaction_id
+        ) AS total;
+END //
+
 CREATE PROCEDURE generatePDCInsuranceExtractionTable(IN p_check_start_date DATE, IN p_check_end_date DATE)
 BEGIN
     DECLARE query VARCHAR(5000);
@@ -15844,15 +15953,15 @@ BEGIN
     WHERE part_incoming_id = p_part_incoming_id;
 END //
 
-CREATE PROCEDURE insertPartsIncoming(IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_company_id INT, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_last_log_by INT, OUT p_part_incoming_id INT)
+CREATE PROCEDURE insertPartsIncoming(IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_company_id INT, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_last_log_by INT, OUT p_part_incoming_id INT)
 BEGIN
-    INSERT INTO part_incoming (reference_number, supplier_id, rr_no, rr_date, delivery_date, purchase_date, company_id, request_by, product_id, last_log_by) 
-	VALUES(p_reference_number, p_supplier_id, p_rr_no, p_rr_date, p_delivery_date, p_purchase_date, p_company_id, p_request_by, p_product_id, p_last_log_by);
+    INSERT INTO part_incoming (reference_number, supplier_id, rr_no, rr_date, delivery_date, purchase_date, company_id, request_by, product_id, customer_ref_id, last_log_by) 
+	VALUES(p_reference_number, p_supplier_id, p_rr_no, p_rr_date, p_delivery_date, p_purchase_date, p_company_id, p_request_by, p_product_id, p_customer_ref_id, p_last_log_by);
 	
     SET p_part_incoming_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updatePartsIncoming(IN p_part_incoming_id INT, IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsIncoming(IN p_part_incoming_id INT, IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_last_log_by INT)
 BEGIN
 	UPDATE part_incoming
     SET reference_number = p_reference_number,
@@ -15862,6 +15971,7 @@ BEGIN
     delivery_date = p_delivery_date,
     purchase_date = p_purchase_date,
     request_by = p_request_by,
+    customer_ref_id = p_customer_ref_id,
     product_id = p_product_id,
     last_log_by = p_last_log_by
     WHERE part_incoming_id = p_part_incoming_id;
@@ -15891,7 +16001,7 @@ BEGIN
     DECLARE conditionList VARCHAR(1000);
 
     SET query = 'SELECT * FROM part_incoming_cart';
-    SET conditionList = ' WHERE 1 = 1';
+    SET conditionList = ' WHERE part_incoming_id IN (SELECT part_incoming_id FROM part_incoming WHERE part_incoming_status IN ("Posted", "Completed"))';
 
     
     SET conditionList = CONCAT(conditionList, ' AND part_id =');
@@ -15963,12 +16073,12 @@ BEGIN
     WHERE part_incoming_cart_id = p_part_incoming_cart_id;
 END //
 
-CREATE PROCEDURE updatePartsIncomingCart(IN p_part_incoming_cart_id INT, IN p_quantity DOUBLE, IN p_cost DOUBLE, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsIncomingCart(IN p_part_incoming_cart_id INT, IN p_quantity DOUBLE, IN p_total_cost DOUBLE, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
     UPDATE part_incoming_cart
     SET quantity = p_quantity,
         remaining_quantity = p_quantity,
-        cost = p_cost,
+        total_cost = p_total_cost,
         remarks = p_remarks,
         last_log_by = p_last_log_by
     WHERE part_incoming_cart_id = p_part_incoming_cart_id;
@@ -15986,28 +16096,12 @@ BEGIN
     -- Update the incoming cart's received and remaining quantity
     UPDATE part_incoming_cart
     SET 
-        received_quantity = p_received_quantity,
+        cost = total_cost/(received_quantity + p_received_quantity),
+        received_quantity = received_quantity + p_received_quantity,
         remaining_quantity = GREATEST(remaining_quantity - p_received_quantity, 0), -- prevent negative values
         last_log_by = p_last_log_by
     WHERE 
         part_incoming_cart_id = p_part_incoming_cart_id;
-
-    -- Update part quantity and status conditionally
-   UPDATE part
-    SET 
-        quantity = quantity + p_received_quantity,
-        part_status = CASE 
-                        WHEN part_status IN ('Out of Stock', 'Draft') THEN 'For Sale'
-                        ELSE part_status
-                    END,
-        for_sale_date = CASE 
-                            WHEN part_status IN ('Out of Stock', 'Draft') THEN NOW()
-                            ELSE for_sale_date
-                        END,
-        last_log_by = p_last_log_by
-    WHERE 
-        part_id = p_part_id;
-
 END //
 
 CREATE PROCEDURE updatePartsAverageCostAndSRP (
@@ -16060,6 +16154,21 @@ BEGIN
         last_log_by = p_last_log_by -- assuming this column exists for tracking logs
     WHERE part_id = p_part_id;
 
+    UPDATE part
+    SET 
+        quantity = quantity + p_received_quantity,
+        part_status = CASE 
+                        WHEN part_status IN ('Out of Stock', 'Draft') THEN 'For Sale'
+                        ELSE part_status
+                    END,
+        for_sale_date = CASE 
+                            WHEN part_status IN ('Out of Stock', 'Draft') THEN NOW()
+                            ELSE for_sale_date
+                        END,
+        last_log_by = p_last_log_by
+    WHERE 
+        part_id = p_part_id;
+
 END //
 
 DELIMITER ;
@@ -16100,6 +16209,16 @@ END //
 CREATE PROCEDURE insertPartsIncomingDocument(IN p_part_incoming_id INT, IN p_document_name VARCHAR(500), IN p_document_file_path VARCHAR(500), IN p_last_log_by INT)
 BEGIN
     INSERT INTO part_incoming_document (part_incoming_id, document_name, document_file_path, last_log_by) VALUES(p_part_incoming_id, p_document_name, p_document_file_path, p_last_log_by);
+END //
+
+CREATE PROCEDURE insertLeaveDocument(IN p_leave_application_id INT, IN p_document_name VARCHAR(500), IN p_document_file_path VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO leave_document (leave_application_id, document_name, document_file_path, last_log_by) VALUES(p_leave_application_id, p_document_name, p_document_file_path, p_last_log_by);
+END //
+
+CREATE PROCEDURE deleteLeaveDocument(IN p_leave_document_id INT)
+BEGIN
+    DELETE FROM leave_document WHERE leave_document_id = p_leave_document_id;
 END //
 
 CREATE PROCEDURE deletePartsIncomingDocument(IN p_part_incoming_document_id INT)
@@ -16200,10 +16319,17 @@ BEGIN
             last_log_by = p_last_log_by
         WHERE part_incoming_id = p_parts_incoming_id;
     ELSEIF p_part_incoming_status = 'Draft' THEN
-       UPDATE part_incoming
+        UPDATE part_incoming
         SET set_to_draft_date = NOW(),
             part_incoming_status = p_part_incoming_status,
             set_to_draft_reason = p_remarks,
+            last_log_by = p_last_log_by
+        WHERE part_incoming_id = p_parts_incoming_id;
+
+        UPDATE part_incoming_cart
+        SET remaining_quantity = received_quantity + remaining_quantity,
+            cost = 0,
+            received_quantity = 0,
             last_log_by = p_last_log_by
         WHERE part_incoming_id = p_parts_incoming_id;
     ELSE
@@ -16221,6 +16347,7 @@ CREATE PROCEDURE updatePartsIncomingReleased(
     IN p_part_incoming_status VARCHAR(50),
     IN p_invoice_number VARCHAR(200),
     IN p_invoice_price DOUBLE,
+    IN p_invoice_date DATE,
     IN p_delivery_date DATE,
     IN p_last_log_by INT
 )
@@ -16230,9 +16357,9 @@ BEGIN
 
     UPDATE part_incoming
         SET completion_date = NOW(),
-            rr_date = NOW(),
             invoice_number = p_invoice_number,
             invoice_price = p_invoice_price,
+            invoice_date = p_invoice_date,
             delivery_date = p_delivery_date,
             part_incoming_status = p_part_incoming_status,
             last_log_by = p_last_log_by
@@ -16330,6 +16457,10 @@ BEGIN
         SELECT SUM(cost * (received_quantity + remaining_quantity)) AS total
         FROM part_incoming_cart
         WHERE part_incoming_id = p_part_incoming_id;
+	ELSEIF p_type = 'total cost' THEN
+        SELECT SUM(total_cost) AS total
+        FROM part_incoming_cart
+        WHERE part_incoming_id = p_part_incoming_id;
 	ELSEIF p_type = 'lines' THEN
         SELECT COUNT(part_incoming_cart_id) AS total
         FROM part_incoming_cart
@@ -16347,6 +16478,11 @@ BEGIN
         FROM part_incoming_cart
         WHERE part_incoming_id = p_part_incoming_id
           AND cost = 0;
+	ELSEIF p_type = 'without total cost' THEN
+        SELECT COUNT(part_incoming_cart_id) AS total
+        FROM part_incoming_cart
+        WHERE part_incoming_id = p_part_incoming_id
+          AND total_cost = 0;
     ELSE
         SELECT SUM(quantity) AS total
         FROM part_incoming_cart
@@ -19196,9 +19332,11 @@ BEGIN
 
 END//
 
+DELIMITER //
+
 DROP PROCEDURE IF EXISTS createPartsTransactionEntry //
 CREATE PROCEDURE createPartsTransactionEntry(
-    IN p_part_transaction_id INT,
+    IN p_part_transaction_id VARCHAR(100),
     IN p_company_id INT,
     IN p_reference_number VARCHAR(500),
     IN p_cost DECIMAL(15,2),
@@ -19211,6 +19349,8 @@ BEGIN
     DECLARE v_analytic_distribution VARCHAR(500);
     DECLARE v_chart_item VARCHAR(100);
     DECLARE v_credit VARCHAR(100);
+    DECLARE v_chart_item_2 VARCHAR(100);
+    DECLARE v_credit_2 VARCHAR(100);
 
     CASE p_company_id
         WHEN 1 THEN
@@ -19383,13 +19523,52 @@ BEGIN
 
 END//
 
-
-
-
 CREATE PROCEDURE createPartsTransactionProductExpense(IN p_product_id INT, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(200), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO product_expense (product_id, reference_type, reference_number, expense_amount, expense_type, particulars, issuance_date, last_log_by) 
-	VALUES(p_product_id, p_reference_type, p_reference_number, p_expense_amount, p_expense_type, p_particulars, NOW(), p_last_log_by);
+    INSERT INTO product_expense (
+        product_id,
+        reference_type,
+        reference_number,
+        expense_amount,
+        expense_type,
+        particulars,
+        issuance_date,
+        last_log_by
+    ) 
+    VALUES (
+        p_product_id,
+        p_reference_type,
+        p_reference_number,
+        p_expense_amount,
+        p_expense_type,
+        p_particulars,
+        NOW(),
+        p_last_log_by
+    );
+END //
+
+CREATE PROCEDURE createPartsTransactionProductExpenseTemp(IN p_product_id INT, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(200), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_issuance_date DATE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO product_expense (
+        product_id,
+        reference_type,
+        reference_number,
+        expense_amount,
+        expense_type,
+        particulars,
+        issuance_date,
+        last_log_by
+    ) 
+    VALUES (
+        p_product_id,
+        p_reference_type,
+        p_reference_number,
+        p_expense_amount,
+        p_expense_type,
+        p_particulars,
+        p_issuance_date,
+        p_last_log_by
+    );
 END //
 
 CREATE PROCEDURE generatePartsPurchasedMonitoringTable()
@@ -19475,7 +19654,7 @@ END //
 
 
 
-CREATE PROCEDURE generatePartsTransactionJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
+/*CREATE PROCEDURE generatePartsTransactionJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
 BEGIN
     IF p_type = 'job order' THEN
         SELECT * FROM sales_proposal_job_order
@@ -19490,10 +19669,25 @@ BEGIN
         AND progress < 100
         ORDER BY job_order;
     END IF;	
+END //*/
+
+CREATE PROCEDURE generatePartsTransactionJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
+BEGIN
+    IF p_type = 'job order' THEN
+        SELECT * FROM sales_proposal_job_order
+        WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
+        AND sales_proposal_job_order_id NOT IN (select job_order_id from part_transaction_job_order WHERE part_transaction_id = p_parts_transaction_id)
+        ORDER BY job_order;
+    ELSE
+        SELECT * FROM backjob_monitoring_job_order
+        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
+        AND backjob_monitoring_job_order_id NOT IN (select job_order_id from part_transaction_job_order WHERE part_transaction_id = p_parts_transaction_id)
+        ORDER BY job_order;
+    END IF;	
 END //
 
 
-CREATE PROCEDURE generatePartsTransactionAdditionalJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
+/*CREATE PROCEDURE generatePartsTransactionAdditionalJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
 BEGIN
     IF p_type = 'additional job order' THEN
         SELECT * FROM sales_proposal_additional_job_order
@@ -19508,4 +19702,29 @@ BEGIN
         AND progress < 100
         ORDER BY particulars;
     END IF;	
+END //*/
+
+CREATE PROCEDURE generatePartsTransactionAdditionalJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
+BEGIN
+    IF p_type = 'additional job order' THEN
+        SELECT * FROM sales_proposal_additional_job_order
+        WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
+        AND sales_proposal_additional_job_order_id NOT IN (select additional_job_order_id from part_transaction_additional_job_order WHERE part_transaction_id = p_parts_transaction_id)
+        ORDER BY particulars;
+    ELSE
+        SELECT * FROM backjob_monitoring_additional_job_order
+        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
+        AND backjob_monitoring_additional_job_order_id NOT IN (select additional_job_order_id from part_transaction_additional_job_order WHERE part_transaction_id = p_parts_transaction_id)
+        ORDER BY particulars;
+    END IF;	
+END //
+
+CREATE PROCEDURE deletePartsTransactionJobOrder(IN p_part_transaction_job_order_id INT)
+BEGIN
+    DELETE FROM part_transaction_job_order WHERE part_transaction_job_order_id = p_part_transaction_job_order_id;
+END //
+
+CREATE PROCEDURE deletePartsTransactionAdditionalJobOrder(IN p_part_transaction_additional_job_order_id INT)
+BEGIN
+    DELETE FROM part_transaction_additional_job_order WHERE part_transaction_additional_job_order_id = p_part_transaction_additional_job_order_id;
 END //

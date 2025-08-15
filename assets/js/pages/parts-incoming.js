@@ -418,10 +418,16 @@ function partsIncomingForm(){
             purchase_date: {
                 required: true
             },
+            request_by: {
+                required: true
+            },
             supplier_id: {
                 required: true
             },
             product_id: {
+                required: true
+            },
+            customer_ref_id: {
                 required: true
             },
         },
@@ -432,11 +438,17 @@ function partsIncomingForm(){
             purchase_date: {
                 required: 'Please choose the purchase date'
             },
+            request_by: {
+                required: 'Please enter the requested by'
+            },
             supplier_id: {
                 required: 'Please choose the supplier'
             },
             product_id: {
                 required: 'Please choose the product'
+            },
+            customer_ref_id: {
+                required: 'Please choose the customer reference'
             },
         },
         errorPlacement: function (error, element) {
@@ -681,7 +693,10 @@ function partsIncomingPostingTable(datatable_name, buttons = false, show_all = f
             { 'data' : 'REMAINING' },
             { 'data' : 'COST' },
             { 'data' : 'COMPLETION_DATE' },
-            { 'data' : 'PURCHASE_DATE' },
+            { 'data' : 'DELIVERY_DATE' },
+            { 'data' : 'INVOICE_NUMBER' },
+            { 'data' : 'INVOICE_DATE' },
+            { 'data' : 'INVOICE_PRICE' },
             { 'data' : 'TRANSACTION_DATE' },
             { 'data' : 'STATUS' },
             { 'data' : 'ACTION' }
@@ -697,9 +712,12 @@ function partsIncomingPostingTable(datatable_name, buttons = false, show_all = f
             { 'width': 'auto', 'aTargets': 6 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
-            { 'width': 'auto', 'aTargets': 10 },
-            { 'width': '15%','bSortable': false, 'aTargets': 11 }
+            { 'width': 'auto', 'aTargets': 9 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
+            { 'width': 'auto', 'aTargets': 11 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 12 },
+            { 'width': 'auto', 'aTargets': 13 },
+            { 'width': '15%','bSortable': false, 'aTargets': 14 }
         ];
     }
     else{
@@ -851,7 +869,6 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED_QUANTITY' },
             { 'data' : 'REMAINING_QUANTITY' },
-            { 'data' : 'COST' },
             { 'data' : 'TOTAL_COST' },
             { 'data' : 'AVAILABLE_STOCK' },
             { 'data' : 'REMARKS' }
@@ -865,8 +882,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 4 },
             { 'width': 'auto', 'aTargets': 5 },
             { 'width': 'auto', 'aTargets': 6 },
-            { 'width': 'auto', 'aTargets': 7 },
-            { 'width': 'auto', 'aTargets': 8 },
+            { 'width': 'auto', 'aTargets': 7 }
         ];
     }
     else{
@@ -1329,6 +1345,9 @@ function releaseIncomingForm(){
             invoice_price: {
                 required: true
             },
+            invoice_date: {
+                required: true
+            },
             delivery_date: {
                 required: true
             },
@@ -1339,6 +1358,9 @@ function releaseIncomingForm(){
             },
             invoice_price: {
                 required: 'Please enter the invoice price'
+            },
+            invoice_date: {
+                required: 'Please enter the invoice date'
             },
             delivery_date: {
                 required: 'Please enter the delivery date'
@@ -1432,7 +1454,7 @@ function partItemForm(){
             quantity: {
                 required: true,
             },
-            cost: {
+            total_cost: {
                 required: true,
             },
         },
@@ -1440,8 +1462,8 @@ function partItemForm(){
             quantity: {
                 required: 'Please enter the quantity',
             },
-            cost: {
-                required: 'Please enter the cost',
+            total_cost: {
+                required: 'Please enter the total cost',
             },
         },
         errorPlacement: function (error, element) {
@@ -1730,6 +1752,7 @@ function displayDetails(transaction){
 
                         checkOptionExist('#supplier_id', response.supplier_id, '');
                         checkOptionExist('#product_id', response.product_id, '');
+                        checkOptionExist('#customer_ref_id', response.customer_ref_id, '');
                     } 
                     else {
                         if(response.isInactive){
@@ -1763,7 +1786,7 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#quantity').val(response.quantity);
-                        $('#cost').val(response.cost);
+                        $('#total_cost').val(response.total_cost);
                         $('#part_id').val(response.part_id);
                         $('#remarks').val(response.remarks);
                         
@@ -1879,7 +1902,6 @@ function displayDetails(transaction){
 
                         if(response.total_received > 0){
                             $('#cancelled').addClass('d-none');
-                            $('#draft').addClass('d-none');
                         }
                     } 
                     else {

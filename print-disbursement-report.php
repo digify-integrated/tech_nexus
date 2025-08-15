@@ -179,7 +179,6 @@
 
         foreach ($disbursementIDs as $disbursementID) {
             $disbursementDetails = $disbursementModel->getDisbursement($disbursementID);
-            $transaction_date = $systemModel->checkDate('empty', $disbursementDetails['transaction_date'], '', 'm/d/Y', '');
             $transaction_number = $disbursementDetails['transaction_number'];
             $transaction_type = $disbursementDetails['transaction_type'];
             $fund_source = $disbursementDetails['fund_source'];
@@ -198,31 +197,41 @@
                 $customerName = $miscellaneousClientDetails['client_name'] ?? null;
             }
 
-            $disbursementDetails = $disbursementModel->getDisbursementTotal($disbursementID);
-            $disbursementTotal = $disbursementDetails['total'] ?? 0;
-
             $departmentDetails = $departmentModel->getDepartment($department_id);
             $departmentName = $departmentDetails['department_name'] ?? null;
 
-            if(($fund_source == 'Petty Cash' || $type === 'disbursement check') && ($disburse_status == 'Posted' || $disburse_status == 'Replenished' || $disburse_status === 'Cancelled') && $transaction_type != 'Replenishment') {
+            if(($fund_source == 'Petty Cash' || $type === 'disbursement check') 
+            && in_array($disburse_status, ['Posted','Replenished','Cancelled']) 
+            && $transaction_type != 'Replenishment') {
+                
                 $sql = $databaseModel->getConnection()->prepare('CALL generateDisbursementParticularsTable(:disbursementID)');
                 $sql->bindValue(':disbursementID', $disbursementID, PDO::PARAM_INT);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
 
+                // If Cancelled and no particulars, still output
+                if($disburse_status == 'Cancelled' && empty($options)){
+                    $list .= '<tr>
+                                <td>'. $transaction_number .'</td>
+                                <td>'. $customerName .'</td>
+                                <td></td>
+                                <td>'. $particulars .'</td>
+                                <td>Petty Cash Fund</td>
+                                <td>0.00</td>
+                                <td>0.00</td>
+                            </tr>';
+                    continue;
+                }
+
                 foreach ($options as $row) {
-                    $disbursement_particulars_id = $row['disbursement_particulars_id'];
                     $chart_of_account_id = $row['chart_of_account_id'];
                     $company_id = $row['company_id'];
-                    $remarks = $row['remarks'];
-                    $particulars_amount = $row['particulars_amount'];
                     $with_vat = $row['with_vat'];
                     $with_withholding = $row['with_withholding'];
                     $vat_amount = $row['vat_amount'];
                     $withholding_amount = $row['withholding_amount'];
                     $base_amount = $row['base_amount'];
-                    $total_amount = $row['total_amount'];
 
                     $companyDetails = $companyModel->getCompany($company_id);
                     $companyName = $companyDetails['company_name'] ?? null;
@@ -315,29 +324,29 @@
 
                         if($with_withholding != 'No'){
                             $list .= '<tr>
-                                    <td>'. $transaction_number .'</td>
-                                    <td>'. $customerName .'</td>
-                                    <td>'. $companyName .'</td>
-                                    <td>'. $particulars .'</td>
-                                    <td>Withholding Tax Payable Other</td>
-                                    <td>0.00</td>
-                                    <td>'. number_format($withholding_amount, 2) .'</td>
-                                </tr>
-                                <tr>
-                                    <td>'. $transaction_number .'</td>
-                                    <td>'. $customerName .'</td>
-                                    <td>'. $companyName .'</td>
-                                    <td>'. $particulars .'</td>
-                                    <td>Petty Cash Fund</td>
-                                    <td>'. number_format($withholding_amount, 2) .'</td>
-                                    <td>0.00</td>
-                                </tr>';
+                                <td>'. $transaction_number .'</td>
+                                <td>'. $customerName .'</td>
+                                <td>'. $companyName .'</td>
+                                <td>'. $particulars .'</td>
+                                <td>Withholding Tax Payable Other</td>
+                                <td>0.00</td>
+                                <td>'. number_format($withholding_amount, 2) .'</td>
+                            </tr>
+                            <tr>
+                                <td>'. $transaction_number .'</td>
+                                <td>'. $customerName .'</td>
+                                <td>'. $companyName .'</td>
+                                <td>'. $particulars .'</td>
+                                <td>Petty Cash Fund</td>
+                                <td>'. number_format($withholding_amount, 2) .'</td>
+                                <td>0.00</td>
+                            </tr>';
                         }
                     }
                 }
             }
         }
-       
+    
         $response = '<table border="1" width="100%" cellpadding="5" align="left">
                         <tbody>
                             <tr>
@@ -355,6 +364,7 @@
 
         return $response;
     }
+
 
     function generatePrint2($createdByName): string{        
         $response = '<table border="1" width="30%" cellpadding="5" align="left">

@@ -2,6 +2,7 @@
     $backJobMonitoringDetails = $backJobMonitoringModel->getBackJobMonitoring($backJobMonitoringID);
     $status = $backJobMonitoringDetails['status'] ?? null;
     $type = $backJobMonitoringDetails['type'] ?? null;
+    $approval_form = $backJobMonitoringDetails['approval_form'] ?? null;
     $hidden = ''; 
     $hiddenCost = 'd-none'; 
     $releaseButton = ''; 
@@ -43,21 +44,21 @@
         $hiddenCost = '';
     }
 
-    if($status == 'Draft'){
+    if($status == 'Draft' && $type != 'Internal Repair'){
         $releaseButton = '<li><button class="dropdown-item" id="tag-for-approval">For Approval</button></li>';
 
         $saveButton = '<div class="me-2"><button type="submit" form="backjob-monitoring-form" class="btn btn-success" id="submit-data">Save</button></div>';     
     }  
 
-     if(($approveInternalJobOrder['total'] > 0 && $status == 'For Approval')){
+     if(($approveInternalJobOrder['total'] > 0 && $status == 'For Approval' && $type != 'Internal Repair')){
         $releaseButton = '<li><button class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#approve-offcanvas" aria-controls="approve-offcanvas">Approve</button></li>';
     }
 
-    if($status == 'Approved'){
+    if($status == 'Approved' || ($status == 'Draft' && $type == 'Internal Repair')){
         $releaseButton = '<li><button class="dropdown-item" id="tag-as-on-process">Tag As On-Process</button></li>';
     }  
 
-    if($status == 'On-Process'){
+    if(($status == 'On-Process' && $type != 'Internal Repair') || ($type == 'Internal Repair' && $status == 'On-Process' && !empty($approval_form))){
         $releaseButton = '<li><button class="dropdown-item" id="tag-as-ready-for-release">Tag As Ready For Release</button></li>';
     }  
 
@@ -222,22 +223,22 @@
                     </div>
                     <div class="tab-pane" id="v-documents">
                         <div class="row">
-                            <div class="col-xl-12">
+                            <div class="col-xl-6">
                                 <div class="card">
                                     <div class="card-body py-2">
                                         <ul class="list-group list-group-flush">
                                             <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
-                                                <h5 class="mb-0">Unit (Front) </h5>
+                                                <h5 class="mb-0">Quality Control Form </h5>
                                                 <?php
                                                     if($status == 'On-Process' || $status == 'Ready For Release'){
-                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#unit-image-offcanvas" aria-controls="unit-image-offcanvas" id="unit-image">Unit Front</button>';
+                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#quality-control-form-offcanvas" aria-controls="quality-control-form-offcanvas" id="quality-control-form">Quality Control Form</button>';
                                                     }
                                                 ?>
                                             </li>
                                             <li class="list-group-item px-0">
                                                 <div class="row align-items-center mb-3">
                                                     <div class="col-sm-12 mb-sm-0">
-                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Front" id="unit-img" class="img-fluid rounded">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Quality Control Form" id="quality-control-frm" class="img-fluid rounded">
                                                     </div>                      
                                                 </div>
                                             </li>
@@ -245,99 +246,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xl-12">
-                                <div class="card">
-                                    <div class="card-body py-2">
-                                        <ul class="list-group list-group-flush">
-                                            <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
-                                                <h5 class="mb-0">Unit (Back) </h5>
-                                                <?php
-                                                    if($status == 'On-Process' || $status == 'Ready For Release'){
-                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#unit-back-offcanvas" aria-controls="unit-back-offcanvas" id="unit-back">Unit Back</button>';
-                                                    }
-                                                ?>
-                                            </li>
-                                            <li class="list-group-item px-0">
-                                                <div class="row align-items-center mb-3">
-                                                    <div class="col-sm-12 mb-sm-0">
-                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Back" id="unit-back" class="img-fluid rounded">
-                                                    </div>                      
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-12">
-                                <div class="card">
-                                    <div class="card-body py-2">
-                                        <ul class="list-group list-group-flush">
-                                            <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
-                                                <h5 class="mb-0">Unit (Left) </h5>
-                                                <?php
-                                                    if($status == 'On-Process' || $status == 'Ready For Release'){
-                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#unit-left-offcanvas" aria-controls="unit-left-offcanvas" id="unit-left">Unit Left</button>';
-                                                    }
-                                                ?>
-                                            </li>
-                                            <li class="list-group-item px-0">
-                                                <div class="row align-items-center mb-3">
-                                                    <div class="col-sm-12 mb-sm-0">
-                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Left" id="unit-left" class="img-fluid rounded">
-                                                    </div>                      
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-12">
-                                <div class="card">
-                                    <div class="card-body py-2">
-                                        <ul class="list-group list-group-flush">
-                                            <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
-                                                <h5 class="mb-0">Unit (Right) </h5>
-                                                <?php
-                                                    if($status == 'On-Process' || $status == 'Ready For Release'){
-                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#unit-right-offcanvas" aria-controls="unit-right-offcanvas" id="unit-right">Unit Right</button>';
-                                                    }
-                                                ?>
-                                            </li>
-                                            <li class="list-group-item px-0">
-                                                <div class="row align-items-center mb-3">
-                                                    <div class="col-sm-12 mb-sm-0">
-                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Right" id="unit-right" class="img-fluid rounded">
-                                                    </div>                      
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-12">
-                                <div class="card">
-                                    <div class="card-body py-2">
-                                        <ul class="list-group list-group-flush">
-                                            <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
-                                                <h5 class="mb-0">Unit (Interior) </h5>
-                                                <?php
-                                                    if($status == 'On-Process' || $status == 'Ready For Release'){
-                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#unit-interior-offcanvas" aria-controls="unit-interior-offcanvas" id="unit-interior">Unit Interior</button>';
-                                                    }
-                                                ?>
-                                            </li>
-                                            <li class="list-group-item px-0">
-                                                <div class="row align-items-center mb-3">
-                                                    <div class="col-sm-12 mb-sm-0">
-                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Interior" id="unit-interior" class="img-fluid rounded">
-                                                    </div>                      
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-12">
+                            <div class="col-xl-6">
                                 <div class="card">
                                     <div class="card-body py-2">
                                         <ul class="list-group list-group-flush">
@@ -360,22 +269,137 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xl-12">
+                            <div class="col-xl-6">
                                 <div class="card">
                                     <div class="card-body py-2">
                                         <ul class="list-group list-group-flush">
                                             <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
-                                                <h5 class="mb-0">Quality Control Form </h5>
+                                                <h5 class="mb-0">Internal Repair Approval Form </h5>
                                                 <?php
-                                                    if($status == 'On-Process' || $status == 'Ready For Release'){
-                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#quality-control-form-offcanvas" aria-controls="quality-control-form-offcanvas" id="quality-control-form">Quality Control Form</button>';
+                                                    if($status == 'On-Process' && $type == 'Internal Repair'){
+                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#approval-form-offcanvas" aria-controls="approval-form-offcanvas" id="approval-form">Approval Form</button>';
                                                     }
                                                 ?>
                                             </li>
                                             <li class="list-group-item px-0">
                                                 <div class="row align-items-center mb-3">
                                                     <div class="col-sm-12 mb-sm-0">
-                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Quality Control Form" id="quality-control-frm" class="img-fluid rounded">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Approval Form" id="approval-frm" class="img-fluid rounded">
+                                                    </div>                      
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                                                <h5 class="mb-0">Unit (Front) </h5>
+                                                <?php
+                                                    if($status == 'On-Process' || $status == 'Ready For Release'){
+                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#unit-image-offcanvas" aria-controls="unit-image-offcanvas" id="unit-image">Unit Front</button>';
+                                                    }
+                                                ?>
+                                            </li>
+                                            <li class="list-group-item px-0">
+                                                <div class="row align-items-center mb-3">
+                                                    <div class="col-sm-12 mb-sm-0">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Front" id="unit-img" class="img-fluid rounded">
+                                                    </div>                      
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                                                <h5 class="mb-0">Unit (Back) </h5>
+                                                <?php
+                                                    if($status == 'On-Process' || $status == 'Ready For Release'){
+                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#unit-back-offcanvas" aria-controls="unit-back-offcanvas" id="unit-back">Unit Back</button>';
+                                                    }
+                                                ?>
+                                            </li>
+                                            <li class="list-group-item px-0">
+                                                <div class="row align-items-center mb-3">
+                                                    <div class="col-sm-12 mb-sm-0">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Back" id="unit-back" class="img-fluid rounded">
+                                                    </div>                      
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                                                <h5 class="mb-0">Unit (Left) </h5>
+                                                <?php
+                                                    if($status == 'On-Process' || $status == 'Ready For Release'){
+                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#unit-left-offcanvas" aria-controls="unit-left-offcanvas" id="unit-left">Unit Left</button>';
+                                                    }
+                                                ?>
+                                            </li>
+                                            <li class="list-group-item px-0">
+                                                <div class="row align-items-center mb-3">
+                                                    <div class="col-sm-12 mb-sm-0">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Left" id="unit-left" class="img-fluid rounded">
+                                                    </div>                      
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                                                <h5 class="mb-0">Unit (Right) </h5>
+                                                <?php
+                                                    if($status == 'On-Process' || $status == 'Ready For Release'){
+                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#unit-right-offcanvas" aria-controls="unit-right-offcanvas" id="unit-right">Unit Right</button>';
+                                                    }
+                                                ?>
+                                            </li>
+                                            <li class="list-group-item px-0">
+                                                <div class="row align-items-center mb-3">
+                                                    <div class="col-sm-12 mb-sm-0">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Right" id="unit-right" class="img-fluid rounded">
+                                                    </div>                      
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                                                <h5 class="mb-0">Unit (Interior) </h5>
+                                                <?php
+                                                    if($status == 'On-Process' || $status == 'Ready For Release'){
+                                                        echo '<button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#unit-interior-offcanvas" aria-controls="unit-interior-offcanvas" id="unit-interior">Unit Interior</button>';
+                                                    }
+                                                ?>
+                                            </li>
+                                            <li class="list-group-item px-0">
+                                                <div class="row align-items-center mb-3">
+                                                    <div class="col-sm-12 mb-sm-0">
+                                                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Interior" id="unit-interior" class="img-fluid rounded">
                                                     </div>                      
                                                 </div>
                                             </li>
@@ -674,6 +698,35 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-quality-control-form" form="quality-control-form-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="approval-form-offcanvas" aria-labelledby="approval-form-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="approval-form-offcanvas-label" style="margin-bottom:-0.5rem">Internal Repair Approval Form</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="approval-form-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Approval Form <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="approval_form" name="approval_form">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-approval-form" form="approval-form-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

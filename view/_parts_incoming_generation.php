@@ -11,6 +11,7 @@ require_once '../model/parts-subclass-model.php';
 require_once '../model/parts-class-model.php';
 require_once '../model/product-model.php';
 require_once '../model/unit-model.php';
+require_once '../model/supplier-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -21,6 +22,7 @@ $partsSubclassModel = new PartsSubclassModel($databaseModel);
 $partsClassModel = new PartsClassModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $unitModel = new UnitModel($databaseModel);
+$supplierModel = new SupplierModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -95,7 +97,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $received_quantity = $row['received_quantity'];
                 $remaining_quantity = $row['remaining_quantity'];
                 $remarks = $row['remarks'];
-                $cost = $row['cost'];
+                $total_cost = $row['total_cost'];
 
                 $partDetails = $partsModel->getParts($part_id);
                 $description = $partDetails['description'];
@@ -156,8 +158,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
                     'RECEIVED_QUANTITY' => number_format($received_quantity, 2) . ' ' . $short_name,
                     'REMAINING_QUANTITY' => number_format($remaining_quantity, 2) . ' ' . $short_name,
-                    'COST' => number_format($cost, 2) . ' PHP',
-                    'TOTAL_COST' => number_format($cost * ($received_quantity + $remaining_quantity), 2) . ' PHP',
+                    'TOTAL_COST' => number_format($total_cost, 2) . ' PHP',
                     'AVAILABLE_STOCK' => number_format($partQuantity, 0, '', ',') . ' ' . $short_name,
                     'REMARKS' => $remarks,
                     'ACTION' => '<div class="d-flex gap-2">
@@ -199,11 +200,20 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $partIncomingDetails = $partsIncomingModel->getPartsIncoming($parts_incoming_id);
                 $reference_number = $partIncomingDetails['reference_number'] ?? '';
+                $company_id = $partIncomingDetails['company_id'] ?? '';
 
                 $part_incoming_id_encrypted = $securityModel->encryptData($parts_incoming_id);
 
+                 if($company_id == '2'){
+                    $link = 'netruck-parts-incoming';
+                }
+                else{
+                    $link = 'parts-incoming';
+                }
+
+
                 $response[] = [
-                    'REFERENCE_NUMBER' => '<a href="parts-incoming.php?id='. $part_incoming_id_encrypted .'" target="_blank">
+                    'REFERENCE_NUMBER' => '<a href="'.$link.'.php?id='. $part_incoming_id_encrypted .'" target="_blank">
                                         '. $reference_number .'
                                     </a>',
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
@@ -288,12 +298,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $reference_number = $row['reference_number'];
                 $part_incoming_status = $row['part_incoming_status'];
                 $product_id = $row['product_id'];
+                $supplier_id = $row['supplier_id'];
                 $incoming_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
                 $completion_date = $systemModel->checkDate('empty', $row['completion_date'], '', 'm/d/Y', '');
                 $purchase_date = $systemModel->checkDate('empty', $row['purchase_date'], '', 'm/d/Y', '');
                 $delivery_date = $systemModel->checkDate('empty', $row['delivery_date'], '', 'm/d/Y', '');
 
-                $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'cost')['total'];
+                
+                $supplierDetails = $supplierModel->getSupplier($supplier_id);
+                $supplier_name = $supplierDetails['supplier_name'] ?? 'N/A';
+
+                $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'total cost')['total'];
                 $lines = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'lines')['total'];
                 $quantity = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'quantity')['total'];
                 $received = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'received')['total'];
@@ -333,7 +348,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'LINES' => number_format($lines, 0),
                     'QUANTITY' => number_format($quantity, 2),
                     'RECEIVED' => number_format($received, 2),
-                    'REMAINING' => number_format($remaining, 2),
+                    'REMAINING' => $supplier_name,
                     'COST' => number_format($cost, 2) . ' PHP',
                     'COMPLETION_DATE' => $completion_date,
                     'PURCHASE_DATE' => $delivery_date,
@@ -392,12 +407,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $reference_number = $row['reference_number'];
                 $part_incoming_status = $row['part_incoming_status'];
                 $product_id = $row['product_id'];
+                $invoice_number = $row['invoice_number'];
+                $invoice_price = $row['invoice_price'];
                 $incoming_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
                 $completion_date = $systemModel->checkDate('empty', $row['completion_date'], '', 'm/d/Y', '');
                 $purchase_date = $systemModel->checkDate('empty', $row['purchase_date'], '', 'm/d/Y', '');
                 $delivery_date = $systemModel->checkDate('empty', $row['delivery_date'], '', 'm/d/Y', '');
+                $invoice_date = $systemModel->checkDate('empty', $row['invoice_date'], '', 'm/d/Y', '');
 
-                $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'cost')['total'];
+                $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'total cost')['total'];
                 $lines = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'lines')['total'];
                 $quantity = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'quantity')['total'];
                 $received = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'received')['total'];
@@ -440,9 +458,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'REMAINING' => number_format($remaining, 2),
                     'COST' => number_format($cost, 2) . ' PHP',
                     'COMPLETION_DATE' => $completion_date,
-                    'PURCHASE_DATE' => $delivery_date,
+                    'DELIVERY_DATE' => $delivery_date,
                     'TRANSACTION_DATE' => $incoming_date,
                     'STATUS' => $part_incoming_status,
+                    'INVOICE_NUMBER' => $invoice_number,
+                    'INVOICE_DATE' => $invoice_date,
+                    'INVOICE_PRICE' => number_format($invoice_price, 2) . ' PHP',
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="'. $link .'.php?id='. $part_incoming_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
                                         <i class="ti ti-eye"></i>
@@ -470,7 +491,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $purchase_date = $systemModel->checkDate('empty', $row['purchase_date'], '', 'm/d/Y', '');
                 $delivery_date = $systemModel->checkDate('empty', $row['delivery_date'], '', 'm/d/Y', '');
 
-                $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'cost')['total'];
+                $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'total cost')['total'];
                 $lines = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'lines')['total'];
                 $quantity = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'quantity')['total'];
                 $received = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'received')['total'];
@@ -542,7 +563,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $purchase_date = $systemModel->checkDate('empty', $row['purchase_date'], '', 'm/d/Y', '');
                 $delivery_date = $systemModel->checkDate('empty', $row['delivery_date'], '', 'm/d/Y', '');
 
-                $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'cost')['total'];
+                $cost = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'total cost')['total'];
                 $lines = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'lines')['total'];
                 $quantity = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'quantity')['total'];
                 $received = $partsIncomingModel->getPartsIncomingCartTotal($part_incoming_id, 'received')['total'];

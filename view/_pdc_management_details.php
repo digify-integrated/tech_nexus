@@ -18,11 +18,11 @@
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-pdc-management-details">Delete PDC</button></li>';
                   }
                               
-                  if ($tagPDCAsCleared['total'] > 0 && ($collectionStatus == 'Deposited' || $collectionStatus == 'Redeposit')) {
+                  if ($tagPDCAsCleared['total'] > 0 && ($collectionStatus == 'Deposited' || $collectionStatus == 'Redeposit' || $collectionStatus == 'On-Hold')) {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-cleared-details">Cleared PDC</button></li>';
                   }
 
-                  if ($tagPDCOnHold['total'] > 0 && ($collectionStatus == 'Pending' || $collectionStatus == 'For Deposit' || $collectionStatus == 'Redeposit')) {
+                  if ($tagPDCOnHold['total'] > 0 && ($collectionStatus == 'Pending' || $collectionStatus == 'For Deposit')) {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-on-hold-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-on-hold-offcanvas" aria-controls="pdc-on-hold-offcanvas">On-Hold PDC</button></li>';
                   }
 
@@ -30,11 +30,11 @@
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-reversed-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-reverse-offcanvas" aria-controls="pdc-reverse-offcanvas">Reverse PDC</button></li>';
                   }
 
-                  if ($tagPDCAsCancelled['total'] > 0 && ($collectionStatus == 'Pending' || $collectionStatus == 'Redeposit')) {
+                  if ($tagPDCAsCancelled['total'] > 0 && ($collectionStatus == 'Pending' || $collectionStatus == 'Redeposit' || $collectionStatus == 'On-Hold')) {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-cancel-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-cancel-offcanvas" aria-controls="pdc-cancel-offcanvas">Cancel PDC</button></li>';
                   }
 
-                  if ($tagPDCAsRedeposit['total'] > 0 && ($collectionStatus == 'On-Hold' || $collectionStatus == 'Reversed')) {
+                  if ($tagPDCAsRedeposit['total'] > 0 && $collectionStatus == 'Reversed') {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-redeposit-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-redeposit-offcanvas" aria-controls="pdc-redeposit-offcanvas">Redeposit PDC</button></li>';
                   }
 
@@ -275,6 +275,17 @@
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">On-Hold Attachment <span class="text-danger">*</span></label>
                 <input type="file" class="form-control" id="onhold_attachment" name="onhold_attachment">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Redeposit Date <span class="text-danger">*</span></label>
+                <div class="input-group date">
+                    <input type="text" class="form-control regular-datepicker" id="hold_redeposit_date" name="hold_redeposit_date" autocomplete="off">
+                    <span class="input-group-text">
+                        <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
               </div>
             </div>
           </form>

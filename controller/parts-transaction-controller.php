@@ -79,6 +79,9 @@ class PartsTransactionController {
                 case 'add job order':
                     $this->addJobOrder();
                     break;
+                case 'add additional job order':
+                    $this->addAdditionalJobOrder();
+                    break;
                 case 'get parts transaction details':
                     $this->getPartsTransactionDetails();
                     break;
@@ -96,6 +99,15 @@ class PartsTransactionController {
                     break;
                 case 'delete job order':
                     $this->deleteJobOrder();
+                    break;
+                case 'delete internal job order':
+                    $this->deleteJobOrder();
+                    break;
+                case 'delete additional job order':
+                    $this->deleteAdditionalJobOrder();
+                    break;
+                case 'delete internal additional job order':
+                    $this->deleteAdditionalJobOrder();
                     break;
                 case 'add parts transaction document':
                     $this->addPartsDocument();
@@ -153,6 +165,7 @@ class PartsTransactionController {
         $parts_transaction_id = isset($_POST['parts_transaction_id']) ? htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8') : null;
         $customer_type = htmlspecialchars($_POST['customer_type'], ENT_QUOTES, 'UTF-8');
         $customer_id = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+        $customer_ref_id = htmlspecialchars($_POST['customer_ref_id'], ENT_QUOTES, 'UTF-8');
         $misc_id = htmlspecialchars($_POST['misc_id'], ENT_QUOTES, 'UTF-8');
         $product_id = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
         $issuance_no = htmlspecialchars($_POST['issuance_no'], ENT_QUOTES, 'UTF-8');
@@ -186,14 +199,14 @@ class PartsTransactionController {
             $overall_discount_type = htmlspecialchars($_POST['overall_discount_type'], ENT_QUOTES, 'UTF-8');
             $overall_discount_total = htmlspecialchars($_POST['overall_discount_total'], ENT_QUOTES, 'UTF-8');
 
-            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $overall_discount, $overall_discount_type, $overall_discount_total, $request_by, $userID);
+            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $overall_discount, $overall_discount_type, $overall_discount_total, $request_by, $customer_ref_id, $userID);
             
             echo json_encode(value: ['success' => true, 'insertRecord' => false, 'partsTransactionID' => $this->securityModel->encryptData($parts_transaction_id)]);
             exit;
         } 
         else {
             $partsTransactionID = $this->generateTransactionID();
-            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $request_by, $userID);
+            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $request_by, $customer_ref_id, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => true, 'partsTransactionID' => $this->securityModel->encryptData($partsTransactionID)]);
             exit;
@@ -433,8 +446,8 @@ class PartsTransactionController {
         $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Released', '', $userID);
        
         if($customer_type == 'Internal'){
-            $this->partsTransactionModel->createPartsTransactionEntry($parts_transaction_id, $company_id, $p_reference_number, $cost, $overallTotal, $userID);     
-            $this->partsTransactionModel->createPartsTransactionProductExpense($customer_id, 'Issuance Slip', $parts_transaction_id, $overallTotal, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, $userID);     
+            $this->partsTransactionModel->createPartsTransactionProductExpense($customer_id, 'Issuance Slip', $parts_transaction_id, $overallTotal, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, $userID); 
+            $this->partsTransactionModel->createPartsTransactionEntry($parts_transaction_id, $company_id, $p_reference_number, $cost, $overallTotal, $userID);         
         }        
         
         echo json_encode(['success' => true]);
@@ -517,24 +530,34 @@ class PartsTransactionController {
         }
 
         $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
-        $customer_type = $partsTransactionDetails['customer_type'];
-        $company_id = $partsTransactionDetails['company_id'];
+        $customer_type = $partsTransactionDetails['customer_type'] ?? null;
+        $company_id = $partsTransactionDetails['company_id'] ?? null;
+        $issuance_no = $partsTransactionDetails['issuance_no'] ?? null;
 
         if($customer_type == 'Internal'){
-            if($company_id == '2'){
-                $reference_number = (int)$this->systemSettingModel->getSystemSetting(32)['value'] + 1;
-            }
-            else{
-                $reference_number = (int)$this->systemSettingModel->getSystemSetting(34)['value'] + 1;
+            if(empty($issuance_no)){
+                if($company_id == '2'){
+                    $reference_number = (int)$this->systemSettingModel->getSystemSetting(32)['value'] + 1;
+                }
+                else{
+                    $reference_number = (int)$this->systemSettingModel->getSystemSetting(34)['value'] + 1;
+                }
+
+                $this->partsTransactionModel->updatePartsTransactionSlipReferenceNumber($parts_transaction_id, $reference_number, $userID);
+
+                if($company_id == '2'){
+                    $this->systemSettingModel->updateSystemSettingValue(32, $reference_number, $userID);
+                }
+                else{
+                    $this->systemSettingModel->updateSystemSettingValue(34, $reference_number, $userID);
+                }
             }
 
-            $this->partsTransactionModel->updatePartsTransactionSlipReferenceNumber($parts_transaction_id, $reference_number, $userID);
+            $check_linked_job_order = $this->partsTransactionModel->check_linked_job_order($parts_transaction_id)['total'] ?? 0;
 
-            if($company_id == '2'){
-                $this->systemSettingModel->updateSystemSettingValue(32, $reference_number, $userID);
-            }
-            else{
-                $this->systemSettingModel->updateSystemSettingValue(34, $reference_number, $userID);
+            if($check_linked_job_order == 0){
+                echo json_encode(['success' => false, 'jobOrder' => true]);
+                exit;
             }
         }
     
@@ -745,6 +768,47 @@ class PartsTransactionController {
         echo json_encode(['success' => true]);
         exit;
     }
+
+    public function deleteJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $parts_transaction_job_order_id = htmlspecialchars($_POST['parts_transaction_job_order_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->partsTransactionModel->deletePartsTransactionJobOrder($parts_transaction_job_order_id);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    public function deleteAdditionalJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $parts_transaction_additional_job_order_id = htmlspecialchars($_POST['parts_transaction_additional_job_order_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->partsTransactionModel->deletePartsTransactionAdditionalJobOrder($parts_transaction_additional_job_order_id);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -820,6 +884,7 @@ class PartsTransactionController {
                 'customer_type' => $partsTransactionDetails['customer_type'],
                 'customer_id' => $partsTransactionDetails['customer_id'],
                 'company_id' => $partsTransactionDetails['company_id'],
+                'customer_ref_id' => $partsTransactionDetails['customer_ref_id'],
                 'issuance_no' => $partsTransactionDetails['issuance_no'],
                 'reference_number' => $partsTransactionDetails['reference_number'],
                 'remarks' => $partsTransactionDetails['remarks'],

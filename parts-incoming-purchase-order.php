@@ -48,6 +48,14 @@
         $request_by = $partsIncomingDetails['request_by'] ?? '';
         $supplier_id = $partsIncomingDetails['supplier_id'] ?? '';
         $company_id = $partsIncomingDetails['company_id'] ?? '';
+        $product_id = $partsIncomingDetails['product_id'] ?? '';
+        $customer_ref_id = $partsIncomingDetails['customer_ref_id'] ?? '';
+
+        $productDetails = $productModel->getProduct($product_id);
+        $stock_number = $productDetails['stock_number'] ?? '';
+
+        $customerDetails = $customerModel->getPersonalInformation($customer_ref_id);
+        $last_name = $customerDetails['last_name'] ?? '';
 
         $user = $userModel->getUserByID($user_id);
          $fileAs = $user['file_as'] ?? null;
@@ -99,13 +107,17 @@
     $pdf->SetFont('times', '', 10);
     $pdf->Cell(45, 8, 'REFERENCE NUMBER:', 0, 0, 'L');
     $pdf->Cell(60, 8, strtoupper($reference_number), 'B', 0, 'L');
-    $pdf->Cell(20, 8, '', 0, 0, 'L');
-    $pdf->Cell(10, 8, 'DATE:', 0, 0, 'L');
+    $pdf->Cell(5, 8, '', 0, 0, 'L');
+    $pdf->Cell(15, 8, 'DATE:', 0, 0, 'L');
     $pdf->Cell(8, 8, '', 0, 0, 'L');
-    $pdf->Cell(40, 8, strtoupper(date('F d, Y')), 'B', 0, 'L');
+    $pdf->Cell(50, 8, strtoupper(date('F d, Y')), 'B', 0, 'L');
     $pdf->Ln(10);
     $pdf->Cell(25, 8, 'SUPPLIER:', 0, 0, 'L');
-    $pdf->Cell(100, 8, strtoupper($supplierName), 'B', 0, 'L');
+    $pdf->Cell(80, 8, strtoupper($supplierName), 'B', 0, 'L');
+    $pdf->Cell(5, 8, '', 0, 0, 'L');
+    $pdf->Cell(15, 8, 'STOCK NO.:', 0, 0, 'L');
+    $pdf->Cell(8, 8, '', 0, 0, 'L');
+    $pdf->Cell(50, 8, strtoupper($stock_number) . ' - ' . strtoupper($last_name), 'B', 0, 'L');
     $pdf->Ln(15);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
     $pdf->Ln(5);
@@ -153,6 +165,7 @@
         $options = $sql->fetchAll(PDO::FETCH_ASSOC);
         $sql->closeCursor();
 
+        $list = '';
         $averageTotal = 0;
         foreach ($options as $row) {
             $part_id  = $row['part_id'];

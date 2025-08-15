@@ -15,6 +15,8 @@ require_once '../model/miscellaneous-client-model.php';
 require_once '../model/customer-model.php';
 require_once '../model/back-job-monitoring-model.php';
 require_once '../model/sales-proposal-model.php';
+require_once '../model/contractor-model.php';
+require_once '../model/work-center-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -29,6 +31,8 @@ $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
 $backjobMonitoringModel = new BackJobMonitoringModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
+$contractorModel = new ContractorModel($databaseModel);
+$workCenterModel = new WorkCenterModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -99,19 +103,245 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             foreach ($options as $row) {
                 if($generate_job_order === 'job order'){
                     $job_order_id = $row['sales_proposal_job_order_id'];
-                    $type = 'Sales Proposal Job Order';
+                    $sales_proposal_id = $row['sales_proposal_id'];
                 }
                 else{
                     $job_order_id = $row['backjob_monitoring_job_order_id'];
-                    $type = 'Internal Job Order';
+                    $sales_proposal_id = $row['sales_proposal_id'];
                 }
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $reference_id = $salesProposalDetails['sales_proposal_number'] ?? '--';
+                $customer_id = $salesProposalDetails['customer_id'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                $customerName = $customerDetails['file_as'] ?? null;
 
                 $job_order = $row['job_order'];
 
                 $response[] = [
-                    'JOB_ORDER' => $job_order,
-                    'TYPE' => $type,
+                    'CUSTOMER_NAME' => $customerName,
+                    'REFERENCE_ID' => $reference_id,
+                    'JOB_ORDER' => strtoupper($job_order),
                     'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-job-order" type="checkbox" value="'. $job_order_id.'"></div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'job order table':
+            $parts_transaction_id = $_POST['parts_transaction_id'];
+
+            $partTransactionDetails = $partsTransactionModel->getPartsTransaction($parts_transaction_id);
+            $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction_job_order WHERE part_transaction_id = :parts_transaction_id AND type = :type');
+            $sql->bindValue(':parts_transaction_id', $parts_transaction_id, PDO::PARAM_STR);
+            $sql->bindValue(':type', 'job order', PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_transaction_job_order_id  = $row['part_transaction_job_order_id'];
+                $job_order = $row['job_order_id'];
+                
+                $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalJobOrder($job_order);
+                $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
+                $job_order = $salesProposalJobOrderDetails['job_order'] ?? null;
+                $contractor_id = $salesProposalJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $salesProposalJobOrderDetails['work_center_id'] ?? null;
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
+                $action = '';
+                if($part_transaction_status == 'Draft' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
+                    $action = '<button type="button" class="btn btn-icon btn-danger delete-job-order" data-parts-transaction-job-order-id="'. $part_transaction_job_order_id  .'" title="Delete Job Order">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'internal job order table':
+            $parts_transaction_id = $_POST['parts_transaction_id'];
+
+            $partTransactionDetails = $partsTransactionModel->getPartsTransaction($parts_transaction_id);
+            $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction_job_order WHERE part_transaction_id = :parts_transaction_id AND type = :type');
+            $sql->bindValue(':parts_transaction_id', $parts_transaction_id, PDO::PARAM_STR);
+            $sql->bindValue(':type', 'internal job order', PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_transaction_job_order_id  = $row['part_transaction_job_order_id'];
+                $job_order = $row['job_order_id'];
+                
+                $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringJobOrder($job_order);
+                $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
+                $backjob_monitoring_id = $backJobMonitoringJobOrderDetails['backjob_monitoring_id'] ?? null;
+                $job_order = $backJobMonitoringJobOrderDetails['job_order'] ?? null;
+                $contractor_id = $backJobMonitoringJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $backJobMonitoringJobOrderDetails['work_center_id'] ?? null;
+
+                $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
+                $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
+                $action = '';
+                if($part_transaction_status == 'Draft' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
+                    $action = '<button type="button" class="btn btn-icon btn-danger delete-internal-job-order" data-parts-transaction-job-order-id="'. $part_transaction_job_order_id  .'" title="Delete Internal Job Order">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'TYPE' => $backJobMonitoringType,
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'additional job order table':
+            $parts_transaction_id = $_POST['parts_transaction_id'];
+
+            $partTransactionDetails = $partsTransactionModel->getPartsTransaction($parts_transaction_id);
+            $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction_additional_job_order WHERE part_transaction_id = :parts_transaction_id AND type = :type');
+            $sql->bindValue(':parts_transaction_id', $parts_transaction_id, PDO::PARAM_STR);
+            $sql->bindValue(':type', 'additional job order', PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_transaction_additional_job_order_id   = $row['part_transaction_additional_job_order_id'];
+                $job_order = $row['additional_job_order_id'];
+                
+                $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalAdditionalJobOrder($job_order);
+                $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
+                $job_order = $salesProposalJobOrderDetails['particulars'] ?? null;
+                $contractor_id = $salesProposalJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $salesProposalJobOrderDetails['work_center_id'] ?? null;
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
+                $action = '';
+                if($part_transaction_status == 'Draft' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
+                    $action = '<button type="button" class="btn btn-icon btn-danger delete-additional-job-order" data-parts-transaction-additional-job-order-id="'. $part_transaction_additional_job_order_id   .'" title="Delete Additional Job Order">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'internal additional job order table':
+            $parts_transaction_id = $_POST['parts_transaction_id'];
+
+            $partTransactionDetails = $partsTransactionModel->getPartsTransaction($parts_transaction_id);
+            $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction_additional_job_order WHERE part_transaction_id = :parts_transaction_id AND type = :type');
+            $sql->bindValue(':parts_transaction_id', $parts_transaction_id, PDO::PARAM_STR);
+            $sql->bindValue(':type', 'internal additional job order', PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_transaction_additional_job_order_id   = $row['part_transaction_additional_job_order_id '];
+                $job_order = $row['additional_job_order_id'];
+                
+                $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringAdditionalJobOrder($job_order);
+                $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
+                $backjob_monitoring_id = $backJobMonitoringJobOrderDetails['backjob_monitoring_id'] ?? null;
+                $job_order = $backJobMonitoringJobOrderDetails['particulars'] ?? null;
+                $contractor_id = $backJobMonitoringJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $backJobMonitoringJobOrderDetails['work_center_id'] ?? null;
+
+                $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
+                $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
+                $action = '';
+                if($part_transaction_status == 'Draft' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
+                    $action = '<button type="button" class="btn btn-icon btn-danger delete-internal-additional-job-order" data-parts-transaction-additional-job-order-id="'. $part_transaction_additional_job_order_id   .'" title="Delete Internal Additional Job Order">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'TYPE' => $backJobMonitoringType,
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
                 ];
             }
 
@@ -134,20 +364,28 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                if($generate_job_order === 'job order'){
+                if($generate_job_order === 'additional job order'){
                     $job_order_id = $row['sales_proposal_additional_job_order_id'];
-                    $type = 'Sales Proposal Job Order';
+                    $sales_proposal_id = $row['sales_proposal_id'];
                 }
                 else{
                     $job_order_id = $row['backjob_monitoring_additional_job_order_id'];
-                    $type = 'Internal Job Order';
+                    $sales_proposal_id = $row['sales_proposal_id'];
                 }
 
-                $job_order = $row['job_order'];
+                $job_order = $row['particulars'];
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $reference_id = $salesProposalDetails['sales_proposal_number'] ?? '--';
+                $customer_id = $salesProposalDetails['customer_id'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                $customerName = $customerDetails['file_as'] ?? null;
 
                 $response[] = [
-                    'JOB_ORDER' => $job_order,
-                    'TYPE' => $type,
+                    'CUSTOMER_NAME' => $customerName,
+                    'REFERENCE_ID' => $reference_id,
+                    'JOB_ORDER' => strtoupper($job_order),
                     'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-additional-job-order" type="checkbox" value="'. $job_order_id.'"></div>'
                 ];
             }
@@ -264,8 +502,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $total = $row['total'];
                 $add_on = $row['add_on'];
                 $price = $row['price'];
-
-                
+                $company_id = $row['company_id'];
 
                 $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
 
@@ -277,10 +514,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
-                
 
+                if($company_id == '2'){
+                    $link = 'netruck-parts-transaction';
+                }
+                else{
+                    $link = 'parts-transaction';
+                }
+                
                 $response[] = [
-                    'PART_TRANSACTION_NO' => '<a href="parts-transaction.php?id='. $part_transaction_id_encrypted .'" target="_blank">
+                    'PART_TRANSACTION_NO' => '<a href="'. $link .'?id='. $part_transaction_id_encrypted .'" target="_blank">
                                         '. $part_transaction_id .'
                                     </a>',
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,

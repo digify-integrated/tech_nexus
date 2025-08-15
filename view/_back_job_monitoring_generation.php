@@ -44,7 +44,27 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'backjob monitoring table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateBackJobMonitoringTable()');
+            
+            $filter_internal_status = $_POST['filter_internal_status'];
+
+            if (!empty($filter_internal_status)) {
+                // Convert string to array and trim each value
+                $values_array = array_filter(array_map('trim', explode(',', $filter_internal_status)));
+
+                // Quote each value safely
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . addslashes($value) . "'";
+                }, $values_array);
+
+                // Implode into comma-separated string
+                $filter_internal_status = implode(', ', $quoted_values_array);
+            } else {
+                $filter_internal_status = null;
+            }
+
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateBackJobMonitoringTable2(:filter_internal_status)');
+            $sql->bindValue(':filter_internal_status', $filter_internal_status, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -74,6 +94,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
                     else{
                         $sales_proposal_number = '--';
+                        $customer_id = null;
                     }
                 }
 

@@ -182,6 +182,9 @@
                                 else if (response.noItem) {
                                     showNotification('Transaction For Validation Error', 'No parts added. Cannot be processed.', 'danger');
                                 }
+                                else if (response.jobOrder) {
+                                    showNotification('Transaction For Validation Error', 'No job order or additional job order linked. Cannot be processed.', 'danger');
+                                }
                                 else if (response.cartQuantity) {
                                     showNotification('Transaction For Validation Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
                                 }
@@ -392,6 +395,22 @@
             }
         });
 
+        if($('#job-order-table').length){
+            jobOrderTable('#job-order-table');
+        }
+
+        if($('#internal-job-order-table').length){
+            internalJobOrderTable('#internal-job-order-table');
+        }
+
+        if($('#additional-job-order-table').length){
+            additionalJobOrderTable('#additional-job-order-table');
+        }
+
+        if($('#internal-additional-job-order-table').length){
+            internalAdditionalJobOrderTable('#internal-additional-job-order-table');
+        }
+
         if($('#add-job-order-form').length){
             addJobOrderForm();
         }
@@ -399,6 +418,238 @@
         if($('#add-additional-job-order-form').length){
             addAdditionalJobOrderForm();
         }
+
+        $(document).on('click','.delete-job-order',function() {
+            const parts_transaction_job_order_id = $(this).data('parts-transaction-job-order-id');
+            var parts_transaction_id = $('#parts-transaction-id').text();
+            const transaction = 'delete job order';
+    
+            Swal.fire({
+                title: 'Confirm Job Order Unlink',
+                text: 'Are you sure you want to unlink this job order?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Unlink',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/parts-transaction-controller.php',
+                        dataType: 'json',
+                        data: {
+                            parts_transaction_job_order_id : parts_transaction_job_order_id, 
+                            parts_transaction_id : parts_transaction_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Unlink Job Order Success', 'The job order has been unlinked successfully.', 'success');
+                                reloadDatatable('#job-order-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Unlink Job Order Error', 'The job order does not exists.', 'danger');
+                                    reloadDatatable('#job-order-table');
+                                }
+                                else {
+                                    showNotification('Unlink Job Order Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.delete-internal-job-order',function() {
+            const parts_transaction_job_order_id = $(this).data('parts-transaction-job-order-id');
+            var parts_transaction_id = $('#parts-transaction-id').text();
+            const transaction = 'delete internal job order';
+    
+            Swal.fire({
+                title: 'Confirm Internal Job Order Unlink',
+                text: 'Are you sure you want to unlink this internal job order?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Unlink',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/parts-transaction-controller.php',
+                        dataType: 'json',
+                        data: {
+                            parts_transaction_job_order_id : parts_transaction_job_order_id, 
+                            parts_transaction_id : parts_transaction_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Unlink Internal Job Order Success', 'The job order has been unlinked successfully.', 'success');
+                                reloadDatatable('#internal-job-order-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Unlink Internal Job Order Error', 'The internal job order does not exists.', 'danger');
+                                    reloadDatatable('#internal-job-order-table');
+                                }
+                                else {
+                                    showNotification('Unlink Internal Job Order Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.delete-additional-job-order',function() {
+            const parts_transaction_additional_job_order_id = $(this).data('parts-transaction-additional-job-order-id');
+            var parts_transaction_id = $('#parts-transaction-id').text();
+            const transaction = 'delete additional job order';
+    
+            Swal.fire({
+                title: 'Confirm Additional Job Order Unlink',
+                text: 'Are you sure you want to unlink this additional job order?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Unlink',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/parts-transaction-controller.php',
+                        dataType: 'json',
+                        data: {
+                            parts_transaction_additional_job_order_id : parts_transaction_additional_job_order_id, 
+                            parts_transaction_id : parts_transaction_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Unlink Additional Job Order Success', 'The additional job order has been unlinked successfully.', 'success');
+                                reloadDatatable('#additional-job-order-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Unlink Additional Job Order Error', 'The additional job order does not exists.', 'danger');
+                                    reloadDatatable('#additional-job-order-table');
+                                }
+                                else {
+                                    showNotification('Unlink Additional Job Order Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.delete-internal-job-order',function() {
+            const parts_transaction_additional_job_order_id = $(this).data('parts-transaction-additional-job-order-id');
+            var parts_transaction_id = $('#parts-transaction-id').text();
+            const transaction = 'delete internal additional job order';
+    
+            Swal.fire({
+                title: 'Confirm Internal Additional Job Order Unlink',
+                text: 'Are you sure you want to unlink this internal additional job order?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Unlink',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/parts-transaction-controller.php',
+                        dataType: 'json',
+                        data: {
+                            parts_transaction_additional_job_order_id : parts_transaction_additional_job_order_id, 
+                            parts_transaction_id : parts_transaction_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Unlink Internal Additional Job Order Success', 'The internal additional job order has been unlinked successfully.', 'success');
+                                reloadDatatable('#internal-additional-job-order-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Unlink Internal Additional Job Order Error', 'The internal additional job order does not exists.', 'danger');
+                                    reloadDatatable('#internal-additional-job-order-table');
+                                }
+                                else {
+                                    showNotification('Unlink Internal Additional Job Order Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
     });
 })(jQuery);
 
@@ -553,15 +804,17 @@ function addJobOrderTable(datatable_name, buttons = false, show_all = false){
     var settings;
 
     const column = [ 
+        { 'data' : 'CUSTOMER_NAME' },
+        { 'data' : 'REFERENCE_ID' },
         { 'data' : 'JOB_ORDER' },
-        { 'data' : 'TYPE' },
         { 'data' : 'ASSIGN' }
     ];
 
     const column_definition = [
-        { 'width': '80%', 'aTargets': 0 },
-        { 'width': 'auto', 'aTargets': 1 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 2 }
+        { 'width': '30%', 'aTargets': 0 },
+        { 'width': '30%', 'aTargets': 1 },
+        { 'width': '30%', 'aTargets': 2 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 3 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -603,6 +856,250 @@ function addJobOrderTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
+function jobOrderTable(datatable_name, buttons = false, show_all = false){
+    var parts_transaction_id = $('#parts-transaction-id').text();
+    const type = 'job order table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'OS_NUMBER' },
+        { 'data' : 'JOB_ORDER' },
+        { 'data' : 'CONTRACTOR' },
+        { 'data' : 'WORK_CENTER' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 4 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_parts_transaction_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'parts_transaction_id' : parts_transaction_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function internalJobOrderTable(datatable_name, buttons = false, show_all = false){
+    var parts_transaction_id = $('#parts-transaction-id').text();
+    const type = 'internal job order table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'TYPE' },
+        { 'data' : 'OS_NUMBER' },
+        { 'data' : 'JOB_ORDER' },
+        { 'data' : 'CONTRACTOR' },
+        { 'data' : 'WORK_CENTER' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_parts_transaction_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'parts_transaction_id' : parts_transaction_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function additionalJobOrderTable(datatable_name, buttons = false, show_all = false){
+    var parts_transaction_id = $('#parts-transaction-id').text();
+    const type = 'additional job order table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'OS_NUMBER' },
+        { 'data' : 'JOB_ORDER' },
+        { 'data' : 'CONTRACTOR' },
+        { 'data' : 'WORK_CENTER' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 4 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_parts_transaction_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'parts_transaction_id' : parts_transaction_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function internalAdditionalJobOrderTable(datatable_name, buttons = false, show_all = false){
+    var parts_transaction_id = $('#parts-transaction-id').text();
+    const type = 'internal additional job order table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'TYPE' },
+        { 'data' : 'OS_NUMBER' },
+        { 'data' : 'JOB_ORDER' },
+        { 'data' : 'CONTRACTOR' },
+        { 'data' : 'WORK_CENTER' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_parts_transaction_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'parts_transaction_id' : parts_transaction_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 function addAdditionalJobOrderTable(datatable_name, buttons = false, show_all = false){
     var parts_transaction_id = $('#parts-transaction-id').text();
     var company = $('#page-company').val();
@@ -611,15 +1108,17 @@ function addAdditionalJobOrderTable(datatable_name, buttons = false, show_all = 
     var settings;
 
     const column = [ 
+        { 'data' : 'CUSTOMER_NAME' },
+        { 'data' : 'REFERENCE_ID' },
         { 'data' : 'JOB_ORDER' },
-        { 'data' : 'TYPE' },
         { 'data' : 'ASSIGN' }
     ];
 
     const column_definition = [
-        { 'width': '80%', 'aTargets': 0 },
-        { 'width': 'auto', 'aTargets': 1 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 2 }
+        { 'width': '30%', 'aTargets': 0 },
+        { 'width': '30%', 'aTargets': 1 },
+        { 'width': '30%', 'aTargets': 2 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 3 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -811,6 +1310,9 @@ function partsTransactionForm(){
                     }
                 }
             },
+            customer_ref_id: {
+                required: true
+            },
             request_by: {
                 required: true
             },
@@ -824,6 +1326,9 @@ function partsTransactionForm(){
             },
             product_id: {
                 required: 'Please choose the product'
+            },
+            customer_ref_id: {
+                required: 'Please choose the customer reference'
             },
             request_by: {
                 required: 'Please enter the request by'
@@ -874,7 +1379,7 @@ function partsTransactionForm(){
                 success: function (response) {
                     if (response.success) {
                         const notificationMessage = response.insertRecord ? 'Insert Transaction Success' : 'Update Transaction Success';
-                        const notificationDescription = response.insertRecord ? 'The transaction has been inserted successfully.' : 'The transaction  has been updated successfully.';
+                        const notificationDescription = response.insertRecord ? 'The transaction has been inserted successfully.' : 'The transaction has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
 
@@ -966,7 +1471,6 @@ function addPartsForm(){
     });
 }
 
-
 function addJobOrderForm(){
     $('#add-job-order-form').validate({
         submitHandler: function(form) {
@@ -1029,7 +1533,7 @@ function addAdditionalJobOrderForm(){
 
             var additional_job_order_id = [];
 
-            $('.assign-job-order').each(function(){
+            $('.assign-additional-job-order').each(function(){
                 if ($(this).is(':checked')){  
                     additional_job_order_id.push(this.value);  
                 }
@@ -1072,7 +1576,6 @@ function addAdditionalJobOrderForm(){
         }
     });
 }
-
 
 function partsDocumentForm(){
     $('#add-part-document-form').validate({
@@ -1423,6 +1926,9 @@ function approveTransactionForm(){
                         else if (response.cartQuantity) {
                             showNotification('Validate Transaction Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
                         }
+                        else if (response.jobOrder) {
+                            showNotification('Validate Transaction Error', 'No job order or additional job order linked. Cannot be processed.', 'danger');
+                        }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
@@ -1580,6 +2086,7 @@ function displayDetails(transaction){
                         checkOptionExist('#customer_type', response.customer_type, '');
                         checkOptionExist('#company_id', response.company_id, '');
                         checkOptionExist('#overall_discount_type', response.discount_type, '');
+                        checkOptionExist('#customer_ref_id', response.customer_ref_id, '');
 
                         if(response.customer_type == 'Customer'){
                             checkOptionExist('#customer_id', response.customer_id, '');

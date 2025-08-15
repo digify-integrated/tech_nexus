@@ -53,6 +53,15 @@
                 <?php echo $supplierModel->generateSupplierOptions(); ?>
               </select>
             </div>
+            <label class="col-lg-2 col-form-label">Customer Reference <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="customer_ref_id" id="customer_ref_id">
+                  <option value="">--</option>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
+                </select>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Product <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="product_id" id="product_id">

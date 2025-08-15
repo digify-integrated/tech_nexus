@@ -116,6 +116,15 @@
                 <?php echo $supplierModel->generateSupplierOptions(); ?>
               </select>
             </div>
+            <label class="col-lg-2 col-form-label">Customer Reference <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="customer_ref_id" id="customer_ref_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
+                </select>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Product <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="product_id" id="product_id" <?php echo $disabled; ?>>
@@ -159,8 +168,7 @@
                             <th class="text-center">Remaining Qty.</th>
                             <?php
                               if($viewPartCost['total'] > 0){
-                                echo '<th class="text-center">Cost</th>
-                                <th class="text-center">Total Cost</th>';
+                                echo '<th class="text-center">Total Cost</th>';
                               }
                             ?>
                             <th class="text-center">Available Stock</th>
@@ -383,6 +391,17 @@
             </div>
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0"> 
+                <label class="form-label">Invoice Date <span class="text-danger">*</span></label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="invoice_date" name="invoice_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0"> 
                 <label class="form-label">Delivery Date <span class="text-danger">*</span></label>
                 <div class="input-group date">
                   <input type="text" class="form-control regular-datepicker" id="delivery_date" name="delivery_date" autocomplete="off">
@@ -507,8 +526,8 @@
             </div>
             <div class="form-group row" id="cost-row">
               <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Cost <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="cost" name="cost" min="1" step="0.01">
+                <label class="form-label">Total Cost <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="total_cost" name="total_cost" min="1" step="0.01">
               </div>
             </div>
             <div class="form-group row">

@@ -176,6 +176,39 @@
     </div>
   </div>
 
+  <div class="col-lg-12">
+      <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5>Leave Document</h5>
+                </div>
+                <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                    <?php
+                      if($status == 'Draft'){
+                        echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-leave-document-offcanvas" aria-controls="add-leave-document-offcanvas" id="add-leave-document">Add Document</button>';
+                      }  
+                    ?>                    
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="dt-responsive table-responsive">
+                <table class="table mb-0" id="leave-document-table">
+                    <thead>
+                        <tr>
+                            <th>Leave Document</th>
+                            <th class="text-end">Upload Date</th>
+                            <th class="text-end"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+  </div>
+
   <div>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="leave-form-image-offcanvas" aria-labelledby="leave-form-image-offcanvas-label">
     <div class="offcanvas-header">
@@ -228,6 +261,45 @@
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-leave-application-cancel" form="leave-application-cancel-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="add-leave-document-offcanvas" aria-labelledby="add-leave-document-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="add-leave-document-offcanvas-label" style="margin-bottom:-0.5rem">Add Document</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div class="row">
+          <div class="col-lg-12">
+            <form id="add-leave-document-form" method="post" action="#">
+              <div class="form-group row">
+                <div class="col-lg-12 mt-3 mt-lg-0">
+                  <label class="form-label">Document <span class="text-danger">*</span></label>
+                  <select class="form-control offcanvas-select2" name="document_name" id="document_name">
+                    <option value="">--</option>
+                    <option value="Leave Confirmation">Leave Confirmation</option>
+                    <option value="Medical Certificate">Medical Certificate</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-lg-12 mt-3 mt-lg-0">
+                  <label class="form-label">Document <span class="text-danger">*</span></label>
+                  <input type="file" id="leave_document" name="leave_document" class="form-control">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <button type="submit" class="btn btn-primary" id="submit-add-leave-document" form="add-leave-document-form">Submit</button>
+            <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+          </div>
         </div>
       </div>
     </div>

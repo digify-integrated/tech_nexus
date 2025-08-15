@@ -452,6 +452,9 @@ class SalesProposalController {
                     $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
                     $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
                 }
+                else if($productType == 'Repair'){
+                    $this->salesProposalModel->updateSalesProposalRepairProduct($salesProposalID, 955, $userID);
+                }
                 else if($productType == 'Fuel'){
                     $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, $dieselFuelQuantity, $dieselPricePerLiter, $regularFuelQuantity, $regularPricePerliter, $premiumFuelQuantity, $premiumPricePerliter, $userID);
                     $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', $userID);
@@ -2293,8 +2296,13 @@ class SalesProposalController {
         $productDetails = $this->productModel->getProduct($productID);
         $productStatus = $productDetails['product_status'] ?? null;
 
-        if(!empty($productStatus) && $productStatus != 'For Sale'){
-            echo json_encode(['success' => false, 'withApplication' =>  true]);
+        $allowedStatuses = ['For Sale', 'For Return', 'Rented'];
+
+        if (!empty($productStatus) && !in_array($productStatus, $allowedStatuses, true)) {
+            echo json_encode([
+                'success' => false,
+                'withApplication' => true
+            ]);
             exit;
         }
         
