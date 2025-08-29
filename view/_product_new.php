@@ -183,6 +183,13 @@
             <div class="col-lg-3">
               <input type="text" class="form-control" id="year_model" name="year_model" maxlength="10" autocomplete="off">
             </div>
+            <label class="col-lg-3 col-form-label">Is Service?</label>
+            <div class="col-lg-3">
+              <select class="form-control" name="is_service" id="is_service">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </div>
           </div>
 
 

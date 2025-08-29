@@ -220,7 +220,7 @@
         foreach ($options as $row) {
             $part_id  = $row['part_id'];
             $quantity = $row['quantity'];
-            $cost = $row['total_cost'];
+            $totalCost = $row['total_cost'];
             $received_quantity = $row['received_quantity'];
             $remaining_quantity = $row['remaining_quantity'];
 
@@ -231,14 +231,17 @@
             $unitCode = $unitModel->getUnit($unitSale);
             $short_name = $unitCode['short_name'] ?? null;
 
-            $total = $total + ($cost * ($received_quantity + $remaining_quantity));
-            $total_cost = $total_cost + $cost;
+            $cost = $totalCost / $received_quantity;
+
+            $total = $total + $cost;
+            $total_cost = $total_cost + $totalCost;
 
             if($received_quantity > 0){
                 $list .= '<tr>
-                        <td width="60%">'. strtoupper($description) .'</td>
+                        <td width="40%">'. strtoupper($description) .'</td>
                         <td width="20%" style="text-align:center">'. number_format($received_quantity, 2) . ' ' . strtoupper($short_name) .'</td>
                         <td width="20%" style="text-align:center">'. number_format($cost, 2) .' PHP</td>
+                        <td width="20%" style="text-align:center">'. number_format($totalCost, 2) .' PHP</td>
                     </tr>';
             }
         }
@@ -246,8 +249,9 @@
                    $response = '<table border="1" width="100%" cellpadding="5" align="left">
                         <thead>
                             <tr style="text-align:center">
-                                <td width="60%"><b style="text-align:center">PARTICULARS</b></td>
+                                <td width="40%"><b style="text-align:center">PARTICULARS</b></td>
                                 <td width="20%"><b style="text-align:center">QTY</b></td>
+                                <td width="20%"><b style="text-align:center">COST</b></td>
                                 <td width="20%"><b style="text-align:center">TOTAL COST</b></td>
                             </tr>
                         </thead>
@@ -255,6 +259,7 @@
                             '.$list.'
                             <tr>
                                 <td style="text-align:right;" colspan="2"><b>TOTAL</b></td>
+                                <td style="text-align:center;"><b>'. number_format($total, 2) .' PHP</b></td>
                                 <td style="text-align:center;"><b>'. number_format($total_cost, 2) .' PHP</b></td>
                             </tr>
                         </tbody>

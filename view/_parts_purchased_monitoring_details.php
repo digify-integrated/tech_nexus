@@ -14,6 +14,8 @@
             <thead>
               <tr>
                 <th>Part</th>
+                <th>Product</th>
+                <th>Part Purchase No.</th>
                 <th>Reference No.</th>
                 <th>Issuance Date</th>
                 <th>Qty.</th>

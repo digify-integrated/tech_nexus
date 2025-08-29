@@ -7,6 +7,7 @@
     
     $approvePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 201);
     $releasePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 202);
+    $checkPartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 219);
 
     $disabled = '';
     if($part_transaction_status != 'Draft'){
@@ -45,11 +46,11 @@
                 echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
               }
 
-              if($part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
+              if($part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'On-Process'){
                 echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
               }
 
-              if($part_transaction_status == 'On-Process' && $company == '2'){
+              if(($part_transaction_status == 'On-Process' || $part_transaction_status == 'Released' || $part_transaction_status == 'Cancelled') && $company == '2'){
                 echo '<a href="parts-transaction-requisition-slip.php?id='. $partsTransactionID .'" class="button btn btn-info ms-2" target="_blank">Print Issuance Slip</a>';
               }
             }
@@ -62,7 +63,7 @@
                 echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
               }
 
-              if($part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
+              if($part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'On-Process'){
                 echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
               }
 
@@ -79,10 +80,14 @@
               }
             }
 
+            if($part_transaction_status == 'Released' && $checkPartsTransaction['total'] > 0){
+              echo '<button class="btn btn-success ms-2" type="button" id="checked">Checked</button>';
+            }
+
             if ($partsTransactionCreateAccess['total'] > 0 && $part_transaction_status == 'Draft') {
-                echo '<button type="submit" form="parts-transaction-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
+              echo '<button type="submit" form="parts-transaction-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
                         <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
-              }
+            }
           ?>
           </div>
         </div>
@@ -229,6 +234,7 @@
                     <thead>
                         <tr>
                             <th class="text-end"></th>
+                            <th>Order</th>
                             <th>Part</th>
                             <th class="text-end">Price</th>
                             <th class="text-center">Quantity</th>

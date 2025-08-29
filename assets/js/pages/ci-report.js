@@ -6,6 +6,12 @@
             ciReportTable('#ci-report-table');
         }
 
+        $(document).on('click','#apply-filter',function() {
+           if($('#ci-report-table').length){
+            ciReportTable('#ci-report-table');
+        }
+        });
+
         if($('#ci-residence-table').length){
             ciReportResidenceTable('#ci-residence-table');
         }
@@ -2412,6 +2418,20 @@ function ciReportResidenceForm(){
             ci_residence_contact_address: {
                 required: true
             },
+             ci_residence_rented_from: {
+                required: {
+                    depends: function(element) {
+                        return $('#ci_residence_structure_type_id').val() === '3';
+                    }
+                }
+            },
+            ci_residence_tct_no: {
+                required: {
+                    depends: function(element) {
+                        return $('#ci_residence_structure_type_id').val() === '1';
+                    }
+                }
+            },
             ci_residence_city_id: {
                 required: true
             },
@@ -2419,6 +2439,12 @@ function ciReportResidenceForm(){
         messages: {
             ci_residence_contact_address: {
                 required: 'Please enter the address'
+            },
+            ci_residence_rented_from: {
+                required: 'Please enter the rented from'
+            },
+            ci_residence_tct_no: {
+                required: 'Please enter the TCT No.'
             },
             ci_residence_city_id: {
                 required: 'Please choose the city'
@@ -4672,7 +4698,7 @@ function calculateResidenceExpenseTotal() {
 
     const total = personal + utilities + other;
 
-    $('#ci_residence_total_expense').val(total);
+    $('#ci_residence_total_expense').val(total.toFixed(2));
 }
 
 function calculateEmploymentIncomeTotal() {
@@ -4683,7 +4709,7 @@ function calculateEmploymentIncomeTotal() {
 
     const total = net_salary + commission + allowance + other;
 
-    $('#ci_employment_grand_total').val(total);
+    $('#ci_employment_grand_total').val(total.toFixed(2));
 }
 
 function calculateBusinessCapital(){
@@ -4694,5 +4720,5 @@ function calculateBusinessCapital(){
 
     const total =(ci_business_inventory + ci_business_receivable + ci_business_fixed_asset)  - ci_business_liabilities;
 
-    $('#ci_business_capital').val(total);
+    $('#ci_business_capital').val(total.toFixed(2));
 }

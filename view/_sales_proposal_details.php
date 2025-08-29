@@ -79,19 +79,188 @@
     <div class="card">
       <div class="card-body">
         <ul class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-          <li><a class="nav-link active" id="sales-proposal-tab-1" data-bs-toggle="pill" href="#v-basic-details" role="tab" aria-controls="v-basic-details" aria-selected="true" disabled>Basic Details</a></li>
-          <li><a class="nav-link d-none" id="sales-proposal-tab-2" data-bs-toggle="pill" href="#v-unit-details" role="tab" aria-controls="v-unit-details" aria-selected="false" disabled>Unit Details</a></li>
-          <li><a class="nav-link d-none" id="sales-proposal-tab-3" data-bs-toggle="pill" href="#v-fuel-details" role="tab" aria-controls="v-fuel-details" aria-selected="false" disabled>Fuel Details</a></li>
-          <li><a class="nav-link d-none" id="sales-proposal-tab-4" data-bs-toggle="pill" href="#v-refinancing-details" role="tab" aria-controls="v-refinancing-details" aria-selected="false" disabled>Refinancing Details</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="pill" href="#v-job-order" role="tab" aria-controls="v-job-order" aria-selected="false" disabled>Job Order</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-6" data-bs-toggle="pill" href="#v-pricing-computation" role="tab" aria-controls="v-pricing-computation" aria-selected="false" disabled>Pricing Computation</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-7" data-bs-toggle="pill" href="#v-other-charges" role="tab" aria-controls="v-other-charges" aria-selected="false" disabled>Other Charges</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-8" data-bs-toggle="pill" href="#v-renewal-amount" role="tab" aria-controls="v-renewal-amount" aria-selected="false" disabled>Renewal Amount</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-9" data-bs-toggle="pill" href="#v-amount-of-deposit" role="tab" aria-controls="v-amount-of-deposit" aria-selected="false" disabled>Amount of Deposit</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-10" data-bs-toggle="pill" href="#v-additional-job-order" role="tab" aria-controls="v-additional-job-order" aria-selected="false" disabled>Additional Job Order</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-11" data-bs-toggle="pill" href="#v-confirmations" role="tab" aria-controls="v-confirmations" aria-selected="false" disabled>Confirmations</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-12" data-bs-toggle="pill" href="#v-remarks" role="tab" aria-controls="v-remarks" aria-selected="false" disabled>Remarks</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-14" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
+          <li>
+            <a class="nav-link active"
+              id="sales-proposal-tab-1"
+              data-bs-toggle="pill"
+              href="#v-basic-details"
+              role="tab"
+              aria-controls="v-basic-details"
+              aria-selected="true"
+              data-step="proposal">
+              Basic Details
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link d-none"
+              id="sales-proposal-tab-2"
+              data-bs-toggle="pill"
+              href="#v-unit-details"
+              role="tab"
+              aria-controls="v-unit-details"
+              aria-selected="false"
+              data-step="unit">
+              Unit Details
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link d-none"
+              id="sales-proposal-tab-3"
+              data-bs-toggle="pill"
+              href="#v-fuel-details"
+              role="tab"
+              aria-controls="v-fuel-details"
+              aria-selected="false"
+              data-step="fuel">
+              Fuel Details
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link d-none"
+              id="sales-proposal-tab-4"
+              data-bs-toggle="pill"
+              href="#v-refinancing-details"
+              role="tab"
+              aria-controls="v-refinancing-details"
+              aria-selected="false"
+              data-step="refinancing">
+              Refinancing Details
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link"
+              id="sales-proposal-tab-5"
+              data-bs-toggle="pill"
+              href="#v-job-order"
+              role="tab"
+              aria-controls="v-job-order"
+              aria-selected="false"
+              data-step="jobOrder">
+              Job Order
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link"
+              id="sales-proposal-tab-6"
+              data-bs-toggle="pill"
+              href="#v-pricing-computation"
+              role="tab"
+              aria-controls="v-pricing-computation"
+              aria-selected="false"
+              data-step="pricing">
+              Pricing Computation
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link"
+              id="sales-proposal-tab-7"
+              data-bs-toggle="pill"
+              href="#v-other-charges"
+              role="tab"
+              aria-controls="v-other-charges"
+              aria-selected="false"
+              data-step="otherCharges">
+              Other Charges
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link"
+              id="sales-proposal-tab-8"
+              data-bs-toggle="pill"
+              href="#v-renewal-amount"
+              role="tab"
+              aria-controls="v-renewal-amount"
+              aria-selected="false"
+              data-step="renewal">
+              Renewal Amount
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link"
+              id="sales-proposal-tab-9"
+              data-bs-toggle="pill"
+              href="#v-amount-of-deposit"
+              role="tab"
+              aria-controls="v-amount-of-deposit"
+              aria-selected="false"
+              data-step="deposit">
+              Amount of Deposit
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link"
+              id="sales-proposal-tab-10"
+              data-bs-toggle="pill"
+              href="#v-additional-job-order"
+              role="tab"
+              aria-controls="v-additional-job-order"
+              aria-selected="false"
+              data-step="additionalJobOrder">
+              Additional Job Order
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link"
+              id="sales-proposal-tab-11"
+              data-bs-toggle="pill"
+              href="#v-confirmations"
+              role="tab"
+              aria-controls="v-confirmations"
+              aria-selected="false"
+              data-step="approvals">
+              Confirmations
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link"
+              id="sales-proposal-tab-12"
+              data-bs-toggle="pill"
+              href="#v-remarks"
+              role="tab"
+              aria-controls="v-remarks"
+              aria-selected="false"
+              data-step="remarks">
+              Remarks
+            </a>
+          </li>
+
+          <li class="<?php echo ($salesProposalStatus == 'For DR') ? 'd-none' : ''; ?>">
+            <a class="nav-link"
+              id="sales-proposal-tab-14"
+              data-bs-toggle="pill"
+              href="#v-ci-report"
+              role="tab"
+              aria-controls="v-ci-report"
+              aria-selected="false"
+              data-step="ciReport">
+              CI Report
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link"
+              id="sales-proposal-tab-13"
+              data-bs-toggle="pill"
+              href="#v-summary"
+              role="tab"
+              aria-controls="v-summary"
+              aria-selected="false"
+              data-step="summary">
+              Summary
+            </a>
+          </li>
+
         </ul>
       </div>
     </div>

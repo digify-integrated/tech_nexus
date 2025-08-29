@@ -264,6 +264,58 @@
             });
         });
 
+        $(document).on('click','#checked',function() {
+            var parts_transaction_id = $('#parts-transaction-id').text();
+            const transaction = 'tag transaction as checked';
+    
+            Swal.fire({
+                title: 'Confirm Transaction Checked',
+                text: 'Are you sure you want to tag this transaction as checked?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Check',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/parts-transaction-controller.php',
+                        dataType: 'json',
+                        data: {
+                            parts_transaction_id : parts_transaction_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Transaction Checked Success', 'The transaction has been tagged as checked successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else {
+                                    showNotification('Transaction Checked Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('click','.delete-part-cart',function() {
             const parts_transaction_cart_id = $(this).data('parts-transaction-cart-id');
             var parts_transaction_id = $('#parts-transaction-id').text();
@@ -1167,6 +1219,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
 
     const column = [ 
         { 'data' : 'ACTION' },
+        { 'data' : 'ORDER' },
         { 'data' : 'PART' },
         { 'data' : 'PRICE' },
         { 'data' : 'QUANTITY' },
@@ -1189,6 +1242,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 7 },
         { 'width': 'auto', 'aTargets': 8 },
         { 'width': 'auto', 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 10 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

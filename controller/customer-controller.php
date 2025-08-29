@@ -135,6 +135,9 @@ class CustomerController {
                 case 'get contact family background details':
                     $this->getContactFamilyBackground();
                     break;
+                case 'get contact comaker details':
+                    $this->getContactComakerDetails();
+                    break;
                 case 'delete contact information':
                     $this->deleteContactInformation();
                     break;
@@ -155,6 +158,9 @@ class CustomerController {
                     break;
                 case 'update contact status to active':
                     $this->updateCustomerStatusToActive();
+                    break;
+                case 'update contact comaker':
+                    $this->updateCustomerComaker();
                     break;
                 case 'update contact status to for updating':
                     $this->updateCustomerStatusToForUpdating();
@@ -1525,6 +1531,22 @@ class CustomerController {
         echo json_encode(['success' => true]);
         exit;
     }
+
+    public function updateCustomerComaker() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+        $contact_comaker_id = htmlspecialchars($_POST['contact_comaker_id'], ENT_QUOTES, 'UTF-8');
+        $comaker_relation_id = htmlspecialchars($_POST['comaker_relation_id'], ENT_QUOTES, 'UTF-8');
+
+        $this->customerModel->updateCustomerComaker($contact_comaker_id, $comaker_relation_id, $userID);
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -2317,6 +2339,37 @@ class CustomerController {
                 'mobile' => $contactFamilyBackgroundDetails['mobile'] ?? null,
                 'telephone' => $contactFamilyBackgroundDetails['telephone'] ?? null,
                 'email' => $contactFamilyBackgroundDetails['email'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    public function getContactComakerDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_comaker_id']) && !empty($_POST['contact_comaker_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contact_comaker_id = htmlspecialchars($_POST['contact_comaker_id'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+
+            $contactComakerDetails = $this->customerModel->getContactComakerDetails($contact_comaker_id);
+
+            $comakerDetails = $this->customerModel->getPersonalInformation($contact_comaker_id);
+            $comaker_name = $comakerDetails['file_as'] ?? null;
+
+            $response = [
+                'success' => true,
+                'comaker_name' => $comaker_name,
+                'relation_id' => $contactComakerDetails['relation_id'] ?? null,
             ];
 
             echo json_encode($response);

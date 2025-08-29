@@ -93,16 +93,12 @@ function partsPurchasedMonitoringTable(datatable_name, buttons = false, show_all
 
     const column = [ 
         { 'data' : 'PRODUCT' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'PROGRESS' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '55%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%','bSortable': false, 'aTargets': 3 }
+        { 'width': '85%', 'aTargets': 0 },
+        { 'width': '15%','bSortable': false, 'aTargets': 1 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -145,12 +141,14 @@ function partsPurchasedMonitoringTable(datatable_name, buttons = false, show_all
 }
 
 function partsPurchasedMonitoringItemTable(datatable_name, buttons = false, show_all = false){
-     var parts_purchased_monitoring_id = $('#parts-purchased-monitoring-id').text();
+    var product_id = $('#product-id').text();
     const type = 'parts purchased monitoring item table';
     var settings;
 
     const column = [ 
         { 'data' : 'PART' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'PART_INCOMING' },
         { 'data' : 'REFERENCE_NUMBER' },
         { 'data' : 'ISSUANCE_DATE' },
         { 'data' : 'QUANTITY' },
@@ -170,7 +168,9 @@ function partsPurchasedMonitoringItemTable(datatable_name, buttons = false, show
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
-        { 'width': '15%','bSortable': false, 'aTargets': 8 }
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': '15%','bSortable': false, 'aTargets': 10 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -180,7 +180,7 @@ function partsPurchasedMonitoringItemTable(datatable_name, buttons = false, show
             'url' : 'view/_parts_purchased_monitoring_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'parts_purchased_monitoring_id' : parts_purchased_monitoring_id},
+            'data': {'type' : type, 'product_id' : product_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -190,7 +190,7 @@ function partsPurchasedMonitoringItemTable(datatable_name, buttons = false, show
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 2, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

@@ -14,8 +14,6 @@
             <thead>
               <tr>
                 <th>Product</th>
-                <th>Status</th>
-                <th>Progress</th>
                 <th>Actions</th>
               </tr>
             </thead>

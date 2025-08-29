@@ -815,24 +815,7 @@ class LeaveApplicationController {
             $application_type = $leaveApplicationDetails['application_type'];
             $leave_date = $leaveApplicationDetails['leave_date'];
             $contact_id = $leaveApplicationDetails['contact_id'];
-
-            if($leaveTypeID == '1'){
-                $entitlement = $this->leaveApplicationModel->getEmployeeLeaveEntitlement($contact_id, $leave_date)['entitlement_amount'] ?? 0;
-    
-                if($application_type === 'Whole Day'){
-                    $application_amount = 8;
-                }
-                else{
-                    $application_amount = 4;
-                }
-    
-                $entitlement_total = $entitlement - $application_amount;
-    
-                if($entitlement == 0 || $entitlement_total <= 0){
-                    continue;
-                }
-            }
-
+            
             $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'Approved', '', $userID);
         }
             

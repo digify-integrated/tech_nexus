@@ -2418,27 +2418,33 @@ function displayDetails(transaction){
 
 function calculateTax() {
     const withVat = $('#with_vat').val() === 'Yes';
-    const withWithholding = parseFloat($('#with_withholding').val()) || 0;
-    const particularsAmount = parseFloat($('#particulars_amount').val()) || 0;
+    const withWithholding = Number($('#with_withholding').val()) || 0;
+    const particularsAmount = Number($('#particulars_amount').val()) || 0;
 
     const vatRate = 0.12;
 
-    // Work in cents
-    const particularsAmountCents = Math.round(particularsAmount * 100);
+    // Work in cents (integers only)
+    const particularsCents = Math.round(particularsAmount * 100);
+
+    // VAT base and VAT amount
     const vatBaseCents = withVat
-        ? Math.round(particularsAmountCents / 1.12)
-        : particularsAmountCents;
+        ? Math.round(particularsCents / (1 + vatRate))
+        : particularsCents;
     const vatAmountCents = withVat
-        ? Math.round(vatBaseCents * vatRate)
+        ? particularsCents - vatBaseCents
         : 0;
 
-    const withholdingCents = Math.round(vatBaseCents * (withWithholding / 100));
-    const totalAmountCents = particularsAmountCents - withholdingCents;
+    // Withholding amount
+    const withholdingCents = Math.round(vatBaseCents * withWithholding / 100);
 
-    // Display (convert cents back to decimal and fix to 2 places)
+    // Final total
+    const totalCents = particularsCents - withholdingCents;
+
+    // Display — round to 2 decimals, but keep precision internally
     $('#base_amount').val((vatBaseCents / 100).toFixed(2));
     $('#vat_amount').val((vatAmountCents / 100).toFixed(2));
     $('#withholding_amount').val((withholdingCents / 100).toFixed(2));
-    $('#total_amount').val((totalAmountCents / 100).toFixed(2));
+    $('#total_amount').val((totalCents / 100).toFixed(2));
 }
+
 

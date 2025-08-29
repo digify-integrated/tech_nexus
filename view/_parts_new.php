@@ -30,22 +30,22 @@
                 <?php echo $brandModel->generateBrandOptions(); ?>
               </select>
             </div>
-            <label class="col-lg-3 col-form-label">Part Number <span class="text-danger">*</span></label>
-            <div class="col-lg-3">
-              <input type="text" class="form-control" id="part_number" name="part_number" maxlength="100" autocomplete="off">
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-3 col-form-label">Bar Code <span class="text-danger">*</span></label>
-            <div class="col-lg-3">
-              <input type="text" class="form-control" id="bar_code" name="bar_code" maxlength="100" autocomplete="off">
-            </div>
             <label class="col-lg-3 col-form-label">Category <span class="text-danger">*</span></label>
             <div class="col-lg-3">
               <select class="form-control select2" name="part_category_id" id="part_category_id">
                 <option value="">--</option>
                 <?php echo $partsCategoryModel->generatePartsCategoryOptions(); ?>
               </select>
+            </div>
+          </div>
+          <div class="form-group row d-none">
+            <label class="col-lg-3 col-form-label">Part Number <span class="text-danger">*</span></label>
+            <div class="col-lg-3">
+              <input type="text" class="form-control" id="part_number" name="part_number" maxlength="100" autocomplete="off">
+            </div>
+            <label class="col-lg-3 col-form-label">Bar Code <span class="text-danger">*</span></label>
+            <div class="col-lg-3">
+              <input type="text" class="form-control" id="bar_code" name="bar_code" maxlength="100" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">

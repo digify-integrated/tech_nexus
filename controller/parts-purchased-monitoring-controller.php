@@ -144,7 +144,10 @@ class PartsPurchasedMonitoringController {
             exit;
         }
 
-        $this->partsPurchasedMonitoringModel->tagPartsPurchasedMonitoringAsIssued($parts_purchase_monitoring_item_id, $userID);
+        $partsPurchasedMonitoringDetails = $this->partsPurchasedMonitoringModel->checkPartsPurchasedMonitoringItem($parts_purchase_monitoring_item_id);
+                $part_purchased_monitoring_id = $partsPurchasedMonitoringDetails['part_purchased_monitoring_id'];
+
+        $this->partsPurchasedMonitoringModel->tagPartsPurchasedMonitoringAsIssued($parts_purchase_monitoring_item_id, $part_purchased_monitoring_id, $userID);
 
         echo json_encode(['success' => true]);
         exit;

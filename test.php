@@ -35,7 +35,7 @@
     $securityModel = new SecurityModel();
 
 
-    $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction WHERE customer_type = "Internal" AND part_transaction_status = "Released"');
+    /*$sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction WHERE customer_type = "Internal" AND part_transaction_status = "Released"');
     $sql->execute();
     $options = $sql->fetchAll(PDO::FETCH_ASSOC);
     $sql->closeCursor();
@@ -59,9 +59,9 @@
 
         $partsTransactionModel->createPartsTransactionProductExpenseTemp($customer_id, 'Issuance Slip', $parts_transaction_id, $overallTotal, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, $released_date, 1); 
              
-    }
+    }*/
 
-    //$unitCategoryID = $securityModel->decryptData('iCsSd3TX5XVV84kSXjLJ491v9F5rUaNyHJUg5qMm7%2F8%3D');
+    $unitCategoryID = $securityModel->decryptData('Zr7qYtwr7bsnv3l4A1aZ0DkInAs4p9cy9Trinrgfc9w%3D');
 
-    //echo $unitCategoryID;
+    echo $unitCategoryID;
 ?>

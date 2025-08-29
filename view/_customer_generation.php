@@ -731,11 +731,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 
                 $count = count($options);
 
+                $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 69, 'write');
                 $deleteCustomerComaker = $userModel->checkSystemActionAccessRights($user_id, 121);
 
                 foreach ($options as $index => $row) {
                     $contactComakerID = $row['contact_comaker_id'];
                     $comakerID = $row['comaker_id'];
+                    $relationID = $row['relation_id'];
+                    
+                    $relationName = $relationModel->getRelation($relationID)['relation_name'] ?? '--';
 
                     $comakerDetails = $customerModel->getPersonalInformation($comakerID);
                     $comakerName = $comakerDetails['file_as'] ?? null;
@@ -743,12 +747,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $dropdown = '';
                     if ($deleteCustomerComaker['total'] > 0) {
                         $delete = ($deleteCustomerComaker['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item delete-comaker" data-contact-comaker-id="'. $contactComakerID . '">Delete</a>' : '';
+
+                        $update = ($customerWriteAccess['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item update-contact-comaker-relation" data-bs-toggle="offcanvas" data-bs-target="#contact-comaker-relation-offcanvas" aria-controls="contact-comaker-relation-offcanvas" data-contact-comaker-id="' . $contactComakerID . '">Edit</a>' : '';
                     
                         $dropdown = ($delete) ? '<div class="dropdown">
                             <a class="avtar avtar-s btn-link-primary dropdown-toggle arrow-none" href="javascript:void(0);" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="ti ti-dots-vertical f-18"></i>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
+                                ' . $update . '
                                 ' . $delete . '
                             </div>
                         </div>' : '';
@@ -760,6 +767,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <div class="d-flex align-items-start">
                                         <div class="flex-grow-1 me-2">
                                             <p class="mb-1 text-primary"><b>'. $comakerName .'</b></p>
+                                            <p class="mb-3">' . $relationName . '</p>
                                         </div>
                                         <div class="flex-shrink-0">
                                             '. $dropdown .'

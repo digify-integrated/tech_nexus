@@ -137,6 +137,10 @@
                           <label class="form-check-label" for="transaction-status-released">Released</label>
                         </div>
                         <div class="form-check my-2">
+                          <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-checked" value="Checked"/>
+                          <label class="form-check-label" for="transaction-status-checked">Checked</label>
+                        </div>
+                        <div class="form-check my-2">
                           <input class="form-check-input transaction-status-checkbox" type="checkbox" id="transaction-status-cancelled" value="Cancelled"/>
                           <label class="form-check-label" for="transaction-status-cancelled">Cancelled</label>
                         </div>

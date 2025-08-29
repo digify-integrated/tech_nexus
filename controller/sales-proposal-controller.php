@@ -2176,9 +2176,7 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
-    
-        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For CI', '', $userID);
-
+        
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
         $customer_id = $salesProposalDetails['customer_id'] ?? null;
         $comaker_id = $salesProposalDetails['comaker_id'] ?? null;
@@ -2186,20 +2184,38 @@ class SalesProposalController {
         $comaker_id2 = $salesProposalDetails['comaker_id2'] ?? null;
 
         if(!empty($customer_id)){
-            $this->customerModel->openCIReport($salesProposalID, $customer_id, 'No', $userID);    
+            $ciExist = $this->customerModel->checkCISalesProposalExist($salesProposalID, $customer_id)['total'] ?? 0;
+
+            if($ciExist == 0){
+                $this->customerModel->openCIReport($salesProposalID, $customer_id, 'No', $userID);  
+            }  
         }
 
         if(!empty($comaker_id)){
-            $this->customerModel->openCIReport($salesProposalID, $comaker_id, 'No', $userID);    
+            $ciExist = $this->customerModel->checkCISalesProposalExist($salesProposalID, $comaker_id)['total'] ?? 0;
+
+            if($ciExist == 0){
+                $this->customerModel->openCIReport($salesProposalID, $comaker_id, 'No', $userID);  
+            }     
         }
 
         if(!empty($additional_maker_id)){
-            $this->customerModel->openCIReport($salesProposalID, $additional_maker_id, 'No', $userID);    
+            $ciExist = $this->customerModel->checkCISalesProposalExist($salesProposalID, $additional_maker_id)['total'] ?? 0;
+
+            if($ciExist == 0){
+                $this->customerModel->openCIReport($salesProposalID, $additional_maker_id, 'No', $userID);
+            }
         }
 
         if(!empty($comaker_id2)){
-            $this->customerModel->openCIReport($salesProposalID, $comaker_id2, 'No', $userID);    
+            $ciExist = $this->customerModel->checkCISalesProposalExist($salesProposalID, $comaker_id2)['total'] ?? 0;
+
+            if($ciExist == 0){
+                $this->customerModel->openCIReport($salesProposalID, $comaker_id2, 'No', $userID); 
+            }   
         }
+
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For CI', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -2298,7 +2314,7 @@ class SalesProposalController {
 
         $allowedStatuses = ['For Sale', 'For Return', 'Rented'];
 
-        if (!empty($productStatus) && !in_array($productStatus, $allowedStatuses, true)) {
+        if (!empty($productStatus) && !in_array($productStatus, $allowedStatuses, true) && $productType == 'Unit') {
             echo json_encode([
                 'success' => false,
                 'withApplication' => true
@@ -3617,7 +3633,7 @@ class SalesProposalController {
         return $date->format('Y-m-d');
     }
     
-    private function calculateDueDate2($startDate, $frequency, $iteration, $term) {
+    private function calculateDueDate2($startDate, $frequency, $iteration, $termType, $term) {
         $date = new DateTime($startDate);
     
         switch ($frequency) {
@@ -3632,7 +3648,7 @@ class SalesProposalController {
                         $date->modify('last day of next month');
                     }
                 } else {
-                    $date->modify("+$iteration months");
+                    $date->modify("+". $iteration ." months");
                 }
                 break;
     
@@ -3662,7 +3678,12 @@ class SalesProposalController {
                 break;
     
             case 'Lumpsum':
-                $date->modify("+$term days");
+                if($termType == 'Months'){
+                    $date->modify("+$term months");
+                }
+                else{
+                    $date->modify("+$term days");
+                }
                 break; // Added missing break statement to prevent fall-through
     
             default:
@@ -4209,6 +4230,7 @@ class SalesProposalController {
         $customerID = $salesProposalDetails['customer_id'];
         $startDate = $this->systemModel->checkDate('empty', $salesProposalDetails['actual_start_date'], '', 'Y-m-d', '');
         $termLength = $salesProposalDetails['term_length'] ?? 0;
+        $termType = $salesProposalDetails['term_type'] ?? 0;
         $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
         $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
         $companyID = $salesProposalDetails['company_id'] ?? null;
@@ -4218,7 +4240,7 @@ class SalesProposalController {
             $repaymentAmount = $salesProposalPricingComputationDetails['repayment_amount'] ?? 0;
     
             for ($i = 0; $i < $numberOfPayments; $i++) {
-                $dueDate = $this->calculateDueDate2($startDate, $paymentFrequency, ($i + 1), $termLength);
+                $dueDate = $this->calculateDueDate2($startDate, $paymentFrequency, ($i + 1), $termType, $termLength);
     
                 if(($i + 1) >= 1 && ($i + 1) <= 9){
                     $extension = '0' . ($i + 1);

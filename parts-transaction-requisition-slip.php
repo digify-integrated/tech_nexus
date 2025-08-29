@@ -48,7 +48,8 @@
         $customer_id = $partTransactionDetails['customer_id'] ?? '';
         $slip_reference_no = $partTransactionDetails['slip_reference_no'] ?? '';
         $request_by = $partTransactionDetails['request_by'] ?? '';
-        $customer_ref_id = $partsIncomingDetails['customer_ref_id'] ?? '';
+        $customer_ref_id = $partTransactionDetails['customer_ref_id'] ?? '';
+        $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? '';
 
         $productDetails = $productModel->getProduct($customer_id);
         $productSubategoryID = $productDetails['product_subcategory_id'] ?? '';
@@ -78,11 +79,33 @@
 
     ob_start();
 
+    class MYPDF extends TCPDF {
+        public function Header() {
+            $width = $this->getPageWidth();
+            $height = $this->getPageHeight();
+
+            $this->SetAlpha(0.3); // faint watermark
+            $this->SetFont('helvetica', 'B', 80);
+
+            $this->StartTransform();
+            $this->Rotate(45, $width/2, $height/2);
+            $this->Text(60, 120, 'CANCELLED'); // your watermark text
+            $this->StopTransform();
+
+            $this->SetAlpha(1); // reset transparency
+        }
+    }
+
     // Create TCPDF instance
-    $pdf = new TCPDF('P', 'mm', array(330.2, 215.9), true, 'UTF-8', false);
+    $pdf = new MYPDF('P', 'mm', array(330.2, 215.9), true, 'UTF-8', false);
 
    // Disable header and footer
+   if($part_transaction_status == 'Cancelled'){
+     $pdf->setPrintHeader(true);
+   } 
+   else{
     $pdf->setPrintHeader(false);
+   }
     $pdf->setPrintFooter(false);
     $pdf->SetPageOrientation('P');
 

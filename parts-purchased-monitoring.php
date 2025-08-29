@@ -24,18 +24,10 @@
       exit;
     }
 
-    $partsPurchasedMonitoringID = $securityModel->decryptData($_GET['id']);
-
-    $checkPartsPurchasedMonitoringExist = $partsPurchasedMonitoringModel->checkPartsPurchasedMonitoringExist($partsPurchasedMonitoringID);
-    $total = $checkPartsPurchasedMonitoringExist['total'] ?? 0;
-
-    if($total == 0){
-      header('location: 404.php');
-      exit;
-    }
+    $productID = $securityModel->decryptData($_GET['id']);
   }
   else{
-    $partsPurchasedMonitoringID = null;
+    $productID = null;
   }
 
   $newRecord = isset($_GET['new']);
@@ -72,8 +64,8 @@
                     <li class="breadcrumb-item">Inventory</li>
                     <li class="breadcrumb-item" aria-current="page"><a href="parts-purchased-monitoring.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($partsPurchasedMonitoringID)){
-                            echo '<li class="breadcrumb-item" id="parts-purchased-monitoring-id">'. $partsPurchasedMonitoringID .'</li>';
+                        if(!$newRecord && !empty($productID)){
+                            echo '<li class="breadcrumb-item" id="product-id">'. $productID .'</li>';
                         }
                     ?>
                 </ul>
@@ -87,7 +79,7 @@
           </div>
         </div>
         <?php
-          if(!empty($partsPurchasedMonitoringID) && $partsPurchasedMonitoringWriteAccess['total'] > 0){
+          if(!empty($productID) && $partsPurchasedMonitoringWriteAccess['total'] > 0){
             require_once('view/_parts_purchased_monitoring_details.php');
           }
           else{

@@ -5,9 +5,11 @@ require('model/internal-dr-model.php');
 require('model/security-model.php');
 require('model/system-model.php');
 require('model/customer-model.php');
+require('model/miscellaneous-client-model.php');
 require('model/notification-setting-model.php');
 require('model/email-setting-model.php');
 require('model/product-model.php');
+require('model/supplier-model.php');
 require ('assets/libs/PHPMailer/src/PHPMailer.php');
 require ('assets/libs/PHPMailer/src/Exception.php');
 require ('assets/libs/PHPMailer/src/SMTP.php');
@@ -21,74 +23,71 @@ $securityModel = new SecurityModel();
 $internalDRModel = new InternalDRModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
+$supplierModel = new SupplierModel($databaseModel);
+$miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 $emailSettingModel = new EmailSettingModel(new DatabaseModel);
 $notificationSettingModel = new NotificationSettingModel(new DatabaseModel);
 
 $table = '<table border="1" cellspacing="0" cellpadding="5">
             <thead>
                 <tr>
-                    <th>Released To</th>
-                    <th>Stock Number</th>
-                    <th>Details</th>
-                    <th>Estimated Return Date</th>
+                    <th>Reference No.</th>
+                    <th>Company</th>
+                    <th>Product</th>
+                    <th>Supplier</th>
+                    <th>Completion Date</th>
                     <th>Days Overdue</th>
-                    <th>Status</th>
                 </tr>
             <thead>
             <tbody>';
 
-$sql = $databaseModel->getConnection()->prepare('CALL cronUnitReturnOverdue()');
+$sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_incoming WHERE part_incoming_status = "Completed" ORDER BY company_id');
 $sql->execute();
 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
 $sql->closeCursor();
 $count = count($options);
 
 foreach ($options as $row) {
-    $unit_return_id = $row['unit_return_id'];
-    $internal_dr_id = $row['internal_dr_id'];
+    $reference_number = $row['reference_number'];
+    $supplier_id = $row['supplier_id'];
     $product_id = $row['product_id'];
+    $company_id = $row['company_id'];
 
-    $interDRDetails = $internalDRModel->getInternalDR($internal_dr_id);
-    $release_to = $interDRDetails['release_to'];
-    $product_description = $interDRDetails['product_description'];
+    $completion_date = $systemModel->checkDate('empty', $row['completion_date'], '', 'm/d/Y', '');
 
-    $estimated_return_date = $systemModel->checkDate('empty', $row['estimated_return_date'], '', 'm/d/Y', '');
-    $return_date = $systemModel->checkDate('empty', $row['return_date'], '', 'm/d/Y', '');
-                
+    $supplierDetails = $supplierModel->getSupplier($supplier_id);
+    $supplier_name = $supplierDetails['supplier_name'];
+
     $productDetails = $productModel->getProduct($product_id);
-    $stockNumber = $productDetails['stock_number'] ?? null;
+    $stock_number = $productDetails['stock_number'];
+
+    if($company_id == '2'){
+        $company_name = 'NE Truck Builders';
+    }
+    else{
+        $company_name = 'FUSO Tarlac';
+    }
                 
-    if(empty($return_date)){
-        $returnDate = DateTime::createFromFormat('m/d/Y', $estimated_return_date);
+    if(!empty($completion_date)){
+        $returnDate = DateTime::createFromFormat('m/d/Y', $completion_date);
         $returnDate->setTime(0, 0, 0);
         $today = new DateTime('today');
 
         $daysDiff = (int) $returnDate->diff($today)->format('%R%a');
-
-        if($daysDiff > 0){
-            $status = 'Overdue';
-        }
-        else{
-            $status = 'On-Going';
-        }                    
-    }
-    else{
-        $daysDiff = 0;
-        $status = 'Returned';
-    }
-
-    $table .= '<tr>
-                    <td>
-                        <a href="cgmids.com/unit-return.php">
-                            '. $release_to .'
-                        </a>
-                    </td>
-                    <td>'. $stockNumber .'</td>
-                    <td>'. $product_description .'</td>
-                    <td>'. $estimated_return_date .'</td>
+        
+        if($daysDiff >= 2){
+            $table .= '<tr>
+                    <td>'. $reference_number .'</td>
+                    <td>'. $company_name .'</td>
+                    <td>'. $stock_number .'</td>
+                    <td>'. $supplier_name .'</td>
+                    <td>'. $completion_date .'</td>
                     <td>'. $daysDiff . ' Day(s)</td>
-                    <td>'. $status . '</td>
                 </tr>';
+        }
+    }
+
+    
 }
 
 $table .= '</tbody></table>';
@@ -98,7 +97,7 @@ $emailSetting = $emailSettingModel->getEmailSetting(1);
 $mailFromName = $emailSetting['mail_from_name'] ?? null;
 $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
 
-$notificationSettingDetails = $notificationSettingModel->getNotificationSetting(15);
+$notificationSettingDetails = $notificationSettingModel->getNotificationSetting(17);
 $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
 $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
 $emailBody = str_replace('{TABLE}', $table, $emailBody);
@@ -140,9 +139,12 @@ $mailer->addAddress('j.mendoza@christianmotors.ph');
 $mailer->addAddress('k.magiwe@christianmotors.ph');
 $mailer->addAddress('glenbonita@christianmotors.ph');
 $mailer->addAddress('l.agulto@christianmotors.ph');
+$mailer->addAddress('j.delacorte@christianmotors.ph');
 $mailer->addAddress('jl.manzano.fuso@christianmotors.ph');
 $mailer->addAddress('m.siapo.fuso@christianmotors.ph');
 $mailer->addAddress('cj.agudo@christianmotors.ph');
+$mailer->addAddress('l.samaniego@christianmotors.ph');
+$mailer->addAddress('sc.lapuz@christianmotors.ph');
 $mailer->Subject = $emailSubject;
 $mailer->Body = $message;
 

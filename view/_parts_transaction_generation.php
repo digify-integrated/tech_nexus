@@ -406,6 +406,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
+            $order = 0;
             foreach ($options as $row) {
                 $part_transaction_cart_id = $row['part_transaction_cart_id'];
                 $part_id = $row['part_id'];
@@ -448,6 +449,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $unitCode = $unitModel->getUnit($unitSale);
                 $short_name = $unitCode['short_name'] ?? null;
 
+                $order += 1;
+
                 $response[] = [
                     'PART' => '<div class="d-flex align-items-center"><img src="'. $partsImage .'" alt="image" class="bg-light wid-50 rounded">
                                     <div class="flex-grow-1 ms-3">
@@ -460,6 +463,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'AVAILABLE_STOCK' => number_format($partQuantity, 0, '', ',') . ' ' . $short_name,
                     'ADD_ON' => number_format($add_on, 2) .' PHP',
                     'DISCOUNT' => $discount,
+                    'ORDER' => $order,
                     'DISCOUNT_TOTAL' => number_format($discount_total, 2) .' PHP',
                     'SUBTOTAL' => number_format($sub_total, 2) .' PHP',
                     'TOTAL' => number_format($total, 2) .' PHP',
@@ -502,7 +506,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $total = $row['total'];
                 $add_on = $row['add_on'];
                 $price = $row['price'];
-                $company_id = $row['company_id'];
+
+                $partTransactionDetails = $partsTransactionModel->getPartsTransaction($part_transaction_id);
+                $company_id = $partTransactionDetails['company_id'];
 
                 $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
 
@@ -631,7 +637,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $part_transaction_status = '<span class="badge bg-success">' . $part_transaction_status . '</span>';
                 }
 
-                 if($customer_type === 'Miscellaneous'){
+                if($customer_type === 'Miscellaneous'){
                     $customerDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
                     $transaction_reference = $customerDetails['client_name'] ?? 'N/A';
                 }
@@ -672,7 +678,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'ISSUANCE_DATE' => $issuance_date,
                     'STATUS' => $part_transaction_status,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

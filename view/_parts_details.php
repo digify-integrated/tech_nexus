@@ -6,7 +6,7 @@ $deletePartsButton = '';
 $partsDetails = $partsModel->getParts($partID);
 $partsStatus = $partsDetails['part_status'];
 $updateLandedCost = $userModel->checkSystemActionAccessRights($user_id, 171);
-$updatePartsDisabled = $userModel->checkSystemActionAccessRights($user_id, 175);
+$updatePartsDisabled = $userModel->checkSystemActionAccessRights($user_id, 220);
 
 $disabledPartsForm = 'disabled';
 $disabledLandedCostForm = 'readonly';
@@ -146,22 +146,22 @@ if($addPartExpense['total'] > 0){
                     <?php echo $brandModel->generateBrandOptions(); ?>
                   </select>
                 </div>
-                <label class="col-lg-3 col-form-label">Part Number <span class="text-danger">*</span></label>
-                <div class="col-lg-3">
-                  <input type="text" class="form-control" id="part_number" name="part_number" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-3 col-form-label">Bar Code</label>
-                <div class="col-lg-3">
-                  <input type="text" class="form-control" id="bar_code" name="bar_code" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
-                </div>
                 <label class="col-lg-3 col-form-label">Category <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <select class="form-control select2" name="part_category_id" id="part_category_id" <?php echo $disabledPartsForm; ?>>
                     <option value="">--</option>
                     <?php echo $partsCategoryModel->generatePartsCategoryOptions(); ?>
                   </select>
+                </div>
+              </div>
+              <div class="form-group row d-none">
+                <label class="col-lg-3 col-form-label">Bar Code</label>
+                <div class="col-lg-3">
+                  <input type="text" class="form-control" id="bar_code" name="bar_code" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
+                </div>
+                <label class="col-lg-3 col-form-label">Part Number <span class="text-danger">*</span></label>
+                <div class="col-lg-3">
+                  <input type="text" class="form-control" id="part_number" name="part_number" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
                 </div>
               </div>
               <div class="form-group row">

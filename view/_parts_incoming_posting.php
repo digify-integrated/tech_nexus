@@ -47,6 +47,7 @@
               <tr>
                 <th>Reference Number</th>
                 <th>Product</th>
+                <th>Supplier</th>
                 <th>Item Lines</th>
                 <th>Item Quantity</th>
                 <th>Received Items</th>

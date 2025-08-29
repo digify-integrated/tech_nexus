@@ -153,7 +153,7 @@
         </div>
         <?php
          if(!empty($salesProposalID) && !empty($customerID)){
-            require_once('view/_sales_proposal_details_modified.php');
+            require_once('view/.php');
           }
           else{
             require_once('view/_incoming_sales_proposal.php');

@@ -628,6 +628,43 @@ if($createCIReport['total'] > 0){
                   </div>';
           }
 
+          echo '<div><div class="offcanvas offcanvas-end" tabindex="-1" id="contact-comaker-relation-offcanvas" aria-labelledby="contact-comaker-relation-offcanvas-label">
+                    <div class="offcanvas-header">
+                      <h2 id="contact-comaker-relation-offcanvas-label" style="margin-bottom:-0.5rem">Co-Maker Information</h2>
+                      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                      <div class="row">
+                        <div class="col-lg-12">
+                          <form id="contact-comaker-relation-form" method="post" action="#">
+                            <div class="form-group row">
+                              <div class="col-lg-12">
+                                <label class="form-label" for="family_name">Co-Maker <span class="text-danger">*</span></label>
+                                <input type="hidden" id="contact_comaker_id" name="contact_comaker_id">
+                                <input type="text" class="form-control text-uppercase" id="comaker_name" name="contact_comaker_id " maxlength="5000" autocomplete="off" readonly>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <div class="col-lg-12">
+                                <label class="form-label">Relation <span class="text-danger">*</span></label>
+                                <select class="form-control offcanvas-select2" name="comaker_relation_id" id="comaker_relation_id">
+                                  <option value="">--</option>
+                                  '. $relationModel->generateRelationOptions() .'
+                                </select>
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-lg-12">
+                          <button type="submit" class="btn btn-primary" id="submit-contact-comaker-relation" form="contact-comaker-relation-form">Submit</button>
+                          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div></div>';
+
           echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-image-offcanvas" aria-labelledby="contact-image-offcanvas-label">
                   <div class="offcanvas-header">
                     <h2 id="contact-image-offcanvas-label" style="margin-bottom:-0.5rem">Customer Image</h2>

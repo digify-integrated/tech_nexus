@@ -377,12 +377,11 @@ class PartsIncomingController {
 
         $cost = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'total cost')['total'] ?? 0;
 
-        if($cost != $invoice_price){
+        if(number_format($cost, 2, ".", "") != $invoice_price){
             echo json_encode(['success' => false, 'invoicePrice' => true]);
             exit;
         }
 
-        
         
         $partsIncomingDetails = $this->partsIncomingModel->getPartsIncoming($parts_incoming_id);
         $product_id = $partsIncomingDetails['product_id'] ?? '';
@@ -506,6 +505,12 @@ class PartsIncomingController {
         if ($total > 0) {
             $partsIncomingCartDetails = $this->partsIncomingModel->getPartsIncomingCart($part_incoming_cart_id);
             $part_id = $partsIncomingCartDetails['part_id'];
+            $remaining_quantity = $partsIncomingCartDetails['remaining_quantity'] ?? 0;
+            
+            if($received_quantity > $remaining_quantity){
+                echo json_encode(['success' => false, 'remainingQuantity' => true]);
+                exit;
+            }
 
             $this->partsIncomingModel->updatePartsReceivedIncomingCart($part_incoming_cart_id, $part_id, $received_quantity, $userID);
         } 

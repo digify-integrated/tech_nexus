@@ -15,6 +15,7 @@ session_start();
 class PartsTransactionController {
     private $partsTransactionModel;
     private $partsModel;
+    private $productModel;
     private $userModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
@@ -37,9 +38,10 @@ class PartsTransactionController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(PartsTransactionModel $partsTransactionModel, PartsModel $partsModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(PartsTransactionModel $partsTransactionModel, PartsModel $partsModel, ProductModel $productModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->partsTransactionModel = $partsTransactionModel;
         $this->partsModel = $partsModel;
+        $this->productModel = $productModel;
         $this->userModel = $userModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
@@ -123,6 +125,9 @@ class PartsTransactionController {
                     break;
                 case 'tag transaction as released':
                     $this->tagAsReleased();
+                    break;
+                case 'tag transaction as checked':
+                    $this->tagAsChecked();
                     break;
                 case 'tag transaction as cancelled':
                     $this->tagAsCancelled();
@@ -441,14 +446,48 @@ class PartsTransactionController {
         }
 
         $cost = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'cost')['total'] ?? 0;
-        $overallTotal = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'overall total')['total'] ?? 0;
 
         $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Released', '', $userID);
        
         if($customer_type == 'Internal'){
-            $this->partsTransactionModel->createPartsTransactionProductExpense($customer_id, 'Issuance Slip', $parts_transaction_id, $overallTotal, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, $userID); 
+            $productDetails = $this->productModel->getProduct($customer_id);
+            $is_service = $productDetails['is_service'] ?? 'No';
+
+            if($is_service == 'Yes'){
+                $overallTotal = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'gasoline cost')['total'] ?? 0;
+
+                $this->partsTransactionModel->createPartsTransactionProductExpense($customer_id, 'Issuance Slip', $parts_transaction_id, $overallTotal, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, $userID); 
+            }
+            else{
+                $overallTotal = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'overall total')['total'] ?? 0;
+
+                $this->partsTransactionModel->createPartsTransactionProductExpense($customer_id, 'Issuance Slip', $parts_transaction_id, $overallTotal, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, $userID); 
+            }
+
+            
             $this->partsTransactionModel->createPartsTransactionEntry($parts_transaction_id, $company_id, $p_reference_number, $cost, $overallTotal, $userID);         
         }        
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function tagAsChecked() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Checked', '', $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -980,6 +1019,7 @@ require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/parts-transaction-model.php';
 require_once '../model/parts-model.php';
+require_once '../model/product-model.php';
 require_once '../model/user-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
@@ -987,6 +1027,6 @@ require_once '../model/system-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new PartsTransactionController(new PartsTransactionModel(new DatabaseModel), new PartsModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new PartsTransactionController(new PartsTransactionModel(new DatabaseModel), new PartsModel(new DatabaseModel), new ProductModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

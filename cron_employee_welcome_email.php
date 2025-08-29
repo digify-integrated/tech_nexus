@@ -126,9 +126,6 @@
     echo "Exception occurred: " . $e->getMessage();
 }
 
-// Close database connections
-$databaseModel->getConnection()->close();
-
 file_put_contents($log_file, "Script ended at " . date("Y-m-d H:i:s") . "\n", FILE_APPEND);
 
 ?>

@@ -5,6 +5,7 @@ require('model/internal-dr-model.php');
 require('model/security-model.php');
 require('model/system-model.php');
 require('model/customer-model.php');
+require('model/miscellaneous-client-model.php');
 require('model/notification-setting-model.php');
 require('model/email-setting-model.php');
 require('model/product-model.php');
@@ -21,74 +22,79 @@ $securityModel = new SecurityModel();
 $internalDRModel = new InternalDRModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
+$miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 $emailSettingModel = new EmailSettingModel(new DatabaseModel);
 $notificationSettingModel = new NotificationSettingModel(new DatabaseModel);
 
 $table = '<table border="1" cellspacing="0" cellpadding="5">
             <thead>
                 <tr>
-                    <th>Released To</th>
-                    <th>Stock Number</th>
-                    <th>Details</th>
-                    <th>Estimated Return Date</th>
+                    <th>Issuance No.</th>
+                    <th>Company</th>
+                    <th>Reference</th>
+                    <th>Issuance Date</th>
+                    <th>Released Date</th>
                     <th>Days Overdue</th>
-                    <th>Status</th>
                 </tr>
             <thead>
             <tbody>';
 
-$sql = $databaseModel->getConnection()->prepare('CALL cronUnitReturnOverdue()');
+$sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction WHERE part_transaction_status = "Released" ORDER BY company_id');
 $sql->execute();
 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
 $sql->closeCursor();
 $count = count($options);
 
 foreach ($options as $row) {
-    $unit_return_id = $row['unit_return_id'];
-    $internal_dr_id = $row['internal_dr_id'];
-    $product_id = $row['product_id'];
+    $issuance_no = $row['issuance_no'];
+    $customer_type = $row['customer_type'];
+    $customer_id = $row['customer_id'];
+    $company_id = $row['company_id'];
 
-    $interDRDetails = $internalDRModel->getInternalDR($internal_dr_id);
-    $release_to = $interDRDetails['release_to'];
-    $product_description = $interDRDetails['product_description'];
+    $released_date = $systemModel->checkDate('empty', $row['released_date'], '', 'm/d/Y', '');
+    $issuance_date = $systemModel->checkDate('empty', $row['issuance_date'], '', 'm/d/Y', '');
 
-    $estimated_return_date = $systemModel->checkDate('empty', $row['estimated_return_date'], '', 'm/d/Y', '');
-    $return_date = $systemModel->checkDate('empty', $row['return_date'], '', 'm/d/Y', '');
+    if($customer_type === 'Miscellaneous'){
+        $customerDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+        $transaction_reference = $customerDetails['client_name'] ?? 'N/A';
+    }
+    else if($customer_type === 'Customer'){
+        $customerDetails = $customerModel->getPersonalInformation($customer_id);
+        $transaction_reference = $customerDetails['file_as'] ?? null;
+    }
+    else{
+        $productDetails = $productModel->getProduct($customer_id);
+        $stock_number = $productDetails['stock_number'];
+        $transaction_reference = $stock_number;
+    }
+
+    if($company_id == '2'){
+        $company_name = 'NE Truck Builders';
+    }
+    else{
+        $company_name = 'FUSO Tarlac';
+    }
                 
-    $productDetails = $productModel->getProduct($product_id);
-    $stockNumber = $productDetails['stock_number'] ?? null;
-                
-    if(empty($return_date)){
-        $returnDate = DateTime::createFromFormat('m/d/Y', $estimated_return_date);
+    if(!empty($released_date)){
+        $returnDate = DateTime::createFromFormat('m/d/Y', $released_date);
         $returnDate->setTime(0, 0, 0);
         $today = new DateTime('today');
 
         $daysDiff = (int) $returnDate->diff($today)->format('%R%a');
-
-        if($daysDiff > 0){
-            $status = 'Overdue';
-        }
-        else{
-            $status = 'On-Going';
-        }                    
-    }
-    else{
-        $daysDiff = 0;
-        $status = 'Returned';
-    }
-
-    $table .= '<tr>
-                    <td>
-                        <a href="cgmids.com/unit-return.php">
-                            '. $release_to .'
-                        </a>
-                    </td>
-                    <td>'. $stockNumber .'</td>
-                    <td>'. $product_description .'</td>
-                    <td>'. $estimated_return_date .'</td>
+        
+        if($daysDiff >= 2){
+            $table .= '<tr>
+                    <td>'. $issuance_no .'</td>
+                    <td>'. $company_name .'</td>
+                    <td>'. $transaction_reference .'</td>
+                    <td>'. $issuance_date .'</td>
+                    <td>'. $released_date .'</td>
                     <td>'. $daysDiff . ' Day(s)</td>
-                    <td>'. $status . '</td>
                 </tr>';
+        }
+    }
+
+    
 }
 
 $table .= '</tbody></table>';
@@ -98,7 +104,7 @@ $emailSetting = $emailSettingModel->getEmailSetting(1);
 $mailFromName = $emailSetting['mail_from_name'] ?? null;
 $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
 
-$notificationSettingDetails = $notificationSettingModel->getNotificationSetting(15);
+$notificationSettingDetails = $notificationSettingModel->getNotificationSetting(16);
 $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
 $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
 $emailBody = str_replace('{TABLE}', $table, $emailBody);
@@ -140,9 +146,12 @@ $mailer->addAddress('j.mendoza@christianmotors.ph');
 $mailer->addAddress('k.magiwe@christianmotors.ph');
 $mailer->addAddress('glenbonita@christianmotors.ph');
 $mailer->addAddress('l.agulto@christianmotors.ph');
+$mailer->addAddress('j.delacorte@christianmotors.ph');
 $mailer->addAddress('jl.manzano.fuso@christianmotors.ph');
 $mailer->addAddress('m.siapo.fuso@christianmotors.ph');
 $mailer->addAddress('cj.agudo@christianmotors.ph');
+$mailer->addAddress('l.samaniego@christianmotors.ph');
+$mailer->addAddress('sc.lapuz@christianmotors.ph');
 $mailer->Subject = $emailSubject;
 $mailer->Body = $message;
 
@@ -160,6 +169,7 @@ if($count > 0){
         echo "Exception occurred: " . $e->getMessage();
     }
 }
+
 
 file_put_contents($log_file, "Script ended at " . date("Y-m-d H:i:s") . "\n", FILE_APPEND);
 ?>

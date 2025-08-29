@@ -1,6 +1,10 @@
 <?php
 $getJobOrderBackjobCount = $salesProposalModel->getJobOrderBackjobCount($salesProposalID);
 $getAdditionalJobOrderBackjobCount = $salesProposalModel->getAdditionalJobOrderBackjobCount($salesProposalID);
+$product_id = $salesProposalDetails['product_id'];
+
+$getProductPendingPartTransactionCount = $salesProposalModel->getProductPendingPartTransactionCount($product_id);
+
 ?>
 
 <div class="row">
@@ -38,9 +42,15 @@ $getAdditionalJobOrderBackjobCount = $salesProposalModel->getAdditionalJobOrderB
                   if($tagSalesProposalReadyForRelease['total'] > 0 && !empty($qualityControlForm)){
                     if((($additionalJobOrderCount['total'] > 0 && !empty($additionalJobOrderConfirmation)) || $additionalJobOrderCount['total'] == 0) && $productType != 'Brand New'){
                       if($getJobOrderBackjobCount['total'] == 0 && $getAdditionalJobOrderBackjobCount['total'] == 0){
-                        echo '<div class="previous me-2 d-none" id="ready-for-release-sales-proposal-button">
-                          <button class="btn btn-info m-l-5" id="ready-for-release-sales-proposal">Ready For Release</button>
-                        </div>';
+                        if(($product_id == 'Unit' || $product_id == 'Rental') && $getProductPendingPartTransactionCount['total'] == 0){
+                          echo '<div class="previous me-2 d-none" id="ready-for-release-sales-proposal-button">
+                                  <button class="btn btn-info m-l-5" id="ready-for-release-sales-proposal">Ready For Release</button>
+                                </div>';
+                        } elseif($product_id != 'Unit' && $product_id != 'Rental'){
+                          echo '<div class="previous me-2 d-none" id="ready-for-release-sales-proposal-button">
+                                  <button class="btn btn-info m-l-5" id="ready-for-release-sales-proposal">Ready For Release</button>
+                                </div>';
+                        }
                       }
                     }
                   }

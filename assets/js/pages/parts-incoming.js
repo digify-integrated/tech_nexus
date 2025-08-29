@@ -70,7 +70,13 @@
         });
 
         $(document).on('click','#apply-filter',function() {
-            partsIncomingTable('#parts-incoming-table');
+            if($('#parts-incoming-table').length){
+                partsIncomingTable('#parts-incoming-table');
+            }
+
+            if($('#parts-incoming-posting-table').length){
+                partsIncomingPostingTable('#parts-incoming-posting-table');
+            }
         });
 
         $(document).on('click','.update-part-cart',function() {
@@ -687,6 +693,7 @@ function partsIncomingPostingTable(datatable_name, buttons = false, show_all = f
         var column = [
             { 'data' : 'TRANSACTION_ID' },
             { 'data' : 'PRODUCT' },
+            { 'data' : 'SUPPLIER' },
             { 'data' : 'LINES' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED' },
@@ -710,20 +717,22 @@ function partsIncomingPostingTable(datatable_name, buttons = false, show_all = f
             { 'width': 'auto', 'aTargets': 4 },
             { 'width': 'auto', 'aTargets': 5 },
             { 'width': 'auto', 'aTargets': 6 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+            { 'width': 'auto', 'aTargets': 7 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
-            { 'width': 'auto', 'aTargets': 9 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
-            { 'width': 'auto', 'aTargets': 11 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 12 },
-            { 'width': 'auto', 'aTargets': 13 },
-            { 'width': '15%','bSortable': false, 'aTargets': 14 }
+            { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+            { 'width': 'auto', 'aTargets': 10 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 11 },
+            { 'width': 'auto', 'aTargets': 12 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 13 },
+            { 'width': 'auto', 'aTargets': 14 },
+            { 'width': '15%','bSortable': false, 'aTargets': 15 }
         ];
     }
     else{
         var column = [
             { 'data' : 'TRANSACTION_ID' },
             { 'data' : 'PRODUCT' },
+            { 'data' : 'SUPPLIER' },
             { 'data' : 'LINES' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED' },
@@ -742,11 +751,12 @@ function partsIncomingPostingTable(datatable_name, buttons = false, show_all = f
             { 'width': 'auto', 'aTargets': 3 },
             { 'width': 'auto', 'aTargets': 4 },
             { 'width': 'auto', 'aTargets': 5 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+            { 'width': 'auto', 'aTargets': 6 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
-            { 'width': 'auto', 'aTargets': 9 },
-            { 'width': '15%','bSortable': false, 'aTargets': 10 }
+            { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+            { 'width': 'auto', 'aTargets': 10 },
+            { 'width': '15%','bSortable': false, 'aTargets': 11 }
         ];
     }
 
@@ -865,6 +875,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
     if(view_cost > 0){
         var column = [ 
             { 'data' : 'ACTION' },
+            { 'data' : 'ORDER' },
             { 'data' : 'PART' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED_QUANTITY' },
@@ -882,12 +893,14 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 4 },
             { 'width': 'auto', 'aTargets': 5 },
             { 'width': 'auto', 'aTargets': 6 },
-            { 'width': 'auto', 'aTargets': 7 }
+            { 'width': 'auto', 'aTargets': 7 },
+            { 'width': 'auto', 'aTargets': 8 },
         ];
     }
     else{
         var column = [ 
             { 'data' : 'ACTION' },
+            { 'data' : 'ORDER' },
             { 'data' : 'PART' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED_QUANTITY' },
@@ -904,6 +917,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 4 },
             { 'width': 'auto', 'aTargets': 5 },
             { 'width': 'auto', 'aTargets': 6 },
+            { 'width': 'auto', 'aTargets': 7 },
         ];
     }
 
@@ -1614,6 +1628,9 @@ function receiveItemForm(){
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
+                        }
+                        else if (response.remainingQuantity) {
+                            showNotification('Update Received Item', 'Received quantity cannot be greater than remaining quantity', 'danger');
                         }
                         else if (response.quantity) {
                             showNotification('Update Received Item', 'Quantity cannot exceed available stock', 'danger');

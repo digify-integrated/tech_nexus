@@ -2330,6 +2330,7 @@ function displayDetails(transaction){
                         checkOptionExist('#make_id', response.make_id, '');
                         checkOptionExist('#class_id', response.class_id, '');
                         checkOptionExist('#preorder', response.preorder, '');
+                        checkOptionExist('#is_service', response.is_service, '');
                         checkOptionExist('#mode_of_acquisition_id', response.mode_of_acquisition_id, '');
 
                         checkOptionExist('#received_from_id_type', response.receivedFromIDType, '');

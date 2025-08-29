@@ -7372,6 +7372,7 @@ BEGIN
         'Approval Date: ', NEW.approval_date, '<br/>',
         'Released Date: ', NEW.released_date, '<br/>',
         'Draft Date: ', NEW.draft_date, '<br/>',
+        'Check Date: ', NEW.created_date, '<br/>',
         'Draft Reason: ', NEW.draft_reason, '<br/>',
         'Cancellation Date: ', NEW.cancellation_date, '<br/>',
         'Cancellation Remarks: ', NEW.cancellation_remarks, '<br/>',
@@ -7471,6 +7472,10 @@ BEGIN
 
     IF NEW.released_date <> OLD.released_date THEN
         SET audit_log = CONCAT(audit_log, 'Released Date: ', OLD.released_date, ' -> ', NEW.released_date, '<br/>');
+    END IF;
+
+    IF NEW.created_date <> OLD.created_date THEN
+        SET audit_log = CONCAT(audit_log, 'Check Date: ', OLD.created_date, ' -> ', NEW.created_date, '<br/>');
     END IF;
 
     IF NEW.draft_date <> OLD.draft_date THEN

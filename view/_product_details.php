@@ -355,6 +355,13 @@ if($addProductExpense['total'] > 0){
                 <label class="col-lg-3 col-form-label">Year Model</label>
                 <div class="col-lg-3">
                   <input type="text" class="form-control" id="year_model" name="year_model" maxlength="10" autocomplete="off" <?php echo $disabledProductForm; ?>>
+                </div>               
+                <label class="col-lg-3 col-form-label">Is Service?</label>
+                <div class="col-lg-3">
+                  <select class="form-control" name="is_service" id="is_service" <?php echo $disabledProductForm; ?>>
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
                 </div>
               </div>
 

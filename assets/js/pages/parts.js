@@ -611,9 +611,6 @@ function partsForm(){
             brand_id: {
                 required: true
             },
-            bar_code: {
-                required: true
-            },
             part_category_id: {
                 required: true
             },
@@ -645,9 +642,6 @@ function partsForm(){
         messages: {
             brand_id: {
                 required: 'Please choose the brand'
-            },
-            bar_code: {
-                required: 'Please enter the bar code'
             },
             part_category_id: {
                 required: 'Please choose the category'
@@ -1092,12 +1086,6 @@ function partsDetailsForm(){
             brand_id: {
                 required: true
             },
-            bar_code: {
-                required: true
-            },
-            part_number: {
-                required: true
-            },
             part_category_id: {
                 required: true
             },
@@ -1132,12 +1120,6 @@ function partsDetailsForm(){
         messages: {
             brand_id: {
                 required: 'Please choose the brand'
-            },
-            part_number: {
-                required: 'Please enter the part number'
-            },
-            bar_code: {
-                required: 'Please enter the bar code'
             },
             part_category_id: {
                 required: 'Please choose the category'

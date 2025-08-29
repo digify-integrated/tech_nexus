@@ -1038,6 +1038,13 @@ class CIReportModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getCIReportHighestExposure($p_ci_report_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM ci_report_loan WHERE ci_report_id = :p_ci_report_id ORDER BY pn_amount DESC LIMIT 1');
+        $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -1180,6 +1187,18 @@ class CIReportModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function getCIReportLoanPNAmount($p_ci_report_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT sum(pn_amount) as total FROM ci_report_loan WHERE ci_report_id = :p_ci_report_id AND (loan_source != "CGMI" OR loan_source IS NULL)');
+        $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getCIReportBusinessMonthlyIncome($p_ci_report_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT sum(monthly_income) as total FROM ci_report_business WHERE ci_report_id = :p_ci_report_id');
+        $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     public function generateCIReportBusinessSummary($p_ci_report_id) {
          $table = '<table class="table table-borderless text-sm ">
@@ -1242,39 +1261,59 @@ class CIReportModel {
     }
     # -------------------------------------------------------------
  
-    public function rate(
-        int   $nper,
-        float $pmt,
-        float $pv,
-        float $fv = 0.0,
-        int   $type = 0,
-        float $guess = 0.1,
-        int   $maxIter = 128,
-        float $tol = 1.0e-8
-    ): float {
-        $rate = $guess;
-        for ($i = 0; $i < $maxIter; $i++) {
-            // Present-value formula f(rate) = 0
-            $pow = pow(1 + $rate, $nper);
-            $f   = $pv * $pow + $pmt * (1 + $rate * $type) * ($pow - 1) / $rate + $fv;
+   public static function rate(
+    int $nper,
+    float $pmt,
+    float $pv,
+    float $fv = 0.0,
+    int $type = 0,
+    float $guess = 0.1,
+    int $maxIter = 128,
+    float $tol = 1.0e-8
+): float {
+    $rate = $guess;
+    $x0 = 0.0;
+    $x1 = $rate;
 
-            // Derivative f'(rate) for Newton–Raphson
-            $df = $pv * $nper * pow(1 + $rate, $nper - 1)
-                + $pmt * (1 + $rate * $type) * (
-                    $pow * $nper / $rate
-                - ($pow - 1) / ($rate * $rate)
-                )
-                + $pmt * $type * ($pow - 1) / $rate;
-
-            $newRate = $rate - $f / $df;
-
-            if (abs($newRate - $rate) <= $tol) {
-                return $newRate;
-            }
-            $rate = $newRate;
+    $calcF = function($r) use ($nper, $pmt, $pv, $fv, $type, $tol) {
+        if (abs($r) < $tol) {
+            return $pv + $pmt * $nper + $fv;
+        } else {
+            $pow = pow(1 + $r, $nper);
+            return $pv * $pow + $pmt * (1 + $r * $type) * ($pow - 1) / $r + $fv;
         }
-        throw new RuntimeException('RATE did not converge');
+    };
+
+    $y0 = $calcF($x0);
+    $y1 = $calcF($x1);
+
+    for ($i = 0; $i < $maxIter; $i++) {
+        if (abs($y1 - $y0) < $tol) {
+            break; // avoid division by zero
+        }
+
+        // Secant method update (Excel uses this)
+        $rate = $x1 - $y1 * ($x1 - $x0) / ($y1 - $y0);
+
+        $x0 = $x1;
+        $y0 = $y1;
+
+        $x1 = $rate;
+        $y1 = $calcF($x1);
+
+        if (abs($y1) < $tol) {
+            return $rate;
+        }
     }
+
+    throw new RuntimeException('RATE did not converge');
+}
+
+
+
+
+
+
 
 }
 ?>

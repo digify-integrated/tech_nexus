@@ -6825,15 +6825,15 @@ END //
 
 
 /* TO CHANGE */
-CREATE PROCEDURE insertProduct(IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(2000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_rr_no VARCHAR(100), IN p_supplier_id INT, IN p_ref_no VARCHAR(200), IN p_brand_id INT, IN p_cabin_id INT, IN p_model_id INT, IN p_make_id INT, IN p_class_id INT, IN p_mode_of_acquisition_id INT, IN p_broker VARCHAR(200), IN p_registered_owner VARCHAR(300), IN p_mode_of_registration VARCHAR(300), IN p_year_model VARCHAR(10), IN p_arrival_date DATE, IN p_checklist_date DATE, IN p_with_cr VARCHAR(5), IN p_with_plate VARCHAR(5), IN p_returned_to_supplier VARCHAR(500), IN p_quantity INT, IN p_preorder VARCHAR(5), IN p_last_log_by INT, OUT p_product_id INT)
+CREATE PROCEDURE insertProduct(IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(2000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_rr_no VARCHAR(100), IN p_supplier_id INT, IN p_ref_no VARCHAR(200), IN p_brand_id INT, IN p_cabin_id INT, IN p_model_id INT, IN p_make_id INT, IN p_class_id INT, IN p_mode_of_acquisition_id INT, IN p_broker VARCHAR(200), IN p_registered_owner VARCHAR(300), IN p_mode_of_registration VARCHAR(300), IN p_year_model VARCHAR(10), IN p_arrival_date DATE, IN p_checklist_date DATE, IN p_with_cr VARCHAR(5), IN p_with_plate VARCHAR(5), IN p_returned_to_supplier VARCHAR(500), IN p_quantity INT, IN p_preorder VARCHAR(5), IN p_is_service VARCHAR(10), IN p_last_log_by INT, OUT p_product_id INT)
 BEGIN
-    INSERT INTO product (product_category_id, product_subcategory_id, company_id, stock_number, engine_number, chassis_number, plate_number, description, warehouse_id, body_type_id, length, length_unit, running_hours, mileage, color_id, remarks, orcr_no, orcr_date, orcr_expiry_date, received_from, received_from_address, received_from_id_type, received_from_id_number, rr_no, supplier_id, ref_no, brand_id, cabin_id, model_id, make_id, class_id, mode_of_acquisition_id, broker, registered_owner, mode_of_registration, year_model, arrival_date, checklist_date, with_cr, with_plate, returned_to_supplier, quantity, preorder, last_log_by) 
-	VALUES(p_product_category_id, p_product_subcategory_id, p_company_id, p_stock_number, p_engine_number, p_chassis_number, p_plate_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_remarks, p_orcr_no, p_orcr_date, p_orcr_expiry_date, p_received_from, p_received_from_address, p_received_from_id_type, p_received_from_id_number, p_rr_no, p_supplier_id, p_ref_no, p_brand_id, p_cabin_id, p_model_id, p_make_id, p_class_id, p_mode_of_acquisition_id, p_broker, p_registered_owner, p_mode_of_registration, p_year_model, p_arrival_date, p_checklist_date, p_with_cr, p_with_plate, p_returned_to_supplier, p_quantity, p_preorder, p_last_log_by);
+    INSERT INTO product (product_category_id, product_subcategory_id, company_id, stock_number, engine_number, chassis_number, plate_number, description, warehouse_id, body_type_id, length, length_unit, running_hours, mileage, color_id, remarks, orcr_no, orcr_date, orcr_expiry_date, received_from, received_from_address, received_from_id_type, received_from_id_number, rr_no, supplier_id, ref_no, brand_id, cabin_id, model_id, make_id, class_id, mode_of_acquisition_id, broker, registered_owner, mode_of_registration, year_model, arrival_date, checklist_date, with_cr, with_plate, returned_to_supplier, quantity, preorder, is_service, last_log_by) 
+	VALUES(p_product_category_id, p_product_subcategory_id, p_company_id, p_stock_number, p_engine_number, p_chassis_number, p_plate_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_remarks, p_orcr_no, p_orcr_date, p_orcr_expiry_date, p_received_from, p_received_from_address, p_received_from_id_type, p_received_from_id_number, p_rr_no, p_supplier_id, p_ref_no, p_brand_id, p_cabin_id, p_model_id, p_make_id, p_class_id, p_mode_of_acquisition_id, p_broker, p_registered_owner, p_mode_of_registration, p_year_model, p_arrival_date, p_checklist_date, p_with_cr, p_with_plate, p_returned_to_supplier, p_quantity, p_preorder, p_is_service, p_last_log_by);
 	
     SET p_product_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateProduct(IN p_product_id INT, IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_unit_description VARCHAR(1000), IN p_rr_date DATE, IN p_rr_no VARCHAR(100), IN p_supplier_id INT, IN p_ref_no VARCHAR(200), IN p_brand_id INT, IN p_cabin_id INT, IN p_model_id INT, IN p_make_id INT, IN p_class_id INT, IN p_mode_of_acquisition_id INT, IN p_broker VARCHAR(200), IN p_registered_owner VARCHAR(300), IN p_mode_of_registration VARCHAR(300), IN p_year_model VARCHAR(10), IN p_arrival_date DATE, IN p_checklist_date DATE, IN p_fx_rate DOUBLE, IN p_unit_cost DOUBLE, IN p_package_deal DOUBLE, IN p_taxes_duties DOUBLE, IN p_freight DOUBLE, IN p_lto_registration DOUBLE, IN p_royalties DOUBLE, IN p_conversion DOUBLE, IN p_arrastre DOUBLE, IN p_wharrfage DOUBLE, IN p_insurance DOUBLE, IN p_aircon DOUBLE, IN p_import_permit DOUBLE, IN p_others DOUBLE, IN p_sub_total DOUBLE, IN p_total_landed_cost DOUBLE, IN p_with_cr VARCHAR(5), IN p_with_plate VARCHAR(5), IN p_returned_to_supplier VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateProduct(IN p_product_id INT, IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_unit_description VARCHAR(1000), IN p_rr_date DATE, IN p_rr_no VARCHAR(100), IN p_supplier_id INT, IN p_ref_no VARCHAR(200), IN p_brand_id INT, IN p_cabin_id INT, IN p_model_id INT, IN p_make_id INT, IN p_class_id INT, IN p_mode_of_acquisition_id INT, IN p_broker VARCHAR(200), IN p_registered_owner VARCHAR(300), IN p_mode_of_registration VARCHAR(300), IN p_year_model VARCHAR(10), IN p_arrival_date DATE, IN p_checklist_date DATE, IN p_fx_rate DOUBLE, IN p_unit_cost DOUBLE, IN p_package_deal DOUBLE, IN p_taxes_duties DOUBLE, IN p_freight DOUBLE, IN p_lto_registration DOUBLE, IN p_royalties DOUBLE, IN p_conversion DOUBLE, IN p_arrastre DOUBLE, IN p_wharrfage DOUBLE, IN p_insurance DOUBLE, IN p_aircon DOUBLE, IN p_import_permit DOUBLE, IN p_others DOUBLE, IN p_sub_total DOUBLE, IN p_total_landed_cost DOUBLE, IN p_with_cr VARCHAR(5), IN p_with_plate VARCHAR(5), IN p_returned_to_supplier VARCHAR(500), IN p_is_service VARCHAR(10), IN p_last_log_by INT)
 BEGIN
 	UPDATE product
     SET product_category_id = p_product_category_id,
@@ -6897,6 +6897,7 @@ BEGIN
     with_cr = p_with_cr,
     with_plate = p_with_plate,
     returned_to_supplier = p_returned_to_supplier,
+    is_service = p_is_service,
     last_log_by = p_last_log_by
     WHERE product_id = p_product_id;
 END //
@@ -6928,7 +6929,7 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
-CREATE PROCEDURE updateProductDetails(IN p_product_id INT, IN p_stock_number VARCHAR(100), IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(2000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_supplier_id INT, IN p_ref_no VARCHAR(200), IN p_brand_id INT, IN p_cabin_id INT, IN p_model_id INT, IN p_make_id INT, IN p_class_id INT, IN p_mode_of_acquisition_id INT, IN p_broker VARCHAR(200), IN p_registered_owner VARCHAR(300), IN p_mode_of_registration VARCHAR(300), IN p_year_model VARCHAR(10), IN p_arrival_date DATE, IN p_checklist_date DATE, IN p_with_cr VARCHAR(5), IN p_with_plate VARCHAR(5), IN p_returned_to_supplier VARCHAR(500), IN p_quantity INT, IN p_preorder VARCHAR(5), IN p_last_log_by INT)
+CREATE PROCEDURE updateProductDetails(IN p_product_id INT, IN p_stock_number VARCHAR(100), IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(2000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_supplier_id INT, IN p_ref_no VARCHAR(200), IN p_brand_id INT, IN p_cabin_id INT, IN p_model_id INT, IN p_make_id INT, IN p_class_id INT, IN p_mode_of_acquisition_id INT, IN p_broker VARCHAR(200), IN p_registered_owner VARCHAR(300), IN p_mode_of_registration VARCHAR(300), IN p_year_model VARCHAR(10), IN p_arrival_date DATE, IN p_checklist_date DATE, IN p_with_cr VARCHAR(5), IN p_with_plate VARCHAR(5), IN p_returned_to_supplier VARCHAR(500), IN p_quantity INT, IN p_preorder VARCHAR(5), IN p_is_service VARCHAR(10), IN p_last_log_by INT)
 BEGIN
 	UPDATE product
     SET stock_number = p_stock_number,
@@ -6973,6 +6974,7 @@ BEGIN
     returned_to_supplier = p_returned_to_supplier,
     quantity = p_quantity,
     preorder = p_preorder,
+    is_service = p_is_service,
     last_log_by = p_last_log_by
     WHERE product_id = p_product_id;
 END //
@@ -7389,7 +7391,7 @@ END //
 CREATE PROCEDURE generateInternalRepairProductOptions()
 BEGIN
 	SELECT product_id, description, stock_number FROM product
-    WHERE product_status IN ('Draft', 'ROPA', 'For Sale', 'With Application', 'On-Process', 'Ready For Release', 'For DR')
+    WHERE product_status IN ('Draft', 'ROPA', 'For Sale', 'With Application', 'On-Process', 'Ready For Release', 'For DR', 'For Return')
 	ORDER BY stock_number;
 END //
 
@@ -7649,7 +7651,7 @@ END //
 
 CREATE PROCEDURE generateContactComakerSummary(IN p_contact_id INT)
 BEGIN
-    SELECT contact_comaker_id, comaker_id
+    SELECT *
     FROM contact_comaker
     WHERE contact_id = p_contact_id;
 END //
@@ -8532,9 +8534,9 @@ BEGIN
     SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For Initial Approval' AND initial_approving_officer = p_initial_approving_officer;
 END //
 
-CREATE PROCEDURE generateDashboardForFinalApproval(IN p_final_approving_officer  INT)
+CREATE PROCEDURE generateDashboardForFinalApproval(IN p_final_approving_officer INT)
 BEGIN
-    SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For Final Approval' AND final_approving_officer  = p_final_approving_officer;
+    SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For Final Approval' AND final_approving_officer = p_final_approving_officer;
 END //
 
 CREATE PROCEDURE generateOwnSalesProposalTable(IN p_contact_id INT, IN p_user_id INT, IN p_filter_sale_proposal_status VARCHAR(500), IN p_filter_product_type VARCHAR(500), IN p_filter_company VARCHAR(500), IN p_filter_user VARCHAR(100), IN p_filter_created_date_start_date DATE, IN p_filter_created_date_end_date DATE, IN p_filter_released_date_start_date DATE, IN p_filter_released_date_end_date DATE)
@@ -15400,8 +15402,9 @@ CREATE PROCEDURE generatePartItemTable(IN p_parts_transaction_id VARCHAR(100))
 BEGIN
 	SELECT * FROM part_transaction_cart
     WHERE part_transaction_id = p_parts_transaction_id
-	ORDER BY part_id;
+	ORDER BY part_transaction_cart_id;
 END //
+
 CREATE PROCEDURE generatePartItemTable2(
     IN p_part_id INT,
     IN p_parts_transaction_start_date DATE,
@@ -15610,6 +15613,22 @@ BEGIN
         FROM part_transaction_cart
         WHERE part_transaction_id = p_part_transaction_id;
 
+    ELSEIF p_type = 'gasoline cost' THEN
+        SELECT 
+            IFNULL((
+                SELECT total_amount 
+                FROM part_transaction 
+                WHERE part_transaction_id = p_part_transaction_id
+                LIMIT 1
+            ), 0)
+            -
+            IFNULL((
+                SELECT SUM(total) AS total
+                FROM part_transaction_cart
+                WHERE part_transaction_id = p_part_transaction_id AND part_id NOT IN (SELECT part_id FROM part WHERE part_subclass_id = "70")
+            ), 0)
+            AS total;
+
     ELSEIF p_type = 'cost' THEN
         SELECT SUM(cost * quantity) AS total
         FROM part_transaction_cart
@@ -15731,7 +15750,7 @@ BEGIN
     WHERE part_transaction_id = p_transaction_id;
 END//
 
-CREATE PROCEDURE insertPartsTransactionDocument(IN p_part_transaction_id INT, IN p_document_name VARCHAR(500), IN p_document_file_path VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE insertPartsTransactionDocument(IN p_part_transaction_id VARCHAR(500), IN p_document_name VARCHAR(500), IN p_document_file_path VARCHAR(500), IN p_last_log_by INT)
 BEGIN
     INSERT INTO part_transaction_document (part_transaction_id, document_name, document_file_path, last_log_by) VALUES(p_part_transaction_id, p_document_name, p_document_file_path, p_last_log_by);
 END //
@@ -15794,6 +15813,16 @@ BEGIN
             last_log_by = p_last_log_by
         WHERE part_transaction_id = p_parts_transaction_id;
 
+    ELSEIF p_part_transaction_status = 'Checked' THEN
+
+        UPDATE part_transaction
+        SET 
+            checked_date = NOW(),
+            checked_by = p_last_log_by,
+            part_transaction_status = p_part_transaction_status,
+            last_log_by = p_last_log_by
+        WHERE part_transaction_id = p_parts_transaction_id;
+
     ELSEIF p_part_transaction_status = 'Released' THEN
 
         -- Step 1: Update status and release date
@@ -15802,7 +15831,15 @@ BEGIN
             released_date = NOW(),
             part_transaction_status = p_part_transaction_status,
             last_log_by = p_last_log_by
-        WHERE part_transaction_id = p_parts_transaction_id;
+        WHERE part_transaction_id = p_parts_transaction_id AND company_id = '2';
+
+         UPDATE part_transaction
+        SET 
+            issuance_date = NOW(),
+            released_date = NOW(),
+            part_transaction_status = p_part_transaction_status,
+            last_log_by = p_last_log_by
+        WHERE part_transaction_id = p_parts_transaction_id AND company_id = '3';
 
         -- Step 2: Deduct quantities safely and update part status if necessary
         OPEN cur;
@@ -15992,7 +16029,7 @@ CREATE PROCEDURE generatePartIncomingItemTable(IN p_part_incoming_id INT)
 BEGIN
 	SELECT * FROM part_incoming_cart
     WHERE part_incoming_id = p_part_incoming_id
-	ORDER BY part_id;
+	ORDER BY part_incoming_cart_id;
 END //
 
 CREATE PROCEDURE generatePartIncomingItemTable2(IN p_part_id INT, IN p_parts_incoming_start_date DATE, IN p_parts_incoming_end_date DATE)
@@ -16327,9 +16364,9 @@ BEGIN
         WHERE part_incoming_id = p_parts_incoming_id;
 
         UPDATE part_incoming_cart
-        SET remaining_quantity = received_quantity + remaining_quantity,
-            cost = 0,
+        SET cost = 0,
             received_quantity = 0,
+            remaining_quantity = quantity,
             last_log_by = p_last_log_by
         WHERE part_incoming_id = p_parts_incoming_id;
     ELSE
@@ -19624,25 +19661,51 @@ BEGIN
     WHERE part_purchased_monitoring_item_id = p_part_purchased_monitoring_item_id;
 END //
 
-CREATE PROCEDURE tagPartsPurchasedMonitoringAsIssued(IN p_part_purchased_monitoring_item_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE tagPartsPurchasedMonitoringAsIssued(IN p_part_purchased_monitoring_item_id INT, IN p_part_purchased_monitoring_id INT, IN p_last_log_by INT)
 BEGIN
 	UPDATE part_purchased_monitoring_item
     SET part_purchased_item_status = 'Issued',
     last_log_by = p_last_log_by
     WHERE part_purchased_monitoring_item_id = p_part_purchased_monitoring_item_id;
+
+	UPDATE part_purchased_monitoring
+    SET complete_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE part_purchased_monitoring_id = p_part_purchased_monitoring_id;
 END //
 
-CREATE PROCEDURE getPartsPurchasedMonitoringProgress(IN p_parts_purchased_monitoring_id INT, IN p_type VARCHAR(20))
+CREATE PROCEDURE tagPartsPurchasedMonitoringAsIssued(
+    IN p_part_purchased_monitoring_item_id INT,
+    IN p_part_purchased_monitoring_id INT,
+    IN p_last_log_by INT
+)
 BEGIN
-	IF p_type = 'issued' THEN
-        SELECT COUNT(part_purchased_monitoring_item_id) AS total
+    -- Step 1: Update the specific item to Issued
+    UPDATE part_purchased_monitoring_item
+    SET part_purchased_item_status = 'Issued',
+        last_log_by = p_last_log_by
+    WHERE part_purchased_monitoring_item_id = p_part_purchased_monitoring_item_id;
+
+    -- Step 2: Check if ALL items for this monitoring_id are either Issued or Cancelled
+    IF NOT EXISTS (
+        SELECT 1
         FROM part_purchased_monitoring_item
-        WHERE part_purchased_monitoring_id = p_parts_purchased_monitoring_id AND (part_purchased_item_status = 'Issued' OR part_purchased_item_status = 'Cancelled');
-    ELSE
-        SELECT COUNT(part_purchased_monitoring_item_id) AS total
-        FROM part_purchased_monitoring_item
-        WHERE part_purchased_monitoring_id = p_parts_purchased_monitoring_id AND part_purchased_item_status = 'For Issuance';
+        WHERE part_purchased_monitoring_id = p_part_purchased_monitoring_id
+          AND part_purchased_item_status NOT IN ('Issued', 'Cancelled')
+    ) THEN
+        -- Step 3: Only if condition passes, update parent record
+        UPDATE part_purchased_monitoring
+        SET complete_date = NOW(),
+            last_log_by = p_last_log_by
+        WHERE part_purchased_monitoring_id = p_part_purchased_monitoring_id;
     END IF;
+END //
+
+CREATE PROCEDURE checkPartsPurchasedMonitoring (IN p_part_purchased_monitoring_id INT)
+BEGIN
+	SELECT *
+    FROM part_purchased_monitoring
+    WHERE part_purchased_monitoring_id = p_part_purchased_monitoring_id;
 END //
 
 CREATE PROCEDURE checkPartsPurchasedMonitoringItem (IN p_part_purchased_monitoring_item_id INT)
@@ -19653,24 +19716,8 @@ BEGIN
 END //
 
 
-
-/*CREATE PROCEDURE generatePartsTransactionJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
-BEGIN
-    IF p_type = 'job order' THEN
-        SELECT * FROM sales_proposal_job_order
-        WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
-        AND sales_proposal_job_order_id NOT IN (select job_order_id from part_transaction_job_order WHERE part_transaction_id = p_parts_transaction_id)
-        AND progress < 100
-        ORDER BY job_order;
-    ELSE
-        SELECT * FROM backjob_monitoring_job_order
-        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
-        AND backjob_monitoring_job_order_id NOT IN (select job_order_id from part_transaction_job_order WHERE part_transaction_id = p_parts_transaction_id)
-        AND progress < 100
-        ORDER BY job_order;
-    END IF;	
-END //*/
-
+DELIMITER //
+DROP PROCEDURE generatePartsTransactionJobOrderOptions//
 CREATE PROCEDURE generatePartsTransactionJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
 BEGIN
     IF p_type = 'job order' THEN
@@ -19686,8 +19733,45 @@ BEGIN
     END IF;	
 END //
 
+DROP PROCEDURE generatePartsTransactionAdditionalJobOrderOptions//
 
-/*CREATE PROCEDURE generatePartsTransactionAdditionalJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
+CREATE PROCEDURE generatePartsTransactionAdditionalJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
+BEGIN
+    IF p_type = 'additional job order' THEN
+        SELECT * FROM sales_proposal_additional_job_order
+        WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
+        AND sales_proposal_additional_job_order_id NOT IN (select additional_job_order_id from part_transaction_additional_job_order WHERE part_transaction_id = p_parts_transaction_id)
+        ORDER BY particulars;
+    ELSE
+        SELECT * FROM backjob_monitoring_additional_job_order
+        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
+        AND backjob_monitoring_additional_job_order_id NOT IN (select additional_job_order_id from part_transaction_additional_job_order WHERE part_transaction_id = p_parts_transaction_id)
+        ORDER BY particulars;
+    END IF;	
+END //
+
+
+DELIMITER //
+DROP PROCEDURE generatePartsTransactionJobOrderOptions//
+CREATE PROCEDURE generatePartsTransactionJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
+BEGIN
+    IF p_type = 'job order' THEN
+        SELECT * FROM sales_proposal_job_order
+        WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
+        AND sales_proposal_job_order_id NOT IN (select job_order_id from part_transaction_job_order WHERE part_transaction_id = p_parts_transaction_id)
+        AND progress < 100
+        ORDER BY job_order;
+    ELSE
+        SELECT * FROM backjob_monitoring_job_order
+        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
+        AND backjob_monitoring_job_order_id NOT IN (select job_order_id from part_transaction_job_order WHERE part_transaction_id = p_parts_transaction_id)
+        AND progress < 100
+        ORDER BY job_order;
+    END IF;	
+END //
+
+DROP PROCEDURE generatePartsTransactionAdditionalJobOrderOptions//
+CREATE PROCEDURE generatePartsTransactionAdditionalJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
 BEGIN
     IF p_type = 'additional job order' THEN
         SELECT * FROM sales_proposal_additional_job_order
@@ -19702,7 +19786,7 @@ BEGIN
         AND progress < 100
         ORDER BY particulars;
     END IF;	
-END //*/
+END //
 
 CREATE PROCEDURE generatePartsTransactionAdditionalJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
 BEGIN

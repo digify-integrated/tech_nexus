@@ -959,6 +959,18 @@
             });
         }
 
+        $(document).on('click','.update-contact-comaker-relation',function() {
+            const contact_comaker_id = $(this).data('contact-comaker-id');
+        
+            sessionStorage.setItem('contact_comaker_id', contact_comaker_id);
+                
+            displayDetails('get contact comaker details');
+        });
+
+        if($('#contact-comaker-relation-form').length){
+            customerComakerRelationForm();
+        }
+
         $(document).on('click','#discard-create',function() {
             discardCreate('customer.php');
         });
@@ -1998,6 +2010,93 @@ function customerFamilyBackgroundForm(){
     });
 }
 
+function customerComakerRelationForm(){
+    $('#contact-comaker-relation-form').validate({
+        rules: {
+            comaker_relation_id: {
+                required: true
+            },
+        },
+        messages: {
+            comaker_relation_id: {
+                required: 'Please choose the relation'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const customer_id = $('#customer-id').text();
+            const transaction = 'update contact comaker';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/customer-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&customer_id=' + customer_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-contact-comaker-relation');
+                },
+                success: function (response) {
+                    if (response.success) {
+
+                        showNotification('Update Comaker Success', 'The comaker has been updated successfully.', 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-contact-comaker-relation', 'Submit');
+                    $('#contact-comaker-relation-offcanvas').offcanvas('hide');
+                    customerComakerSummary();
+                    resetModalForm('contact-comaker-relation-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function searchComakerResultTable(datatable_name, buttons = false, show_all = false){
     const type = 'search comaker result table';
     const customer_id = $('#customer-id').text();
@@ -2368,6 +2467,45 @@ function displayDetails(transaction){
                         }
                         else{
                             showNotification('Get Family Background Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get contact comaker details':
+            var contact_comaker_id = sessionStorage.getItem('contact_comaker_id');
+
+            $.ajax({
+                url: 'controller/customer-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    contact_comaker_id : contact_comaker_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('contact-family-background-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#contact_comaker_id').val(contact_comaker_id);
+                        $('#comaker_name').val(response.comaker_name);
+                        
+                        checkOptionExist('#comaker_relation_id', response.relation_id, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Comaker Details Error', response.message, 'danger');
                         }
                     }
                 },

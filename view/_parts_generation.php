@@ -131,6 +131,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     else{
                         $link = 'parts';
                     }
+
+                    if(empty($bar_code)){
+                        $bar_code = $partsID;
+                    }
     
                     $response[] = [
                         'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $partsID .'">',

@@ -98,7 +98,7 @@
         <li class="nav-item" role="presentation"><button class="nav-link" id="collateral" data-bs-toggle="tab" data-bs-target="#collateral-pane" type="button" role="tab" aria-controls="collateral-pane" aria-selected="false" tabindex="-1">Collateral</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="recommendation-tab" data-bs-toggle="tab" data-bs-target="#recommendation-pane" type="button" role="tab" aria-controls="recommendation-pane" aria-selected="false" tabindex="-1">Recommendation</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="ci-files" data-bs-toggle="tab" data-bs-target="#ci-files-pane" type="button" role="tab" aria-controls="ci-files-pane" aria-selected="false" tabindex="-1">CI Files</button></li>
-        <li class="nav-item" role="presentation"><a href="loan-proposal.php?id=<?php echo $ciReportID; ?>" class="nav-link" target="_blank" tabindex="-1">Summary (Coming Soon!)</a></li>
+        <li class="nav-item" role="presentation"><a href="loan-proposal.php?id=<?php echo $ciReportID; ?>" class="nav-link" target="_blank" tabindex="-1">Summary (For Validation)</a></li>
     </ul>
     <div class="tab-content" id="ciTabContent">
 
@@ -227,7 +227,7 @@
 
         <div class="tab-pane fade" id="business-pane" role="tabpanel" aria-labelledby="business" tabindex="0">
              <div class="row">
-                <div class="col-lg-8">
+                <div class="col-lg-7">
                     <div class="card table-card">
                         <div class="card-header">
                             <div class="row align-items-center">
@@ -259,7 +259,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-5">
                     <div class="card">
                         <div class="card-body py-2">
                             <ul class="list-group list-group-flush">
@@ -270,13 +270,13 @@
                                     <div class="float-end">
                                         <h5 class="mb-0" id="ci-business-gross-monthly-sales-summary">0.00 PHP</h5>
                                     </div>
-                                    <span class="text-muted">Gross Monthly Sales Total</span>
+                                    <span class="text-muted">Gross Monthly Income Total</span>
                                 </li>
                                 <li class="list-group-item px-0">
                                     <div class="float-end">
                                         <h5 class="mb-0" id="ci-business-monthly-income-summary">0.00 PHP</h5>
                                     </div>
-                                    <span class="text-muted">Monthly Income Total</span>
+                                    <span class="text-muted">Monthly Sales Total</span>
                                 </li>
                                 <li class="list-group-item px-0">
                                     <div class="float-end">
@@ -1295,11 +1295,11 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-3">
-                            <label class="form-label" for="ci_business_gross_monthly_sale">Gross Monthly Sales</label>
+                            <label class="form-label" for="ci_business_gross_monthly_sale">Gross Monthly Income</label>
                             <input type="number" class="form-control" id="ci_business_gross_monthly_sale" name="ci_business_gross_monthly_sale" min="0" step="0.01" <?php echo $disabled; ?>>
                         </div>
                         <div class="col-lg-3">
-                            <label class="form-label" for="ci_business_monthly_income">Monthly Income</label>
+                            <label class="form-label" for="ci_business_monthly_income">Monthly Sales</label>
                             <input type="number" class="form-control" id="ci_business_monthly_income" name="ci_business_monthly_income" min="0" step="0.01" <?php echo $disabled; ?>>
                         </div>
                         <div class="col-lg-3">

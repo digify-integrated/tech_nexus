@@ -125,9 +125,10 @@ class PartsPurchasedMonitoringModel {
         $stmt->execute();
     }
 
-    public function tagPartsPurchasedMonitoringAsIssued($parts_purchased_monitoring_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL tagPartsPurchasedMonitoringAsIssued(:p_parts_purchased_monitoring_id, :p_last_log_by)');
+    public function tagPartsPurchasedMonitoringAsIssued($parts_purchased_monitoring_id, $part_purchased_monitoring_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL tagPartsPurchasedMonitoringAsIssued(:p_parts_purchased_monitoring_id, :p_part_purchased_monitoring_id, :p_last_log_by)');
         $stmt->bindValue(':p_parts_purchased_monitoring_id', $parts_purchased_monitoring_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_part_purchased_monitoring_id', $part_purchased_monitoring_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -194,6 +195,12 @@ class PartsPurchasedMonitoringModel {
     # - An array containing the parts purchase monitoring details.
     #
     # -------------------------------------------------------------
+    public function checkPartsPurchasedMonitoring($p_parts_purchased_monitoring_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkPartsPurchasedMonitoring(:p_parts_purchased_monitoring_id)');
+        $stmt->bindValue(':p_parts_purchased_monitoring_id', $p_parts_purchased_monitoring_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     public function checkPartsPurchasedMonitoringItem($p_parts_purchased_monitoring_item_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkPartsPurchasedMonitoringItem(:p_parts_purchased_monitoring_item_id)');
         $stmt->bindValue(':p_parts_purchased_monitoring_item_id', $p_parts_purchased_monitoring_item_id, PDO::PARAM_INT);

@@ -60,6 +60,7 @@
     }
 
     $summaryTable = generatePrint($jobOrderIDs);
+    $summaryTable2 = generatePrint2();
 
     ob_start();
 
@@ -104,18 +105,18 @@
     $pdf->Cell(200, 8, $fullStockNumber, 'B', 0, 'L');
     $pdf->Ln(12);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
-    $pdf->Ln(5);
-
-    $pdf->SetFont('times', '', size: 8);
+    $pdf->Ln(-5);
+    
+    $pdf->SetFont('times', '',  8);
     $pdf->Cell(20, 4, 'RATING:', '', 0, 'L', 0, '', 1);
-    $pdf->Cell(90, 4, '1 EXCELLENT - QUALITY OF WORK IS EXCELLENT', '', 0, 'L', 0, '', 1);
-    $pdf->Ln(5);
-    $pdf->Cell(20, 4, '', '', 0, 'L', 0, '', 1);
-    $pdf->Cell(90, 4, '2 GOOD - QUALITY OF WORK CAN BE IMPROVED', '', 0, 'L', 0, '', 1);
-    $pdf->Ln(5);
-    $pdf->Cell(20, 4, '', '', 0, 'L', 0, '', 1);
-    $pdf->Cell(90, 4, '3 NEEDS IMPROVEMENT - RETURN TO CONTRACTOR', '', 0, 'L', 0, '', 1);
-    $pdf->Ln(20);
+    $pdf->Cell(60, 4, '1 EXCELLENT - QUALITY OF WORK IS EXCELLENT', '', 0, 'L', 0, '', 1);
+    $pdf->Cell(5, 4, '', '', 0, 'L', 0, '', 1);
+    $pdf->Cell(60, 4, '2 GOOD - QUALITY OF WORK CAN BE IMPROVED', '', 0, 'L', 0, '', 1);
+    $pdf->Cell(5, 4, '', '', 0, 'L', 0, '', 1);
+    $pdf->Cell(70, 4, '3 NEEDS IMPROVEMENT - RETURN TO CONTRACTOR', '', 0, 'L', 0, '', 1);
+    $pdf->Ln(8);
+    
+    $pdf->writeHTML($summaryTable2, true, false, true, false, '');
     
     $pdf->SetFont('times', '', 10);
     $pdf->Cell(90, 4, '', 'B', 0, 'L', 0, '', 1);
@@ -198,6 +199,18 @@
                         </thead>
                         <tbody>
                             '.$list.'
+                        </tbody>
+                    </table>';
+
+        return $response;
+    }
+    function generatePrint2(){
+
+        $response = '<table border="2" width="100%" cellpadding="5" align="left">
+                        <tbody>
+                            <tr>
+                                <td><b>CONTRACTOR REMARKS</b><br/><br/><br/><br/><br/><br/></td>
+                            </tr>
                         </tbody>
                     </table>';
 

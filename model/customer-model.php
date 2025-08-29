@@ -88,6 +88,13 @@ class CustomerModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function updateCustomerComaker($p_contact_comaker_id, $p_comaker_relation_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE contact_comaker SET relation_id = :p_comaker_relation_id, last_log_by = :p_last_log_by WHERE contact_comaker_id = :p_contact_comaker_id');
+        $stmt->bindValue(':p_contact_comaker_id', $p_contact_comaker_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_comaker_relation_id', $p_comaker_relation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -1221,6 +1228,14 @@ class CustomerModel {
     # -------------------------------------------------------------
     public function checkCustomerExist($p_contact_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkCustomerExist(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function checkCISalesProposalExist($p_sales_proposal_id, $p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total FROM ci_report WHERE sales_proposal_id = :p_sales_proposal_id AND contact_id = :p_contact_id');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -2466,9 +2481,15 @@ class CustomerModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function getContactComakerDetails($contact_comaker_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM contact_comaker WHERE contact_comaker_id = :contact_comaker_id');
+        $stmt->bindValue(':contact_comaker_id', $contact_comaker_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     public function openCIReport($p_sales_proposal_id, $p_contact_id, $p_duplicate, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL openCIReport(:p_sales_proposal_id, :p_contact_id, :p_last_log_by)');
+        $stmt = $this->db->getConnection()->prepare('CALL openCIReport(:p_sales_proposal_id, :p_contact_id, :p_duplicate, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_duplicate', $p_duplicate, PDO::PARAM_STR);

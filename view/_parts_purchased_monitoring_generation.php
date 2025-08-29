@@ -8,6 +8,7 @@ require_once '../model/system-model.php';
 require_once '../model/parts-purchased-monitoring-model.php';
 require_once '../model/product-model.php';
 require_once '../model/parts-model.php';
+require_once '../model/parts-incoming-model.php';
 require_once '../model/unit-model.php';
 
 $databaseModel = new DatabaseModel();
@@ -17,6 +18,7 @@ $productModel = new ProductModel($databaseModel);
 $partsPurchasedMonitoringModel = new PartsPurchasedMonitoringModel($databaseModel);
 $unitModel = new UnitModel($databaseModel);
 $partsModel = new PartsModel($databaseModel);
+$partsIncomingModel = new PartsIncomingModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -36,47 +38,27 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'parts purchased monitoring table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsPurchasedMonitoringTable()');
+            $sql = $databaseModel->getConnection()->prepare('SELECT DISTINCT(product_id) AS product_id FROM part_purchased_monitoring WHERE product_id IN (SELECT product_id FROM part_purchased_monitoring WHERE complete_date IS NULL);');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                $partPurchasedMonitoringID = $row['part_purchased_monitoring_id'];
                 $product_id = $row['product_id'];
 
                 $productDetails = $productModel->getProduct($product_id);
                 $stock_number = $productDetails['stock_number'];
                 $description = $productDetails['description'];
 
-                $partsPurchasedMonitoringIDEncrypted = $securityModel->encryptData($partPurchasedMonitoringID);
-
-                $totalComplete = $partsPurchasedMonitoringModel->getPartsPurchasedMonitoringProgress($partPurchasedMonitoringID, 'issued')['total'] ?? 0;
-                $totalInProgress = $partsPurchasedMonitoringModel->getPartsPurchasedMonitoringProgress($partPurchasedMonitoringID, 'for issuance')['total'] ?? 0;
-
-                $totalItems = $totalComplete + $totalInProgress;
-
-                $percentageComplete = $totalItems > 0 ? ($totalComplete / $totalItems) * 100 : 0;
-
-                if($percentageComplete === 100){
-                    $status = '<span class="badge bg-success">Completed</span>';
-                }
-                else if($percentageComplete === 0){
-                    $status = '<span class="badge bg-info">For Issuance</span>';
-                }
-                else{
-                    $status = '<span class="badge bg-warning">In Progress</span>';
-                }
+                $productIDEncrypted = $securityModel->encryptData($product_id);
 
                 $response[] = [
                     'PRODUCT' => ' <div class="col">
                                         <h6 class="mb-0">'. $stock_number .'</h6>
                                             <p class="text-muted f-12 mb-0">'. $description .'</p>
                                         </div>',
-                    'STATUS' => $status,
-                    'PROGRESS' => number_format($percentageComplete, 2) . "%",
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="parts-purchased-monitoring.php?id='. $partsPurchasedMonitoringIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="parts-purchased-monitoring.php?id='. $productIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
@@ -86,16 +68,24 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
         case 'parts purchased monitoring item table':
-            $parts_purchased_monitoring_id = $_POST['parts_purchased_monitoring_id'];
+            $product_id = $_POST['product_id'];
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePartsPurchasedMonitoringItemTable(:parts_purchased_monitoring_id)');
-            $sql->bindValue(':parts_purchased_monitoring_id', $parts_purchased_monitoring_id, PDO::PARAM_STR);
+             $productDetails = $productModel->getProduct($product_id);
+                $stock_number = $productDetails['stock_number'];
+                $description = $productDetails['description'];
+
+            $sql = $databaseModel->getConnection()->prepare(' SELECT *
+            FROM part_purchased_monitoring_item
+            WHERE part_purchased_monitoring_id IN (SELECT part_purchased_monitoring_id FROM part_purchased_monitoring WHERE product_id = :p_product_id)
+            ORDER BY created_date;');
+            $sql->bindValue(':p_product_id', $product_id, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             foreach ($options as $row) {
                 $part_purchased_monitoring_item_id = $row['part_purchased_monitoring_item_id'];
+                $part_purchased_monitoring_id = $row['part_purchased_monitoring_id'];
                 $part_id = $row['part_id'];
                 $quantity = $row['quantity'];
                 $quantity_issued = $row['quantity_issued'];
@@ -104,6 +94,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $remarks = $row['remarks'];
                 $reference_number = $row['reference_number'];
                 $issuance_date = $systemModel->checkDate('empty', $row['issuance_date'], '', 'm/d/Y', '');
+
+                $checkPartsPurchasedMonitoring = $partsPurchasedMonitoringModel->checkPartsPurchasedMonitoring($part_purchased_monitoring_id);
+                $part_incoming_id = $checkPartsPurchasedMonitoring['part_incoming_id'];
+
+                $partIncomingDetails = $partsIncomingModel->getPartsIncoming($part_incoming_id);
+                $part_incoming_reference_number = $partIncomingDetails['reference_number'] ?? '';
 
                 $partDetails = $partsModel->getParts($part_id);
                 $description = $partDetails['description'];
@@ -131,9 +127,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $action .= ' <button type="button" class="btn btn-icon btn-info issue-part-purchased" data-bs-toggle="offcanvas" data-bs-target="#issue-part-purchased-offcanvas" aria-controls="issue-part-purchased-offcanvas" data-parts-purchase-monitoring-item-id="'. $part_purchased_monitoring_item_id .'" title="Update Issue Part Purchased Item">
                                         <i class="ti ti-arrow-bar-to-down"></i>
                                     </button>';
-                    $action .= ' <button type="button" class="btn btn-icon btn-success tag-part-purchased-issue" data-parts-purchase-monitoring-item-id="'. $part_purchased_monitoring_item_id .'" title="Issue Part Purchased Item">
-                                        <i class="ti ti-check"></i>
-                                    </button>';
+
+                    if(!empty($reference_number) && $quantity_issued > 0){
+                        $action .= ' <button type="button" class="btn btn-icon btn-success tag-part-purchased-issue" data-parts-purchase-monitoring-item-id="'. $part_purchased_monitoring_item_id .'" title="Issue Part Purchased Item">
+                                            <i class="ti ti-check"></i>
+                                        </button>';
+                    }
+                    
                     if($quantity_issued == 0){
                         $action .= ' <button type="button" class="btn btn-icon btn-warning cancel-part-purchased" data-bs-toggle="offcanvas" data-bs-target="#cancel-part-purchased-offcanvas" aria-controls="cancel-part-purchased-offcanvas" data-parts-purchase-monitoring-item-id="'. $part_purchased_monitoring_item_id .'" title="Cancel Part Purchased Item">
                                         <i class="ti ti-arrow-forward"></i>
@@ -146,6 +146,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <h6 class="mb-0">'. $description .'</h6>
                                             <p class="text-muted f-12 mb-0">'. $bar_code .'</p>
                                         </div>',
+                    'PRODUCT' => ' <div class="col">
+                                        <h6 class="mb-0">'. $stock_number .'</h6>
+                                            <p class="text-muted f-12 mb-0">'. $description .'</p>
+                                        </div>',
+                    'PART_INCOMING' => $part_incoming_reference_number,
                     'REFERENCE_NUMBER' => $reference_number,
                     'ISSUANCE_DATE' => $issuance_date,
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,

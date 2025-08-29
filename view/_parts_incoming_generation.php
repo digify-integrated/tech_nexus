@@ -90,6 +90,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
+            $order = 0;
             foreach ($options as $row) {
                 $part_incoming_cart_id = $row['part_incoming_cart_id'];
                 $part_id = $row['part_id'];
@@ -147,6 +148,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $unitCode = $unitModel->getUnit($unitSale);
                 $short_name = $unitCode['short_name'] ?? null;
+                $order += 1;
 
                 $response[] = [
                     'PART' => '<div class="d-flex align-items-center">
@@ -161,6 +163,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TOTAL_COST' => number_format($total_cost, 2) . ' PHP',
                     'AVAILABLE_STOCK' => number_format($partQuantity, 0, '', ',') . ' ' . $short_name,
                     'REMARKS' => $remarks,
+                    'ORDER' => $order,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -409,6 +412,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $product_id = $row['product_id'];
                 $invoice_number = $row['invoice_number'];
                 $invoice_price = $row['invoice_price'];
+                $supplier_id = $row['supplier_id'];
+
+                $supplierName = $supplierModel->getSupplier($supplier_id)['supplier_name'] ?? '';
+
                 $incoming_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
                 $completion_date = $systemModel->checkDate('empty', $row['completion_date'], '', 'm/d/Y', '');
                 $purchase_date = $systemModel->checkDate('empty', $row['purchase_date'], '', 'm/d/Y', '');
@@ -457,6 +464,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'RECEIVED' => number_format($received, 2),
                     'REMAINING' => number_format($remaining, 2),
                     'COST' => number_format($cost, 2) . ' PHP',
+                    'SUPPLIER' => $supplierName,
                     'COMPLETION_DATE' => $completion_date,
                     'DELIVERY_DATE' => $delivery_date,
                     'TRANSACTION_DATE' => $incoming_date,

@@ -417,6 +417,7 @@ class ProductController {
         $classID = $_POST['class_id'];
         $cabinID = $_POST['cabin_id'];
         $yearModel = $_POST['year_model'];
+        $is_service = $_POST['is_service'];
         $engineNumber = $_POST['engine_number'];
         $chassisNumber = $_POST['chassis_number'];
         $plateNumber = $_POST['plate_number'];
@@ -495,7 +496,7 @@ class ProductController {
 
         $description = implode(' ', $descriptionParts);
     
-        $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, '', $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $userID);        
+        $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, '', $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $is_service, $userID);        
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'productID' => $this->securityModel->encryptData($productID)]);
         exit;
@@ -541,6 +542,7 @@ class ProductController {
         $modeOfRegistration = $_POST['mode_of_registration'];
         $warehouseID = $_POST['warehouse_id'];
         $yearModel = $_POST['year_model'];
+        $is_service = $_POST['is_service'];
         $withCR = $_POST['with_cr'];
         $withPlate = $_POST['with_plate'];
         $returnedToSupplier = $_POST['returned_to_supplier'];
@@ -623,7 +625,7 @@ class ProductController {
         $total = $checkProductExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->productModel->updateProductDetails($productID, $stockNumber, $productCategoryID, $productSubcategoryID, $companyID, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $userID);
+            $this->productModel->updateProductDetails($productID, $stockNumber, $productCategoryID, $productSubcategoryID, $companyID, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $is_service, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'productID' => $this->securityModel->encryptData($productID)]);
             exit;
@@ -1535,6 +1537,7 @@ class ProductController {
                 'returned_to_supplier' => $productDetails['returned_to_supplier'],
                 'quantity' => $productDetails['quantity'],
                 'preorder' => $productDetails['preorder'],
+                'is_service' => $productDetails['is_service'],
                 'productImage' => $this->systemModel->checkImage($productDetails['product_image'], 'default'),
                 'orcrDate' =>  $this->systemModel->checkDate('empty', $productDetails['orcr_date'], '', 'm/d/Y', ''),
                 'orcrExpiryDate' =>  $this->systemModel->checkDate('empty', $productDetails['orcr_expiry_date'], '', 'm/d/Y', ''),

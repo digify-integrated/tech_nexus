@@ -52,6 +52,7 @@
         $startDate = $salesProposalDetails['actual_start_date'] ?? null;
         $drNumber = $salesProposalDetails['dr_number'] ?? null;
         $termLength = $salesProposalDetails['term_length'] ?? null;
+        $termType = $salesProposalDetails['term_type'] ?? null;
         $releaseTo = $salesProposalDetails['release_to'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
@@ -117,7 +118,7 @@
 
     }
 
-    $amortSched = generateAmortizationSchedule($numberOfPayments, $pnAmount, $repaymentAmount, $paymentFrequency, $termLength, $startDate);
+    $amortSched = generateAmortizationSchedule($numberOfPayments, $pnAmount, $repaymentAmount, $paymentFrequency, $termLength, $termType, $startDate);
     $othercharges = generateOtherCharges($databaseModel, $systemModel, $salesProposalID);
 
     ob_start();
@@ -315,7 +316,7 @@
         return $response;
     }
 
-    function generateAmortizationSchedule($numberOfPayments, $pnAmount, $repaymentAmount, $paymentFrequency, $termLength, $startDate){
+    function generateAmortizationSchedule($numberOfPayments, $pnAmount, $repaymentAmount, $paymentFrequency, $termLength, $termType, $startDate){
         $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
         <thead>
             <tr>
@@ -338,7 +339,7 @@
                 $pnAmount = 0;
             }
 
-            $dueDate = calculateDueDate($startDate, $termLength, $paymentFrequency, $i + 1);
+            $dueDate = calculateDueDate($startDate, $termLength, $termType, $paymentFrequency, $i + 1);
 
             $response .= '<tr>
                     <td>'. strtoupper($dueDate) .'</td>
@@ -353,7 +354,7 @@
         return $response;
     }
 
-    function calculateDueDate($startDate, $termLength, $frequency, $iteration) {
+     function calculateDueDate($startDate, $termLength, $termType, $frequency, $iteration) {
         $date = new DateTime($startDate);
         switch ($frequency) {
             case 'Monthly':
@@ -366,7 +367,12 @@
                 $date->modify("+". ($iteration * 6). " months");
                 break;
             case 'Lumpsum':
-                $date->modify("+$termLength days");
+                if($termType == 'Months'){
+                    $date->modify("+$termLength months");
+                }
+                else{
+                    $date->modify("+$termLength days");
+                }
                 break;
             default:
                 break;

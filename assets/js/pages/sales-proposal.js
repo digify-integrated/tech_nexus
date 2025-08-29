@@ -6777,406 +6777,186 @@ function calculateTotalOtherCharges(){
 }
 
 function traverseTabs(direction) {
-    var activeTab = $('.nav-link.active');
-    var currentTabId = activeTab.attr('href');
-    var currentIndex = $('.nav-link').index(activeTab);
-    var nextIndex;
-    var totalTabs = $('.nav-link').length;
-    var sales_proposal_status = $('#sales_proposal_status').val();
-    var sales_proposal_type = $('#sales_proposal_type').val();
-    var product_type = $('#product_type').val();
+    const $tabs = $('.nav-link');
+    const $active = $tabs.filter('.active');
+    const currentStep = $active.data('step');
 
-    var visibleTabs = $('.nav-link:not(.d-none)').length;
+    const totalTabs = $tabs.length;
+    const sales_proposal_status = $('#sales_proposal_status').val();
+    const sales_proposal_type   = $('#sales_proposal_type').val();
+    const product_type          = $('#product_type').val();
 
-    function findNextVisibleIndex(startIndex, direction) {
-        var index = startIndex;
-        var increment = direction === 'next' ? 1 : -1;
+    // --- Helpers ---
+    const toggleButton = (selector, show) => {
+        const $el = $(selector);
+        if ($el.length) $el.toggleClass('d-none', !show);
+    };
+
+    const validateAndSubmit = (formSelector) => {
+        const $form = $(formSelector);
+
+        if ($form.length) {
+            if ($form.valid()) {
+                $form.submit();   // same as your old working code
+                return true;
+            } else {
+                return false;     // stops navigation
+            }
+        }
+        return true; // if no form, just allow navigation
+    };
+
+
+    const findNextVisibleIndex = (startIndex, dir) => {
+        let index = startIndex;
+        const increment = dir === 'next' ? 1 : -1;
         while (true) {
             index = (index + increment + totalTabs) % totalTabs;
-            if (!$('.nav-link:eq(' + index + ')').hasClass('d-none')) {
-                return index;
-            }
-            if (index === startIndex) {
-                break;
-            }
+            if (!$tabs.eq(index).hasClass('d-none')) return index;
+            if (index === startIndex) break;
         }
         return startIndex;
+    };
+
+    // --- Step Configuration (examples) ---
+    const stepConfig = {
+        proposal: { form: '#sales-proposal-form' },
+        unit: { form: '#sales-proposal-unit-details-form' },
+        fuel: { form: '#sales-proposal-fuel-details-form' },
+        refinancing: {
+            form: '#sales-proposal-refinancing-details-form',
+            onEnter: () => {
+                const type = product_type;
+                $('#sales-proposal-tab-4').text(
+                    type === 'Brand New' ? 'Brand New Details' :
+                    type === 'Restructure' ? 'Restructure Details' :
+                    'Refinancing Details'
+                );
+            }
+        },
+        pricing: { form: '#sales-proposal-pricing-computation-form' },
+        otherCharges: { form: '#sales-proposal-other-charges-form' },
+        renewal: { form: '#sales-proposal-renewal-amount-form' },
+        otherProduct: { form: '#sales-proposal-other-product-details-form' },
+        approvals: {
+            onEnter: () => {
+                [
+                    '#tag-for-initial-approval-button',
+                    '#tag-for-review-button',
+                    '#sales-proposal-initial-approval-button',
+                    '#sales-proposal-final-approval-button',
+                    '#sales-proposal-reject-button',
+                    '#sales-proposal-cancel-button',
+                    '#for-ci-sales-proposal-button',
+                    '#sales-proposal-set-to-draft-button',
+                    '#complete-ci-button',
+                    '#for-dr-sales-proposal-button',
+                    '#approve-installment-sales-button',
+                    '#print-button'
+                ].forEach(sel => toggleButton(sel, true));
+            },
+            onLeave: () => {
+                [
+                    '#tag-for-initial-approval-button',
+                    '#tag-for-review-button',
+                    '#sales-proposal-initial-approval-button',
+                    '#sales-proposal-final-approval-button',
+                    '#sales-proposal-reject-button',
+                    '#sales-proposal-cancel-button',
+                    '#for-ci-sales-proposal-button',
+                    '#sales-proposal-set-to-draft-button',
+                    '#complete-ci-button',
+                    '#for-dr-sales-proposal-button',
+                    '#approve-installment-sales-button',
+                    '#print-button'
+                ].forEach(sel => toggleButton(sel, false));
+            }
+        },
+        summary: {
+            onEnter: () => toggleButton('#summary-print-button', true),
+            onLeave: () => toggleButton('#summary-print-button', false)
+        },
+        gatepass: {
+            onEnter: () => toggleButton('#gatepass-print-button', true),
+            onLeave: () => toggleButton('#gatepass-print-button', false)
+        },
+        online: {
+            onEnter: () => toggleButton('#online-print-button', true),
+            onLeave: () => toggleButton('#online-print-button', false)
+        },
+        authorization: {
+            onEnter: () => toggleButton('#authorization-print-button', true),
+            onLeave: () => toggleButton('#authorization-print-button', false)
+        },
+        promissory: {
+            onEnter: () => toggleButton('#pn-print-button', true),
+            onLeave: () => toggleButton('#pn-print-button', false)
+        },
+        disclosure: {
+            onEnter: () => toggleButton('#disclosure-print-button', true),
+            onLeave: () => toggleButton('#disclosure-print-button', false)
+        },
+        insurance: {
+            onEnter: () => toggleButton('#insurance-request-print-button', true),
+            onLeave: () => toggleButton('#insurance-request-print-button', false)
+        }
+    };
+
+    // --- Figure out next tab ---
+    const currentIndex = $tabs.index($active);
+    const nextIndex = (direction === 'next' || direction === 'previous')
+        ? findNextVisibleIndex(currentIndex, direction)
+        : (direction === 'first' ? 0 : totalTabs - 1);
+
+    const $nextTab = $tabs.eq(nextIndex);
+    const nextStep = $nextTab.data('step');
+
+    // --- Validate current form if moving forward ---
+    if (direction === 'next' && stepConfig[currentStep]?.form) {
+        if (!validateAndSubmit(stepConfig[currentStep].form)) return;
     }
 
-    if (direction === 'next') {
-        nextIndex = findNextVisibleIndex(currentIndex, 'next');
-    } else if (direction === 'previous') {
-        nextIndex = findNextVisibleIndex(currentIndex, 'previous');
-    } else if (direction === 'first') {
-        nextIndex = 0;
-    } else if (direction === 'last') {
-        nextIndex = totalTabs - 1;
+    // --- Run leave hooks ---
+    if (stepConfig[currentStep]?.onLeave) {
+        stepConfig[currentStep].onLeave();
     }
 
-    if(sales_proposal_status == 'Draft'){
-        if (currentIndex == 0) {
-            if ($('#sales-proposal-form').valid()) {
-                $('#sales-proposal-form').submit();
-            } else {
-                return;
-            }
-        }
-        else if (currentIndex == 1 && direction === 'next') {
-            if ($('#sales-proposal-unit-details-form').valid()) {
-                $('#sales-proposal-unit-details-form').submit();
-            } else {
-                return;
-            }
-        }
-        else if (currentIndex == 2 && direction === 'next') {
-            if ($('#sales-proposal-fuel-details-form').valid()) {
-                $('#sales-proposal-fuel-details-form').submit();
-            } else {
-                return;
-            }
-        }
-        else if (currentIndex == 3 && direction === 'next') {
-            if(product_type == 'Brand New'){
-                $('#sales-proposal-tab-4').text('Brand New Details');
-            }
-            else if(product_type == 'Restructure'){
-                $('#sales-proposal-tab-4').text('Restructure Details');
-            }
-            else{
-                $('#sales-proposal-tab-4').text('Refinancing Details');
-            }
+    // --- Switch tab ---
+    $nextTab.tab('show');
 
-            if ($('#sales-proposal-refinancing-details-form').valid()) {
-                $('#sales-proposal-refinancing-details-form').submit();
-            } else {
-                return;
-            }
-        }
-        else if (currentIndex == 5 && direction === 'next') {
-            if ($('#sales-proposal-pricing-computation-form').valid()) {
-                $('#sales-proposal-pricing-computation-form').submit();
-            } else {
-                return;
-            }
-        }
-
-        if (nextIndex == 4) {
-            if($('#add-sales-proposal-job-order-button').length){
-                $('#add-sales-proposal-job-order-button').removeClass('d-none');
-            }
-        }
-        else{
-            if($('#add-sales-proposal-job-order-button').length){
-                $('#add-sales-proposal-job-order-button').addClass('d-none');
-            }
-        }
+    // --- Run enter hooks ---
+    if (stepConfig[nextStep]?.onEnter) {
+        stepConfig[nextStep].onEnter();
     }
 
-    if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR'){
-        if (currentIndex == 6 && direction === 'next') {
-            if ($('#sales-proposal-other-charges-form').valid()) {
-                $('#sales-proposal-other-charges-form').submit();
-            } else {
-                return;
-            }
-        }
+    // --- Update progress ---
+    const visibleTabs = $tabs.not('.d-none').length;
+    const progress = ((nextIndex + 1) / visibleTabs) * 100;
+    $('#bar .progress-bar').css('width', progress + '%');
 
-        if (nextIndex == 8) {
-            if($('#add-sales-proposal-deposit-amount-button').length){
-                $('#add-sales-proposal-deposit-amount-button').removeClass('d-none');
-            }
-        }
-        else{
-            if($('#add-sales-proposal-deposit-amount-button').length){
-                $('#add-sales-proposal-deposit-amount-button').addClass('d-none');
-            }
-        }
-        
-        if (currentIndex == 7 && direction === 'next') {
-            if ($('#sales-proposal-renewal-amount-form').valid()) {
-                $('#sales-proposal-renewal-amount-form').submit();
-            } else {
-                return;
-            }
-        }
-    }
-    
-    if (nextIndex == 9 || (nextIndex == 3 && sales_proposal_type == 'modified')) {
-        if($('#add-sales-proposal-additional-job-order-button').length){
-            $('#add-sales-proposal-additional-job-order-button').removeClass('d-none');
-        }
-    }
-    else{
-        if($('#add-sales-proposal-additional-job-order-button').length){
-            $('#add-sales-proposal-additional-job-order-button').addClass('d-none');
-        }
-    }
-    
-    if ((nextIndex == 4 && sales_proposal_type == 'modified')) {
-        if($('#on-process-sales-proposal-button').length){
-            $('#on-process-sales-proposal-button').removeClass('d-none');
-        }
+   // --- Update nav buttons (first/prev/next/last) ---
+    const $visibleTabs = $tabs.not('.d-none');
+    const firstVisibleIndex = $visibleTabs.first().index();
+    const lastVisibleIndex  = $visibleTabs.last().index();
 
-        if($('#ready-for-release-sales-proposal-button').length){
-            $('#ready-for-release-sales-proposal-button').removeClass('d-none');
-        }
-    }
-    else{
-        if($('#on-process-sales-proposal-button').length){
-            $('#on-process-sales-proposal-button').addClass('d-none');
-        }
-
-        if($('#ready-for-release-sales-proposal-button').length){
-            $('#ready-for-release-sales-proposal-button').addClass('d-none');
-        }
-    }
-
-    if(sales_proposal_status == 'For DR'){
-        if (currentIndex == 13) {
-            if ($('#sales-proposal-other-product-details-form').valid()) {
-                $('#sales-proposal-other-product-details-form').submit();
-            } else {
-                return;
-            }
-        }
-    }
-
-    if($('#sales-proposal-tab-12').length){
-        if (nextIndex == 12) {
-            if($('#tag-for-initial-approval-button').length){
-                $('#tag-for-initial-approval-button').removeClass('d-none');
-            }
-
-            if($('#tag-for-review-button').length){
-                $('#tag-for-review-button').removeClass('d-none');
-            }
-            
-            if($('#sales-proposal-initial-approval-button').length){
-                $('#sales-proposal-initial-approval-button').removeClass('d-none');
-            }
-    
-            if($('#sales-proposal-final-approval-button').length){
-                $('#sales-proposal-final-approval-button').removeClass('d-none');
-            }
-    
-            if($('#sales-proposal-reject-button').length){
-                $('#sales-proposal-reject-button').removeClass('d-none');
-            }
-    
-            if($('#sales-proposal-cancel-button').length){
-                $('#sales-proposal-cancel-button').removeClass('d-none');
-            }
-    
-            if($('#for-ci-sales-proposal-button').length){
-                $('#for-ci-sales-proposal-button').removeClass('d-none');
-            }
-    
-            if($('#sales-proposal-set-to-draft-button').length){
-                $('#sales-proposal-set-to-draft-button').removeClass('d-none');
-            }
-    
-            if($('#complete-ci-button').length){
-                $('#complete-ci-button').removeClass('d-none');
-            }
-    
-            if($('#for-dr-sales-proposal-button').length){
-                $('#for-dr-sales-proposal-button').removeClass('d-none');
-            }
-    
-            if($('#approve-installment-sales-button').length){
-                $('#approve-installment-sales-button').removeClass('d-none');
-            }
-
-            if($('#print-button').length){
-                $('#print-button').removeClass('d-none');
-            }
-        }
-        else{
-            if($('#tag-for-initial-approval-button').length){
-                $('#tag-for-initial-approval-button').addClass('d-none');
-            }
-
-            if($('#tag-for-review-button').length){
-                $('#tag-for-review-button').addClass('d-none');
-            }
-    
-            if($('#sales-proposal-initial-approval-button').length){
-                $('#sales-proposal-initial-approval-button').addClass('d-none');
-            }
-    
-            if($('#sales-proposal-final-approval-button').length){
-                $('#sales-proposal-final-approval-button').addClass('d-none');
-            }
-    
-            if($('#sales-proposal-reject-button').length){
-                $('#sales-proposal-reject-button').addClass('d-none');
-            }
-    
-            if($('#sales-proposal-cancel-button').length){
-                $('#sales-proposal-cancel-button').addClass('d-none');
-            }
-    
-            if($('#for-ci-sales-proposal-button').length){
-                $('#for-ci-sales-proposal-button').addClass('d-none');
-            }
-    
-            if($('#sales-proposal-set-to-draft-button').length){
-                $('#sales-proposal-set-to-draft-button').addClass('d-none');
-            }
-    
-            if($('#complete-ci-button').length){
-                $('#complete-ci-button').addClass('d-none');
-            }
-    
-            if($('#for-dr-sales-proposal-button').length){
-                $('#for-dr-sales-proposal-button').addClass('d-none');
-            }
-    
-            if($('#approve-installment-sales-button').length){
-                $('#approve-installment-sales-button').addClass('d-none');
-            }
-    
-            if($('#print-button').length){
-                $('#print-button').addClass('d-none');
-            }
-        }
-    }
-
-    if($('#sales-proposal-tab-13').length){
-        if (nextIndex == 12) {
-            if($('#add-sales-proposal-pdc-manual-input-button').length){
-                $('#add-sales-proposal-pdc-manual-input-button').removeClass('d-none');
-            }
-        }
-        else{
-            if($('#add-sales-proposal-pdc-manual-input-button').length){
-                $('#add-sales-proposal-pdc-manual-input-button').addClass('d-none');
-            }
-        }
-    }
-
-    if(nextIndex == 11){
-        if($('#summary-print-button').length){
-            $('#summary-print-button').removeClass('d-none');
-        }
-    }
-    else{
-        if($('#summary-print-button').length){
-            $('#summary-print-button').addClass('d-none');
-        }
-    }
-
-    if(nextIndex == 19){
-        if($('#gatepass-print-button').length){
-            $('#gatepass-print-button').removeClass('d-none');
-        }
-    }
-    else{
-        if($('#gatepass-print-button').length){
-            $('#gatepass-print-button').addClass('d-none');
-        }
-    }
-
-    if( nextIndex == 14){
-        if($('#online-print-button').length){
-            $('#online-print-button').removeClass('d-none');
-        }
-    }
-    else{
-        if($('#online-print-button').length){
-            $('#online-print-button').addClass('d-none');
-        }
-    }
-
-    if( nextIndex == 15){
-        if($('#authorization-print-button').length){
-            $('#authorization-print-button').removeClass('d-none');
-        }
-    }
-    else{
-        if($('#authorization-print-button').length){
-            $('#authorization-print-button').addClass('d-none');
-        }
-    }
-
-    if( nextIndex == 16){
-        if($('#pn-print-button').length){
-            $('#pn-print-button').removeClass('d-none');
-        }
-    }
-    else{
-        if($('#pn-print-button').length){
-            $('#pn-print-button').addClass('d-none');
-        }
-    }
-
-    if( nextIndex == 17){
-        if($('#disclosure-print-button').length){
-            $('#disclosure-print-button').removeClass('d-none');
-        }
-    }
-    else{
-        if($('#disclosure-print-button').length){
-            $('#disclosure-print-button').addClass('d-none');
-        }
-    }
-
-    if( nextIndex == 18){
-        if($('#insurance-request-print-button').length){
-            $('#insurance-request-print-button').removeClass('d-none');
-        }
-    }
-    else{
-        if($('#insurance-request-print-button').length){
-            $('#insurance-request-print-button').addClass('d-none');
-        }
-    }
-
-    if( nextIndex == 14 ||  nextIndex == 15 ||  nextIndex == 16 || nextIndex == 17 || nextIndex == 18){
-        if($('#dr-receipt-print-button').length){
-            $('#dr-receipt-print-button').removeClass('d-none');
-        }
-
-        if($('#schedule-print-button').length){
-            $('#schedule-print-button').removeClass('d-none');
-        }
-    }
-    else{
-        if($('#dr-receipt-print-button').length){
-            $('#dr-receipt-print-button').addClass('d-none');
-        }
-
-        if($('#schedule-print-button').length){
-            $('#schedule-print-button').addClass('d-none');
-        }
-    }
-
-    var nextTabId = $('.nav-link:eq(' + nextIndex + ')').attr('href');
-
-    if (nextTabId !== undefined) {
-        if (nextIndex === 0) {
-            $('#first-step').addClass('disabled');
-            $('#previous-step').addClass('disabled');
+    if ($visibleTabs.length === 1) {
+        // only one tab visible → disable everything
+        $('#first-step, #previous-step, #last-step, #next-step').addClass('disabled');
+    } else {
+        if (nextIndex === firstVisibleIndex) {
+            $('#first-step, #previous-step').addClass('disabled');
+            $('#last-step, #next-step').removeClass('disabled');
+        } else if (nextIndex === lastVisibleIndex) {
+            $('#last-step, #next-step').addClass('disabled');
+            $('#first-step, #previous-step').removeClass('disabled');
         } else {
-            $('#first-step').removeClass('disabled');
-            $('#previous-step').removeClass('disabled');
+            $('#first-step, #previous-step, #last-step, #next-step').removeClass('disabled');
         }
-
-        if (nextIndex === totalTabs - 1) {
-            $('#last-step').addClass('disabled');
-            $('#next-step').addClass('disabled');
-        } else {
-            $('#last-step').removeClass('disabled');
-            $('#next-step').removeClass('disabled');
-        }
-
-        $('.nav-link[href="' + nextTabId + '"]').tab('show');
-
-        // Calculate width of the progress bar based on visible tabs
-        var progressBarWidth = ((nextIndex + 1) / visibleTabs) * 100;
-        $('#bar .progress-bar').css('width', progressBarWidth + '%');
     }
+
 }
+
+
 
 function disableFormAndSelect2(formId) {
     // Disable all form elements

@@ -1397,6 +1397,14 @@ class SalesProposalModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function getProductPendingPartTransactionCount($p_product_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) FROM part_transaction WHERE customer_id = :p_product_id AND customer_type = :p_customer_type AND part_transaction_status NOT IN ("Released", "Cancelled", "Checked", "checked")');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_customer_type', 'Internal', PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

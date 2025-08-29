@@ -59,7 +59,7 @@
                   $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#release-incoming-offcanvas" aria-controls="release-incoming-offcanvas">Complete</button></li>';
                 }
 
-                if($part_incoming_status == 'On-Process'){
+                if($part_incoming_status == 'On-Process' || $part_incoming_status == 'Completed' || $part_incoming_status == 'Posted'){
                    $dropdown .= '<li><a href="parts-incoming-purchase-order.php?id='. $partsIncomingID .'" class="dropdown-item"  target="_blank">Print Purchase Order</a></li>';
                 }
                         
@@ -162,6 +162,7 @@
                     <thead>
                         <tr>
                             <th class="text-end"></th>
+                            <th>Order</th>
                             <th>Part</th>
                             <th class="text-center">Qty.</th>
                             <th class="text-center">Received Qty.</th>
