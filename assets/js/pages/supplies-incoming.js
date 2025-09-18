@@ -145,11 +145,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.noItem) {
-                                    showNotification('Incoming Approve Error', 'No parts added. Cannot be approved.', 'danger');
+                                    showNotification('Incoming Approve Error', 'No supply added. Cannot be approved.', 'danger');
                                 }
                                 
                                 else if (response.withoutCost) {
-                                    showNotification('Incoming Approve Error', 'There are parts without cost added. Cannot be for approval.', 'danger');
+                                    showNotification('Incoming Approve Error', 'There are supply without cost added. Cannot be for approval.', 'danger');
                                 }
                                 else {
                                     showNotification('Incoming Approve Error', response.message, 'danger');
@@ -204,7 +204,7 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.noItem) {
-                                    showNotification('Incoming Post Error', 'No parts added. Cannot be posted.', 'danger');
+                                    showNotification('Incoming Post Error', 'No supply added. Cannot be posted.', 'danger');
                                 }
                                 else {
                                     showNotification('Incoming Post Error', response.message, 'danger');
@@ -259,10 +259,10 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.noItem) {
-                                    showNotification('Incoming For Approval Error', 'No parts added. Cannot be for approval.', 'danger');
+                                    showNotification('Incoming For Approval Error', 'No supply added. Cannot be for approval.', 'danger');
                                 }
                                 else if (response.withoutCost) {
-                                    showNotification('Incoming For Approval Error', 'There are parts without cost added. Cannot be for approval.', 'danger');
+                                    showNotification('Incoming For Approval Error', 'There are supply without cost added. Cannot be for approval.', 'danger');
                                 }
                                 else {
                                     showNotification('Incoming For Approval Error', response.message, 'danger');
@@ -288,8 +288,8 @@
             const transaction = 'delete part item';
     
             Swal.fire({
-                title: 'Confirm Part Item Deletion',
-                text: 'Are you sure you want to delete this part item?',
+                title: 'Confirm Supply Item Deletion',
+                text: 'Are you sure you want to delete this supply item?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -310,7 +310,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Part Item Success', 'The part item has been deleted successfully.', 'success');
+                                showNotification('Delete Supply Item Success', 'The supply item has been deleted successfully.', 'success');
                                 reloadDatatable('#parts-item-table');
                                 displayDetails('get parts incoming cart total');
                             }
@@ -320,11 +320,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Part Item Error', 'The part item does not exists.', 'danger');
+                                    showNotification('Delete Supply Item Error', 'The supply item does not exists.', 'danger');
                                     reloadDatatable('#parts-item-table');
                                 }
                                 else {
-                                    showNotification('Delete Part Item Error', response.message, 'danger');
+                                    showNotification('Delete Supply Item Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -347,8 +347,8 @@
             const transaction = 'cancel part item';
     
             Swal.fire({
-                title: 'Confirm Part Item Cancellation',
-                text: 'Are you sure you want to cancel this part item?',
+                title: 'Confirm Supply Item Cancellation',
+                text: 'Are you sure you want to cancel this supply item?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Cancel Item',
@@ -369,7 +369,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Cancel Part Item Success', 'The part item has been cancelled successfully.', 'success');
+                                showNotification('Cancel Supply Item Success', 'The supply item has been cancelled successfully.', 'success');
                                 reloadDatatable('#parts-item-table');
                                 displayDetails('get parts incoming cart total');
                             }
@@ -379,11 +379,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Cancel Part Item Error', 'The part item does not exists.', 'danger');
+                                    showNotification('Cancel Supply Item Error', 'The supply item does not exists.', 'danger');
                                     reloadDatatable('#parts-item-table');
                                 }
                                 else {
-                                    showNotification('Cancel Part Item Error', response.message, 'danger');
+                                    showNotification('Cancel Supply Item Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -515,8 +515,8 @@ function partsIncomingForm(){
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Incoming Parts Success' : 'Update Incoming Parts Success';
-                        const notificationDescription = response.insertRecord ? 'The incoming parts has been inserted successfully.' : 'The incoming parts has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Incoming SupplySuccess' : 'Update Incoming SupplySuccess';
+                        const notificationDescription = response.insertRecord ? 'The incoming supply has been inserted successfully.' : 'The incoming supply has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
                         if(company_id == '1'){
@@ -589,7 +589,6 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'COMPLETION_DATE' },
             { 'data' : 'PURCHASE_DATE' },
             { 'data' : 'TRANSACTION_DATE' },
-            { 'data' : 'POSTED_DATE' },
             { 'data' : 'STATUS' },
             { 'data' : 'ACTION' }
         ];
@@ -605,9 +604,8 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
-            { 'width': 'auto', 'aTargets': 11 },
-            { 'width': '15%','bSortable': false, 'aTargets': 12 }
+            { 'width': 'auto', 'aTargets': 10 },
+            { 'width': '15%','bSortable': false, 'aTargets': 11 }
         ];
     }
     else{
@@ -621,7 +619,6 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'COMPLETION_DATE' },
             { 'data' : 'PURCHASE_DATE' },
             { 'data' : 'TRANSACTION_DATE' },
-            { 'data' : 'POSTED_DATE' },
             { 'data' : 'STATUS' },
             { 'data' : 'ACTION' }
         ];
@@ -636,9 +633,8 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
-            { 'width': 'auto', 'aTargets': 10 },
-            { 'width': '15%','bSortable': false, 'aTargets': 11 }
+            { 'width': 'auto', 'aTargets': 9 },
+            { 'width': '15%','bSortable': false, 'aTargets': 10 }
         ];
     }
 
@@ -1061,7 +1057,7 @@ function addPartsForm(){
                 },
                 success: function(response) {
                     if (response.success) {
-                        showNotification('Add Parts Success', 'The parts has been added successfully.', 'success');
+                        showNotification('Add Supply Success', 'The supply has been added successfully.', 'success');
                         
                         displayDetails('get parts incoming cart total');
                     }
@@ -1259,7 +1255,7 @@ function cancelIncomingForm(){
                             window.location = 'logout.php?logout';
                         }
                         else if (response.cartQuantity) {
-                            showNotification('Cancel Incoming Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                            showNotification('Cancel Incoming Error', 'One of the supply added does not have enough quantity. Kindly check the added parts.', 'danger');
                         }
                         else {
                             showNotification('Incoming Error', response.message, 'danger');
@@ -1543,7 +1539,7 @@ function partItemForm(){
                 },
                 success: function (response) {
                     if (response.success) {
-                        showNotification('Update Part Item Success', 'The part item has been updated successfully', 'success');
+                        showNotification('Update Supply Item Success', 'The supply item has been updated successfully', 'success');
                         reloadDatatable('#parts-item-table');
                         $('#part-cart-offcanvas').offcanvas('hide');
                         displayDetails('get parts incoming cart total');
@@ -1554,7 +1550,7 @@ function partItemForm(){
                             window.location = 'logout.php?logout';
                         }
                         else if (response.quantity) {
-                            showNotification('Update Part Item', 'Quantity cannot exceed available stock', 'danger');
+                            showNotification('Update Supply Item', 'Quantity cannot exceed available stock', 'danger');
                         }
                         else {
                             showNotification('Incoming Error', response.message, 'danger');
@@ -1797,7 +1793,7 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
+                            showNotification('Get Supply Details Error', response.message, 'danger');
                         }
                     }
                 },
@@ -1837,7 +1833,7 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
+                            showNotification('Get Supply Details Error', response.message, 'danger');
                         }
                     }
                 },
@@ -1871,7 +1867,7 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
+                            showNotification('Get Supply Details Error', response.message, 'danger');
                         }
                     }
                 },
@@ -1905,7 +1901,7 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
+                            showNotification('Get Supply Details Error', response.message, 'danger');
                         }
                     }
                 },
@@ -1947,7 +1943,7 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
+                            showNotification('Get Supply Details Error', response.message, 'danger');
                         }
                     }
                 },

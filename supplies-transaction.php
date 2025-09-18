@@ -10,14 +10,15 @@
   $customerModel = new CustomerModel($databaseModel);
   $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
+  $departmentModel = new DepartmentModel($databaseModel);
 
-  $pageTitle = 'Fuso Parts Issuance';
+  $pageTitle = 'Supplies Issuance';
     
-  $partsTransactionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'read');
-  $partsTransactionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'create');
-  $partsTransactionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'write');
-  $partsTransactionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'delete');
-  $partsTransactionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'duplicate');
+  $partsTransactionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 170, 'read');
+  $partsTransactionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 170, 'create');
+  $partsTransactionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 170, 'write');
+  $partsTransactionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 170, 'delete');
+  $partsTransactionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 170, 'duplicate');
 
   if ($partsTransactionReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -44,8 +45,8 @@
     $partsTransactionID = null;
   }
 
-  $company = '3';
-  $cardLabel = 'Parts';
+  $company = '1';
+  $cardLabel = 'Supplies';
 
   $newRecord = isset($_GET['new']);
 
@@ -79,7 +80,7 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="parts-transaction.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="supplies-transaction.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($partsTransactionID)){
                             echo '<li class="breadcrumb-item" id="parts-transaction-id">'. $partsTransactionID .'</li>';
@@ -127,7 +128,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/parts-transaction.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/supplies-transaction.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

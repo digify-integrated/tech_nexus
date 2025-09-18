@@ -42,6 +42,10 @@
             leaveDashboardApprovalList();
         }
 
+        if($('#sales-proposal-for-ci-dashboard-list').length){
+            salesProposalForCIDashboard();
+        }
+
         if($('#daily-employee-status-dashboard-table').length){
             dailyEmployeeStatusDashboard('#daily-employee-status-dashboard-table');
             getEmployeeStatusCount();
@@ -547,6 +551,27 @@ function leaveDashboardApprovalList(){
         dataType: 'json',
         success: function (response) {
             document.getElementById('leave-dashboard-approval-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function salesProposalForCIDashboard(){
+    const type = 'sales proposal for ci list';
+
+    $.ajax({
+        type: 'POST',
+        url: 'view/_sales_proposal_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('sales-proposal-for-ci-dashboard-list').innerHTML = response.LIST;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

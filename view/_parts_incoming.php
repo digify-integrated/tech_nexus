@@ -4,7 +4,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h5>Parts Incoming List</h5>
+            <h5><?php echo $cardLabel; ?> Incoming List</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <?php
@@ -15,13 +15,16 @@
                   $action .= '<div class="btn-group m-r-10">
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                  <li><button class="dropdown-item" type="button" id="delete-parts-incoming">Delete Parts Incoming</button></li>
+                                  <li><button class="dropdown-item" type="button" id="delete-parts-incoming">Delete '. $cardLabel .' Incoming</button></li>
                                 </ul>
                               </div>';
                 }
 
                 if($partsIncomingCreateAccess['total'] > 0){
-                  if($company == '2'){
+                  if($company == '1'){
+                    $action .= '<a href="supplies-incoming.php?new" class="btn btn-success">Create</a>';
+                  }
+                  else if($company == '2'){
                     $action .= '<a href="netruck-parts-incoming.php?new" class="btn btn-success">Create</a>';
                   }
                   else{
@@ -59,6 +62,7 @@
                 <th>Completion Date</th>
                 <th>Delivery Date</th>
                 <th>Transaction Date</th>
+                <th>Posting Date</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>

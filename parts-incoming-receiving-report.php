@@ -226,7 +226,8 @@
 
             $partDetails = $partsModel->getParts($part_id);
             $unitSale = $partDetails['unit_sale'] ?? null;
-            $description = $partDetails['description'];
+            $description = $partDetails['description'] ?? '';
+            $part_number = $partDetails['part_number'] ?? '';
 
             $unitCode = $unitModel->getUnit($unitSale);
             $short_name = $unitCode['short_name'] ?? null;
@@ -238,7 +239,7 @@
 
             if($received_quantity > 0){
                 $list .= '<tr>
-                        <td width="40%">'. strtoupper($description) .'</td>
+                        <td width="40%">'. strtoupper($part_number) .' - '. strtoupper($description) .'</td>
                         <td width="20%" style="text-align:center">'. number_format($received_quantity, 2) . ' ' . strtoupper($short_name) .'</td>
                         <td width="20%" style="text-align:center">'. number_format($cost, 2) .' PHP</td>
                         <td width="20%" style="text-align:center">'. number_format($totalCost, 2) .' PHP</td>

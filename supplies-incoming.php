@@ -1,39 +1,44 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/parts-transaction-model.php');
+  require('model/parts-incoming-model.php');
   require('model/customer-model.php');
+  require('model/supplier-model.php');
   require('model/product-model.php');
-  require('model/miscellaneous-client-model.php');
 
-  $partsTransactionModel = new PartsTransactionModel($databaseModel);
+  $partsIncomingModel = new PartsIncomingModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
-  $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
+  $supplierModel = new SupplierModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
 
-  $pageTitle = 'Fuso Parts Issuance';
+  $pageTitle = 'Supplies Incoming';
     
-  $partsTransactionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'read');
-  $partsTransactionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'create');
-  $partsTransactionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'write');
-  $partsTransactionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'delete');
-  $partsTransactionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'duplicate');
+  $partsIncomingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 169, 'read');
+  $partsIncomingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 169, 'create');
+  $partsIncomingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 169, 'write');
+  $partsIncomingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 169, 'delete');
+  $partsIncomingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 169, 'duplicate');
+  $viewPartCost = $userModel->checkSystemActionAccessRights($user_id, 212);
+  $updatePartCost = $userModel->checkSystemActionAccessRights($user_id, 211);
+  $updatePartIncomingCompletedCost = $userModel->checkSystemActionAccessRights($user_id, 213);
+  $approvePartsIncoming = $userModel->checkSystemActionAccessRights($user_id, 209);
+  $postPartsIncoming = $userModel->checkSystemActionAccessRights($user_id, 214);
 
-  if ($partsTransactionReadAccess['total'] == 0) {
+  if ($partsIncomingReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: parts-transaction.php');
+      header('location: supplies-incoming.php');
       exit;
     }
 
-    $partsTransactionID = $securityModel->decryptData($_GET['id']);
+    $partsIncomingID = $securityModel->decryptData($_GET['id']);
 
-    $checkPartsTransactionExist = $partsTransactionModel->checkPartsTransactionExist($partsTransactionID);
-    $total = $checkPartsTransactionExist['total'] ?? 0;
+    $checkPartsIncomingExist = $partsIncomingModel->checkPartsIncomingExist($partsIncomingID);
+    $total = $checkPartsIncomingExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
@@ -41,11 +46,11 @@
     }
   }
   else{
-    $partsTransactionID = null;
+    $partsIncomingID = null;
   }
 
-  $company = '3';
-  $cardLabel = 'Parts';
+  $company = '1';
+  $cardLabel = 'Supplies';
 
   $newRecord = isset($_GET['new']);
 
@@ -79,10 +84,10 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="parts-transaction.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="supplies-incoming.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($partsTransactionID)){
-                            echo '<li class="breadcrumb-item" id="parts-transaction-id">'. $partsTransactionID .'</li>';
+                        if(!$newRecord && !empty($partsIncomingID)){
+                            echo '<li class="breadcrumb-item" id="parts-incoming-id">'. $partsIncomingID .'</li>';
                         }
 
                         if($newRecord){
@@ -99,16 +104,18 @@
             </div>
           </div>
         </div>
+        <input type="hidden" id="view-cost" value="<?php echo $viewPartCost['total'] ?>">
+        <input type="hidden" id="update-cost" value="<?php echo $updatePartCost['total'] ?>">
         <input type="hidden" id="page-company" value="<?php echo $company ?>">
         <?php
-          if($newRecord && $partsTransactionCreateAccess['total'] > 0){
-            require_once('view/_parts_transaction_new.php');
+          if($newRecord && $partsIncomingCreateAccess['total'] > 0){
+            require_once('view/_parts_incoming_new.php');
           }
-          else if(!empty($partsTransactionID) && $partsTransactionWriteAccess['total'] > 0){
-            require_once('view/_parts_transaction_details.php');
+          else if(!empty($partsIncomingID) && $partsIncomingWriteAccess['total'] > 0){
+            require_once('view/_parts_incoming_details.php');
           }
           else{
-            require_once('view/_parts_transaction.php');
+            require_once('view/_parts_incoming.php');
           }
         ?>
       </div>
@@ -127,7 +134,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/parts-transaction.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/supplies-incoming.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

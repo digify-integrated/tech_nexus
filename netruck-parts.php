@@ -62,6 +62,7 @@
   }
 
   $company = '2';
+  $cardLabel = 'Parts';
 
   $importRecord = isset($_GET['import']);
   $newRecord = isset($_GET['new']);

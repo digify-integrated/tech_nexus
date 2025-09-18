@@ -64,6 +64,10 @@
             ciReportRecommendationForm();
         }
 
+        if($('#personal-information-summary').length){
+            personalInformationSummary();
+        }
+
         if($('#ci-report-id').length){
             displayDetails('get ci report details');
             displayDetails('get ci report residence total details');
@@ -3096,13 +3100,13 @@ function ciReportAppraisalSourceForm(){
         },
         submitHandler: function(form) {
             const ci_report_id = $('#ci-report-id').text();
-            var ci_report_bank_id = sessionStorage.getItem('ci_report_bank_id');
+            var ci_report_collateral_id = sessionStorage.getItem('ci_report_collateral_id');
             const transaction = 'save ci report appraisal source';
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/ci-report-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&ci_report_id=' + ci_report_id + '&ci_report_bank_id=' + ci_report_bank_id,
+                data: $(form).serialize() + '&transaction=' + transaction + '&ci_report_id=' + ci_report_id + '&ci_report_collateral_id=' + ci_report_collateral_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-ci-appraisal-source');
@@ -3840,6 +3844,8 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#narrative_summary').val(response.narrative_summary);
                         $('#purpose_of_loan').val(response.purpose_of_loan);
+                        $('#customer_name').val(response.customer_name);
+                        $('#ci_type').val(response.ci_type);
                         $('#summary-narrative-summary').text(response.narrative_summary);
                         $('#summary-purpose-of-loan').text(response.purpose_of_loan);
                         $('#summary-appraiser').text(response.appraiserName);
@@ -4721,4 +4727,29 @@ function calculateBusinessCapital(){
     const total =(ci_business_inventory + ci_business_receivable + ci_business_fixed_asset)  - ci_business_liabilities;
 
     $('#ci_business_capital').val(total.toFixed(2));
+}
+
+function personalInformationSummary(){
+    const type = 'personal information summary';
+    var customer_id = $('#customer-id').val();
+            
+    $.ajax({
+        url: 'view/_customer_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            customer_id : customer_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('personal-information-summary').innerHTML = response[0].personalInformationSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
 }

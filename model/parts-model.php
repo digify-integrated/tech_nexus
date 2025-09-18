@@ -301,12 +301,21 @@ class PartsModel {
     # - An array containing the parts details.
     #
     # -------------------------------------------------------------
-    public function getPartsStatus($p_parts_status) {
-        $statusClasses = [
-            'Draft' => 'info',
-            'For Sale' => 'success',
-            'Out of Stock' => 'danger'
-        ];
+    public function getPartsStatus($p_parts_status, $company_id) {
+        if($company_id == 1){
+            $statusClasses = [
+                'Draft' => 'info',
+                'Available' => 'success',
+                'Out of Stock' => 'danger'
+            ];
+        }
+        else{
+            $statusClasses = [
+                'Draft' => 'info',
+                'For Sale' => 'success',
+                'Out of Stock' => 'danger'
+            ];
+        }
         
         $defaultClass = 'dark';
         

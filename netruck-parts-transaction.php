@@ -45,6 +45,7 @@
   }
 
   $company = '2';
+  $cardLabel = 'Parts';
 
   $newRecord = isset($_GET['new']);
 

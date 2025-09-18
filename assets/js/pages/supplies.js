@@ -98,7 +98,7 @@
             const transaction = 'delete parts';
     
             Swal.fire({
-                title: 'Confirm Part Deletion',
+                title: 'Confirm Supply Deletion',
                 text: 'Are you sure you want to delete this parts?',
                 icon: 'warning',
                 showCancelButton: !0,
@@ -119,7 +119,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Part Success', 'The parts has been deleted successfully.', 'success');
+                                showNotification('Delete Supply Success', 'The supply has been deleted successfully.', 'success');
                                 partsTable('#parts-table', true, false);
                             }
                             else {
@@ -128,10 +128,10 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Part Error', 'The parts does not exist.', 'danger');
+                                    showNotification('Delete Supply Error', 'The supply does not exist.', 'danger');
                                 }
                                 else {
-                                    showNotification('Delete Part Error', response.message, 'danger');
+                                    showNotification('Delete Supply Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -154,7 +154,7 @@
             const transaction = 'delete parts';
     
             Swal.fire({
-                title: 'Confirm Part Deletion',
+                title: 'Confirm Supply Deletion',
                 text: 'Are you sure you want to delete this parts?',
                 icon: 'warning',
                 showCancelButton: !0,
@@ -175,7 +175,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Deleted Part Success', 'The parts has been deleted successfully.', 'success');
+                                setNotification('Deleted Supply Success', 'The supply has been deleted successfully.', 'success');
                                 
                                 if(company_id == '1'){
                                     window.location = 'supplies.php?id=' + response.partsID;
@@ -196,7 +196,7 @@
                                     window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Delete Part Error', response.message, 'danger');
+                                    showNotification('Delete Supply Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -218,8 +218,8 @@
             const transaction = 'delete parts image';
     
             Swal.fire({
-                title: 'Confirm Part Image Deletion',
-                text: 'Are you sure you want to delete this parts image?',
+                title: 'Confirm Supply Image Deletion',
+                text: 'Are you sure you want to delete this supply image?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -239,7 +239,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Part Image Success', 'The parts image has been deleted successfully.', 'success');
+                                showNotification('Delete Supply Image Success', 'The supply image has been deleted successfully.', 'success');
                                 generatePartOtherImages();
                             }
                             else {
@@ -248,11 +248,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Part Error', 'The parts does not exist.', 'danger');
+                                    showNotification('Delete Supply Error', 'The supply does not exist.', 'danger');
                                     generatePartOtherImages();
                                 }
                                 else {
-                                    showNotification('Delete Part Error', response.message, 'danger');
+                                    showNotification('Delete Supply Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -291,7 +291,7 @@
                     processData: false,
                     success: function(response) {
                         if (response.success) {
-                            showNotification('Update Part Thumbnail Success', 'The parts thumbnail has been updated successfully.', 'success');
+                            showNotification('Update Supply Thumbnail Success', 'The supply thumbnail has been updated successfully.', 'success');
                             displayDetails('get parts details');
                         }
                         else {
@@ -337,7 +337,7 @@
                     processData: false,
                     success: function(response) {
                         if (response.success) {
-                            showNotification('Inser Part Image Success', 'The parts image has been inserted successfully.', 'success');
+                            showNotification('Inser Supply Image Success', 'The supply image has been inserted successfully.', 'success');
                             generatePartOtherImages();
                         }
                         else {
@@ -370,8 +370,8 @@
             const transaction = 'tag for sale';
     
             Swal.fire({
-                title: 'Confirm Tagging of Part For Sale',
-                text: 'Are you sure you want to tag this parts for sale?',
+                title: 'Confirm Tagging of Supply For Sale',
+                text: 'Are you sure you want to tag this supply for sale?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'For Sale',
@@ -391,7 +391,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Tag Part For Sale Success', 'The product has been tagged for sale successfully.', 'success');
+                                setNotification('Tag Supply For Sale Success', 'The suppliy has been tagged for sale successfully.', 'success');
                                 window.location.reload();
                             }
                             else {
@@ -400,13 +400,13 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.zeroPrice) {
-                                    showNotification('Part Price Zero', 'The parts poduct price is set to 0. Check the field and try again.', 'danger');
+                                    showNotification('Supply Price Zero', 'The supply price is set to 0. Check the field and try again.', 'danger');
                                 }
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Tag Part For Sale Error', response.message, 'danger');
+                                    showNotification('Tag Supply For Sale Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -483,8 +483,8 @@
             const transaction = 'delete parts document';
     
             Swal.fire({
-                title: 'Confirm Part Document Deletion',
-                text: 'Are you sure you want to delete this parts document?',
+                title: 'Confirm Supply Document Deletion',
+                text: 'Are you sure you want to delete this supply document?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -504,7 +504,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Part Document Success', 'The parts document has been deleted successfully.', 'success');
+                                showNotification('Delete Supply Document Success', 'The supply document has been deleted successfully.', 'success');
                                 reloadDatatable('#parts-document-table');
                             }
                             else {
@@ -513,11 +513,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Part Error', 'The parts does not exist.', 'danger');
+                                    showNotification('Delete Supply Error', 'The supply document does not exist.', 'danger');
                                     generatePartOtherImages();
                                 }
                                 else {
-                                    showNotification('Delete Part Error', response.message, 'danger');
+                                    showNotification('Delete Supply Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -721,8 +721,8 @@ function partsForm(){
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Part Success' : 'Update Part Success';
-                        const notificationDescription = response.insertRecord ? 'The parts has been inserted successfully.' : 'The parts has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Supply Success' : 'Update Supply Success';
+                        const notificationDescription = response.insertRecord ? 'The supply has been inserted successfully.' : 'The supply has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
                         if(company_id == '1'){
@@ -1205,8 +1205,8 @@ function partsDetailsForm(){
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Part Success' : 'Update Part Success';
-                        const notificationDescription = response.insertRecord ? 'The parts has been inserted successfully.' : 'The parts has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Supply Success' : 'Update Supply Success';
+                        const notificationDescription = response.insertRecord ? 'The supply has been inserted successfully.' : 'The supply has been updated successfully.';
                         
                         showNotification(notificationMessage, notificationDescription, 'success');
                     }
@@ -1493,7 +1493,7 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
+                            showNotification('Get Supply Details Error', response.message, 'danger');
                         }
                     }
                 },
@@ -1522,7 +1522,6 @@ function partIncomingTable(datatable_name, buttons = false, show_all = false){
     if(view_cost > 0){
         var column = [ 
             { 'data' : 'REFERENCE_NUMBER' },
-            { 'data' : 'PRODUCT' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED_QUANTITY' },
             { 'data' : 'COST' },
@@ -1536,14 +1535,12 @@ function partIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 2 },
             { 'width': 'auto', 'aTargets': 3 },
             { 'width': 'auto', 'aTargets': 4 },
-            { 'width': 'auto', 'aTargets': 5 },
-            { 'width': 'auto', 'aTargets': 6 },
+            { 'width': 'auto', 'aTargets': 5 }
         ];
     }
     else{
         var column = [ 
             { 'data' : 'REFERENCE_NUMBER' },
-            { 'data' : 'PRODUCT' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED_QUANTITY' },
             { 'data' : 'REMARKS' }
@@ -1553,8 +1550,7 @@ function partIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 0 },
             { 'width': 'auto', 'aTargets': 1 },
             { 'width': 'auto', 'aTargets': 2 },
-            { 'width': 'auto', 'aTargets': 3 },
-            { 'width': 'auto', 'aTargets': 4 },
+            { 'width': 'auto', 'aTargets': 3 }
         ];
     }
 
@@ -1613,7 +1609,6 @@ function partTransactionTable(datatable_name, buttons = false, show_all = false)
 
     const column = [ 
         { 'data' : 'PART_TRANSACTION_NO' },
-        { 'data' : 'PRODUCT' },
         { 'data' : 'QUANTITY' },
         { 'data' : 'ADD_ON' },
         { 'data' : 'DISCOUNT' },
@@ -1630,7 +1625,6 @@ function partTransactionTable(datatable_name, buttons = false, show_all = false)
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
-        { 'width': 'auto', 'aTargets': 7 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

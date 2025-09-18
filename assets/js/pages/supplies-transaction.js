@@ -115,13 +115,13 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.noItem) {
-                                    showNotification('Transaction On-Process Error', 'No parts added. Cannot be processed.', 'danger');
+                                    showNotification('Transaction On-Process Error', 'No supply added. Cannot be processed.', 'danger');
                                 }
                                 else if (response.partQuantityExceed) {
-                                    showNotification('Transaction On-Process Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                    showNotification('Transaction On-Process Error', 'One of the supply added does not have enough quantity. Kindly check the added parts.', 'danger');
                                 }
                                 else if (response.cartQuantity) {
-                                    showNotification('Transaction On-Process Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                    showNotification('Transaction On-Process Error', 'One of the supply added does not have enough quantity. Kindly check the added parts.', 'danger');
                                 }
                                 else {
                                     showNotification('Transaction On-Process Error', response.message, 'danger');
@@ -177,16 +177,16 @@
                                 }
                                 
                                 else if (response.partQuantityExceed) {
-                                    showNotification('Transaction Released Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                    showNotification('Transaction Released Error', 'One of the supply added does not have enough quantity. Kindly check the added parts.', 'danger');
                                 }
                                 else if (response.noItem) {
-                                    showNotification('Transaction For Validation Error', 'No parts added. Cannot be processed.', 'danger');
+                                    showNotification('Transaction For Validation Error', 'No supply added. Cannot be processed.', 'danger');
                                 }
                                 else if (response.jobOrder) {
                                     showNotification('Transaction For Validation Error', 'No job order or additional job order linked. Cannot be processed.', 'danger');
                                 }
                                 else if (response.cartQuantity) {
-                                    showNotification('Transaction For Validation Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                    showNotification('Transaction For Validation Error', 'One of the supply added does not have enough quantity. Kindly check the added parts.', 'danger');
                                 }
                                 else {
                                     showNotification('Transaction For Validation Error', response.message, 'danger');
@@ -241,10 +241,10 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.partQuantityExceed) {
-                                    showNotification('Transaction Released Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                    showNotification('Transaction Released Error', 'One of the supply added does not have enough quantity. Kindly check the added parts.', 'danger');
                                 }
                                 else if (response.cartQuantity) {
-                                    showNotification('Transaction Released Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                    showNotification('Transaction Released Error', 'One of the supply added does not have enough quantity. Kindly check the added parts.', 'danger');
                                 }
                                 else {
                                     showNotification('Transaction Released Error', response.message, 'danger');
@@ -322,8 +322,8 @@
             const transaction = 'delete part item';
     
             Swal.fire({
-                title: 'Confirm Part Item Deletion',
-                text: 'Are you sure you want to delete this part item?',
+                title: 'Confirm Supply Item Deletion',
+                text: 'Are you sure you want to delete this supply item?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -344,7 +344,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Part Item Success', 'The part item has been deleted successfully.', 'success');
+                                showNotification('Delete Supply Item Success', 'The supply item has been deleted successfully.', 'success');
                                 reloadDatatable('#parts-item-table');
                                 displayDetails('get parts transaction cart total');
                             }
@@ -354,11 +354,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Part Item Error', 'The part item does not exists.', 'danger');
+                                    showNotification('Delete Supply Item Error', 'The supply item does not exists.', 'danger');
                                     reloadDatatable('#parts-item-table');
                                 }
                                 else {
-                                    showNotification('Delete Part Item Error', response.message, 'danger');
+                                    showNotification('Delete Supply Item Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -1505,7 +1505,7 @@ function addPartsForm(){
                 },
                 success: function(response) {
                     if (response.success) {
-                        showNotification('Add Parts Success', 'The parts has been added successfully.', 'success');
+                        showNotification('Add Supply Success', 'The supply has been added successfully.', 'success');
                         displayDetails('get parts transaction cart total');
                     }
                     else {
@@ -1808,7 +1808,7 @@ function cancelTransactionForm(){
                             window.location = 'logout.php?logout';
                         }
                         else if (response.cartQuantity) {
-                            showNotification('Cancel Transaction Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                            showNotification('Cancel Transaction Error', 'One of the supply added does not have enough quantity. Kindly check the added parts.', 'danger');
                         }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
@@ -1987,7 +1987,7 @@ function approveTransactionForm(){
                             window.location = 'logout.php?logout';
                         }
                         else if (response.cartQuantity) {
-                            showNotification('Validate Transaction Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                            showNotification('Validate Transaction Error', 'One of the supply added does not have enough quantity. Kindly check the added parts.', 'danger');
                         }
                         else if (response.jobOrder) {
                             showNotification('Validate Transaction Error', 'No job order or additional job order linked. Cannot be processed.', 'danger');
@@ -2086,7 +2086,7 @@ function partItemForm(){
                 },
                 success: function (response) {
                     if (response.success) {
-                        showNotification('Update Part Item Success', 'The part item has been updated successfully', 'success');
+                        showNotification('Update Supply Item Success', 'The supply item has been updated successfully', 'success');
                         reloadDatatable('#parts-item-table');
                         $('#part-cart-offcanvas').offcanvas('hide');
                         displayDetails('get parts transaction cart total');
@@ -2097,7 +2097,7 @@ function partItemForm(){
                             window.location = 'logout.php?logout';
                         }
                         else if (response.quantity) {
-                            showNotification('Update Part Item', 'Quantity cannot exceed available stock', 'danger');
+                            showNotification('Update Supply Item', 'Quantity cannot exceed available stock', 'danger');
                         }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
@@ -2169,7 +2169,7 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
+                            showNotification('Get Supply Details Error', response.message, 'danger');
                         }
                     }
                 },
@@ -2214,7 +2214,7 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
+                            showNotification('Get Supply Details Error', response.message, 'danger');
                         }
                     }
                 },
@@ -2247,7 +2247,7 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
+                            showNotification('Get Supply Details Error', response.message, 'danger');
                         }
                     }
                 },
@@ -2288,7 +2288,7 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
+                            showNotification('Get Supply Details Error', response.message, 'danger');
                         }
                     }
                 },

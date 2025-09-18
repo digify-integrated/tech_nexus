@@ -826,7 +826,7 @@ function transmittalTable(datatable_name, buttons = false, show_all = false){
         { 'width': '20%', 'aTargets': 1 },
         { 'width': '20%', 'aTargets': 2 },
         { 'width': '20%', 'aTargets': 3 },
-        { 'width': '19%', 'aTargets': 4 },
+        { 'width': '19%', 'type': 'date', 'aTargets': 4 },
         { 'width': '5%', 'aTargets': 5 },
         { 'width': '15%','bSortable': false, 'aTargets': 6 }
     ];

@@ -31,7 +31,7 @@ if(($partsWriteAccess['total'] > 0 && $partsStatus == 'Draft') || $updatePartsDi
 if($partsWriteAccess['total'] > 0 && $partsStatus == 'Draft'){
     $updatePartsButton = '<div class="col-4">
                                 <div class="d-grid">
-                                    <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-parts-offcanvas" aria-controls="update-parts-offcanvas" id="update-parts">Update Parts</button>
+                                    <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-parts-offcanvas" aria-controls="update-parts-offcanvas" id="update-parts">Update '.$cardLabel.'</button>
                                 </div>
                             </div>';
 }
@@ -47,7 +47,7 @@ if($updatePartImage['total'] > 0 && $partsStatus == 'Draft'){
 if($partsDeleteAccess['total'] > 0){
     $deletePartsButton = '<div class="col-4">
                                 <div class="d-grid">
-                                    <button class="btn btn-outline-danger" id="delete-parts-details">Delete Parts</button>
+                                    <button class="btn btn-outline-danger" id="delete-parts-details">Delete '.$cardLabel.'</button>
                                 </div>
                             </div>';
 }
@@ -63,7 +63,7 @@ if($addPartExpense['total'] > 0){
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-4">
-            <h5>Parts Details</h5>
+            <h5><?php echo $cardLabel; ?> Details</h5>
           </div>
           <div class="col-md-8 text-sm-end mt-3 mt-sm-0">
             <?php
@@ -73,12 +73,12 @@ if($addPartExpense['total'] > 0){
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">';
 
-                        if ($tagForSale['total'] > 0 && $partsStatus == 'Draft' && $company != '2') {
+                        if ($tagForSale['total'] > 0 && $partsStatus == 'Draft' && $company != '2' && $company != '1') {
                             $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-parts-for-sale">Tag For Sale</button></li>';
                         }
 
                         if ($partsDeleteAccess['total'] > 0) {
-                            $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-parts-details">Delete Parts</button></li>';
+                            $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-parts-details">Delete '.$cardLabel.'</button></li>';
                         }
                                   
                         $dropdown .= '</ul>
@@ -91,7 +91,10 @@ if($addPartExpense['total'] > 0){
                         }
 
                         if ($partsCreateAccess['total'] > 0) {
-                          if($company == '2'){
+                          if($company == '1'){
+                            echo '<a class="btn btn-success m-r-5 form-details" href="supplies.php?new">Create</a>';
+                          }
+                          else if($company == '2'){
                             echo '<a class="btn btn-success m-r-5 form-details" href="netruck-parts.php?new">Create</a>';
                           }
                           else{
@@ -106,7 +109,7 @@ if($addPartExpense['total'] > 0){
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-                <h5 class="col-lg-12">Parts Thumbnail</h5>
+                <h5 class="col-lg-12"><?php echo $cardLabel; ?> Thumbnail</h5>
                 <hr/>
             </div>
             <div class="text-center mb-3">
@@ -119,7 +122,7 @@ if($addPartExpense['total'] > 0){
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-                <h5 class="col-lg-12">Other Parts Image</h5>
+                <h5 class="col-lg-12">Other <?php echo $cardLabel; ?> Image</h5>
                 <hr/>
             </div>
             <div class="row" id="parts_other_images"></div>
@@ -159,7 +162,7 @@ if($addPartExpense['total'] > 0){
                 <div class="col-lg-3">
                   <input type="text" class="form-control" id="bar_code" name="bar_code" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
                 </div>
-                <label class="col-lg-3 col-form-label">Part Number <span class="text-danger">*</span></label>
+                <label class="col-lg-3 col-form-label"><?php echo $cardLabel; ?> Number <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <input type="text" class="form-control" id="part_number" name="part_number" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
                 </div>
@@ -198,7 +201,7 @@ if($addPartExpense['total'] > 0){
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-3 col-form-label">Part Price (SRP) <span class="text-danger <?php if($company == '2') echo 'd-none'; ?>">*</span></label>
+                <label class="col-lg-3 col-form-label"><?php echo $cardLabel; ?> Price (SRP) <span class="text-danger <?php if($company == '2' || $company == '1') echo 'd-none'; ?>">*</span></label>
                 <div class="col-lg-3">
                   <input type="number" class="form-control" id="part_price" name="part_price" min="0" step="0.01" <?php echo $disabledLandedCostForm2; ?>>
                 </div>
@@ -243,7 +246,7 @@ if($addPartExpense['total'] > 0){
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h5>Parts Incoming</h5>
+            <h5><?php echo $cardLabel; ?> Incoming</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#parts-incoming-filter-offcanvas">
@@ -257,9 +260,10 @@ if($addPartExpense['total'] > 0){
           <table class="table mb-0" id="parts-incoming-table">
             <thead>
               <tr>
-                <th class="text-center">Reference Number</th>
-                <th class="text-center">Quantity</th>
-                <th class="text-center">Received Quantity</th>
+                <th class="text-center">Ref No.</th>
+                <th class="text-center">Product</th>
+                <th class="text-center">Qty.</th>
+                <th class="text-center">Received Qty.</th>
                 <?php
                   if($viewPartCost['total'] > 0){
                     echo '<th class="text-center">Cost</th>
@@ -280,7 +284,7 @@ if($addPartExpense['total'] > 0){
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h5>Parts Transaction</h5>
+            <h5><?php echo $cardLabel; ?> Issuance</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#parts-transaction-filter-offcanvas">
@@ -294,8 +298,9 @@ if($addPartExpense['total'] > 0){
           <table class="table mb-0" id="parts-transaction-table">
             <thead>
               <tr>
-                <th class="text-end">Transaction No.</th>
-                <th class="text-center">Quantity</th>
+                <th class="text-end">Issuance No.</th>
+                <th class="text-center">Product</th>
+                <th class="text-center">Qty.</th>
                 <th class="text-center">Add-On</th>
                 <th class="text-center">Discount</th>
                 <th class="text-center">Total Discount</th>
@@ -317,7 +322,7 @@ if($addPartExpense['total'] > 0){
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h5>Parts Document</h5>
+            <h5><?php echo $cardLabel; ?> Document</h5>
           </div>
           <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
             <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#parts-document-offcanvas" aria-controls="parts-document-offcanvas" id="parts-document">Add Document</button>

@@ -17,7 +17,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5>Parts Incoming</h5>
+            <h5><?php echo $cardLabel; ?> Incoming</h5>
           </div>
           <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
             <?php                            
@@ -28,7 +28,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end">';
                             
                 if ($partsIncomingDeleteAccess['total'] > 0) {
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-parts-incoming-details">Delete Parts Incoming</button></li>';
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-parts-incoming-details">Delete '. $cardLabel .' Incoming</button></li>';
                 }
 
                 if($part_incoming_status == 'Draft'){
@@ -83,8 +83,13 @@
         <form id="parts-incoming-form" method="post" action="#">
           <?php
             $readonly = '';
-            if($company == '2'){
+            if($company == '2' || $company == '1'){
               $readonly = 'readonly';
+            }
+
+            $suppliesHidden = '';
+            if($company == '1'){
+              $suppliesHidden = 'd-none';
             }
           ?>
           <div class="form-group row">
@@ -116,15 +121,15 @@
                 <?php echo $supplierModel->generateSupplierOptions(); ?>
               </select>
             </div>
-            <label class="col-lg-2 col-form-label">Customer Reference <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
+            <label class="col-lg-2 col-form-label <?php echo $suppliesHidden; ?>">Customer Reference <span class="text-danger">*</span></label>
+            <div class="col-lg-4 <?php echo $suppliesHidden; ?>">
                 <select class="form-control select2" name="customer_ref_id" id="customer_ref_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
             </div>
           </div>
-          <div class="form-group row">
+          <div class="form-group row <?php echo $suppliesHidden; ?>">
             <label class="col-lg-2 col-form-label">Product <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="product_id" id="product_id" <?php echo $disabled; ?>>
@@ -145,12 +150,12 @@
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h5>Part Purchased</h5>
+                    <h5><?php echo $cardLabel; ?> Purchased</h5>
                 </div>
                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                     <?php
                         if($part_incoming_status == 'Draft'){
-                          echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part">Add Parts</button>';
+                          echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part">Add '.$cardLabel.'</button>';
                         }
                     ?>
                 </div>
@@ -163,7 +168,7 @@
                         <tr>
                             <th class="text-end"></th>
                             <th>Order</th>
-                            <th>Part</th>
+                            <th><?php echo $cardLabel; ?></th>
                             <th class="text-center">Qty.</th>
                             <th class="text-center">Received Qty.</th>
                             <th class="text-center">Remaining Qty.</th>
@@ -249,7 +254,7 @@
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="add-part-offcanvas" aria-labelledby="add-part-offcanvas-label">
     <div class="offcanvas-header">
-        <h2 id="add-part-offcanvas-label" style="margin-bottom:-0.5rem">Add Part</h2>
+        <h2 id="add-part-offcanvas-label" style="margin-bottom:-0.5rem">Add <?php echo $cardLabel; ?></h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -258,7 +263,7 @@
                 <table id="add-part-table" class="table table-hover nowrap w-100 dataTable">
                     <thead>
                         <tr>
-                            <th>Part</th>
+                            <th><?php echo $cardLabel; ?></th>
                             <th>Price</th>
                             <th>Stock</th>
                             <th class="all">Add</th>
@@ -500,7 +505,7 @@
 <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="part-cart-offcanvas" aria-labelledby="part-cart-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="part-cart-offcanvas-label" style="margin-bottom:-0.5rem">Part Item</h2>
+        <h2 id="part-cart-offcanvas-label" style="margin-bottom:-0.5rem"><?php echo $cardLabel; ?> Item</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">
@@ -511,7 +516,7 @@
             <input type="hidden" id="part_id" name="part_id">
             <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label">Part</label>
+                <label class="form-label"><?php echo $cardLabel; ?></label>
                 <input type="text" class="form-control" id="part_description" name="part_description" readonly>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">

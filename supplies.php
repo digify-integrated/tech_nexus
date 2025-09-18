@@ -21,13 +21,13 @@
   $brandModel = new BrandModel($databaseModel);
   $unitModel = new UnitModel($databaseModel);
 
-  $pageTitle = 'Part';
-    
-  $partsReadAccess = $userModel->checkMenuItemAccessRights($user_id, 142, 'read');
-  $partsCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 142, 'create');
-  $partsWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 142, 'write');
-  $partsDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 142, 'delete');
-  $partsDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 142, 'duplicate');
+  $pageTitle = 'Supplies';
+
+  $partsReadAccess = $userModel->checkMenuItemAccessRights($user_id, 168, 'read');
+  $partsCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 168, 'create');
+  $partsWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 168, 'write');
+  $partsDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 168, 'delete');
+  $partsDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 168, 'duplicate');
   $importPart = $userModel->checkSystemActionAccessRights($user_id, 98);
   $updatePartImage = $userModel->checkSystemActionAccessRights($user_id, 128);
   $viewPartCost = $userModel->checkSystemActionAccessRights($user_id, 130);
@@ -61,8 +61,8 @@
     $partID = null;
   }
 
-  $company = '3';
-  $cardLabel = 'Parts';
+  $company = '1';
+  $cardLabel = 'Supplies';
 
   $importRecord = isset($_GET['import']);
   $newRecord = isset($_GET['new']);
@@ -97,10 +97,10 @@
             <div class="row align-items-center">
               <div class="col-md-12">
                 <ul class="breadcrumb">
-        <input type="hidden" id="view-cost" value="<?php echo $viewPartCost['total'] ?>">
+                     <input type="hidden" id="view-cost" value="<?php echo $viewPartCost['total'] ?>">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="parts.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="supplies.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($partID)){
                             echo '<li class="breadcrumb-item" id="part-id">'. $partID .'</li>';
@@ -163,7 +163,7 @@
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/qr/qrcode.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/parts.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/supplies.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

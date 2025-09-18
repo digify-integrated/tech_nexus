@@ -114,12 +114,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $response[] = [
-                        'CUSTOMER' => '<a href="ci-report.php?&id='. $ci_report_id_encrypted .'"><div class="col">
+                        'CUSTOMER' => '<a href="ci-report.php?id='. $ci_report_id_encrypted .'" target="_blank"><div class="col">
                                                     <h6 class="mb-0">'. $customerName .'</h6>
                                                     <p class="f-12 mb-0">'. $corporateName .'</p>
                                                 </div>
                                         </a>',
-                        'SALES_PROPOSAL' => '<a href="ci-report.php?&id='. $ci_report_id_encrypted .'">
+                        'SALES_PROPOSAL' => '<a href="ci-report.php?id='. $ci_report_id_encrypted .'" target="_blank">
                                                         '. $sales_proposal_number .'
                                                     </a>',
                         'APPRAISER' => $appraiser,
@@ -128,9 +128,81 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'DATE_STARTED' => $created_date,
                         'RELEASED_DATE' => $completed_date,
                         'ACTION' => '<div class="d-flex gap-2">
-                                        <a href="ci-report.php?&id='. $ci_report_id_encrypted .'" class="btn btn-icon btn-primary" target="_blank" title="View Details">
+                                        <a href="ci-report.php?id='. $ci_report_id_encrypted .'" class="btn btn-icon btn-primary" target="_blank" title="View Details">
                                             <i class="ti ti-eye"></i>
                                         </a>
+                                    </div>'
+                        ];
+                }
+
+                echo json_encode($response);
+        break;
+        case 'sales proposal ci report table':
+                $sales_proposal_id = $_POST['sales_proposal_id'];
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+
+
+                $sql = $databaseModel->getConnection()->prepare('SELECT * FROM ci_report WHERE sales_proposal_id = :sales_proposal_id');              
+                $sql->bindValue(':sales_proposal_id', $sales_proposal_id, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $ci_report_id = $row['ci_report_id'];
+                    $sales_proposal_id = $row['sales_proposal_id'];
+                    $contact_id = $row['contact_id'];
+                    $appraiser = $row['appraiser'];
+                    $investigator = $row['investigator'];
+                    $ci_status = $row['ci_status'];
+                    $created_date = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                    $completed_date = $systemModel->checkDate('summary', $row['completed_date'], '', 'm/d/Y h:i:s A', '');
+
+                    $ci_report_id_encrypted = $securityModel->encryptData($ci_report_id);
+
+                    $customerDetails = $customerModel->getPersonalInformation($contact_id);
+                    $customerName = $customerDetails['file_as'] ?? null;
+                    $corporateName = $customerDetails['corporate_name'] ?? null;
+
+                    $investigatorDetails = $userModel->getUserByID($investigator);
+                    $investigator = $investigatorDetails['file_as'] ?? null;
+
+                    $appraiserDetails = $userModel->getUserByID($appraiser);
+                    $appraiser = $appraiserDetails['file_as'] ?? null;
+
+                    if($ci_status === 'Draft'){
+                        $ci_status_badge = '<span class="badge bg-secondary">' . $ci_status . '</span>';
+                    }
+                    else if($ci_status === 'For Completion'){
+                        $ci_status_badge = '<span class="badge bg-info">' . $ci_status . '</span>';
+                    }
+                    else{
+                        $ci_status_badge = '<span class="badge bg-success">' . $ci_status . '</span>';
+                    }
+
+                    $loan_proposal = '';
+                    if($ci_status == 'Completed'){
+                        $loan_proposal = '<a href="loan-proposal.php?id='. $ci_report_id .'" class="btn btn-icon btn-success" target="_blank" title="View Loan Proposal">
+                                            <i class="ti ti-file"></i>
+                                        </a>';
+                    }
+
+                    $response[] = [
+                        'CUSTOMER' => '<a href="ci-report.php?id='. $ci_report_id_encrypted .'" target="_blank"><div class="col">
+                                                    <h6 class="mb-0">'. $customerName .'</h6>
+                                                    <p class="f-12 mb-0">'. $corporateName .'</p>
+                                                </div>
+                                        </a>',
+                        'APPRAISER' => $appraiser,
+                        'INVESTIGATOR' => $investigator,
+                        'STATUS' => $ci_status_badge,
+                        'DATE_STARTED' => $created_date,
+                        'RELEASED_DATE' => $completed_date,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        <a href="ci-report.php?id='. $ci_report_id_encrypted .'" class="btn btn-icon btn-primary" target="_blank" title="View Details">
+                                            <i class="ti ti-eye"></i>
+                                        </a>
+                                        '. $loan_proposal .'
                                     </div>'
                         ];
                 }

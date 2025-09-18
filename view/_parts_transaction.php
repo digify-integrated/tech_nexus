@@ -4,7 +4,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h5>Parts Transaction List</h5>
+            <h5><?php echo $cardLabel; ?> Transaction List</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <?php
@@ -15,13 +15,16 @@
                   $action .= '<div class="btn-group m-r-10">
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                  <li><button class="dropdown-item" type="button" id="delete-parts-transaction">Delete Parts Transaction</button></li>
+                                  <li><button class="dropdown-item" type="button" id="delete-parts-transaction">Delete '.  $cardLabel .' Transaction</button></li>
                                 </ul>
                               </div>';
                   }
 
                 if($partsTransactionCreateAccess['total'] > 0){
-                  if($company == '2'){
+                  if($company == '1'){
+                    $action .= '<a href="supplies-transaction.php?new" class="btn btn-success">Create</a>';
+                  }
+                  else if($company == '2'){
                     $action .= '<a href="netruck-parts-transaction.php?new" class="btn btn-success">Create</a>';
                   }
                   else{
@@ -45,7 +48,14 @@
             <thead>
               <tr>
                 <th>Issuance No.</th>
-                <th>Product</th>
+                <?php
+                  if($company == '1'){
+                    echo '<th>Department</th>';
+                  }
+                  else{
+                    echo '<th>Product</th>';
+                  }
+                ?>
                 <th>Total Amount</th>
                 <th>Transaction Date</th>
                 <th>Issuance Date</th>

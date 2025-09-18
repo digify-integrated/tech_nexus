@@ -90,7 +90,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>PRICING COMPUTATION:</b></small><br/>
+                                <td colspan="4" style="vertical-align: top !important;" class="text-wrap" id="pricing-computation-block"><small style="color:#c60206"><b>PRICING COMPUTATION:</b></small><br/>
                                     <div class="row pb-0 mb-0">
                                         <div class="col-lg-12">
                                             <div class="table-responsive">
@@ -173,7 +173,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="vertical-align: top !important;" class="text-wrap">
+                                <td colspan="4" style="vertical-align: top !important;" id="amortization-block" class="text-wrap">
                                     <small><b>FOR REFERRAL TO FINANCING, PLEASE COMPUTE MO AMORTIZATION:</b></small><br/><br/>
                                     <small style="color:#c60206"><b>AMORTIZATION NET</b></small><br/><span class="text-sm" id="summary-repayment-amount"></span><br/><br/>
                                     <small style="color:#c60206"><b>INTEREST RATE</b></small><br/><span class="text-sm" id="summary-interest-rate"></span>
@@ -224,7 +224,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td colspan="4" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>REMARKS</b></small><br/><br/><span id="summary-remarks" class="text-sm"></span></td>
+                                <td colspan="4" style="vertical-align: top !important;" id="remarks-block" class="text-wrap"><small style="color:#c60206"><b>REMARKS</b></small><br/><br/><span id="summary-remarks" class="text-sm"></span></td>
                             </tr>
                             <tr>
                                 <td colspan="8" style="padding-bottom:0 !important;" class="text-wrap">

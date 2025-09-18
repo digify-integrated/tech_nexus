@@ -17,6 +17,7 @@ require_once '../model/back-job-monitoring-model.php';
 require_once '../model/sales-proposal-model.php';
 require_once '../model/contractor-model.php';
 require_once '../model/work-center-model.php';
+require_once '../model/department-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -33,6 +34,7 @@ $backjobMonitoringModel = new BackJobMonitoringModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $contractorModel = new ContractorModel($databaseModel);
 $workCenterModel = new WorkCenterModel($databaseModel);
+$departmentModel = new DepartmentModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -506,9 +508,20 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $total = $row['total'];
                 $add_on = $row['add_on'];
                 $price = $row['price'];
+               
 
                 $partTransactionDetails = $partsTransactionModel->getPartsTransaction($part_transaction_id);
                 $company_id = $partTransactionDetails['company_id'];
+                 $customer_type = $partTransactionDetails['customer_type'];
+                $customer_id = $partTransactionDetails['customer_id'];
+
+                if($customer_type == 'Internal'){
+                    $productDetails = $productModel->getProduct($customer_id);
+                    $stock_number = $productDetails['stock_number'];
+                }
+                else{
+                    $stock_number = '--';
+                }
 
                 $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
 
@@ -521,7 +534,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
 
-                if($company_id == '2'){
+                if($company_id == '1'){
+                    $link = 'supplies-transaction';
+                }
+                else if($company_id == '2'){
                     $link = 'netruck-parts-transaction';
                 }
                 else{
@@ -529,9 +545,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
                 
                 $response[] = [
-                    'PART_TRANSACTION_NO' => '<a href="'. $link .'?id='. $part_transaction_id_encrypted .'" target="_blank">
+                    'PART_TRANSACTION_NO' => '<a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" target="_blank">
                                         '. $part_transaction_id .'
                                     </a>',
+                    'PRODUCT' => $stock_number,
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
                     'ADD_ON' => number_format($add_on, 2) .' PHP',
                     'DISCOUNT' => $discount,
@@ -596,7 +613,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
 
             $sql = $databaseModel->getConnection()->prepare('CALL generatePartsTransactionTable(:company, :filterTransactionDateStartDate, :filterTransactionDateEndDate, :filter_approval_date_start_date, :filter_approval_date_end_date, :filter_transaction_status)');
-            $sql->bindValue(':company', $company, PDO::PARAM_STR);
+            $sql->bindValue(':company', $company, PDO::PARAM_INT);
             $sql->bindValue(':filterTransactionDateStartDate', $filterTransactionDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateEndDate', $filterTransactionDateEndDate, PDO::PARAM_STR);
             $sql->bindValue(':filter_approval_date_start_date', $filter_approval_date_start_date, PDO::PARAM_STR);
@@ -645,6 +662,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $customerDetails = $customerModel->getPersonalInformation($customer_id);
                     $transaction_reference = $customerDetails['file_as'] ?? null;
                 }
+                else if($customer_type === 'Department'){
+                    $departmentDetails = $departmentModel->getDepartment($customer_id);
+                    $transaction_reference = $departmentDetails['department_name'] ?? null;
+                }
                 else{
                     $productDetails = $productModel->getProduct($customer_id);
                     $stock_number = $productDetails['stock_number'];
@@ -657,7 +678,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
 
-                if($company == '2'){
+                if($company == '1'){
+                    $link = 'supplies-transaction';
+                    $number = $issuance_no;
+                }
+                else if($company == '2'){
                     $link = 'netruck-parts-transaction';
                     $number = $issuance_no;
                 }
@@ -725,7 +750,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
 
-                if($company_id == '2'){
+                if($company_id == '1'){
+                    $link = 'supplies-transaction';
+                    $number = $issuance_no;
+                }
+                else if($company_id == '2'){
                     $link = 'netruck-parts-transaction';
                     $number = $issuance_no;
                 }
@@ -816,7 +845,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
 
-                if($company_id == '2'){
+                if($company_id == '1'){
+                    $link = 'supplies-transaction';
+                    $number = $issuance_no;
+                }
+                else if($company_id == '2'){
                     $link = 'netruck-parts-transaction';
                     $number = $issuance_no;
                 }
@@ -832,6 +865,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 else if($customer_type === 'Customer'){
                     $customerDetails = $customerModel->getPersonalInformation($customer_id);
                     $transaction_reference = $customerDetails['file_as'] ?? null;
+                }
+               else if($customer_type === 'Department'){
+                    $departmentDetails = $departmentModel->getDepartment($customer_id);
+                    $transaction_reference = $departmentDetails['department_name'] ?? null;
                 }
                 else{
                     $productDetails = $productModel->getProduct($customer_id);

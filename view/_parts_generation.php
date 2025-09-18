@@ -104,7 +104,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $part_price = $row['part_price'];
                     $part_cost = $row['part_cost'];
                    
-                    $partsStatus = $partsModel->getPartsStatus($row['part_status']);
+                    $partsStatus = $partsModel->getPartsStatus($row['part_status'], $company_id);
                     $partsImage = $systemModel->checkImage($row['part_image'], 'default');
 
                     $partCategoryDetails = $partsCategoryModel->getPartsCategory($part_category_id);
@@ -125,7 +125,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </button>';
                     }
 
-                    if($company_id == '2'){
+                    if($company_id == '1'){
+                        $link = 'supplies';
+                    }
+                    else if($company_id == '2'){
                         $link = 'netruck-parts';
                     }
                     else{

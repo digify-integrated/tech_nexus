@@ -259,7 +259,7 @@ class ProductController {
         }
 
         $this->productModel->updateProductStatus($productID, 'Sold', '', '', '', $userID);
-        $this->productModel->insertProductExpense($productID, '', '', 0, 'Sold', 'Sold', $userID);
+        $this->productModel->insertProductExpense($productID, '', '', 0, 'Sold', 'Sold', '', $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -297,7 +297,7 @@ class ProductController {
         }
 
         $this->productModel->updateProductStatus($productID, 'Returned', '', '', '', $userID);
-        $this->productModel->insertProductExpense($productID, '', '', 0, 'Returned', 'Returned', $userID);
+        $this->productModel->insertProductExpense($productID, '', '', 0, 'Returned', 'Returned', '', $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -335,7 +335,7 @@ class ProductController {
         }
 
         $this->productModel->updateProductStatus($productID, 'ROPA', '', '', '', $userID);
-        $this->productModel->insertProductExpense($productID, '', '', 0, 'ROPA', 'ROPA', $userID);
+        $this->productModel->insertProductExpense($productID, '', '', 0, 'ROPA', 'ROPA', '', $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -373,7 +373,7 @@ class ProductController {
         }
 
         $this->productModel->updateProductStatus($productID, 'Repossessed', '', '', '', $userID);
-        $this->productModel->insertProductExpense($productID, '', '', 0, 'Repossessed', 'Repossessed', $userID);
+        $this->productModel->insertProductExpense($productID, '', '', 0, 'Repossessed', 'Repossessed', '', $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -420,6 +420,7 @@ class ProductController {
         $is_service = $_POST['is_service'];
         $engineNumber = $_POST['engine_number'];
         $chassisNumber = $_POST['chassis_number'];
+        $chassisNumber = str_replace(['-', ' '], '', $chassisNumber);
         $plateNumber = $_POST['plate_number'];
         $orcrNo = $_POST['orcr_no'];
         $registeredOwner = $_POST['registered_owner'];
@@ -536,6 +537,7 @@ class ProductController {
         $broker = $_POST['broker'];
         $engineNumber = $_POST['engine_number'];
         $chassisNumber = $_POST['chassis_number'];
+        $chassisNumber = str_replace(['-', ' '], '', $chassisNumber);
         $plateNumber = $_POST['plate_number'];
         $registeredOwner = $_POST['registered_owner'];
         $colorID = $_POST['color_id'];
@@ -896,6 +898,7 @@ class ProductController {
             $stockNumber = $importedProductDetails['stock_number'];
             $engineNumber = $importedProductDetails['engine_number'];
             $chassisNumber = $importedProductDetails['chassis_number'];
+            $chassisNumber = str_replace(['-', ' '], '', $chassisNumber);
             $plateNumber = $importedProductDetails['plate_number'];
             $description = $importedProductDetails['description'];
             $warehouseID = $importedProductDetails['warehouse_id'];

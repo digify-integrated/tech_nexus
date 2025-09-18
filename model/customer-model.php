@@ -2488,6 +2488,22 @@ class CustomerModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getContactComakerDetailsViaComaker($p_contact_id, $p_comaker_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM contact_comaker WHERE contact_id = :p_contact_id AND comaker_id = :p_comaker_id');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_comaker_id', $p_comaker_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getCustomerSpouse($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM contact_comaker WHERE contact_id = :p_contact_id AND relation_id = :p_relation_id');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_relation_id', 5, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function openCIReport($p_sales_proposal_id, $p_contact_id, $p_duplicate, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL openCIReport(:p_sales_proposal_id, :p_contact_id, :p_duplicate, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);

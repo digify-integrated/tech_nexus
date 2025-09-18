@@ -1187,14 +1187,23 @@ class CIReportModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
     public function getCIReportLoanPNAmount($p_ci_report_id) {
         $stmt = $this->db->getConnection()->prepare('SELECT sum(pn_amount) as total FROM ci_report_loan WHERE ci_report_id = :p_ci_report_id AND (loan_source != "CGMI" OR loan_source IS NULL)');
         $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
     public function getCIReportBusinessMonthlyIncome($p_ci_report_id) {
         $stmt = $this->db->getConnection()->prepare('SELECT sum(monthly_income) as total FROM ci_report_business WHERE ci_report_id = :p_ci_report_id');
+        $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    public function getPrimaryResidence($p_ci_report_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM ci_report_residence WHERE ci_report_id = :p_ci_report_id ORDER BY created_date ASC LIMIT 1');
         $stmt->bindValue(':p_ci_report_id', $p_ci_report_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);

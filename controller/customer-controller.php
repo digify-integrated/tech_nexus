@@ -2362,8 +2362,9 @@ class CustomerController {
             }
 
             $contactComakerDetails = $this->customerModel->getContactComakerDetails($contact_comaker_id);
+            $comaker_id = $contactComakerDetails['comaker_id'] ?? null;
 
-            $comakerDetails = $this->customerModel->getPersonalInformation($contact_comaker_id);
+            $comakerDetails = $this->customerModel->getPersonalInformation($comaker_id);
             $comaker_name = $comakerDetails['file_as'] ?? null;
 
             $response = [

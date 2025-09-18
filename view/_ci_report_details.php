@@ -2,8 +2,10 @@
 
     $ciReportDetails = $ciReportModel->getCIReport($ciReportID);
     $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
+    $customer_id = $ciReportDetails['contact_id'] ?? null;
 
     $disabled = '';
+    $loanProposal = '';
 
     if($ci_status == 'Completed'){
         $disabled = 'disabled';
@@ -54,6 +56,16 @@
             <div class="card-body">
                 <form id="ci-report-form" method="post" action="#">
                     <div class="form-group row">
+                        <label class="col-lg-2 col-form-label">Customer Name</label>
+                        <div class="col-lg-4">
+                            <input type="text" class="form-control" id="customer_name" name="customer_name" maxlength="5000" autocomplete="off" readonly>
+                        </div>
+                        <label class="col-lg-2 col-form-label">CI Type</label>
+                        <div class="col-lg-4">
+                             <input type="text" class="form-control" id="ci_type" name="ci_type" maxlength="100" autocomplete="off" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label class="col-lg-2 col-form-label">Appraiser <span class="text-danger">*</span></label>
                         <div class="col-lg-4">
                             <select class="form-control select2" name="appraiser" id="appraiser" <?php echo $disabled; ?>>
@@ -87,7 +99,8 @@
 <div class="row">
   <div class="col-lg-12">
     <ul class="nav nav-tabs analytics-tab" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation"><button class="nav-link active" id="residence" data-bs-toggle="tab" data-bs-target="#residence-pane" type="button" role="tab" aria-controls="residence-pane" aria-selected="false" tabindex="-1">Residence</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link active" id="customer" data-bs-toggle="tab" data-bs-target="#customer-pane" type="button" role="tab" aria-controls="customer-pane" aria-selected="false" tabindex="-1">Customer Details</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="residence" data-bs-toggle="tab" data-bs-target="#residence-pane" type="button" role="tab" aria-controls="residence-pane" aria-selected="false" tabindex="-1">Residence</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="dependents" data-bs-toggle="tab" data-bs-target="#dependents-pane" type="button" role="tab" aria-controls="dependents-pane" aria-selected="false" tabindex="-1">Dependents</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="business" data-bs-toggle="tab" data-bs-target="#business-pane" type="button" role="tab" aria-controls="business-pane" aria-selected="false" tabindex="-1">Business</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="employment" data-bs-toggle="tab" data-bs-target="#employment-pane" type="button" role="tab" aria-controls="employment-pane" aria-selected="false" tabindex="-1">Employment</button></li>
@@ -98,11 +111,17 @@
         <li class="nav-item" role="presentation"><button class="nav-link" id="collateral" data-bs-toggle="tab" data-bs-target="#collateral-pane" type="button" role="tab" aria-controls="collateral-pane" aria-selected="false" tabindex="-1">Collateral</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="recommendation-tab" data-bs-toggle="tab" data-bs-target="#recommendation-pane" type="button" role="tab" aria-controls="recommendation-pane" aria-selected="false" tabindex="-1">Recommendation</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="ci-files" data-bs-toggle="tab" data-bs-target="#ci-files-pane" type="button" role="tab" aria-controls="ci-files-pane" aria-selected="false" tabindex="-1">CI Files</button></li>
-        <li class="nav-item" role="presentation"><a href="loan-proposal.php?id=<?php echo $ciReportID; ?>" class="nav-link" target="_blank" tabindex="-1">Summary (For Validation)</a></li>
+        <li class="nav-item" role="presentation"><a href="loan-proposal.php?id=<?php echo $ciReportID; ?>" class="nav-link" target="_blank" tabindex="-1">Summary</a></li>
     </ul>
     <div class="tab-content" id="ciTabContent">
 
-        <div class="tab-pane fade active show" id="residence-pane" role="tabpanel" aria-labelledby="residence" tabindex="0">
+        <div class="tab-pane fade active show" id="customer-pane" role="tabpanel" aria-labelledby="customer" tabindex="0">
+            <input type="hidden" id="customer-id" value="<?php echo $customer_id; ?>">
+            <div class="card">
+                <div class="card-body" id="personal-information-summary"></div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="residence-pane" role="tabpanel" aria-labelledby="residence" tabindex="0">
             <div class="row">
                 <div class="col-lg-8">
                     <div class="card table-card">
@@ -294,7 +313,7 @@
                                     <div class="float-end">
                                         <h5 class="mb-0" id="ci-business-fixed-asset-summary">0.00 PHP</h5>
                                     </div>
-                                    <span class="text-muted">Fixed Asset Total</span>
+                                    <span class="text-muted">Asset Total</span>
                                 </li>
                                 <li class="list-group-item px-0">
                                     <div class="float-end">
@@ -1313,7 +1332,7 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-3">
-                            <label class="form-label" for="ci_business_fixed_asset">Fixed Asset</label>
+                            <label class="form-label" for="ci_business_fixed_asset">Asset</label>
                             <input type="number" class="form-control" id="ci_business_fixed_asset" name="ci_business_fixed_asset" min="0" step="0.01" <?php echo $disabled; ?>>
                         </div>
                         <div class="col-lg-3">

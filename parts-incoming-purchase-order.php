@@ -60,7 +60,10 @@
         $user = $userModel->getUserByID($user_id);
          $fileAs = $user['file_as'] ?? null;
 
-        if($company_id == '2'){
+        if($company_id == '1'){
+            $title = 'CHRISTIAN GENERAL MOTORS INC.';
+        }
+        else if($company_id == '2'){
             $title = 'NE TRUCKS BUILDERS CORP.';
         }
         else{
@@ -98,11 +101,50 @@
     // Add a page
     $pdf->AddPage();
 
-    $pdf->SetFont('times', '', 25);
+    $pdf->SetFont('times', '', 20);
     $pdf->MultiCell(0, 0, '<b>'. $title .'</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(0);
     $pdf->SetFont('times', '', 15);
-    $pdf->MultiCell(0, 0, '<b><u>PURCHASE ORDER</u></b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '<b><u>PURCHASE ORDER (ACCOUNTING COPY)</u></b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(8);
+    $pdf->SetFont('times', '', 10);
+    $pdf->Cell(45, 8, 'REFERENCE NUMBER:', 0, 0, 'L');
+    $pdf->Cell(60, 8, strtoupper($reference_number), 'B', 0, 'L');
+    $pdf->Cell(5, 8, '', 0, 0, 'L');
+    $pdf->Cell(15, 8, 'DATE:', 0, 0, 'L');
+    $pdf->Cell(8, 8, '', 0, 0, 'L');
+    $pdf->Cell(50, 8, strtoupper(date('F d, Y')), 'B', 0, 'L');
+    $pdf->Ln(10);
+    $pdf->Cell(25, 8, 'SUPPLIER:', 0, 0, 'L');
+    $pdf->Cell(80, 8, strtoupper($supplierName), 'B', 0, 'L');
+    $pdf->Cell(5, 8, '', 0, 0, 'L');
+    $pdf->Cell(15, 8, 'STOCK NO.:', 0, 0, 'L');
+    $pdf->Cell(8, 8, '', 0, 0, 'L');
+    $pdf->Cell(50, 8, strtoupper($stock_number) . ' - ' . strtoupper($last_name), 'B', 0, 'L');
+    $pdf->Ln(15);
+    $pdf->writeHTML($summaryTable, true, false, true, false, '');
+    $pdf->Ln(5);
+    
+    $pdf->SetFont('times', '', 10);
+    $pdf->Cell(55, 4, strtoupper($fileAs), 'B', 0, 'C', 0, '', 1);
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(55, 4, strtoupper($request_by), 'B', 0, 'C', 0, '', 1);
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(55, 4, '', 'B', 0, 'L', 0, '', 1);
+    $pdf->Ln(5);
+    $pdf->Cell(55, 8, 'PREPARED BY', 0, 0, 'C');
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(55, 8, 'REQUESTED BY', 0, 0, 'C');
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(55, 8, 'APPROVED BY', 0, 0, 'C');
+
+    $pdf->AddPage();
+
+    $pdf->SetFont('times', '', 20);
+    $pdf->MultiCell(0, 0, '<b>'. $title .'</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(0);
+    $pdf->SetFont('times', '', 15);
+    $pdf->MultiCell(0, 0, "<b><u>PURCHASE ORDER (SUPPLIER'S COPY)</u></b>", 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(8);
     $pdf->SetFont('times', '', 10);
     $pdf->Cell(45, 8, 'REFERENCE NUMBER:', 0, 0, 'L');

@@ -14,6 +14,7 @@
   $approveInstallmentSales = $userModel->checkSystemActionAccessRights($user_id, 143);
   $tagChangeRequestAsComplete = $userModel->checkSystemActionAccessRights($user_id, 145);
   $tagChangeRequestForReview = $userModel->checkSystemActionAccessRights($user_id, 166);
+  $viewSalesProposalCIReportTab = $userModel->checkSystemActionAccessRights($user_id, 221);
 
   $checkCustomerExist = $customerModel->checkCustomerExist($customerID);
   $total = $checkCustomerExist['total'] ?? 0;
@@ -60,9 +61,12 @@
   $forChangeEngine = $salesProposalDetails['for_change_engine'];
   $changeRequestStatus = $salesProposalDetails['change_request_status'];
   $installmentSalesStatus = $salesProposalDetails['installment_sales_status'] ?? null;
+  $installmentSalesStatus = $salesProposalDetails['installment_sales_status'] ?? null;
   $initialApprovalDate = $systemModel->checkDate('empty', $salesProposalDetails['initial_approval_date'], '', 'm/d/Y h:i:s a', '');
   $approvalDate = $systemModel->checkDate('empty', $salesProposalDetails['approval_date'], '', 'm/d/Y h:i:s a', '');
   $forCIDate = $systemModel->checkDate('empty', $salesProposalDetails['for_ci_date'], '', 'm/d/Y h:i:s a', '');
+  $ci_completion_date = $systemModel->checkDate('empty', $salesProposalDetails['ci_completion_date'], '', 'm/d/Y h:i:s a', '');
+  $ci_recommendation_date = $systemModel->checkDate('empty', $salesProposalDetails['ci_recommendation_date'], '', 'm/d/Y h:i:s a', '');
   if(!empty($salesProposalDetails['created_date'])){
     $createdDate = $systemModel->checkDate('empty', $salesProposalDetails['created_date'], '', 'm/d/Y h:i:s a', '');
   }
@@ -235,7 +239,8 @@
             </a>
           </li>
 
-          <li class="<?php echo ($salesProposalStatus == 'For DR') ? 'd-none' : ''; ?>">
+          <!--<li class="<?php echo ($viewSalesProposalCIReportTab['total'] ?? 0 == 0 && empty($forCIDate)) ? 'd-none' : ''; ?>">-->
+          <li class="">
             <a class="nav-link"
               id="sales-proposal-tab-14"
               data-bs-toggle="pill"
@@ -275,6 +280,8 @@
             </div>
             <div class="d-flex">
               <?php
+                $action = '';
+
                 if($salesProposalStatus == 'Draft'){
                   echo '  <div class="previous me-2 d-none" id="add-sales-proposal-job-order-button">
                             <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-offcanvas" aria-controls="sales-proposal-job-order-offcanvas" id="add-sales-proposal-job-order">Add Job Order</button>
@@ -292,78 +299,82 @@
                 }
 
                 if($salesProposalStatus == 'Draft' && $tagChangeRequestForReview['total'] > 0 && !empty($clientConfirmation)){
-                  echo '<div class="previous me-2 d-none" id="tag-for-review-button">
-                          <button class="btn btn-primary" id="tag-for-review">For Review</button>
-                        </div>';
+                  $action .= '<li class="d-none" id="tag-for-review-button"><button class="dropdown-item" type="button" id="tag-for-review">Tag For Review</button></li>';
                 }
 
                 if($salesProposalStatus == 'For Review' && $forInitialApproval['total'] > 0 && !empty($clientConfirmation)){
-                  echo '<div class="previous me-2 d-none" id="tag-for-initial-approval-button">
-                          <button class="btn btn-primary" id="tag-for-initial-approval">For Initial Approval</button>
-                        </div>';
+                  $action .= '<li class="d-none" id="tag-for-initial-approval-button"><button class="dropdown-item" type="button" id="tag-for-initial-approval">Tag For Initial Approval</button></li>';
                 }
 
                 if($salesProposalStatus == 'For Initial Approval' && $initialApproveSalesProposal['total'] > 0 && $initialApprovingOfficer == $contact_id && !empty($clientConfirmation)){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-initial-approval-button">
-                          <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-initial-approval-offcanvas" aria-controls="sales-proposal-initial-approval-offcanvas" id="sales-proposal-initial-approval">Approve</button>
-                        </div>';
+                  $action .= '<li class="d-none" id="sales-proposal-initial-approval-button"><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-initial-approval-offcanvas" aria-controls="sales-proposal-initial-approval-offcanvas" id="sales-proposal-initial-approval">Tag As Approve</button></li>';
                 }
 
                 if(($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $proceedSalesProposal['total'] > 0 && $finalApprovingOfficer == $contact_id && !empty($clientConfirmation)){
                   if($transactionType == 'COD' || $transactionType == 'Installment Sales' || ($transactionType == 'Bank Financing' && !empty($creditAdvice))){
-                    echo '<div class="previous me-2 d-none" id="sales-proposal-final-approval-button">
-                          <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-final-approval-offcanvas" aria-controls="sales-proposal-final-approval-offcanvas" id="sales-proposal-final-approval">Proceed</button>
-                        </div>';
+                    $action .= '<li class="d-none" id="sales-proposal-final-approval-button">
+                                  <button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-final-approval-offcanvas" aria-controls="sales-proposal-final-approval-offcanvas" id="sales-proposal-final-approval">Tag As Proceed</button>
+                                </li>';
                   }
                 }
 
                 if((($salesProposalStatus == 'For Initial Approval' && $initialApprovingOfficer == $contact_id) || ($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $finalApprovingOfficer == $contact_id) && $rejectSalesProposal['total'] > 0){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-reject-button">
-                            <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-reject-offcanvas" aria-controls="sales-proposal-reject-offcanvas" id="sales-proposal-reject">Reject</button>
-                        </div>';
+                    $action .= '<li class="d-none" id="sales-proposal-reject-button">
+                                  <button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-reject-offcanvas" aria-controls="sales-proposal-reject-offcanvas" id="sales-proposal-reject">Reject Sales Proposal</button>
+                                </li>';
                 }
 
                 if(($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Review') && $cancelSalesProposal['total'] > 0){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-cancel-button">
-                          <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-cancel-offcanvas" aria-controls="sales-proposal-cancel-offcanvas" id="sales-proposal-cancel">Cancel</button>
-                        </div>';
+                  $action .= '<li class="d-none" id="sales-proposal-cancel-button">
+                                  <button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-cancel-offcanvas" aria-controls="sales-proposal-cancel-offcanvas" id="sales-proposal-cancel">Cancel Sales Proposal</button>
+                                </li>';
                 }
 
                 if($salesProposalStatus == 'For Final Approval' && $forCISalesProposal['total'] > 0 && $transactionType != 'COD' && $transactionType != 'Bank Financing'){
-                  echo '<div class="previous me-2 d-none" id="for-ci-sales-proposal-button">
-                          <button class="btn btn-info" id="for-ci-sales-proposal">For CI</button>
-                        </div>';
+                  $action .= '<li class="d-none" id="for-ci-sales-proposal-button">
+                                  <button class="dropdown-item" type="button" id="for-ci-sales-proposal">Tag For CI</button>
+                                </li>';
                 }
 
                 if($setToDraftSalesProposal['total'] > 0 && ($salesProposalStatus != 'Released')){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-set-to-draft-button">
-                          <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-set-to-draft-offcanvas" aria-controls="sales-proposal-set-to-draft-offcanvas" id="sales-proposal-set-to-draft">Draft</button>
-                      </div>';
+                  $action .= '<li class="d-none" id="sales-proposal-set-to-draft-button">
+                                  <button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-set-to-draft-offcanvas" aria-controls="sales-proposal-set-to-draft-offcanvas" id="sales-proposal-set-to-draft">Set To Draft</button>
+                                </li>';
                 }
 
-                if(($salesProposalStatus != 'Rejected' && $salesProposalStatus != 'Cancelled') && !empty($forCIDate) && $tagCIAsComplete['total'] > 0 && empty($ciStatus)) {
-                  echo '<div class="previous me-2 d-none" id="complete-ci-button">
-                          <button class="btn btn-info" id="complete-ci">Complete CI</button>
-                      </div>';
+                if(($salesProposalStatus != 'Rejected' && $salesProposalStatus != 'Cancelled') && !empty($ci_completion_date) && $tagCIAsComplete['total'] > 0 && empty($ci_recommendation_date)) {
+                  $action .= '<li class="d-none" id="complete-ci-button">
+                                  <button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-ci-recommendation-offcanvas" aria-controls="sales-proposal-ci-recommendation-offcanvas" id="sales-proposal-ci-recommendation">Add CI Evaluation</button>
+                                </li>';
                 }
 
                 if($salesProposalStatus == 'Ready For Release' || (($salesProposalStatus == 'Proceed' || $salesProposalStatus == 'On-Process') && ($productType == 'Refinancing' || $productType == 'Restructure' || $productType == 'Brand New' || $productType == 'Fuel' || $productType == 'Parts'))){
                   if($tagSalesProposalForDR['total'] > 0){
-                    echo '<div class="previous me-2 d-none" id="for-dr-sales-proposal-button">
-                            <button class="btn btn-success m-l-5" id="for-dr-sales-proposal">For DR</button>
-                        </div>';
+                    $action .= '<li class="d-none" id="for-dr-sales-proposal-button">
+                                  <button class="dropdown-item" type="button" id="for-dr-sales-proposal">Tag For DR</button>
+                                </li>';
                   }
                 }
                 
-                if($tagChangeRequestAsComplete['total'] > 0 && ($salesProposalStatus == 'Proceed' || $salesProposalStatus == 'On-Process' || $salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR' || $salesProposalStatus == 'Released') && ($forRegistration == 'Yes' || $forTransfer == 'Yes' || $forChangeColor == 'Yes' || $forChangeBody == 'Yes' || $forChangeEngine == 'Yes') && $changeRequestStatus != 'Completed'){
-                  echo '<div class="previous me-2" id="sales-proposal-change-request-button">
-                          <button class="btn btn-success m-l-5" id="sales-proposal-change-request">Tag As Complete</button>
-                      </div>';
+                if($tagChangeRequestAsComplete['total'] > 0 && ($salesProposalStatus == 'Proceed' || $salesProposalStatus == 'On-Process' || $salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR' || $salesProposalStatus == 'Released') && ($forRegistration == 'Yes' || $forTransfer == 'Yes' || $forChangeColor == 'Yes' || $forChangeBody == 'Yes' || $forChangeEngine == 'Yes') && $changeRequestStatus != 'Completed'){ 
+                  $action .= '<li class="d-none" id="sales-proposal-change-request-button">
+                                  <button class="dropdown-item" type="button" id="sales-proposal-change-request">Tag Change Request As Complete</button>
+                                </li>';
+                  
+                }
+                      
+                if(!empty($action)){
+                  echo '<div class="btn-group m-r-10">
+                          <button type="button" class="btn btn-outline-secondary dropdown-toggle action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            '.$action.'
+                          </ul>
+                        </div>';
                 }
 
                 echo '<div class="previous me-2 d-none" id="print-button">
-                          <a href="javascript:void(0)" class="btn btn-outline-info me-1" id="print">Print</a>
-                          <a href="javascript:void(0)" class="btn btn-outline-info me-1" id="print2">Print w/o Computation</a>
+                        <button type="button" class="btn btn-outline-info me-1" id="print">Print</button>
+                        <button type="button" class="btn btn-outline-info me-1" id="print2">Print w/o Computation</button>
                       </div>';
               ?>
               <div class="previous me-2">
@@ -1534,6 +1545,12 @@
               </div>
             </div>
             <div class="form-group row">
+              <label class="col-lg-5 col-form-label">Credit Investigation Evaluation :</label>
+              <div class="col-lg-7">
+                <label class="col-form-label" id="ci_recommendation_label"></label>
+              </div>
+            </div>
+            <div class="form-group row">
               <label class="col-lg-5 col-form-label">Installment Sales Approval Remarks :</label>
               <div class="col-lg-7">
                 <label class="col-form-label" id="installment_sales_approval_remarks_label"></label>
@@ -1568,6 +1585,24 @@
               <div class="col-lg-7">
                 <embed id="draft-file" width="100%" height="600" type="application/pdf" />
               </div>
+            </div>
+          </div>
+           <div class="tab-pane" id="v-ci-report">
+            <div class="table-responsive">
+              <table id="sales-proposal-ci-report-table" class="table table-hover nowrap w-100">
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Appraiser</th>
+                    <th>Investigator</th>
+                    <th>Status</th>
+                    <th>Date Started</th>
+                    <th>Date Completed</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
             </div>
           </div>
           <div class="tab-pane" id="v-summary">
@@ -2026,6 +2061,35 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-sales-proposal-set-to-draft" form="sales-proposal-set-to-draft-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-ci-recommendation-offcanvas" aria-labelledby="sales-proposal-ci-recommendation-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-ci-recommendation-offcanvas-label" style="margin-bottom:-0.5rem">CI Evaluation</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-ci-recommendation-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">CI Evaluation <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="ci_verification" rows="10" name="ci_verification" maxlength="1000"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-ci-recommendation" form="sales-proposal-ci-recommendation-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

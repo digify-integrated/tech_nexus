@@ -1405,6 +1405,13 @@ class SalesProposalModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function updateSalesProposalCIRecommendation($p_sales_proposal_id, $p_ci_recommendation) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal SET ci_recommendation = :p_ci_recommendation, ci_recommendation_date = NOW() WHERE sales_proposal_id = :p_sales_proposal_id');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_ci_recommendation', $p_ci_recommendation, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

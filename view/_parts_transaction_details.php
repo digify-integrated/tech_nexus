@@ -21,7 +21,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5>Parts Transaction</h5>
+            <h5><?php echo $cardLabel; ?> Transaction</h5>
           </div>
            <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
           <?php
@@ -50,7 +50,7 @@
                 echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
               }
 
-              if(($part_transaction_status == 'On-Process' || $part_transaction_status == 'Released' || $part_transaction_status == 'Cancelled') && $company == '2'){
+              if(($part_transaction_status == 'On-Process' || $part_transaction_status == 'Released' || $part_transaction_status == 'Cancelled') && ($company == '2' || $company == '1')){
                 echo '<a href="parts-transaction-requisition-slip.php?id='. $partsTransactionID .'" class="button btn btn-info ms-2" target="_blank">Print Issuance Slip</a>';
               }
             }
@@ -98,14 +98,22 @@
             <div class="col-lg-6 mt-3 mt-lg-0">
               <label class="form-label">Customer Type <span class="text-danger">*</span></label>
               <select class="form-control select2" name="customer_type" id="customer_type" <?php echo $disabled; ?>>
-                <option value="Customer">Customer</option>
-                <option value="Miscellaneous">Miscellaneous</option>
-                  <option value="Internal">Internal</option>
+                  <?php
+                    if($company == '1'){
+                      echo '<option value="Department">Department</option>';
+                    }
+                    else{
+                      echo '<option value="Customer">Customer</option>
+                          <option value="Miscellaneous">Miscellaneous</option>
+                            <option value="Internal">Internal</option>';
+                    }
+                  ?>
               </select>
             </div>
             <div class="col-lg-6 mt-3 mt-lg-0">
-               <label class="form-label" id="customer-label">Customer <span class="text-danger">*</span></label>
-               <label class="form-label" id="internal-label">Product <span class="text-danger">*</span></label>
+                <label class="form-label" id="customer-label">Customer <span class="text-danger">*</span></label>
+                <label class="form-label" id="internal-label">Product <span class="text-danger">*</span></label>
+                <label class="form-label" id="department-label">Department <span class="text-danger">*</span></label>
               <div id="customer-select">
                 <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
@@ -124,9 +132,15 @@
                     <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
                   </select>
               </div>
+              <div class="d-none" id="department-select"> 
+                  <select class="form-control select2" name="department_id" id="department_id" <?php echo $disabled; ?>>
+                    <option value="">--</option>
+                    <?php echo $departmentModel->generateDepartmentOptions(); ?>
+                  </select>
+              </div>
             </div>
           </div>
-          <div class="form-group row <?php if($company == '2') echo 'd-none'; ?>">
+          <div class="form-group row <?php if($company == '2' || $company == '1') echo 'd-none'; ?>">
             <div class="col-lg-6 mt-3 mt-lg-0">
               <label class="form-label">Reference Number</label>
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
@@ -146,7 +160,14 @@
               <label class="form-label">Request By <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off" <?php echo $disabled; ?>>
             </div>
-             <div class="col-lg-6 mt-3 mt-lg-0">
+             <?php
+              $suppliesHidden = '';
+
+              if($company == '1'){
+                $suppliesHidden = 'd-none';
+              }
+            ?>
+             <div class="col-lg-6 mt-3 mt-lg-0 <?php echo $suppliesHidden; ?>">
               <label class="form-label">Customer Reference <span class="text-danger">*</span></label>
               <select class="form-control select2" name="customer_ref_id" id="customer_ref_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
@@ -157,9 +178,7 @@
               <label class="form-label">Issuance Number</label>
               <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
             </div>
-          </div>
-          <div class="form-group row <?php if($company == '3') echo 'd-none'; ?>">
-            <div class="col-lg-6 mt-3 mt-lg-0">
+            <div class="col-lg-6 mt-3 mt-lg-0 <?php if($company == '3') echo 'd-none'; ?>">
               <label class="form-label">Issuance Date</label>
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off" <?php echo $disabled; ?>>
@@ -217,12 +236,12 @@
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h5>Part Order</h5>
+                    <h5><?php echo $cardLabel; ?> Order</h5>
                 </div>
                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                     <?php
                         if($part_transaction_status == 'Draft'){
-                            echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part">Add Parts</button>';
+                            echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part">Add '.$cardLabel.'</button>';
                         }
                     ?>
                 </div>
@@ -235,7 +254,7 @@
                         <tr>
                             <th class="text-end"></th>
                             <th>Order</th>
-                            <th>Part</th>
+                            <th><?php echo $cardLabel; ?></th>
                             <th class="text-end">Price</th>
                             <th class="text-center">Quantity</th>
                             <th class="text-center">Available Stock</th>
@@ -479,7 +498,7 @@
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="add-part-offcanvas" aria-labelledby="add-part-offcanvas-label">
     <div class="offcanvas-header">
-        <h2 id="add-part-offcanvas-label" style="margin-bottom:-0.5rem">Add Part</h2>
+        <h2 id="add-part-offcanvas-label" style="margin-bottom:-0.5rem">Add <?php echo $cardLabel; ?></h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -488,7 +507,7 @@
                 <table id="add-part-table" class="table table-hover nowrap w-100 dataTable">
                     <thead>
                         <tr>
-                            <th>Part</th>
+                            <th><?php echo $cardLabel; ?></th>
                             <th>Price</th>
                             <th>Stock</th>
                             <th class="all">Add</th>
@@ -689,7 +708,7 @@
 <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="part-cart-offcanvas" aria-labelledby="part-cart-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="part-cart-offcanvas-label" style="margin-bottom:-0.5rem">Part Item</h2>
+        <h2 id="part-cart-offcanvas-label" style="margin-bottom:-0.5rem"><?php echo $cardLabel; ?> Item</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">

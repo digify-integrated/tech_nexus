@@ -2491,7 +2491,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('contact-family-background-form');
+                    resetModalForm('contact-comaker-relation-form');
                 },
                 success: function(response) {
                     if (response.success) {

@@ -15,6 +15,7 @@ session_start();
 class CIReportController {
     private $ciReportModel;
     private $salesProposalModel;
+    private $customerModel;
     private $ciFileTypeModel;
     private $userModel;
     private $uploadSettingModel;
@@ -37,9 +38,10 @@ class CIReportController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(CIReportModel $ciReportModel, SalesProposalModel $salesProposalModel, CIFileTypeModel $ciFileTypeModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(CIReportModel $ciReportModel, SalesProposalModel $salesProposalModel, CustomerModel $customerModel, CIFileTypeModel $ciFileTypeModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->ciReportModel = $ciReportModel;
         $this->salesProposalModel = $salesProposalModel;
+        $this->customerModel = $customerModel;
         $this->ciFileTypeModel = $ciFileTypeModel;
         $this->userModel = $userModel;
         $this->systemModel = $systemModel;
@@ -1254,7 +1256,7 @@ class CIReportController {
     
         $ci_report_appraisal_source_id = isset($_POST['ci_report_appraisal_source_id']) ? htmlspecialchars($_POST['ci_report_appraisal_source_id'], ENT_QUOTES, 'UTF-8') : null;
         $ci_report_id = $_POST['ci_report_id'];
-        $ci_report_bank_id = $_POST['ci_report_bank_id'];
+        $ci_report_collateral_id = $_POST['ci_report_collateral_id'];
         $source = $_POST['ci_appraisal_source_source'];
         $amount = $_POST['ci_appraisal_source_amount'];
         $remarks = $_POST['ci_appraisal_source_remarks'];
@@ -1270,12 +1272,12 @@ class CIReportController {
         $total = $checkCIReportBankExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->ciReportModel->updateCIReportAppraisalSource($ci_report_appraisal_source_id, $ci_report_bank_id, $ci_report_id, $source, $amount, $remarks, $userID);
+            $this->ciReportModel->updateCIReportAppraisalSource($ci_report_appraisal_source_id, $ci_report_collateral_id, $ci_report_id, $source, $amount, $remarks, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } else {
-            $this->ciReportModel->insertCIReportAppraisalSource($ci_report_bank_id, $ci_report_id, $source, $amount, $remarks, $userID);
+            $this->ciReportModel->insertCIReportAppraisalSource($ci_report_collateral_id, $ci_report_id, $source, $amount, $remarks, $userID);
             
             echo json_encode(['success' => true]);
             exit;
@@ -2396,14 +2398,31 @@ class CIReportController {
             $ciReportDetails = $this->ciReportModel->getCIReport($ciReportID);
             $appraiserID = $ciReportDetails['appraiser'] ?? '';
             $investigatorID = $ciReportDetails['investigator'] ?? '';
+            $contact_id = $ciReportDetails['contact_id'] ?? '';
+            $sales_proposal_id = $ciReportDetails['sales_proposal_id'] ?? '';
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($sales_proposal_id);
+            $customer_id = $salesProposalDetails['customer_id'] ?? null;
 
             $appraiserDetails = $this->userModel->getUserByID($appraiserID);
             $appraiserName = $appraiserDetails['file_as'] ?? '';
             $investigatorDetails = $this->userModel->getUserByID($investigatorID);
             $investigatorName = $investigatorDetails['file_as'] ?? '';
 
+            $customerDetails = $this->customerModel->getPersonalInformation($contact_id);
+            $customerName = $customerDetails['file_as'] ?? null;
+            
+            if($customer_id == $contact_id){
+                $ci_type = 'Maker';
+            }
+            else{
+                $ci_type = 'Co-Maker';
+            }
+
             $response = [
                 'success' => true,
+                'customer_name' => $customerName,
+                'ci_type' => $ci_type,
                 'appraiser' => $appraiserID,
                 'investigator' => $investigatorID,
                 'appraiserName' => $appraiserName,
@@ -2464,6 +2483,7 @@ require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/ci-report-model.php';
 require_once '../model/sales-proposal-model.php';
+require_once '../model/customer-model.php';
 require_once '../model/ci-file-type-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
@@ -2471,6 +2491,6 @@ require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new CIReportController(new CIReportModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new CIFileTypeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new CIReportController(new CIReportModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new CIFileTypeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

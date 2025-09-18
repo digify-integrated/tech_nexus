@@ -204,10 +204,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $partIncomingDetails = $partsIncomingModel->getPartsIncoming($parts_incoming_id);
                 $reference_number = $partIncomingDetails['reference_number'] ?? '';
                 $company_id = $partIncomingDetails['company_id'] ?? '';
+                $product_id = $partIncomingDetails['product_id'] ?? null;
+
+                $productDetails = $productModel->getProduct($product_id);
+                $stock_number = $productDetails['stock_number'] ?? '--';
 
                 $part_incoming_id_encrypted = $securityModel->encryptData($parts_incoming_id);
 
-                 if($company_id == '2'){
+                if($company_id == '1'){
+                    $link = 'supplies-incoming';
+                }
+                else if($company_id == '2'){
                     $link = 'netruck-parts-incoming';
                 }
                 else{
@@ -219,6 +226,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'REFERENCE_NUMBER' => '<a href="'.$link.'.php?id='. $part_incoming_id_encrypted .'" target="_blank">
                                         '. $reference_number .'
                                     </a>',
+                    'PRODUCT' => $stock_number,
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
                     'RECEIVED_QUANTITY' => number_format($received_quantity, 2) . ' ' . $short_name,
                     'COST' => number_format($cost, 2) . ' PHP',
@@ -306,7 +314,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $completion_date = $systemModel->checkDate('empty', $row['completion_date'], '', 'm/d/Y', '');
                 $purchase_date = $systemModel->checkDate('empty', $row['purchase_date'], '', 'm/d/Y', '');
                 $delivery_date = $systemModel->checkDate('empty', $row['delivery_date'], '', 'm/d/Y', '');
-
+                $posted_date = $systemModel->checkDate('empty', $row['posted_date'], '', 'm/d/Y h:i:s A', '');
                 
                 $supplierDetails = $supplierModel->getSupplier($supplier_id);
                 $supplier_name = $supplierDetails['supplier_name'] ?? 'N/A';
@@ -335,7 +343,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $part_incoming_id_encrypted = $securityModel->encryptData($part_incoming_id);
-                if($company == '2'){
+                if($company == '1'){
+                    $link = 'supplies-incoming';
+                }
+                else if($company == '2'){
                     $link = 'netruck-parts-incoming';
                 }
                 else{
@@ -356,9 +367,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'COMPLETION_DATE' => $completion_date,
                     'PURCHASE_DATE' => $delivery_date,
                     'TRANSACTION_DATE' => $incoming_date,
+                    'POSTED_DATE' => $posted_date,
                     'STATUS' => $part_incoming_status,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="'. $link .'.php?id='. $part_incoming_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="'. $link .'.php?id='. $part_incoming_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
@@ -446,7 +458,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $description = $productDetails['description'] ?? '';
 
                 $part_incoming_id_encrypted = $securityModel->encryptData($part_incoming_id);
-                if($company == '2'){
+                if($company == '1'){
+                    $link = 'supplies-incoming';
+                }
+                else if($company == '2'){
                     $link = 'netruck-parts-incoming';
                 }
                 else{
@@ -523,7 +538,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $part_incoming_id_encrypted = $securityModel->encryptData($part_incoming_id);
-                if($company_id == '2'){
+                if($company_id == '1'){
+                    $link = 'supplies-incoming';
+                }
+                else if($company_id == '2'){
                     $link = 'netruck-parts-incoming';
                 }
                 else{
@@ -595,7 +613,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $part_incoming_id_encrypted = $securityModel->encryptData($part_incoming_id);
-                if($company_id == '2'){
+                if($company_id == '1'){
+                    $link = 'supplies-incoming';
+                }
+                else if($company_id == '2'){
                     $link = 'netruck-parts-incoming';
                 }
                 else{

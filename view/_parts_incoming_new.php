@@ -4,7 +4,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5>Parts Incoming</h5>
+            <h5><?php echo $cardLabel; ?> Incoming</h5>
           </div>
           <?php
             if ($partsIncomingCreateAccess['total'] > 0) {
@@ -20,8 +20,13 @@
         <form id="parts-incoming-form" method="post" action="#">
           <?php
             $hidden = '';
-            if($company == '2'){
+            $suppliesHidden = '';
+            if($company == '2' || $company == '1'){
               $hidden = 'd-none';
+            }
+
+            if($company == '1'){
+              $suppliesHidden = 'd-none';
             }
           ?>
           <div class="form-group row <?php echo $hidden; ?>">
@@ -53,15 +58,15 @@
                 <?php echo $supplierModel->generateSupplierOptions(); ?>
               </select>
             </div>
-            <label class="col-lg-2 col-form-label">Customer Reference <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
+            <label class="col-lg-2 col-form-label <?php echo $suppliesHidden; ?>">Customer Reference <span class="text-danger">*</span></label>
+            <div class="col-lg-4 <?php echo $suppliesHidden; ?>">
                 <select class="form-control select2" name="customer_ref_id" id="customer_ref_id">
                   <option value="">--</option>
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
             </div>
           </div>
-          <div class="form-group row">
+          <div class="form-group row <?php echo $suppliesHidden; ?>">
             <label class="col-lg-2 col-form-label">Product <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="product_id" id="product_id">

@@ -29,7 +29,7 @@
                         </li>
                         <li class="list-group-item px-0 py-2">
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#parts-category-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                                Part Category
+                                <?php echo $cardLabel; ?> Category
                             </a>
                             <div class="collapse " id="parts-category-filter-collapse">
                                 <div class="py-3">
@@ -41,7 +41,7 @@
                         </li>
                         <li class="list-group-item px-0 py-2">
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#parts-subclass-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                                Part Subclass
+                                <?php echo $cardLabel; ?> Subclass
                             </a>
                             <div class="collapse " id="parts-subclass-filter-collapse">
                                 <div class="py-3">
@@ -53,7 +53,7 @@
                         </li>
                         <li class="list-group-item px-0 py-2">
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#parts-class-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                                Part Class
+                                <?php echo $cardLabel; ?> Class
                             </a>
                             <div class="collapse " id="parts-class-filter-collapse">
                                 <div class="py-3">
@@ -65,7 +65,7 @@
                         </li>
                     <li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#parts-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Part Status
+                          <?php echo $cardLabel; ?> Status
                         </a>
                         <div class="collapse " id="parts-status-filter-collapse">
                           <div class="row py-3">
@@ -80,7 +80,7 @@
                               </div>
                               <div class="form-check my-2">
                                 <input class="form-check-input parts-status-filter" type="radio" name="parts-status-filter" id="parts-status-for-sale" value="For Sale" />
-                                <label class="form-check-label" for="parts-status-for-sale">For Sale</label>
+                                <label class="form-check-label" for="parts-status-for-sale">For Sale/Available</label>
                               </div>
                               <div class="form-check my-2">
                                 <input class="form-check-input parts-status-filter" type="radio" name="parts-status-filter" id="parts-status-out-of-stock" value="Out of Stock" />
@@ -98,7 +98,13 @@
                           <div class="py-3">
                            
                             <?php
-                              if($company == '2'){
+                              if($company == '1'){
+                                echo '<div class="form-check my-2">
+                                          <input class="form-check-input company-filter" type="checkbox" id="company-1" value="1" checked/>
+                                          <label class="form-check-label" for="company-1">Christian General Motors Inc.</label>
+                                      </div>';
+                              }
+                              else if($company == '2'){
                                 echo '<div class="form-check my-2">
                                           <input class="form-check-input company-filter" type="checkbox" id="company-2" value="2" checked/>
                                           <label class="form-check-label" for="company-2">NE TRUCK</label>
@@ -171,7 +177,7 @@
                 <li class="list-inline-item">
                   <div class="form-search">
                     <i class="ti ti-search"></i>
-                    <input type="text" class="form-control" id="parts_search" placeholder="Search Part" />
+                    <input type="text" class="form-control" id="parts_search" placeholder="Search <?php echo $cardLabel; ?>" />
                   </div>
                 </li>
                 <li class="list-inline-item">
@@ -196,7 +202,10 @@
               <ul class="list-inline ms-auto my-1">
                 <?php
                   if($partsCreateAccess['total'] > 0){
-                    if($company == '2'){
+                    if($company == '1'){
+                      echo '<li class="list-inline-item align-bottom mr-0"><a href="supplies.php?new" class="btn btn-success">Create</a></li>';
+                    }
+                    else if($company == '2'){
                       echo '<li class="list-inline-item align-bottom mr-0"><a href="netruck-parts.php?new" class="btn btn-success">Create</a></li>';
                     }
                     else{
@@ -236,7 +245,7 @@
                           </div>
                         </th>
                         <th>Image</th>
-                        <th class="w-100">Part</th>
+                        <th class="w-100"><?php echo $cardLabel; ?></th>
                         <th class="w-100">Category</th>
                         <th class="w-100">Class</th>
                         <th class="w-100">Quantity</th>

@@ -186,7 +186,10 @@ class PartsIncomingController {
             exit;
         } 
         else {
-            if($company_id == '2'){
+            if($company_id == '1'){
+                $reference_number = ((int)($this->systemSettingModel->getSystemSetting(38)['value'] ?? 0)) + 1;
+            }
+            else if($company_id == '2'){
                 $reference_number = ((int)($this->systemSettingModel->getSystemSetting(31)['value'] ?? 0)) + 1;
             }
             else{
@@ -195,7 +198,10 @@ class PartsIncomingController {
 
             $parts_incoming_id = $this->partsIncomingModel->insertPartsIncoming($reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $company_id, $request_by, $product_id, $customer_ref_id, $userID);
 
-            if($company_id == '2'){
+            if($company_id == '1'){
+                $this->systemSettingModel->updateSystemSettingValue(38, $reference_number, $userID);
+            }
+            else if($company_id == '2'){
                 $this->systemSettingModel->updateSystemSettingValue(31, $reference_number, $userID);
             }
             
@@ -257,7 +263,10 @@ class PartsIncomingController {
 
         $cost = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'total cost')['total'] ?? 0;
 
-        if($company_id == '2'){
+        if($company_id == '1'){
+            $rr_no = (int)$this->systemSettingModel->getSystemSetting(39)['value'] + 1;
+        }
+        else if($company_id == '2'){
             $rr_no = (int)$this->systemSettingModel->getSystemSetting(35)['value'] + 1;
         }
         else{
@@ -266,15 +275,19 @@ class PartsIncomingController {
 
         $this->partsIncomingModel->updatePartsIncomingPosted($parts_incoming_id, $rr_no, $userID);
 
-        if($company_id == '2'){
+        if($company_id == '1'){
+            $this->systemSettingModel->updateSystemSettingValue(39, $rr_no, $userID);
+        }
+        else if($company_id == '2'){
             $this->systemSettingModel->updateSystemSettingValue(35, $rr_no, $userID);
         }
         else{
             $this->systemSettingModel->updateSystemSettingValue(36, $rr_no, $userID);
         }
 
-        $this->partsIncomingModel->createPartsIncomingEntry($parts_incoming_id, $company_id, $reference_number, $cost, $userID);
-        
+        if($company_id == '3' || $company_id == '2'){
+            $this->partsIncomingModel->createPartsIncomingEntry($parts_incoming_id, $company_id, $reference_number, $cost, $userID);
+        }
         echo json_encode(['success' => true]);
         exit;
     }

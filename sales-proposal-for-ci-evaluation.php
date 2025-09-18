@@ -1,51 +1,50 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/parts-transaction-model.php');
+  require('model/sales-proposal-model.php');
   require('model/customer-model.php');
   require('model/product-model.php');
-  require('model/miscellaneous-client-model.php');
+  require('model/approving-officer-model.php');
+  require('model/id-type-model.php');
 
-  $partsTransactionModel = new PartsTransactionModel($databaseModel);
+  $pageTitle = 'Sales Proposal For CI';
+  
+  $salesProposalModel = new SalesProposalModel($databaseModel);
+  $approvingOfficerModel = new ApprovingOfficerModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
-  $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
+  $idTypeModel = new IDTypeModel($databaseModel);
 
-  $pageTitle = 'Fuso Parts Issuance';
+  require('model/application-source-model.php');
+  $applicationSourceModel = new ApplicationSourceModel($databaseModel);
     
-  $partsTransactionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'read');
-  $partsTransactionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'create');
-  $partsTransactionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'write');
-  $partsTransactionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'delete');
-  $partsTransactionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 143, 'duplicate');
+  $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 75, 'read');
+  $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);
+  $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
 
-  if ($partsTransactionReadAccess['total'] == 0) {
+  if ($allSalesProposalReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
-  if(isset($_GET['id'])){
-    if(empty($_GET['id'])){
-      header('location: parts-transaction.php');
-      exit;
-    }
-
-    $partsTransactionID = $securityModel->decryptData($_GET['id']);
-
-    $checkPartsTransactionExist = $partsTransactionModel->checkPartsTransactionExist($partsTransactionID);
-    $total = $checkPartsTransactionExist['total'] ?? 0;
-
-    if($total == 0){
-      header('location: 404.php');
-      exit;
-    }
+  if(isset($_GET['customer'])){
+    $customerID = $securityModel->decryptData($_GET['customer']);
   }
   else{
-    $partsTransactionID = null;
+    $customerID = null;
   }
 
-  $company = '3';
-  $cardLabel = 'Parts';
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: sales-proposal-for-ci.php');
+      exit;
+    }
+
+    $salesProposalID = $securityModel->decryptData($_GET['id']);
+  }
+  else{
+    $salesProposalID = null;
+  }
 
   $newRecord = isset($_GET['new']);
 
@@ -77,17 +76,17 @@
             <div class="row align-items-center">
               <div class="col-md-12">
                 <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="parts-transaction.php"><?php echo $pageTitle; ?></a></li>
-                    <?php
-                        if(!$newRecord && !empty($partsTransactionID)){
-                            echo '<li class="breadcrumb-item" id="parts-transaction-id">'. $partsTransactionID .'</li>';
-                        }
+                  <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                  <li class="breadcrumb-item">Sales Proposal</li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="sales-proposal-for-ci.php?customer=<?php echo $securityModel->encryptData($customerID); ?>"><?php echo $pageTitle; ?></a></li>
+                  <?php
+                    if(!$newRecord && !empty($salesProposalID)){
+                      echo '<li class="breadcrumb-item" id="sales-proposal-id">'. $salesProposalID .'</li>';
+                    }
 
-                        if($newRecord){
-                            echo '<li class="breadcrumb-item">New</li>';
-                        }
+                    if($newRecord){
+                      echo '<li class="breadcrumb-item">New</li>';
+                    }
                   ?>
                 </ul>
               </div>
@@ -99,16 +98,12 @@
             </div>
           </div>
         </div>
-        <input type="hidden" id="page-company" value="<?php echo $company ?>">
         <?php
-          if($newRecord && $partsTransactionCreateAccess['total'] > 0){
-            require_once('view/_parts_transaction_new.php');
-          }
-          else if(!empty($partsTransactionID) && $partsTransactionWriteAccess['total'] > 0){
-            require_once('view/_parts_transaction_details.php');
+         if(!empty($salesProposalID) && !empty($customerID)){
+            require_once('view/_sales_proposal_details.php');
           }
           else{
-            require_once('view/_parts_transaction.php');
+            require_once('view/_sales_proposal_for_ci_evaluation.php');
           }
         ?>
       </div>
@@ -126,8 +121,9 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
+    <script src="./assets/js/plugins/imask.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/parts-transaction.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/sales-proposal.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

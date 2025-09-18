@@ -66,7 +66,10 @@
 
         $highestExposureDetails = $ciReportModel->getCIReportHighestExposure($ci_report_id);
         $highestPN = $highestExposureDetails['pn_amount'] ?? 0;
-        $highestAvailedDate = $systemModel->checkDate('empty', $highestExposureDetails['availed_date'], '', 'm/d/Y', '');
+        $highestAvailedDate = $systemModel->checkDate('empty', $highestExposureDetails['availed_date'] ?? null, '', 'm/d/Y', '');
+
+        $primaryResidenceDetails = $ciReportModel->getPrimaryResidence($ci_report_id);
+        $primaryResidenceRemarks = $primaryResidenceDetails['remarks'] ?? '';
 
         if($ci_character == 'Passed'){
             $ci_character_passed = '/';
@@ -159,9 +162,15 @@
         }
 
         $customerDetails = $customerModel->getPersonalInformation($contact_id);
-        $customerName = $customerDetails['file_as'] ?? null;
+        $customerName = $customerDetails['file_as'] ?? '';
         $birthday = $customerDetails['birthday'] ?? null;
         $customerAge = getAge($birthday);
+
+        $customerSpouse = $customerModel->getCustomerSpouse($contact_id);
+        $spouseID = $customerSpouse['comaker_id'] ?? '';
+        $spouseDetails = $customerModel->getPersonalInformation($spouseID);
+        $spouseBirthday = $spouseDetails['birthday'] ?? null;
+        $spouseAge = getAge($spouseBirthday);
 
         $appraiserDetails = $userModel->getUserByID($appraiser);
         $appraiserName = $appraiserDetails['file_as'] ?? '';
@@ -203,21 +212,21 @@
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as'] ?? '');   
 
-        $comakerDetails = $customerModel->getContactComakerDetails($comakerID);
+        $comakerDetails = $customerModel->getContactComakerDetailsViaComaker($contact_id, $comakerID);
         $comakerRelation = $comakerDetails['relation_id'] ?? '';
         $comakerRelationName = $relationModel->getRelation($comakerRelation)['relation_name'] ?? '';
 
-        $addcomakerDetails = $customerModel->getPersonalInformation($additional_maker_id);
+        $addcomakerDetails = $customerModel->getPersonalInformation( $additional_maker_id);
         $addcomakerName = strtoupper($addcomakerDetails['file_as'] ?? '');
 
-        $addcomakerDetails = $customerModel->getContactComakerDetails($additional_maker_id);
+        $addcomakerDetails = $customerModel->getContactComakerDetailsViaComaker($contact_id, $additional_maker_id);
         $addcomakerRelation = $addcomakerDetails['relation_id'] ?? '';
         $addcomakerRelationName = $relationModel->getRelation($addcomakerRelation)['relation_name'] ?? '';
 
         $comaker2Details = $customerModel->getPersonalInformation($comaker_id2);
         $comaker2Name = strtoupper($comaker2Details['file_as'] ?? '');  
 
-        $comaker2Details = $customerModel->getContactComakerDetails($comaker_id2);
+        $comaker2Details = $customerModel->getContactComakerDetailsViaComaker($contact_id, $comaker_id2);
         $comaker2Relation = $comaker2Details['relation_id'] ?? '';
         $comaker2RelationName = $relationModel->getRelation($comaker2Relation)['relation_name'] ?? '';
 
@@ -260,7 +269,12 @@
         $lessExpenseTotal = $expensesTotal + $loanAmort;
         $ema = ($totalIncome - $lessExpenseTotal) * 0.6;
         $ela = $ema * $termLength;
-        $repaymentAmount = ceil((((($interest_rate/100)*$outstanding_balance)+$outstanding_balance))/$termLength);
+        if($termLength > 0){
+            $repaymentAmount = ceil((((($interest_rate/100)*$outstanding_balance)+$outstanding_balance))/$termLength);
+        }
+        else{
+            $repaymentAmount = 0;
+        }
         $loanRepaymentTotal = $ciReportModel->getCIReportLoanTotal($ci_report_id, 'repayment')['total'] ?? 0;
 
         if(!empty($sales_proposal_id)){
@@ -285,14 +299,14 @@
         }
         
         if($totalAsset > 0){
-            $debtToAsset = $liability / $totalAsset;
+            $debtToAsset = ($liability / $totalAsset) * 100;
         }
         else{
             $debtToAsset = 0;
         }
         
         if($capitalTotal > 0){
-            $debtToEquity = $liability / $capitalTotal;
+            $debtToEquity = ($liability / $capitalTotal) * 100;
         }
         else{
             $debtToEquity = 0;
@@ -307,7 +321,7 @@
     $bankStatementTable = generateBankStatementTable($ci_report_id);
     $salesIncomeTable = generateSalesIncomeTable($ci_report_id, $totalExpenseTotal, $loanAmort, $ema, $ela);
     $tradeReferenceTable = generateTradeReferenceTable($ci_report_id);
-    $assetsTable = generateAssetsTable($ci_report_id, $outstanding_balance);
+    $assetsTable = generateAssetsTable($ci_report_id, $pn_amount);
     $dependentsTable = generateDependentsTable($ci_report_id);
     $residenceTable = generateResidenceTable($ci_report_id);
     $propertyTable = generatePropertyTable($ci_report_id);
@@ -417,7 +431,7 @@
     $pdf->MultiCell(145, 5, strtoupper($purpose_of_loan), 'B', 'L');
     $pdf->Ln(2);
     $pdf->Cell(40, 5, 'CONDITION:', 0, 0, 'L');
-    $pdf->MultiCell(145, 5, 'CLIENT IS BORN IN ILO ILO AND RAISED IN MANILA. GRAD OF BSBA IN MAPUA. NICKNAME - TONET', 'B', 'L');
+    $pdf->MultiCell(145, 5, strtoupper($primaryResidenceRemarks), 'B', 'L');
 
 
     $pdf->Ln(5);
@@ -471,19 +485,19 @@
     $pdf->Cell(80, 5, 'CMAP RESULT', 0, 0, 'L');
     $pdf->Cell(5, 5, $cmap_result_negative, 1, 0, 'C');
     $pdf->Cell(3, 5, '', 0, 0, 'L');
-    $pdf->Cell(40, 5, 'PASSED', 0, 0, 'L');
+    $pdf->Cell(40, 5, 'NEGATIVE', 0, 0, 'L');
     $pdf->Cell(5, 5, $cmap_result_positive, 1, 0, 'C');
     $pdf->Cell(3, 5, '', 0, 0, 'L');
-    $pdf->Cell(50, 5, 'FAILED', 0, 0, 'L');
+    $pdf->Cell(50, 5, 'POSITIVE', 0, 0, 'L');
      $pdf->Ln(8);
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(80, 5, 'CRIF RESULT', 0, 0, 'L');
     $pdf->Cell(5, 5, $crif_result_negative, 1, 0, 'C');
     $pdf->Cell(3, 5, '', 0, 0, 'L');
-    $pdf->Cell(40, 5, 'PASSED', 0, 0, 'L');
+    $pdf->Cell(40, 5, 'NEGATIVE', 0, 0, 'L');
     $pdf->Cell(5, 5, $crif_result_positive, 1, 0, 'C');
     $pdf->Cell(3, 5, '', 0, 0, 'L');
-    $pdf->Cell(50, 5, 'FAILED', 0, 0, 'L');
+    $pdf->Cell(50, 5, 'POSITIVE', 0, 0, 'L');
      $pdf->Ln(8);
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(55, 5, 'TIMES ACCOMMODATION', 0, 0, 'L');
@@ -629,7 +643,7 @@
 
     $pdf->Ln(5);
     $pdf->Cell(40, 5, 'AGE OF SPOUSE:', 0, 0, 'L');
-    $pdf->Cell(15, 5, '0', 'B', 0, 'L');
+    $pdf->Cell(15, 5, $spouseAge, 'B', 0, 'L');
     $pdf->Cell(40, 5, 'Y/O', 0, 0, 'L');
 
     $pdf->Ln(8);
@@ -941,6 +955,7 @@
         require_once 'model/employee-model.php';
         require_once 'model/work-center-model.php';
         require_once 'model/sales-proposal-model.php';
+        require_once 'model/brand-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -948,7 +963,8 @@
         $contractorModel = new ContractorModel($databaseModel);
         $workCenterModel = new WorkCenterModel($databaseModel);
         $salesProposalModel = new SalesProposalModel($databaseModel);
-    
+        $brandModel = new BrandModel($databaseModel);
+
         $list = '';
         $appraised_value_total = 0;
         $loannable_value_total = 0;
@@ -965,12 +981,15 @@
             $appraised_value = $row['appraised_value'];
             $loannable_value = $row['loannable_value'];
             $remarks = $row['remarks'];
+            $brand_id = $row['brand_id'];
+
+            $brand_name = $brandModel->getBrand($brand_id)['brand_name'] ?? null;
 
             $appraised_value_total = $appraised_value_total + $appraised_value;
             $loannable_value_total = $loannable_value_total + $loannable_value;
 
             $list .= '<tr>
-                        <td>'. $description .'</td>
+                        <td>'. $brand_name .' '. $description .'</td>
                         <td>'. $year_model .'</td>
                         <td style="text-align:center">PHP '. number_format($appraised_value,2) .'</td>
                         <td style="text-align:center">PHP '. number_format($loannable_value,2) .'</td>
@@ -1454,14 +1473,18 @@
         foreach ($options as $row) {
             $employment_name  = $row['employment_name'];
             $net_salary  = $row['net_salary'];
+            $commission  = $row['commission'];
+            $allowance  = $row['allowance'];
+            $other_income  = $row['other_income'];
+            $grandtotal = $net_salary + $commission + $allowance + $other_income;
 
-            $monthly_income_total = $monthly_income_total + $net_salary;
-            $gross_monthly_sale_total = $gross_monthly_sale_total + $net_salary;
-            
+            $monthly_income_total = $monthly_income_total + $grandtotal;
+            $gross_monthly_sale_total = $gross_monthly_sale_total + $grandtotal;
+
             $list .= '<tr>
                         <td>'. strtoupper($employment_name) .'</td>
-                        <td style="text-align:center">PHP '. number_format($net_salary, 2) .'</td>
-                        <td style="text-align:center">PHP '. number_format($net_salary, 2) .'</td>
+                        <td style="text-align:center">PHP '. number_format($grandtotal, 2) .'</td>
+                        <td style="text-align:center">PHP '. number_format($grandtotal, 2) .'</td>
                         <td style="text-align:center">PHP '. number_format(0, 2) .'</td>
                     </tr>';
         }
@@ -1732,7 +1755,7 @@
         $assetTotal = $ciReportModel->getCIReportAssetsTotal($ci_report_id)['total'] ?? 0;
         $receivableTotal = $ciReportModel->getCIReportBusinessExpenseTotal($ci_report_id, 'receivable')['total'] ?? 0;
         $inventoryTotal = $ciReportModel->getCIReportBusinessExpenseTotal($ci_report_id, 'inventory')['total'] ?? 0;
-        $outstandingBalance = $ciReportModel->getCIReportLoanTotal($ci_report_id, 'outstanding balance')['total'] ?? 0;
+        $outstandingBalance = $ciReportModel->getCIReportLoanTotal($ci_report_id, 'outstanding with balance')['total'] ?? 0;
         $totalAsset = $receivableTotal + $inventoryTotal + $assetTotal;
         $liability = $apply_ob + $outstandingBalance;
 
@@ -1901,7 +1924,7 @@
             $length_stay_year  = $row['length_stay_year'];
             $length_stay_month  = $row['length_stay_month'];
             $structure_type_id  = $row['structure_type_id'];
-            $remarks  = $row['remarks'];
+            $remarks  = $row['real_estate_owned'];
             $tct_no  = $row['tct_no'];
             $rented_from  = $row['rented_from'];
 

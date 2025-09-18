@@ -155,6 +155,9 @@ class SalesProposalController {
                 case 'sales proposal cancel':
                     $this->tagSalesProposalCancel();
                     break;
+                case 'sales proposal ci recommendation':
+                    $this->tagSalesProposalCIRecommendation();
+                    break;
                 case 'sales proposal set to draft':
                     $this->tagSalesProposalSetToDraft();
                     break;
@@ -387,6 +390,7 @@ class SalesProposalController {
 
                 $refEngineNo = htmlspecialchars($_POST['ref_engine_no'], ENT_QUOTES, 'UTF-8');
                 $refChassisNo = htmlspecialchars($_POST['ref_chassis_no'], ENT_QUOTES, 'UTF-8');
+                $refChassisNo = str_replace(['-', ' '], '', $refChassisNo);
                 $refPlateNo = htmlspecialchars($_POST['ref_plate_no'], ENT_QUOTES, 'UTF-8');
                 $orcrNo = $_POST['orcr_no'];
                 $receivedFrom = $_POST['received_from'];
@@ -612,6 +616,7 @@ class SalesProposalController {
         $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
         $refEngineNo = htmlspecialchars($_POST['ref_engine_no'], ENT_QUOTES, 'UTF-8');
         $refChassisNo = htmlspecialchars($_POST['ref_chassis_no'], ENT_QUOTES, 'UTF-8');
+        $refChassisNo = str_replace(['-', ' '], '', $refChassisNo);
         $refPlateNo = htmlspecialchars($_POST['ref_plate_no'], ENT_QUOTES, 'UTF-8');
         $orcrNo = $_POST['orcr_no'];
         $receivedFrom = $_POST['received_from'];
@@ -2930,6 +2935,37 @@ class SalesProposalController {
         echo json_encode(['success' => true]);
         exit;
     }
+    
+    public function tagSalesProposalCIRecommendation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $ci_verification = htmlspecialchars($_POST['ci_verification'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->updateSalesProposalCIRecommendation($salesProposalID, $ci_verification);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -4351,6 +4387,7 @@ class SalesProposalController {
                 'initialApprovalRemarks' => $salesProposalDetails['initial_approval_remarks'] ?? null,
                 'finalApprovalRemarks' => $salesProposalDetails['final_approval_remarks'] ?? null,
                 'installmentSalesApprovalRemarks' => $salesProposalDetails['installment_sales_approval_remarks'] ?? null,
+                'ci_recommendation' => $salesProposalDetails['ci_recommendation'] ?? '',
                 'rejectionReason' => $salesProposalDetails['rejection_reason'] ?? null,
                 'cancellationReason' => $salesProposalDetails['cancellation_reason'] ?? null,
                 'setToDraftReason' => $salesProposalDetails['set_to_draft_reason'] ?? null,
