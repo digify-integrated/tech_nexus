@@ -16144,6 +16144,7 @@ BEGIN
         AND remaining_quantity >= p_received_quantity;
 END //
 
+DROP PROCEDURE IF EXISTS updatePartsAverageCostAndSRP//
 CREATE PROCEDURE updatePartsAverageCostAndSRP (
     IN p_part_id INT,
     IN p_company_id INT,
@@ -16161,14 +16162,18 @@ BEGIN
     DECLARE overall_total_cost DECIMAL(10,2);
     DECLARE new_part_cost DECIMAL(10,2);
     DECLARE new_part_price DECIMAL(10,2);
+    DECLARE new_quantity DOUBLE;
+    DECLARE new_status VARCHAR(50);
+    DECLARE new_for_sale_date DATETIME;
 
-    -- Step 1: Get current part cost and quantity
-    SELECT part_cost, quantity, part_price 
-    INTO current_part_cost, current_quantity, current_part_price
+    -- Lock the row while reading to prevent race conditions
+    SELECT part_cost, quantity, part_price, part_status, for_sale_date
+    INTO current_part_cost, current_quantity, current_part_price, new_status, new_for_sale_date
     FROM part
-    WHERE part_id = p_part_id;
+    WHERE part_id = p_part_id
+    FOR UPDATE; -- row lock for transaction safety
 
-    -- Step 2: Compute total costs and new part cost
+    -- Compute totals
     SET total_cost_of_parts = current_quantity * current_part_cost;
     SET total_cost_of_received = p_received_quantity * p_cost;
     SET total_quantity = current_quantity + p_received_quantity;
@@ -16180,36 +16185,36 @@ BEGIN
         SET new_part_cost = current_part_cost; -- avoid division by zero
     END IF;
 
-    -- Step 3: Compute new part price
+    -- Compute new part price
     IF p_company_id = 2 THEN
         SET new_part_price = ROUND(new_part_cost * 1.3, 2);
     ELSE
-        SET new_part_price = current_part_price; -- retain old price or customize as needed
+        SET new_part_price = current_part_price; -- keep old price
     END IF;
 
-    -- Step 4: Update the part table
-    UPDATE part
-    SET part_cost = new_part_cost,
-        part_price = new_part_price,
-        last_log_by = p_last_log_by -- assuming this column exists for tracking logs
-    WHERE part_id = p_part_id;
+    -- Prepare new quantity and status
+    SET new_quantity = current_quantity + p_received_quantity;
+    SET new_status = CASE 
+                        WHEN new_status IN ('Out of Stock', 'Draft') THEN 'For Sale'
+                        ELSE new_status
+                     END;
+    SET new_for_sale_date = CASE
+                                WHEN new_status = 'For Sale' AND current_quantity = 0 THEN NOW()
+                                ELSE new_for_sale_date
+                            END;
 
+    -- Atomic update: set cost, price, quantity, status in one UPDATE
     UPDATE part
     SET 
-        quantity = quantity + p_received_quantity,
-        part_status = CASE 
-                        WHEN part_status IN ('Out of Stock', 'Draft') THEN 'For Sale'
-                        ELSE part_status
-                    END,
-        for_sale_date = CASE 
-                            WHEN part_status IN ('Out of Stock', 'Draft') THEN NOW()
-                            ELSE for_sale_date
-                        END,
+        part_cost = new_part_cost,
+        part_price = new_part_price,
+        quantity = new_quantity,
+        part_status = new_status,
+        for_sale_date = new_for_sale_date,
         last_log_by = p_last_log_by
-    WHERE 
-        part_id = p_part_id;
-
+    WHERE part_id = p_part_id;
 END //
+
 
 DELIMITER ;
 
