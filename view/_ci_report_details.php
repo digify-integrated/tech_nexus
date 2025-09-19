@@ -1185,11 +1185,11 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-6">
-                            <label class="form-label" for="ci_business_length_stay_year">Length Stay (Year)</label>
+                            <label class="form-label" for="ci_business_length_stay_year">Existence (Year)</label>
                             <input type="number" class="form-control" id="ci_business_length_stay_year" name="ci_business_length_stay_year" min="0" step="1" <?php echo $disabled; ?>>
                         </div>
                         <div class="col-lg-6">
-                            <label class="form-label" for="ci_business_length_stay_month">Length Stay (Month)</label>
+                            <label class="form-label" for="ci_business_length_stay_month">Existence (Month)</label>
                             <input type="number" class="form-control" id="ci_business_length_stay_month" name="ci_business_length_stay_month" min="0" step="1" <?php echo $disabled; ?>>
                         </div>
                     </div>
