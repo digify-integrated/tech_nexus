@@ -20,6 +20,8 @@ class CIReportController {
     private $userModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
+    private $emailSettingModel;
+    private $notificationSettingModel;
     private $systemModel;
     private $securityModel;
 
@@ -38,7 +40,7 @@ class CIReportController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(CIReportModel $ciReportModel, SalesProposalModel $salesProposalModel, CustomerModel $customerModel, CIFileTypeModel $ciFileTypeModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(CIReportModel $ciReportModel, SalesProposalModel $salesProposalModel, CustomerModel $customerModel, CIFileTypeModel $ciFileTypeModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->ciReportModel = $ciReportModel;
         $this->salesProposalModel = $salesProposalModel;
         $this->customerModel = $customerModel;
@@ -47,6 +49,8 @@ class CIReportController {
         $this->systemModel = $systemModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
+        $this->emailSettingModel = $emailSettingModel;
+        $this->notificationSettingModel = $notificationSettingModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -313,8 +317,76 @@ class CIReportController {
         $sales_proposal_id = $ciReportDetails['sales_proposal_id'] ?? '';
 
         $this->ciReportModel->updateCIReportStatus($ci_report_id, 'Completed', '', $sales_proposal_id, $userID);
+
+        $totalCI = $this->ciReportModel->getCIReportTotal($sales_proposal_id)['total'] ?? 0;
+        $totalCICompleted = $this->ciReportModel->getCIReportTotalCompleted($sales_proposal_id)['total'] ?? 0;
+
+        if($totalCI == $totalCICompleted){
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($sales_proposal_id);
+            $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
+            $customerID = $salesProposalDetails['customer_id'];
+
+            $customerDetails = $this->customerModel->getPersonalInformation($customerID);
+            $customerName = strtoupper($customerDetails['file_as'] ?? null);
+            
+            $this->sendCIReportForEvaluation($salesProposalNumber, $customerName);
+        }
             
         echo json_encode(['success' => true]);
+    }
+
+    public function sendCIReportForEvaluation($sales_proposal_number, $client_name) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(18);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{SALES_PROPOSAL_NUMBER}', $sales_proposal_number, $emailBody);
+        $emailBody = str_replace('{CLIENT_NAME}', $client_name, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        $mailer->addAddress('i.bernabe@christianmotors.ph');
+        $mailer->addAddress('christianbaguisa@christianmotors.ph');
+        $mailer->addAddress('glenbonita@christianmotors.ph');
+        $mailer->addAddress('l.agulto@christianmotors.ph');
+
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+
+    private function configureSMTP($mailer, $isHTML = true) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailHost = $emailSetting['mail_host'] ?? MAIL_HOST;
+        $smtpAuth = empty($emailSetting['smtp_auth']) ? false : true;
+        $mailUsername = $emailSetting['mail_username'] ?? MAIL_USERNAME;
+        $mailPassword = !empty($password) ? $this->securityModel->decryptData($emailSetting['mail_password']) : MAIL_PASSWORD;
+        $mailEncryption = $emailSetting['mail_encryption'] ?? MAIL_SMTP_SECURE;
+        $port = $emailSetting['port'] ?? MAIL_PORT;
+        
+        $mailer->isSMTP();
+        $mailer->isHTML(true);
+        $mailer->Host = $mailHost;
+        $mailer->SMTPAuth = $smtpAuth;
+        $mailer->Username = $mailUsername;
+        $mailer->Password = $mailPassword;
+        $mailer->SMTPSecure = $mailEncryption;
+        $mailer->Port = $port;
     }
 
     # -------------------------------------------------------------
@@ -2487,10 +2559,15 @@ require_once '../model/customer-model.php';
 require_once '../model/ci-file-type-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
+require_once '../model/email-setting-model.php';
+require_once '../model/notification-setting-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
+require '../assets/libs/PHPMailer/src/PHPMailer.php';
+require '../assets/libs/PHPMailer/src/Exception.php';
+require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new CIReportController(new CIReportModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new CIFileTypeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new CIReportController(new CIReportModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new CIFileTypeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

@@ -3004,7 +3004,15 @@ class SalesProposalController {
         }
     
         $this->salesProposalModel->updateSalesProposalCIRecommendation($salesProposalID, $ci_verification);
-            
+
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
+        $customerID = $salesProposalDetails['customer_id'];
+
+        $customerDetails = $this->customerModel->getPersonalInformation($customerID);
+        $customerName = strtoupper($customerDetails['file_as'] ?? null);
+        
+        $this->sendCIReportEvaluated($salesProposalNumber, $customerName);
         echo json_encode(['success' => true]);
         exit;
     }
@@ -5353,6 +5361,40 @@ class SalesProposalController {
         if($company_id == 3){
             $mailer->addAddress('paolobaguisa@christianmotors.ph');
         }
+
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+
+    public function sendCIReportEvaluated($sales_proposal_number, $client_name) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(19);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{SALES_PROPOSAL_NUMBER}', $sales_proposal_number, $emailBody);
+        $emailBody = str_replace('{CLIENT_NAME}', $client_name, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        $mailer->addAddress('l.agulto@christianmotors.ph');
+        $mailer->addAddress('christianbaguisa@christianmotors.ph');
+        $mailer->addAddress('glenbonita@christianmotors.ph');
 
         $mailer->Subject = $emailSubject;
         $mailer->Body = $message;

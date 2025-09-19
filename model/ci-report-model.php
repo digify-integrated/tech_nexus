@@ -91,6 +91,18 @@ class CIReportModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function getCIReportTotal($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total FROM ci_report WHERE sales_proposal_id = :p_sales_proposal_id');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getCIReportTotalCompleted($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total FROM ci_report WHERE sales_proposal_id = :p_sales_proposal_id AND ci_status = "Completed"');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     # -------------------------------------------------------------
     
