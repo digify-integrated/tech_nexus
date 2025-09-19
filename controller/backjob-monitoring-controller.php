@@ -14,6 +14,9 @@ session_start();
 # -------------------------------------------------------------
 class BackJobMonitoringController {
     private $backJobMonitoringModel;
+    private $salesProposalModel;
+    private $productModel;
+    private $contractorModel;
     private $userModel;
     private $securityModel;
     private $uploadSettingModel;
@@ -35,8 +38,11 @@ class BackJobMonitoringController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(BackJobMonitoringModel $backJobMonitoringModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(BackJobMonitoringModel $backJobMonitoringModel, SalesProposalModel $salesProposalModel, ProductModel $productModel, ContractorModel $contractorModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->backJobMonitoringModel = $backJobMonitoringModel;
+        $this->salesProposalModel = $salesProposalModel;
+        $this->productModel = $productModel;
+        $this->contractorModel = $contractorModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
         $this->uploadSettingModel = $uploadSettingModel;
@@ -191,7 +197,8 @@ class BackJobMonitoringController {
             $product_id = htmlspecialchars($_POST['product_id2'], ENT_QUOTES, 'UTF-8');
         }
         else{
-            $product_id = null;
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($sales_proposal_id);
+            $product_id = $salesProposalDetails['product_id'] ?? null;
         }
     
         $checkBackJobMonitoringExist = $this->backJobMonitoringModel->checkBackJobMonitoringExist($backjobMonitoringID);
@@ -1429,21 +1436,64 @@ class BackJobMonitoringController {
         
         $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
         $type = $backJobMonitoringDetails['type'];
+        $sales_proposal_id = $backJobMonitoringDetails['sales_proposal_id'] ?? null;
+        $product_id = $backJobMonitoringDetails['product_id'] ?? null;
+        $cost_markup = $backJobMonitoringDetails['cost_markup'] ?? null;
         $outgoing_checklist = $backJobMonitoringDetails['outgoing_checklist'];
         $quality_control_form = $backJobMonitoringDetails['quality_control_form'];
         $unit_image = $backJobMonitoringDetails['unit_image'];
 
         $total = $this->backJobMonitoringModel->getBackJobMonitoringJobOrderCount($backjobMonitoringID, 'unfinished')['total'];
 
-            if($total > 0){
-                echo json_encode(['success' => false, 'jobOrderUnfinished' =>  true]);
-                exit;
-            }
+        if($total > 0){
+            echo json_encode(['success' => false, 'jobOrderUnfinished' =>  true]);
+            exit;
+        }
 
-            if((empty($unit_image) || empty($outgoing_checklist) || empty($quality_control_form)) && $type == 'Backjob'){
-                echo json_encode(['success' => false, 'imageNotUploaded' =>  true]);
-                exit;
-            }
+        if((empty($unit_image) || empty($outgoing_checklist) || empty($quality_control_form)) && $type == 'Backjob'){
+            echo json_encode(['success' => false, 'imageNotUploaded' =>  true]);
+            exit;
+        }
+
+        if($type == 'Backjob'){
+            $reference_number = $sales_proposal_id;
+        }
+        else{
+            $reference_number = $backjobMonitoringID;
+        }
+
+        $jobOrders = $this->backJobMonitoringModel->getBackJobMonitoringJobOrderList($backjobMonitoringID);
+
+        foreach ($jobOrders as $row) {
+            $backjob_monitoring_job_order_id  = $row['backjob_monitoring_job_order_id'];
+            $job_order = $row['job_order'];
+            $contractor_id = $row['contractor_id'];
+            $cost_markup = $row['cost_markup'];
+
+            $contractorDetails = $this->contractorModel->getContractor($contractor_id);
+            $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+            $particulars = $contractor_name . ' - ' . $job_order;
+
+            $this->productModel->insertProductExpense($product_id, 'Contractor Report', $reference_number . ' - ' . $backjob_monitoring_job_order_id, $cost_markup, 'Repairs & Maintenance', $particulars, null, $userID);
+        }
+
+        $additionalJobOrders = $this->backJobMonitoringModel->getBackJobMonitoringAdditionalJobOrderList($backjobMonitoringID);
+
+        foreach ($additionalJobOrders as $row) {
+            $backjob_monitoring_additional_job_order_id  = $row['backjob_monitoring_additional_job_order_id'];
+            $job_order = $row['particulars'];
+            $contractor_id = $row['contractor_id'];
+            $job_order_number = $row['job_order_number'];
+            $cost_markup = $row['cost_markup'];
+
+            $contractorDetails = $this->contractorModel->getContractor($contractor_id);
+            $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+            $particulars = $contractor_name . ' - ' . $job_order_number . ' - ' . $job_order;
+
+            $this->productModel->insertProductExpense($product_id, 'Contractor Report', $reference_number . ' - ' . $backjob_monitoring_additional_job_order_id, $cost_markup, 'Repairs & Maintenance', $particulars, null, $userID);
+        }      
     
         $this->backJobMonitoringModel->updateBackJobMonitoringAsReadyForRelease($backjobMonitoringID, 'Ready For Release', $userID);
 
@@ -1546,6 +1596,10 @@ class BackJobMonitoringController {
                 'product_id' => $backJobMonitoringDetails['product_id'],
                 'sales_proposal_id' => $backJobMonitoringDetails['sales_proposal_id'],
                 'unitImage' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_image'], 'default'),
+                'unitBack' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_back'], 'default'),
+                'unitLeft' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_left'], 'default'),
+                'unitRight' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_right'], 'default'),
+                'unitInterior' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_interior'], 'default'),
                 'outgoingChecklist' =>  $this->systemModel->checkImage($backJobMonitoringDetails['outgoing_checklist'], 'default'),
                 'qualityControlForm' =>  $this->systemModel->checkImage($backJobMonitoringDetails['quality_control_form'], 'default'),
                 'approvalForm' =>  $this->systemModel->checkImage($backJobMonitoringDetails['approval_form'], 'default')
@@ -1637,12 +1691,15 @@ class BackJobMonitoringController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/back-job-monitoring-model.php';
+require_once '../model/sales-proposal-model.php';
+require_once '../model/contractor-model.php';
+require_once '../model/product-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new BackJobMonitoringController(new BackJobMonitoringModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new BackJobMonitoringController(new BackJobMonitoringModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel()), new ProductModel(new DatabaseModel()), new ContractorModel(new DatabaseModel()), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

@@ -1937,6 +1937,20 @@ class SalesProposalModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function getJobOrderList($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No"');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAdditionalJobOrderList($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_additional_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No"');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
     public function getPDCManualInputOtherChargesTotal($p_sales_proposal_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getPDCManualInputOtherChargesTotal(:p_sales_proposal_id)');

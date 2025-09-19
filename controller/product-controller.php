@@ -373,7 +373,7 @@ class ProductController {
         }
 
         $this->productModel->updateProductStatus($productID, 'Repossessed', '', '', '', $userID);
-        $this->productModel->insertProductExpense($productID, '', '', 0, 'Repossessed', 'Repossessed', '', $userID);
+        $this->productModel->insertProductExpense($productID, 'Contractor Report', '', 0, 'Repossessed', 'Repossessed', '', $userID);
             
         echo json_encode(['success' => true]);
     }

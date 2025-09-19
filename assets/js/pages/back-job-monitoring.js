@@ -2418,6 +2418,22 @@ function displayDetails(transaction){
                             document.getElementById('unit-img').src = response.unitImage;
                         }
 
+                        if($('#unit-back').length){
+                            document.getElementById('unit-back').src = response.unitBack;
+                        }
+
+                        if($('#unit-left').length){
+                            document.getElementById('unit-left').src = response.unitLeft;
+                        }
+
+                        if($('#unit-right').length){
+                            document.getElementById('unit-right').src = response.unitRight;
+                        }
+
+                        if($('#unit-interior').length){
+                            document.getElementById('unit-interior').src = response.unitInterior;
+                        }
+
                         if($('#outgoing-checklst').length){
                             document.getElementById('outgoing-checklst').src = response.outgoingChecklist;
                         }

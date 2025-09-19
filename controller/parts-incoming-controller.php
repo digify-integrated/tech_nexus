@@ -519,8 +519,9 @@ class PartsIncomingController {
             $partsIncomingCartDetails = $this->partsIncomingModel->getPartsIncomingCart($part_incoming_cart_id);
             $part_id = $partsIncomingCartDetails['part_id'];
             $remaining_quantity = $partsIncomingCartDetails['remaining_quantity'] ?? 0;
+            $quantity = $partsIncomingCartDetails['quantity'] ?? 0;
             
-            if($received_quantity > $remaining_quantity){
+            if($received_quantity > $remaining_quantity || $received_quantity > $quantity){
                 echo json_encode(['success' => false, 'remainingQuantity' => true]);
                 exit;
             }

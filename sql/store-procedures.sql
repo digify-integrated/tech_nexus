@@ -8170,6 +8170,7 @@ BEGIN
 	UPDATE sales_proposal_job_order
     SET progress = p_progress,
     cost = p_cost,
+    cost_markup = p_job_cost,
     job_cost = p_job_cost,
     contractor_id = p_contractor_id,
     work_center_id = p_work_center_id,
@@ -8188,6 +8189,7 @@ BEGIN
 	UPDATE sales_proposal_additional_job_order
     SET progress = p_progress,
     cost = p_cost,
+    cost_markup = p_job_cost,
     job_cost = p_job_cost,
     contractor_id = p_contractor_id,
     work_center_id = p_work_center_id,
@@ -14398,7 +14400,7 @@ END //
 CREATE PROCEDURE updateBackJobMonitoringUnitLeft(IN p_backjob_monitoring_id INT, IN p_unit_left VARCHAR(500), IN p_last_log_by INT)
 BEGIN
       UPDATE backjob_monitoring
-        SET unit_back = p_unit_back,
+        SET unit_left = p_unit_left,
         last_log_by = p_last_log_by
         WHERE backjob_monitoring_id = p_backjob_monitoring_id;
 END //
@@ -14414,7 +14416,7 @@ END //
 CREATE PROCEDURE updateBackJobMonitoringUnitInterior(IN p_backjob_monitoring_id INT, IN p_unit_interior VARCHAR(500), IN p_last_log_by INT)
 BEGIN
       UPDATE backjob_monitoring
-        SET unit_right = p_unit_right,
+        SET unit_interior = p_unit_interior,
         last_log_by = p_last_log_by
         WHERE backjob_monitoring_id = p_backjob_monitoring_id;
 END //
@@ -14519,6 +14521,7 @@ BEGIN
             work_center_id = p_work_center_id,
             completion_date = p_completion_date,
             cost = p_cost,
+            cost_markup = p_job_order,
             job_order = p_job_order,
             planned_start_date = p_planned_start_date,
             planned_finish_date = p_planned_finish_date,
@@ -14536,6 +14539,7 @@ BEGIN
             work_center_id, 
             completion_date, 
             cost, 
+            cost_markup, 
             job_order, 
             planned_start_date, 
             planned_finish_date, 
@@ -14550,6 +14554,7 @@ BEGIN
             p_work_center_id, 
             p_completion_date, 
             p_cost, 
+            p_job_order, 
             p_job_order, 
             p_planned_start_date, 
             p_planned_finish_date, 
@@ -16135,7 +16140,8 @@ BEGIN
         remaining_quantity = GREATEST(remaining_quantity - p_received_quantity, 0), -- prevent negative values
         last_log_by = p_last_log_by
     WHERE 
-        part_incoming_cart_id = p_part_incoming_cart_id;
+        part_incoming_cart_id = p_part_incoming_cart_id
+        AND remaining_quantity >= p_received_quantity;
 END //
 
 CREATE PROCEDURE updatePartsAverageCostAndSRP (

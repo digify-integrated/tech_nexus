@@ -348,6 +348,20 @@ class BackJobMonitoringModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getBackJobMonitoringJobOrderList($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No"');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getBackJobMonitoringAdditionalJobOrderList($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_additional_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No"');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function loadBackJobMonitoringJobOrder($p_backjob_monitoring_id, $p_sales_proposal_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL loadBackJobMonitoringJobOrder(:p_backjob_monitoring_id, :p_sales_proposal_id, :p_last_log_by)');
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);

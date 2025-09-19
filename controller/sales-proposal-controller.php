@@ -21,6 +21,7 @@ class SalesProposalController {
     private $userModel;
     private $productCategoryModel;
     private $productSubcategoryModel;
+    private $contractorModel;
     private $systemSettingModel;
     private $companyModel;
     private $emailSettingModel;
@@ -52,13 +53,14 @@ class SalesProposalController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, ProductModel $productModel, BodyTypeModel $bodyTypeModel, ColorModel $colorModel, ProductSubcategoryModel $productSubcategoryModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, ProductModel $productModel, BodyTypeModel $bodyTypeModel, ColorModel $colorModel, ProductSubcategoryModel $productSubcategoryModel, ContractorModel $contractorModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->salesProposalModel = $salesProposalModel;
         $this->customerModel = $customerModel;
         $this->productModel = $productModel;
         $this->bodyTypeModel = $bodyTypeModel;
         $this->colorModel = $colorModel;
         $this->productSubcategoryModel = $productSubcategoryModel;
+        $this->contractorModel = $contractorModel;
         $this->userModel = $userModel;
         $this->systemSettingModel = $systemSettingModel;
         $this->companyModel = $companyModel;
@@ -2719,6 +2721,46 @@ class SalesProposalController {
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
+        }
+
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $product_id = $salesProposalDetails['product_id'] ?? null;
+        $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+        if(!empty($productID)){
+           $jobOrders = $this->salesProposalModel->getJobOrderList($salesProposalID);
+
+            foreach ($jobOrders as $row) {
+                $sales_proposal_job_order_id  = $row['sales_proposal_job_order_id '];
+                $job_order = $row['job_order'];
+                $job_order = $row['job_order'];
+                $contractor_id = $row['contractor_id'];
+                $cost_markup = $row['cost_markup'];
+
+                $contractorDetails = $this->contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $particulars = $contractor_name . ' - ' . $job_order;
+
+                $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_number . ' - ' . $sales_proposal_job_order_id, $cost_markup, 'Repairs & Maintenance', $particulars, null, $userID);
+            }
+
+            $additionalJobOrders = $this->salesProposalModel->getAdditionalJobOrderList($salesProposalID);
+
+            foreach ($additionalJobOrders as $row) {
+                $sales_proposal_additional_job_order_id  = $row['sales_proposal_additional_job_order_id '];
+                $job_order = $row['particulars'];
+                $contractor_id = $row['contractor_id'];
+                $job_order_number = $row['job_order_number'];
+                $cost_markup = $row['cost_markup'];
+
+                $contractorDetails = $this->contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $particulars = $contractor_name . ' - ' . $job_order_number . ' - ' . $job_order;
+
+                $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_number . ' - ' . $sales_proposal_additional_job_order_id, $cost_markup, 'Repairs & Maintenance', $particulars, null, $userID);
+            }
         }
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Ready For Release', '', $userID);
@@ -5520,6 +5562,7 @@ require_once '../model/file-extension-model.php';
 require_once '../model/notification-setting-model.php';
 require_once '../model/body-type-model.php';
 require_once '../model/color-model.php';
+require_once '../model/contractor-model.php';
 require_once '../model/email-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
@@ -5527,6 +5570,6 @@ require '../assets/libs/PHPMailer/src/PHPMailer.php';
 require '../assets/libs/PHPMailer/src/Exception.php';
 require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new ProductModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new ColorModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new ProductModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new ColorModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new ContractorModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>
