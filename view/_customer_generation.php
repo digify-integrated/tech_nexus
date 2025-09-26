@@ -745,7 +745,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $comakerName = $comakerDetails['file_as'] ?? null;
 
                     $dropdown = '';
-                    if ($deleteCustomerComaker['total'] > 0) {
+                    if ($deleteCustomerComaker['total'] > 0 || $customerWriteAccess['total'] > 0) {
                         $delete = ($deleteCustomerComaker['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item delete-comaker" data-contact-comaker-id="'. $contactComakerID . '">Delete</a>' : '';
 
                         $update = ($customerWriteAccess['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item update-contact-comaker-relation" data-bs-toggle="offcanvas" data-bs-target="#contact-comaker-relation-offcanvas" aria-controls="contact-comaker-relation-offcanvas" data-contact-comaker-id="' . $contactComakerID . '">Edit</a>' : '';

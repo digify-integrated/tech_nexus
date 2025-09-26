@@ -68,6 +68,7 @@
         $downpayment = $pricingComputationDetails['downpayment'] ?? 0;
         $amountFinanced = $pricingComputationDetails['amount_financed'] ?? 0;
         $repaymentAmount = $pricingComputationDetails['repayment_amount'] ?? 0;
+        $interest_rate = $pricingComputationDetails['interest_rate'] ?? 0;
         $pnAmount = $repaymentAmount * $numberOfPayments;
     
         $otherChargesDetails = $salesProposalModel->getSalesProposalOtherCharges($salesProposalID);
@@ -126,6 +127,8 @@
         $crNo = $otherProductDetails['cr_no'] ??  '--';
         $mvFileNo = $otherProductDetails['mv_file_no'] ??  '--';
         $make = $otherProductDetails['make'] ??  '--';
+        $series = $otherProductDetails['series'] ??  '--';
+        $mortgagee = $otherProductDetails['mortgagee'] ??  '';
 
         if($productType == 'Unit'){
             $productDetails = $productModel->getProduct($productID);
@@ -205,7 +208,7 @@
   
     }
 
-    $chattelMortgageTable = generateChattelMortgageTable($make, $engineNumber, $chassisNumber, $plateNumber, $yearModel, $mvFileNo, $bodyTypeName);
+    $chattelMortgageTable = generateChattelMortgageTable($make, $engineNumber, $chassisNumber, $plateNumber, $yearModel, $mvFileNo, $bodyTypeName, $series);
 
     ob_start();
 
@@ -243,24 +246,24 @@
     $pdf->Ln(2);
     $pdf->MultiCell(0, 0, 'and', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(2);
-    $pdf->MultiCell(0, 0, '<b><u>'. $receivedFrom .'</u></b>, a corporation duly organized and existing under Philippine Laws, with principal office at KM 112, Maharlika Highway, Cabanatuan City, herein represented by <b><u>'. $receivedFromAddress .'</u></b>,
+    $pdf->MultiCell(0, 0, 'CHRISTIAN GENERAL MOTORS INC., a corporation duly organized and existing under Philippine Laws, with principal office at KM 112, Maharlika Highway, Cabanatuan City, herein represented by <b><u>'. $mortgagee .'</u></b>,
     hereinafter referred to as "MORTGAGEE"', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '<b>WITHNESSETH</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'That the MORTGAGOR is indepted unto the MORTGAGEE in the sum of <b><u>'. strtoupper($amountInWords->format($totalPn)) .'  (PHP '. number_format($totalPn, 2) .')</u></b>, Philippine Currency, receipt of which is acknowledged by the MORTGAGOR upon the signing of this instrument, payable within a period of <b><u>'. $termLength .' '. strtoupper($termType) .'</u></b>, with interest thereon at the rate of (_________) % per annum;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'That the MORTGAGOR is indepted unto the MORTGAGEE in the sum of <b><u>'. strtoupper($amountInWords->format($totalPn)) .'  (PHP '. number_format($totalPn, 2) .')</u></b>, Philippine Currency, receipt of which is acknowledged by the MORTGAGOR upon the signing of this instrument, payable within a period of <b><u>'. $termLength .' '. strtoupper($termType) .'</u></b>, with interest thereon at the rate of (<u>'. $interest_rate .'</u>) % per annum;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'That for, and consideration of, this indebtedness, and to assure the performance of said obligation to pay, the MORTGAGOR hereby conveys by way of CHATTEL MORTGAGE unto the MORTGAGEE, his heirs and assigns, the following personality now in the possession of said MORTGAGOR', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(6);
     $pdf->writeHTML($chattelMortgageTable, true, false, true, false, '');
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'That the condition of this obligation is that should the MORTGAGOR perform the obligation to pay the hereinabove cited indebtedness of ____________________________________ (PHP______________) together with accrued interest thereon, this chattel mortgage shall at once become null and void and of no effect whatsoever, otherwise, it shall remain in full force and effect.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'That the condition of this obligation is that should the MORTGAGOR perform the obligation to pay the hereinabove cited indebtedness of '. $amountInWords->format($pnAmount) .' (PHP '. $pnAmount .') together with accrued interest thereon, this chattel mortgage shall at once become null and void and of no effect whatsoever, otherwise, it shall remain in full force and effect.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'IN WITNESS WHEREOF, the parties have hereunto set their hands, this________, day of_______ 2016______ at ___________________________ Philippines.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->Cell(90, 4, $customerName, 'B', 0 , 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
-    $pdf->Cell(90, 4, $receivedFrom, 'B', 0, 'C');
+    $pdf->Cell(90, 4, $mortgagee, 'B', 0, 'C');
     $pdf->Ln(5);
     $pdf->Cell(90, 8, 'MORTGAGOR', 0, 0, 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
@@ -285,7 +288,7 @@
     $pdf->Output('chattel-mortgage.pdf', 'I');
     ob_end_flush();
 
-    function generateChattelMortgageTable($make, $engineNumber, $chassisNumber, $plateNumber, $yearModel, $mvFileNo, $bodyTypeName){
+    function generateChattelMortgageTable($make, $engineNumber, $chassisNumber, $plateNumber, $yearModel, $mvFileNo, $bodyTypeName, $series){
         $response = '<table border="0.5" width="100%" cellpadding="2" >
                         <tbody>
                         <tr>
@@ -296,7 +299,7 @@
                         </tr>
                         <tr>
                             <td>Series</td>
-                            <td></td>
+                            <td>'. $series .'</td>
                             <td>Serial/Chassis No.</td>
                             <td>'. $chassisNumber .'</td>
                         </tr>

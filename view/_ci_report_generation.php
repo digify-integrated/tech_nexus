@@ -19,6 +19,7 @@ require_once '../model/loan-type-model.php';
 require_once '../model/cmap-report-type-model.php';
 require_once '../model/asset-type-model.php';
 require_once '../model/bank-adb-model.php';
+require_once '../model/bank-handling-type-model.php';
 require_once '../model/ci-report-model.php';
 require_once '../model/ci-file-type-model.php';
 
@@ -40,6 +41,7 @@ $cmapReportTypeModel = new CMAPReportTypeModel($databaseModel);
 $assetTypeModel = new AssetTypeModel($databaseModel);
 $ciReportModel = new CIReportModel($databaseModel);
 $bankADBModel = new BankADBModel($databaseModel);
+$bankHandlingTypeModel = new BankHandlingTypeModel($databaseModel);
 $ciFileTypeModel = new CIFileTypeModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -439,8 +441,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $currency_id = $row['currency_id'];                    
                     $date_open = $systemModel->checkDate('summary', $row['date_open'], '', 'm/d/Y', '');
                     $bank_adb_id = $row['bank_adb_id'];
+                    $bank_handling_type_id = $row['bank_handling_type_id'];
 
                     $bankAccountTypeName = $bankAccountTypeModel->getBankAccountType($bank_account_type_id)['bank_account_type_name'] ?? null;
+                    $bankHandlingTypeName = $bankHandlingTypeModel->getBankHandlingType($bank_handling_type_id)['bank_handling_type_name'] ?? null;
                     $currencyName = $currencyModel->getCurrency($currency_id)['currency_name'] ?? null;
 
                     $bankADBName = $bankADBModel->getBankADB($bank_adb_id)['bank_adb_name'] ?? null;
@@ -462,6 +466,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'CURRENCY' => $currencyName,
                         'DATE_OPEN' => $date_open,
                         'ADB' => $bankADBName,
+                        'BANK_HANDLING' => $bankHandlingTypeName,
                         'AVERAGE' => number_format($average, 2) . ' PHP',
                         'ACTION' => '<div class="d-flex gap-2">
                                         <button type="button" class="btn btn-icon btn-success update-ci-report-bank" data-bs-toggle="modal" data-bs-target="#ci-bank-modal" data-ci-report-bank-id="'. $ci_report_bank_id .'" title="Update Bank">

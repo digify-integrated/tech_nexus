@@ -140,6 +140,20 @@ class BackJobMonitoringModel {
         $stmt->execute();
     }
 
+     public function updateBackjobJobOrderExpenseCreatedDate($backjob_monitoring_job_order_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE backjob_monitoring_job_order SET expense_created = NOW(), last_log_by = :p_last_log_by WHERE backjob_monitoring_job_order_id = :backjob_monitoring_job_order_id');
+        $stmt->bindValue(':backjob_monitoring_job_order_id', $backjob_monitoring_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateBackjobAdditionalJobOrderExpenseCreatedDate($backjob_monitoring_additional_job_order_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE backjob_monitoring_additional_job_order SET expense_created = NOW(), last_log_by = :p_last_log_by WHERE backjob_monitoring_additional_job_order_id = :backjob_monitoring_additional_job_order_id');
+        $stmt->bindValue(':backjob_monitoring_additional_job_order_id', $backjob_monitoring_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function updateBackJobMonitoringAsReleased($p_backjob_monitoring_id, $p_status, $p_release_remarks, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringAsReleased(:p_backjob_monitoring_id, :p_status, :p_release_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
@@ -349,14 +363,14 @@ class BackJobMonitoringModel {
     }
 
     public function getBackJobMonitoringJobOrderList($p_sales_proposal_id) {
-        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No"');
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No" AND (expense_created IS NULL OR expense_created = "")');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getBackJobMonitoringAdditionalJobOrderList($p_sales_proposal_id) {
-        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_additional_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No"');
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_additional_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No" AND (expense_created IS NULL OR expense_created = "")');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

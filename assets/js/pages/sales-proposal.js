@@ -959,6 +959,9 @@
                                 else if (response.comakerConfirmation) {
                                     showNotification('For Review Error', 'Please upload the comaker confirmation first.', 'danger');
                                 } 
+                                else if (response.comakerRelation) {
+                                    showNotification('For Review Error', 'Please update the comaker relation first.', 'danger');
+                                } 
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }

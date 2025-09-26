@@ -1618,12 +1618,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
                     $action = '';
-                    if($updateJobOrderProgress['total'] > 0 && $salesProposalStatus == 'On-Process'){
-                        $action = '<button type="button" class="btn btn-icon btn-success update-sales-proposal-job-order-monitoring" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-monitoring-offcanvas" aria-controls="sales-proposal-job-order-monitoring-offcanvas" data-sales-proposal-job-order-id="'. $salesProposalJobOrderID .'" title="Update Job Order Progress">
-                            <i class="ti ti-edit"></i>
-                        </button>';
+                    if($updateJobOrderProgress['total'] > 0){
+                        if($salesProposalStatus == 'On-Process' || $salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){
+                            $action .= '<button type="button" class="btn btn-icon btn-success update-sales-proposal-job-order-monitoring" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-monitoring-offcanvas" aria-controls="sales-proposal-job-order-monitoring-offcanvas" data-sales-proposal-job-order-id="'. $salesProposalJobOrderID .'" title="Update Job Order Progress">
+                                <i class="ti ti-edit"></i>
+                            </button>';
+                        }
 
-                        if(empty($cancellation_reason)){
+                        if(empty($cancellation_reason) && $salesProposalStatus == 'On-Process'){
                             $action .= '<button type="button" class="btn btn-icon btn-warning cancel-sales-proposal-job-order-monitoring" data-bs-target="#sales-proposal-job-order-cancel-offcanvas" aria-controls="sales-proposal-job-order-cancel-offcanvas" data-bs-toggle="offcanvas" data-sales-proposal-job-order-id="'. $salesProposalJobOrderID .'" title="Cancel Job Order Progress">
                                 <i class="ti ti-x"></i>
                             </button>';
@@ -1822,12 +1824,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
 
                     $action = '';
-                    if($updateJobOrderProgress['total'] > 0 && $salesProposalStatus == 'On-Process'){
-                        $action = '<button type="button" class="btn btn-icon btn-success update-sales-proposal-additional-job-order-monitoring" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-monitoring-offcanvas" aria-controls="sales-proposal-additional-job-order-monitoring-offcanvas" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Update Additional Job Order Progress">
-                            <i class="ti ti-edit"></i>
-                        </button>';
+                    if($updateJobOrderProgress['total'] > 0){
+                        if($salesProposalStatus == 'On-Process' || $salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){
+                            $action .= '<button type="button" class="btn btn-icon btn-success update-sales-proposal-additional-job-order-monitoring" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-monitoring-offcanvas" aria-controls="sales-proposal-additional-job-order-monitoring-offcanvas" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Update Additional Job Order Progress">
+                                <i class="ti ti-edit"></i>
+                            </button>';
+                        }
+                       
 
-                        if(empty($cancellation_reason)){
+                        if(empty($cancellation_reason) && $salesProposalStatus == 'On-Process'){
                             $action .= '<button type="button" class="btn btn-icon btn-warning cancel-sales-proposal-additional-job-order-monitoring" data-bs-target="#sales-proposal-additional-job-order-cancel-offcanvas" aria-controls="sales-proposal-additional-job-order-cancel-offcanvas" data-bs-toggle="offcanvas" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Cancel Additional Job Order Progress">
                                 <i class="ti ti-x"></i>
                             </button>';

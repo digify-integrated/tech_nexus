@@ -2724,14 +2724,14 @@ class SalesProposalController {
         }
 
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
-        $product_id = $salesProposalDetails['product_id'] ?? null;
-        $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+        $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
+        $productID = $salesProposalDetails['product_id'];
 
         if(!empty($productID)){
-           $jobOrders = $this->salesProposalModel->getJobOrderList($salesProposalID);
+            $jobOrders = $this->salesProposalModel->getJobOrderList($salesProposalID);
 
             foreach ($jobOrders as $row) {
-                $sales_proposal_job_order_id  = $row['sales_proposal_job_order_id '];
+                $sales_proposal_job_order_id  = $row['sales_proposal_job_order_id'];
                 $job_order = $row['job_order'];
                 $job_order = $row['job_order'];
                 $contractor_id = $row['contractor_id'];
@@ -2742,13 +2742,15 @@ class SalesProposalController {
 
                 $particulars = $contractor_name . ' - ' . $job_order;
 
-                $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_number . ' - ' . $sales_proposal_job_order_id, $cost_markup, 'Repairs & Maintenance', $particulars, null, $userID);
+                $this->productModel->insertProductExpense($productID, 'Contractor Report', $salesProposalNumber . ' - ' . $sales_proposal_job_order_id, $cost_markup, 'Repairs & Maintenance', $particulars, null, $userID);
+
+                $this->salesProposalModel->updateJobOrderExpenseCreatedDate($sales_proposal_job_order_id, $userID);
             }
 
             $additionalJobOrders = $this->salesProposalModel->getAdditionalJobOrderList($salesProposalID);
 
             foreach ($additionalJobOrders as $row) {
-                $sales_proposal_additional_job_order_id  = $row['sales_proposal_additional_job_order_id '];
+                $sales_proposal_additional_job_order_id  = $row['sales_proposal_additional_job_order_id'];
                 $job_order = $row['particulars'];
                 $contractor_id = $row['contractor_id'];
                 $job_order_number = $row['job_order_number'];
@@ -2759,7 +2761,9 @@ class SalesProposalController {
 
                 $particulars = $contractor_name . ' - ' . $job_order_number . ' - ' . $job_order;
 
-                $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_number . ' - ' . $sales_proposal_additional_job_order_id, $cost_markup, 'Repairs & Maintenance', $particulars, null, $userID);
+                $this->productModel->insertProductExpense($productID, 'Contractor Report', $salesProposalNumber . ' - ' . $sales_proposal_additional_job_order_id, $cost_markup, 'Repairs & Maintenance', $particulars, null, $userID);
+
+                $this->salesProposalModel->updateAdditionalJobOrderExpenseCreatedDate($sales_proposal_additional_job_order_id, $userID);
             }
         }
     
@@ -2853,6 +2857,7 @@ class SalesProposalController {
         $productID = $salesProposalDetails['product_id'] ?? null;
         $companyID = $salesProposalDetails['company_id'] ?? null;
         $transactionType = $salesProposalDetails['transaction_type'] ?? null;
+        $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
 
         $loanNumber = $salesProposalDetails['loan_number'] ?? null;
 
@@ -3485,6 +3490,9 @@ class SalesProposalController {
         $releaseTo = htmlspecialchars($_POST['release_to'], ENT_QUOTES, 'UTF-8');
         $productDescription = $_POST['product_description'];
         $drNumber = htmlspecialchars($_POST['dr_number'], ENT_QUOTES, 'UTF-8');
+        $series = htmlspecialchars($_POST['series'], ENT_QUOTES, 'UTF-8');
+        $issued_by = htmlspecialchars($_POST['issued_by'], ENT_QUOTES, 'UTF-8');
+        $mortgagee = htmlspecialchars($_POST['mortgagee'], ENT_QUOTES, 'UTF-8');
         $businessStyle = $_POST['business_style'];
         $invoice_number = $_POST['invoice_number'];
         $si = $_POST['si'];
@@ -3504,13 +3512,13 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalActualStartDate($salesProposalID, $drNumber, $releaseTo, $startDate, $userID);
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $invoice_number, $userID);
+            $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $invoice_number, $series, $issued_by, $mortgagee, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->salesProposalModel->insertSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $invoice_number, $userID);
+            $this->salesProposalModel->insertSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $invoice_number, $series, $issued_by, $mortgagee, $userID);
 
             echo json_encode(['success' => true]);
             exit;

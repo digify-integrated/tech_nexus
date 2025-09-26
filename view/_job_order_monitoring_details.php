@@ -102,6 +102,13 @@
     </div>
   </div>
 
+  <?php
+    if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){
+      $readonly = 'readonly';
+      $disabled = 'disabled';
+    }
+  ?>
+
   <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-job-order-monitoring-offcanvas" aria-labelledby="sales-proposal-job-order-monitoring-offcanvas-label">
       <div class="offcanvas-header">
@@ -114,9 +121,10 @@
           <form id="job-order-progress-form" method="post" action="#">
             <div class="form-group row">
              <input type="hidden" id="sales_proposal_job_order_id" name="sales_proposal_job_order_id">
+             <input type="hidden" id="sp_status" name="sp_status" value="<?php echo $salesProposalStatus; ?>">
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label" for="job_order_cost">Charge to Customer <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01">
+                <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01" <?php echo $readonly; ?>>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label" for="job_cost">Job Order Cost <span class="text-danger">*</span></label>
@@ -126,11 +134,11 @@
             <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="job_order_progress" name="job_order_progress" min="0" max="100" step="0.01">
+                <input type="number" class="form-control" id="job_order_progress" name="job_order_progress" min="0" max="100" step="0.01" <?php echo $readonly; ?>>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Contractor</label>
-                <select class="form-control offcanvas-select2" name="job_order_contractor_id" id="job_order_contractor_id">
+                <select class="form-control offcanvas-select2" name="job_order_contractor_id" id="job_order_contractor_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $contractorModel->generateContractorOptions(); ?>
                 </select>
@@ -139,14 +147,14 @@
             <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Work Center</label>
-                <select class="form-control offcanvas-select2" name="job_order_work_center_id" id="job_order_work_center_id">
+                <select class="form-control offcanvas-select2" name="job_order_work_center_id" id="job_order_work_center_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $workCenterModel->generateWorkCenterOptions(); ?>
                 </select>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Backjob? <span class="text-danger">*</span></label>
-                <select class="form-control" name="job_order_backjob" id="job_order_backjob">
+                <select class="form-control" name="job_order_backjob" id="job_order_backjob" <?php echo $disabled; ?>>
                   <option value="No" selected>No</option>
                   <option value="Yes">Yes</option>
                 </select>
@@ -156,7 +164,7 @@
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Planned Start Date</label>
                 <div class="input-group date">
-                  <input type="text" class="form-control regular-datepicker" id="job_order_planned_start_date" name="job_order_planned_start_date" autocomplete="off">
+                  <input type="text" class="form-control regular-datepicker" id="job_order_planned_start_date" name="job_order_planned_start_date" autocomplete="off" <?php echo $readonly; ?>>
                     <span class="input-group-text">
                       <i class="feather icon-calendar"></i>
                     </span>
@@ -165,7 +173,7 @@
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Planned Finish Date</label>
                 <div class="input-group date">
-                  <input type="text" class="form-control regular-datepicker" id="job_order_planned_finish_date" name="job_order_planned_finish_date" autocomplete="off">
+                  <input type="text" class="form-control regular-datepicker" id="job_order_planned_finish_date" name="job_order_planned_finish_date" autocomplete="off" <?php echo $readonly; ?>>
                     <span class="input-group-text">
                       <i class="feather icon-calendar"></i>
                     </span>
@@ -176,7 +184,7 @@
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Date Started</label>
                 <div class="input-group date">
-                  <input type="text" class="form-control regular-datepicker" id="job_order_date_started" name="job_order_date_started" autocomplete="off">
+                  <input type="text" class="form-control regular-datepicker" id="job_order_date_started" name="job_order_date_started" autocomplete="off" <?php echo $readonly; ?>>
                     <span class="input-group-text">
                       <i class="feather icon-calendar"></i>
                     </span>
@@ -185,7 +193,7 @@
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Completion Date</label>
                 <div class="input-group date">
-                  <input type="text" class="form-control regular-datepicker" id="job_order_completion_date" name="job_order_completion_date" autocomplete="off">
+                  <input type="text" class="form-control regular-datepicker" id="job_order_completion_date" name="job_order_completion_date" autocomplete="off" <?php echo $readonly; ?>>
                     <span class="input-group-text">
                       <i class="feather icon-calendar"></i>
                     </span>
@@ -195,7 +203,7 @@
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label" for="job_order_remarks">Remarks</label>
-                <textarea class="form-control" id="job_order_remarks" name="job_order_remarks" maxlength="1000"></textarea>
+                <textarea class="form-control" id="job_order_remarks" name="job_order_remarks" maxlength="1000" <?php echo $readonly; ?>></textarea>
               </div>
             </div>
           </form>
@@ -224,7 +232,7 @@
             <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label" for="additional_job_order_cost">Charge to Customer <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="additional_job_order_cost" name="additional_job_order_cost" min="0" step="0.01">
+                <input type="number" class="form-control" id="additional_job_order_cost" name="additional_job_order_cost" min="0" step="0.01" <?php echo $readonly; ?>>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label" for="additional_job_cost">Additional Job Order Cost <span class="text-danger">*</span></label>
@@ -234,11 +242,11 @@
             <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="additional_job_order_progress" name="additional_job_order_progress" min="0" max="100" step="0.01">
+                <input type="number" class="form-control" id="additional_job_order_progress" name="additional_job_order_progress" min="0" max="100" step="0.01" <?php echo $readonly; ?>>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Contractor</label>
-                <select class="form-control offcanvas-select2" name="additional_job_order_contractor_id" id="additional_job_order_contractor_id">
+                <select class="form-control offcanvas-select2" name="additional_job_order_contractor_id" id="additional_job_order_contractor_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $contractorModel->generateContractorOptions(); ?>
                 </select>
@@ -247,14 +255,14 @@
             <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Work Center</label>
-                <select class="form-control offcanvas-select2" name="additional_job_order_work_center_id" id="additional_job_order_work_center_id">
+                <select class="form-control offcanvas-select2" name="additional_job_order_work_center_id" id="additional_job_order_work_center_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $workCenterModel->generateWorkCenterOptions(); ?>
                 </select>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Backjob? <span class="text-danger">*</span></label>
-                <select class="form-control" name="additional_job_order_backjob" id="additional_job_order_backjob">
+                <select class="form-control" name="additional_job_order_backjob" id="additional_job_order_backjob" <?php echo $disabled; ?>>
                   <option value="No" selected>No</option>
                   <option value="Yes">Yes</option>
                 </select>
@@ -264,7 +272,7 @@
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Planned Start Date</label>
                 <div class="input-group date">
-                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_planned_start_date" name="additional_job_order_planned_start_date" autocomplete="off">
+                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_planned_start_date" name="additional_job_order_planned_start_date" autocomplete="off" <?php echo $readonly; ?>>
                     <span class="input-group-text">
                       <i class="feather icon-calendar"></i>
                     </span>
@@ -273,7 +281,7 @@
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Planned Finish Date</label>
                 <div class="input-group date">
-                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_planned_finish_date" name="additional_job_order_planned_finish_date" autocomplete="off">
+                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_planned_finish_date" name="additional_job_order_planned_finish_date" autocomplete="off" <?php echo $readonly; ?>>
                     <span class="input-group-text">
                       <i class="feather icon-calendar"></i>
                     </span>
@@ -284,7 +292,7 @@
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Date Started</label>
                 <div class="input-group date">
-                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_date_started" name="additional_job_order_date_started" autocomplete="off">
+                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_date_started" name="additional_job_order_date_started" autocomplete="off" <?php echo $readonly; ?>>
                     <span class="input-group-text">
                       <i class="feather icon-calendar"></i>
                     </span>
@@ -293,7 +301,7 @@
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Completion Date</label>
                 <div class="input-group date">
-                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_completion_date" name="additional_job_order_completion_date" autocomplete="off">
+                  <input type="text" class="form-control regular-datepicker" id="additional_job_order_completion_date" name="additional_job_order_completion_date" autocomplete="off" <?php echo $readonly; ?>>
                     <span class="input-group-text">
                       <i class="feather icon-calendar"></i>
                     </span>
@@ -303,13 +311,13 @@
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Approval Document</label>
-                <input type="file" class="form-control" id="approval_document" name="approval_document">
+                <input type="file" class="form-control" id="approval_document" name="approval_document" <?php echo $readonly; ?>>
               </div>
             </div>
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label" for="additional_job_order_remarks">Remarks</label>
-                <textarea class="form-control" id="additional_job_order_remarks" name="additional_job_order_remarks" maxlength="1000"></textarea>
+                <textarea class="form-control" id="additional_job_order_remarks" name="additional_job_order_remarks" maxlength="1000" <?php echo $readonly; ?>></textarea>
               </div>
             </div>
           </form>

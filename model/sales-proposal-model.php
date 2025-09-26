@@ -259,6 +259,20 @@ class SalesProposalModel {
         $stmt->execute();
     }
 
+    public function updateJobOrderExpenseCreatedDate($p_sales_proposal_job_order_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal_job_order SET expense_created = NOW(), last_log_by = :p_last_log_by WHERE sales_proposal_job_order_id = :p_sales_proposal_job_order_id');
+        $stmt->bindValue(':p_sales_proposal_job_order_id', $p_sales_proposal_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateAdditionalJobOrderExpenseCreatedDate($sales_proposal_additional_job_order_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal_additional_job_order SET expense_created = NOW(), last_log_by = :p_last_log_by WHERE sales_proposal_additional_job_order_id = :sales_proposal_additional_job_order_id');
+        $stmt->bindValue(':sales_proposal_additional_job_order_id', $sales_proposal_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function cancelSalesProposalJobOrderProgress($p_sales_proposal_job_order_id, $p_cancellation_reason, $p_cancellation_confirmation, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL cancelSalesProposalJobOrderProgress(:p_sales_proposal_job_order_id, :p_cancellation_reason, :p_cancellation_confirmation, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_job_order_id', $p_sales_proposal_job_order_id, PDO::PARAM_INT);
@@ -777,8 +791,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_business_style, $p_si, $p_di, $p_invoice_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_business_style, :p_si, :p_di, :p_invoice_number, :p_last_log_by)');
+    public function updateSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_business_style, $p_si, $p_di, $p_invoice_number, $p_series, $p_issued_by, $p_mortgagee, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_business_style, :p_si, :p_di, :p_invoice_number, :p_series, :p_issued_by, :p_mortgagee, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
         $stmt->bindValue(':p_cr_no', $p_cr_no, PDO::PARAM_STR);
@@ -789,6 +803,9 @@ class SalesProposalModel {
         $stmt->bindValue(':p_si', $p_si, PDO::PARAM_STR);
         $stmt->bindValue(':p_di', $p_di, PDO::PARAM_STR);
         $stmt->bindValue(':p_invoice_number', $p_invoice_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_series', $p_series, PDO::PARAM_STR);
+        $stmt->bindValue(':p_issued_by', $p_issued_by, PDO::PARAM_STR);
+        $stmt->bindValue(':p_mortgagee', $p_mortgagee, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -1228,8 +1245,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_business_style, $p_si, $p_di, $p_invoice_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_business_style, :p_si, :p_di, :p_invoice_number, :p_last_log_by)');
+    public function insertSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_business_style, $p_si, $p_di, $p_invoice_number, $p_series, $p_issued_by, $p_mortgagee, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_business_style, :p_si, :p_di, :p_invoice_number, :p_series, :p_issued_by, :p_mortgagee, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
         $stmt->bindValue(':p_cr_no', $p_cr_no, PDO::PARAM_STR);
@@ -1240,6 +1257,9 @@ class SalesProposalModel {
         $stmt->bindValue(':p_si', $p_si, PDO::PARAM_STR);
         $stmt->bindValue(':p_di', $p_di, PDO::PARAM_STR);
         $stmt->bindValue(':p_invoice_number', $p_invoice_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_series', $p_series, PDO::PARAM_STR);
+        $stmt->bindValue(':p_issued_by', $p_issued_by, PDO::PARAM_INT);
+        $stmt->bindValue(':p_mortgagee', $p_mortgagee, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -1939,14 +1959,14 @@ class SalesProposalModel {
     }
 
     public function getJobOrderList($p_sales_proposal_id) {
-        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No"');
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No" AND (expense_created IS NULL OR expense_created = ""');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getAdditionalJobOrderList($p_sales_proposal_id) {
-        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_additional_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No"');
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM sales_proposal_additional_job_order WHERE sales_proposal_id = :p_sales_proposal_id AND progress = "100" AND backjob = "No" AND (expense_created IS NULL OR expense_created = ""');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

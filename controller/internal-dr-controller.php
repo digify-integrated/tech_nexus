@@ -497,6 +497,8 @@ class InternalDRController {
 
         if($drType === 'Backjob' || $drType === 'Warranty'){
             $this->internalDRModel->updateSalesProposalBackjobProgress($backjob_monitoring_id, $userID);
+
+            
         }
 
         echo json_encode(['success' => true]);

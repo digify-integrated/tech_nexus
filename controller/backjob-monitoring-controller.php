@@ -1437,11 +1437,10 @@ class BackJobMonitoringController {
         $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
         $type = $backJobMonitoringDetails['type'];
         $sales_proposal_id = $backJobMonitoringDetails['sales_proposal_id'] ?? null;
-        $product_id = $backJobMonitoringDetails['product_id'] ?? null;
-        $cost_markup = $backJobMonitoringDetails['cost_markup'] ?? null;
         $outgoing_checklist = $backJobMonitoringDetails['outgoing_checklist'];
         $quality_control_form = $backJobMonitoringDetails['quality_control_form'];
         $unit_image = $backJobMonitoringDetails['unit_image'];
+        $product_id = $backJobMonitoringDetails['product_id'] ?? null;
 
         $total = $this->backJobMonitoringModel->getBackJobMonitoringJobOrderCount($backjobMonitoringID, 'unfinished')['total'];
 
@@ -1465,7 +1464,7 @@ class BackJobMonitoringController {
         $jobOrders = $this->backJobMonitoringModel->getBackJobMonitoringJobOrderList($backjobMonitoringID);
 
         foreach ($jobOrders as $row) {
-            $backjob_monitoring_job_order_id  = $row['backjob_monitoring_job_order_id'];
+            $backjob_monitoring_job_order_id = $row['backjob_monitoring_job_order_id'];
             $job_order = $row['job_order'];
             $contractor_id = $row['contractor_id'];
             $cost_markup = $row['cost_markup'];
@@ -1476,12 +1475,14 @@ class BackJobMonitoringController {
             $particulars = $contractor_name . ' - ' . $job_order;
 
             $this->productModel->insertProductExpense($product_id, 'Contractor Report', $reference_number . ' - ' . $backjob_monitoring_job_order_id, $cost_markup, 'Repairs & Maintenance', $particulars, null, $userID);
+
+            $this->backJobMonitoringModel->updateBackjobJobOrderExpenseCreatedDate($backjob_monitoring_job_order_id, $userID);
         }
 
         $additionalJobOrders = $this->backJobMonitoringModel->getBackJobMonitoringAdditionalJobOrderList($backjobMonitoringID);
 
         foreach ($additionalJobOrders as $row) {
-            $backjob_monitoring_additional_job_order_id  = $row['backjob_monitoring_additional_job_order_id'];
+            $backjob_monitoring_additional_job_order_id = $row['backjob_monitoring_additional_job_order_id'];
             $job_order = $row['particulars'];
             $contractor_id = $row['contractor_id'];
             $job_order_number = $row['job_order_number'];
@@ -1493,7 +1494,9 @@ class BackJobMonitoringController {
             $particulars = $contractor_name . ' - ' . $job_order_number . ' - ' . $job_order;
 
             $this->productModel->insertProductExpense($product_id, 'Contractor Report', $reference_number . ' - ' . $backjob_monitoring_additional_job_order_id, $cost_markup, 'Repairs & Maintenance', $particulars, null, $userID);
-        }      
+
+            $this->backJobMonitoringModel->updateBackjobAdditionalJobOrderExpenseCreatedDate($backjob_monitoring_additional_job_order_id, $userID);
+        }
     
         $this->backJobMonitoringModel->updateBackJobMonitoringAsReadyForRelease($backjobMonitoringID, 'Ready For Release', $userID);
 

@@ -100,6 +100,7 @@
   <div class="col-lg-12">
     <ul class="nav nav-tabs analytics-tab" id="myTab" role="tablist">
         <li class="nav-item" role="presentation"><button class="nav-link active" id="customer" data-bs-toggle="tab" data-bs-target="#customer-pane" type="button" role="tab" aria-controls="customer-pane" aria-selected="false" tabindex="-1">Customer Details</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="contact-information" data-bs-toggle="tab" data-bs-target="#contact-information-pane" type="button" role="tab" aria-controls="contact-information-pane" aria-selected="false" tabindex="-1">Contact Information</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="residence" data-bs-toggle="tab" data-bs-target="#residence-pane" type="button" role="tab" aria-controls="residence-pane" aria-selected="false" tabindex="-1">Residence</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="dependents" data-bs-toggle="tab" data-bs-target="#dependents-pane" type="button" role="tab" aria-controls="dependents-pane" aria-selected="false" tabindex="-1">Dependents</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="business" data-bs-toggle="tab" data-bs-target="#business-pane" type="button" role="tab" aria-controls="business-pane" aria-selected="false" tabindex="-1">Business</button></li>
@@ -121,6 +122,15 @@
                 <div class="card-body" id="personal-information-summary"></div>
             </div>
         </div>
+        
+        <div class="tab-pane fade" id="contact-information-pane" role="tabpanel" aria-labelledby="contact-information" tabindex="0">
+            <div class="card">
+                <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-information-summary"></ul>
+                </div>
+            </div>
+        </div>
+
         <div class="tab-pane fade" id="residence-pane" role="tabpanel" aria-labelledby="residence" tabindex="0">
             <div class="row">
                 <div class="col-lg-8">
@@ -203,6 +213,7 @@
                 </div>
             </div>
         </div>
+
 
         <div class="tab-pane fade" id="dependents-pane" role="tabpanel" aria-labelledby="dependents" tabindex="0">
              <div class="row">
@@ -452,6 +463,7 @@
                                         <th>Date Open</th>
                                         <th>ADB</th>
                                         <th>Average Deposit</th>
+                                        <th>Handling</th>
                                         <th>Actions</th>
                                     </tr>
                                     </thead>

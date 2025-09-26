@@ -436,6 +436,10 @@ function salesProposalJobOrderProgressForm(){
             }
         },
         submitHandler: function(form) {
+            document.getElementById("job_order_contractor_id").disabled = false;
+            document.getElementById("job_order_work_center_id").disabled = false;
+            document.getElementById("job_order_backjob").disabled = false;
+
             const transaction = 'save sales proposal progress job order';
         
             $.ajax({
@@ -473,6 +477,12 @@ function salesProposalJobOrderProgressForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-job-order-progress', 'Save');
+
+                    if($('#sp_status').val() == 'Ready For Release' || $('#sp_status').val() == 'For DR'){
+                        document.getElementById("job_order_contractor_id").disabled = true;
+                        document.getElementById("job_order_work_center_id").disabled = true;
+                        document.getElementById("job_order_backjob").disabled = true;
+                    }
                     
                     $('#sales-proposal-job-order-monitoring-offcanvas').offcanvas('hide');
                 }
@@ -548,6 +558,10 @@ function salesProposalAdditionalJobOrderProgressForm(){
             }
         },
         submitHandler: function(form) {
+                        document.getElementById("additional_job_order_contractor_id").disabled = false;
+                        document.getElementById("additional_job_order_work_center_id").disabled = false;
+                        document.getElementById("additional_job_order_backjob").disabled = false;
+
             const transaction = 'save sales proposal progress additional job order';
 
             var formData = new FormData(form);
@@ -590,6 +604,12 @@ function salesProposalAdditionalJobOrderProgressForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
+                     if($('#sp_status').val() == 'Ready For Release' || $('#sp_status').val() == 'For DR'){
+                        document.getElementById("additional_job_order_contractor_id").disabled = true;
+                        document.getElementById("additional_job_order_work_center_id").disabled = true;
+                        document.getElementById("additional_job_order_backjob").disabled = true;
+                    }
+
                     enableFormSubmitButton('submit-additional-job-order-progress', 'Save');
                     $('#sales-proposal-additional-job-order-monitoring-offcanvas').offcanvas('hide');
                 }

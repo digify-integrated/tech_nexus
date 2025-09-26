@@ -8170,7 +8170,7 @@ BEGIN
 	UPDATE sales_proposal_job_order
     SET progress = p_progress,
     cost = p_cost,
-    cost_markup = p_job_cost,
+    cost_markup = (p_job_cost * 1.30),
     job_cost = p_job_cost,
     contractor_id = p_contractor_id,
     work_center_id = p_work_center_id,
@@ -8189,7 +8189,7 @@ BEGIN
 	UPDATE sales_proposal_additional_job_order
     SET progress = p_progress,
     cost = p_cost,
-    cost_markup = p_job_cost,
+    cost_markup = (p_job_cost * 1.30),
     job_cost = p_job_cost,
     contractor_id = p_contractor_id,
     work_center_id = p_work_center_id,
@@ -9178,13 +9178,13 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE insertSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_si DOUBLE, IN p_di DOUBLE, IN p_invoice_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE insertSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_si DOUBLE, IN p_di DOUBLE, IN p_invoice_number VARCHAR(100), IN p_series VARCHAR(500), IN p_issued_by VARCHAR(500), IN p_mortgagee VARCHAR(500), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO sales_proposal_other_product_details (sales_proposal_id, year_model, cr_no, mv_file_no, make, product_description, business_style, si, di, invoice_number, last_log_by) 
-	VALUES(p_sales_proposal_id, p_year_model, p_cr_no, p_mv_file_no, p_make, p_product_description, p_business_style, p_si, p_di, p_invoice_number, p_last_log_by);
+    INSERT INTO sales_proposal_other_product_details (sales_proposal_id, year_model, cr_no, mv_file_no, make, product_description, business_style, si, di, invoice_number, series, issued_by, mortgagee, last_log_by) 
+	VALUES(p_sales_proposal_id, p_year_model, p_cr_no, p_mv_file_no, p_make, p_product_description, p_business_style, p_si, p_di, p_invoice_number, p_series, p_issued_by, p_mortgagee, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_si DOUBLE, IN p_di DOUBLE, IN p_invoice_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_si DOUBLE, IN p_di DOUBLE, IN p_invoice_number VARCHAR(100), IN p_series VARCHAR(500), IN p_issued_by VARCHAR(500), IN p_mortgagee VARCHAR(500), IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_other_product_details
     SET year_model = p_year_model,
@@ -9196,6 +9196,9 @@ BEGIN
     si = p_si,
     di = p_di,
     invoice_number = p_invoice_number,
+    series = p_series,
+    issued_by = p_issued_by,
+    mortgagee = p_mortgagee,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
@@ -14521,7 +14524,7 @@ BEGIN
             work_center_id = p_work_center_id,
             completion_date = p_completion_date,
             cost = p_cost,
-            cost_markup = p_job_order,
+            cost_markup = (p_cost * 1.30),
             job_order = p_job_order,
             planned_start_date = p_planned_start_date,
             planned_finish_date = p_planned_finish_date,
@@ -14554,7 +14557,7 @@ BEGIN
             p_work_center_id, 
             p_completion_date, 
             p_cost, 
-            p_job_order, 
+            (p_cost * 1.30),
             p_job_order, 
             p_planned_start_date, 
             p_planned_finish_date, 
@@ -14600,6 +14603,7 @@ BEGIN
             work_center_id = p_work_center_id,
             completion_date = p_completion_date,
             cost = p_cost,
+            cost_markup = (p_cost * 1.30),
             job_order_number = p_job_order_number,
             job_order_date = p_job_order_date,
             particulars = p_particulars,
@@ -14619,6 +14623,7 @@ BEGIN
             work_center_id, 
             completion_date, 
             cost, 
+            cost_markup, 
             job_order_number, 
             job_order_date, 
             particulars, 
@@ -14635,6 +14640,7 @@ BEGIN
             p_work_center_id, 
             p_completion_date, 
             p_cost, 
+            (p_cost * 1.30),
             p_job_order_number, 
             p_job_order_date, 
             p_particulars, 
@@ -20074,42 +20080,6 @@ BEGIN
     WHERE part_purchased_monitoring_item_id = p_part_purchased_monitoring_item_id;
 END //
 
-
-DELIMITER //
-DROP PROCEDURE generatePartsTransactionJobOrderOptions//
-CREATE PROCEDURE generatePartsTransactionJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
-BEGIN
-    IF p_type = 'job order' THEN
-        SELECT * FROM sales_proposal_job_order
-        WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
-        AND sales_proposal_job_order_id NOT IN (select job_order_id from part_transaction_job_order WHERE part_transaction_id = p_parts_transaction_id)
-        ORDER BY job_order;
-    ELSE
-        SELECT * FROM backjob_monitoring_job_order
-        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
-        AND backjob_monitoring_job_order_id NOT IN (select job_order_id from part_transaction_job_order WHERE part_transaction_id = p_parts_transaction_id)
-        ORDER BY job_order;
-    END IF;	
-END //
-
-DROP PROCEDURE generatePartsTransactionAdditionalJobOrderOptions//
-
-CREATE PROCEDURE generatePartsTransactionAdditionalJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
-BEGIN
-    IF p_type = 'additional job order' THEN
-        SELECT * FROM sales_proposal_additional_job_order
-        WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
-        AND sales_proposal_additional_job_order_id NOT IN (select additional_job_order_id from part_transaction_additional_job_order WHERE part_transaction_id = p_parts_transaction_id)
-        ORDER BY particulars;
-    ELSE
-        SELECT * FROM backjob_monitoring_additional_job_order
-        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
-        AND backjob_monitoring_additional_job_order_id NOT IN (select additional_job_order_id from part_transaction_additional_job_order WHERE part_transaction_id = p_parts_transaction_id)
-        ORDER BY particulars;
-    END IF;	
-END //
-
-
 DELIMITER //
 DROP PROCEDURE generatePartsTransactionJobOrderOptions//
 CREATE PROCEDURE generatePartsTransactionJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
@@ -20122,7 +20092,7 @@ BEGIN
         ORDER BY job_order;
     ELSE
         SELECT * FROM backjob_monitoring_job_order
-        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id AND status NOT IN ('Draft', 'Cancelled'))
+        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id AND status NOT IN ('Draft', 'Cancelled', 'For Approval'))
         AND backjob_monitoring_job_order_id NOT IN (select job_order_id from part_transaction_job_order WHERE part_transaction_id = p_parts_transaction_id)
         AND progress < 100
         ORDER BY job_order;
@@ -20140,24 +20110,9 @@ BEGIN
         ORDER BY particulars;
     ELSE
         SELECT * FROM backjob_monitoring_additional_job_order
-        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id AND status NOT IN ('Draft', 'Cancelled'))
+        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id AND status NOT IN ('Draft', 'Cancelled', 'For Approval'))
         AND backjob_monitoring_additional_job_order_id NOT IN (select additional_job_order_id from part_transaction_additional_job_order WHERE part_transaction_id = p_parts_transaction_id)
         AND progress < 100
-        ORDER BY particulars;
-    END IF;	
-END //
-
-CREATE PROCEDURE generatePartsTransactionAdditionalJobOrderOptions(IN p_parts_transaction_id VARCHAR(100), IN p_product_id INT, IN p_type VARCHAR(100))
-BEGIN
-    IF p_type = 'additional job order' THEN
-        SELECT * FROM sales_proposal_additional_job_order
-        WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id = p_product_id)
-        AND sales_proposal_additional_job_order_id NOT IN (select additional_job_order_id from part_transaction_additional_job_order WHERE part_transaction_id = p_parts_transaction_id)
-        ORDER BY particulars;
-    ELSE
-        SELECT * FROM backjob_monitoring_additional_job_order
-        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id = p_product_id)
-        AND backjob_monitoring_additional_job_order_id NOT IN (select additional_job_order_id from part_transaction_additional_job_order WHERE part_transaction_id = p_parts_transaction_id)
         ORDER BY particulars;
     END IF;	
 END //

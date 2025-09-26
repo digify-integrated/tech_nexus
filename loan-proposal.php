@@ -257,7 +257,7 @@
         $di = $salesProposalOtherChargesDetails['di'] ?? 0;
 
         // Computations
-        $monthlyIncomeTotal = $ciReportModel->getCIReportBusinessExpenseTotal($ci_report_id, 'monthly income')['total'] ?? 0;
+        $monthlyIncomeTotal = $ciReportModel->getCIReportBusinessExpenseTotal($ci_report_id, 'gross monthly sale')['total'] ?? 0;
         $grandTotal = $ciReportModel->getCIReportEmploymentExpenseTotal($ci_report_id, 'grand total')['total'] ?? 0;
         $totalIncome = $monthlyIncomeTotal + $grandTotal;
 
@@ -1523,7 +1523,7 @@
                                 <td colspan="2"></td>
                             </tr>
                             <tr style="text-align:center">
-                                <td colspan="2" style="text-align:right"><b>EMA</b></td>
+                                <td colspan="2" style="text-align:right"><b>ELA</b></td>
                                 <td>'. number_format($ela,2) .'</td>
                                 <td colspan="2"></td>
                             </tr>

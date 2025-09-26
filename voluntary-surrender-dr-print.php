@@ -157,7 +157,7 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'KNOW ALL MEN BY THESE PRESENTS:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, '&nbsp; &nbsp; That I, <b><u>'. $customerName .'</u></b>, of legal age and a resident of <b><u>'. strtoupper($customerAddress) .'</u></b>, have this day voluntarily surrender unto __________________________________________________________________ a certain personal property which is more particularly described as follows:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '&nbsp; &nbsp; That I, <b><u>'. $customerName .'</u></b>, of legal age and a resident of <b><u>'. strtoupper($customerAddress) .'</u></b>, have this day voluntarily surrender unto CHRISTIAN GENERAL MOTORS INC. a certain personal property which is more particularly described as follows:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(40, 8, 'MAKE'  , 0, 0, 'L');
@@ -206,9 +206,9 @@
     $pdf->Ln(15);
     $pdf->Cell(90, 4, '', 0, 0 , 'C');
     $pdf->Cell(10, 4, '', 0, 0 , 'L');
-    $pdf->Cell(90, 4, '', 'B', 0, 'C');
+    $pdf->Cell(90, 4, $customerName, 'B', 0, 'C');
     $pdf->Ln(5);
-    $pdf->Cell(90, 8, '', 0, 0, 'C');
+    $pdf->Cell(90, 8, '', 0, 0, 'C'); // CLIENT NAME
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
     $pdf->Cell(90, 8, 'Name and Signature of Possessor', 0, 0, 'C');
     $pdf->Ln(20);
@@ -223,7 +223,7 @@
     $pdf->Cell(90, 4, '', 'B', 0, 'C');
     $pdf->Ln(5);
     $pdf->Cell(90, 8, '', 0, 0, 'C');
-    $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
+    $pdf->Cell(10, 4, '     ', 0, 0 , align: 'L');
     $pdf->Cell(90, 8, 'Name and Signature of Possessor', 0, 0, 'C');
     $pdf->Ln(10);
     $pdf->Cell(100, 8, '___________________, ______________, 20 ____________'  , 0, 0, 'L');

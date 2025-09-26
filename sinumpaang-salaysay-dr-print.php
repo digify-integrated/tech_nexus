@@ -11,6 +11,7 @@
     require_once 'model/database-model.php';
     require_once 'model/system-model.php';
     require_once 'model/customer-model.php';
+    require_once 'model/product-model.php';
     require_once 'model/sales-proposal-model.php';
 
     // Initialize database model
@@ -21,6 +22,7 @@
 
     // Initialize sales proposal model
     $salesProposalModel = new SalesProposalModel($databaseModel);
+    $productModel = new ProductModel($databaseModel);
 
     // Initialize customer model
     $customerModel = new CustomerModel($databaseModel);
@@ -43,8 +45,8 @@
 
         $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID); 
         $customerID = $salesProposalDetails['customer_id'];
-        $comakerID = $salesProposalDetails['comaker_id'] ?? null;
-        $productID = $salesProposalDetails['product_id'] ?? null;
+        $comakerID = $salesProposalDetails['comaker_id'] ?? '';
+        $productID = $salesProposalDetails['product_id'] ?? '';
         $productType = $salesProposalDetails['product_type'] ?? null;
         $salesProposalNumber = $salesProposalDetails['sales_proposal_number'] ?? null;
         $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
@@ -55,6 +57,7 @@
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
+          $releaseDate =  $systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', '');
     
         $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
         $downpayment = $pricingComputationDetails['downpayment'] ?? 0;
@@ -85,15 +88,18 @@
         $totalDeposit = $salesProposalModel->getSalesProposalAmountOfDepositTotal($salesProposalID);
 
         $totalPn = $pnAmount + $totalCharges;
+
+        $otherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
+        $mortgagee = $otherProductDetails['mortgagee'] ??  '';
     
         $amountInWords = new NumberFormatter("en", NumberFormatter::SPELLOUT);
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
 
-        $customerName = strtoupper($customerDetails['file_as']) ?? null;
+        $customerName = strtoupper($customerDetails['file_as'] ?? '');
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
-        $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
+        $comakerName = strtoupper($comakerDetails['file_as'] ?? '');    
     
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
         $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
@@ -188,8 +194,8 @@
     binata/may-asawa, at naninirahan sa <b><u>'. strtoupper($customerAddress) .'</u></b>,
     matapos na makapanumpa nang naayon sa batas, ay nagsasaad ng mga sumusunod:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, '1.Na ako ay pumasok at nakipagkasundo sa CHRISTIAN MOTOR SALES CORPORATION ng Cabanatuan City (kinakatawan ni <b><u>'. $receivedFrom .'</b></u>) sa Conditional Sales Agreement ng isang <b><u>'. $unitDescription .'</b></u>
-    na may plakang: <b><u>'. $plateNumber .'</b></u> Petsang: <b><u>'. $currentDate .'</b></u>.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '1.Na ako ay pumasok at nakipagkasundo sa CHRISTIAN MOTOR SALES CORPORATION ng Cabanatuan City (kinakatawan ni <b><u>'. $mortgagee .'</b></u>) sa Conditional Sales Agreement ng isang <b><u>'. $unitDescription .'</b></u>
+    na may plakang: <b><u>'. $plateNumber .'</b></u> Petsang: <b><u>'. $releaseDate .'</b></u>.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(3);
     $pdf->MultiCell(0, 0, '2. Na bilang NAKABILI (Buyer) ako ang hahawak at gagamit ng nasabing truck habang hinuhulugan ko ang pagbabayad dito.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(3);
@@ -214,7 +220,7 @@
     $pdf->Ln(10);
     $pdf->Cell(90, 4, '', 0, 0 , 'C');
     $pdf->Cell(10, 4, '', 0, 0 , 'L');
-    $pdf->Cell(90, 4, '', 'B', 0, 'C');
+    $pdf->Cell(90, 4, $customerName, 'B', 0, 'C');
     $pdf->Ln(5);
     $pdf->Cell(90, 8, '', 0, 0, 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');

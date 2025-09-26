@@ -68,6 +68,10 @@
             personalInformationSummary();
         }
 
+        if($('#contact-information-summary').length){
+                contactInformationSummary();
+            }
+
         if($('#ci-report-id').length){
             displayDetails('get ci report details');
             displayDetails('get ci report residence total details');
@@ -1590,6 +1594,7 @@ function ciReportBankTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'DATE_OPEN' },
         { 'data' : 'ADB' },
         { 'data' : 'AVERAGE' },
+        { 'data' : 'BANK_HANDLING' },
         { 'data' : 'ACTION' }
     ];
 
@@ -1602,7 +1607,8 @@ function ciReportBankTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 5  },
         { 'width': 'auto', 'aTargets': 6  },
         { 'width': 'auto', 'aTargets': 7  },
-        { 'width': '15%','bSortable': false, 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 8  },
+        { 'width': '15%','bSortable': false, 'aTargets': 9 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -4743,6 +4749,31 @@ function personalInformationSummary(){
         },
         success: function(response) {
             document.getElementById('personal-information-summary').innerHTML = response[0].personalInformationSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function contactInformationSummary(){
+    const type = 'contact information summary';
+    var customer_id = $('#customer-id').val();
+            
+    $.ajax({
+        url: 'view/_customer_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            customer_id : customer_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-information-summary').innerHTML = response[0].contactInformationSummary;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

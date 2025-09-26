@@ -55,8 +55,8 @@
 
         $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID); 
         $customerID = $salesProposalDetails['customer_id'];
-        $comakerID = $salesProposalDetails['comaker_id'] ?? null;
-        $productID = $salesProposalDetails['product_id'] ?? null;
+        $comakerID = $salesProposalDetails['comaker_id'] ?? '';
+        $productID = $salesProposalDetails['product_id'] ?? '';
         $productType = $salesProposalDetails['product_type'] ?? null;
         $salesProposalNumber = $salesProposalDetails['sales_proposal_number'] ?? null;
         $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
@@ -70,6 +70,7 @@
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
+        $release_date =  $systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', '');
     
         $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
         $downpayment = $pricingComputationDetails['downpayment'] ?? 0;
@@ -107,10 +108,10 @@
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
 
-        $customerName = strtoupper($customerDetails['file_as']) ?? null;
+        $customerName = strtoupper($customerDetails['file_as'] ?? '');
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
-        $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
+        $comakerName = strtoupper($comakerDetails['file_as'] ?? '');    
     
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
         $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
@@ -134,6 +135,7 @@
         $crNo = $otherProductDetails['cr_no'] ??  '--';
         $mvFileNo = $otherProductDetails['mv_file_no'] ??  '--';
         $make = $otherProductDetails['make'] ??  '--';
+        $mortgagee = $otherProductDetails['mortgagee'] ??  '';
 
         if($productType == 'Unit'){
           $productDetails = $productModel->getProduct($productID);
@@ -269,7 +271,7 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '2. That the unpaid balance of the purchase price shall be evidenced by a Promissory Note executed by the BUYER and delivered to the SELLER;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, '3. If payment is not received by the SELLER on payment due date, a late payment charge equivalent to <b><u>'. strtoupper($amountInWords->format($interestRate)) .' PERCENT ('. $interestRate .'%)</u></b> per month based on the amount unpaid/in arrears shall be collected until fully paid;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '3. If payment is not received by the SELLER on payment due date, a late payment charge equivalent to <b>THREE PERCENT (3%)</b> per month based on the amount unpaid/in arrears shall be collected until fully paid;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '4. In case of full payment prior to full term by the BUYER, a reasonable prepayment discount shall be granted to BUYER;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
@@ -284,6 +286,81 @@
     $pdf->MultiCell(0, 0, '9. The BUYER expressly release and waive all claims and actions for trespass and/or damages against the SELLER, its agents, personnel, employees or duly authorized representatives, arising in and about such action of repossession;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '10. Loss or destruction of said motor vehicle for whatever cause including act of God or force majeure will not extinguish the BUYER'. "'" .'s liability and obligations set forth under this deed;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, '11. Payment of yearly insurance premiums on said motor vehicle, covering own damage and third party liability, as well as yearly registration with the Land Transportation Authority shall be for the obligation of the BUYER;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, '12. Acceptance of payment by the SELLER of any installment or any part thereof after due date shall not be considered as extending the time for the payment of any of the installments aforesaid or as a modification of any of the conditions hereof. Nor shall the failure of the SELLER to exercise any of its rights under this deed constitutes or be deemed as a waiver of such rights;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, '13. The SELLER shall enable the transfer of the Certificate of Registration of the subject vehicle with the Land Transportation Office to the BUYER provided that the approriate charges for such transfer is paid by the BUYER and that the SELLER retains actual ownership thereof until and after the purchase price is paid in full by the BUYER;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, '14. Damages of any kind and of whatever causes to the above-described vehicle while in the custody of the BUYER and before the purchase price is paid in full shall be for his sole account;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, '15. If the above-described vehicle will be used for any unlawful activities or fraudulent purposes, the BUYER hereby covenants to free the SELLER from any and all suits arising from such activities or purposes and accordingly assumes sole and exclusive liability;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, '16. DAMAGES of any kind to third parties not privy to this contract, whether in the nature of injury to person or damage to property as a result of the operation of the BUYER of the vehicle and prior to his payment in full of the vehicle shall be soley for the account of the BUYER and for this purpose, he hereby covenants to free the SELLER from any and all suits arising from such damages and to assume sole and exclusive liability from such damages;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, "17. That the SELLER shall execute the corresponding Deed of Sale coverng said motor vehicle in order to vest title to the BUYER/s upn the latter's fulfillment of all his/her obligations under this deed, otherwise, ownership and possession of the subject motor vehicle shall remain with the seller;", 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, "18. Any action arising out of this contract may be brought by the SELLER at its sole option, in the proper Court of Cabanatuan City or Nueva Ecija. The foregoing, however, shall not limit or be construed to limit the right of the SELLER to commence proceedings or obrain execution of judgement against the BUYER/s in any venue or jurisdiction where assets of the BUYER/s may be found.", 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, "IN TESTIMONY HEREOF, the parties hereby affixed their signatures, this <b><u>". $release_date ."</b></u> here at Cabanatuan City.", 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+
+    
+    $pdf->Ln(8);
+    $pdf->Cell(80, 4, $customerName, 'B', 0, 'C', 0, '', 1);
+    $pdf->Cell(25, 4, '', 0, 0, 'C');
+    $pdf->Cell(80, 4, $mortgagee, 'B', 0, 'C', 0, '', 1);
+    $pdf->Cell(25, 4, '', 0, 0, 'C');
+    $pdf->Ln(5);
+    $pdf->Cell(80, 4, 'BUYER', 0, 0, 'C', 0, '', 1);
+    $pdf->Cell(25, 4, '', 0, 0, 'C');
+    $pdf->Cell(80, 4, 'SELLER', 0, 0, 'C', 0, '', 1);
+    $pdf->Cell(25, 4, '', 0, 0, 'C');
+
+    
+    $pdf->Ln(8);
+    $pdf->MultiCell(0, 0, "With marital account:", 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+
+
+    $pdf->Ln(15);
+
+    $pdf->MultiCell(0, 0, '<b>SIGNED IN THE PRESENCE OF:</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(8);
+    $pdf->Cell(80, 4, '', 'B', 0, 'C', 0, '', 1);
+    $pdf->Cell(25, 4, '', 0, 0, 'C');
+    $pdf->Cell(80, 4, '', 'B', 0, 'C', 0, '', 1);
+    $pdf->Cell(25, 4, '', 0, 0, 'C');
+    $pdf->Ln(5);
+    $pdf->Cell(80, 4, 'Name and Signature of Witness', 0, 0, 'C', 0, '', 1);
+    $pdf->Cell(25, 4, '', 0, 0, 'C');
+    $pdf->Cell(80, 4, 'Name and Signature of Witness', 0, 0, 'C', 0, '', 1);
+    $pdf->Cell(25, 4, '', 0, 0, 'C');
+
+    
+    $pdf->MultiCell(0, 0, '<b>ACKNOWLEDGEMENT</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(0);
+    $pdf->MultiCell(0, 0, 'REPUBLIC OF THE PHILIPPINES) ', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(3);
+    $pdf->MultiCell(0, 0, '________________________) S.S.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(3);
+
+    $pdf->MultiCell(0, 0, 'Before me, this ______________________________ personally appeared:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+
+    $pdf->Cell(50, 4, 'Name', 0, 0, 'C', 0, '', 1);
+    $pdf->Cell(50,  4, 'Comm, Tax Cert. No.', 0, 0, 'C', 0, '', 1);
+    $pdf->Cell(50, 4, 'DATE/Place Issued', 0, 0, 'C', 0, '', 1);
+
+    $pdf->Ln(15);
+    $pdf->MultiCell(0, 0, 'known to me to be the same person who executed the foregoing instrument; who subscribed under oath as to the matters set forth in the credit application for and acknowledged the same to be their free and voluntary act and deed.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, 'Doc. No. ______________', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(3);
+    $pdf->MultiCell(0, 0, 'Page No. ______________', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(3);
+    $pdf->MultiCell(0, 0, 'Book No. ______________', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(3);
+    $pdf->MultiCell(0, 0, 'Series of ______________', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
 
     // Output the PDF to the browser
     $pdf->Output('deed-of-conditional-sale.pdf', 'I');

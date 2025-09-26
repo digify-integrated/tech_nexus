@@ -722,7 +722,14 @@
 
         $(document).on('click','#print-job-order2',function() {
             var checkedBoxes = [];
+            var type = $('#type').val();
+
+            if(type == 'Internal Repair'){
             var product_id = $('#product_id').val();
+            }
+            else{
+            var product_id = $('#product_id2').val();
+            }
 
             $('.job-order-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
@@ -740,7 +747,14 @@
 
         $(document).on('click','#print-job-order2-detailed',function() {
             var checkedBoxes = [];
+            var type = $('#type').val();
+
+            if(type == 'Internal Repair'){
             var product_id = $('#product_id').val();
+            }
+            else{
+            var product_id = $('#product_id2').val();
+            }
 
             $('.job-order-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
@@ -758,7 +772,14 @@
 
         $(document).on('click','#print-additional-job-order2',function() {
             var checkedBoxes = [];
+            var type = $('#type').val();
+
+            if(type == 'Internal Repair'){
             var product_id = $('#product_id').val();
+            }
+            else{
+            var product_id = $('#product_id2').val();
+            }
 
             $('.additional-job-order-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
@@ -776,7 +797,14 @@
 
         $(document).on('click','#print-additional-job-order2-detailed',function() {
             var checkedBoxes = [];
+            var type = $('#type').val();
+
+            if(type == 'Internal Repair'){
             var product_id = $('#product_id').val();
+            }
+            else{
+            var product_id = $('#product_id2').val();
+            }
 
             $('.additional-job-order-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
@@ -2246,6 +2274,9 @@ function JobOrderProgressForm(){
             }
         },
         submitHandler: function(form) {
+            document.getElementById("job_order_contractor_id").disabled = false;
+            document.getElementById("job_order_work_center_id").disabled = false;
+
             const transaction = 'save progress job order';
             const backjob_monitoring_id = $('#backjob-monitoring-id').text();
         
@@ -2284,6 +2315,11 @@ function JobOrderProgressForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-job-order-progress', 'Save');
+
+                    if($('#status').val() == 'Ready For Release' || $('#status').val() == 'For DR'){
+                        document.getElementById("job_order_contractor_id").disabled = true;
+                        document.getElementById("job_order_work_center_id").disabled = true;
+                    }
                     
                     $('#job-order-monitoring-offcanvas').offcanvas('hide');
                 }
@@ -2344,6 +2380,9 @@ function AdditionalJobOrderProgressForm(){
             }
         },
         submitHandler: function(form) {
+            document.getElementById("additional_job_order_contractor_id").disabled = false;
+            document.getElementById("additional_job_order_work_center_id").disabled = false;
+
             const transaction = 'save progress additional job order';
             const backjob_monitoring_id = $('#backjob-monitoring-id').text();
         
@@ -2382,6 +2421,12 @@ function AdditionalJobOrderProgressForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-additional-job-order-progress', 'Save');
+
+                    if($('#status').val() == 'Ready For Release' || $('#status').val() == 'For DR'){
+                        document.getElementById("additional_job_order_contractor_id").disabled = true;
+                        document.getElementById("additional_job_order_work_center_id").disabled = true;
+                    }
+
                     $('#additional-job-order-monitoring-offcanvas').offcanvas('hide');
                 }
             });
