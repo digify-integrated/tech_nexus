@@ -825,6 +825,20 @@ function leaveSummaryTable(datatable_name, buttons = false, show_all = false){
     var filter_approval_start_date = $('#filter_approval_start_date').val();
     var filter_approval_end_date = $('#filter_approval_end_date').val();
 
+     var company_filter_values = [];
+     var leave_type_values = [];
+
+    $('.company-filter:checked').each(function() {
+        company_filter_values.push($(this).val());
+    });
+
+    $('.leave-type-filter:checked').each(function() {
+        leave_type_values.push($(this).val());
+    });
+
+    var company_filter = company_filter_values.join(', ');
+    var leave_type_filter = leave_type_values.join(', ');
+
     var settings;
 
     const column = [
@@ -860,7 +874,9 @@ function leaveSummaryTable(datatable_name, buttons = false, show_all = false){
                 'filter_application_start_date' : filter_application_start_date,
                 'filter_application_end_date' : filter_application_end_date,
                 'filter_approval_start_date' : filter_approval_start_date,
-                'filter_approval_end_date' : filter_approval_end_date
+                'filter_approval_end_date' : filter_approval_end_date,
+                'company_filter' : company_filter,
+                'leave_type_filter' : leave_type_filter,
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {

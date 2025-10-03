@@ -4706,7 +4706,17 @@ function salesProposalSetToDraftForm(){
                 required: true
             },
             set_to_draft_file: {
-                required: true
+                required: {
+                    depends: function(element) {
+                        var status = $('#sales_proposal_status').val();
+                        return status !== 'Draft' &&
+                            status !== 'Cancelled' &&
+                            status !== 'Rejected' &&
+                            status !== 'Released' &&
+                            status !== 'For Review' &&
+                            status !== 'For Initial Approval';
+                    }
+                }
             },
         },
         messages: {

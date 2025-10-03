@@ -289,11 +289,23 @@ class SalesProposalController {
                 case 'save sales proposal progress job order':
                     $this->saveJobOrderProgress();
                     break;
+                case 'paid job order':
+                    $this->paidJobOrder();
+                    break;
+                case 'cancel paid job order':
+                    $this->cancelPaidJobOrder();
+                    break;
                 case 'sales proposal job order cancel':
                     $this->cancelJobOrderProgress();
                     break;
                 case 'save sales proposal progress additional job order':
                     $this->saveAdditionalJobOrderProgress();
+                    break;
+                case 'paid additional job order':
+                    $this->paidAdditionalJobOrder();
+                    break;
+                case 'cancel paid additional job order':
+                    $this->cancelPaidAdditionalJobOrder();
                     break;
                 case 'sales proposal additional job order cancel':
                     $this->cancelAdditionalJobOrderProgress();
@@ -2476,66 +2488,71 @@ class SalesProposalController {
             exit;
         }
 
-        $setToDraftFileFileName = $_FILES['set_to_draft_file']['name'];
-        $setToDraftFileFileSize = $_FILES['set_to_draft_file']['size'];
-        $setToDraftFileFileError = $_FILES['set_to_draft_file']['error'];
-        $setToDraftFileTempName = $_FILES['set_to_draft_file']['tmp_name'];
-        $setToDraftFileFileExtension = explode('.', $setToDraftFileFileName);
-        $setToDraftFileActualFileExtension = strtolower(end($setToDraftFileFileExtension));
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $sales_proposal_status = $salesProposalDetails['sales_proposal_status'] ?? 'Draft';
 
-        $uploadSetting = $this->uploadSettingModel->getUploadSetting(17);
-        $maxFileSize = $uploadSetting['max_file_size'];
+        if($sales_proposal_status != 'Draft' && $sales_proposal_status != 'Cancelled' && $sales_proposal_status != 'Rejected' && $sales_proposal_status != 'Released' && $sales_proposal_status != 'For Review' && $sales_proposal_status != 'For Initial Approval'){
+            $setToDraftFileFileName = $_FILES['set_to_draft_file']['name'];
+            $setToDraftFileFileSize = $_FILES['set_to_draft_file']['size'];
+            $setToDraftFileFileError = $_FILES['set_to_draft_file']['error'];
+            $setToDraftFileTempName = $_FILES['set_to_draft_file']['tmp_name'];
+            $setToDraftFileFileExtension = explode('.', $setToDraftFileFileName);
+            $setToDraftFileActualFileExtension = strtolower(end($setToDraftFileFileExtension));
 
-        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(17);
-        $allowedFileExtensions = [];
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(17);
+            $maxFileSize = $uploadSetting['max_file_size'];
 
-        foreach ($uploadSettingFileExtension as $row) {
-            $fileExtensionID = $row['file_extension_id'];
-            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
-            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(17);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($setToDraftFileActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($setToDraftFileTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the sales proposal form.']);
+                exit;
+            }
+            
+            if($setToDraftFileFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($setToDraftFileFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The sales proposal file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $setToDraftFileActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/set_to_draft_file/' . $salesProposalID . '/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/set_to_draft_file/' . $salesProposalID . '/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($setToDraftFileTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalSetToDraft($salesProposalID, $filePath, $userID);
         }
-
-        if (!in_array($setToDraftFileActualFileExtension, $allowedFileExtensions)) {
-            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
-            echo json_encode($response);
-            exit;
-        }
-        
-        if(empty($setToDraftFileTempName)){
-            echo json_encode(['success' => false, 'message' => 'Please choose the sales proposal form.']);
-            exit;
-        }
-        
-        if($setToDraftFileFileError){
-            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
-            exit;
-        }
-        
-        if($setToDraftFileFileSize > ($maxFileSize * 1048576)){
-            echo json_encode(['success' => false, 'message' => 'The sales proposal file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
-            exit;
-        }
-
-        $fileName = $this->securityModel->generateFileName();
-        $fileNew = $fileName . '.' . $setToDraftFileActualFileExtension;
-
-        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/set_to_draft_file/' . $salesProposalID . '/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/set_to_draft_file/' . $salesProposalID . '/' . $fileNew;
-        $filePath = $directory . $fileNew;
-
-        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
-
-        if(!$directoryChecker){
-            echo json_encode(['success' => false, 'message' => $directoryChecker]);
-            exit;
-        }
-
-        if(!move_uploaded_file($setToDraftFileTempName, $fileDestination)){
-            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
-            exit;
-        }
-
-        $this->salesProposalModel->updateSalesProposalSetToDraft($salesProposalID, $filePath, $userID);
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Draft', $setToDraftReason, $userID);
             
@@ -4043,6 +4060,93 @@ class SalesProposalController {
         }
     
         $this->salesProposalModel->updateSalesProposalJobOrderProgress($salesProposalJobOrderID, $cost, $jobCost, $progress, $contractor_id, $work_center_id, $backjob, $completionDate, $job_order_planned_start_date, $job_order_planned_finish_date, $job_order_date_started, $job_order_remarks, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function paidJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $salesProposalJobOrderDetails = $this->salesProposalModel->getSalesProposalJobOrder($salesProposalJobOrderID);
+        $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'];
+        $cost_markup = $salesProposalJobOrderDetails['cost_markup'];
+        $job_cost = $salesProposalJobOrderDetails['job_cost'];
+        $entry_type = 'Job Order';
+
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($sales_proposal_id);
+        $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+        $company_id = $salesProposalDetails['company_id'] ?? null;
+        $product_id = $salesProposalDetails['product_id'] ?? null;
+
+        $productDetails = $this->productModel->getProduct($product_id);
+        $product_status = $productDetails['product_status'] ?? 'Draft';
+
+        $this->salesProposalModel->createJobOrderEntry($sales_proposal_number, $salesProposalJobOrderID, $entry_type, $company_id, $job_cost, $cost_markup, $product_status, $userID);
+
+        $this->salesProposalModel->updateSalesProposalJobOrderPaid($salesProposalJobOrderID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function cancelPaidJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_job_order_id'], ENT_QUOTES, 'UTF-8');
+    
+        $this->salesProposalModel->updateSalesProposalJobOrderPaidCancel($salesProposalJobOrderID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function paidAdditionalJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesAdditionalProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_additional_job_order_id'], ENT_QUOTES, 'UTF-8');
+
+        $salesProposalJobOrderDetails = $this->salesProposalModel->getSalesProposalAdditionalJobOrder($salesAdditionalProposalJobOrderID);
+        $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'];
+        $cost_markup = $salesProposalJobOrderDetails['cost_markup'];
+        $job_cost = $salesProposalJobOrderDetails['job_cost'];
+        $entry_type = 'Additional Job Order';
+
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($sales_proposal_id);
+        $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+        $company_id = $salesProposalDetails['company_id'] ?? null;
+        $product_id = $salesProposalDetails['product_id'] ?? null;
+
+        $productDetails = $this->productModel->getProduct($product_id);
+        $product_status = $productDetails['product_status'] ?? 'Draft';
+
+        $this->salesProposalModel->createJobOrderEntry($sales_proposal_number, $salesAdditionalProposalJobOrderID, $entry_type, $company_id, $job_cost, $cost_markup, $product_status, $userID);
+    
+        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderPaid($salesAdditionalProposalJobOrderID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function cancelPaidAdditionalJobOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesAdditionalProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_additional_job_order_id'], ENT_QUOTES, 'UTF-8');
+    
+        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderPaidCancel($salesAdditionalProposalJobOrderID, $userID);
             
         echo json_encode(['success' => true]);
         exit;

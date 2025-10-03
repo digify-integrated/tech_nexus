@@ -163,6 +163,7 @@ class PartsIncomingController {
         $purchase_date = $this->systemModel->checkDate('empty', $_POST['purchase_date'], '', 'Y-m-d', '');
         $supplier_id = htmlspecialchars($_POST['supplier_id'], ENT_QUOTES, 'UTF-8');
         $customer_ref_id = htmlspecialchars($_POST['customer_ref_id'], ENT_QUOTES, 'UTF-8');
+        $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
         $delivery_date = null;
         $rr_no = null;
         $rr_date = null;
@@ -180,7 +181,7 @@ class PartsIncomingController {
         if ($total > 0) {
             $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
 
-            $this->partsIncomingModel->updatePartsIncoming($parts_incoming_id, $reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $request_by, $product_id, $customer_ref_id, $userID);
+            $this->partsIncomingModel->updatePartsIncoming($parts_incoming_id, $reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $request_by, $product_id, $customer_ref_id, $remarks, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'partsIncomingID' => $this->securityModel->encryptData($parts_incoming_id)]);
             exit;
@@ -192,17 +193,20 @@ class PartsIncomingController {
             else if($company_id == '2'){
                 $reference_number = ((int)($this->systemSettingModel->getSystemSetting(31)['value'] ?? 0)) + 1;
             }
-            else{
-                $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
+            else if($company_id == '3'){
+                $reference_number = ((int)($this->systemSettingModel->getSystemSetting(p_system_setting_id: 40)['value'] ?? 0)) + 1;
             }
 
-            $parts_incoming_id = $this->partsIncomingModel->insertPartsIncoming($reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $company_id, $request_by, $product_id, $customer_ref_id, $userID);
+            $parts_incoming_id = $this->partsIncomingModel->insertPartsIncoming($reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $company_id, $request_by, $product_id, $customer_ref_id, $remarks, $userID);
 
             if($company_id == '1'){
                 $this->systemSettingModel->updateSystemSettingValue(38, $reference_number, $userID);
             }
             else if($company_id == '2'){
                 $this->systemSettingModel->updateSystemSettingValue(31, $reference_number, $userID);
+            }
+            else if($company_id == '3'){
+                $this->systemSettingModel->updateSystemSettingValue(40, $reference_number, $userID);
             }
             
             echo json_encode(['success' => true, 'insertRecord' => true, 'partsIncomingID' => $this->securityModel->encryptData($parts_incoming_id)]);

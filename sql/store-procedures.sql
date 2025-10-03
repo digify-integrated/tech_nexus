@@ -8531,6 +8531,63 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateJobOrderSalesProposalTable(IN p_filter_sale_proposal_status VARCHAR(500), IN p_filter_product_type VARCHAR(500), IN p_filter_company VARCHAR(500), IN p_filter_user VARCHAR(100), IN p_filter_created_date_start_date DATE, IN p_filter_created_date_end_date DATE, IN p_filter_released_date_start_date DATE, IN p_filter_released_date_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(5000);
+
+    SET query = 'SELECT * FROM sales_proposal WHERE sales_proposal_id IN (SELECT sales_proposal_id FROM sales_proposal_job_order WHERE expense_created IS NOT NULL) OR sales_proposal_id IN (SELECT sales_proposal_id FROM sales_proposal_additional_job_order WHERE expense_created IS NOT NULL)';
+
+    SET conditionList = '';
+
+     IF p_filter_sale_proposal_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND sales_proposal_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_sale_proposal_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_product_type IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND product_type IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_product_type);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_company IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_company);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_user IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND created_by IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_user);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_created_date_start_date IS NOT NULL AND p_filter_created_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_created_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_created_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_filter_released_date_start_date IS NOT NULL AND p_filter_released_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(released_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY sales_proposal_number');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 CREATE PROCEDURE generateDashboardForInitialApproval(IN p_initial_approving_officer INT)
 BEGIN
     SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For Initial Approval' AND initial_approving_officer = p_initial_approving_officer;
@@ -10453,45 +10510,51 @@ BEGIN
     WHERE status = 'For Approval';
 END //
 
-CREATE PROCEDURE generateLeaveSummaryTable(IN p_leave_status VARCHAR(100), IN p_leave_start_date DATE, IN p_leave_end_date DATE, IN p_application_start_date DATE, IN p_application_end_date DATE, IN p_approval_start_date DATE, IN p_approval_end_date DATE)
+DELIMITER //
+
+CREATE PROCEDURE generateLeaveSummaryTable(
+    IN p_leave_status VARCHAR(100), 
+    IN p_leave_start_date DATE, 
+    IN p_leave_end_date DATE, 
+    IN p_application_start_date DATE, 
+    IN p_application_end_date DATE, 
+    IN p_approval_start_date DATE, 
+    IN p_approval_end_date DATE, 
+    IN p_leave_type_filter VARCHAR(500), 
+    IN p_company_filter VARCHAR(500)
+)
 BEGIN
-    DECLARE query VARCHAR(5000);
-    DECLARE conditionList VARCHAR(1000);
+    DECLARE query TEXT;
+    DECLARE conditionList TEXT;
 
     SET query = 'SELECT * FROM leave_application';
-    SET conditionList = ' WHERE 1';
+    SET conditionList = ' WHERE 1=1';
 
-     IF p_leave_status IS NOT NULL AND p_leave_status <> '' THEN
-        SET conditionList = CONCAT(conditionList, ' AND status =');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_leave_status));
+    IF p_leave_status IS NOT NULL AND p_leave_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND status = ', QUOTE(p_leave_status));
     END IF;
-    
+
     IF p_leave_start_date IS NOT NULL AND p_leave_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (leave_date BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_leave_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_leave_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
-    
-    IF p_application_start_date IS NOT NULL AND p_application_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (DATE(application_date) BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_application_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_application_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
-    END IF;
-    
-    IF p_approval_start_date IS NOT NULL AND p_approval_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND (DATE(approval_date) BETWEEN ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_start_date));
-        SET conditionList = CONCAT(conditionList, ' AND ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_end_date));
-        SET conditionList = CONCAT(conditionList, ')');
+        SET conditionList = CONCAT(conditionList, ' AND leave_date BETWEEN ', QUOTE(p_leave_start_date), ' AND ', QUOTE(p_leave_end_date));
     END IF;
 
-    SET query = CONCAT(query, conditionList);
-    SET query = CONCAT(query, ' ORDER BY application_date ASC;');
+    IF p_application_start_date IS NOT NULL AND p_application_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND DATE(application_date) BETWEEN ', QUOTE(p_application_start_date), ' AND ', QUOTE(p_application_end_date));
+    END IF;
+
+    IF p_approval_start_date IS NOT NULL AND p_approval_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND DATE(approval_date) BETWEEN ', QUOTE(p_approval_start_date), ' AND ', QUOTE(p_approval_end_date));
+    END IF;
+
+    IF p_leave_type_filter IS NOT NULL AND p_leave_type_filter <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND leave_type_id IN (', p_leave_type_filter, ')');
+    END IF;
+
+    IF p_company_filter IS NOT NULL AND p_company_filter <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND contact_id IN (SELECT contact_id FROM employment_information WHERE company_id IN (', p_company_filter, '))');
+    END IF;
+
+    SET query = CONCAT(query, conditionList, ' ORDER BY application_date ASC');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -14276,6 +14339,14 @@ BEGIN
     ORDER BY backjob_monitoring_id;
 END //
 
+CREATE PROCEDURE generateBackJobJobOrderMonitoringTable()
+BEGIN
+    SELECT *
+    FROM backjob_monitoring
+    WHERE backjob_monitoring_id IN (SELECT backjob_monitoring_id FROM backjob_monitoring_job_order WHERE expense_created IS NOT NULL) OR backjob_monitoring_id IN (SELECT backjob_monitoring_id FROM backjob_monitoring_additional_job_order WHERE expense_created IS NOT NULL)
+    ORDER BY backjob_monitoring_id;
+END //
+
 CREATE PROCEDURE generateBackJobMonitoringTable2(IN p_status VARCHAR(5000))
 BEGIN
     DECLARE query VARCHAR(5000);
@@ -15998,15 +16069,15 @@ BEGIN
     WHERE part_incoming_id = p_part_incoming_id;
 END //
 
-CREATE PROCEDURE insertPartsIncoming(IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_company_id INT, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_last_log_by INT, OUT p_part_incoming_id INT)
+CREATE PROCEDURE insertPartsIncoming(IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_company_id INT, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_remarks VARCHAR(2000), IN p_last_log_by INT, OUT p_part_incoming_id INT)
 BEGIN
-    INSERT INTO part_incoming (reference_number, supplier_id, rr_no, rr_date, delivery_date, purchase_date, company_id, request_by, product_id, customer_ref_id, last_log_by) 
-	VALUES(p_reference_number, p_supplier_id, p_rr_no, p_rr_date, p_delivery_date, p_purchase_date, p_company_id, p_request_by, p_product_id, p_customer_ref_id, p_last_log_by);
+    INSERT INTO part_incoming (reference_number, supplier_id, rr_no, rr_date, delivery_date, purchase_date, company_id, request_by, product_id, customer_ref_id, remarks, last_log_by) 
+	VALUES(p_reference_number, p_supplier_id, p_rr_no, p_rr_date, p_delivery_date, p_purchase_date, p_company_id, p_request_by, p_product_id, p_customer_ref_id, p_remarks, p_last_log_by);
 	
     SET p_part_incoming_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updatePartsIncoming(IN p_part_incoming_id INT, IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsIncoming(IN p_part_incoming_id INT, IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_remarks VARCHAR(2000), IN p_last_log_by INT)
 BEGIN
 	UPDATE part_incoming
     SET reference_number = p_reference_number,
@@ -16018,6 +16089,7 @@ BEGIN
     request_by = p_request_by,
     customer_ref_id = p_customer_ref_id,
     product_id = p_product_id,
+    remarks = p_remarks,
     last_log_by = p_last_log_by
     WHERE part_incoming_id = p_part_incoming_id;
 END //
@@ -20126,3 +20198,457 @@ CREATE PROCEDURE deletePartsTransactionAdditionalJobOrder(IN p_part_transaction_
 BEGIN
     DELETE FROM part_transaction_additional_job_order WHERE part_transaction_additional_job_order_id = p_part_transaction_additional_job_order_id;
 END //
+
+
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS createJobOrderEntry //
+CREATE PROCEDURE createJobOrderEntry(
+    IN p_sales_proposal_number VARCHAR(100),
+    IN p_job_order_id INT,
+    IN p_entry_type VARCHAR(50),
+    IN p_company_id INT,
+    IN p_cost DECIMAL(15,2),
+    IN p_markup DECIMAL(15,2),
+    IN p_sold_status VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_debit_analytic_lines VARCHAR(500);
+    DECLARE v_debit_analytic_distribution VARCHAR(500);
+    DECLARE v_credit_analytic_lines VARCHAR(500);
+    DECLARE v_credit_analytic_distribution VARCHAR(500);
+    DECLARE v_debit_analytic_lines_2 VARCHAR(500);
+    DECLARE v_debit_analytic_distribution_2 VARCHAR(500);
+    DECLARE v_credit_analytic_lines_2 VARCHAR(500);
+    DECLARE v_credit_analytic_distribution_2 VARCHAR(500);
+    DECLARE v_debit VARCHAR(100);
+    DECLARE v_credit VARCHAR(100);
+    DECLARE v_debit_2 VARCHAR(100);
+    DECLARE v_credit_2 VARCHAR(100);
+    DECLARE v_debit_amount DECIMAL(15,2);
+    DECLARE v_credit_amount DECIMAL(15,2);
+    DECLARE v_debit_2_amount DECIMAL(15,2);
+    DECLARE v_credit_2_amount DECIMAL(15,2);
+
+    CASE p_company_id
+        WHEN 1 THEN
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_analytic_lines = 'NE TRUCK';
+            SET v_analytic_distribution = '{"2": 100.0}';
+        WHEN 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 4 THEN
+            SET v_analytic_lines = 'PCG PROPERTY';
+            SET v_analytic_distribution = '{"4": 100.0}';
+        WHEN 5 THEN
+            SET v_analytic_lines = 'GCB PROPERTY';
+            SET v_analytic_distribution = '{"3": 100.0}';
+        WHEN 6 THEN
+            SET v_analytic_lines = 'GCB FARMING';
+            SET v_analytic_distribution = '{"11": 100.0}';
+        WHEN 7 THEN
+            SET v_analytic_lines = 'PCG FARMING';
+            SET v_analytic_distribution = '{"15": 100.0}';
+        WHEN 8 THEN
+            SET v_analytic_lines = 'NE FUEL';
+            SET v_analytic_distribution = '{"6": 100.0}';
+        WHEN 9 THEN
+            SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
+            SET v_analytic_distribution = '{"17": 100.0}';
+        WHEN 10 THEN
+            SET v_analytic_lines = 'Avida';
+            SET v_analytic_distribution = '{"20": 100.0}';
+        WHEN 11 THEN
+            SET v_analytic_lines = 'Caalibangbangan';
+            SET v_analytic_distribution = '{"19": 100.0}';
+        WHEN 12 THEN
+            SET v_analytic_lines = 'Sta Rosa';
+            SET v_analytic_distribution = '{"18": 100.0}';
+        WHEN 13 THEN
+            SET v_analytic_lines = 'KPC VENTURE INC';
+            SET v_analytic_distribution = '{"16": 100.0}';
+        WHEN 14 THEN
+            SET v_analytic_lines = 'NE HAULING';
+            SET v_analytic_distribution = '{"7": 100.0}';
+        ELSE
+            SET v_analytic_lines = 'DEFAULT';
+            SET v_analytic_distribution = '{"0": 0.0}';
+    END CASE;
+    
+    IF p_sold_status = 'Sold' THEN
+        SET v_debit = '50402010 Cost of Sales Unit';
+        SET v_debit_analytic_lines = 'CGMI';
+        SET v_debit_analytic_distribution = '{"1": 100.0}';
+    ELSE
+        SET v_debit = '10501010 Inventory Unit';
+        SET v_debit_analytic_lines = 'CGMI';
+        SET v_debit_analytic_distribution = '{"1": 100.0}';
+    END IF;
+
+    SET v_credit = '40101040 Service Charge';
+    SET v_credit_analytic_lines = v_analytic_lines;
+    SET v_credit_analytic_distribution = v_analytic_distribution;
+     
+    SET v_debit_2 = '50402030 Cost of Service';
+    SET v_debit_analytic_lines_2 = v_analytic_lines;
+    SET v_debit_analytic_distribution_2 = v_analytic_distribution;
+
+    SET v_credit_2 = '20101990 Accounts Payable Contractor';
+    SET v_credit_analytic_lines_2 = 'CGMI';
+    SET v_credit_analytic_distribution_2 = '{"1": 100.0}';
+
+    SET v_debit_amount = p_markup;
+    SET v_credit_amount = p_markup;
+
+    SET v_debit_2_amount = p_cost;
+    SET v_credit_2_amount = p_cost;
+
+    -- Insert debit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_sales_proposal_number, 
+        NOW(), 
+        p_job_order_id, 
+        p_entry_type, 
+        v_debit, 
+        v_debit_amount, 
+        0, 
+        '', 
+        v_debit_analytic_lines, 
+        v_debit_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert credit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_sales_proposal_number, 
+        NOW(), 
+        p_job_order_id, 
+        p_entry_type, 
+        v_credit, 
+        0, 
+        v_credit_amount, 
+         '', 
+        v_credit_analytic_lines, 
+        v_credit_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert debit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_sales_proposal_number, 
+        NOW(), 
+        p_job_order_id, 
+        p_entry_type, 
+        v_debit_2, 
+        v_debit_2_amount, 
+        0, 
+        '', 
+        v_debit_analytic_lines_2, 
+        v_debit_analytic_distribution_2, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert credit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_sales_proposal_number, 
+        NOW(), 
+        p_job_order_id, 
+        p_entry_type, 
+        v_credit_2, 
+        0, 
+        v_credit_2_amount, 
+         '', 
+        v_credit_analytic_lines_2, 
+        v_credit_analytic_distribution_2, 
+        NOW(), 
+        p_last_log_by
+    );
+END//
+
+DROP PROCEDURE IF EXISTS createBackjobJobOrderEntry //
+CREATE PROCEDURE createBackjobJobOrderEntry(
+    IN p_backjob_monitoring_id VARCHAR(100),
+    IN p_job_order_id INT,
+    IN p_entry_type VARCHAR(50),
+    IN p_company_id INT,
+    IN p_cost DECIMAL(15,2),
+    IN p_markup DECIMAL(15,2),
+    IN p_sold_status VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_debit_analytic_lines VARCHAR(500);
+    DECLARE v_debit_analytic_distribution VARCHAR(500);
+    DECLARE v_credit_analytic_lines VARCHAR(500);
+    DECLARE v_credit_analytic_distribution VARCHAR(500);
+    DECLARE v_debit_analytic_lines_2 VARCHAR(500);
+    DECLARE v_debit_analytic_distribution_2 VARCHAR(500);
+    DECLARE v_credit_analytic_lines_2 VARCHAR(500);
+    DECLARE v_credit_analytic_distribution_2 VARCHAR(500);
+    DECLARE v_debit VARCHAR(100);
+    DECLARE v_credit VARCHAR(100);
+    DECLARE v_debit_2 VARCHAR(100);
+    DECLARE v_credit_2 VARCHAR(100);
+    DECLARE v_debit_amount DECIMAL(15,2);
+    DECLARE v_credit_amount DECIMAL(15,2);
+    DECLARE v_debit_2_amount DECIMAL(15,2);
+    DECLARE v_credit_2_amount DECIMAL(15,2);
+
+    CASE p_company_id
+        WHEN 1 THEN
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_analytic_lines = 'NE TRUCK';
+            SET v_analytic_distribution = '{"2": 100.0}';
+        WHEN 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 4 THEN
+            SET v_analytic_lines = 'PCG PROPERTY';
+            SET v_analytic_distribution = '{"4": 100.0}';
+        WHEN 5 THEN
+            SET v_analytic_lines = 'GCB PROPERTY';
+            SET v_analytic_distribution = '{"3": 100.0}';
+        WHEN 6 THEN
+            SET v_analytic_lines = 'GCB FARMING';
+            SET v_analytic_distribution = '{"11": 100.0}';
+        WHEN 7 THEN
+            SET v_analytic_lines = 'PCG FARMING';
+            SET v_analytic_distribution = '{"15": 100.0}';
+        WHEN 8 THEN
+            SET v_analytic_lines = 'NE FUEL';
+            SET v_analytic_distribution = '{"6": 100.0}';
+        WHEN 9 THEN
+            SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
+            SET v_analytic_distribution = '{"17": 100.0}';
+        WHEN 10 THEN
+            SET v_analytic_lines = 'Avida';
+            SET v_analytic_distribution = '{"20": 100.0}';
+        WHEN 11 THEN
+            SET v_analytic_lines = 'Caalibangbangan';
+            SET v_analytic_distribution = '{"19": 100.0}';
+        WHEN 12 THEN
+            SET v_analytic_lines = 'Sta Rosa';
+            SET v_analytic_distribution = '{"18": 100.0}';
+        WHEN 13 THEN
+            SET v_analytic_lines = 'KPC VENTURE INC';
+            SET v_analytic_distribution = '{"16": 100.0}';
+        WHEN 14 THEN
+            SET v_analytic_lines = 'NE HAULING';
+            SET v_analytic_distribution = '{"7": 100.0}';
+        ELSE
+            SET v_analytic_lines = 'DEFAULT';
+            SET v_analytic_distribution = '{"0": 0.0}';
+    END CASE;
+    
+    IF p_sold_status = 'Sold' THEN
+        SET v_debit = '50402010 Cost of Sales Unit';
+        SET v_debit_analytic_lines = 'CGMI';
+        SET v_debit_analytic_distribution = '{"1": 100.0}';
+    ELSE
+        SET v_debit = '10501010 Inventory Unit';
+        SET v_debit_analytic_lines = 'CGMI';
+        SET v_debit_analytic_distribution = '{"1": 100.0}';
+    END IF;
+
+    SET v_credit = '40101040 Service Charge';
+    SET v_credit_analytic_lines = v_analytic_lines;
+    SET v_credit_analytic_distribution = v_analytic_distribution;
+     
+    SET v_debit_2 = '50402030 Cost of Service';
+    SET v_debit_analytic_lines_2 = v_analytic_lines;
+    SET v_debit_analytic_distribution_2 = v_analytic_distribution;
+
+    SET v_credit_2 = '20101990 Accounts Payable Contractor';
+    SET v_credit_analytic_lines_2 = 'CGMI';
+    SET v_credit_analytic_distribution_2 = '{"1": 100.0}';
+
+    SET v_debit_amount = p_markup;
+    SET v_credit_amount = p_markup;
+
+    SET v_debit_2_amount = p_cost;
+    SET v_credit_2_amount = p_cost;
+
+    -- Insert debit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_backjob_monitoring_id, 
+        NOW(), 
+        p_job_order_id, 
+        p_entry_type, 
+        v_debit, 
+        v_debit_amount, 
+        0, 
+        '', 
+        v_debit_analytic_lines, 
+        v_debit_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert credit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_sales_proposal_number, 
+        NOW(), 
+        p_job_order_id, 
+        p_entry_type, 
+        v_credit, 
+        0, 
+        v_credit_amount, 
+         '', 
+        v_credit_analytic_lines, 
+        v_credit_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert debit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_backjob_monitoring_id, 
+        NOW(), 
+        p_job_order_id, 
+        p_entry_type, 
+        v_debit_2, 
+        v_debit_2_amount, 
+        0, 
+        '', 
+        v_debit_analytic_lines_2, 
+        v_debit_analytic_distribution_2, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert credit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_backjob_monitoring_id, 
+        NOW(), 
+        p_job_order_id, 
+        p_entry_type, 
+        v_credit_2, 
+        0, 
+        v_credit_2_amount, 
+         '', 
+        v_credit_analytic_lines_2, 
+        v_credit_analytic_distribution_2, 
+        NOW(), 
+        p_last_log_by
+    );
+END//

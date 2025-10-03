@@ -2049,7 +2049,10 @@
                 <textarea class="form-control" id="set_to_draft_reason" name="set_to_draft_reason" maxlength="500"></textarea>
               </div>
             </div>
-            <div class="form-group row">
+            <?php
+              $draft_hidden = ($salesProposalStatus == 'Draft' || $salesProposalStatus == 'Cancelled' || $salesProposalStatus == 'Rejected' || $salesProposalStatus == 'Released' || $salesProposalStatus == 'For Review' || $salesProposalStatus == 'For Initial Approval') ? 'd-none': '';
+            ?>
+            <div class="form-group row <?php echo $draft_hidden; ?>">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Set To Draft File</label>
                 <input type="file" class="form-control" id="set_to_draft_file" name="set_to_draft_file">

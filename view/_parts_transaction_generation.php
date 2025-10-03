@@ -349,6 +349,214 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        case 'job order table 2':
+            $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM sales_proposal_job_order WHERE expense_created IS NOT NULL AND payment_date IS NULL AND payment_cancellation_date IS NULL');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $sales_proposal_job_order_id = $row['sales_proposal_job_order_id'];
+                
+                $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalJobOrder($sales_proposal_job_order_id);
+                $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
+                $job_order = $salesProposalJobOrderDetails['job_order'] ?? null;
+                $contractor_id = $salesProposalJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $salesProposalJobOrderDetails['work_center_id'] ?? null;
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
+                $action = '';
+                if($updatePaidStatus['total'] > 0){
+                    $action = '<button type="button" class="btn btn-icon btn-success paid-sp-job-order" data-sales-proposal-job-order-id="'. $sales_proposal_job_order_id  .'" title="Tag Paid">
+                                        <i class="ti ti-check"></i>
+                                    </button>
+                                     <button type="button" class="btn btn-icon btn-warning cancel-sp-job-order" data-sales-proposal-job-order-id="'. $sales_proposal_job_order_id  .'" title="Cancel Paid">
+                                        <i class="ti ti-x"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'internal job order table 2':
+            $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM backjob_monitoring_job_order WHERE expense_created IS NOT NULL AND payment_date IS NULL AND payment_cancellation_date IS NULL');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $backjob_monitoring_job_order_id  = $row['backjob_monitoring_job_order_id'];
+
+                $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringJobOrder($backjob_monitoring_job_order_id);
+                $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
+                $backjob_monitoring_id = $backJobMonitoringJobOrderDetails['backjob_monitoring_id'] ?? null;
+                $job_order = $backJobMonitoringJobOrderDetails['job_order'] ?? null;
+                $contractor_id = $backJobMonitoringJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $backJobMonitoringJobOrderDetails['work_center_id'] ?? null;
+
+                $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
+                $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
+               if($updatePaidStatus['total'] > 0){
+                    $action = '<button type="button" class="btn btn-icon btn-success paid-bj-job-order" data-backjob-monitoring-additional-job-order-id="'. $backjob_monitoring_job_order_id  .'" title="Tag Paid">
+                                        <i class="ti ti-check"></i>
+                                    </button>
+                                     <button type="button" class="btn btn-icon btn-warning cancel-sp-additional-job-order" data-backjob-monitoring-additional-job-order-id="'. $backjob_monitoring_job_order_id  .'" title="Cancel Paid">
+                                        <i class="ti ti-x"></i>
+                                    </button>';
+                }
+
+
+                $response[] = [
+                    'TYPE' => $backJobMonitoringType,
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'additional job order table 2':
+            $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
+            
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM sales_proposal_additional_job_order WHERE expense_created IS NOT NULL AND payment_date IS NULL AND payment_cancellation_date IS NULL');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $sales_proposal_additional_job_order_id = $row['sales_proposal_additional_job_order_id'];
+                
+                $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalAdditionalJobOrder($sales_proposal_additional_job_order_id);
+                $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
+                $job_order = $salesProposalJobOrderDetails['particulars'] ?? null;
+                $contractor_id = $salesProposalJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $salesProposalJobOrderDetails['work_center_id'] ?? null;
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
+                $action = '';
+                if($updatePaidStatus['total'] > 0){
+                    $action = '<button type="button" class="btn btn-icon btn-success paid-sp-additional-job-order" data-sales-proposal-additional-job-order-id="'. $sales_proposal_additional_job_order_id  .'" title="Tag Paid">
+                                        <i class="ti ti-check"></i>
+                                    </button>
+                                     <button type="button" class="btn btn-icon btn-warning cancel-sp-additional-job-order" data-sales-proposal-additional-job-order-id="'. $sales_proposal_additional_job_order_id  .'" title="Cancel Paid">
+                                        <i class="ti ti-x"></i>
+                                    </button>';
+                }
+
+
+                $response[] = [
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'internal additional job order table 2':
+            $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM backjob_monitoring_additional_job_order WHERE expense_created IS NOT NULL AND payment_date IS NULL AND payment_cancellation_date IS NULL');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $backjob_monitoring_additional_job_order_id   = $row['backjob_monitoring_additional_job_order_id'];
+                
+                $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringAdditionalJobOrder($backjob_monitoring_additional_job_order_id);
+                $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
+                $backjob_monitoring_id = $backJobMonitoringJobOrderDetails['backjob_monitoring_id'] ?? null;
+                $job_order = $backJobMonitoringJobOrderDetails['particulars'] ?? null;
+                $contractor_id = $backJobMonitoringJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $backJobMonitoringJobOrderDetails['work_center_id'] ?? null;
+
+                $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
+                $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
+                $action = '';
+                if($updatePaidStatus['total'] > 0){
+                    $action = '<button type="button" class="btn btn-icon btn-success paid-bj-additional-job-order" data-backjob-monitoring-additional-job-order-id="'. $backjob_monitoring_additional_job_order_id  .'" title="Tag Paid">
+                                        <i class="ti ti-check"></i>
+                                    </button>
+                                     <button type="button" class="btn btn-icon btn-warning cancel-bj-additional-job-order" data-backjob-monitoring-additional-job-order-id="'. $backjob_monitoring_additional_job_order_id  .'" title="Cancel Paid">
+                                        <i class="ti ti-x"></i>
+                                    </button>';
+                }
+
+
+                $response[] = [
+                    'TYPE' => $backJobMonitoringType,
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
         case 'add additional job order table':
             $parts_transaction_id = $_POST['parts_transaction_id'];
             $generate_job_order = $_POST['generate_job_order'];

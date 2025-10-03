@@ -21,7 +21,7 @@
           <?php
             $hidden = '';
             $suppliesHidden = '';
-            if($company == '2' || $company == '1'){
+            if($company == '2' || $company == '1' || $company == '3'){
               $hidden = 'd-none';
             }
 
@@ -73,6 +73,12 @@
                 <option value="">--</option>
                 <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
               </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Remarks</label>
+            <div class="col-lg-10">
+              <textarea class="form-control" id="remarks" name="remarks" maxlength="2000"></textarea>
             </div>
           </div>
         </form>

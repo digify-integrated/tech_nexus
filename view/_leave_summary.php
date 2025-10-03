@@ -19,7 +19,7 @@
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#leave-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Leave Status
                         </a>
-                        <div class="collapse show" id="leave-status-filter-collapse">
+                        <div class="collapse" id="leave-status-filter-collapse">
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
@@ -39,6 +39,30 @@
                                 <label class="form-check-label" for="leave-status-approved">Approved</label>
                               </div>
                             </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#leave-type-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Leave Type
+                        </a>
+                        <div class="collapse" id="leave-type-filter-collapse">
+                          <div class="py-3">
+                            <?php
+                              echo $leaveTypeModel->generateLeaveTypeCheckBox();
+                            ?>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#company-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Company
+                        </a>
+                        <div class="collapse" id="company-filter-collapse">
+                          <div class="py-3">
+                            <?php
+                              echo $companyModel->generateCompanyCheckBox();
+                            ?>
                           </div>
                         </div>
                       </li>

@@ -213,6 +213,26 @@ class LeaveTypeModel {
 
         return $htmlOptions;
     }
+
+    public function generateLeaveTypeCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateLeaveTypeWithoutAWOLOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $leaveTypeID = $row['leave_type_id'];
+            $leaveTypeName = $row['leave_type_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input leave-type-filter" type="checkbox" id="leave-type-' . htmlspecialchars($leaveTypeID, ENT_QUOTES) . '" value="' . htmlspecialchars($leaveTypeID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="leave-type-' . htmlspecialchars($leaveTypeID, ENT_QUOTES) . '">' . htmlspecialchars($leaveTypeName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+
     # -------------------------------------------------------------
 }
 ?>

@@ -147,6 +147,34 @@ class BackJobMonitoringModel {
         $stmt->execute();
     }
 
+    public function updateBackjobMonitoringJobOrderPaid($backjob_monitoring_job_order_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE backjob_monitoring_job_order SET payment_date = NOW(), last_log_by = :p_last_log_by WHERE backjob_monitoring_job_order_id = :backjob_monitoring_job_order_id');
+        $stmt->bindValue(':backjob_monitoring_job_order_id', $backjob_monitoring_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateBackjobMonitoringJobOrderPaidCancel($backjob_monitoring_job_order_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE backjob_monitoring_job_order SET payment_cancellation_date = NOW(), last_log_by = :p_last_log_by WHERE backjob_monitoring_job_order_id = :backjob_monitoring_job_order_id');
+        $stmt->bindValue(':backjob_monitoring_job_order_id', $backjob_monitoring_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateBackjobMonitoringAdditionalJobOrderPaid($backjob_monitoring_additional_job_order_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE backjob_monitoring_additional_job_order SET payment_date = NOW(), last_log_by = :p_last_log_by WHERE backjob_monitoring_additional_job_order_id = :backjob_monitoring_additional_job_order_id');
+        $stmt->bindValue(':backjob_monitoring_additional_job_order_id', $backjob_monitoring_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateBackjobMonitoringAdditionalJobOrderPaidCancel($backjob_monitoring_additional_job_order_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE backjob_monitoring_additional_job_order SET payment_cancellation_date = NOW(), last_log_by = :p_last_log_by WHERE backjob_monitoring_additional_job_order_id = :backjob_monitoring_additional_job_order_id');
+        $stmt->bindValue(':backjob_monitoring_additional_job_order_id', $backjob_monitoring_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function updateBackjobAdditionalJobOrderExpenseCreatedDate($backjob_monitoring_additional_job_order_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('UPDATE backjob_monitoring_additional_job_order SET expense_created = NOW(), last_log_by = :p_last_log_by WHERE backjob_monitoring_additional_job_order_id = :backjob_monitoring_additional_job_order_id');
         $stmt->bindValue(':backjob_monitoring_additional_job_order_id', $backjob_monitoring_additional_job_order_id, PDO::PARAM_INT);
@@ -177,6 +205,19 @@ class BackJobMonitoringModel {
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_status', $p_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_approval_remarks', $p_approval_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+     public function createBackjobJobOrderEntry($p_backjob_monitoring_id, $p_job_order_id, $p_entry_type, $p_company_id, $p_cost, $p_markup, $p_sold_status, $p_last_log_by): void {
+        $stmt = $this->db->getConnection()->prepare('CALL createBackjobJobOrderEntry(:p_backjob_monitoring_id, :p_job_order_id, :p_entry_type, :p_company_id, :p_cost, :p_markup, :p_sold_status, :p_last_log_by)');
+        $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_job_order_id', $p_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_entry_type', $p_entry_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_markup', $p_markup, PDO::PARAM_STR);
+        $stmt->bindValue(':p_sold_status', $p_sold_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

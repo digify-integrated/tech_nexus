@@ -3,9 +3,11 @@
   require('config/_check_user_active.php');
   require('model/leave-application-model.php');
   require('model/leave-type-model.php');
+  require('model/company-model.php');
 
   $leaveApplicationModel = new LeaveApplicationModel($databaseModel);
   $leaveTypeModel = new LeaveTypeModel($databaseModel);
+  $companyModel = new CompanyModel($databaseModel);
 
   $pageTitle = 'Leave Summary';
     

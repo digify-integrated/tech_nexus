@@ -433,7 +433,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $filterApprovalStartDate = $systemModel->checkDate('empty', $_POST['filter_approval_start_date'], '', 'Y-m-d', '');
             $filterApprovalEndDate = $systemModel->checkDate('empty', $_POST['filter_approval_end_date'], '', 'Y-m-d', '');
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateLeaveSummaryTable(:leaveStatusFilter, :filterLeaveStartDate, :filterLeaveEndDate, :filterApplicationStartDate, :filterApplicationEndDate, :filterApprovalStartDate, :filterApprovalEndDate)');
+            $leaveTypeFilter = htmlspecialchars($_POST['leave_type_filter'], ENT_QUOTES, 'UTF-8');
+            $companyFilter = htmlspecialchars($_POST['company_filter'], ENT_QUOTES, 'UTF-8');
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateLeaveSummaryTable(:leaveStatusFilter, :filterLeaveStartDate, :filterLeaveEndDate, :filterApplicationStartDate, :filterApplicationEndDate, :filterApprovalStartDate, :filterApprovalEndDate, :leaveTypeFilter, :companyFilter)');
             $sql->bindValue(':leaveStatusFilter', $leaveStatusFilter, PDO::PARAM_STR);
             $sql->bindValue(':filterLeaveStartDate', $filterLeaveStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterLeaveEndDate', $filterLeaveEndDate, PDO::PARAM_STR);
@@ -441,6 +444,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->bindValue(':filterApplicationEndDate', $filterApplicationEndDate, PDO::PARAM_STR);
             $sql->bindValue(':filterApprovalStartDate', $filterApprovalStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterApprovalEndDate', $filterApprovalEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':leaveTypeFilter', $leaveTypeFilter, PDO::PARAM_STR);
+            $sql->bindValue(':companyFilter', $companyFilter, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
