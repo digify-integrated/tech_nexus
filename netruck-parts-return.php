@@ -15,15 +15,16 @@
 
   $pageTitle = 'Parts Return';
     
-  $partsReturnReadAccess = $userModel->checkMenuItemAccessRights($user_id, 172, 'read');
-  $partsReturnCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 172, 'create');
-  $partsReturnWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 172, 'write');
-  $partsReturnDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 172, 'delete');
-  $partsReturnDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 172, 'duplicate');
+  $partsReturnReadAccess = $userModel->checkMenuItemAccessRights($user_id, 174, 'read');
+  $partsReturnCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 174, 'create');
+  $partsReturnWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 174, 'write');
+  $partsReturnDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 174, 'delete');
+  $partsReturnDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 174, 'duplicate');
   $viewPartCost = $userModel->checkSystemActionAccessRights($user_id, 212);
   $updatePartCost = $userModel->checkSystemActionAccessRights($user_id, 211);
   $updatePartReturnCompletedCost = $userModel->checkSystemActionAccessRights($user_id, 213);
-  $approvePartsReturn = $userModel->checkSystemActionAccessRights($user_id, 225);
+  $approvePartsReturn = $userModel->checkSystemActionAccessRights($user_id, 209);
+  $postPartsReturn = $userModel->checkSystemActionAccessRights($user_id, 214);
 
   if ($partsReturnReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -50,7 +51,7 @@
     $partsReturnID = null;
   }
 
-  $company = '3';
+  $company = '2';
   $cardLabel = 'Parts';
 
   $newRecord = isset($_GET['new']);
@@ -85,7 +86,7 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="parts-return.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="netruck-parts-return.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($partsReturnID)){
                             echo '<li class="breadcrumb-item" id="parts-return-id">'. $partsReturnID .'</li>';

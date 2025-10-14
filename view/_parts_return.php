@@ -15,10 +15,10 @@
                   $action .= '<div class="btn-group m-r-10">
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                  <li><button class="dropdown-item" type="button" id="delete-parts-return">Delete '. $cardLabel .' Return</button></li>
+                                  <li><button class="dropdown-item" type="button" id="delete-parts-return">Delete '.  $cardLabel .' Return</button></li>
                                 </ul>
                               </div>';
-                }
+                  }
 
                 if($partsReturnCreateAccess['total'] > 0){
                   if($company == '1'){
@@ -30,7 +30,6 @@
                   else{
                     $action .= '<a href="parts-return.php?new" class="btn btn-success">Create</a>';
                   }
-                   
                 }
                               
                 echo $action;
@@ -48,21 +47,10 @@
           <table id="parts-return-table" class="table table-hover nowrap w-100">
             <thead>
               <tr>
-                <th>Reference Number</th>
-                <th>Product</th>
-                <th>Item Lines</th>
-                <th>Item Quantity</th>
-                <th>Received Items</th>
-                <th>Supplier</th>
-                <?php
-                  if($viewPartCost['total'] > 0){
-                    echo '<th>Total Cost</th>';
-                  }
-                ?>
-                <th>Completion Date</th>
-                <th>Delivery Date</th>
-                <th>Transaction Date</th>
-                <th>Posting Date</th>
+               <th>Ref. No.</th>
+               <th>Supplier</th>
+                <th>Ref. Invoice No.</th>
+                <th>Ref. PO No.</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -103,27 +91,14 @@
                   </div>
                 </li>
                 <li class="list-group-item px-0 py-2">
-                  <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#released-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                    Released Date
+                  <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#approval-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                    Approval Date
                   </a>
-                  <div class="collapse" id="released-date-filter-collapse">
+                  <div class="collapse" id="approval-date-filter-collapse">
                     <div class="row py-3">
                       <div class="col-12">
-                        <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_released_date_start_date" id="filter_released_date_start_date" placeholder="Start Date">
-                        <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_released_date_end_date" id="filter_released_date_end_date" placeholder="End Date" >
-                      </div>
-                    </div>
-                  </div>
-                </li>
-                <li class="list-group-item px-0 py-2">
-                  <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#purchased-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                    Purchased Date
-                  </a>
-                  <div class="collapse" id="purchased-date-filter-collapse">
-                    <div class="row py-3">
-                      <div class="col-12">
-                        <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_purchased_date_start_date" id="filter_purchased_date_start_date" placeholder="Start Date">
-                        <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_purchased_date_end_date" id="filter_purchased_date_end_date" placeholder="End Date" >
+                        <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_approval_date_start_date" id="filter_approval_date_start_date" placeholder="Start Date">
+                        <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_approval_date_end_date" id="filter_approval_date_end_date" placeholder="End Date" >
                       </div>
                     </div>
                   </div>
@@ -136,24 +111,20 @@
                     <div class="row py-3">
                       <div class="col-12">
                         <div class="form-check my-2">
-                          <input class="form-check-input return-status-checkbox" type="checkbox" id="return-status-draft" value="Draft"/>
+                          <input class="form-check-input return-status-checkbox" type="checkbox" id="return-status-draft" value="Draft" checked/>
                           <label class="form-check-label" for="return-status-draft">Draft</label>
                         </div>
                         <div class="form-check my-2">
-                          <input class="form-check-input return-status-checkbox" type="checkbox" id="return-status-for-approval" value="For Approval"/>
-                          <label class="form-check-label" for="return-status-for-approval">For Approval</label>
+                          <input class="form-check-input return-status-checkbox" type="checkbox" id="return-status-for-validation" value="For Validation" checked/>
+                          <label class="form-check-label" for="return-status-for-validation">For Validation</label>
                         </div>
                         <div class="form-check my-2">
-                          <input class="form-check-input return-status-checkbox" type="checkbox" id="return-status-onprocess" value="On-Process"/>
-                          <label class="form-check-label" for="return-status-onprocess">On-Process</label>
+                          <input class="form-check-input return-status-checkbox" type="checkbox" id="return-status-validated" value="Validated" checked/>
+                          <label class="form-check-label" for="return-status-validated">Validated</label>
                         </div>
                         <div class="form-check my-2">
-                          <input class="form-check-input return-status-checkbox" type="checkbox" id="return-status-completed" value="Completed"/>
-                          <label class="form-check-label" for="return-status-completed">Completed</label>
-                        </div>
-                        <div class="form-check my-2">
-                          <input class="form-check-input return-status-checkbox" type="checkbox" id="return-status-posted" value="Posted"/>
-                          <label class="form-check-label" for="return-status-posted">Posted</label>
+                          <input class="form-check-input return-status-checkbox" type="checkbox" id="return-status-released" value="Released"/>
+                          <label class="form-check-label" for="return-status-released">Released</label>
                         </div>
                         <div class="form-check my-2">
                           <input class="form-check-input return-status-checkbox" type="checkbox" id="return-status-cancelled" value="Cancelled"/>

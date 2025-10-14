@@ -147,9 +147,11 @@ class BackJobMonitoringModel {
         $stmt->execute();
     }
 
-    public function updateBackjobMonitoringJobOrderPaid($backjob_monitoring_job_order_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('UPDATE backjob_monitoring_job_order SET payment_date = NOW(), last_log_by = :p_last_log_by WHERE backjob_monitoring_job_order_id = :backjob_monitoring_job_order_id');
+    public function updateBackjobMonitoringJobOrderPaid($backjob_monitoring_job_order_id, $p_reference_number, $p_payment_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE backjob_monitoring_job_order SET payment_reference_no = :p_reference_number, payment_date = :p_payment_date, last_log_by = :p_last_log_by WHERE backjob_monitoring_job_order_id = :backjob_monitoring_job_order_id');
         $stmt->bindValue(':backjob_monitoring_job_order_id', $backjob_monitoring_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_date', $p_payment_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -161,9 +163,11 @@ class BackJobMonitoringModel {
         $stmt->execute();
     }
 
-    public function updateBackjobMonitoringAdditionalJobOrderPaid($backjob_monitoring_additional_job_order_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('UPDATE backjob_monitoring_additional_job_order SET payment_date = NOW(), last_log_by = :p_last_log_by WHERE backjob_monitoring_additional_job_order_id = :backjob_monitoring_additional_job_order_id');
+    public function updateBackjobMonitoringAdditionalJobOrderPaid($backjob_monitoring_additional_job_order_id, $p_reference_number, $p_payment_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE backjob_monitoring_additional_job_order SET payment_reference_no = :p_reference_number, payment_date = :p_payment_date, last_log_by = :p_last_log_by WHERE backjob_monitoring_additional_job_order_id = :backjob_monitoring_additional_job_order_id');
         $stmt->bindValue(':backjob_monitoring_additional_job_order_id', $backjob_monitoring_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_date', $p_payment_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -460,8 +464,6 @@ class BackJobMonitoringModel {
             else{
                 $htmlOptions .= '<option value="' . htmlspecialchars($bankAccountTypeID, ENT_QUOTES) . '">Back Job - ' . $sales_proposal_number .'</option>';
             }
-
-           
         }
 
         return $htmlOptions;

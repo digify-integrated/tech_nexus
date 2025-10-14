@@ -646,6 +646,64 @@
             });
         });
 
+        $(document).on('click','.delete-internal-additional-job-order',function() {
+            const parts_transaction_additional_job_order_id = $(this).data('parts-transaction-additional-job-order-id');
+            var parts_transaction_id = $('#parts-transaction-id').text();
+            const transaction = 'delete additional job order';
+    
+            Swal.fire({
+                title: 'Confirm Additional Job Order Unlink',
+                text: 'Are you sure you want to unlink this additional job order?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Unlink',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/parts-transaction-controller.php',
+                        dataType: 'json',
+                        data: {
+                            parts_transaction_additional_job_order_id : parts_transaction_additional_job_order_id, 
+                            parts_transaction_id : parts_transaction_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Unlink Additional Job Order Success', 'The additional job order has been unlinked successfully.', 'success');
+                                reloadDatatable('#additional-job-order-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Unlink Additional Job Order Error', 'The additional job order does not exists.', 'danger');
+                                    reloadDatatable('#additional-job-order-table');
+                                }
+                                else {
+                                    showNotification('Unlink Additional Job Order Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('click','.delete-internal-job-order',function() {
             const parts_transaction_additional_job_order_id = $(this).data('parts-transaction-additional-job-order-id');
             var parts_transaction_id = $('#parts-transaction-id').text();

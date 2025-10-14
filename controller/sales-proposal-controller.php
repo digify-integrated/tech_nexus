@@ -25,6 +25,7 @@ class SalesProposalController {
     private $systemSettingModel;
     private $companyModel;
     private $emailSettingModel;
+    private $workCenterModel;
     private $notificationSettingModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
@@ -53,7 +54,7 @@ class SalesProposalController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, ProductModel $productModel, BodyTypeModel $bodyTypeModel, ColorModel $colorModel, ProductSubcategoryModel $productSubcategoryModel, ContractorModel $contractorModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, ProductModel $productModel, BodyTypeModel $bodyTypeModel, ColorModel $colorModel, ProductSubcategoryModel $productSubcategoryModel, ContractorModel $contractorModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, WorkCenterModel $workCenterModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->salesProposalModel = $salesProposalModel;
         $this->customerModel = $customerModel;
         $this->productModel = $productModel;
@@ -67,6 +68,7 @@ class SalesProposalController {
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
         $this->emailSettingModel = $emailSettingModel;
+        $this->workCenterModel = $workCenterModel;
         $this->notificationSettingModel = $notificationSettingModel;
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
@@ -528,12 +530,12 @@ class SalesProposalController {
         $contactID = $_SESSION['contact_id'] ?? 1;
         $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
         $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
-        $forRegistration = 'Yes';
-        $withCR = 'Yes';
-        $forTransfer = 'Yes';
-        $forChangeColor = 'Yes';
+        $forRegistration = htmlspecialchars($_POST['for_registration'], ENT_QUOTES, 'UTF-8');
+        $forChangeColor = htmlspecialchars($_POST['for_change_color'], ENT_QUOTES, 'UTF-8');
+        $withCR = htmlspecialchars($_POST['with_cr'], ENT_QUOTES, 'UTF-8');
+        $forTransfer = htmlspecialchars($_POST['for_transfer'], ENT_QUOTES, 'UTF-8');
         $newColor = htmlspecialchars($_POST['new_color'], ENT_QUOTES, 'UTF-8');
-        $forChangeBody = 'Yes';
+        $forChangeBody = htmlspecialchars($_POST['for_change_body'], ENT_QUOTES, 'UTF-8');
         $newBody = htmlspecialchars($_POST['new_body'], ENT_QUOTES, 'UTF-8');
         $forChangeEngine = htmlspecialchars($_POST['for_change_engine'], ENT_QUOTES, 'UTF-8');
         $newEngine = htmlspecialchars($_POST['new_engine'], ENT_QUOTES, 'UTF-8');
@@ -4071,11 +4073,19 @@ class SalesProposalController {
         }
     
         $userID = $_SESSION['user_id'];
-        $salesProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $salesProposalJobOrderID = htmlspecialchars($_POST['job_order_id'], ENT_QUOTES, 'UTF-8');
+        $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
+        $payment_date = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
+
         $salesProposalJobOrderDetails = $this->salesProposalModel->getSalesProposalJobOrder($salesProposalJobOrderID);
         $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'];
         $cost_markup = $salesProposalJobOrderDetails['cost_markup'];
         $job_cost = $salesProposalJobOrderDetails['job_cost'];
+        $job_order = $salesProposalJobOrderDetails['job_order'];
+        $work_center_id = $salesProposalJobOrderDetails['work_center_id'];
+
+        $workCenterDetails = $this->workCenterModel->getWorkCenter($work_center_id);
+        $work_center_name = $workCenterDetails['work_center_name'] ?? null;
         $entry_type = 'Job Order';
 
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($sales_proposal_id);
@@ -4088,7 +4098,9 @@ class SalesProposalController {
 
         $this->salesProposalModel->createJobOrderEntry($sales_proposal_number, $salesProposalJobOrderID, $entry_type, $company_id, $job_cost, $cost_markup, $product_status, $userID);
 
-        $this->salesProposalModel->updateSalesProposalJobOrderPaid($salesProposalJobOrderID, $userID);
+        $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_number, $cost_markup, $work_center_name, $job_order, date('Y-m-d'), $userID);
+
+        $this->salesProposalModel->updateSalesProposalJobOrderPaid($salesProposalJobOrderID, $reference_number, $payment_date, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -4114,12 +4126,19 @@ class SalesProposalController {
         }
     
         $userID = $_SESSION['user_id'];
-        $salesAdditionalProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_additional_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $salesAdditionalProposalJobOrderID = htmlspecialchars($_POST['job_order_id'], ENT_QUOTES, 'UTF-8');
+        $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
+        $payment_date = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
 
         $salesProposalJobOrderDetails = $this->salesProposalModel->getSalesProposalAdditionalJobOrder($salesAdditionalProposalJobOrderID);
         $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'];
         $cost_markup = $salesProposalJobOrderDetails['cost_markup'];
         $job_cost = $salesProposalJobOrderDetails['job_cost'];
+        $particulars = $salesProposalJobOrderDetails['particulars'];
+        $work_center_id = $salesProposalJobOrderDetails['work_center_id'];
+
+        $workCenterDetails = $this->workCenterModel->getWorkCenter($work_center_id);
+        $work_center_name = $workCenterDetails['work_center_name'] ?? null;
         $entry_type = 'Additional Job Order';
 
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($sales_proposal_id);
@@ -4131,8 +4150,10 @@ class SalesProposalController {
         $product_status = $productDetails['product_status'] ?? 'Draft';
 
         $this->salesProposalModel->createJobOrderEntry($sales_proposal_number, $salesAdditionalProposalJobOrderID, $entry_type, $company_id, $job_cost, $cost_markup, $product_status, $userID);
+
+        $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_number, $cost_markup, $work_center_name, $particulars, date('Y-m-d'), $userID);
     
-        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderPaid($salesAdditionalProposalJobOrderID, $userID);
+        $this->salesProposalModel->updateSalesProposalAdditionalJobOrderPaid($salesAdditionalProposalJobOrderID, $reference_number, $payment_date, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -5506,7 +5527,8 @@ class SalesProposalController {
         $mailer->setFrom($mailFromEmail, $mailFromName);
         $mailer->addAddress('l.agulto@christianmotors.ph');
         $mailer->addAddress('christianbaguisa@christianmotors.ph');
-        $mailer->addAddress('glenbonita@christianmotors.ph');
+        $mailer->addAddress('ma.garsula@christianmotors.ph');
+        #$mailer->addAddress('glenbonita@christianmotors.ph');
 
         $mailer->Subject = $emailSubject;
         $mailer->Body = $message;
@@ -5718,12 +5740,13 @@ require_once '../model/body-type-model.php';
 require_once '../model/color-model.php';
 require_once '../model/contractor-model.php';
 require_once '../model/email-setting-model.php';
+require_once '../model/work-center-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require '../assets/libs/PHPMailer/src/PHPMailer.php';
 require '../assets/libs/PHPMailer/src/Exception.php';
 require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new ProductModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new ColorModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new ContractorModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new ProductModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new ColorModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new ContractorModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new WorkCenterModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

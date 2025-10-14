@@ -330,7 +330,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $action = '';
                 if($part_transaction_status == 'Draft' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
-                    $action = '<button type="button" class="btn btn-icon btn-danger delete-internal-additional-job-order" data-parts-transaction-additional-job-order-id="'. $part_transaction_additional_job_order_id   .'" title="Delete Internal Additional Job Order">
+                    $action = '<button type="button" class="btn btn-icon btn-danger delete-internal-additional-job-order" data-parts-transaction-additional-job-order-id="'. $part_transaction_additional_job_order_id  .'" title="Delete Internal Additional Job Order">
                                         <i class="ti ti-trash"></i>
                                     </button>';
                 }
@@ -351,20 +351,41 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'job order table 2':
             $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
+            $filter_payment_status = $_POST['filter_payment_status'] ?? ''; // e.g. "Paid", "Cancelled", "Unpaid"
 
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM sales_proposal_job_order WHERE expense_created IS NOT NULL AND payment_date IS NULL AND payment_cancellation_date IS NULL');
+            $query = 'SELECT * FROM sales_proposal_job_order WHERE job_cost > 0';
+            $conditions = [];
+
+            // Build conditions based on filter
+            if ($filter_payment_status === 'Paid') {
+                $conditions[] = 'payment_date IS NOT NULL';
+            } elseif ($filter_payment_status === 'Cancelled') {
+                $conditions[] = 'payment_cancellation_date IS NOT NULL';
+            } else {
+                $conditions[] = '(payment_date IS NULL AND payment_cancellation_date IS NULL)';
+            }
+
+            // If any conditions were added, append them with OR
+            if (!empty($conditions)) {
+                $query .= ' AND (' . implode(' OR ', $conditions) . ')';
+            }
+
+            $sql = $databaseModel->getConnection()->prepare( $query);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             foreach ($options as $row) {
                 $sales_proposal_job_order_id = $row['sales_proposal_job_order_id'];
+                $payment_date = $row['payment_date'];
+                $payment_cancellation_date = $row['payment_cancellation_date'];
                 
                 $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalJobOrder($sales_proposal_job_order_id);
                 $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
                 $job_order = $salesProposalJobOrderDetails['job_order'] ?? null;
                 $contractor_id = $salesProposalJobOrderDetails['contractor_id'] ?? null;
                 $work_center_id = $salesProposalJobOrderDetails['work_center_id'] ?? null;
+                $job_cost = $salesProposalJobOrderDetails['job_cost'] ?? 0;
 
                 $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
                 $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
@@ -376,8 +397,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
                 $action = '';
-                if($updatePaidStatus['total'] > 0){
-                    $action = '<button type="button" class="btn btn-icon btn-success paid-sp-job-order" data-sales-proposal-job-order-id="'. $sales_proposal_job_order_id  .'" title="Tag Paid">
+                if($updatePaidStatus['total'] > 0 && empty($payment_date) && empty($payment_cancellation_date)){
+                    $action = '<button type="button" class="btn btn-icon btn-success paid-sp-job-order" data-bs-toggle="offcanvas" data-bs-target="#paid-offcanvas" aria-controls="paid-offcanvas" data-sales-proposal-job-order-id="'. $sales_proposal_job_order_id  .'" title="Tag Paid">
                                         <i class="ti ti-check"></i>
                                     </button>
                                      <button type="button" class="btn btn-icon btn-warning cancel-sp-job-order" data-sales-proposal-job-order-id="'. $sales_proposal_job_order_id  .'" title="Cancel Paid">
@@ -385,11 +406,23 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </button>';
                 }
 
+                if(empty($payment_date) && empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-info">Unpaid</span>';
+                }
+                else if(!empty($payment_date) && empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-success">Paid</span>';
+                }
+                else if(empty($payment_date) && !empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-warning">Cancelled</span>';
+                }
+
                 $response[] = [
                     'OS_NUMBER' => $sales_proposal_number,
                     'JOB_ORDER' => $job_order,
+                    'JOB_COST' => number_format($job_cost, 2) . ' PHP',
                     'CONTRACTOR' => $contractor_name,
                     'WORK_CENTER' => $work_center_name,
+                    'STATUS' => $status,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -400,14 +433,34 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'internal job order table 2':
             $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
+            $filter_payment_status = $_POST['filter_payment_status'] ?? ''; // e.g. "Paid", "Cancelled", "Unpaid"
 
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM backjob_monitoring_job_order WHERE expense_created IS NOT NULL AND payment_date IS NULL AND payment_cancellation_date IS NULL');
+            $query = 'SELECT * FROM backjob_monitoring_job_order WHERE cost > 0';
+            $conditions = [];
+
+            // Build conditions based on filter
+            if ($filter_payment_status === 'Paid') {
+                $conditions[] = 'payment_date IS NOT NULL';
+            } elseif ($filter_payment_status === 'Cancelled') {
+                $conditions[] = 'payment_cancellation_date IS NOT NULL';
+            } else {
+                $conditions[] = '(payment_date IS NULL AND payment_cancellation_date IS NULL)';
+            }
+
+            // If any conditions were added, append them with OR
+            if (!empty($conditions)) {
+                $query .= ' AND (' . implode(' OR ', $conditions) . ')';
+            }
+
+            $sql = $databaseModel->getConnection()->prepare( $query);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             foreach ($options as $row) {
                 $backjob_monitoring_job_order_id  = $row['backjob_monitoring_job_order_id'];
+                $payment_date = $row['payment_date'];
+                $payment_cancellation_date = $row['payment_cancellation_date'];
 
                 $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringJobOrder($backjob_monitoring_job_order_id);
                 $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
@@ -415,6 +468,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $job_order = $backJobMonitoringJobOrderDetails['job_order'] ?? null;
                 $contractor_id = $backJobMonitoringJobOrderDetails['contractor_id'] ?? null;
                 $work_center_id = $backJobMonitoringJobOrderDetails['work_center_id'] ?? null;
+                $cost = $backJobMonitoringJobOrderDetails['cost'] ?? 0;
 
                 $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
                 $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
@@ -428,22 +482,36 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
                 $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
-               if($updatePaidStatus['total'] > 0){
-                    $action = '<button type="button" class="btn btn-icon btn-success paid-bj-job-order" data-backjob-monitoring-additional-job-order-id="'. $backjob_monitoring_job_order_id  .'" title="Tag Paid">
+                $action = '';
+                if($updatePaidStatus['total'] > 0 && empty($payment_date) && empty($payment_cancellation_date)){
+                    $action = '<button type="button" class="btn btn-icon btn-success paid-bj-job-order" data-bs-toggle="offcanvas" data-bs-target="#paid-offcanvas" aria-controls="paid-offcanvas" data-backjob-monitoring-job-order-id="'. $backjob_monitoring_job_order_id  .'" title="Tag Paid">
                                         <i class="ti ti-check"></i>
                                     </button>
-                                     <button type="button" class="btn btn-icon btn-warning cancel-sp-additional-job-order" data-backjob-monitoring-additional-job-order-id="'. $backjob_monitoring_job_order_id  .'" title="Cancel Paid">
+                                     <button type="button" class="btn btn-icon btn-warning cancel-sp-job-order" data-backjob-monitoring-job-order-id="'. $backjob_monitoring_job_order_id  .'" title="Cancel Paid">
                                         <i class="ti ti-x"></i>
                                     </button>';
                 }
+
+                if(empty($payment_date) && empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-info">Unpaid</span>';
+                }
+                else if(!empty($payment_date) && empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-success">Paid</span>';
+                }
+                else if(empty($payment_date) && !empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-warning">Cancelled</span>';
+                }
+            
 
 
                 $response[] = [
                     'TYPE' => $backJobMonitoringType,
                     'OS_NUMBER' => $sales_proposal_number,
                     'JOB_ORDER' => $job_order,
+                    'JOB_COST' => number_format($cost, 2) . ' PHP',
                     'CONTRACTOR' => $contractor_name,
                     'WORK_CENTER' => $work_center_name,
+                    'STATUS' => $status,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -454,20 +522,41 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'additional job order table 2':
             $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
+            $filter_payment_status = $_POST['filter_payment_status'] ?? ''; // e.g. "Paid", "Cancelled", "Unpaid"
             
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM sales_proposal_additional_job_order WHERE expense_created IS NOT NULL AND payment_date IS NULL AND payment_cancellation_date IS NULL');
+            $query = 'SELECT * FROM sales_proposal_additional_job_order WHERE job_cost > 0';
+            $conditions = [];
+
+            // Build conditions based on filter
+            if ($filter_payment_status === 'Paid') {
+                $conditions[] = 'payment_date IS NOT NULL';
+            } elseif ($filter_payment_status === 'Cancelled') {
+                $conditions[] = 'payment_cancellation_date IS NOT NULL';
+            } else {
+                $conditions[] = '(payment_date IS NULL AND payment_cancellation_date IS NULL)';
+            }
+
+            // If any conditions were added, append them with OR
+            if (!empty($conditions)) {
+                $query .= ' AND (' . implode(' OR ', $conditions) . ')';
+            }
+
+            $sql = $databaseModel->getConnection()->prepare( $query);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             foreach ($options as $row) {
                 $sales_proposal_additional_job_order_id = $row['sales_proposal_additional_job_order_id'];
+                $payment_date = $row['payment_date'];
+                $payment_cancellation_date = $row['payment_cancellation_date'];
                 
                 $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalAdditionalJobOrder($sales_proposal_additional_job_order_id);
                 $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
                 $job_order = $salesProposalJobOrderDetails['particulars'] ?? null;
                 $contractor_id = $salesProposalJobOrderDetails['contractor_id'] ?? null;
                 $work_center_id = $salesProposalJobOrderDetails['work_center_id'] ?? null;
+                $job_cost = $salesProposalJobOrderDetails['job_cost'] ?? 0;
 
                 $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
                 $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
@@ -479,8 +568,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
                 $action = '';
-                if($updatePaidStatus['total'] > 0){
-                    $action = '<button type="button" class="btn btn-icon btn-success paid-sp-additional-job-order" data-sales-proposal-additional-job-order-id="'. $sales_proposal_additional_job_order_id  .'" title="Tag Paid">
+                if($updatePaidStatus['total'] > 0 && empty($payment_date) && empty($payment_cancellation_date)){
+                    $action = '<button type="button" class="btn btn-icon btn-success paid-sp-additional-job-order" data-bs-toggle="offcanvas" data-bs-target="#paid-offcanvas" aria-controls="paid-offcanvas" data-sales-proposal-additional-job-order-id="'. $sales_proposal_additional_job_order_id  .'" title="Tag Paid">
                                         <i class="ti ti-check"></i>
                                     </button>
                                      <button type="button" class="btn btn-icon btn-warning cancel-sp-additional-job-order" data-sales-proposal-additional-job-order-id="'. $sales_proposal_additional_job_order_id  .'" title="Cancel Paid">
@@ -488,12 +577,24 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </button>';
                 }
 
+                if(empty($payment_date) && empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-info">Unpaid</span>';
+                }
+                else if(!empty($payment_date) && empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-success">Paid</span>';
+                }
+                else if(empty($payment_date) && !empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-warning">Cancelled</span>';
+                }
+
 
                 $response[] = [
                     'OS_NUMBER' => $sales_proposal_number,
                     'JOB_ORDER' => $job_order,
+                    'JOB_COST' => number_format($job_cost, 2) . ' PHP',
                     'CONTRACTOR' => $contractor_name,
                     'WORK_CENTER' => $work_center_name,
+                    'STATUS' => $status,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -504,14 +605,34 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'internal additional job order table 2':
             $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
+            $filter_payment_status = $_POST['filter_payment_status'] ?? ''; // e.g. "Paid", "Cancelled", "Unpaid"
 
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM backjob_monitoring_additional_job_order WHERE expense_created IS NOT NULL AND payment_date IS NULL AND payment_cancellation_date IS NULL');
+            $query = 'SELECT * FROM backjob_monitoring_additional_job_order WHERE cost > 0';
+            $conditions = [];
+
+            // Build conditions based on filter
+            if ($filter_payment_status === 'Paid') {
+                $conditions[] = 'payment_date IS NOT NULL';
+            } elseif ($filter_payment_status === 'Cancelled') {
+                $conditions[] = 'payment_cancellation_date IS NOT NULL';
+            } else {
+                $conditions[] = '(payment_date IS NULL AND payment_cancellation_date IS NULL)';
+            }
+
+            // If any conditions were added, append them with OR
+            if (!empty($conditions)) {
+                $query .= ' AND (' . implode(' OR ', $conditions) . ')';
+            }
+
+            $sql = $databaseModel->getConnection()->prepare( $query);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             foreach ($options as $row) {
                 $backjob_monitoring_additional_job_order_id   = $row['backjob_monitoring_additional_job_order_id'];
+                $payment_date = $row['payment_date'];
+                $payment_cancellation_date = $row['payment_cancellation_date'];
                 
                 $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringAdditionalJobOrder($backjob_monitoring_additional_job_order_id);
                 $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
@@ -519,6 +640,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $job_order = $backJobMonitoringJobOrderDetails['particulars'] ?? null;
                 $contractor_id = $backJobMonitoringJobOrderDetails['contractor_id'] ?? null;
                 $work_center_id = $backJobMonitoringJobOrderDetails['work_center_id'] ?? null;
+                $cost = $backJobMonitoringJobOrderDetails['cost'] ?? 0;
 
                 $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
                 $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
@@ -533,8 +655,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
                 $action = '';
-                if($updatePaidStatus['total'] > 0){
-                    $action = '<button type="button" class="btn btn-icon btn-success paid-bj-additional-job-order" data-backjob-monitoring-additional-job-order-id="'. $backjob_monitoring_additional_job_order_id  .'" title="Tag Paid">
+                if($updatePaidStatus['total'] > 0 && empty($payment_date) && empty($payment_cancellation_date)){
+                    $action = '<button type="button" class="btn btn-icon btn-success paid-bj-additional-job-order" data-bs-toggle="offcanvas" data-bs-target="#paid-offcanvas" aria-controls="paid-offcanvas" data-backjob-monitoring-additional-job-order-id="'. $backjob_monitoring_additional_job_order_id  .'" title="Tag Paid">
                                         <i class="ti ti-check"></i>
                                     </button>
                                      <button type="button" class="btn btn-icon btn-warning cancel-bj-additional-job-order" data-backjob-monitoring-additional-job-order-id="'. $backjob_monitoring_additional_job_order_id  .'" title="Cancel Paid">
@@ -542,13 +664,24 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </button>';
                 }
 
+                if(empty($payment_date) && empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-info">Unpaid</span>';
+                }
+                else if(!empty($payment_date) && empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-success">Paid</span>';
+                }
+                else if(empty($payment_date) && !empty($payment_cancellation_date)){
+                    $status = '<span class="badge bg-warning">Cancelled</span>';
+                }
 
                 $response[] = [
                     'TYPE' => $backJobMonitoringType,
                     'OS_NUMBER' => $sales_proposal_number,
                     'JOB_ORDER' => $job_order,
+                    'JOB_COST' => number_format($cost, 2) . ' PHP',
                     'CONTRACTOR' => $contractor_name,
                     'WORK_CENTER' => $work_center_name,
+                    'STATUS' => $status,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -757,6 +890,91 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         '. $part_transaction_id .'
                                     </a>',
                     'PRODUCT' => $stock_number,
+                    'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
+                    'ADD_ON' => number_format($add_on, 2) .' PHP',
+                    'DISCOUNT' => $discount,
+                    'DISCOUNT_TOTAL' => number_format($discount_total, 2) .' PHP',
+                    'SUBTOTAL' => number_format($sub_total, 2) .' PHP',
+                    'TOTAL' => number_format($total, 2) .' PHP',
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'part item table 3':
+            $product_id = $_POST['product_id'];
+
+            $parts_transaction_start_date = $systemModel->checkDate('empty', $_POST['parts_transaction_start_date'], '', 'Y-m-d', '');
+            $parts_transaction_end_date = $systemModel->checkDate('empty', $_POST['parts_transaction_end_date'], '', 'Y-m-d', '');                   
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePartItemTable3(:product_id, :parts_transaction_start_date, :parts_transaction_end_date)');
+            $sql->bindValue(':product_id', $product_id, PDO::PARAM_STR);
+            $sql->bindValue(':parts_transaction_start_date', $parts_transaction_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':parts_transaction_end_date', $parts_transaction_end_date, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_transaction_cart_id = $row['part_transaction_cart_id'];
+                $part_transaction_id = $row['part_transaction_id'];
+                $part_id = $row['part_id'];
+                $quantity = $row['quantity'];
+                $discount = $row['discount'];
+                $discount_type = $row['discount_type'];
+                $discount_total = $row['discount_total'];
+                $sub_total = $row['sub_total'];
+                $total = $row['total'];
+                $add_on = $row['add_on'];
+                $price = $row['price'];
+               
+                $partDetails = $partsModel->getParts($part_id);
+                 $description = $partDetails['description'];
+                $unitSale = $partDetails['unit_sale'] ?? null;
+
+                $unitCode = $unitModel->getUnit($unitSale);
+                $short_name = $unitCode['short_name'] ?? null;   
+
+                $partTransactionDetails = $partsTransactionModel->getPartsTransaction($part_transaction_id);
+                $company_id = $partTransactionDetails['company_id'];
+                 $customer_type = $partTransactionDetails['customer_type'];
+                $customer_id = $partTransactionDetails['customer_id'];
+
+                if($customer_type == 'Internal'){
+                    $productDetails = $productModel->getProduct($customer_id);
+                    $stock_number = $productDetails['stock_number'];
+                }
+                else{
+                    $stock_number = '--';
+                }
+
+                $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
+
+                if($discount_type === 'Amount'){
+                    $discount = number_format($discount, 2) . ' PHP';
+                }
+                else{
+                    $discount = number_format($discount, decimals: 2) . '%';
+                }
+
+                $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
+
+                if($company_id == '1'){
+                    $link = 'supplies-transaction';
+                }
+                else if($company_id == '2'){
+                    $link = 'netruck-parts-transaction';
+                }
+                else{
+                    $link = 'parts-transaction';
+                }
+                
+                $response[] = [
+                    'PART_TRANSACTION_NO' => '<a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" target="_blank">
+                                        '. $part_transaction_id .'
+                                    </a>',
+                    'PRODUCT' => $stock_number,
+                    'PART' => $description,
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
                     'ADD_ON' => number_format($add_on, 2) .' PHP',
                     'DISCOUNT' => $discount,

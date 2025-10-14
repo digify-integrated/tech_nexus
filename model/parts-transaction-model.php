@@ -194,6 +194,20 @@ class PartsTransactionModel {
         $stmt->execute();
     }
 
+    public function createPartsTransactionEntryReversed($p_part_transaction_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_customer_type, $p_is_service, $p_product_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createPartsTransactionEntryReversed(:p_part_transaction_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_customer_type, :p_is_service, :p_product_status, :p_last_log_by)');
+        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_price', $p_price, PDO::PARAM_STR);
+        $stmt->bindValue(':p_customer_type', $p_customer_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_is_service', $p_is_service, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_status', $p_product_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function createPartsTransactionEntry2($p_part_transaction_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_customer_type, $p_is_service, $p_product_status, $p_journal_entry_date, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL createPartsTransactionEntry2(:p_part_transaction_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_customer_type, :p_is_service, :p_product_status, :p_journal_entry_date, :p_last_log_by)');
         $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
@@ -368,6 +382,23 @@ class PartsTransactionModel {
             $partsTransactionName = $row['parts_transaction_name'];
 
             $htmlOptions .= '<option value="' . htmlspecialchars($partsTransactionID, ENT_QUOTES) . '">' . htmlspecialchars($partsTransactionName, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    public function generatePartTransactionReleasedOptions($company_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM part_transaction WHERE (part_transaction_status = "Released" OR part_transaction_status = "Checked") AND company_id = :company_id ORDER BY part_transaction_id ASC');
+        $stmt->bindValue(':company_id', $company_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $partsTransactionID = $row['part_transaction_id'];
+            $partsTransactionName = $row['reference_number'];
+            $issuance_no = $row['issuance_no'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($partsTransactionID, ENT_QUOTES) . '">Reference No: ' . htmlspecialchars($partsTransactionName, ENT_QUOTES) .' - Issuance No: '. $issuance_no .'</option>';
         }
 
         return $htmlOptions;

@@ -8086,6 +8086,12 @@ BEGIN
         final_approval_remarks = p_remarks,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
+
+        UPDATE sales_proposal
+        SET ci_recommendation = p_remarks,
+        ci_recommendation_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id AND sales_proposal_status = "For CI" AND ci_completion_date IS NOT NULL AND ci_recommendation_date IS NULL AND ci_recommendation IS NULL;
     ELSEIF p_sales_proposal_status = 'On-Process' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -15522,6 +15528,42 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END;
 
+CREATE PROCEDURE generatePartItemTable3(
+    IN p_product_id INT,
+    IN p_parts_transaction_start_date DATE,
+    IN p_parts_transaction_end_date DATE
+)
+BEGIN
+    DECLARE query TEXT;
+
+    SET query = 
+        'SELECT * FROM part_transaction_cart WHERE part_transaction_id IN (
+            SELECT part_transaction_id 
+            FROM part_transaction 
+            WHERE part_transaction_status IN ("Released", "Checked") 
+              AND customer_type = "Internal" 
+              AND customer_id = ';
+
+    SET query = CONCAT(query, p_product_id);
+
+    IF p_parts_transaction_start_date IS NOT NULL 
+       AND p_parts_transaction_end_date IS NOT NULL THEN
+        SET query = CONCAT(
+            query,
+            ' AND DATE(created_date) BETWEEN ',
+            QUOTE(p_parts_transaction_start_date),
+            ' AND ',
+            QUOTE(p_parts_transaction_end_date)
+        );
+    END IF;
+
+    SET query = CONCAT(query, ') ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 
 CREATE PROCEDURE checkPartsTransactionExist (IN p_part_transaction_id VARCHAR(100))
 BEGIN
@@ -15674,6 +15716,7 @@ CREATE PROCEDURE updatePartsTransactionCart(IN p_part_transaction_cart_id INT, I
 BEGIN
     UPDATE part_transaction_cart
     SET quantity = p_quantity,
+        return_quantity = p_quantity,
         add_on = p_add_on,
         discount = p_discount,
         discount_type = p_discount_type,
@@ -16140,6 +16183,93 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+DELIMITER //
+
+CREATE PROCEDURE generatePartIncomingItemTable3(
+    IN p_product_id INT, 
+    IN p_parts_incoming_start_date DATE, 
+    IN p_parts_incoming_end_date DATE
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE conditionList TEXT;
+
+    -- Base query
+    SET query = 'SELECT * FROM part_incoming_cart';
+    
+    -- Add product_id condition correctly
+    SET conditionList = CONCAT(
+        ' WHERE part_incoming_id IN (',
+        'SELECT part_incoming_id FROM part_incoming ',
+        'WHERE part_incoming_status IN ("Posted", "Completed") ',
+        'AND product_id = ', p_product_id, ')'
+    );
+
+    -- Add date range condition if provided
+    IF p_parts_incoming_start_date IS NOT NULL AND p_parts_incoming_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(
+            conditionList, 
+            ' AND (DATE(created_date) BETWEEN ',
+            QUOTE(p_parts_incoming_start_date), 
+            ' AND ', 
+            QUOTE(p_parts_incoming_end_date), 
+            ')'
+        );
+    END IF;
+
+    -- Finalize query
+    SET query = CONCAT(query, conditionList, ' ORDER BY created_date DESC;');
+
+    -- Debugging (optional): SELECT query; -- Uncomment to inspect generated SQL
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+
+DELIMITER //
+
+CREATE PROCEDURE generatePartIncomingItemTable4(
+    IN p_parts_incoming_start_date DATE,
+    IN p_parts_incoming_end_date DATE
+)
+BEGIN
+    DECLARE query TEXT;
+    DECLARE conditionList TEXT;
+
+    SET query = '
+        SELECT pic.*
+        FROM part_incoming_cart AS pic
+        JOIN part_incoming AS pi 
+            ON pic.part_incoming_id = pi.part_incoming_id
+    ';
+
+    SET conditionList = '
+        WHERE pi.part_incoming_status IN ("Posted", "Completed")
+        AND pi.company_id IN ("2", "3") AND pi.rr_date IS NOT NULL AND pi.rr_no IS NOT NULL
+    ';
+
+    IF p_parts_incoming_start_date IS NOT NULL AND p_parts_incoming_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(
+            conditionList,
+            ' AND DATE(pi.rr_date) BETWEEN ',
+            QUOTE(p_parts_incoming_start_date),
+            ' AND ',
+            QUOTE(p_parts_incoming_end_date)
+        );
+    END IF;
+
+    SET query = CONCAT(query, conditionList, ' ORDER BY pic.created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
+
+
 CREATE PROCEDURE generatePartsIncomingDocument(IN p_part_incoming_id INT)
 BEGIN
 	SELECT * FROM part_incoming_document
@@ -16266,6 +16396,8 @@ BEGIN
     -- Compute new part price
     IF p_company_id = 2 THEN
         SET new_part_price = ROUND(new_part_cost * 1.3, 2);
+    ELSEIF p_company_id = 3 THEN
+        SET new_part_price = ROUND(new_part_cost * 1.65, 2);
     ELSE
         SET new_part_price = current_part_price; -- keep old price
     END IF;
@@ -20580,7 +20712,7 @@ BEGIN
         created_date, 
         last_log_by
     ) VALUES (
-        p_sales_proposal_number, 
+        p_backjob_monitoring_id, 
         NOW(), 
         p_job_order_id, 
         p_entry_type, 
@@ -20651,4 +20783,574 @@ BEGIN
         NOW(), 
         p_last_log_by
     );
+END//
+
+
+DELIMITER //
+
+CREATE PROCEDURE insertPartsReturn(
+    IN p_supplier_id INT,
+    IN p_purchase_date DATE,
+    IN p_ref_invoice_number VARCHAR(200),
+    IN p_ref_po_number VARCHAR(200),
+    IN p_ref_po_date DATE,
+    IN p_prev_total_billing DOUBLE,
+    IN p_adjusted_total_billing DOUBLE,
+    IN p_remarks VARCHAR(5000),
+    IN p_last_log_by INT,
+    OUT p_part_return_id INT
+)
+BEGIN
+    INSERT INTO part_return (
+        supplier_id,
+        purchase_date,
+        ref_invoice_number,
+        ref_po_number,
+        ref_po_date,
+        prev_total_billing,
+        adjusted_total_billing,
+        remarks,
+        last_log_by
+    )
+    VALUES (
+        p_supplier_id,
+        p_purchase_date,
+        p_ref_invoice_number,
+        p_ref_po_number,
+        p_ref_po_date,
+        p_prev_total_billing,
+        p_adjusted_total_billing,
+        p_remarks,
+        p_last_log_by
+    );
+
+    SET p_part_return_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updatePartsReturn(
+    IN p_part_return_id INT,
+    IN p_supplier_id INT,
+    IN p_purchase_date DATE,
+    IN p_ref_invoice_number VARCHAR(200),
+    IN p_ref_po_number VARCHAR(200),
+    IN p_ref_po_date DATE,
+    IN p_prev_total_billing DOUBLE,
+    IN p_adjusted_total_billing DOUBLE,
+    IN p_remarks VARCHAR(5000),
+    IN p_last_log_by INT
+)
+BEGIN
+    UPDATE part_return
+    SET 
+        supplier_id = p_supplier_id,
+        purchase_date = p_purchase_date,
+        ref_invoice_number = p_ref_invoice_number,
+        ref_po_number = p_ref_po_number,
+        ref_po_date = p_ref_po_date,
+        prev_total_billing = p_prev_total_billing,
+        adjusted_total_billing = p_adjusted_total_billing,
+        remarks = p_remarks,
+        last_log_by = p_last_log_by
+    WHERE part_return_id = p_part_return_id;
+END //
+
+DELIMITER //
+
+CREATE PROCEDURE updatePartsReturnValue(
+    IN p_part_return_id INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE v_part_transaction_id INT;
+    DECLARE v_return_quantity INT;
+
+    -- Cursor to loop through each part_return_cart row for the given part_return_id
+    DECLARE cur CURSOR FOR
+        SELECT part_transaction_id, return_quantity
+        FROM part_return_cart
+        WHERE part_return_id = p_part_return_id;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN cur;
+
+    read_loop: LOOP
+        FETCH cur INTO v_part_transaction_id, v_return_quantity;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Update part_transaction_cart while ensuring it doesn't go below zero
+        UPDATE part_transaction_cart
+        SET return_quantity = GREATEST(return_quantity - v_return_quantity, 0),
+            last_log_by = p_last_log_by
+        WHERE part_transaction_id = v_part_transaction_id;
+    END LOOP;
+
+    CLOSE cur;
+END //
+
+CREATE PROCEDURE getPartsReturnCartTotal(IN p_part_return_id INT, IN p_type VARCHAR(20))
+BEGIN
+	IF p_type = 'total cost' THEN
+        SELECT 
+            SUM(ptc.cost * prc.return_quantity) AS total
+        FROM part_transaction_cart ptc
+        JOIN part_return_cart prc 
+            ON ptc.part_transaction_id = prc.part_transaction_id
+        WHERE prc.part_return_id = p_part_return_id;
+	ELSEIF p_type = 'total price' THEN
+        SELECT 
+            SUM(ptc.price * prc.return_quantity) AS total
+        FROM part_transaction_cart ptc
+        JOIN part_return_cart prc 
+            ON ptc.part_transaction_id = prc.part_transaction_id
+        WHERE prc.part_return_id = p_part_return_id;
+	ELSEIF p_type = 'lines' THEN
+        SELECT COUNT(part_return_cart_id) AS total
+        FROM part_return_cart
+        WHERE part_return_id = p_part_return_id;
+    ELSE
+        SELECT SUM(return_quantity) AS total
+        FROM part_return_cart
+        WHERE part_return_id = p_part_return_id;
+    END IF;
+END //
+
+DELIMITER //
+DROP PROCEDURE updatePartsReturnStatus//
+
+CREATE PROCEDURE updatePartsReturnStatus(
+    IN p_parts_return_id VARCHAR(100),
+    IN p_part_return_status VARCHAR(50),
+    IN p_remarks VARCHAR(500),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- ===== DECLARATIONS =====
+    DECLARE done INT DEFAULT 0;
+    DECLARE v_part_id INT;
+    DECLARE v_quantity DOUBLE;
+    DECLARE v_new_quantity DOUBLE;
+
+    -- Cursor and handler
+    DECLARE cur CURSOR FOR
+        SELECT part_id, quantity
+        FROM part_return_cart
+        WHERE part_return_id = p_parts_return_id;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    -- Set timezone
+    SET time_zone = '+08:00';
+
+    -- ===== Status Handling =====
+    IF p_part_return_status = 'For Validation' THEN
+
+        UPDATE part_return
+        SET 
+            for_approval = NOW(),
+            part_return_status = p_part_return_status,
+            last_log_by = p_last_log_by
+        WHERE part_return_id = p_parts_return_id;
+
+    ELSEIF p_part_return_status = 'Released' THEN
+
+        -- Step 1: Update status and release date
+        UPDATE part_return
+        SET 
+            released_date = NOW(),
+            part_return_status = p_part_return_status,
+            last_log_by = p_last_log_by
+        WHERE part_return_id = p_parts_return_id AND (company_id = '2' OR company_id = '1');
+
+         UPDATE part_return
+        SET 
+            issuance_date = NOW(),
+            released_date = NOW(),
+            part_return_status = p_part_return_status,
+            last_log_by = p_last_log_by
+        WHERE part_return_id = p_parts_return_id AND company_id = '3';
+
+        -- Step 2: Deduct quantities safely and update part status if necessary
+        OPEN cur;
+
+        read_loop: LOOP
+            FETCH cur INTO v_part_id, v_quantity;
+            IF done THEN
+                LEAVE read_loop;
+            END IF;
+
+            -- Get new quantity after deduction
+            SELECT GREATEST(quantity - v_quantity, 0)
+            INTO v_new_quantity
+            FROM part
+            WHERE part_id = v_part_id;
+
+            -- Update part quantity and status
+            UPDATE part
+            SET 
+                quantity = v_new_quantity,
+                part_status = CASE 
+                                WHEN v_new_quantity <= 0 THEN 'Out of Stock'
+                                ELSE part_status
+                              END,
+                last_log_by = p_last_log_by
+            WHERE part_id = v_part_id;
+
+        END LOOP;
+
+        CLOSE cur;
+
+    ELSEIF p_part_return_status = 'Cancelled' THEN
+
+        UPDATE part_return
+        SET 
+            cancellation_date = NOW(),
+            part_return_status = p_part_return_status,
+            cancellation_remarks = p_remarks,
+            last_log_by = p_last_log_by
+        WHERE part_return_id = p_parts_return_id;
+
+    ELSEIF p_part_return_status = 'Draft' THEN
+
+        UPDATE part_return
+        SET 
+            draft_date = NOW(),
+            part_return_status = p_part_return_status,
+            draft_reason = p_remarks,
+            last_log_by = p_last_log_by
+        WHERE part_return_id = p_parts_return_id;
+
+    ELSE
+        -- Default: treat as Approval
+        UPDATE part_return
+        SET 
+            approval_date = NOW(),
+            approval_by = p_last_log_by,
+            part_return_status = p_part_return_status,
+            approval_remarks = p_remarks,
+            last_log_by = p_last_log_by
+        WHERE part_return_id = p_parts_return_id;
+
+    END IF;
+END //
+
+CREATE PROCEDURE generatePartsReturnTable(IN p_company_id INT, IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_approval_date_start_date DATE, IN p_approval_date_end_date DATE, IN p_transaction_status VARCHAR(5000))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM part_return';
+    SET conditionList = ' WHERE 1';
+
+    IF p_company_id IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN ( ');
+        SET conditionList = CONCAT(conditionList, p_company_id);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_transaction_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND part_return_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_transaction_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_approval_date_start_date IS NOT NULL AND p_approval_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(approval_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS createPartsTransactionEntryReversed //
+CREATE PROCEDURE createPartsTransactionEntryReversed(
+    IN p_part_transaction_id VARCHAR(100),
+    IN p_company_id INT,
+    IN p_reference_number VARCHAR(500),
+    IN p_cost DECIMAL(15,2),
+    IN p_price DECIMAL(15,2),
+    IN p_customer_type VARCHAR(100),
+    IN p_is_service VARCHAR(100),
+    IN p_sold_status VARCHAR(100),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_debit_analytic_lines VARCHAR(500);
+    DECLARE v_debit_analytic_distribution VARCHAR(500);
+    DECLARE v_chart_item VARCHAR(100);
+    DECLARE v_credit VARCHAR(100);
+    DECLARE v_chart_item_2 VARCHAR(100);
+    DECLARE v_credit_2 VARCHAR(100);
+
+    CASE p_company_id
+        WHEN 1 THEN
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_analytic_lines = 'NE TRUCK';
+            SET v_analytic_distribution = '{"2": 100.0}';
+        WHEN 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 4 THEN
+            SET v_analytic_lines = 'PCG PROPERTY';
+            SET v_analytic_distribution = '{"4": 100.0}';
+        WHEN 5 THEN
+            SET v_analytic_lines = 'GCB PROPERTY';
+            SET v_analytic_distribution = '{"3": 100.0}';
+        WHEN 6 THEN
+            SET v_analytic_lines = 'GCB FARMING';
+            SET v_analytic_distribution = '{"11": 100.0}';
+        WHEN 7 THEN
+            SET v_analytic_lines = 'PCG FARMING';
+            SET v_analytic_distribution = '{"15": 100.0}';
+        WHEN 8 THEN
+            SET v_analytic_lines = 'NE FUEL';
+            SET v_analytic_distribution = '{"6": 100.0}';
+        WHEN 9 THEN
+            SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
+            SET v_analytic_distribution = '{"17": 100.0}';
+        WHEN 10 THEN
+            SET v_analytic_lines = 'Avida';
+            SET v_analytic_distribution = '{"20": 100.0}';
+        WHEN 11 THEN
+            SET v_analytic_lines = 'Caalibangbangan';
+            SET v_analytic_distribution = '{"19": 100.0}';
+        WHEN 12 THEN
+            SET v_analytic_lines = 'Sta Rosa';
+            SET v_analytic_distribution = '{"18": 100.0}';
+        WHEN 13 THEN
+            SET v_analytic_lines = 'KPC VENTURE INC';
+            SET v_analytic_distribution = '{"16": 100.0}';
+        WHEN 14 THEN
+            SET v_analytic_lines = 'NE HAULING';
+            SET v_analytic_distribution = '{"7": 100.0}';
+        ELSE
+            SET v_analytic_lines = 'DEFAULT';
+            SET v_analytic_distribution = '{"0": 0.0}';
+    END CASE;
+   
+    SET v_credit = '40102020 Cash Sales Parts';
+
+    IF p_is_service = 'Yes'  THEN
+        SET v_chart_item = '50203040 Fuel, oil and lubricants Expenses';
+    END IF;
+
+    IF p_sold_status = 'Sold' THEN
+        SET v_chart_item = '50402010 Cost of Sales Unit';
+    ELSE
+        SET v_chart_item = '10501010 Inventory Unit';
+    END IF;
+
+    IF v_chart_item = '50402010 Cost of Sales Unit' OR v_chart_item = '10501010 Inventory Unit' THEN
+        SET v_debit_analytic_lines = 'CGMI';
+        SET v_debit_analytic_distribution = '{"1": 100.0}';
+    ELSE
+        SET v_debit_analytic_lines = v_analytic_lines;
+        SET v_debit_analytic_distribution = v_analytic_distribution;
+    END IF;
+
+    SET v_chart_item_2 = '50402020 Cost of Sales Parts';
+    SET v_credit_2 = '10501020 Inventory Parts';
+
+    IF p_customer_type = 'Internal' THEN
+       -- Insert debit entry
+        INSERT INTO journal_entry (
+            loan_number, 
+            journal_entry_date, 
+            reference_code, 
+            journal_id, 
+            journal_item, 
+            debit, 
+            credit, 
+            journal_label, 
+            analytic_lines, 
+            analytic_distribution, 
+            created_date, 
+            last_log_by
+        ) VALUES (
+            p_part_transaction_id, 
+            NOW(), 
+            p_reference_number, 
+            'Parts Return', 
+            v_chart_item, 
+            0, 
+            p_price, 
+            '', 
+            v_debit_analytic_lines, 
+            v_debit_analytic_distribution, 
+            NOW(), 
+            p_last_log_by
+        );
+
+        -- Insert debit entry
+        INSERT INTO journal_entry (
+            loan_number, 
+            journal_entry_date, 
+            reference_code, 
+            journal_id, 
+            journal_item, 
+            debit, 
+            credit, 
+            journal_label, 
+            analytic_lines, 
+            analytic_distribution, 
+            created_date, 
+            last_log_by
+        ) VALUES (
+            p_part_transaction_id, 
+            NOW(), 
+            p_reference_number, 
+            'Parts Return', 
+            v_chart_item_2, 
+            0, 
+            p_cost, 
+            '', 
+            v_analytic_lines, 
+            v_analytic_distribution, 
+            NOW(), 
+            p_last_log_by
+        );
+
+        -- Insert credit entry
+        INSERT INTO journal_entry (
+            loan_number, 
+            journal_entry_date, 
+            reference_code, 
+            journal_id, 
+            journal_item, 
+            debit, 
+            credit, 
+            journal_label, 
+            analytic_lines, 
+            analytic_distribution, 
+            created_date, 
+            last_log_by
+        ) VALUES (
+            p_part_transaction_id, 
+            NOW(), 
+            p_reference_number, 
+            'Parts Return', 
+            v_credit, 
+            p_price, 
+            0, 
+            '', 
+            v_analytic_lines, 
+            v_analytic_distribution, 
+            NOW(), 
+            p_last_log_by
+        );
+
+        -- Insert credit entry
+        INSERT INTO journal_entry (
+            loan_number, 
+            journal_entry_date, 
+            reference_code, 
+            journal_id, 
+            journal_item, 
+            debit, 
+            credit, 
+            journal_label, 
+            analytic_lines, 
+            analytic_distribution, 
+            created_date, 
+            last_log_by
+        ) VALUES (
+            p_part_transaction_id, 
+            NOW(), 
+            p_reference_number, 
+            'Parts Return', 
+            v_credit_2, 
+            p_cost, 
+            0, 
+            '', 
+            v_analytic_lines, 
+            v_analytic_distribution, 
+            NOW(), 
+            p_last_log_by
+        );
+    ELSE
+        -- Insert debit entry
+        INSERT INTO journal_entry (
+            loan_number, 
+            journal_entry_date, 
+            reference_code, 
+            journal_id, 
+            journal_item, 
+            debit, 
+            credit, 
+            journal_label, 
+            analytic_lines, 
+            analytic_distribution, 
+            created_date, 
+            last_log_by
+        ) VALUES (
+            p_part_transaction_id, 
+            NOW(), 
+            p_reference_number, 
+            'Parts Return', 
+            v_chart_item_2, 
+            0, 
+            p_cost, 
+            '', 
+            v_analytic_lines, 
+            v_analytic_distribution, 
+            NOW(), 
+            p_last_log_by
+        );
+
+        -- Insert credit entry
+        INSERT INTO journal_entry (
+            loan_number, 
+            journal_entry_date, 
+            reference_code, 
+            journal_id, 
+            journal_item, 
+            debit, 
+            credit, 
+            journal_label, 
+            analytic_lines, 
+            analytic_distribution, 
+            created_date, 
+            last_log_by
+        ) VALUES (
+            p_part_transaction_id, 
+            NOW(), 
+            p_reference_number, 
+            'Parts Return', 
+            v_credit_2, 
+            p_cost, 
+            0, 
+            '', 
+            v_analytic_lines, 
+            v_analytic_distribution, 
+            NOW(), 
+            p_last_log_by
+        );
+    END IF;	
 END//

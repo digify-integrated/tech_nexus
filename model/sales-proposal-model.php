@@ -266,9 +266,11 @@ class SalesProposalModel {
         $stmt->execute();
     }
 
-    public function updateSalesProposalJobOrderPaid($p_sales_proposal_job_order_id, $p_last_log_by): void {
-        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal_job_order SET payment_date = NOW(), last_log_by = :p_last_log_by WHERE sales_proposal_job_order_id = :p_sales_proposal_job_order_id');
+    public function updateSalesProposalJobOrderPaid($p_sales_proposal_job_order_id, $p_reference_number, $p_payment_date, $p_last_log_by): void {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal_job_order SET payment_reference_no = :p_reference_number, payment_date = :p_payment_date, last_log_by = :p_last_log_by WHERE sales_proposal_job_order_id = :p_sales_proposal_job_order_id');
         $stmt->bindValue(':p_sales_proposal_job_order_id', $p_sales_proposal_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_date', $p_payment_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -287,9 +289,11 @@ class SalesProposalModel {
         $stmt->execute();
     }
 
-    public function updateSalesProposalAdditionalJobOrderPaid($sales_proposal_additional_job_order_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal_additional_job_order SET payment_date = NOW(), last_log_by = :p_last_log_by WHERE sales_proposal_additional_job_order_id = :sales_proposal_additional_job_order_id');
+    public function updateSalesProposalAdditionalJobOrderPaid($sales_proposal_additional_job_order_id, $p_reference_number, $p_payment_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal_additional_job_order SET payment_reference_no = :p_reference_number, payment_date = :p_payment_date, last_log_by = :p_last_log_by WHERE sales_proposal_additional_job_order_id = :sales_proposal_additional_job_order_id');
         $stmt->bindValue(':sales_proposal_additional_job_order_id', $sales_proposal_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_date', $p_payment_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

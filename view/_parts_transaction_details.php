@@ -25,7 +25,7 @@
           </div>
            <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
           <?php
-            if($customer_type == 'Internal'){
+            if($customer_type == 'Internal' || $customer_type == 'Department'){
               if($part_transaction_status == 'Draft'){
                 echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Validation</button>';
               }

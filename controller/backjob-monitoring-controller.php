@@ -17,6 +17,7 @@ class BackJobMonitoringController {
     private $salesProposalModel;
     private $productModel;
     private $contractorModel;
+    private $workCenterModel;
     private $userModel;
     private $securityModel;
     private $uploadSettingModel;
@@ -38,11 +39,12 @@ class BackJobMonitoringController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(BackJobMonitoringModel $backJobMonitoringModel, SalesProposalModel $salesProposalModel, ProductModel $productModel, ContractorModel $contractorModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(BackJobMonitoringModel $backJobMonitoringModel, SalesProposalModel $salesProposalModel, ProductModel $productModel, ContractorModel $contractorModel, WorkCenterModel $workCenterModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->backJobMonitoringModel = $backJobMonitoringModel;
         $this->salesProposalModel = $salesProposalModel;
         $this->productModel = $productModel;
         $this->contractorModel = $contractorModel;
+        $this->workCenterModel = $workCenterModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
         $this->uploadSettingModel = $uploadSettingModel;
@@ -174,12 +176,20 @@ class BackJobMonitoringController {
         }
     
         $userID = $_SESSION['user_id'];
-        $backjobMonitoringJobOrderID = htmlspecialchars($_POST['backjob_monitoring_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $backjobMonitoringJobOrderID = htmlspecialchars($_POST['job_order_id'], ENT_QUOTES, 'UTF-8');
+        $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
+        $payment_date = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
 
         $backjobOrderMonitoringJobOrderDetails = $this->backJobMonitoringModel->getBackJobMonitoringJobOrder($backjobMonitoringJobOrderID);
         $backjob_monitoring_id = $backjobOrderMonitoringJobOrderDetails['backjob_monitoring_id'];
         $cost_markup = $backjobOrderMonitoringJobOrderDetails['cost_markup'];
-        $job_cost = $backjobOrderMonitoringJobOrderDetails['job_cost'];
+        $job_cost = $backjobOrderMonitoringJobOrderDetails['cost'];
+        $job_order = $backjobOrderMonitoringJobOrderDetails['job_order'];
+        $work_center_id = $backjobOrderMonitoringJobOrderDetails['work_center_id'];
+
+        $workCenterDetails = $this->workCenterModel->getWorkCenter($work_center_id);
+        $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
         $entry_type = 'Internal Job Order';
 
         $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
@@ -201,9 +211,10 @@ class BackJobMonitoringController {
         }
 
         $this->backJobMonitoringModel->createBackjobJobOrderEntry($backjob_monitoring_id, $backjobMonitoringJobOrderID, $entry_type, $company_id, $job_cost, $cost_markup, $product_status, $userID);
-    
 
-        $this->backJobMonitoringModel->updateBackjobMonitoringJobOrderPaid($backjobMonitoringJobOrderID, $userID);
+        $this->productModel->insertProductExpense($product_id, 'Contractor Report', $backjob_monitoring_id, $cost_markup, $work_center_name, $job_order, date('Y-m-d'), $userID);
+
+        $this->backJobMonitoringModel->updateBackjobMonitoringJobOrderPaid($backjobMonitoringJobOrderID, $reference_number, $payment_date, $userID);
 
         echo json_encode(['success' => true]);
         exit;
@@ -229,12 +240,19 @@ class BackJobMonitoringController {
         }
     
         $userID = $_SESSION['user_id'];
-        $salesAdditionalProposalJobOrderID = htmlspecialchars($_POST['backjob_monitoring_additional_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $salesAdditionalProposalJobOrderID = htmlspecialchars($_POST['job_order_id'], ENT_QUOTES, 'UTF-8');
+        $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
+        $payment_date = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
 
         $backjobOrderMonitoringJobOrderDetails = $this->backJobMonitoringModel->getBackJobMonitoringAdditionalJobOrder($salesAdditionalProposalJobOrderID);
         $backjob_monitoring_id = $backjobOrderMonitoringJobOrderDetails['backjob_monitoring_id'];
         $cost_markup = $backjobOrderMonitoringJobOrderDetails['cost_markup'];
-        $job_cost = $backjobOrderMonitoringJobOrderDetails['job_cost'];
+        $job_cost = $backjobOrderMonitoringJobOrderDetails['job_cost']; 
+        $work_center_id = $backjobOrderMonitoringJobOrderDetails['work_center_id'];
+        $particulars = $backjobOrderMonitoringJobOrderDetails['particulars'];
+
+        $workCenterDetails = $this->workCenterModel->getWorkCenter($work_center_id);
+        $work_center_name = $workCenterDetails['work_center_name'] ?? null;
         $entry_type = 'Internal Additional Job Order';
 
         $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
@@ -256,8 +274,10 @@ class BackJobMonitoringController {
         }
 
         $this->backJobMonitoringModel->createBackjobJobOrderEntry($backjob_monitoring_id, $salesAdditionalProposalJobOrderID, $entry_type, $company_id, $job_cost, $cost_markup, $product_status, $userID);
+
+        $this->productModel->insertProductExpense($product_id, 'Contractor Report', $backjob_monitoring_id, $cost_markup, $work_center_name, $particulars, date('Y-m-d'), $userID);
     
-        $this->backJobMonitoringModel->updateBackjobMonitoringAdditionalJobOrderPaid($salesAdditionalProposalJobOrderID, $userID);
+        $this->backJobMonitoringModel->updateBackjobMonitoringAdditionalJobOrderPaid($salesAdditionalProposalJobOrderID, $reference_number, $payment_date, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -1817,6 +1837,7 @@ require_once '../model/database-model.php';
 require_once '../model/back-job-monitoring-model.php';
 require_once '../model/sales-proposal-model.php';
 require_once '../model/contractor-model.php';
+require_once '../model/work-center-model.php';
 require_once '../model/product-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
@@ -1824,6 +1845,6 @@ require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new BackJobMonitoringController(new BackJobMonitoringModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel()), new ProductModel(new DatabaseModel()), new ContractorModel(new DatabaseModel()), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new BackJobMonitoringController(new BackJobMonitoringModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel()), new ProductModel(new DatabaseModel()), new ContractorModel(new DatabaseModel()), new WorkCenterModel(new DatabaseModel()), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

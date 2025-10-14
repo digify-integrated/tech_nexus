@@ -973,6 +973,21 @@ class ProductModel {
 
         return $htmlOptions;
     }
+
+    public function generateProductExpenseOptions() {
+        $stmt = $this->db->getConnection()->prepare('SELECT DISTINCT(expense_type) AS expense_type FROM product_expense ORDER BY expense_type ASC');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $expense_type = $row['expense_type'];
+
+            $htmlOptions .= '<option value="'. $expense_type .'">' . $expense_type .'</option>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 }
 ?>

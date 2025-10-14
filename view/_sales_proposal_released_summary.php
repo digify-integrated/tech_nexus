@@ -1326,6 +1326,26 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Suretyship Agreement</div>
+                                            <div class="d-grid"><a href="./document/printable/Suretyship_Agreement.pdf" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Voluntary Surrender</div>
+                                            <div class="d-grid"><a href="./document/printable/Voluntary_Surrender.pdf" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <?php
                                 if($salesProposalStatus == 'Released'){
                                     echo '<div class="col-lg-6">

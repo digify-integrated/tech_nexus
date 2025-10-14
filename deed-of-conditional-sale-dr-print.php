@@ -72,8 +72,35 @@
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
         $release_date =  $systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', '');
     
+        
+        $first_due_date = new DateTime($startDate);
+
+        switch ($paymentFrequency) {
+            case 'Lumpsum':
+                $first_due_date->modify("+" . $term_length . " days");
+                $due_date = $first_due_date;
+                break;
+            case 'Monthly':
+            case 'Quarterly':
+            case 'Semi-Annual':
+                $monthsToAdd = ($paymentFrequency === 'Monthly') ? 1 
+                    : (($paymentFrequency === 'Quarterly') ? 3 : 6);
+                $interval = new DateInterval('P' . $monthsToAdd . 'M');
+                $first_due_date->add($interval);
+                $due_date = clone $first_due_date;
+                break;
+            default:
+                echo null;
+                exit;
+        }
+
+
+        // Output the calculated due date
+        $first_due_date = $due_date->format('F d, Y');
+
         $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
         $downpayment = $pricingComputationDetails['downpayment'] ?? 0;
+        $delivery_price = $pricingComputationDetails['total_delivery_price'] ?? 0;
         $amountFinanced = $pricingComputationDetails['amount_financed'] ?? 0;
         $repaymentAmount = $pricingComputationDetails['repayment_amount'] ?? 0;
         $interestRate = $pricingComputationDetails['interest_rate']/ $termLength;
@@ -263,10 +290,10 @@
     $pdf->MultiCell(0, 0, 'That with the SELLER'. "'" .'s consent, the BUYER/ desire'. "'" .'s to acquire the said motor vehicle, subject to the following terms and conditions:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->SetFont('times', '', 9.5);
-    $pdf->MultiCell(0, 0, '1. That the total purchase price is <b><u>'. strtoupper($amountInWords->format($totalPn)) .'
-    (P '. number_format($totalPn, 2) .')</u></b> PESOS, Philippine currency, buyer'. "'" .'s making a down payment of  <b><u>'. strtoupper($amountInWords->format($downpayment)) .'
+    $pdf->MultiCell(0, 0, '1. That the total purchase price is <b><u>'. strtoupper($amountInWords->format($delivery_price)) .'
+    (P '. number_format($delivery_price, 2) .')</u></b> PESOS, Philippine currency, buyer'. "'" .'s making a down payment of  <b><u>'. strtoupper($amountInWords->format($downpayment)) .'
     (P '. number_format($downpayment, 2) .')</u></b> PESOS, Philippine currency, upon signing of this deed, receipt of which is hereby acknowledged by SELLER and the balance payable in equal installment for a period of <b><u>'. strtoupper($amountInWords->format($termLength)) .' ('. number_format($termLength) .')</u></b>  months at the rate of <b><u>'. strtoupper($amountInWords->format($repaymentAmount)) .'
-    (P '. number_format($repaymentAmount, 2) .')</u></b> per <b><u>MONTH</b></u>, payable every <b><u>'. strtoupper(formatDay(date('d', strtotime($startDate)))) .'</b></u>, day of the month starting on <b><u>'. strtoupper(date('F d, Y', strtotime($startDate))) .'</b></u> until fully and completely paid;
+    (P '. number_format($repaymentAmount, 2) .')</u></b> per <b><u>MONTH</b></u>, payable every <b><u>'. strtoupper(formatDay(date('d', strtotime($first_due_date)))) .'</b></u>, day of the month starting on <b><u>'. strtoupper(date('F Y', strtotime($first_due_date))) .'</b></u> until fully and completely paid;
     ', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '2. That the unpaid balance of the purchase price shall be evidenced by a Promissory Note executed by the BUYER and delivered to the SELLER;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);

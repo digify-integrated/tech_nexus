@@ -989,6 +989,68 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode(['LIST' => $list]);
         break;
+        case 'sales proposal for verification list':
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM sales_proposal WHERE sales_proposal_status IN ("For CI", "For Final Approval") AND for_ci_date IS NOT NULL AND ci_completion_date IS NOT NULL AND ci_recommendation_date IS NOT NULL AND ci_recommendation IS NOT NULL ORDER BY for_ci_date DESC');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+
+            $list = '';
+            foreach ($options as $row) {
+                $salesProposalID = $row['sales_proposal_id'];
+                $customerID = $row['customer_id'];
+                $salesProposalNumber = $row['sales_proposal_number'];
+                $productType = $row['product_type'];
+                $productID = $row['product_id'];
+                $ci_recommendation = $row['ci_recommendation'];
+                $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+
+                $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
+                $forCIDate = $systemModel->checkDate('summary', $row['ci_recommendation_date'], '', 'm/d/Y h:i:s A', '');
+                $customerImage = $systemModel->checkImage($customerDetails['contact_image'], 'profile');
+
+                 $list .= ' <li class="list-group-item">
+                          <div class="d-flex align-items-center">
+                              <div class="flex-shrink-0">
+                                <img src="'. $customerImage .'" alt="user-image" class="user-avtar rounded wid-50 hie-50">
+                              </div>
+                              <div class="flex-grow-1 ms-3">
+                                  <div class="row g-1">
+                                        <div class="col-8">
+                                            <a href="sales-proposal-for-ci.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" target="_blank" class="text-dark text-decoration-none">
+                                                <h6 class="mb-0">'. strtoupper($customerName) .'</h6>
+                                                <p class="text-muted mb-0"><small>OS Number: '. $salesProposalNumber .'</small></p>
+                                                <p class="text-muted mb-0"><small>Product Type: '. $productType .'</small></p>
+                                                <p class="text-muted mb-0"><small>Stock Number: '. $stockNumber .'</small></p>
+                                                <p class="text-muted mb-0"><small>CI Verification Date: '. $forCIDate .'</small></p>
+                                                <p class="text-muted mb-0"><small>CI Verification: '. $ci_recommendation .'</small></p>
+                                            </a>
+                                      </div>
+                                      <div class="col-4 text-end">
+                                          '. $salesProposalStatus .'
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>';
+            }
+
+            if(empty($list)){
+                $list = ' <li class="list-group-item text-center"><b>No Sales Proposal For CI Found</b></li>';
+            }
+
+            echo json_encode(['LIST' => $list]);
+        break;
         # -------------------------------------------------------------
 
         # -------------------------------------------------------------

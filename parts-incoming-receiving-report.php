@@ -240,7 +240,7 @@
             if($received_quantity > 0){
                 $list .= '<tr>
                         <td width="40%">'. strtoupper($part_number) .' - '. strtoupper($description) .'</td>
-                        <td width="20%" style="text-align:center">'. number_format($received_quantity, 2) . ' ' . strtoupper($short_name) .'</td>
+                        <td width="20%" style="text-align:center">'. number_format($received_quantity) . ' ' . strtoupper($short_name) .'</td>
                         <td width="20%" style="text-align:center">'. number_format($cost, 2) .' PHP</td>
                         <td width="20%" style="text-align:center">'. number_format($totalCost, 2) .' PHP</td>
                     </tr>';

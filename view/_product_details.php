@@ -812,20 +812,7 @@ if($addProductExpense['total'] > 0){
                 <label class="form-label">Expense Type <span class="text-danger">*</span></label>
                 <select class="form-control offcanvas-select2" name="expense_type" id="expense_type">
                   <option value="">--</option>
-                  <option value="Assemble / Conversion">Assemble / Conversion</option>
-                  <option value="Body Builder">Body Builder</option>
-                  <option value="Commission">Commission</option>
-                  <option value="Delivery">Delivery</option>
-                  <option value="Insurance">Insurance</option>
-                  <option value="Landed Cost">Landed Cost</option>
-                  <option value="Latero">Latero</option>
-                  <option value="Painting">Painting</option>
-                  <option value="Parts & ACC">Parts & ACC</option>
-                  <option value="Registration">Registration</option>
-                  <option value="Registration C/O Customer">Registration C/O Customer</option>
-                  <option value="Repairs & Maintenance">Repairs & Maintenance</option>
-                  <option value="Supplies">Supplies</option>
-                  <option value="Journal Voucher">Journal Voucher</option>
+                  <?php echo $productModel->generateProductExpenseOptions(); ?>
                 </select>
               </div>
             </div>

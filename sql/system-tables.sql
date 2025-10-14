@@ -6727,3 +6727,40 @@ CREATE TABLE part_purchased_monitoring_item(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE part_return(
+	part_return_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    reference_number VARCHAR(500),
+	supplier_id INT UNSIGNED,
+	company_id INT UNSIGNED,
+	purchase_date DATE NOT NULL,
+	ref_invoice_number VARCHAR(200),
+	ref_po_number VARCHAR(200),
+	ref_po_date DATE,
+	prev_total_billing DOUBLE,
+	adjusted_total_billing DOUBLE,
+	part_return_status VARCHAR(50) NOT NULL DEFAULT 'Draft',
+    for_approval DATETIME,
+	approval_date DATETIME,
+	released_date DATETIME,
+	checked_date DATETIME,
+	cancellation_date DATETIME,
+	cancellation_remarks VARCHAR(500),
+	approval_remarks VARCHAR(500),
+	remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE part_return_cart(
+	part_return_cart_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	part_return_id INT UNSIGNED NOT NULL,
+	part_transaction_id INT UNSIGNED NOT NULL,
+    part_transaction_cart_id INT UNSIGNED NOT NULL,
+    return_quantity INT UNSIGNED NOT NULL,
+    remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);

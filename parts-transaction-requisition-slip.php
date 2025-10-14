@@ -69,8 +69,16 @@
         if($company_id == '2'){
             $title = 'NE TRUCKS BUILDERS CORP.';
         }
+        else if($company_id == '1'){
+            $title = 'CHRISTIAN GENERAL MOTORS INC.';
+        }
         else{
             $title = 'FUSO TARLAC';
+        }
+
+        $unitNo = '';
+        if($company_id != '1'){
+            $unitNo = $fullStockNumber . ' - ' . strtoupper($last_name);
         }
     }
 
@@ -147,7 +155,7 @@
     $pdf->Cell(40, 8, '', 'B', 0, 'C');
     $pdf->Ln(10);
     $pdf->Cell(30, 8, 'UNIT NO.:', 0, 0, 'L');
-    $pdf->Cell(70, 8, $fullStockNumber . ' - ' . strtoupper($last_name), 'B', 0, 'L');
+    $pdf->Cell(70, 8, $unitNo, 'B', 0, 'L');
     $pdf->Cell(25, 8, '', 0, 0, 'L');
     $pdf->Cell(18, 8, 'AJO NO:', 0, 0, 'L');
     $pdf->Cell(40, 8, '', 'B', 0, 'C');
