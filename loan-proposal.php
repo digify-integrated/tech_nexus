@@ -1771,6 +1771,10 @@
                                 <td>PHP '. number_format($receivableTotal,2) .'</td>
                             </tr>
                             <tr style="text-align:center">
+                                <td style="text-align:right"><b>Total Inventory</b></td>
+                                <td>PHP '. number_format($inventoryTotal,2) .'</td>
+                            </tr>
+                            <tr style="text-align:center">
                                 <td style="text-align:right"><b>Total</b></td>
                                 <td>PHP '. number_format($totalAsset,2) .'</td>
                             </tr>

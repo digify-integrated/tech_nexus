@@ -1451,15 +1451,66 @@ class SalesProposalModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getJobOrderCount($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
+        FROM sales_proposal_job_order
+        WHERE cancellation_date IS NULL AND sales_proposal_id = :p_sales_proposal_id');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getAdditionalJobOrderCount($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
+        FROM sales_proposal_additional_job_order
+        WHERE cancellation_date IS NULL AND sales_proposal_id = :p_sales_proposal_id');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function getJobOrderBackjobCount($p_sales_proposal_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL getJobOrderBackjobCount(:p_sales_proposal_id)');
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
+        FROM sales_proposal_job_order
+        WHERE backjob = "Yes" AND cancellation_date IS NULL AND sales_proposal_id = :p_sales_proposal_id');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function getAdditionalJobOrderBackjobCount($p_sales_proposal_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL getAdditionalJobOrderBackjobCount(:p_sales_proposal_id)');
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
+        FROM sales_proposal_additional_job_order
+        WHERE backjob = "Yes" AND cancellation_date IS NULL AND sales_proposal_id = :p_sales_proposal_id');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getSalesProposalCondition($p_sales_proposal_condition_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT *
+        FROM sales_proposal_condition
+        WHERE sales_proposal_condition_id = :p_sales_proposal_condition_id LIMIT 1');
+        $stmt->bindValue(':p_sales_proposal_condition_id', $p_sales_proposal_condition_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getJobOrderCompleteCount($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
+        FROM sales_proposal_job_order
+        WHERE ((progress = 100
+        AND backjob = "No") OR (backjob = "Yes")) AND cancellation_date IS NULL AND sales_proposal_id = :p_sales_proposal_id');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getAdditionalJobOrderCompleteCount($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
+        FROM sales_proposal_additional_job_order
+        WHERE ((progress = 100
+        AND backjob = "No") OR (backjob = "Yes")) AND cancellation_date IS NULL AND sales_proposal_id = :p_sales_proposal_id');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1476,6 +1527,49 @@ class SalesProposalModel {
         $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal SET ci_recommendation = :p_ci_recommendation, ci_recommendation_date = NOW() WHERE sales_proposal_id = :p_sales_proposal_id');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_ci_recommendation', $p_ci_recommendation, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function updateSalesProposalCondition($p_sales_proposal_condition_id, $p_approval_condition, $condition_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal_condition SET approval_condition = :p_approval_condition, condition_type = :condition_type, last_log_by = :p_last_log_by WHERE sales_proposal_condition_id = :p_sales_proposal_condition_id');
+        $stmt->bindValue(':p_sales_proposal_condition_id', $p_sales_proposal_condition_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_approval_condition', $p_approval_condition, PDO::PARAM_STR);
+        $stmt->bindValue(':condition_type', $condition_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function updateSalesProposalConditionAsComplete($p_sales_proposal_condition_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal_condition SET condition_status = "Complete", completion_date = NOW(), last_log_by = :p_last_log_by WHERE sales_proposal_condition_id = :p_sales_proposal_condition_id');
+        $stmt->bindValue(':p_sales_proposal_condition_id', $p_sales_proposal_condition_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function updateSalesProposalConditionAsWaived($p_sales_proposal_condition_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal_condition SET condition_status = "Waived", waive_date = NOW(), last_log_by = :p_last_log_by WHERE sales_proposal_condition_id = :p_sales_proposal_condition_id');
+        $stmt->bindValue(':p_sales_proposal_condition_id', $p_sales_proposal_condition_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function deleteSalesProposalCondition($p_sales_proposal_condition_id) {
+        $stmt = $this->db->getConnection()->prepare('DELETE FROM sales_proposal_condition WHERE sales_proposal_condition_id = :p_sales_proposal_condition_id');
+        $stmt->bindValue(':p_sales_proposal_condition_id', $p_sales_proposal_condition_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function insertSalesProposalCondition($p_sales_proposal_id, $p_approval_condition, $condition_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('INSERT INTO sales_proposal_condition (sales_proposal_id, approval_condition, condition_type, last_log_by) VALUES (:p_sales_proposal_id, :p_approval_condition, :condition_type, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_approval_condition', $p_approval_condition, PDO::PARAM_STR);
+        $stmt->bindValue(':condition_type', $condition_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -1504,6 +1598,23 @@ class SalesProposalModel {
     public function checkSalesProposalRepaymentExist($p_sales_proposal_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkSalesProposalRepaymentExist(:p_sales_proposal_id)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function checkSalesProposalConditionExist($p_sales_proposal_condition_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
+        FROM sales_proposal_condition
+        WHERE sales_proposal_condition_id = :p_sales_proposal_condition_id');
+        $stmt->bindValue(':p_sales_proposal_condition_id', $p_sales_proposal_condition_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function checkApprovalCondition($p_sales_proposal_id, $p_approval_condition) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
+        FROM sales_proposal_condition
+        WHERE sales_proposal_id = :p_sales_proposal_id AND approval_condition = :p_approval_condition AND condition_status = "Pending"');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_approval_condition', $p_approval_condition, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -2102,6 +2213,14 @@ class SalesProposalModel {
     public function getSalesProposalOtherProductDetails($p_sales_proposal_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getSalesProposalOtherProductDetails(:p_sales_proposal_id)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    public function getComakerRelation($p_contact_id, $p_comaker_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT relation_id FROM contact_comaker WHERE contact_id = :p_contact_id AND comaker_id = :p_comaker_id');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_comaker_id', $p_comaker_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

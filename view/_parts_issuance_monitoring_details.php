@@ -59,6 +59,7 @@
               <tr>
                 <th class="text-end">Issuance No.</th>
                 <th class="text-center">Product</th>
+                <th class="text-center">Customer Reference</th>
                 <th class="text-center">Part</th>
                 <th class="text-center">Qty.</th>
                 <th class="text-center">Add-On</th>

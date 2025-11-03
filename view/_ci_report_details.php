@@ -1353,7 +1353,7 @@
                         </div>
                         <div class="col-lg-3">
                             <label class="form-label" for="ci_business_capital">Capital</label>
-                            <input type="number" class="form-control" id="ci_business_capital" name="ci_business_capital" min="0" step="0.01" readonly>
+                            <input type="number" class="form-control" id="ci_business_capital" name="ci_business_capital" step="0.01" readonly>
                         </div>
                     </div>
 

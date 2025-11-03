@@ -95,7 +95,7 @@
                                 <div class="col-lg-3">
                                     <select class="form-control select2" name="product_id" id="product_id" <?php echo $disabled; ?>>
                                         <option value="">--</option>
-                                        <?php echo $productModel->generateNotDraftProductOptions(); ?>
+                                        <?php echo $productModel->generateInternalDRProductOptions(); ?>
                                     </select>
                                 </div>
                                 <label class="col-lg-3 col-form-label">Internal Job Order</label>

@@ -92,6 +92,9 @@ class PartsReturnController {
                 case 'tag return as released':
                     $this->tagAsReleased();
                     break;
+                case 'tag return as draft':
+                    $this->tagAsDraft();
+                    break;
                 case 'get parts return details':
                     $this->getPartsReturnDetails();
                     break;
@@ -108,6 +111,28 @@ class PartsReturnController {
         }
     }
     # -------------------------------------------------------------
+
+    public function tagAsDraft() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $parts_return_id = htmlspecialchars($_POST['parts_return_id'], ENT_QUOTES, 'UTF-8');
+        $draft_reason = htmlspecialchars($_POST['set_to_draft_reason'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->partsReturnModel->updatePartsReturnDraft($parts_return_id, $draft_reason, $userID);
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
 
     # -------------------------------------------------------------
     #   Save methods
@@ -132,6 +157,7 @@ class PartsReturnController {
         $userID = $_SESSION['user_id'];
         $parts_return_id = isset($_POST['parts_return_id']) ? htmlspecialchars($_POST['parts_return_id'], ENT_QUOTES, 'UTF-8') : null;
         $company_id = trim(htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8'));
+        $return_type = htmlspecialchars($_POST['return_type'], ENT_QUOTES, 'UTF-8');
         $supplier_id = htmlspecialchars($_POST['supplier_id'], ENT_QUOTES, 'UTF-8');
         $purchase_date = $this->systemModel->checkDate('empty', $_POST['purchase_date'], '', 'Y-m-d', '');
         $ref_invoice_number = htmlspecialchars($_POST['ref_invoice_number'], ENT_QUOTES, 'UTF-8');
@@ -152,13 +178,13 @@ class PartsReturnController {
         $total = $checkPartsReturnExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->partsReturnModel->updatePartsReturn($parts_return_id, $supplier_id, $purchase_date, $ref_invoice_number, $ref_po_number, $ref_po_date, $prev_total_billing, $adjusted_total_billing, $remarks, $userID);
+            $this->partsReturnModel->updatePartsReturn($parts_return_id, $supplier_id, $purchase_date, $return_type, $ref_invoice_number, $ref_po_number, $ref_po_date, $prev_total_billing, $adjusted_total_billing, $remarks, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'partsReturnID' => $this->securityModel->encryptData($parts_return_id)]);
             exit;
         } 
         else {
-            $parts_return_id = $this->partsReturnModel->insertPartsReturn($supplier_id, $company_id, $purchase_date, $ref_invoice_number, $ref_po_number, $ref_po_date, $prev_total_billing, $adjusted_total_billing, $remarks, $userID);
+            $parts_return_id = $this->partsReturnModel->insertPartsReturn($supplier_id, $company_id, $purchase_date, $return_type, $ref_invoice_number, $ref_po_number, $ref_po_date, $prev_total_billing, $adjusted_total_billing, $remarks, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => true, 'partsReturnID' => $this->securityModel->encryptData($parts_return_id)]);
             exit;
@@ -186,6 +212,7 @@ class PartsReturnController {
             $response = [
                 'success' => true,
                 'supplier_id' => $partsReturnDetails['supplier_id'],
+                'return_type' => $partsReturnDetails['return_type'],
                 'ref_invoice_number' => $partsReturnDetails['ref_invoice_number'],
                 'ref_po_number' => $partsReturnDetails['ref_po_number'],
                 'prev_total_billing' => $partsReturnDetails['prev_total_billing'],
@@ -208,6 +235,7 @@ class PartsReturnController {
         if (isset($_POST['part_return_cart_id']) && !empty($_POST['part_return_cart_id'])) {
             $userID = $_SESSION['user_id'];
             $part_return_cart_id = $_POST['part_return_cart_id'];
+            $return_type = $_POST['return_type'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -215,23 +243,33 @@ class PartsReturnController {
                 echo json_encode(['success' => false, 'isInactive' => true]);
                 exit;
             }
-    
+           
             $partsReturnCartDetails = $this->partsReturnModel->getPartsReturnCart($part_return_cart_id);
-            $part_transaction_id = $partsReturnCartDetails['part_transaction_id'];
-            $part_transaction_cart_id = $partsReturnCartDetails['part_transaction_cart_id'];
             $return_quantity = $partsReturnCartDetails['return_quantity'];
-            $remarks = $partsReturnCartDetails['remarks'];
 
-            $getPartsTransaction = $this->partTransactionModel->getPartsTransaction($part_transaction_id);
-            $slip_reference_no = $getPartsTransaction['issuance_no'] ?? '';
-            $part_id = $getPartsTransaction['part_id'] ?? '';
+            if($return_type == 'Issuance'){
+                $part_transaction_id = $partsReturnCartDetails['part_transaction_id'];
+                $part_transaction_cart_id = $partsReturnCartDetails['part_transaction_cart_id'];
+                $part_id = $partsReturnCartDetails['part_id'];
 
-            $getPartsTransactionCart = $this->partTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
-            $part_id = $getPartsTransactionCart['part_id'];
-            $available_return_quantity = $getPartsTransactionCart['return_quantity'] ?? 0;
+                $getPartsTransaction = $this->partTransactionModel->getPartsTransaction($part_transaction_id);
+                $slip_reference_no = $getPartsTransaction['issuance_no'] ?? '';
 
-            $partDetails = $this->partsModel->getParts($part_id);
-            $description = $partDetails['description'];
+                $getPartsTransactionCart = $this->partTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
+                $available_return_quantity = $getPartsTransactionCart['return_quantity'] ?? 0;
+
+                $partDetails = $this->partsModel->getParts($part_id);
+                $description = $partDetails['description'] ?? '';
+            }
+            else{
+                $slip_reference_no = 'N/A';
+                $part_id = $partsReturnCartDetails['part_id'];
+                
+                $partDetails = $this->partsModel->getParts($part_id);
+                $description = $partDetails['description'];
+                $available_return_quantity = $partDetails['quantity'];
+            }
+            
 
             $response = [
                 'success' => true,
@@ -413,44 +451,63 @@ class PartsReturnController {
 
         $partsReturnDetails = $this->partsReturnModel->getPartsReturn($parts_return_id);
         $company_id = $partsReturnDetails['company_id'] ?? 2;
-        $parts_transaction_id = $partsReturnDetails['parts_transaction_id'] ?? null;
-        $reference_number = $partsReturnDetails['reference_number'] ?? null;
         $remarks = $partsReturnDetails['remarks'] ?? null;
-
-        $this->partsReturnModel->updatePartsReturnReleased($parts_return_id, $userID);
-
-        $this->partsReturnModel->updatePartsReturnValue($parts_return_id, $userID);
+        $return_type = $partsReturnDetails['return_type'] ?? 'Issuance';
+        $reference_number = $partsReturnDetails['reference_number'] ?? 'Issuance';
 
         if($company_id == '2' || $company_id == '3'){
-            $partsTransactionDetails = $this->partTransactionModel->getPartsTransaction($parts_transaction_id);
-            $company_id = $partsTransactionDetails['company_id'] ?? '';
-            $customer_type = $partsTransactionDetails['customer_type'] ?? '';
-            $customer_id = $partsTransactionDetails['customer_id'] ?? '';
+            if($return_type == 'Issuance'){
+                $this->partsReturnModel->updatePartsReturnValue($parts_return_id, $userID);
 
-            if($company_id == '2'){
-                $p_reference_number = $partsTransactionDetails['issuance_no'] ?? '';
+                $partReturnCartDetails = $this->partsReturnModel->getPartsReturnCart2($parts_return_id);
+
+                foreach ($partReturnCartDetails as $row) {
+                    $parts_transaction_id = $row['part_transaction_id'];
+
+                    $partsTransactionDetails = $this->partTransactionModel->getPartsTransaction($parts_transaction_id);
+                    $company_id = $partsTransactionDetails['company_id'] ?? '';
+                    $customer_type = $partsTransactionDetails['customer_type'] ?? '';
+                    $customer_id = $partsTransactionDetails['customer_id'] ?? '';
+
+                    if($company_id == '2'){
+                        $p_reference_number = $partsTransactionDetails['issuance_no'] ?? '';
+                    }
+                    else{
+                        $p_reference_number = $partsTransactionDetails['reference_number'] ?? '';
+                    }
+
+                    $cost = $this->partsReturnModel->getPartsReturnCartTotal($parts_return_id, 'total cost')['total'];
+                    $price = $this->partsReturnModel->getPartsReturnCartTotal($parts_return_id, 'total price')['total'];
+                    $is_service = 'No';
+
+                    if($customer_type == 'Internal'){
+                        $productDetails = $this->productModel->getProduct($customer_id);
+                        $product_status = $productDetails['product_status'] ?? 'Draft';
+                    }
+                    else{
+                        $product_status = 'Draft';
+                    }
+                    
+                    $this->partTransactionModel->createPartsTransactionProductExpense($customer_id, 'Return Slip', $parts_return_id, ($price * -1), 'Parts & ACC', 'Issuance No.: ' . $reference_number . ' - '.  $remarks, $userID); 
+                    
+                    $this->partTransactionModel->createPartsTransactionEntryReversed($parts_transaction_id, $company_id, $p_reference_number, $cost, $price, $customer_type, $is_service, $product_status, $userID);
+                }
             }
             else{
-                $p_reference_number = $partsTransactionDetails['reference_number'] ?? '';
-            }
+                $partReturnCartDetails = $this->partsReturnModel->getPartsReturnCart2($parts_return_id);
 
-            $cost = $this->partsReturnModel->getPartsReturnCartTotal($parts_return_id, 'total cost')['total'];
-            $price = $this->partsReturnModel->getPartsReturnCartTotal($parts_return_id, 'total price')['total'];
-            $is_service = 'No';
+                foreach ($partReturnCartDetails as $row) {
+                    $part_id = $row['part_id'];
 
-            if($customer_type == 'Internal'){
-                $productDetails = $this->productModel->getProduct($customer_id);
-                $product_status = $productDetails['product_status'] ?? 'Draft';
-            }
-            else{
-                $product_status = 'Draft';
-            }
+                    $cost = $this->partsReturnModel->getPartsReturnCartStockTotal($parts_return_id, 'total cost')['total'];
 
-            $this->partTransactionModel->createPartsTransactionProductExpense($customer_id, 'Issuance Slip', $parts_transaction_id, $price, 'Parts & ACC', 'Issuance No.: ' . $reference_number . ' - '.  $remarks, $userID); 
-            
-            $this->partTransactionModel->createPartsTransactionEntryReversed($parts_transaction_id, $company_id, $p_reference_number, $cost, $price, $customer_type, $is_service, $product_status, $userID);
+                    $this->partsReturnModel->createPartsReturnStockEntry($part_id, $company_id, $parts_return_id . ' - ' . $remarks, $cost, $userID);
+                }
+                $this->partsReturnModel->updatePartsStockReturnValue($parts_return_id, $userID);
+            }
         }
-    
+
+        $this->partsReturnModel->updatePartsReturnReleased($parts_return_id, $userID);
 
         echo json_encode(['success' => true]);
         exit;
@@ -484,6 +541,7 @@ class PartsReturnController {
         
         $userID = $_SESSION['user_id'];
         $parts_return_id = htmlspecialchars($_POST['parts_return_id'], ENT_QUOTES, 'UTF-8');
+        $return_type = htmlspecialchars($_POST['return_type'], ENT_QUOTES, 'UTF-8');
         $part_transaction_cart_ids = explode(',', $_POST['part_transaction_cart_id']);
         
         $user = $this->userModel->getUserByID($userID);
@@ -495,10 +553,16 @@ class PartsReturnController {
         
         foreach ($part_transaction_cart_ids as $part_transaction_cart_id) {
             if(!empty($part_transaction_cart_id)){
-                $getPartsTransactionCart = $this->partTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
-                $part_transaction_id = $getPartsTransactionCart['part_transaction_id'];
+                if($return_type == 'Issuance'){
+                    $getPartsTransactionCart = $this->partTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
+                    $part_transaction_id = $getPartsTransactionCart['part_transaction_id'];
+                    $part_id = $getPartsTransactionCart['part_id'];
 
-                $this->partsReturnModel->insertPartReturnItem($parts_return_id, $part_transaction_id, $part_transaction_cart_id, $userID);
+                    $this->partsReturnModel->insertPartReturnItem($parts_return_id, $part_transaction_id, $part_transaction_cart_id, $part_id, $userID);
+                }
+                else{
+                    $this->partsReturnModel->insertPartReturnItemStock($parts_return_id, $part_transaction_cart_id, $userID);
+                }
             }
         }
         

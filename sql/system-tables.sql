@@ -6764,3 +6764,16 @@ CREATE TABLE part_return_cart(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE sales_proposal_condition(
+	sales_proposal_condition_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED NOT NULL,
+	approval_condition VARCHAR(500) NOT NULL,
+    condition_type VARCHAR(100) NOT NULL,
+    condition_status VARCHAR(100) NOT NULL DEFAULT 'Pending',
+	waive_date DATETIME,
+	completion_date DATETIME,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);

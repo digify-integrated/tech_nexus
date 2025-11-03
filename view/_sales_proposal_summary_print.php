@@ -1,3 +1,4 @@
+<input type="hidden" id="created-date-summary">
 <div class="print-summary">
     <div class="row">
         <div class="col-lg-12">

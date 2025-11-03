@@ -5176,6 +5176,7 @@ function displayDetails(transaction){
                         $('#summary-initial-approval-by').text(response.initialApprovingOfficerName);
                         $('#summary-final-approval-by').text(response.finalApprovingOfficerName);
                         $('#summary-created-by').text(response.createdByName);
+                        $('#created-date-summary').val(response.createdDate);
 
                         $('#initial_approval_remarks_label').text(response.initialApprovalRemarks);
                         $('#initial_approval_remarks').val(response.initialApprovalRemarks);
@@ -6340,6 +6341,19 @@ function calculateRenewalAmount(){
     }
     else{
         var delivery_price = parseCurrency($('#insurance_coverage').val()) || 0;
+        var created_date_str = $('#created-date-summary').val();
+        var multiplier = 0.030;
+
+        // Convert the string "MM/DD/YYYY" to a JavaScript Date object
+        var created_date = new Date(created_date_str);
+
+        // Create the comparison date: midnight at the start of Oct 21, 2025
+        var cutoff_date = new Date('2025-10-22'); 
+
+        // Check if the created date is strictly BEFORE the cutoff date
+        if(created_date < cutoff_date){
+            multiplier = 0.025;
+        }
 
         if(delivery_price > 0){
             var second_year_coverage = delivery_price * 0.8;
@@ -6351,7 +6365,7 @@ function calculateRenewalAmount(){
                 $('#summary-insurance-coverage-second-year').text(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
         
                 if(product_category == '1' || product_category == '3'){
-                    var premium = Math.ceil((((second_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
+                    var premium = Math.ceil((((second_year_coverage * multiplier) + 2700) * 1.2526) + 1300);
         
                     $('#insurance_premium_second_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
                     $('#summary-insurance-premium-second-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
@@ -6381,7 +6395,7 @@ function calculateRenewalAmount(){
                 $('#summary-insurance-coverage-third-year').text(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
         
                 if(product_category == '1' || product_category == '3'){
-                    var premium = Math.ceil((((third_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
+                    var premium = Math.ceil((((third_year_coverage * multiplier) + 2700) * 1.2526) + 1300);
         
                     $('#insurance_premium_third_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
                     $('#summary-insurance-premium-third-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
@@ -6411,7 +6425,7 @@ function calculateRenewalAmount(){
                 $('#summary-insurance-coverage-fourth-year').text(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
         
                 if(product_category == '1' || product_category == '3'){
-                    var premium = Math.ceil((((fourth_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
+                    var premium = Math.ceil((((fourth_year_coverage * multiplier) + 2700) * 1.2526) + 1300);
         
                     $('#insurance_premium_fourth_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
                     $('#summary-insurance-premium-fourth-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
@@ -6463,11 +6477,24 @@ function calculateTotalOtherCharges(){
         var amount_financed = parseCurrency($("#amount_financed").val());
         var pn_amount = parseCurrency($("#pn_amount").val());
         var product_category = $('#product_category').val();
+        var created_date_str = $('#created-date-summary').val();
+        var multiplier = 0.030;
+
+        // Convert the string "MM/DD/YYYY" to a JavaScript Date object
+        var created_date = new Date(created_date_str);
+
+        // Create the comparison date: midnight at the start of Oct 21, 2025
+        var cutoff_date = new Date('2025-10-22'); 
+
+        // Check if the created date is strictly BEFORE the cutoff date
+        if(created_date < cutoff_date){
+            multiplier = 0.025;
+        }
     
         var insurance_coverage = parseCurrency($("#insurance_coverage").val());
         
         if(product_category == '1' || product_category == '3' || productType == 'Brand New'){
-            var insurance_premium = Math.ceil((((insurance_coverage * 0.025) + 2700) * 1.2526) + 1300);
+            var insurance_premium = Math.ceil((((insurance_coverage * multiplier) + 2700) * 1.2526) + 1300);
         }
         else if(product_category == '2'){
             var insurance_premium = Math.ceil((insurance_coverage * 0.025) * 1.2526);

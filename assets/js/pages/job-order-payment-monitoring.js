@@ -408,6 +408,7 @@ function jobOrderTable(datatable_name, buttons = false, show_all = false){
 
     const column = [ 
         { 'data' : 'OS_NUMBER' },
+        { 'data' : 'PRODUCT' },
         { 'data' : 'JOB_ORDER' },
         { 'data' : 'JOB_COST' },
         { 'data' : 'CONTRACTOR' },
@@ -419,11 +420,12 @@ function jobOrderTable(datatable_name, buttons = false, show_all = false){
     const column_definition = [
         { 'width': 'auto', 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
-        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': '30%', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 6 }
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 7 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -479,6 +481,7 @@ function internalJobOrderTable(datatable_name, buttons = false, show_all = false
     const column = [ 
         { 'data' : 'TYPE' },
         { 'data' : 'OS_NUMBER' },
+        { 'data' : 'PRODUCT' },
         { 'data' : 'JOB_ORDER' },
         { 'data' : 'JOB_COST' },
         { 'data' : 'CONTRACTOR' },
@@ -491,11 +494,12 @@ function internalJobOrderTable(datatable_name, buttons = false, show_all = false
         { 'width': 'auto', 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': '30%', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 7 }
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -550,6 +554,7 @@ function additionalJobOrderTable(datatable_name, buttons = false, show_all = fal
 
     const column = [ 
         { 'data' : 'OS_NUMBER' },
+        { 'data' : 'PRODUCT' },
         { 'data' : 'JOB_ORDER' },
         { 'data' : 'JOB_COST' },
         { 'data' : 'CONTRACTOR' },
@@ -561,11 +566,12 @@ function additionalJobOrderTable(datatable_name, buttons = false, show_all = fal
     const column_definition = [
         { 'width': 'auto', 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
-        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': '30%', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 6 }
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 7 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -622,6 +628,7 @@ function internalAdditionalJobOrderTable(datatable_name, buttons = false, show_a
     const column = [ 
         { 'data' : 'TYPE' },
         { 'data' : 'OS_NUMBER' },
+        { 'data' : 'PRODUCT' },
         { 'data' : 'JOB_ORDER' },
         { 'data' : 'JOB_COST' },
         { 'data' : 'CONTRACTOR' },
@@ -634,10 +641,11 @@ function internalAdditionalJobOrderTable(datatable_name, buttons = false, show_a
         { 'width': 'auto', 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': '30%', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 6 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 7 }
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

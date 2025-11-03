@@ -51,7 +51,7 @@ foreach ($options as $row) {
     $today = date('Y-m-d');
     $overdueDate = $row['for_ci_date'];
     $diff = date_diff(date_create($overdueDate), date_create($today));
-    $daysOverdue = $diff->days;
+    $daysOverdue = $diff->days - 3;
 
     $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
 
@@ -111,6 +111,7 @@ $mailer->setFrom($mailFromEmail, $mailFromName);
 $mailer->addAddress('ma.garsula@christianmotors.ph');
 $mailer->addAddress('christianbaguisa@christianmotors.ph');
 $mailer->addAddress('l.agulto@christianmotors.ph');
+$mailer->addAddress('glenbonita@christianmotors.ph');
 $mailer->Subject = $emailSubject;
 $mailer->Body = $message;
 

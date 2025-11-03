@@ -398,13 +398,12 @@ class PartsIncomingController {
             echo json_encode(['success' => false, 'invoicePrice' => true]);
             exit;
         }
-
         
+
         $partsIncomingDetails = $this->partsIncomingModel->getPartsIncoming($parts_incoming_id);
         $product_id = $partsIncomingDetails['product_id'] ?? '';
         $company_id = $partsIncomingDetails['company_id'] ?? '';
 
-        $this->partsIncomingModel->updatePartsIncomingReleased($parts_incoming_id, 'Completed', $invoice_number, $invoice_price, $invoice_date, $delivery_date, $userID);
 
         $getPartsIncomingCartByID = $this->partsIncomingModel->getPartsIncomingCartByID($parts_incoming_id);
 
@@ -419,6 +418,9 @@ class PartsIncomingController {
         if(!empty($product_id) && $product_id != '958'){
             $this->partsIncomingModel->generatePartsIssuanceMonitoring($parts_incoming_id, $userID);
         }
+
+        $this->partsIncomingModel->updatePartsIncomingReleased($parts_incoming_id, 'Completed', $invoice_number, $invoice_price, $invoice_date, $delivery_date, $userID);
+        
         echo json_encode(['success' => true]);
         exit;
     }
@@ -477,7 +479,7 @@ class PartsIncomingController {
         $parts_id = $_POST['part_id'];
         $quantity = $_POST['quantity'];
         $total_cost = $_POST['total_cost'];
-        $remarks = $_POST['remarks'];
+        $remarks = $_POST['cart_remarks'];
         
         $user = $this->userModel->getUserByID($userID);
         
@@ -867,6 +869,7 @@ class PartsIncomingController {
                 'reference_number' => $partsIncomingDetails['reference_number'],
                 'request_by' => $partsIncomingDetails['request_by'],
                 'product_id' => $partsIncomingDetails['product_id'],
+                'remarks' => $partsIncomingDetails['remarks'],
                 'customer_ref_id' => $partsIncomingDetails['customer_ref_id'],
                 'purchase_date' =>  $this->systemModel->checkDate('empty', $partsIncomingDetails['purchase_date'], '', 'm/d/Y', ''),
                 'supplier_id' => $partsIncomingDetails['supplier_id'],

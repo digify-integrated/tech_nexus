@@ -1138,6 +1138,27 @@
                                     <input type="text" class="form-control text-uppercase" id="make" name="make" maxlength="100" autocomplete="off">
                                 </div>
                             </div>
+                             <div class="form-group row">
+                                <label class="col-lg-5 col-form-label">Series :</label>
+                                <div class="col-lg-7">
+                                    <input type="text" class="form-control text-uppercase" id="series" name="series" maxlength="500" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-5 col-form-label">Issued By :</label>
+                                <div class="col-lg-7">
+                                    <input type="text" class="form-control text-uppercase" id="issued_by" name="issued_by" maxlength="500" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-5 col-form-label">Mortgagee :</label>
+                                <div class="col-lg-7">
+                                     <select class="form-control select2" name="mortgagee" id="mortgagee">
+                                        <option value="">--</option>
+                                        <option value="LALAINE P. PENACILLA">LALAINE P. PENACILLA</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="form-group row">
                                 <label class="col-lg-5 col-form-label">Product Description : <span class="text-danger">*</span></label>
                                 <div class="col-lg-7">

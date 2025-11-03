@@ -46,7 +46,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         case 'add part table':
             $parts_return_id = $_POST['parts_return_id'];
             $company_id = $_POST['company_id'];
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction_cart WHERE part_transaction_id IN (SELECT part_transaction_id FROM part_transaction WHERE company_id = :company_id AND part_transaction_status IN ("Checked", "Released") AND part_transaction_id NOT IN (SELECT part_transaction_id FROM part_return_cart WHERE part_return_id = :parts_return_id)) AND return_quantity > 0');
+            $return_type = $_POST['return_type'];
+
+            if($return_type == 'Issuance'){
+                $query = 'SELECT * FROM part_transaction_cart WHERE part_transaction_id IN (SELECT part_transaction_id FROM part_transaction WHERE company_id = :company_id AND part_transaction_status IN ("Checked", "Released") AND part_transaction_id NOT IN (SELECT part_transaction_id FROM part_return_cart WHERE part_return_id = :parts_return_id)) AND return_quantity > 0';
+            }
+            else{
+                $query = 'SELECT * FROM part WHERE company_id = :company_id AND part_id NOT IN (SELECT part_id FROM part_return_cart WHERE part_return_id = :parts_return_id) AND quantity > 0';
+            }
+
+            $sql = $databaseModel->getConnection()->prepare($query);
             $sql->bindValue(':parts_return_id', $parts_return_id, PDO::PARAM_STR);
             $sql->bindValue(':company_id', $company_id, PDO::PARAM_STR);
             $sql->execute();
@@ -54,35 +63,64 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                $part_transaction_cart_id = $row['part_transaction_cart_id'];
-                $part_transaction_id = $row['part_transaction_id'];
-                $part_id = $row['part_id'];
-                $cost = $row['cost'];
-                $return_quantity = $row['return_quantity'];
+                if($return_type == 'Issuance'){
+                    $part_transaction_cart_id = $row['part_transaction_cart_id'];
+                    $part_transaction_id = $row['part_transaction_id'];
+                    $part_id = $row['part_id'];
+                    $cost = $row['cost'];
+                    $return_quantity = $row['return_quantity'];
 
-                $getPartsTransaction = $partTransactionModel->getPartsTransaction($part_transaction_id);
-                $slip_reference_no = $getPartsTransaction['issuance_no'] ?? '';
+                    $getPartsTransaction = $partTransactionModel->getPartsTransaction($part_transaction_id);
+                    $slip_reference_no = $getPartsTransaction['issuance_no'] ?? '';
 
-                $partDetails = $partsModel->getParts($part_id);
-                $description = $partDetails['description'];
-                $bar_code = $partDetails['bar_code'];
-                $unitSale = $partDetails['unit_sale'] ?? null;
+                    $partDetails = $partsModel->getParts($part_id);
+                    $description = $partDetails['description'];
+                    $bar_code = $partDetails['bar_code'];
+                    $unitSale = $partDetails['unit_sale'] ?? null;
 
-                $unitCode = $unitModel->getUnit($unitSale);
-                $short_name = $unitCode['short_name'] ?? null;
+                    $unitCode = $unitModel->getUnit($unitSale);
+                    $short_name = $unitCode['short_name'] ?? null;
 
-                $response[] = [
-                    'ISSUANCE_NO' => $slip_reference_no,
-                    'PART' => ' <div class="d-flex align-items-center">
-                                    <div class="flex-grow-1 ms-2">
-                                        <h5 class="mb-1">'. $description .'</h5>
-                                        <p class="text-sm text-muted mb-0">'. $bar_code .'</p>
-                                    </div>
-                                </div>',
-                    'COST' => number_format($cost, 2) . ' PHP',
-                    'AVAILABLE_QUANTITY' => number_format($return_quantity, 2) . ' ' . $short_name,
-                    'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-part" type="checkbox" value="'. $part_transaction_cart_id.'"></div>'
-                ];
+                    $response[] = [
+                        'ISSUANCE_NO' => $slip_reference_no,
+                        'PART' => ' <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1 ms-2">
+                                            <h5 class="mb-1">'. $description .'</h5>
+                                            <p class="text-sm text-muted mb-0">'. $bar_code .'</p>
+                                        </div>
+                                    </div>',
+                        'COST' => number_format($cost, 2) . ' PHP',
+                        'AVAILABLE_QUANTITY' => number_format($return_quantity, 2) . ' ' . $short_name,
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-part" type="checkbox" value="'. $part_transaction_cart_id.'"></div>'
+                    ];
+                }
+                else{
+                    $part_id = $row['part_id'];
+                    $description = $row['description'];
+                    $bar_code = $row['bar_code'];
+                    $unitSale = $row['unit_sale'] ?? null;
+                    $cost = $row['part_cost'];
+                    $quantity = $row['quantity'];
+
+                    $unitCode = $unitModel->getUnit($unitSale);
+                    $short_name = $unitCode['short_name'] ?? null;
+
+
+                    $response[] = [
+                        'ISSUANCE_NO' => 'N/A',
+                        'PART' => ' <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1 ms-2">
+                                            <h5 class="mb-1">'. $description .'</h5>
+                                            <p class="text-sm text-muted mb-0">'. $bar_code .'</p>
+                                        </div>
+                                    </div>',
+                        'COST' => number_format($cost, 2) . ' PHP',
+                        'AVAILABLE_QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-part" type="checkbox" value="'. $part_id.'"></div>'
+                    ];
+                }
+
+                
             }
 
             echo json_encode($response);
@@ -94,6 +132,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             $partReturnDetails = $partsReturnModel->getPartsReturn($parts_return_id);
             $part_return_status = $partReturnDetails['part_return_status'] ?? 'Draft';
+            $return_type = $partReturnDetails['return_type'] ?? 'Draft';
 
             $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_return_cart WHERE part_return_id = :parts_return_id');
             $sql->bindValue(':parts_return_id', $parts_return_id, PDO::PARAM_STR);
@@ -103,23 +142,38 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             $order = 0;
             foreach ($options as $row) {
-                $part_return_cart_id = $row['part_return_cart_id'];
+                $part_return_cart_id = $row['part_return_cart_id'];                
                 $part_transaction_id = $row['part_transaction_id'];
                 $part_transaction_cart_id = $row['part_transaction_cart_id'];
                 $return_quantity = $row['return_quantity'];
                 $remarks = $row['remarks'];
+                $part_id = $row['part_id'];
 
-                $getPartsTransaction = $partTransactionModel->getPartsTransaction( $part_transaction_id);
-                $slip_reference_no = $getPartsTransaction['issuance_no'] ?? '';
                 
-                $getPartsTransactionCart = $partTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
-                $part_id = $getPartsTransactionCart['part_id'];
-                $available_return_quantity = $getPartsTransactionCart['return_quantity'] ?? 0;
-                $cost = $getPartsTransactionCart['cost'] ?? 0;
+                if($return_type == 'Issuance'){
+                    $getPartsTransaction = $partTransactionModel->getPartsTransaction( $part_transaction_id);
+                    $slip_reference_no = $getPartsTransaction['issuance_no'] ?? '';
+                    
+                    $getPartsTransactionCart = $partTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
+                    $available_return_quantity = $getPartsTransactionCart['return_quantity'] ?? 0;
+                    $cost = $getPartsTransactionCart['cost'] ?? 0;
 
-                $partDetails = $partsModel->getParts($part_id);
-                $description = $partDetails['description'];
-                $bar_code = $partDetails['bar_code'];
+                    $partDetails = $partsModel->getParts($part_id);
+                    $description = $partDetails['description'];
+                    $bar_code = $partDetails['bar_code'];
+                    $unitSale = $partDetails['unit_sale'] ?? null;
+                }
+                else{
+                     $slip_reference_no = 'N/A';
+                    $partDetails = $partsModel->getParts($part_id);
+                    $description = $partDetails['description'] ?? null;
+                    $bar_code = $partDetails['bar_code'] ?? null;
+                    $cost = $partDetails['part_cost'] ?? null;
+                    $available_return_quantity = $partDetails['quantity'] ?? null;
+                    $unitSale = $partDetails['unit_sale'] ?? null;
+                }
+
+                
 
                 $action = '';
                 if($part_return_status == 'Draft'){
@@ -135,9 +189,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </button>';
                 }
                 
-                $partDetails = $partsModel->getParts($part_id);
-                $partQuantity = $partDetails['quantity'] ?? 0;
-                $unitSale = $partDetails['unit_sale'] ?? null;
 
                 $unitCode = $unitModel->getUnit($unitSale);
                 $short_name = $unitCode['short_name'] ?? null;

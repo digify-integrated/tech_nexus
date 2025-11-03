@@ -16,6 +16,7 @@ require_once '../model/color-model.php';
 require_once '../model/color-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/parts-transaction-model.php';
+require_once '../model/parts-return-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -30,6 +31,7 @@ $bodyTypeModel = new BodyTypeModel($databaseModel);
 $unitModel = new UnitModel($databaseModel);
 $colorModel = new ColorModel($databaseModel);
 $partsTransactionModel = new PartsTransactionModel($databaseModel);
+$partsReturnModel = new PartsReturnModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -391,6 +393,26 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                             $view = ''; // Or handle the else case accordingly
                         }
                     }
+                    else if($reference_type == 'Return Slip'){
+                        $partTransactionDetails = $partsReturnModel->getPartsReturn($reference_number);
+                        $company = $partTransactionDetails['company_id'] ?? '';
+                        $part_transaction_id_encrypted = $securityModel->encryptData($reference_number);
+
+                        if($company == '2'){
+                            $link = 'netruck-parts-return';
+                        }
+                        else{
+                            $link = 'parts-transaction';
+                        }
+
+                        if (substr($reference_number, 0, 3) === 'PRT') {
+                            $view = '<a href="' . $link . '.php?id=' . $part_transaction_id_encrypted . '" class="btn btn-icon btn-primary" title="View Details" target="_blank">
+                                        <i class="ti ti-eye"></i>
+                                    </a>';
+                        } else {
+                            $view = ''; // Or handle the else case accordingly
+                        }
+                    }
     
                     $response[] = [
                         'CREATED_DATE' => $createdDate,
@@ -445,8 +467,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $expense_amount = number_format($row['expense_amount'], 2);
 
                     $productDetails = $productModel->getProduct($productID);
-                    $stockNumber = $productDetails['stock_number'];
-                    $description = $productDetails['description'];
+                    $stockNumber = $productDetails['stock_number'] ?? '';
+                    $description = $productDetails['description'] ?? '';
 
                     $productIDEncrypted = $securityModel->encryptData($productID);
 

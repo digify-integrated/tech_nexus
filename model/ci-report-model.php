@@ -1288,8 +1288,8 @@ class CIReportModel {
     float $pv,
     float $fv = 0.0,
     int $type = 0,
-    float $guess = 0.1,
-    int $maxIter = 128,
+    float $guess = 0.01,
+    int $maxIter = 256,
     float $tol = 1.0e-8
 ): float {
     $rate = $guess;

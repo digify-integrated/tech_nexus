@@ -19,6 +19,14 @@
       <div class="card-body">
         <form id="parts-return-form" method="post" action="#">
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Return Type <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="return_type" id="return_type">
+                <option value="">--</option>
+                <option value="Stock">Stock</option>
+                <option value="Issuance">Issuance</option>
+              </select>
+            </div>
             <label class="col-lg-2 col-form-label">Supplier <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="supplier_id" id="supplier_id">
@@ -26,6 +34,8 @@
                 <?php echo $supplierModel->generateSupplierOptions(); ?>
               </select>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Purchase Date <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <div class="input-group date">
@@ -35,18 +45,16 @@
                 </span>
               </div>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Ref. Invoice No. <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="ref_invoice_number" name="ref_invoice_number" maxlength="100" autocomplete="off">
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Ref. PO No. <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="ref_po_number" name="ref_po_number" maxlength="100" autocomplete="off">
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Ref. PO Date <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <div class="input-group date">
@@ -55,13 +63,13 @@
                   <i class="feather icon-calendar"></i>
                 </span>
               </div>
-            </div>            
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Previous Total Billing</label>
             <div class="col-lg-4">
                 <input type="number" class="form-control" id="prev_total_billing" name="prev_total_billing" min="0" step="0.01">
             </div>
-          </div>
-          <div class="form-group row">      
             <label class="col-lg-2 col-form-label">Adusted Total Billing</label>
             <div class="col-lg-4">
                 <input type="number" class="form-control" id="adjusted_total_billing" name="adjusted_total_billing" min="0" step="0.01">

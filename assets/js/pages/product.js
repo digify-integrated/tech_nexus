@@ -671,10 +671,13 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.preOrder) {
-                                    showNotification('Product Pre-order', 'The product is tagged as pre-order.', 'danger');
+                                    showNotification('Tag Product For Sale', 'The product is tagged as pre-order.', 'danger');
                                 }
                                 else if (response.zeroCost) {
-                                    showNotification('Product Pre-order', 'The product poduct price or cost is set to 0. Check the fields and try again.', 'danger');
+                                    showNotification('Tag Product For Sale', 'The product poduct price or cost is set to 0. Check the fields and try again.', 'danger');
+                                }
+                                else if (response.incomingChecklist) {
+                                    showNotification('Tag Product For Sale', 'There is no uploaded incoming checklist.', 'danger');
                                 }
                                 else if (response.notExist) {
                                     window.location = '404.php';

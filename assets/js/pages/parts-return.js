@@ -49,6 +49,10 @@
             displayDetails('get parts return cart details');
         });
 
+        if($('#draft-return-form').length){
+            draftReturnForm();
+        }
+
         $(document).on('click','.delete-part-cart',function() {
             const parts_return_cart_id = $(this).data('parts-return-cart-id');
             var parts_return_id = $('#parts-return-id').text();
@@ -332,6 +336,9 @@ function partsReturnForm(){
             supplier_id: {
                 required: true
             },
+            return_type: {
+                required: true
+            },
             purchase_date: {
                 required: true
             },
@@ -349,6 +356,9 @@ function partsReturnForm(){
         messages: {
             supplier_id: {
                 required: 'Please choose the supplier'
+            },
+            return_type: {
+                required: 'Please choose the return type'
             },
             purchase_date: {
                 required: 'Please choose the purchase date'
@@ -412,7 +422,7 @@ function partsReturnForm(){
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
                         if(company_id == '1'){
-                             window.location = 'supplies-return.php?id=' + response.partsReturnID;
+                            window.location = 'supplies-return.php?id=' + response.partsReturnID;
                         }
                         else if(company_id == '2'){
                             window.location = 'netruck-parts-return.php?id=' + response.partsReturnID;
@@ -448,10 +458,99 @@ function partsReturnForm(){
     });
 }
 
+function draftReturnForm(){
+    $('#draft-return-form').validate({
+        rules: {
+            set_to_draft_reason: {
+                required: true
+            },
+        },
+        messages: {
+            set_to_draft_reason: {
+                required: 'Please enter the set to draft reason'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            var parts_return_id = $('#parts-return-id').text();
+            const transaction = 'tag return as draft';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/parts-return-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_return_id=' + parts_return_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-draft-return');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Set to Draft Return Success';
+                        const notificationDescription = 'The return has been set to draft successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-draft-return', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function addPartsForm(){
     $('#add-part-form').validate({
         submitHandler: function(form) {
-          var parts_return_id = $('#parts-return-id').text();
+            var parts_return_id = $('#parts-return-id').text();
+            var return_type = $('#return_type').val();
             const transaction = 'add parts return item';
 
             var part_transaction_cart_id = [];
@@ -465,7 +564,7 @@ function addPartsForm(){
             $.ajax({
                 type: 'POST',
                 url: 'controller/parts-return-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&parts_return_id=' + parts_return_id + '&part_transaction_cart_id=' + part_transaction_cart_id,
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_return_id=' + parts_return_id + '&part_transaction_cart_id=' + part_transaction_cart_id + '&return_type=' + return_type,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-add-part');
@@ -692,6 +791,7 @@ function partItemForm(){
 
 function partItemTable(datatable_name, buttons = false, show_all = false){
     var parts_return_id = $('#parts-return-id').text();
+    var return_type = $('#return_type').val();
     const type = 'part return item table';
     var settings;
 
@@ -721,7 +821,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_parts_return_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'parts_return_id' : parts_return_id},
+            'data': {'type' : type, 'parts_return_id' : parts_return_id, 'return_type' : return_type},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -755,6 +855,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
 
 function addPartTable(datatable_name, buttons = false, show_all = false){
     var parts_return_id = $('#parts-return-id').text();
+    var return_type = $('#return_type').val();
     const company_id = $('#page-company').val();
     const type = 'add part table';
     var settings;
@@ -782,7 +883,7 @@ function addPartTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_parts_return_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'parts_return_id' : parts_return_id, 'company_id' : company_id},
+            'data': {'type' : type, 'parts_return_id' : parts_return_id, 'return_type' : return_type, 'company_id' : company_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -844,6 +945,7 @@ function displayDetails(transaction){
                         $('#ref_po_date').val(response.ref_po_date);
 
                         checkOptionExist('#supplier_id', response.supplier_id, '');
+                        checkOptionExist('#return_type', response.return_type, '');
                     } 
                     else {
                         if(response.isInactive){
@@ -865,6 +967,7 @@ function displayDetails(transaction){
             break;
         case 'get parts return cart details':
             let part_return_cart_id = $('#part_return_cart_id').val();
+            var return_type = $('#return_type').val();
             
             $.ajax({
                 url: 'controller/parts-return-controller.php',
@@ -872,6 +975,7 @@ function displayDetails(transaction){
                 dataType: 'json',
                 data: {
                     part_return_cart_id : part_return_cart_id, 
+                    return_type : return_type, 
                     transaction : transaction
                 },
                 success: function(response) {

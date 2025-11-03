@@ -1787,6 +1787,7 @@ function displayDetails(transaction){
                         $('#reference_number').val(response.reference_number);
                         $('#purchase_date').val(response.purchase_date);
                         $('#request_by').val(response.request_by);
+                        $('#remarks').val(response.remarks);
 
                         checkOptionExist('#supplier_id', response.supplier_id, '');
                         checkOptionExist('#product_id', response.product_id, '');
@@ -1826,7 +1827,7 @@ function displayDetails(transaction){
                         $('#quantity').val(response.quantity);
                         $('#total_cost').val(response.total_cost);
                         $('#part_id').val(response.part_id);
-                        $('#remarks').val(response.remarks);
+                        $('#cart_remarks').val(response.remarks);
                         
                         checkOptionExist('#discount_type', response.discount_type, '');
 

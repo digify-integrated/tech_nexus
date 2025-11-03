@@ -142,6 +142,7 @@ function partTransactionTable(datatable_name, buttons = false, show_all = false)
     const column = [ 
         { 'data' : 'PART_TRANSACTION_NO' },
         { 'data' : 'PRODUCT' },
+        { 'data' : 'CUSTOMER' },
         { 'data' : 'PART' },
         { 'data' : 'QUANTITY' },
         { 'data' : 'ADD_ON' },
@@ -161,6 +162,7 @@ function partTransactionTable(datatable_name, buttons = false, show_all = false)
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
         { 'width': 'auto', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

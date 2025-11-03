@@ -678,6 +678,12 @@ class ProductModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function getProductDocumentIncomingChecklist($p_product_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(product_document_id) AS total FROM product_document WHERE product_id = :p_product_id AND product_document_type = "Incoming Checklist"');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
     # -------------------------------------------------------------
     public function getProductImage($p_product_image_id) {
@@ -939,6 +945,22 @@ class ProductModel {
     # -------------------------------------------------------------
     public function generateNotDraftProductOptions() {
         $stmt = $this->db->getConnection()->prepare('CALL generateNotDraftProductOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $productID = $row['product_id'];
+            $description = $row['description'];
+            $stockNumber = $row['stock_number'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($productID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    public function generateInternalDRProductOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateInternalDRProductOptions()');
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -73,7 +73,8 @@
         $supplierName = $supplierModel->getSupplier($supplier_id)['supplier_name'] ?? '';
     }
 
-    $summaryTable = generatePrint($part_incoming_id);
+    $summaryTable = generatePrint($part_incoming_id, 1);
+    $summaryTable2 = generatePrint($part_incoming_id, 2);
 
     ob_start();
 
@@ -161,7 +162,7 @@
     $pdf->Cell(8, 8, '', 0, 0, 'L');
     $pdf->Cell(50, 8, strtoupper($stock_number) . ' - ' . strtoupper($last_name), 'B', 0, 'L');
     $pdf->Ln(15);
-    $pdf->writeHTML($summaryTable, true, false, true, false, '');
+    $pdf->writeHTML($summaryTable2, true, false, true, false, '');
     $pdf->Ln(5);
     
     $pdf->SetFont('times', '', 10);
@@ -181,7 +182,7 @@
     $pdf->Output('job-order-list.pdf', 'I');
     ob_end_flush();
 
-    function generatePrint($part_incoming_id){
+    function generatePrint($part_incoming_id, $type){
         
         require_once 'model/database-model.php';
         require_once 'model/pdc-management-model.php';
@@ -217,24 +218,47 @@
             $partDetails = $partsModel->getParts($part_id);
             $unitSale = $partDetails['unit_sale'] ?? null;
             $description = $partDetails['description'];
+            $part_quantity = $partDetails['quantity'];
 
             $unitCode = $unitModel->getUnit($unitSale);
             $short_name = $unitCode['short_name'] ?? null;
 
-            $list .= '<tr>
+            if($type == 1){
+                $list .= '<tr>
+                        <td width="15%" style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
+                        <td width="15%" style="text-align:center">'. number_format($part_quantity, 2) . ' ' . strtoupper($short_name) .'</td>
+                        <td width="30%" style="text-align:center">'. strtoupper($description) .'</td>
+                        <td width="40%">'. strtoupper($remarks) .'</td>
+                    </tr>';
+            }
+            else{
+                $list .= '<tr>
                         <td width="20%" style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
                         <td width="35%" style="text-align:center">'. strtoupper($description) .'</td>
                         <td width="45%">'. strtoupper($remarks) .'</td>
                     </tr>';
+            }
         }
+
+        if($type == 1){
+                $header = '<tr style="text-align:center">
+                                <td width="15%"><b>Qty.</b></td>
+                                <td width="15%"><b>Stock Qty.</b></td>
+                                <td width="30%"><b>Particulars</b></td>
+                                <td width="40%"><b>Remarks</b></td>
+                            </tr>';
+            }
+            else{
+                $header = '<tr style="text-align:center">
+                                <td width="20%"><b>Qty.</b></td>
+                                <td width="35%"><b>Particulars</b></td>
+                                <td width="45%"><b>Remarks</b></td>
+                            </tr>';
+            }
 
         $response = '<table border="1" width="100%" cellpadding="5" align="left">
                         <thead>
-                            <tr style="text-align:center">
-                                <td width="20%"><b>Quantity</b></td>
-                                <td width="35%"><b>Particulars</b></td>
-                                <td width="45%"><b>Remarks</b></td>
-                            </tr>
+                            '. $header .'
                         </thead>
                         <tbody>
                             '.$list.'

@@ -15,6 +15,7 @@
   $tagChangeRequestAsComplete = $userModel->checkSystemActionAccessRights($user_id, 145);
   $tagChangeRequestForReview = $userModel->checkSystemActionAccessRights($user_id, 166);
   $viewSalesProposalCIReportTab = $userModel->checkSystemActionAccessRights($user_id, 221);
+  $addSalesProposalApprovalCondition = $userModel->checkSystemActionAccessRights($user_id, 227);
 
   $checkCustomerExist = $customerModel->checkCustomerExist($customerID);
   $total = $checkCustomerExist['total'] ?? 0;
@@ -239,7 +240,6 @@
             </a>
           </li>
 
-          <!--<li class="<?php echo ($viewSalesProposalCIReportTab['total'] ?? 0 == 0 && empty($forCIDate)) ? 'd-none' : ''; ?>">-->
           <li class="">
             <a class="nav-link"
               id="sales-proposal-tab-14"
@@ -250,6 +250,19 @@
               aria-selected="false"
               data-step="ciReport">
               CI Report
+            </a>
+          </li>
+
+          <li class="">
+            <a class="nav-link"
+              id="sales-proposal-tab-15"
+              data-bs-toggle="pill"
+              href="#v-approval-condition"
+              role="tab"
+              aria-controls="v-approval-condition"
+              aria-selected="false"
+              data-step="approvalCondition">
+              Approval Condition
             </a>
           </li>
 
@@ -289,6 +302,12 @@
 
                   echo '  <div class="previous me-2 d-none" id="add-sales-proposal-deposit-amount-button">
                             <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" id="add-sales-proposal-deposit-amount">Add Amount of Deposit</button>
+                          </div>';
+                }
+
+                if($addSalesProposalApprovalCondition['total'] > 0 && empty($ci_recommendation_date) && !empty($ci_completion_date)){
+                  echo '  <div class="previous me-2 d-none" id="add-sales-proposal-condition-button">
+                            <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-condition-offcanvas" aria-controls="sales-proposal-condition-offcanvas" id="add-sales-proposal-condition">Add Approval Condition</button>
                           </div>';
                 }
 
@@ -620,6 +639,7 @@
               </div>
             </form>
           </div>
+
           <div class="tab-pane" id="v-unit-details">
             <form id="sales-proposal-unit-details-form" method="post" action="#">
             <div class="row">
@@ -764,6 +784,7 @@
             </div>
             </form>
           </div>
+
           <div class="tab-pane" id="v-fuel-details">
             <form id="sales-proposal-fuel-details-form" method="post" action="#">
               <div class="row">
@@ -835,6 +856,7 @@
               </div>
             </form>
           </div>
+
           <div class="tab-pane" id="v-refinancing-details">
             <form id="sales-proposal-refinancing-details-form" method="post" action="#">
               <div class="row">
@@ -928,6 +950,7 @@
               </div>
             </form>
           </div>
+
           <div class="tab-pane" id="v-job-order">
             <div class="table-responsive">
               <table id="sales-proposal-job-order-table" class="table table-hover nowrap w-100">
@@ -944,6 +967,7 @@
               </table>
             </div>
           </div>
+
           <div class="tab-pane" id="v-pricing-computation">
             <form id="sales-proposal-pricing-computation-form" method="post" action="#">
             <?php
@@ -1042,6 +1066,7 @@
           </div>
             </form>
           </div>
+
           <div class="tab-pane" id="v-other-charges">
             <form id="sales-proposal-other-charges-form" method="post" action="#">
             <div class="row">
@@ -1160,6 +1185,7 @@
           </div>
             </form>
           </div>
+
           <div class="tab-pane" id="v-renewal-amount">
             <form id="sales-proposal-renewal-amount-form" method="post" action="#">
               <div class="row">
@@ -1216,6 +1242,7 @@
             </div>
             </form>
           </div>
+
           <div class="tab-pane" id="v-amount-of-deposit">
             <div class="table-responsive">
               <table id="sales-proposal-deposit-amount-table" class="table table-hover nowrap w-100">
@@ -1231,6 +1258,7 @@
               </table>
             </div>
           </div>
+
           <div class="tab-pane" id="v-additional-job-order">
             <div class="table-responsive">
               <table id="sales-proposal-additional-job-order-table" class="table table-hover nowrap w-100">
@@ -1248,6 +1276,7 @@
               </table>
             </div>
           </div>
+
           <div class="tab-pane" id="v-confirmations">
             <div class="row">
               <div class="col-xl-6">
@@ -1531,6 +1560,7 @@
               </div>
             </div>
           </div>
+
           <div class="tab-pane" id="v-remarks">
             <div class="form-group row">
               <label class="col-lg-5 col-form-label">Initial Approval Remarks :</label>
@@ -1587,7 +1617,8 @@
               </div>
             </div>
           </div>
-           <div class="tab-pane" id="v-ci-report">
+
+          <div class="tab-pane" id="v-ci-report">
             <div class="table-responsive">
               <table id="sales-proposal-ci-report-table" class="table table-hover nowrap w-100">
                 <thead>
@@ -1605,6 +1636,23 @@
               </table>
             </div>
           </div>
+
+          <div class="tab-pane" id="v-approval-condition">
+            <div class="table-responsive">
+              <table id="sales-proposal-approval-condition-table" class="table table-hover nowrap w-100">
+                <thead>
+                  <tr>
+                    <th>Condition</th>
+                    <th>Condition Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
           <div class="tab-pane" id="v-summary">
             <?php include_once('_sales_proposal_summary_print.php'); ?>
           </div>
@@ -2093,6 +2141,47 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-sales-proposal-ci-recommendation" form="sales-proposal-ci-recommendation-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-condition-offcanvas" aria-labelledby="sales-proposal-condition-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-condition-offcanvas-label" style="margin-bottom:-0.5rem">Condition</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-condition-form" method="post" action="#">
+            <div class="form-group row">
+                <div class="col-lg-12 mt-3 mt-lg-0">
+                  <input type="hidden" id="sales_proposal_condition_id" name="sales_proposal_condition_id">
+                    <label class="form-label">Condition Type <span class="text-danger">*</span></label>
+                    <select class="form-control offcanvas-select2" name="condition_type" id="condition_type">
+                        <option value="">--</option>
+                        <option value="Before Final Approval">Before Final Approval</option>
+                        <option value="Before Release">Before Release</option>
+                        <option value="After Release">After Release</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Condition <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="approval_condition" rows="5" name="approval_condition" maxlength="500"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-condition" form="sales-proposal-condition-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

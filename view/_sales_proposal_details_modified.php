@@ -1,9 +1,36 @@
 <?php
-$getJobOrderBackjobCount = $salesProposalModel->getJobOrderBackjobCount($salesProposalID);
-$getAdditionalJobOrderBackjobCount = $salesProposalModel->getAdditionalJobOrderBackjobCount($salesProposalID);
+$jobOrderCount = $salesProposalModel->getJobOrderCount($salesProposalID)['total'] ?? 0;
+$additionalJobOrderCount = $salesProposalModel->getAdditionalJobOrderCount($salesProposalID)['total'] ?? 0;
+
+$jobOrderTotal = $jobOrderCount + $additionalJobOrderCount;
+
+$jobOrderBackJobCount = $salesProposalModel->getJobOrderBackjobCount($salesProposalID)['total'] ?? 0;
+$additionalJobOrderBackJobCount = $salesProposalModel->getAdditionalJobOrderBackjobCount($salesProposalID)['total'] ?? 0;
+
+$backjobJobOrderTotal = $jobOrderBackJobCount + $additionalJobOrderBackJobCount;
+
+$jobOrderCompleteCount = $salesProposalModel->getJobOrderCompleteCount($salesProposalID)['total'] ?? 0;
+$additionalJobOrderCompleteCount = $salesProposalModel->getAdditionalJobOrderCompleteCount($salesProposalID)['total'] ?? 0;
+
+$completeJobOrderTotal = $jobOrderCompleteCount + $additionalJobOrderCompleteCount;
+
 $product_id = $salesProposalDetails['product_id'];
 
 $getProductPendingPartTransactionCount = $salesProposalModel->getProductPendingPartTransactionCount($product_id);
+
+$isSalesProposalReady = $tagSalesProposalReadyForRelease['total'] > 0 && !empty($qualityControlForm);
+
+$isAdditionalJobOrderOk = (
+    ($additionalJobOrderCount > 0 && !empty($additionalJobOrderConfirmation)) || $additionalJobOrderCount == 0
+) && $productType != 'Brand New';
+
+$hasNoBackjobs = $completeJobOrderTotal == $jobOrderTotal;
+
+$isUnitOrRentalAndNoPendingParts = 
+    ($product_id == 'Unit' || $product_id == 'Rental') 
+    && $getProductPendingPartTransactionCount['total'] == 0;
+
+$isOtherProduct = $product_id != 'Unit' && $product_id != 'Rental';
 
 ?>
 
@@ -40,8 +67,8 @@ $getProductPendingPartTransactionCount = $salesProposalModel->getProductPendingP
                 
                 if($salesProposalStatus == 'On-Process'){
                   if($tagSalesProposalReadyForRelease['total'] > 0 && !empty($qualityControlForm)){
-                    if((($additionalJobOrderCount['total'] > 0 && !empty($additionalJobOrderConfirmation)) || $additionalJobOrderCount['total'] == 0) && $productType != 'Brand New'){
-                      if($getJobOrderBackjobCount['total'] == 0 && $getAdditionalJobOrderBackjobCount['total'] == 0){
+                    if((($additionalJobOrderCount > 0 && !empty($additionalJobOrderConfirmation)) || $additionalJobOrderCount== 0) && $productType != 'Brand New'){
+                      if($hasNoBackjobs){
                         if(($product_id == 'Unit' || $product_id == 'Rental') && $getProductPendingPartTransactionCount['total'] == 0){
                           echo '<div class="previous me-2 d-none" id="ready-for-release-sales-proposal-button">
                                   <button class="btn btn-info m-l-5" id="ready-for-release-sales-proposal">Ready For Release</button>
@@ -215,7 +242,7 @@ $getProductPendingPartTransactionCount = $salesProposalModel->getProductPendingP
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Additional Job Order Confirmation</h5>
                         <?php
-                          if($salesProposalStatus != 'For DR' && $additionalJobOrderCount['total'] > 0){
+                          if($salesProposalStatus != 'For DR' && $additionalJobOrderCount > 0){
                             echo '<div class="previous me-2" >
                                     <button class="btn btn-warning m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-confirmation-offcanvas" aria-controls="sales-proposal-job-order-confirmation-offcanvas" id="sales-proposal-job-order-confirmation">Additional Job Order Confirmation</button>
                                   </div>';

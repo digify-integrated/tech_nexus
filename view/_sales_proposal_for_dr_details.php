@@ -23,10 +23,11 @@
                     <li><a class="nav-link" id="sales-proposal-tab-9" data-bs-toggle="pill" href="#v-amount-of-deposit" role="tab" aria-controls="v-amount-of-deposit" aria-selected="false" disabled>Amount of Deposit</a></li>
                     <li><a class="nav-link" id="sales-proposal-tab-10" data-bs-toggle="pill" href="#v-additional-job-order" role="tab" aria-controls="v-additional-job-order" aria-selected="false" disabled>Additional Job Order</a></li>
                     <li><a class="nav-link" id="sales-proposal-tab-11" data-bs-toggle="pill" href="#v-confirmations" role="tab" aria-controls="v-confirmations" aria-selected="false" disabled>Confirmations</a></li>
-                    <li><a class="nav-link" id="sales-proposal-tab-12" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
-                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-13" data-bs-toggle="pill" href="#v-pdc-manual-input" role="tab" aria-controls="v-pdc-manual-input" aria-selected="false" disabled>PDC Manual Input</a></li>
-                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-14" data-bs-toggle="pill" href="#v-release-details" role="tab" aria-controls="v-release-details" aria-selected="false" disabled>Release Details</a></li>
-                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-15" data-bs-toggle="pill" href="#v-printable-report" role="tab" aria-controls="v-printable-report" aria-selected="false" disabled>Printable Report</a></li>
+                    <li><a class="nav-link" id="sales-proposal-tab-12" data-bs-toggle="pill" href="#v-condition" role="tab" aria-controls="v-condition" aria-selected="false" disabled>Approval Condition</a></li>
+                    <li><a class="nav-link" id="sales-proposal-tab-13" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
+                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-14" data-bs-toggle="pill" href="#v-pdc-manual-input" role="tab" aria-controls="v-pdc-manual-input" aria-selected="false" disabled>PDC Manual Input</a></li>
+                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-15" data-bs-toggle="pill" href="#v-release-details" role="tab" aria-controls="v-release-details" aria-selected="false" disabled>Release Details</a></li>
+                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-16" data-bs-toggle="pill" href="#v-printable-report" role="tab" aria-controls="v-printable-report" aria-selected="false" disabled>Printable Report</a></li>
                 </ul>
             </div>
         </div>
@@ -1127,6 +1128,22 @@
                             </div>
                         </div>
                     </div>
+                   <div class="tab-pane" id="v-condition">
+                        <div class="table-responsive">
+                        <table id="sales-proposal-approval-condition-table" class="table table-hover nowrap w-100">
+                            <thead>
+                            <tr>
+                                <th>Condition</th>
+                                <th>Condition Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        </div>
+                    </div>
+
                     <div class="tab-pane" id="v-summary">
                         <?php include_once('_sales_proposal_summary_print.php'); ?>
                     </div>

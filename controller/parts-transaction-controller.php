@@ -174,7 +174,6 @@ class PartsTransactionController {
         $misc_id = htmlspecialchars($_POST['misc_id'], ENT_QUOTES, 'UTF-8');
         $product_id = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
         $department_id = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
-        $issuance_no = htmlspecialchars($_POST['issuance_no'], ENT_QUOTES, 'UTF-8');
         $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
@@ -209,14 +208,16 @@ class PartsTransactionController {
             $overall_discount_type = htmlspecialchars($_POST['overall_discount_type'], ENT_QUOTES, 'UTF-8');
             $overall_discount_total = htmlspecialchars($_POST['overall_discount_total'], ENT_QUOTES, 'UTF-8');
 
-            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $overall_discount, $overall_discount_type, $overall_discount_total, $request_by, $customer_ref_id, $userID);
-            
+            $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
+
+            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $partsTransactionDetails['issuance_no'], $reference_date, $reference_number, $remarks, $overall_discount, $overall_discount_type, $overall_discount_total, $request_by, $customer_ref_id, $userID);
+
             echo json_encode(value: ['success' => true, 'insertRecord' => false, 'partsTransactionID' => $this->securityModel->encryptData($parts_transaction_id)]);
             exit;
         } 
         else {
             $partsTransactionID = $this->generateTransactionID();
-            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $request_by, $customer_ref_id, $userID);
+            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, '', $reference_date, $reference_number, $remarks, $request_by, $customer_ref_id, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => true, 'partsTransactionID' => $this->securityModel->encryptData($partsTransactionID)]);
             exit;
@@ -586,6 +587,14 @@ class PartsTransactionController {
         $issuance_no = $partsTransactionDetails['issuance_no'] ?? null;
 
         if($customer_type == 'Internal'){
+
+            $check_linked_job_order = $this->partsTransactionModel->check_linked_job_order($parts_transaction_id)['total'] ?? 0;
+
+            if($check_linked_job_order == 0){
+                echo json_encode(['success' => false, 'jobOrder' => true]);
+                exit;
+            }
+            
             if(empty($issuance_no)){
                 if($company_id == '2'){
                     $reference_number = (int)$this->systemSettingModel->getSystemSetting(32)['value'] + 1;
@@ -602,13 +611,6 @@ class PartsTransactionController {
                 else{
                     $this->systemSettingModel->updateSystemSettingValue(34, $reference_number, $userID);
                 }
-            }
-
-            $check_linked_job_order = $this->partsTransactionModel->check_linked_job_order($parts_transaction_id)['total'] ?? 0;
-
-            if($check_linked_job_order == 0){
-                echo json_encode(['success' => false, 'jobOrder' => true]);
-                exit;
             }
         }
 

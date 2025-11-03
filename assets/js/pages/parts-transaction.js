@@ -703,64 +703,6 @@
                 }
             });
         });
-
-        $(document).on('click','.delete-internal-job-order',function() {
-            const parts_transaction_additional_job_order_id = $(this).data('parts-transaction-additional-job-order-id');
-            var parts_transaction_id = $('#parts-transaction-id').text();
-            const transaction = 'delete internal additional job order';
-    
-            Swal.fire({
-                title: 'Confirm Internal Additional Job Order Unlink',
-                text: 'Are you sure you want to unlink this internal additional job order?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Unlink',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-danger mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/parts-transaction-controller.php',
-                        dataType: 'json',
-                        data: {
-                            parts_transaction_additional_job_order_id : parts_transaction_additional_job_order_id, 
-                            parts_transaction_id : parts_transaction_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification('Unlink Internal Additional Job Order Success', 'The internal additional job order has been unlinked successfully.', 'success');
-                                reloadDatatable('#internal-additional-job-order-table');
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.notExist) {
-                                    showNotification('Unlink Internal Additional Job Order Error', 'The internal additional job order does not exists.', 'danger');
-                                    reloadDatatable('#internal-additional-job-order-table');
-                                }
-                                else {
-                                    showNotification('Unlink Internal Additional Job Order Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
     });
 })(jQuery);
 

@@ -197,6 +197,7 @@ class ProductController {
         }
 
         $productDetails = $this->productModel->getProduct($productID);
+        $incomingChecklistTotal = $this->productModel->getProductDocumentIncomingChecklist($productID)['total'] ?? 0;
         $preorder = $productDetails['preorder'];
         $description = $productDetails['description'];
         $totalLandedCost = $productDetails['total_landed_cost'];
@@ -215,6 +216,11 @@ class ProductController {
 
         if($unitCost == 0){
             echo json_encode(['success' => false, 'zeroCost' =>  true]);
+            exit;
+        }
+
+        if($incomingChecklistTotal == 0){
+            echo json_encode(['success' => false, 'incomingChecklist' =>  true]);
             exit;
         }
 

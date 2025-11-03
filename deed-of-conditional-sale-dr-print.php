@@ -1,6 +1,7 @@
 <?php
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
+    date_default_timezone_set('Asia/Manila');
 
     // Load TCPDF library
     require('assets/libs/tcpdf2/tcpdf.php');
@@ -70,7 +71,7 @@
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
-        $release_date =  $systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', '');
+        $released_date =  $systemModel->checkDate('default', $salesProposalDetails['released_date'], '', 'm/d/Y', '');
     
         
         $first_due_date = new DateTime($startDate);
@@ -164,6 +165,10 @@
         $make = $otherProductDetails['make'] ??  '--';
         $mortgagee = $otherProductDetails['mortgagee'] ??  '';
 
+        if(empty($mortgagee)){
+            $mortgagee = 'LALAINE P. PENACILLA';
+        }
+
         if($productType == 'Unit'){
           $productDetails = $productModel->getProduct($productID);
           $engineNumber = $productDetails['engine_number'] ?? null;
@@ -212,16 +217,24 @@
         $companyCountryName = $countryModel->getCountry($countryID)['country_name'] ?? '';
 
         $companyFullAddress = $companyAddress . ', ' . $companyCityName . ', ' . $companyStateName . ', ' . $companyCountryName;
+        
+        $timestamp = time();
 
-        $currentDateTime = new DateTime('now');
-        $currentDayOfWeek = $currentDateTime->format('N'); // 1 (Monday) through 7 (Sunday)
-
-        if ($currentDayOfWeek >= 6) {
-            $currentDateTime->modify('next Monday');
+        // Check if today is Saturday (6) or Sunday (0)
+        $dayOfWeek = date('w', $timestamp);
+        if ($dayOfWeek == 6) {
+            // Saturday → move to next Monday (add 2 days)
+            $timestamp = strtotime('+2 days', $timestamp);
+        } elseif ($dayOfWeek == 0) {
+            // Sunday → move to next Monday (add 1 day)
+            $timestamp = strtotime('+1 day', $timestamp);
         }
 
-        $currentMonth = $currentDateTime->format('F Y');
-        $currentDay = $currentDateTime->format('d');
+        // Format the date outputs
+        $fullDate = date('F j, Y', $timestamp);  // October 22, 2025
+        $currentMonth = date('F Y', $timestamp);    // October 2025
+        $currentDay = date('jS', $timestamp); // 22nd
+        $released_date = date('m/d/Y', strtotime($released_date));
     }
 
     ob_start();
@@ -255,7 +268,7 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '<b>KNOW ALL MEN BY THESE PRESENTS:</b>', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'This deed, made and entered into this <b><u>'. strtoupper(formatDay(date('d', strtotime($currentDay)))) .'</b></u> day of <b><u>'. strtoupper($currentMonth) .'</b></u> at the City of Cabanatuan, Philippines, by and between:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'This deed, made and entered into this <b><u>'. strtoupper($currentDay) .'</b></u> day of <b><u>'. strtoupper($currentMonth) .'</b></u> at the City of Cabanatuan, Philippines, by and between:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(1);
     $pdf->MultiCell(0, 0, '<b><u>'. strtoupper($companyName) .'</u></b>.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
@@ -330,7 +343,7 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, "18. Any action arising out of this contract may be brought by the SELLER at its sole option, in the proper Court of Cabanatuan City or Nueva Ecija. The foregoing, however, shall not limit or be construed to limit the right of the SELLER to commence proceedings or obrain execution of judgement against the BUYER/s in any venue or jurisdiction where assets of the BUYER/s may be found.", 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, "IN TESTIMONY HEREOF, the parties hereby affixed their signatures, this <b><u>". $release_date ."</b></u> here at Cabanatuan City.", 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, "IN TESTIMONY HEREOF, the parties hereby affixed their signatures, this <b><u>". $released_date ."</b></u> here at Cabanatuan City.", 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
 
     
     $pdf->Ln(8);

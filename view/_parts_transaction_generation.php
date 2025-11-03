@@ -389,6 +389,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
                 $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+                $product_id = $salesProposalDetails['product_id'] ?? null;
+
+                $productDetails = $productModel->getProduct($product_id);
+                $stock_number = $productDetails['stock_number'] ?? null;
 
                 $contractorDetails = $contractorModel->getContractor($contractor_id);
                 $contractor_name = $contractorDetails['contractor_name'] ?? null;
@@ -419,6 +423,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'OS_NUMBER' => $sales_proposal_number,
                     'JOB_ORDER' => $job_order,
+                    'PRODUCT' => $stock_number,
                     'JOB_COST' => number_format($job_cost, 2) . ' PHP',
                     'CONTRACTOR' => $contractor_name,
                     'WORK_CENTER' => $work_center_name,
@@ -472,6 +477,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
                 $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
+                $product_id = $backJobMonitoringDetails['product_id'] ?? null;
+
+                $productDetails = $productModel->getProduct($product_id);
+                $stock_number = $productDetails['stock_number'] ?? null;
 
                 $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
                 $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
@@ -508,6 +517,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TYPE' => $backJobMonitoringType,
                     'OS_NUMBER' => $sales_proposal_number,
                     'JOB_ORDER' => $job_order,
+                    'PRODUCT' => $stock_number,
                     'JOB_COST' => number_format($cost, 2) . ' PHP',
                     'CONTRACTOR' => $contractor_name,
                     'WORK_CENTER' => $work_center_name,
@@ -560,6 +570,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
                 $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+                $product_id = $salesProposalDetails['product_id'] ?? null;
+
+                $productDetails = $productModel->getProduct($product_id);
+                $stock_number = $productDetails['stock_number'] ?? null;
 
                 $contractorDetails = $contractorModel->getContractor($contractor_id);
                 $contractor_name = $contractorDetails['contractor_name'] ?? null;
@@ -590,6 +604,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'OS_NUMBER' => $sales_proposal_number,
+                    'PRODUCT' => $stock_number,
                     'JOB_ORDER' => $job_order,
                     'JOB_COST' => number_format($job_cost, 2) . ' PHP',
                     'CONTRACTOR' => $contractor_name,
@@ -644,6 +659,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
                 $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
+                $product_id = $backJobMonitoringDetails['product_id'] ?? null;
+
+                $productDetails = $productModel->getProduct($product_id);
+                $stock_number = $productDetails['stock_number'] ?? null;
 
                 $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
                 $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
@@ -677,6 +696,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'TYPE' => $backJobMonitoringType,
                     'OS_NUMBER' => $sales_proposal_number,
+                    'PRODUCT' => $stock_number,
                     'JOB_ORDER' => $job_order,
                     'JOB_COST' => number_format($cost, 2) . ' PHP',
                     'CONTRACTOR' => $contractor_name,
@@ -937,8 +957,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $partTransactionDetails = $partsTransactionModel->getPartsTransaction($part_transaction_id);
                 $company_id = $partTransactionDetails['company_id'];
-                 $customer_type = $partTransactionDetails['customer_type'];
+                $customer_type = $partTransactionDetails['customer_type'];
+                $customer_ref_id = $partTransactionDetails['customer_ref_id'];
                 $customer_id = $partTransactionDetails['customer_id'];
+
+                $customerDetails = $customerModel->getPersonalInformation($customer_ref_id);
+                $customer_ref_name = $customerDetails['file_as'] ?? null;
 
                 if($customer_type == 'Internal'){
                     $productDetails = $productModel->getProduct($customer_id);
@@ -973,6 +997,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PART_TRANSACTION_NO' => '<a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" target="_blank">
                                         '. $part_transaction_id .'
                                     </a>',
+                    'CUSTOMER' => $customer_ref_name,
                     'PRODUCT' => $stock_number,
                     'PART' => $description,
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,

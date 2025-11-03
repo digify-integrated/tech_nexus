@@ -7384,7 +7384,7 @@ END //
 CREATE PROCEDURE generateWithApplicationProductOptions()
 BEGIN
 	SELECT product_id, description, stock_number FROM product
-    WHERE product_status IN ('With Application', 'On-Process', 'Ready For Release', 'For DR', 'Sold')
+    WHERE product_status IN ('With Application', 'On-Process', 'Ready For Release', 'For DR', 'Sold', 'For Return')
 	ORDER BY stock_number;
 END //
 
@@ -7399,6 +7399,13 @@ CREATE PROCEDURE generateNotDraftProductOptions()
 BEGIN
 	SELECT product_id, description, stock_number FROM product
     WHERE product_status != 'Draft'
+	ORDER BY stock_number;
+END //
+
+CREATE PROCEDURE generateInternalDRProductOptions()
+BEGIN
+	SELECT product_id, description, stock_number FROM product
+    WHERE product_status NOT IN ('Draft', 'For Return')
 	ORDER BY stock_number;
 END //
 
@@ -8008,7 +8015,7 @@ END //
 
 CREATE PROCEDURE cronSalesProposalOverdueForCI()
 BEGIN
-   SELECT * FROM sales_proposal WHERE for_ci_date IS NOT NULL AND ci_completion_date IS NULL AND for_ci_date < NOW() - INTERVAL 8 DAY AND sales_proposal_status NOT IN ('Cancelled', 'Rejected');
+   SELECT * FROM sales_proposal WHERE for_ci_date IS NOT NULL AND ci_completion_date IS NULL AND for_ci_date < NOW() - INTERVAL 3 DAY AND sales_proposal_status NOT IN ('Cancelled', 'Rejected');
 END //
 
 CREATE PROCEDURE updateSalesProposalStatus(IN p_sales_proposal_id INT, IN p_changed_by INT, IN p_sales_proposal_status VARCHAR(50), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
@@ -16064,6 +16071,21 @@ BEGIN
     AND (p.quantity - ptc.quantity) < 0;
 END //
 
+CREATE PROCEDURE check_exceed_part_return_quantity(
+    IN p_part_return_id INT
+)
+BEGIN
+    SELECT 
+        COUNT(*) AS total
+    FROM 
+        part_return_cart ptc
+        INNER JOIN part_transaction_cart p 
+            ON ptc.part_transaction_cart_id = p.part_transaction_cart_id
+    WHERE 
+        ptc.part_return_id = p_part_return_id 
+        AND ptc.return_quantity > p.return_quantity;
+END //
+
 CREATE PROCEDURE check_linked_job_order(
     IN p_part_transaction_id VARCHAR(100)
 )
@@ -19592,6 +19614,132 @@ BEGIN
 
 END//
 
+DROP PROCEDURE IF EXISTS createPartsReturnStockEntry //
+CREATE PROCEDURE createPartsReturnStockEntry(
+    IN p_part_id INT,
+    IN p_company_id INT,
+    IN p_reference_number VARCHAR(500),
+    IN p_cost DECIMAL(15,2),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_chart_item VARCHAR(100);
+    DECLARE v_credit VARCHAR(100);
+
+    CASE p_company_id
+        WHEN 1 THEN
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_analytic_lines = 'NE TRUCK';
+            SET v_analytic_distribution = '{"2": 100.0}';
+        WHEN 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 4 THEN
+            SET v_analytic_lines = 'PCG PROPERTY';
+            SET v_analytic_distribution = '{"4": 100.0}';
+        WHEN 5 THEN
+            SET v_analytic_lines = 'GCB PROPERTY';
+            SET v_analytic_distribution = '{"3": 100.0}';
+        WHEN 6 THEN
+            SET v_analytic_lines = 'GCB FARMING';
+            SET v_analytic_distribution = '{"11": 100.0}';
+        WHEN 7 THEN
+            SET v_analytic_lines = 'PCG FARMING';
+            SET v_analytic_distribution = '{"15": 100.0}';
+        WHEN 8 THEN
+            SET v_analytic_lines = 'NE FUEL';
+            SET v_analytic_distribution = '{"6": 100.0}';
+        WHEN 9 THEN
+            SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
+            SET v_analytic_distribution = '{"17": 100.0}';
+        WHEN 10 THEN
+            SET v_analytic_lines = 'Avida';
+            SET v_analytic_distribution = '{"20": 100.0}';
+        WHEN 11 THEN
+            SET v_analytic_lines = 'Caalibangbangan';
+            SET v_analytic_distribution = '{"19": 100.0}';
+        WHEN 12 THEN
+            SET v_analytic_lines = 'Sta Rosa';
+            SET v_analytic_distribution = '{"18": 100.0}';
+        WHEN 13 THEN
+            SET v_analytic_lines = 'KPC VENTURE INC';
+            SET v_analytic_distribution = '{"16": 100.0}';
+        WHEN 14 THEN
+            SET v_analytic_lines = 'NE HAULING';
+            SET v_analytic_distribution = '{"7": 100.0}';
+        ELSE
+            SET v_analytic_lines = 'DEFAULT';
+            SET v_analytic_distribution = '{"0": 0.0}';
+    END CASE;
+
+    SET v_chart_item = '10501020 Inventory Parts';
+    SET v_credit = '20101020 Accounts Payable Parts';
+    
+    -- Insert debit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_part_id, 
+        NOW(), 
+        p_reference_number, 
+        'Parts createPartsIncomingEntry', 
+        v_chart_item, 
+        p_cost, 
+        0, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert credit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_part_id, 
+        NOW(), 
+        p_reference_number, 
+        'Parts Return', 
+        v_credit, 
+        0, 
+        p_cost, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+END//
+
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS createPartsTransactionEntry //
@@ -20790,7 +20938,9 @@ DELIMITER //
 
 CREATE PROCEDURE insertPartsReturn(
     IN p_supplier_id INT,
+    IN p_company_id INT,
     IN p_purchase_date DATE,
+    IN p_return_type VARCHAR(100),
     IN p_ref_invoice_number VARCHAR(200),
     IN p_ref_po_number VARCHAR(200),
     IN p_ref_po_date DATE,
@@ -20803,7 +20953,9 @@ CREATE PROCEDURE insertPartsReturn(
 BEGIN
     INSERT INTO part_return (
         supplier_id,
+        company_id,
         purchase_date,
+        return_type,
         ref_invoice_number,
         ref_po_number,
         ref_po_date,
@@ -20814,7 +20966,9 @@ BEGIN
     )
     VALUES (
         p_supplier_id,
+        p_company_id,
         p_purchase_date,
+        p_return_type,
         p_ref_invoice_number,
         p_ref_po_number,
         p_ref_po_date,
@@ -20831,6 +20985,7 @@ CREATE PROCEDURE updatePartsReturn(
     IN p_part_return_id INT,
     IN p_supplier_id INT,
     IN p_purchase_date DATE,
+    IN p_return_type VARCHAR(100),
     IN p_ref_invoice_number VARCHAR(200),
     IN p_ref_po_number VARCHAR(200),
     IN p_ref_po_date DATE,
@@ -20844,6 +20999,7 @@ BEGIN
     SET 
         supplier_id = p_supplier_id,
         purchase_date = p_purchase_date,
+        return_type = p_return_type,
         ref_invoice_number = p_ref_invoice_number,
         ref_po_number = p_ref_po_number,
         ref_po_date = p_ref_po_date,
@@ -20891,6 +21047,41 @@ BEGIN
     CLOSE cur;
 END //
 
+CREATE PROCEDURE updatePartsStockReturnValue(
+    IN p_part_return_id INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE v_part_id INT;
+    DECLARE v_return_quantity INT;
+
+    -- Cursor to loop through each part_return_cart row for the given part_return_id
+    DECLARE cur CURSOR FOR
+        SELECT part_id, return_quantity
+        FROM part_return_cart
+        WHERE part_return_id = p_part_return_id;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN cur;
+
+    read_loop: LOOP
+        FETCH cur INTO v_part_id, v_return_quantity;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Update part_transaction_cart while ensuring it doesn't go below zero
+        UPDATE part
+        SET quantity = GREATEST(quantity - v_return_quantity, 0),
+            last_log_by = p_last_log_by
+        WHERE part_id = v_part_id;
+    END LOOP;
+
+    CLOSE cur;
+END //
+
 CREATE PROCEDURE getPartsReturnCartTotal(IN p_part_return_id INT, IN p_type VARCHAR(20))
 BEGIN
 	IF p_type = 'total cost' THEN
@@ -20906,6 +21097,33 @@ BEGIN
         FROM part_transaction_cart ptc
         JOIN part_return_cart prc 
             ON ptc.part_transaction_id = prc.part_transaction_id
+        WHERE prc.part_return_id = p_part_return_id;
+	ELSEIF p_type = 'lines' THEN
+        SELECT COUNT(part_return_cart_id) AS total
+        FROM part_return_cart
+        WHERE part_return_id = p_part_return_id;
+    ELSE
+        SELECT SUM(return_quantity) AS total
+        FROM part_return_cart
+        WHERE part_return_id = p_part_return_id;
+    END IF;
+END //
+
+CREATE PROCEDURE getPartsReturnCartStockTotal(IN p_part_return_id INT, IN p_type VARCHAR(20))
+BEGIN
+	IF p_type = 'total cost' THEN
+        SELECT 
+            SUM(ptc.part_cost * prc.return_quantity) AS total
+        FROM part ptc
+        JOIN part_return_cart prc 
+            ON ptc.part_id = prc.part_id
+        WHERE prc.part_return_id = p_part_return_id;
+	ELSEIF p_type = 'total price' THEN
+        SELECT 
+            SUM(ptc.part_price * prc.return_quantity) AS total
+        FROM part ptc
+        JOIN part_return_cart prc 
+            ON ptc.part_id = prc.part_id
         WHERE prc.part_return_id = p_part_return_id;
 	ELSEIF p_type = 'lines' THEN
         SELECT COUNT(part_return_cart_id) AS total

@@ -545,7 +545,7 @@
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Remarks</label>
-                <textarea class="form-control" id="remarks" name="remarks" maxlength="1000" <?php echo $readOnly; ?>></textarea>
+                <textarea class="form-control" id="cart_remarks" name="cart_remarks" maxlength="1000" <?php echo $readOnly; ?>></textarea>
               </div>
             </div>
           </form>

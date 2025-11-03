@@ -108,6 +108,9 @@ class SalesProposalController {
                 case 'save sales proposal accessories':
                     $this->saveSalesProposalAccessories();
                     break;
+                case 'save sales proposal condition':
+                    $this->saveSalesProposalCondition();
+                    break;
                 case 'save sales proposal job order':
                     $this->saveSalesProposalJobOrder();
                     break;
@@ -180,6 +183,15 @@ class SalesProposalController {
                 case 'delete sales proposal accessories':
                     $this->deleteSalesProposalAccessories();
                     break;
+                case 'delete sales proposal condition':
+                    $this->deleteSalesProposalCondition();
+                    break;
+                case 'complete sales proposal condition':
+                    $this->completeSalesProposalCondition();
+                    break;
+                case 'waive sales proposal condition':
+                    $this->waiveSalesProposalCondition();
+                    break;
                 case 'delete sales proposal job order':
                     $this->deleteSalesProposalJobOrder();
                     break;
@@ -209,6 +221,9 @@ class SalesProposalController {
                     break;
                 case 'get sales proposal job order details':
                     $this->getSalesProposalJobOrderDetails();
+                    break;
+                case 'get sales proposal condition details':
+                    $this->getSalesProposalConditionDetails();
                     break;
                 case 'get sales proposal job order total details':
                     $this->getSalesProposalJobOrderTotalDetails();
@@ -2051,6 +2066,9 @@ class SalesProposalController {
         $productID = $salesProposalDetails['product_id'];
         $customerID = $salesProposalDetails['customer_id'];
         $companyID = $salesProposalDetails['company_id'];
+        $comaker_id = $salesProposalDetails['comaker_id'] ?? null;
+        $additional_maker_id = $salesProposalDetails['additional_maker_id'] ?? null;
+        $comaker_id2 = $salesProposalDetails['comaker_id2'] ?? null;
 
         $customerDetails = $this->customerModel->getPersonalInformation($customerID);
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
@@ -2069,6 +2087,33 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'emptyStencil' => true]);
             exit;
         }*/
+
+        if(!empty($comaker_id)){
+            $relation = $this->salesProposalModel->getComakerRelation($customerID, $comaker_id)['relation_id'] ?? null;
+
+            if(empty($relation)){
+                echo json_encode(['success' => false, 'comakerRelation' => true]);
+                exit;
+            }
+        }
+
+        if(!empty($additional_maker_id)){
+            $relation = $this->salesProposalModel->getComakerRelation($customerID, $comaker_id)['relation_id'] ?? null;
+
+            if(empty($relation)){
+                echo json_encode(['success' => false, 'comakerRelation' => true]);
+                exit;
+            }
+        }
+
+        if(!empty($comaker_id2)){
+            $relation = $this->salesProposalModel->getComakerRelation($customerID, $comaker_id)['relation_id'] ?? null;
+
+            if(empty($relation)){
+                echo json_encode(['success' => false, 'comakerRelation' => true]);
+                exit;
+            }
+        }
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Initial Approval', '', $userID);
         $this->sendInitialApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null, $companyID);
@@ -2113,15 +2158,26 @@ class SalesProposalController {
             exit;
         }
 
+        $checkApprovalCondition = $this->salesProposalModel->checkApprovalCondition($salesProposalID, 'Before Final Approval');
+        $total = $checkApprovalCondition['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'condition' =>  true]);
+            exit;
+        }
+
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
         $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
-        $inititialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
         $productType = $salesProposalDetails['product_type'];
         $productID = $salesProposalDetails['product_id'];
         $customerID = $salesProposalDetails['customer_id'];
         $client_confirmation = $salesProposalDetails['client_confirmation'];
         $comaker_confirmation = $salesProposalDetails['comaker_confirmation'];
         $transaction_type = $salesProposalDetails['transaction_type'];
+        $comaker_id = $salesProposalDetails['comaker_id'] ?? null;
+        $additional_maker_id = $salesProposalDetails['additional_maker_id'] ?? null;
+        $comaker_id2 = $salesProposalDetails['comaker_id2'] ?? null;
+        
 
         $customerDetails = $this->customerModel->getPersonalInformation($customerID);
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
@@ -2153,6 +2209,33 @@ class SalesProposalController {
         if(empty($comaker_confirmation) && $transaction_type == 'Installment Sales'){
             echo json_encode(['success' => false, 'comakerConfirmation' => true]);
             exit;
+        }
+
+        if(!empty($comaker_id)){
+            $relation = $this->salesProposalModel->getComakerRelation($customerID, $comaker_id)['relation_id'] ?? null;
+
+            if(empty($relation)){
+                echo json_encode(['success' => false, 'comakerRelation' => true]);
+                exit;
+            }
+        }
+
+        if(!empty($additional_maker_id)){
+            $relation = $this->salesProposalModel->getComakerRelation($customerID, $comaker_id)['relation_id'] ?? null;
+
+            if(empty($relation)){
+                echo json_encode(['success' => false, 'comakerRelation' => true]);
+                exit;
+            }
+        }
+
+        if(!empty($comaker_id2)){
+            $relation = $this->salesProposalModel->getComakerRelation($customerID, $comaker_id)['relation_id'] ?? null;
+
+            if(empty($relation)){
+                echo json_encode(['success' => false, 'comakerRelation' => true]);
+                exit;
+            }
         }
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Review', '', $userID);
@@ -2871,6 +2954,14 @@ class SalesProposalController {
             exit;
         }
 
+        $checkApprovalCondition = $this->salesProposalModel->checkApprovalCondition($salesProposalID, 'Before Release');
+        $total = $checkApprovalCondition['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'condition' =>  true]);
+            exit;
+        }
+
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
         $productType = $salesProposalDetails['product_type'] ?? null;
         $productID = $salesProposalDetails['product_id'] ?? null;
@@ -3355,6 +3446,101 @@ class SalesProposalController {
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
         }
+    }
+
+    public function saveSalesProposalCondition() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $sales_proposal_condition_id = htmlspecialchars($_POST['sales_proposal_condition_id'], ENT_QUOTES, 'UTF-8');
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $condition_type = $_POST['condition_type'];
+        $approval_condition = $_POST['approval_condition'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $checkSalesProposalConditionExist = $this->salesProposalModel->checkSalesProposalConditionExist($sales_proposal_condition_id);
+        $total = $checkSalesProposalConditionExist['total'] ?? 0;
+
+        if ($total > 0) {
+            $this->salesProposalModel->updateSalesProposalCondition($sales_proposal_condition_id, $approval_condition, $condition_type, $userID);
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->salesProposalModel->insertSalesProposalCondition($salesProposalID, $approval_condition, $condition_type, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+
+    public function deleteSalesProposalCondition() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalConditionID = htmlspecialchars($_POST['sales_proposal_condition_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->salesProposalModel->deleteSalesProposalCondition($salesProposalConditionID);
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    public function completeSalesProposalCondition() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalConditionID = htmlspecialchars($_POST['sales_proposal_condition_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->salesProposalModel->updateSalesProposalConditionAsComplete($salesProposalConditionID, $userID);
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    public function waiveSalesProposalCondition() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalConditionID = htmlspecialchars($_POST['sales_proposal_condition_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->salesProposalModel->updateSalesProposalConditionAsWaived($salesProposalConditionID, $userID);
+
+        echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -3898,6 +4084,7 @@ class SalesProposalController {
         echo json_encode(['success' => true]);
         exit;
     }
+    
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -4591,6 +4778,7 @@ class SalesProposalController {
                 'referredBy' => $salesProposalDetails['referred_by'],
                 'releaseDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', ''),
                 'startDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['start_date'], '', 'm/d/Y', ''),
+                'createdDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['created_date'], '', 'm/d/Y', ''),
                 'firstDueDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['first_due_date'], '', 'm/d/Y', ''),
                 'maturityDate' =>  date('F d, Y', strtotime("+". $salesProposalDetails['term_length'] ." " . $salesProposalDetails['term_type'] , strtotime($salesProposalDetails['actual_start_date']))),
                 'termLength' => $salesProposalDetails['term_length'],
@@ -4824,7 +5012,7 @@ class SalesProposalController {
                 'receivedFromAddress' => $salesProposalDetails['received_from_address'],
                 'receivedFromIDType' => $salesProposalDetails['received_from_id_type'],
                 'receivedFromIDNumber' => $salesProposalDetails['received_from_id_number'],
-                'unitDescription' => $salesProposalDetails['unit_description'],
+                'unitDescription' => $salesProposalDetails['unit_description'] ?? '',
                 'orcrDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['orcr_date'], '', 'm/d/Y', ''),
                 'orcrExpiryDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['orcr_expiry_date'], '', 'm/d/Y', '')
             ];
@@ -4959,6 +5147,34 @@ class SalesProposalController {
                 'plannedStartDate' =>  $this->systemModel->checkDate('empty', $salesProposalJobOrderDetails['planned_start_date'], '', 'm/d/Y', ''),
                 'plannedFinishDate' =>  $this->systemModel->checkDate('empty', $salesProposalJobOrderDetails['planned_finish_date'], '', 'm/d/Y', ''),
                 'dateStarted' =>  $this->systemModel->checkDate('empty', $salesProposalJobOrderDetails['date_started'], '', 'm/d/Y', ''),
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    public function getSalesProposalConditionDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+
+        if (isset($_POST['sales_proposal_condition_id']) && !empty($_POST['sales_proposal_condition_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalConditionID = $_POST['sales_proposal_condition_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+
+            $salesProposalConditionDetails = $this->salesProposalModel->getSalesProposalCondition($salesProposalConditionID);
+
+            $response = [
+                'success' => true,
+                'approvalCondition' => $salesProposalConditionDetails['approval_condition'],
+                'conditionType' => $salesProposalConditionDetails['condition_type'],
             ];
 
             echo json_encode($response);

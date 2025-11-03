@@ -130,6 +130,10 @@
         $series = $otherProductDetails['series'] ??  '--';
         $mortgagee = $otherProductDetails['mortgagee'] ??  '';
 
+        if(empty($mortgagee)){
+            $mortgagee = 'LALAINE P. PENACILLA';
+        }
+
         if($productType == 'Unit'){
             $productDetails = $productModel->getProduct($productID);
             $engineNumber = $productDetails['engine_number'] ?? null;

@@ -57,7 +57,7 @@
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
-          $releaseDate =  $systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', '');
+          $releasedDate =  $systemModel->checkDate('default', $salesProposalDetails['released_date'], '', 'm/d/Y', '');
     
         $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
         $downpayment = $pricingComputationDetails['downpayment'] ?? 0;
@@ -91,6 +91,10 @@
 
         $otherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
         $mortgagee = $otherProductDetails['mortgagee'] ??  '';
+
+        if(empty($mortgagee)){
+            $mortgagee = 'LALAINE P. PENACILLA';
+        }
     
         $amountInWords = new NumberFormatter("en", NumberFormatter::SPELLOUT);
     
@@ -143,14 +147,23 @@
           $plateNumber = $salesProposalDetails['ref_plate_no'] ?? null;
         }
 
-        $currentDateTime = new DateTime('now');
-        $currentDayOfWeek = $currentDateTime->format('N'); // 1 (Monday) through 7 (Sunday)
+        $timestamp = time();
 
-        if ($currentDayOfWeek >= 6) {
-            $currentDateTime->modify('next Monday');
+        // Check if today is Saturday (6) or Sunday (0)
+        $dayOfWeek = date('w', $timestamp);
+        if ($dayOfWeek == 6) {
+            // Saturday → move to next Monday (add 2 days)
+            $timestamp = strtotime('+2 days', $timestamp);
+        } elseif ($dayOfWeek == 0) {
+            // Sunday → move to next Monday (add 1 day)
+            $timestamp = strtotime('+1 day', $timestamp);
         }
 
-        $currentDate = $currentDateTime->format('F j, Y');
+        // Format the date outputs
+        $fullDate = date('F j, Y', $timestamp);  // October 22, 2025
+        $currentMonth = date('F Y', $timestamp);    // October 2025
+        $currentDay = date('jS', $timestamp); // 22nd
+        $releasedDate = date('m/d/Y', strtotime($releasedDate));
     }
 
     ob_start();
@@ -195,7 +208,7 @@
     matapos na makapanumpa nang naayon sa batas, ay nagsasaad ng mga sumusunod:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '1.Na ako ay pumasok at nakipagkasundo sa CHRISTIAN MOTOR SALES CORPORATION ng Cabanatuan City (kinakatawan ni <b><u>'. $mortgagee .'</b></u>) sa Conditional Sales Agreement ng isang <b><u>'. $unitDescription .'</b></u>
-    na may plakang: <b><u>'. $plateNumber .'</b></u> Petsang: <b><u>'. $releaseDate .'</b></u>.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    na may plakang: <b><u>'. $plateNumber .'</b></u> Petsang: <b><u>'. $releasedDate .'</b></u>.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(3);
     $pdf->MultiCell(0, 0, '2. Na bilang NAKABILI (Buyer) ako ang hahawak at gagamit ng nasabing truck habang hinuhulugan ko ang pagbabayad dito.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(3);

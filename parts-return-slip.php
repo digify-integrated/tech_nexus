@@ -43,6 +43,7 @@
         $partsReturnID = $_GET['id'];
 
         $partsReturnDetails = $partsReturnModel->getPartsReturn($partsReturnID);
+        $return_type = $partsReturnDetails['return_type'] ?? 'Issuance';
         $reference_number = $partsReturnDetails['reference_number'];
         $supplier_id = $partsReturnDetails['supplier_id'];
         $ref_invoice_number = $partsReturnDetails['ref_invoice_number'];
@@ -59,7 +60,7 @@
     }
 
     $firstTable = generateFirst($supplier_name, $ref_invoice_number, $ref_po_number, $prev_total_billing, $adjusted_total_billing, $purchase_date, $ref_po_date);
-    $summaryTable = generatePrint($partsReturnID);
+    $summaryTable = generatePrint($partsReturnID, $return_type);
     $summaryTable2 = generatePrint2();
     $summaryTable3 = generatePrint3();
 
@@ -137,7 +138,7 @@
     $pdf->Output('return-slip.pdf', 'I');
     ob_end_flush();
 
-    function generatePrint($part_return_id){
+    function generatePrint($part_return_id, $return_type){
         
         require_once 'model/database-model.php';
         require_once 'model/pdc-management-model.php';
@@ -168,21 +169,39 @@
         $list='';
         $totalCost = 0;
         foreach ($options as $row) {
-            $part_transaction_cart_id  = $row['part_transaction_cart_id'];
-            $return_quantity  = $row['return_quantity'];
 
-            $getPartsTransaction = $partTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
-            $part_id = $getPartsTransaction['part_id'] ?? '';
-            $cost = $getPartsTransaction['cost'] ?? 0;
+            if($return_type == 'Issuance'){
+                $part_transaction_cart_id  = $row['part_transaction_cart_id'];
+                $return_quantity  = $row['return_quantity'];
 
-            $partDetails = $partsModel->getParts($part_id);
-            $description = $partDetails['description'] ?? null;
-            $unitSale = $partDetails['unit_sale'] ?? null;
+                $getPartsTransaction = $partTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
+                $part_id = $getPartsTransaction['part_id'] ?? '';
+                $cost = $getPartsTransaction['cost'] ?? 0;
 
-            $unitCode = $unitModel->getUnit($unitSale);
-            $short_name = $unitCode['short_name'] ?? null;
-            $lineTotal = ($cost * $return_quantity);
-            $totalCost = $totalCost + $lineTotal;
+                $partDetails = $partsModel->getParts($part_id);
+                $description = $partDetails['description'] ?? null;
+                $unitSale = $partDetails['unit_sale'] ?? null;
+
+                $unitCode = $unitModel->getUnit($unitSale);
+                $short_name = $unitCode['short_name'] ?? null;
+                $lineTotal = ($cost * $return_quantity);
+                $totalCost = $totalCost + $lineTotal;
+            }
+            else{
+                $part_id  = $row['part_id'];
+                $return_quantity  = $row['return_quantity'];
+
+                $partDetails = $partsModel->getParts($part_id);
+                $description = $partDetails['description'] ?? null;
+                $unitSale = $partDetails['unit_sale'] ?? null;
+                $cost = $partDetails['part_cost'] ?? 0;
+
+                $unitCode = $unitModel->getUnit($unitSale);
+                $short_name = $unitCode['short_name'] ?? null;
+                $lineTotal = ($cost * $return_quantity);
+                $totalCost = $totalCost + $lineTotal;
+            }
+           
 
             $list .= '<tr>
                         <td style="text-align:center">'. strtoupper($description) .'</td>

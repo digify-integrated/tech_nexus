@@ -1758,6 +1758,64 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
 
+        case 'sales proposal approval condition table':
+            if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
+                $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+
+                $updateApprovalConditionStatus = $userModel->checkSystemActionAccessRights($user_id, 228);
+                $deleteApprovalCondition = $userModel->checkSystemActionAccessRights($user_id, 229);
+                $updateApprovalCondition = $userModel->checkSystemActionAccessRights($user_id, 230);
+
+                $sql = $databaseModel->getConnection()->prepare('SELECT * FROM sales_proposal_condition WHERE sales_proposal_id = :salesProposalID');
+                $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $sales_proposal_condition_id = $row['sales_proposal_condition_id'];
+                    $approval_condition = $row['approval_condition'];
+                    $condition_type = $row['condition_type'];
+                    $condition_status = $row['condition_status'];
+
+                    $action = '';
+
+                    if($updateApprovalCondition['total'] > 0 && $condition_status == 'Pending'){
+                        $action .= '<button type="button" class="btn btn-icon btn-success update-sales-proposal-condition" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-condition-offcanvas" aria-controls="sales-proposal-condition-offcanvas" data-sales-proposal-condition-id="'. $sales_proposal_condition_id .'" title="Update Approval Condition">
+                                        <i class="ti ti-edit"></i>
+                                    </button>';
+                    }
+
+                    if($updateApprovalConditionStatus['total'] > 0 && $condition_status == 'Pending'){
+                        $action .= ' <button type="button" class="btn btn-icon btn-success complete-sales-proposal-condition" data-sales-proposal-condition-id="'. $sales_proposal_condition_id .'" title="Complete Approval Condition">
+                                        <i class="ti ti-check"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-icon btn-warning waive-sales-proposal-condition" data-sales-proposal-condition-id="'. $sales_proposal_condition_id .'" title="Waive Approval Condition">
+                                        <i class="ti ti-x"></i>
+                                    </button>';
+                    }
+
+                    if($deleteApprovalCondition['total'] > 0 && $condition_status == 'Pending'){
+                        $action .= '
+                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-condition" data-sales-proposal-condition-id="'. $sales_proposal_condition_id .'" title="Delete Approval Condition">
+                            <i class="ti ti-trash"></i>
+                        </button>';
+                    }
+
+                    $response[] = [
+                        'CONDITION' => $approval_condition,
+                        'CONDITION_TYPE' => $condition_type,
+                        'STATUS' => $condition_status,
+                        'ACTION' => '<div class="d-flex gap-2">'.
+                                    $action . 
+                                    '</div>'
+                        ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+
         case 'sales proposal job order monitoring table':
             if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
                 $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');

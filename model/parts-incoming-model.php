@@ -102,12 +102,13 @@ class PartsIncomingModel {
 
     public function updatePartsAverageCostAndSRP($p_part_id, $p_company_id, $p_received_quantity, $p_cost, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updatePartsAverageCostAndSRP(:p_part_id, :p_company_id, :p_received_quantity, :p_cost, :p_last_log_by)');
-        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_received_quantity', $p_received_quantity, PDO::PARAM_STR);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
+        $stmt->closeCursor();
     }
 
     public function updatePartsReceivedCancelIncomingCart($p_part_incoming_cart_id, $p_cancel_quantity, $p_last_log_by) {

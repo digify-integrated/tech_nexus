@@ -24,6 +24,7 @@
                       <thead>
                         <tr>
                           <th>OS Number</th>
+                          <th>Product</th>
                           <th>Job Order</th>
                         <th>Cost</th>
                           <th>Contractor</th>
@@ -41,6 +42,7 @@
                         <tr>
                           <th>Type</th>
                           <th>OS Number</th>
+                      <th>Product</th>
                           <th>Job Order</th>
                           <th>Cost</th>
                           <th>Contractor</th>
@@ -77,6 +79,7 @@
                   <thead>
                     <tr>
                       <th>OS Number</th>
+                      <th>Product</th>
                       <th>Job Order</th>
                       <th>Cost</th>
                       <th>Contractor</th>
@@ -96,6 +99,7 @@
                     <tr>
                       <th>Type</th>
                       <th>OS Number</th>
+                      <th>Product</th>
                       <th>Job Order</th>
                       <th>Cost</th>
                       <th>Contractor</th>
