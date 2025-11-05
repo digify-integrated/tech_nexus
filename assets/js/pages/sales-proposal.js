@@ -1591,14 +1591,22 @@
             }
         });
 
-       $('#print').on('click', function () {
-            $('#pricing-computation-block, #amortization-block, #remarks-block').removeClass('dontprint');
-            window.print();
+        $('#print').on('click', function () {
+            let outstanding_balance = $('#outstanding_balance').val();
+
+            if(outstanding_balance > 0){
+                $('#pricing-computation-block, #amortization-block, #remarks-block').removeClass('dontprint');
+                window.print();
+            }            
         });
 
         $('#print2').on('click', function () {
-            $('#pricing-computation-block, #amortization-block, #remarks-block').addClass('dontprint');
-            window.print();
+            let outstanding_balance = $('#outstanding_balance').val();
+
+            if(outstanding_balance > 0){
+                $('#pricing-computation-block, #amortization-block, #remarks-block').addClass('dontprint');
+                window.print();
+            }
         });
 
     });

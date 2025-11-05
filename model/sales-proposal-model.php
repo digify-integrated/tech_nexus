@@ -1609,12 +1609,12 @@ class SalesProposalModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    public function checkApprovalCondition($p_sales_proposal_id, $p_approval_condition) {
+    public function checkApprovalCondition($p_sales_proposal_id, $p_condition_type) {
         $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
         FROM sales_proposal_condition
-        WHERE sales_proposal_id = :p_sales_proposal_id AND approval_condition = :p_approval_condition AND condition_status = "Pending"');
+        WHERE sales_proposal_id = :p_sales_proposal_id AND condition_type = :p_condition_type AND condition_status = "Pending"');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_approval_condition', $p_approval_condition, PDO::PARAM_STR);
+        $stmt->bindValue(':p_condition_type', $p_condition_type, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

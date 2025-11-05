@@ -163,6 +163,7 @@ class PartsIncomingController {
         $purchase_date = $this->systemModel->checkDate('empty', $_POST['purchase_date'], '', 'Y-m-d', '');
         $supplier_id = htmlspecialchars($_POST['supplier_id'], ENT_QUOTES, 'UTF-8');
         $customer_ref_id = htmlspecialchars($_POST['customer_ref_id'], ENT_QUOTES, 'UTF-8');
+        $incoming_for = 'Parts';
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
         $delivery_date = null;
         $rr_no = null;
@@ -181,7 +182,7 @@ class PartsIncomingController {
         if ($total > 0) {
             $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
 
-            $this->partsIncomingModel->updatePartsIncoming($parts_incoming_id, $reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $request_by, $product_id, $customer_ref_id, $remarks, $userID);
+            $this->partsIncomingModel->updatePartsIncoming($parts_incoming_id, $reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $request_by, $product_id, $customer_ref_id, $remarks, $incoming_for, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'partsIncomingID' => $this->securityModel->encryptData($parts_incoming_id)]);
             exit;
@@ -197,7 +198,7 @@ class PartsIncomingController {
                 $reference_number = ((int)($this->systemSettingModel->getSystemSetting(p_system_setting_id: 40)['value'] ?? 0)) + 1;
             }
 
-            $parts_incoming_id = $this->partsIncomingModel->insertPartsIncoming($reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $company_id, $request_by, $product_id, $customer_ref_id, $remarks, $userID);
+            $parts_incoming_id = $this->partsIncomingModel->insertPartsIncoming($reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $company_id, $request_by, $product_id, $customer_ref_id, $remarks, $incoming_for, $userID);
 
             if($company_id == '1'){
                 $this->systemSettingModel->updateSystemSettingValue(38, $reference_number, $userID);
@@ -480,6 +481,7 @@ class PartsIncomingController {
         $quantity = $_POST['quantity'];
         $total_cost = $_POST['total_cost'];
         $remarks = $_POST['cart_remarks'];
+        $part_for = $_POST['part_for'];
         
         $user = $this->userModel->getUserByID($userID);
         
@@ -492,7 +494,7 @@ class PartsIncomingController {
         $total = $checkPartsIncomingCartExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->partsIncomingModel->updatePartsIncomingCart($part_incoming_cart_id, $quantity, $total_cost, $remarks, $userID);
+            $this->partsIncomingModel->updatePartsIncomingCart($part_incoming_cart_id, $quantity, $total_cost, $remarks, $part_for, $userID);
             
             echo json_encode(['success' => true]);
             exit;
@@ -810,6 +812,7 @@ class PartsIncomingController {
                 'part_id' => $partsIncomingCartDetails['part_id'],
                 'quantity' => $partsIncomingCartDetails['quantity'],
                 'total_cost' => $partsIncomingCartDetails['total_cost'],
+                'part_for' => $partsIncomingCartDetails['part_for'],
                 'remarks' => $partsIncomingCartDetails['remarks'],
             ];
 

@@ -129,10 +129,10 @@
                 </select>
             </div>
           </div>
-          <div class="form-group row <?php echo $suppliesHidden; ?>">
-            <label class="col-lg-2 col-form-label">Product <span class="text-danger">*</span></label>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label <?php echo $suppliesHidden; ?>">Product <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <select class="form-control select2" name="product_id" id="product_id" <?php echo $disabled; ?>>
+              <select class="form-control select2 <?php echo $suppliesHidden; ?>" name="product_id" id="product_id" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
               </select>
@@ -175,6 +175,7 @@
                             <th class="text-end"></th>
                             <th>Order</th>
                             <th><?php echo $cardLabel; ?></th>
+                            <th class="text-center"><?php echo $cardLabel; ?> For?</th>
                             <th class="text-center">Qty.</th>
                             <th class="text-center">Received Qty.</th>
                             <th class="text-center">Remaining Qty.</th>
@@ -530,14 +531,22 @@
                 <input type="number" class="form-control" id="available_stock" name="available_stock" min="0" readonly>
               </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group row" id="cost-row">
               <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Part For? <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="part_for" id="part_for">
+                  <option value="">--</option>
+                  <option value="Parts">Parts</option>
+                  <option value="Tools">Tools</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Quantity <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="quantity" name="quantity" min="0.01" step="0.01" <?php echo $readOnly; ?>>
               </div>
-            </div>
-            <div class="form-group row" id="cost-row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Total Cost <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="total_cost" name="total_cost" min="1" step="0.01">
               </div>

@@ -178,7 +178,7 @@
               <label class="form-label">Issuance Number</label>
               <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
             </div>
-            <div class="col-lg-6 mt-3 mt-lg-0 <?php if($company == '3') echo 'd-none'; ?>">
+            <div class="col-lg-6 mt-3 <?php if($company == '3') echo 'd-none'; ?>">
               <label class="form-label">Issuance Date</label>
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off" <?php echo $disabled; ?>>
@@ -187,9 +187,14 @@
                 </span>
               </div>
             </div>
-          </div>
-          <div class="form-group row">
-           
+            <div class="col-lg-6 mt-3">
+              <label class="form-label d-none issuance-for-details">Issuance For? <span class="text-danger">*</span></label>
+              <select class="form-control select2 d-none issuance-for-details" name="issuance_for" id="issuance_for" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <option value="Repairs">Repairs</option>
+                <option value="Tools">Tools</option>
+              </select>
+            </div>
           </div>
           
           <div class="form-group row">

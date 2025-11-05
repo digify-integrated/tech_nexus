@@ -2161,7 +2161,7 @@ class SalesProposalController {
         $checkApprovalCondition = $this->salesProposalModel->checkApprovalCondition($salesProposalID, 'Before Final Approval');
         $total = $checkApprovalCondition['total'] ?? 0;
     
-        if($total === 0){
+        if($total > 0){
             echo json_encode(['success' => false, 'condition' =>  true]);
             exit;
         }
@@ -2957,7 +2957,7 @@ class SalesProposalController {
         $checkApprovalCondition = $this->salesProposalModel->checkApprovalCondition($salesProposalID, 'Before Release');
         $total = $checkApprovalCondition['total'] ?? 0;
     
-        if($total === 0){
+        if($total > 0){
             echo json_encode(['success' => false, 'condition' =>  true]);
             exit;
         }

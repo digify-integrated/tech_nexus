@@ -15586,13 +15586,13 @@ BEGIN
     WHERE part_transaction_cart_id = p_part_transaction_cart_id;
 END //
 
-CREATE PROCEDURE insertPartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_request_by VARCHAR(500), IN p_customer_ref_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE insertPartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_issuance_for VARCHAR(100), IN p_request_by VARCHAR(500), IN p_customer_ref_id INT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO part_transaction (part_transaction_id, customer_type, customer_id, company_id, issuance_date, issuance_no, reference_date, reference_number, remarks, request_by, customer_ref_id, last_log_by) 
-	VALUES(p_part_transaction_id, p_customer_type, p_customer_id, p_company_id, p_issuance_date, p_issuance_no, p_reference_date, p_reference_number, p_remarks, p_request_by, p_customer_ref_id, p_last_log_by);
+    INSERT INTO part_transaction (part_transaction_id, customer_type, customer_id, company_id, issuance_date, issuance_no, reference_date, reference_number, remarks, issuance_for, request_by, customer_ref_id, last_log_by) 
+	VALUES(p_part_transaction_id, p_customer_type, p_customer_id, p_company_id, p_issuance_date, p_issuance_no, p_reference_date, p_reference_number, p_remarks, p_issuance_for, p_request_by, p_customer_ref_id, p_last_log_by);
 END //
 
-CREATE PROCEDURE updatePartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_discount DOUBLE, IN p_discount_type VARCHAR(10), IN p_overall_total DOUBLE, IN p_request_by VARCHAR(500), IN p_customer_ref_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsTransaction(IN p_part_transaction_id VARCHAR(100), IN p_customer_type VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_issuance_date DATE, IN p_issuance_no VARCHAR(100), IN p_reference_date DATE, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_issuance_for VARCHAR(100), IN p_discount DOUBLE, IN p_discount_type VARCHAR(10), IN p_overall_total DOUBLE, IN p_request_by VARCHAR(500), IN p_customer_ref_id INT, IN p_last_log_by INT)
 BEGIN
     UPDATE part_transaction
     SET customer_type = p_customer_type,
@@ -15608,6 +15608,7 @@ BEGIN
     overall_total = p_overall_total,
     request_by = p_request_by,
     customer_ref_id = p_customer_ref_id,
+    issuance_for = p_issuance_for,
     last_log_by = p_last_log_by
     WHERE part_transaction_id = p_part_transaction_id;
 END //
@@ -16134,15 +16135,15 @@ BEGIN
     WHERE part_incoming_id = p_part_incoming_id;
 END //
 
-CREATE PROCEDURE insertPartsIncoming(IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_company_id INT, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_remarks VARCHAR(2000), IN p_last_log_by INT, OUT p_part_incoming_id INT)
+CREATE PROCEDURE insertPartsIncoming(IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_company_id INT, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_remarks VARCHAR(2000), IN p_incoming_for VARCHAR(100), IN p_last_log_by INT, OUT p_part_incoming_id INT)
 BEGIN
-    INSERT INTO part_incoming (reference_number, supplier_id, rr_no, rr_date, delivery_date, purchase_date, company_id, request_by, product_id, customer_ref_id, remarks, last_log_by) 
-	VALUES(p_reference_number, p_supplier_id, p_rr_no, p_rr_date, p_delivery_date, p_purchase_date, p_company_id, p_request_by, p_product_id, p_customer_ref_id, p_remarks, p_last_log_by);
+    INSERT INTO part_incoming (reference_number, supplier_id, rr_no, rr_date, delivery_date, purchase_date, company_id, request_by, product_id, customer_ref_id, remarks, incoming_for, last_log_by) 
+	VALUES(p_reference_number, p_supplier_id, p_rr_no, p_rr_date, p_delivery_date, p_purchase_date, p_company_id, p_request_by, p_product_id, p_customer_ref_id, p_remarks, p_incoming_for, p_last_log_by);
 	
     SET p_part_incoming_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updatePartsIncoming(IN p_part_incoming_id INT, IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_remarks VARCHAR(2000), IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsIncoming(IN p_part_incoming_id INT, IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_remarks VARCHAR(2000), IN p_incoming_for VARCHAR(100), IN p_last_log_by INT)
 BEGIN
 	UPDATE part_incoming
     SET reference_number = p_reference_number,
@@ -16155,6 +16156,7 @@ BEGIN
     customer_ref_id = p_customer_ref_id,
     product_id = p_product_id,
     remarks = p_remarks,
+    incoming_for = p_incoming_for,
     last_log_by = p_last_log_by
     WHERE part_incoming_id = p_part_incoming_id;
 END //
@@ -16342,13 +16344,14 @@ BEGIN
     WHERE part_incoming_cart_id = p_part_incoming_cart_id;
 END //
 
-CREATE PROCEDURE updatePartsIncomingCart(IN p_part_incoming_cart_id INT, IN p_quantity DOUBLE, IN p_total_cost DOUBLE, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsIncomingCart(IN p_part_incoming_cart_id INT, IN p_quantity DOUBLE, IN p_total_cost DOUBLE, IN p_remarks VARCHAR(5000), IN p_part_for VARCHAR(100), IN p_last_log_by INT)
 BEGIN
     UPDATE part_incoming_cart
     SET quantity = p_quantity,
         remaining_quantity = p_quantity,
         total_cost = p_total_cost,
         remarks = p_remarks,
+        part_for = p_part_for,
         last_log_by = p_last_log_by
     WHERE part_incoming_cart_id = p_part_incoming_cart_id;
 END //
@@ -19752,6 +19755,7 @@ CREATE PROCEDURE createPartsTransactionEntry(
     IN p_customer_type VARCHAR(100),
     IN p_is_service VARCHAR(100),
     IN p_sold_status VARCHAR(100),
+    IN p_issuance_for VARCHAR(100),
     IN p_last_log_by INT
 )
 BEGIN
@@ -19834,7 +19838,14 @@ BEGIN
     END IF;
 
     SET v_chart_item_2 = '50402020 Cost of Sales Parts';
-    SET v_credit_2 = '10501020 Inventory Parts';
+
+    IF p_issuance_for = 'Tools' THEN
+        SET v_credit_2 = '10703010 Machinery and Hand Tools';
+    ELSEIF p_issuance_for = 'Repair' THEN
+        SET v_credit_2 = '50209005 Repairs and Maintenance Materials - Unit';
+    ELSE
+        SET v_credit_2 = '10501020 Inventory Parts';
+    END IF;
 
     IF p_customer_type = 'Internal' THEN
        -- Insert debit entry

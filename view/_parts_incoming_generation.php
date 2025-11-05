@@ -99,6 +99,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $remaining_quantity = $row['remaining_quantity'];
                 $remarks = $row['remarks'];
                 $total_cost = $row['total_cost'];
+                $part_for = $row['part_for'];
 
                 $partDetails = $partsModel->getParts($part_id);
                 $description = $partDetails['description'];
@@ -157,6 +158,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <p class="text-sm text-muted mb-0">'. $bar_code .'</p>
                                     </div>
                                 </div>',
+                    'PART_FOR' => $part_for,
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
                     'RECEIVED_QUANTITY' => number_format($received_quantity, 2) . ' ' . $short_name,
                     'REMAINING_QUANTITY' => number_format($remaining_quantity, 2) . ' ' . $short_name,

@@ -387,17 +387,39 @@
             }
         });
 
+        $(document).on('change','#product_id',function() {
+
+            let product_id = $(this).val();
+            let val = $('#customer_type').val();
+            
+
+            if (val === 'Internal' && product_id === '958') {
+                $('.issuance-for-details').removeClass('d-none');
+            } else {
+                $('.issuance-for-details').addClass('d-none');
+            }
+        });
+
         $(document).on('change','#customer_type',function() {
             checkOptionExist('#misc_id', '', '');
             checkOptionExist('#product_id', '', '');
             checkOptionExist('#customer_id', '', '');
             checkOptionExist('#department_id', '', '');
+            checkOptionExist('#issuance_for', '', '');
 
             let val = $(this).val();
+            let product_id = $('#product_id').val();
             $('#misc-select, #customer-select, #department-select, #internal-select')
                 .addClass('d-none');
             $('#customer-label, #department-label, #internal-label')
                 .addClass('d-none');
+            
+
+            if (val === 'Internal' && product_id === '958') {
+                $('.issuance-for-details').removeClass('d-none');
+            } else {
+                $('.issuance-for-details').addClass('d-none');
+            }
 
             // Show based on selection
             switch (val) {
@@ -1376,6 +1398,9 @@ function partsTransactionForm(){
             request_by: {
                 required: true
             },
+            issuance_for: {
+                required: true
+            },
         },
         messages: {
             customer_id: {
@@ -1392,6 +1417,9 @@ function partsTransactionForm(){
             },
             request_by: {
                 required: 'Please enter the request by'
+            },
+            issuance_for: {
+                required: 'Please choose the issuance for'
             },
         },
         errorPlacement: function (error, element) {
@@ -2150,6 +2178,7 @@ function displayDetails(transaction){
                         checkOptionExist('#company_id', response.company_id, '');
                         checkOptionExist('#overall_discount_type', response.discount_type, '');
                         checkOptionExist('#customer_ref_id', response.customer_ref_id, '');
+                        checkOptionExist('#issuance_for', response.issuance_for, '');
 
                         if(response.customer_type == 'Customer'){
                             checkOptionExist('#customer_id', response.customer_id, '');

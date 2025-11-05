@@ -114,6 +114,14 @@
                 </span>
               </div>
             </div>
+            <label class="col-lg-2 col-form-label d-none issuance-for-details">Issuance For? <span class="text-danger">*</span></label>
+            <div class="col-lg-4 d-none issuance-for-details">
+              <select class="form-control select2" name="issuance_for" id="issuance_for">
+                <option value="">--</option>
+                <option value="Repairs">Repairs</option>
+                <option value="Tools">Tools</option>
+              </select>
+            </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Remarks</label>

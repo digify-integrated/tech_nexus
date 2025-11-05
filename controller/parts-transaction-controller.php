@@ -177,6 +177,7 @@ class PartsTransactionController {
         $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
+        $issuance_for = htmlspecialchars($_POST['issuance_for'], ENT_QUOTES, 'UTF-8');
         $request_by = htmlspecialchars($_POST['request_by'], ENT_QUOTES, 'UTF-8');
         $issuance_date = $this->systemModel->checkDate('empty', $_POST['issuance_date'], '', 'Y-m-d', '');
         $reference_date = $this->systemModel->checkDate('empty', $_POST['reference_date'], '', 'Y-m-d', '');
@@ -210,14 +211,14 @@ class PartsTransactionController {
 
             $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
 
-            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $partsTransactionDetails['issuance_no'], $reference_date, $reference_number, $remarks, $overall_discount, $overall_discount_type, $overall_discount_total, $request_by, $customer_ref_id, $userID);
+            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $partsTransactionDetails['issuance_no'], $reference_date, $reference_number, $remarks, $issuance_for, $overall_discount, $overall_discount_type, $overall_discount_total, $request_by, $customer_ref_id, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => false, 'partsTransactionID' => $this->securityModel->encryptData($parts_transaction_id)]);
             exit;
         } 
         else {
             $partsTransactionID = $this->generateTransactionID();
-            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, '', $reference_date, $reference_number, $remarks, $request_by, $customer_ref_id, $userID);
+            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, '', $reference_date, $reference_number, $remarks, $issuance_for, $request_by, $customer_ref_id, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => true, 'partsTransactionID' => $this->securityModel->encryptData($partsTransactionID)]);
             exit;
@@ -443,6 +444,13 @@ class PartsTransactionController {
         $customer_type = $partsTransactionDetails['customer_type'] ?? '';
         $customer_id = $partsTransactionDetails['customer_id'] ?? '';
         $remarks = $partsTransactionDetails['remarks'] ?? '';
+       
+        if($customer_type == 'Internal' && $customer_id == 958){
+            $issuance_for = $partsTransactionDetails['issuance_for'] ?? '';
+        }
+        else{
+            $issuance_for = null;
+        }
         
         if($company_id == '2' || $company_id == '1'){
             $p_reference_number = $partsTransactionDetails['issuance_no'] ?? '';
@@ -477,8 +485,8 @@ class PartsTransactionController {
             $product_status = 'Draft';
         }
 
-        if($company_id == '2' || $company_id == '3'){
-            $this->partsTransactionModel->createPartsTransactionEntry($parts_transaction_id, $company_id, $p_reference_number, $cost, $overallTotal, $customer_type, $is_service, $product_status, $userID);
+        if($company_id == '2' || $company_id == '3'){         
+            $this->partsTransactionModel->createPartsTransactionEntry($parts_transaction_id, $company_id, $p_reference_number, $cost, $overallTotal, $customer_type, $is_service, $product_status, $issuance_for, $userID);
         }
 
         echo json_encode(['success' => true]);
@@ -955,6 +963,7 @@ class PartsTransactionController {
                 'issuance_no' => $partsTransactionDetails['issuance_no'],
                 'reference_number' => $partsTransactionDetails['reference_number'],
                 'remarks' => $partsTransactionDetails['remarks'],
+                'issuance_for' => $partsTransactionDetails['issuance_for'],
                 'request_by' => $partsTransactionDetails['request_by'],
                 'discount' => $partsTransactionDetails['discount'],
                 'discount_type' => $partsTransactionDetails['discount_type'],

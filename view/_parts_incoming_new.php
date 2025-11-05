@@ -66,9 +66,9 @@
                 </select>
             </div>
           </div>
-          <div class="form-group row <?php echo $suppliesHidden; ?>">
-            <label class="col-lg-2 col-form-label">Product <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label <?php echo $suppliesHidden; ?>">Product <span class="text-danger">*</span></label>
+            <div class="col-lg-4 <?php echo $suppliesHidden; ?>">
               <select class="form-control select2" name="product_id" id="product_id">
                 <option value="">--</option>
                 <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
