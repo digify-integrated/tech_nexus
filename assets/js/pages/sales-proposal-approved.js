@@ -6847,10 +6847,10 @@ function calculateRenewalAmount(){
         var multiplier = 0.030;
 
         // Convert the string "MM/DD/YYYY" to a JavaScript Date object
-        var created_date = new Date(created_date_str);
+        var created_date = new Date(created_date_str).getTime();
 
         // Create the comparison date: midnight at the start of Oct 21, 2025
-        var cutoff_date = new Date('2025-10-22'); 
+        var cutoff_date = new Date('10/22/2025').getTime(); 
 
         // Check if the created date is strictly BEFORE the cutoff date
         if(created_date < cutoff_date){
@@ -6972,6 +6972,7 @@ function calculateRenewalAmount(){
     }
 }
 
+
 function calculateTotalOtherCharges(){
     var productType = $('#product_type').val();
 
@@ -6983,10 +6984,10 @@ function calculateTotalOtherCharges(){
         var multiplier = 0.030;
 
         // Convert the string "MM/DD/YYYY" to a JavaScript Date object
-        var created_date = new Date(created_date_str);
+        var created_date = new Date(created_date_str).getTime();
 
         // Create the comparison date: midnight at the start of Oct 21, 2025
-        var cutoff_date = new Date('2025-10-22'); 
+        var cutoff_date = new Date('10/22/2025').getTime(); 
 
         // Check if the created date is strictly BEFORE the cutoff date
         if(created_date < cutoff_date){

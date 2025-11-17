@@ -408,12 +408,32 @@ class PartsIncomingController {
 
         $getPartsIncomingCartByID = $this->partsIncomingModel->getPartsIncomingCartByID($parts_incoming_id);
 
-        foreach ($getPartsIncomingCartByID as $row) {
-            $received_quantity = $row['received_quantity'];
-            $part_id = $row['part_id'];
-            $total_cost = $row['total_cost'] / $received_quantity;
+        $aggregated = [];
 
-            $this->partsIncomingModel->updatePartsAverageCostAndSRP( $part_id, $company_id, $received_quantity, $total_cost, $userID);
+        foreach ($getPartsIncomingCartByID as $row) {
+            $part_id = $row['part_id'];
+            $received_quantity = $row['received_quantity'];
+            $total_cost = $row['total_cost'];
+
+            if (!isset($aggregated[$part_id])) {
+                $aggregated[$part_id] = ['quantity' => 0, 'total_cost' => 0];
+            }
+
+            $aggregated[$part_id]['quantity'] += $received_quantity;
+            $aggregated[$part_id]['total_cost'] += $total_cost;
+        }
+
+        foreach ($aggregated as $part_id => $data) {
+            $received_quantity = $data['quantity'];
+            $total_cost = $data['total_cost'] / $received_quantity;
+
+            $this->partsIncomingModel->updatePartsAverageCostAndSRP(
+                $part_id,
+                $company_id,
+                $received_quantity,
+                $total_cost,
+                $userID
+            );
         }
 
         if(!empty($product_id) && $product_id != '958'){

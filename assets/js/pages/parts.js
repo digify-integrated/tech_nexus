@@ -1523,10 +1523,13 @@ function partIncomingTable(datatable_name, buttons = false, show_all = false){
         var column = [ 
             { 'data' : 'REFERENCE_NUMBER' },
             { 'data' : 'PRODUCT' },
+            { 'data' : 'CUSTOMER' },
+            { 'data' : 'REQUESTED_BY' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED_QUANTITY' },
             { 'data' : 'COST' },
             { 'data' : 'TOTAL_COST' },
+            { 'data' : 'COMPLETION_DATE' },
             { 'data' : 'REMARKS' }
         ];
 
@@ -1538,14 +1541,20 @@ function partIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 4 },
             { 'width': 'auto', 'aTargets': 5 },
             { 'width': 'auto', 'aTargets': 6 },
+            { 'width': 'auto', 'aTargets': 7 },
+            { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+            { 'width': 'auto', 'aTargets': 9 },
         ];
     }
     else{
         var column = [ 
             { 'data' : 'REFERENCE_NUMBER' },
             { 'data' : 'PRODUCT' },
+            { 'data' : 'CUSTOMER' },
+            { 'data' : 'REQUESTED_BY' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED_QUANTITY' },
+            { 'data' : 'COMPLETION_DATE' },
             { 'data' : 'REMARKS' }
         ];
 
@@ -1555,6 +1564,9 @@ function partIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 2 },
             { 'width': 'auto', 'aTargets': 3 },
             { 'width': 'auto', 'aTargets': 4 },
+            { 'width': 'auto', 'aTargets': 5 },
+            { 'width': 'auto', 'type' : 'date', 'aTargets': 6 },
+            { 'width': 'auto', 'aTargets': 7 },
         ];
     }
 
@@ -1614,11 +1626,10 @@ function partTransactionTable(datatable_name, buttons = false, show_all = false)
     const column = [ 
         { 'data' : 'PART_TRANSACTION_NO' },
         { 'data' : 'PRODUCT' },
+        { 'data' : 'CUSTOMER' },
         { 'data' : 'QUANTITY' },
-        { 'data' : 'ADD_ON' },
-        { 'data' : 'DISCOUNT' },
-        { 'data' : 'DISCOUNT_TOTAL' },
-        { 'data' : 'SUBTOTAL' },
+        { 'data' : 'REQUESTED_BY' },
+        { 'data' : 'RELEASED_DATE' },
         { 'data' : 'TOTAL' }
     ];
 
@@ -1628,9 +1639,8 @@ function partTransactionTable(datatable_name, buttons = false, show_all = false)
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
-        { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'aTargets': 6 },
-        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': 'auto', 'type' : 'date', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

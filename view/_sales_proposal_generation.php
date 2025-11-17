@@ -869,6 +869,54 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        case 'sales proposal all approval condition table':
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM sales_proposal WHERE sales_proposal_id IN (SELECT sales_proposal_id FROM sales_proposal_condition)');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $salesProposalID = $row['sales_proposal_id'];
+                $customerID = $row['customer_id'];
+                $salesProposalNumber = $row['sales_proposal_number'];
+                $productID = $row['product_id'];
+
+                $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
+
+                $beforeFinalApproval = $salesProposalModel->checkApprovalCondition($salesProposalID, 'Before Final Approval')['total'] ?? 0;
+                $beforeRelease = $salesProposalModel->checkApprovalCondition($salesProposalID, 'Before Release')['total'] ?? 0;
+                $afterRelease = $salesProposalModel->checkApprovalCondition($salesProposalID, 'After Release')['total'] ?? 0;
+                $total = $beforeFinalApproval + $beforeRelease + $afterRelease;
+
+                if($total > 0){
+                    $response[] = [
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
+                        'SALES_PROPOSAL_NUMBER' => '<a href="sales-proposal-approval-condition.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                                                        '. $salesProposalNumber .'
+                                                    </a>',
+                        'CUSTOMER' => '<div class="col">
+                                            <h6 class="mb-0">'. $customerName .'</h6>
+                                            <p class="f-12 mb-0">'. $corporateName .'</p>
+                                        </div>',
+                        'BEFORE_FINAL_APPROVAL' => number_format($beforeFinalApproval),
+                        'BEFORE_RELEASE' => number_format($beforeRelease),
+                        'AFTER_RELEASE' => number_format($afterRelease),
+                        'TOTAL' => number_format($total),
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        <a href="sales-proposal-approval-condition.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" target="_blank" title="View Details">
+                                            <i class="ti ti-eye"></i>
+                                        </a>
+                                    </div>'
+                        ];
+                }
+            }
+
+            echo json_encode($response);
+        break;
         case 'sales proposal for ci evaluation table':
             $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalForCITable()');
             $sql->execute();

@@ -12,6 +12,7 @@ require_once '../model/parts-class-model.php';
 require_once '../model/product-model.php';
 require_once '../model/unit-model.php';
 require_once '../model/supplier-model.php';
+require_once '../model/customer-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -19,6 +20,7 @@ $userModel = new UserModel($databaseModel, $systemModel);
 $partsModel = new PartsModel($databaseModel);
 $partsIncomingModel = new PartsIncomingModel($databaseModel);
 $partsSubclassModel = new PartsSubclassModel($databaseModel);
+$customerModel = new CustomerModel($databaseModel);
 $partsClassModel = new PartsClassModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $unitModel = new UnitModel($databaseModel);
@@ -207,6 +209,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $reference_number = $partIncomingDetails['reference_number'] ?? '';
                 $company_id = $partIncomingDetails['company_id'] ?? '';
                 $product_id = $partIncomingDetails['product_id'] ?? null;
+                $customer_ref_id = $partIncomingDetails['customer_ref_id'];
+                $request_by = $partIncomingDetails['request_by'];
+
+                
+                
+                $customerDetails = $customerModel->getPersonalInformation($customer_ref_id);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $completion_date = $systemModel->checkDate('empty', $partIncomingDetails['completion_date'], '', 'm/d/Y h:i:s', '');
 
                 $productDetails = $productModel->getProduct($product_id);
                 $stock_number = $productDetails['stock_number'] ?? '--';
@@ -229,6 +239,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         '. $reference_number .'
                                     </a>',
                     'PRODUCT' => $stock_number,
+                    'CUSTOMER' => $customerName,
+                    'REQUESTED_BY' => $request_by,
+                    'COMPLETION_DATE' => $completion_date,
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
                     'RECEIVED_QUANTITY' => number_format($received_quantity, 2) . ' ' . $short_name,
                     'COST' => number_format($cost, 2) . ' PHP',

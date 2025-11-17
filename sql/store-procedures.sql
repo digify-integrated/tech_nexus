@@ -7384,7 +7384,7 @@ END //
 CREATE PROCEDURE generateWithApplicationProductOptions()
 BEGIN
 	SELECT product_id, description, stock_number FROM product
-    WHERE product_status IN ('With Application', 'On-Process', 'Ready For Release', 'For DR', 'Sold', 'For Return')
+    WHERE product_status IN ('With Application', 'On-Process', 'Ready For Release', 'For DR', 'Sold', 'For Return', 'For Sale')
 	ORDER BY stock_number;
 END //
 
@@ -15645,6 +15645,7 @@ BEGIN
         price,
         cost,
         quantity,
+        return_quantity,
         sub_total,
         total,
         last_log_by
@@ -15653,6 +15654,7 @@ BEGIN
         p_part_id,
         v_price,
         v_cost,
+        1,
         1,
         v_price,       -- sub_total = price * 1
         v_price,       -- total = price * 1 (no discount assumed)
@@ -15758,7 +15760,7 @@ BEGIN
             IFNULL((
                 SELECT SUM(total) AS total
                 FROM part_transaction_cart
-                WHERE part_transaction_id = p_part_transaction_id AND part_id NOT IN (SELECT part_id FROM part WHERE part_subclass_id = "70")
+                WHERE part_transaction_id = p_part_transaction_id AND part_id IN (SELECT part_id FROM part WHERE part_subclass_id = "70")
             ), 0)
             AS total;
 
@@ -19829,6 +19831,12 @@ BEGIN
         SET v_chart_item = '10501010 Inventory Unit';
     END IF;
 
+    IF p_issuance_for = 'Tools' AND p_customer_type = 'Internal' THEN
+        SET v_chart_item = '10703010 Machinery and Hand Tools';
+    ELSE
+        SET v_chart_item = '50209005 Repairs and Maintenance Materials - Unit';        
+    END IF;
+
     IF v_chart_item = '50402010 Cost of Sales Unit' OR v_chart_item = '10501010 Inventory Unit' THEN
         SET v_debit_analytic_lines = 'CGMI';
         SET v_debit_analytic_distribution = '{"1": 100.0}';
@@ -19838,44 +19846,125 @@ BEGIN
     END IF;
 
     SET v_chart_item_2 = '50402020 Cost of Sales Parts';
-
-    IF p_issuance_for = 'Tools' THEN
-        SET v_credit_2 = '10703010 Machinery and Hand Tools';
-    ELSEIF p_issuance_for = 'Repair' THEN
-        SET v_credit_2 = '50209005 Repairs and Maintenance Materials - Unit';
-    ELSE
-        SET v_credit_2 = '10501020 Inventory Parts';
-    END IF;
+    SET v_credit_2 = '10501020 Inventory Parts';
 
     IF p_customer_type = 'Internal' THEN
-       -- Insert debit entry
-        INSERT INTO journal_entry (
-            loan_number, 
-            journal_entry_date, 
-            reference_code, 
-            journal_id, 
-            journal_item, 
-            debit, 
-            credit, 
-            journal_label, 
-            analytic_lines, 
-            analytic_distribution, 
-            created_date, 
-            last_log_by
-        ) VALUES (
-            p_part_transaction_id, 
-            NOW(), 
-            p_reference_number, 
-            'Parts Issuance', 
-            v_chart_item, 
-            p_price, 
-            0, 
-            '', 
-            v_debit_analytic_lines, 
-            v_debit_analytic_distribution, 
-            NOW(), 
-            p_last_log_by
-        );
+
+        IF p_issuance_for = 'Tools' OR p_issuance_for = 'Repairs' THEN
+            INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_part_transaction_id, 
+                NOW(), 
+                p_reference_number, 
+                'Parts Issuance', 
+                v_chart_item, 
+                p_cost, 
+                0, 
+                '', 
+                v_debit_analytic_lines, 
+                v_debit_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+
+            INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_part_transaction_id, 
+                NOW(), 
+                p_reference_number, 
+                'Parts Issuance', 
+                v_credit, 
+                0, 
+                p_cost, 
+                '', 
+                v_analytic_lines, 
+                v_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+        ELSE
+           INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_part_transaction_id, 
+                NOW(), 
+                p_reference_number, 
+                'Parts Issuance', 
+                v_chart_item, 
+                p_price, 
+                0, 
+                '', 
+                v_debit_analytic_lines, 
+                v_debit_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+
+            INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_part_transaction_id, 
+                NOW(), 
+                p_reference_number, 
+                'Parts Issuance', 
+                v_credit, 
+                0, 
+                p_price, 
+                '', 
+                v_analytic_lines, 
+                v_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+        END IF;
+        -- Insert debit entry
+        
 
         -- Insert debit entry
         INSERT INTO journal_entry (
@@ -19907,33 +19996,7 @@ BEGIN
         );
 
         -- Insert credit entry
-        INSERT INTO journal_entry (
-            loan_number, 
-            journal_entry_date, 
-            reference_code, 
-            journal_id, 
-            journal_item, 
-            debit, 
-            credit, 
-            journal_label, 
-            analytic_lines, 
-            analytic_distribution, 
-            created_date, 
-            last_log_by
-        ) VALUES (
-            p_part_transaction_id, 
-            NOW(), 
-            p_reference_number, 
-            'Parts Issuance', 
-            v_credit, 
-            0, 
-            p_price, 
-            '', 
-            v_analytic_lines, 
-            v_analytic_distribution, 
-            NOW(), 
-            p_last_log_by
-        );
+        
 
         -- Insert credit entry
         INSERT INTO journal_entry (
@@ -21323,6 +21386,7 @@ CREATE PROCEDURE createPartsTransactionEntryReversed(
     IN p_customer_type VARCHAR(100),
     IN p_is_service VARCHAR(100),
     IN p_sold_status VARCHAR(100),
+    IN p_issuance_for VARCHAR(100),
     IN p_last_log_by INT
 )
 BEGIN
@@ -21396,6 +21460,12 @@ BEGIN
         SET v_chart_item = '10501010 Inventory Unit';
     END IF;
 
+    IF p_issuance_for = 'Tools' AND p_customer_type = 'Internal' THEN
+        SET v_chart_item = '10703010 Machinery and Hand Tools';
+    ELSE
+        SET v_chart_item = '50209005 Repairs and Maintenance Materials - Unit';        
+    END IF;
+
     IF v_chart_item = '50402010 Cost of Sales Unit' OR v_chart_item = '10501010 Inventory Unit' THEN
         SET v_debit_analytic_lines = 'CGMI';
         SET v_debit_analytic_distribution = '{"1": 100.0}';
@@ -21408,34 +21478,122 @@ BEGIN
     SET v_credit_2 = '10501020 Inventory Parts';
 
     IF p_customer_type = 'Internal' THEN
-       -- Insert debit entry
-        INSERT INTO journal_entry (
-            loan_number, 
-            journal_entry_date, 
-            reference_code, 
-            journal_id, 
-            journal_item, 
-            debit, 
-            credit, 
-            journal_label, 
-            analytic_lines, 
-            analytic_distribution, 
-            created_date, 
-            last_log_by
-        ) VALUES (
-            p_part_transaction_id, 
-            NOW(), 
-            p_reference_number, 
-            'Parts Return', 
-            v_chart_item, 
-            0, 
-            p_price, 
-            '', 
-            v_debit_analytic_lines, 
-            v_debit_analytic_distribution, 
-            NOW(), 
-            p_last_log_by
-        );
+
+        IF p_issuance_for = 'Tools' OR p_issuance_for = 'Repairs' THEN
+            INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_part_transaction_id, 
+                NOW(), 
+                p_reference_number, 
+                'Parts Issuance', 
+                v_chart_item, 
+                0, 
+                p_cost, 
+                '', 
+                v_debit_analytic_lines, 
+                v_debit_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+
+            INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_part_transaction_id, 
+                NOW(), 
+                p_reference_number, 
+                'Parts Issuance', 
+                v_credit, 
+                p_cost, 
+                0, 
+                '', 
+                v_analytic_lines, 
+                v_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+        ELSE
+           INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_part_transaction_id, 
+                NOW(), 
+                p_reference_number, 
+                'Parts Issuance', 
+                v_chart_item, 
+                0, 
+                p_price, 
+                '', 
+                v_debit_analytic_lines, 
+                v_debit_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+
+            INSERT INTO journal_entry (
+                loan_number, 
+                journal_entry_date, 
+                reference_code, 
+                journal_id, 
+                journal_item, 
+                debit, 
+                credit, 
+                journal_label, 
+                analytic_lines, 
+                analytic_distribution, 
+                created_date, 
+                last_log_by
+            ) VALUES (
+                p_part_transaction_id, 
+                NOW(), 
+                p_reference_number, 
+                'Parts Issuance', 
+                0, 
+                v_credit, 
+                p_price, 
+                '', 
+                v_analytic_lines, 
+                v_analytic_distribution, 
+                NOW(), 
+                p_last_log_by
+            );
+        END IF;
+        -- Insert debit entry
+        
 
         -- Insert debit entry
         INSERT INTO journal_entry (
@@ -21455,7 +21613,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Return', 
+            'Parts Issuance', 
             v_chart_item_2, 
             0, 
             p_cost, 
@@ -21467,33 +21625,7 @@ BEGIN
         );
 
         -- Insert credit entry
-        INSERT INTO journal_entry (
-            loan_number, 
-            journal_entry_date, 
-            reference_code, 
-            journal_id, 
-            journal_item, 
-            debit, 
-            credit, 
-            journal_label, 
-            analytic_lines, 
-            analytic_distribution, 
-            created_date, 
-            last_log_by
-        ) VALUES (
-            p_part_transaction_id, 
-            NOW(), 
-            p_reference_number, 
-            'Parts Return', 
-            v_credit, 
-            p_price, 
-            0, 
-            '', 
-            v_analytic_lines, 
-            v_analytic_distribution, 
-            NOW(), 
-            p_last_log_by
-        );
+        
 
         -- Insert credit entry
         INSERT INTO journal_entry (
@@ -21513,7 +21645,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Return', 
+            'Parts Issuance', 
             v_credit_2, 
             p_cost, 
             0, 
@@ -21542,7 +21674,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Return', 
+            'Parts Issuance', 
             v_chart_item_2, 
             0, 
             p_cost, 
@@ -21571,7 +21703,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Return', 
+            'Parts Issuance', 
             v_credit_2, 
             p_cost, 
             0, 
@@ -21583,3 +21715,80 @@ BEGIN
         );
     END IF;	
 END//
+
+CREATE PROCEDURE generateStockTransferAdviceTable(IN p_filter_created_date_start_date DATE, IN p_filter_created_date_end_date DATE, IN p_filter_on_process_date_start_date DATE, IN p_filter_on_process_date_end_date DATE, IN p_filter_completed_date_start_date DATE, IN p_filter_completed_date_end_date DATE, IN p_filter_sta_status VARCHAR(5000))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM stock_transfer_advice';
+    SET conditionList = ' WHERE 1';
+
+    IF p_filter_sta_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND sta_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_filter_sta_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_filter_created_date_start_date IS NOT NULL AND p_filter_created_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_created_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_created_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_filter_on_process_date_start_date IS NOT NULL AND p_filter_on_process_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(on_process_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_on_process_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_on_process_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_filter_completed_date_start_date IS NOT NULL AND p_filter_completed_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(completion_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_completed_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_completed_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY reference_no DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE insertStockTransferAdvice(IN p_reference_number VARCHAR(100), IN p_transferred_from INT, IN p_transferred_to INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_stock_transfer_advice_id INT)
+BEGIN
+    INSERT INTO stock_transfer_advice (reference_no, transferred_from, transferred_to, remarks, last_log_by) 
+	VALUES(p_reference_number, p_transferred_from, p_transferred_to, p_remarks, p_last_log_by);
+	
+    SET p_stock_transfer_advice_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateStockTransferAdvice(IN p_stock_transfer_advice_id INT, IN p_transferred_from INT, IN p_transferred_to INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+BEGIN
+	UPDATE stock_transfer_advice
+    SET transferred_from = p_transferred_from,
+    transferred_to = p_transferred_to,
+    remarks = p_remarks,
+    last_log_by = p_last_log_by
+    WHERE stock_transfer_advice_id = p_stock_transfer_advice_id;
+END //
+
+CREATE PROCEDURE checkStockTransferAdviceExist (IN p_stock_transfer_advice_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM stock_transfer_advice
+    WHERE stock_transfer_advice_id = p_stock_transfer_advice_id;
+END //
+
+CREATE PROCEDURE getStockTransferAdvice(IN p_stock_transfer_advice_id INT)
+BEGIN
+	SELECT * FROM stock_transfer_advice
+    WHERE stock_transfer_advice_id = p_stock_transfer_advice_id;
+END //

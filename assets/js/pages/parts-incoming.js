@@ -892,6 +892,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
     var view_cost = $('#view-cost').val();
     const type = 'part item table';
     var settings;
+    console.log(view_cost);
 
     if(view_cost > 0){
         var column = [ 

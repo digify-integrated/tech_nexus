@@ -262,6 +262,8 @@ if($addPartExpense['total'] > 0){
               <tr>
                 <th class="text-center">Ref No.</th>
                 <th class="text-center">Product</th>
+                <th class="text-center">Customer</th>
+                <th class="text-center">Requested By</th>
                 <th class="text-center">Qty.</th>
                 <th class="text-center">Received Qty.</th>
                 <?php
@@ -270,6 +272,7 @@ if($addPartExpense['total'] > 0){
                     <th class="text-center">Total Cost</th>';
                   }
                 ?>
+                <th class="text-center">Completed Date</th>
                 <th class="text-center">Remarks</th>
               </tr>
             </thead>
@@ -300,11 +303,10 @@ if($addPartExpense['total'] > 0){
               <tr>
                 <th class="text-end">Issuance No.</th>
                 <th class="text-center">Product</th>
+                <th class="text-center">Customer</th>
                 <th class="text-center">Qty.</th>
-                <th class="text-center">Add-On</th>
-                <th class="text-center">Discount</th>
-                <th class="text-center">Total Discount</th>
-                <th class="text-end">Sub-Total</th>
+                <th class="text-center">Requested By</th>
+                <th class="text-center">Released Date</th>
                 <th class="text-end">Total</th>
               </tr>
             </thead>

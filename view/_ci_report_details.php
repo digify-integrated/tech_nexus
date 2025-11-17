@@ -21,7 +21,7 @@
                     </div>
                     <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                         <?php
-                            if(($tagForCompletion['total'] > 0 && ($ci_status == 'Draft' || $ci_status == 'For Completion')) || ($tagForCompleted['total'] > 0 && $ci_status == 'For Completion') || ($ci_status == 'For Completion')){
+                            if(($tagForCompletion['total'] > 0 && ($ci_status == 'Draft' || $ci_status == 'For Completion')) || ($tagForCompleted['total'] > 0 && $ci_status == 'For Completion') || ($ci_status == 'For Completion' || $ci_status == 'Completed')){
                                 $dropdown = '<div class="btn-group m-r-5">
                                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
                                                     Action
@@ -36,7 +36,7 @@
                                     $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-as-completed">Tag As Completed</button></li>';
                                 }
 
-                                if ($ci_status == 'For Completion') {
+                                if ($ci_status == 'For Completion' || $ci_status == 'Completed') {
                                     $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#ci-report-set-to-draft-offcanvas" aria-controls="ci-report-set-to-draft-offcanvas">Set to Draft</button></li>';
                                 }
 

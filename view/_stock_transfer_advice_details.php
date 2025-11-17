@@ -1,16 +1,13 @@
 <?php
-    $partTransactionDetails = $partsTransactionModel->getPartsTransaction($partsTransactionID);
-    $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
-    $customer_type = $partTransactionDetails['customer_type'];
-    $number_of_items = $partTransactionDetails['number_of_items'] ?? 0;
-    $total_discount = $partTransactionDetails['total_discount'] ?? 0;
+    $partTransactionDetails = $stockTransferAdviceModel->getStockTransferAdvice($stockTransferAdviceID);
+    $sta_status = $partTransactionDetails['sta_status'] ?? 'Draft';
     
-    $approvePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 201);
-    $releasePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 202);
-    $checkPartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 219);
+    $approveStockTransferAdvice = $userModel->checkSystemActionAccessRights($user_id, 201);
+    $releaseStockTransferAdvice = $userModel->checkSystemActionAccessRights($user_id, 202);
+    $checkStockTransferAdvice = $userModel->checkSystemActionAccessRights($user_id, 219);
 
     $disabled = '';
-    if($part_transaction_status != 'Draft'){
+    if($sta_status != 'Draft'){
       $disabled = 'disabled';
     }
 ?>
@@ -21,71 +18,28 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5><?php echo $cardLabel; ?> Transaction</h5>
+            <h5>Stock Transfer Advice</h5>
           </div>
            <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
           <?php
-            if($customer_type == 'Internal' || $customer_type == 'Department'){
-              if($part_transaction_status == 'Draft'){
-                echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Validation</button>';
-              }
-
-              if($part_transaction_status == 'For Validation' && $approvePartsTransaction['total'] > 0){
-                echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-transaction-offcanvas" aria-controls="approve-transaction-offcanvas" id="approved">Validated</button>';
-              }
-
-              if($part_transaction_status == 'Validated'){
-                echo '<button class="btn btn-info ms-2" type="button" id="on-process">On-Process</button>';
-              }
-
-              if($part_transaction_status == 'On-Process' && $releasePartsTransaction['total'] > 0){
-                echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
-              }
-
-              if($part_transaction_status == 'Draft' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
-                echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
-              }
-
-              if($part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'On-Process'){
-                echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
-              }
-
-              if(($part_transaction_status == 'On-Process' || $part_transaction_status == 'Released' || $part_transaction_status == 'Cancelled') && ($company == '2' || $company == '1')){
-                echo '<a href="parts-transaction-requisition-slip.php?id='. $partsTransactionID .'" class="button btn btn-info ms-2" target="_blank">Print Issuance Slip</a>';
-              }
-            }
-            else{
-              if($part_transaction_status == 'Draft'){
-                echo '<button class="btn btn-info ms-2" type="button" id="on-process">On-Process</button>';
-              }
-
-              if($part_transaction_status == 'Draft' || $part_transaction_status == 'Validated' || $part_transaction_status == 'Approved' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'On-Process'){
-                echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
-              }
-
-              if($part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'On-Process'){
-                echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
-              }
-
-              if($part_transaction_status == 'On-Process' && $total_discount > 0){
-                echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Validation</button>';
-              }
-
-              if((($total_discount > 0 && ($part_transaction_status == 'Validated' || $part_transaction_status == 'Approved')) ||( $total_discount <= 0 && $part_transaction_status == 'On-Process')) && $releasePartsTransaction['total'] > 0){
-                echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
-              }
-
-              if(($part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval') && $total_discount > 0 && $approvePartsTransaction['total'] > 0){
-                echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-transaction-offcanvas" aria-controls="approve-transaction-offcanvas" id="approved">Validated</button>';
-              }
+            if($sta_status == 'Draft'){
+              echo '<button class="btn btn-info ms-2" type="button" id="on-process">On-Process</button>';
             }
 
-            if($part_transaction_status == 'Released' && $checkPartsTransaction['total'] > 0){
-              echo '<button class="btn btn-success ms-2" type="button" id="checked">Checked</button>';
+            if($sta_status == 'On-Process'){
+              echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
             }
 
-            if ($partsTransactionCreateAccess['total'] > 0 && $part_transaction_status == 'Draft') {
-              echo '<button type="submit" form="parts-transaction-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
+            if(($sta_status == 'On-Process' || $sta_status == 'Completed' || $sta_status == 'Posted')){
+                echo '<a href="stock-transfer-advice-form.php?id='. $stockTransferAdviceID .'" class="button btn btn-info ms-2" target="_blank">Print STA Form</a>';
+            }
+
+            if($sta_status == 'Completed' && $checkStockTransferAdvice['total'] > 0){
+              echo '<button class="btn btn-success ms-2" type="button" id="posted">Posted</button>';
+            }
+
+            if ($stockTransferAdviceWriteAccess['total'] > 0 && $sta_status == 'Draft') {
+              echo '<button type="submit" form="stock-transfer-advice-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
                         <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
             }
           ?>
@@ -93,139 +47,32 @@
         </div>
       </div>
       <div class="card-body">
-        <form id="parts-transaction-form" method="post" action="#">
+        <form id="stock-transfer-advice-form" method="post" action="#">
           <div class="form-group row">
-            <div class="col-lg-6 mt-3 mt-lg-0">
-              <label class="form-label">Customer Type <span class="text-danger">*</span></label>
-              <select class="form-control select2" name="customer_type" id="customer_type" <?php echo $disabled; ?>>
-                  <?php
-                    if($company == '1'){
-                      echo '<option value="Department">Department</option>';
-                    }
-                    else{
-                      echo '<option value="Customer">Customer</option>
-                          <option value="Miscellaneous">Miscellaneous</option>
-                            <option value="Internal">Internal</option>';
-                    }
-                  ?>
-              </select>
-            </div>
-            <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label" id="customer-label">Customer <span class="text-danger">*</span></label>
-                <label class="form-label" id="internal-label">Product <span class="text-danger">*</span></label>
-                <label class="form-label" id="department-label">Department <span class="text-danger">*</span></label>
-              <div id="customer-select">
-                <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
-                  <option value="">--</option>
-                  <?php echo $customerModel->generateAllContactsOptions(); ?>
-                </select>
-              </div>
-              <div class="d-none" id="misc-select">
-                <select class="form-control select2" name="misc_id" id="misc_id" <?php echo $disabled; ?>>
-                  <option value="">--</option>
-                  <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>
-                </select>
-              </div>
-              <div class="d-none" id="internal-select"> 
-                  <select class="form-control select2" name="product_id" id="product_id" <?php echo $disabled; ?>>
-                    <option value="">--</option>
-                    <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
-                  </select>
-              </div>
-              <div class="d-none" id="department-select"> 
-                  <select class="form-control select2" name="department_id" id="department_id" <?php echo $disabled; ?>>
-                    <option value="">--</option>
-                    <?php echo $departmentModel->generateDepartmentOptions(); ?>
-                  </select>
-              </div>
-            </div>
-          </div>
-          <div class="form-group row <?php if($company == '2' || $company == '1') echo 'd-none'; ?>">
-            <div class="col-lg-6 mt-3 mt-lg-0">
-              <label class="form-label">Reference Number</label>
-              <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
-            </div>
-            <div class="col-lg-6 mt-3 mt-lg-0">
-              <label class="form-label">Reference Date</label>
-              <div class="input-group date">
-                <input type="text" class="form-control regular-datepicker" id="reference_date" name="reference_date" autocomplete="off" <?php echo $disabled; ?>>
-                <span class="input-group-text">
-                  <i class="feather icon-calendar"></i>
-                </span>
-              </div>
+            <label class="col-lg-2 col-form-label">Reference No.</label>
+            <div class="col-lg-10">
+              <input type="text" class="form-control" id="reference_no" name="reference_no" maxlength="100" autocomplete="off" readonly>
             </div>
           </div>
           <div class="form-group row">
-             <div class="col-lg-6 mt-3 mt-lg-0">
-              <label class="form-label">Request By <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off" <?php echo $disabled; ?>>
-            </div>
-             <?php
-              $suppliesHidden = '';
-
-              if($company == '1'){
-                $suppliesHidden = 'd-none';
-              }
-            ?>
-             <div class="col-lg-6 mt-3 mt-lg-0 <?php echo $suppliesHidden; ?>">
-              <label class="form-label">Customer Reference <span class="text-danger">*</span></label>
-              <select class="form-control select2" name="customer_ref_id" id="customer_ref_id" <?php echo $disabled; ?>>
+            <label class="col-lg-2 col-form-label">Transferred From <span class="text-danger">*</span></label>
+            <div class="col-lg-4" id="internal-select">
+                <select class="form-control select2" name="transferred_from" id="transferred_from" <?php echo $disabled; ?>>
                   <option value="">--</option>
-                  <?php echo $customerModel->generateAllContactsOptions(); ?>
+                  <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
                 </select>
             </div>
-            <div class="col-lg-6 mt-3 mt-lg-0 d-none">
-              <label class="form-label">Issuance Number</label>
-              <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
-            </div>
-            <div class="col-lg-6 mt-3 <?php if($company == '3') echo 'd-none'; ?>">
-              <label class="form-label">Issuance Date</label>
-              <div class="input-group date">
-                <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off" <?php echo $disabled; ?>>
-                <span class="input-group-text">
-                  <i class="feather icon-calendar"></i>
-                </span>
-              </div>
-            </div>
-            <div class="col-lg-6 mt-3 d-none issuance-for-details">
-              <label class="form-label d-none ">Issuance For? <span class="text-danger">*</span></label>
-              <select class="form-control select2" name="issuance_for" id="issuance_for" <?php echo $disabled; ?>>
-                <option value="">--</option>
-                <option value="Repairs">Repairs</option>
-                <option value="Tools">Tools</option>
-              </select>
+            <label class="col-lg-2 col-form-label">Transferred To <span class="text-danger">*</span></label>
+            <div class="col-lg-4" id="internal-select">
+                <select class="form-control select2" name="transferred_to" id="transferred_to" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
+                </select>
             </div>
           </div>
-          
           <div class="form-group row">
-            <a class="btn border-0 text-start w-100" data-bs-toggle="collapse" href="#overall-discount-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-              With Add-On Discount?
-            </a>
-            <div class="collapse" id="overall-discount-collapse">
-              <div class="form-group row">
-                <div class="col-lg-4 mt-3 mt-lg-0">
-                  <label class="form-label">Discount</label>
-                  <input type="number" class="form-control" id="overall_discount" name="overall_discount" min="0" step="0.01" <?php echo $disabled; ?>>
-                </div>
-                <div class="col-lg-4 mt-3 mt-lg-0">
-                  <label class="form-label">Type</label>
-                  <select class="form-control select2" name="overall_discount_type" id="overall_discount_type" <?php echo $disabled; ?>>
-                    <option value="">--</option>
-                    <option value="Percentage">Percentage</option>
-                    <option value="Amount">Amount</option>
-                  </select>
-                </div>
-                <div class="col-lg-4 mt-3 mt-lg-0">
-                  <label class="form-label">Discount Total</label>
-                  <input type="number" class="form-control" id="overall_discount_total" name="overall_discount_total" min="0" readonly>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <div class="col-lg-12 mt-3 mt-lg-0">
-              <label class="form-label">Remarks</label>
+            <label class="col-lg-2 col-form-label">Remarks</label>
+            <div class="col-lg-10">
               <textarea class="form-control" id="remarks" name="remarks" maxlength="2000" <?php echo $disabled; ?>></textarea>
             </div>
           </div>
@@ -236,17 +83,17 @@
 </div>
 
 <div class="row">
-  <div class="col-lg-8">
+  <div class="col-lg-12">
     <div class="card">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h5><?php echo $cardLabel; ?> Order</h5>
+                    <h5>Stock Transfer Advice Order</h5>
                 </div>
                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                     <?php
-                        if($part_transaction_status == 'Draft'){
-                            echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part">Add '.$cardLabel.'</button>';
+                        if($sta_status == 'Draft'){
+                            echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part">Add Part</button>';
                         }
                     ?>
                 </div>
@@ -258,16 +105,9 @@
                     <thead>
                         <tr>
                             <th class="text-end"></th>
-                            <th>Order</th>
-                            <th><?php echo $cardLabel; ?></th>
-                            <th class="text-end">Price</th>
+                            <th>Part</th>
                             <th class="text-center">Quantity</th>
-                            <th class="text-center">Available Stock</th>
-                            <th class="text-center">Add-On</th>
-                            <th class="text-center">Discount</th>
-                            <th class="text-center">Total Discount</th>
-                            <th class="text-end">Sub-Total</th>
-                            <th class="text-end">Total</th>
+                            <th class="text-end">Price</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -275,7 +115,20 @@
             </div>
         </div>
     </div>
-    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
+    <div class="card">
+        <div class="card-body py-2">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item px-0">
+                    <div class="float-end">
+                        <h5 class="mb-0" id="total-summary">0.00 PHP</h5>
+                    </div>
+                    <input type="hidden" id="subtotal-reference">
+                    <h5 class="mb-0 d-inline-block">Total</h5>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="card">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-6">
@@ -283,7 +136,7 @@
                 </div>
                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                     <?php
-                       if($part_transaction_status == 'For Validation'){
+                       if($sta_status == 'Draft'){
                             echo '<button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
                                 Action
                             </button>
@@ -337,7 +190,7 @@
             </div>
         </div>
     </div>
-    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
+    <div class="card">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-6">
@@ -345,7 +198,7 @@
                 </div>
                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                     <?php
-                        if($part_transaction_status == 'For Validation'){
+                        if($sta_status == 'Draft'){
                             echo '<button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
                                 Action
                             </button>
@@ -401,82 +254,6 @@
           </div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-header">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h5>Transaction Document</h5>
-                </div>
-                <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-                    <?php
-                      if($part_transaction_status != 'Released'){
-                        echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-document-offcanvas" aria-controls="add-part-document-offcanvas" id="add-part-document">Add Document</button>';
-                      }  
-                    ?>                    
-                </div>
-            </div>
-        </div>
-        <div class="card-body p-0">
-            <div class="dt-responsive table-responsive">
-                <table class="table mb-0" id="parts-transaction-document-table">
-                    <thead>
-                        <tr>
-                            <th>Transaction Document</th>
-                            <th class="text-end">Upload Date</th>
-                            <th class="text-end"></th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-  </div>
-  <div class="col-lg-4">
-    <div class="card">
-        <div class="card-body py-2">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item px-0">
-                    <h5 class="mb-0">Transaction Summary</h5>
-                </li>
-                <li class="list-group-item px-0">
-                    <div class="float-end">
-                        <h5 class="mb-0" id="sub-total-summary">0.00 PHP</h5>
-                    </div><span class="text-muted">Item Total</li>
-                <li class="list-group-item px-0">
-                    <div class="float-end">
-                        <h5 class="mb-0" id="add-on-total-summary">0.00 PHP</h5>
-                    </div><span class="text-muted">Add-On Total</span></li>
-                <li class="list-group-item px-0">
-                    <div class="float-end">
-                        <h5 class="mb-0" id="total-discount-summary">0.00 PHP</h5>
-                    </div><span class="text-muted">Item Discount</span></li>
-                <li class="list-group-item px-0">
-                    <div class="float-end">
-                        <h5 class="mb-0" id="item-total-summary">0.00 PHP</h5>
-                    </div><span class="text-muted">Sub-Total</span></li>
-            </ul>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body py-2">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item px-0">
-                    <div class="float-end">
-                        <h5 class="mb-0" id="total-overall-discount-summary">0.00 PHP</h5>
-                    </div>
-                    <h5 class="mb-0 d-inline-block">Add-On Discount</h5>
-                </li>
-                <li class="list-group-item px-0">
-                    <div class="float-end">
-                        <h5 class="mb-0" id="total-summary">0.00 PHP</h5>
-                    </div>
-                    <input type="hidden" id="subtotal-reference">
-                    <h5 class="mb-0 d-inline-block">Total</h5>
-                </li>
-            </ul>
-        </div>
-    </div>
   </div>
 </div>
 
@@ -493,7 +270,7 @@
             </div>
             <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
               <div class="card-body p-b-0">
-                '. $userModel->generateLogNotes('parts_transaction', $partsTransactionID) .'
+                '. $userModel->generateLogNotes('stock_transfer_advice', $stockTransferAdviceID) .'
               </div>
             </div>
           </div>
@@ -503,7 +280,7 @@
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="add-part-offcanvas" aria-labelledby="add-part-offcanvas-label">
     <div class="offcanvas-header">
-        <h2 id="add-part-offcanvas-label" style="margin-bottom:-0.5rem">Add <?php echo $cardLabel; ?></h2>
+        <h2 id="add-part-offcanvas-label" style="margin-bottom:-0.5rem">Add Part</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -512,9 +289,7 @@
                 <table id="add-part-table" class="table table-hover nowrap w-100 dataTable">
                     <thead>
                         <tr>
-                            <th><?php echo $cardLabel; ?></th>
-                            <th>Price</th>
-                            <th>Stock</th>
+                            <th>Part</th>
                             <th class="all">Add</th>
                         </tr>
                     </thead>
@@ -589,41 +364,6 @@
             </div>
         </div>
     </div>
-</div>
-
-<div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="add-part-document-offcanvas" aria-labelledby="add-part-document-offcanvas-label">
-    <div class="offcanvas-header">
-      <h2 id="add-part-document-offcanvas-label" style="margin-bottom:-0.5rem">Add Document</h2>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="add-part-document-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Document Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="document_name" name="document_name" maxlength="200" autocomplete="off">
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Document <span class="text-danger">*</span></label>
-                <input type="file" id="transaction_document" name="transaction_document" class="form-control">
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-add-part-document" form="add-part-document-form">Submit</button>
-          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
  <div>

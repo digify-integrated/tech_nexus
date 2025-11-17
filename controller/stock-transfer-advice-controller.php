@@ -3,17 +3,17 @@ session_start();
 
 # -------------------------------------------------------------
 #
-# Function: PartsTransactionController
+# Function: StockTransferAdviceController
 # Description: 
-# The PartsTransactionController class handles parts transaction related operations and interactions.
+# The StockTransferAdviceController class handles stock transfer advice related operations and interactions.
 #
 # Parameters: None
 #
 # Returns: None
 #
 # -------------------------------------------------------------
-class PartsTransactionController {
-    private $partsTransactionModel;
+class StockTransferAdviceController {
+    private $stockTransferAdviceModel;
     private $partsModel;
     private $productModel;
     private $userModel;
@@ -27,19 +27,19 @@ class PartsTransactionController {
     #
     # Function: __construct
     # Description: 
-    # The constructor initializes the object with the provided PartsTransactionModel, UserModel and SecurityModel instances.
-    # These instances are used for parts transaction related, user related operations and security related operations, respectively.
+    # The constructor initializes the object with the provided StockTransferAdviceModel, UserModel and SecurityModel instances.
+    # These instances are used for stock transfer advice related, user related operations and security related operations, respectively.
     #
     # Parameters:
-    # - @param PartsTransactionModel $partsTransactionModel     The PartsTransactionModel instance for parts transaction related operations.
+    # - @param StockTransferAdviceModel $stockTransferAdviceModel     The StockTransferAdviceModel instance for stock transfer advice related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(PartsTransactionModel $partsTransactionModel, PartsModel $partsModel, ProductModel $productModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
-        $this->partsTransactionModel = $partsTransactionModel;
+    public function __construct(StockTransferAdviceModel $stockTransferAdviceModel, PartsModel $partsModel, ProductModel $productModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
+        $this->stockTransferAdviceModel = $stockTransferAdviceModel;
         $this->partsModel = $partsModel;
         $this->productModel = $productModel;
         $this->userModel = $userModel;
@@ -69,14 +69,14 @@ class PartsTransactionController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'save parts transaction':
-                    $this->savePartsTransaction();
+                case 'save stock transfer advice':
+                    $this->saveStockTransferAdvice();
                     break;
                 case 'save part item':
                     $this->savePartsItem();
                     break;
-                case 'add parts transaction item':
-                    $this->addPartsTransactionItem();
+                case 'add stock transfer advice item':
+                    $this->addStockTransferAdviceItem();
                     break;
                 case 'add job order':
                     $this->addJobOrder();
@@ -84,20 +84,17 @@ class PartsTransactionController {
                 case 'add additional job order':
                     $this->addAdditionalJobOrder();
                     break;
-                case 'get parts transaction details':
-                    $this->getPartsTransactionDetails();
+                case 'get stock transfer advice details':
+                    $this->getStockTransferAdviceDetails();
                     break;
-                case 'get parts transaction cart details':
-                    $this->getPartsTransactionCartDetails();
+                case 'get stock transfer advice cart details':
+                    $this->getStockTransferAdviceCartDetails();
                     break;
-                case 'get parts transaction cart total':
-                    $this->getPartsTransactionCartTotal();
-                    break;
-                case 'delete parts transaction':
-                    $this->deletePartsTransaction();
+                case 'delete stock transfer advice':
+                    $this->deleteStockTransferAdvice();
                     break;
                 case 'delete part item':
-                    $this->deletePartsTransactionCart();
+                    $this->deleteStockTransferAdviceCart();
                     break;
                 case 'delete job order':
                     $this->deleteJobOrder();
@@ -111,11 +108,11 @@ class PartsTransactionController {
                 case 'delete internal additional job order':
                     $this->deleteAdditionalJobOrder();
                     break;
-                case 'add parts transaction document':
+                case 'add stock transfer advice document':
                     $this->addPartsDocument();
                     break;
-                case 'delete multiple parts transaction':
-                    $this->deleteMultiplePartsTransaction();
+                case 'delete multiple stock transfer advice':
+                    $this->deleteMultipleStockTransferAdvice();
                     break;
                 case 'tag transaction as on process':
                     $this->tagAsOnProcess();
@@ -152,82 +149,43 @@ class PartsTransactionController {
 
     # -------------------------------------------------------------
     #
-    # Function: savePartsTransaction
+    # Function: saveStockTransferAdvice
     # Description: 
-    # Updates the existing parts transaction if it exists; otherwise, inserts a new parts transaction.
+    # Updates the existing stock transfer advice if it exists; otherwise, inserts a new stock transfer advice.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function savePartsTransaction() {
+    public function saveStockTransferAdvice() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $parts_transaction_id = isset($_POST['parts_transaction_id']) ? htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8') : null;
-        $customer_type = htmlspecialchars($_POST['customer_type'], ENT_QUOTES, 'UTF-8');
-        $customer_id = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
-        $customer_ref_id = htmlspecialchars($_POST['customer_ref_id'], ENT_QUOTES, 'UTF-8');
-        $misc_id = htmlspecialchars($_POST['misc_id'], ENT_QUOTES, 'UTF-8');
-        $product_id = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
-        $department_id = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
-        $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
-        $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
-        $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
-        
-        $request_by = htmlspecialchars($_POST['request_by'], ENT_QUOTES, 'UTF-8');
-        $issuance_date = $this->systemModel->checkDate('empty', $_POST['issuance_date'], '', 'Y-m-d', '');
-        $reference_date = $this->systemModel->checkDate('empty', $_POST['reference_date'], '', 'Y-m-d', '');
-    
-        if($customer_type == 'Internal' && $customer_id == '958'){
-            $issuance_for = htmlspecialchars($_POST['issuance_for'], ENT_QUOTES, 'UTF-8');
-        }
-        else{
-            $issuance_for = '';
-        }
+        $stock_transfer_advice_id = isset($_POST['stock_transfer_advice_id']) ? htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8') : null;
+        $transferred_from = htmlspecialchars($_POST['transferred_from'], ENT_QUOTES, 'UTF-8');
+        $transferred_to = htmlspecialchars($_POST['transferred_to'], ENT_QUOTES, 'UTF-8');
+        $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8'); 
 
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-
-        if($customer_type == 'Miscellaneous'){
-            $customer_id = $misc_id;
-        }
-
-        if($customer_type == 'Internal'){
-            $customer_id = $product_id;
-        }
-
-        if($customer_type == 'Department'){
-            $customer_id = $department_id;
-        }
-
-        $checkPartsTransactionExist = $this->partsTransactionModel->checkPartsTransactionExist($parts_transaction_id);
-        $total = $checkPartsTransactionExist['total'] ?? 0;
+        $checkStockTransferAdviceExist = $this->stockTransferAdviceModel->checkStockTransferAdviceExist($stock_transfer_advice_id);
+        $total = $checkStockTransferAdviceExist['total'] ?? 0;
     
         if ($total > 0) {
-            $overall_discount = htmlspecialchars($_POST['overall_discount'], ENT_QUOTES, 'UTF-8');
-            $overall_discount_type = htmlspecialchars($_POST['overall_discount_type'], ENT_QUOTES, 'UTF-8');
-            $overall_discount_total = htmlspecialchars($_POST['overall_discount_total'], ENT_QUOTES, 'UTF-8');
+            $this->stockTransferAdviceModel->updateStockTransferAdvice($stock_transfer_advice_id, $transferred_from, $transferred_to, $remarks, $userID);
 
-            $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
-
-            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $partsTransactionDetails['issuance_no'], $reference_date, $reference_number, $remarks, $issuance_for, $overall_discount, $overall_discount_type, $overall_discount_total, $request_by, $customer_ref_id, $userID);
-
-            echo json_encode(value: ['success' => true, 'insertRecord' => false, 'partsTransactionID' => $this->securityModel->encryptData($parts_transaction_id)]);
+            echo json_encode(value: ['success' => true, 'insertRecord' => false, 'stockTransferAdviceID' => $this->securityModel->encryptData($stock_transfer_advice_id)]);
             exit;
         } 
         else {
-            $partsTransactionID = $this->generateTransactionID();
-            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, '', $reference_date, $reference_number, $remarks, $issuance_for, $request_by, $customer_ref_id, $userID);
+            $reference_number = (int)$this->systemSettingModel->getSystemSetting(43)['value'] + 1;
 
-            echo json_encode(value: ['success' => true, 'insertRecord' => true, 'partsTransactionID' => $this->securityModel->encryptData($partsTransactionID)]);
+            $stock_transfer_advice_id = $this->stockTransferAdviceModel->insertStockTransferAdvice($reference_number, $transferred_from, $transferred_to, $remarks, $userID);
+
+            $this->systemSettingModel->updateSystemSettingValue(43, $reference_number, $userID);
+
+            echo json_encode(value: ['success' => true, 'insertRecord' => true, 'stockTransferAdviceID' => $this->securityModel->encryptData($stock_transfer_advice_id)]);
             exit;
         }
     }
@@ -249,13 +207,13 @@ class PartsTransactionController {
     }
 
 
-    public function addPartsTransactionItem() {
+    public function addStockTransferAdviceItem() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
         
         $userID = $_SESSION['user_id'];
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
         $part_ids = explode(',', $_POST['part_id']);
         
         $user = $this->userModel->getUserByID($userID);
@@ -267,9 +225,9 @@ class PartsTransactionController {
         
         foreach ($part_ids as $part_id) {
             if(!empty($part_id)){
-                $this->partsTransactionModel->insertPartItem($parts_transaction_id, $part_id, $userID);
+                $this->stockTransferAdviceModel->insertPartItem($stock_transfer_advice_id, $part_id, $userID);
             
-                $this->partsTransactionModel->updatePartTransactionSummary($parts_transaction_id);
+                $this->stockTransferAdviceModel->updatePartTransactionSummary($stock_transfer_advice_id);
             }
         }
         
@@ -283,7 +241,7 @@ class PartsTransactionController {
         }
         
         $userID = $_SESSION['user_id'];
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
         $generate_job_order = $_POST['generate_job_order'];
         $job_order_ids = explode(',', $_POST['job_order_id']);
         
@@ -296,7 +254,7 @@ class PartsTransactionController {
         
         foreach ($job_order_ids as $job_order_id) {
             if(!empty($job_order_id)){
-                $this->partsTransactionModel->insertPartsTransactionJobOrder($parts_transaction_id, $job_order_id, $generate_job_order, $userID);
+                $this->stockTransferAdviceModel->insertStockTransferAdviceJobOrder($stock_transfer_advice_id, $job_order_id, $generate_job_order, $userID);
             }
         }
         
@@ -310,7 +268,7 @@ class PartsTransactionController {
         }
         
         $userID = $_SESSION['user_id'];
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
         $generate_job_order = $_POST['generate_job_order'];
         $additional_job_order_ids = explode(',', $_POST['additional_job_order_id']);
         
@@ -323,7 +281,7 @@ class PartsTransactionController {
         
         foreach ($additional_job_order_ids as $additional_job_order_id) {
             if(!empty($additional_job_order_id)){
-                $this->partsTransactionModel->insertPartsTransactionAdditionalJobOrder($parts_transaction_id, $additional_job_order_id, $generate_job_order, $userID);
+                $this->stockTransferAdviceModel->insertStockTransferAdviceAdditionalJobOrder($stock_transfer_advice_id, $additional_job_order_id, $generate_job_order, $userID);
             }
         }
         
@@ -337,7 +295,7 @@ class PartsTransactionController {
         }
         
         $userID = $_SESSION['user_id'];
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
         
@@ -346,7 +304,7 @@ class PartsTransactionController {
             exit;
         }
 
-        $partTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
+        $partTransactionDetails = $this->stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
         $number_of_items = $partTransactionDetails['number_of_items'] ?? 0;
 
         if($number_of_items == 0){
@@ -354,21 +312,21 @@ class PartsTransactionController {
             exit;
         }
 
-        $quantityCheck = $this->partsTransactionModel->get_exceeded_part_quantity_count($parts_transaction_id)['total'] ?? 0;
+        $quantityCheck = $this->stockTransferAdviceModel->get_exceeded_part_quantity_count($stock_transfer_advice_id)['total'] ?? 0;
 
         if($quantityCheck > 0){
             echo json_encode(['success' => false, 'cartQuantity' => true]);
             exit;
         }
 
-         $check_exceed_part_quantity = $this->partsTransactionModel->check_exceed_part_quantity($parts_transaction_id)['total'] ?? 0;
+         $check_exceed_part_quantity = $this->stockTransferAdviceModel->check_exceed_part_quantity($stock_transfer_advice_id)['total'] ?? 0;
 
         if($check_exceed_part_quantity > 0){
             echo json_encode(['success' => false, 'partQuantityExceed' => true]);
             exit;
         }
     
-        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'On-Process', '', $userID);
+        $this->stockTransferAdviceModel->updateStockTransferAdviceStatus($stock_transfer_advice_id, 'On-Process', '', $userID);
 
         echo json_encode(['success' => true]);
         exit;
@@ -380,7 +338,7 @@ class PartsTransactionController {
         }
         
         $userID = $_SESSION['user_id'];
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
         
@@ -389,7 +347,7 @@ class PartsTransactionController {
             exit;
         }
 
-        $partTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
+        $partTransactionDetails = $this->stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
         $number_of_items = $partTransactionDetails['number_of_items'] ?? 0;
         $customer_type = $partTransactionDetails['customer_type'] ?? '';
         $issuance_for = $partTransactionDetails['issuance_for'] ?? '';
@@ -400,28 +358,28 @@ class PartsTransactionController {
             exit;
         }
 
-         $quantityCheck = $this->partsTransactionModel->get_exceeded_part_quantity_count($parts_transaction_id)['total'] ?? 0;
+         $quantityCheck = $this->stockTransferAdviceModel->get_exceeded_part_quantity_count($stock_transfer_advice_id)['total'] ?? 0;
 
         if($quantityCheck > 0){
             echo json_encode(['success' => false, 'cartQuantity' => true]);
             exit;
         }
 
-        $check_exceed_part_quantity = $this->partsTransactionModel->check_exceed_part_quantity($parts_transaction_id)['total'] ?? 0;
+        $check_exceed_part_quantity = $this->stockTransferAdviceModel->check_exceed_part_quantity($stock_transfer_advice_id)['total'] ?? 0;
 
         if($check_exceed_part_quantity > 0){
             echo json_encode(['success' => false, 'partQuantityExceed' => true]);
             exit;
         }
 
-        $cost = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'cost')['total'] ?? 0;
+        $cost = $this->stockTransferAdviceModel->getStockTransferAdviceCartTotal($stock_transfer_advice_id, 'cost')['total'] ?? 0;
 
         if($customer_type == 'Internal' && $customer_id == '958' && $issuance_for == 'Tools' && $cost < 5000){
             echo json_encode(['success' => false, 'tools' => true]);
             exit;
         }
     
-        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'For Validation', '', $userID);
+        $this->stockTransferAdviceModel->updateStockTransferAdviceStatus($stock_transfer_advice_id, 'For Validation', '', $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -433,7 +391,7 @@ class PartsTransactionController {
         }
         
         $userID = $_SESSION['user_id'];
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
         
@@ -442,43 +400,43 @@ class PartsTransactionController {
             exit;
         }
 
-        $check_exceed_part_quantity = $this->partsTransactionModel->check_exceed_part_quantity($parts_transaction_id)['total'] ?? 0;
+        $check_exceed_part_quantity = $this->stockTransferAdviceModel->check_exceed_part_quantity($stock_transfer_advice_id)['total'] ?? 0;
 
         if($check_exceed_part_quantity > 0){
             echo json_encode(['success' => false, 'partQuantityExceed' => true]);
             exit;
         }
 
-        $quantityCheck = $this->partsTransactionModel->get_exceeded_part_quantity_count($parts_transaction_id)['total'] ?? 0;
+        $quantityCheck = $this->stockTransferAdviceModel->get_exceeded_part_quantity_count($stock_transfer_advice_id)['total'] ?? 0;
 
         if($quantityCheck > 0){
             echo json_encode(['success' => false, 'cartQuantity' => true]);
             exit;
         }
 
-        $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
-        $company_id = $partsTransactionDetails['company_id'] ?? '';
-        $customer_type = $partsTransactionDetails['customer_type'] ?? '';
-        $customer_id = $partsTransactionDetails['customer_id'] ?? '';
-        $remarks = $partsTransactionDetails['remarks'] ?? '';
+        $stockTransferAdviceDetails = $this->stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
+        $company_id = $stockTransferAdviceDetails['company_id'] ?? '';
+        $customer_type = $stockTransferAdviceDetails['customer_type'] ?? '';
+        $customer_id = $stockTransferAdviceDetails['customer_id'] ?? '';
+        $remarks = $stockTransferAdviceDetails['remarks'] ?? '';
        
         if($customer_type == 'Internal' && $customer_id == 958){
-            $issuance_for = $partsTransactionDetails['issuance_for'] ?? '';
+            $issuance_for = $stockTransferAdviceDetails['issuance_for'] ?? '';
         }
         else{
             $issuance_for = null;
         }
         
         if($company_id == '2' || $company_id == '1'){
-            $p_reference_number = $partsTransactionDetails['issuance_no'] ?? '';
+            $p_reference_number = $stockTransferAdviceDetails['issuance_no'] ?? '';
         }
         else{
-            $p_reference_number = $partsTransactionDetails['reference_number'] ?? '';
+            $p_reference_number = $stockTransferAdviceDetails['reference_number'] ?? '';
         }
 
-        $cost = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'cost')['total'] ?? 0;
+        $cost = $this->stockTransferAdviceModel->getStockTransferAdviceCartTotal($stock_transfer_advice_id, 'cost')['total'] ?? 0;
 
-        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Released', '', $userID);
+        $this->stockTransferAdviceModel->updateStockTransferAdviceStatus($stock_transfer_advice_id, 'Released', '', $userID);
        
         if($customer_type == 'Internal'){
             $productDetails = $this->productModel->getProduct($customer_id);
@@ -486,24 +444,24 @@ class PartsTransactionController {
             $product_status = $productDetails['product_status'] ?? 'Draft';
 
             if($is_service == 'Yes'){
-                $overallTotal = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'gasoline cost')['total'] ?? 0;
+                $overallTotal = $this->stockTransferAdviceModel->getStockTransferAdviceCartTotal($stock_transfer_advice_id, 'gasoline cost')['total'] ?? 0;
 
-                $this->partsTransactionModel->createPartsTransactionProductExpense($customer_id, 'Issuance Slip', $parts_transaction_id, 0, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, $userID); 
+                $this->stockTransferAdviceModel->createStockTransferAdviceProductExpense($customer_id, 'Issuance Slip', $stock_transfer_advice_id, 0, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, $userID); 
             }
             else{
-                $overallTotal = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'overall total')['total'] ?? 0;
+                $overallTotal = $this->stockTransferAdviceModel->getStockTransferAdviceCartTotal($stock_transfer_advice_id, 'overall total')['total'] ?? 0;
 
-                $this->partsTransactionModel->createPartsTransactionProductExpense($customer_id, 'Issuance Slip', $parts_transaction_id, $overallTotal, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, $userID); 
+                $this->stockTransferAdviceModel->createStockTransferAdviceProductExpense($customer_id, 'Issuance Slip', $stock_transfer_advice_id, $overallTotal, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, $userID); 
             }
         }
         else{
-            $overallTotal = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'overall total')['total'] ?? 0;
+            $overallTotal = $this->stockTransferAdviceModel->getStockTransferAdviceCartTotal($stock_transfer_advice_id, 'overall total')['total'] ?? 0;
             $is_service = 'No';
             $product_status = 'Draft';
         }
 
         if($company_id == '2' || $company_id == '3'){         
-            $this->partsTransactionModel->createPartsTransactionEntry($parts_transaction_id, $company_id, $p_reference_number, $cost, $overallTotal, $customer_type, $is_service, $product_status, $issuance_for, $userID);
+            $this->stockTransferAdviceModel->createStockTransferAdviceEntry($stock_transfer_advice_id, $company_id, $p_reference_number, $cost, $overallTotal, $customer_type, $is_service, $product_status, $issuance_for, $userID);
         }
 
         echo json_encode(['success' => true]);
@@ -516,7 +474,7 @@ class PartsTransactionController {
         }
         
         $userID = $_SESSION['user_id'];
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
         
@@ -525,7 +483,7 @@ class PartsTransactionController {
             exit;
         }
 
-        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Checked', '', $userID);
+        $this->stockTransferAdviceModel->updateStockTransferAdviceStatus($stock_transfer_advice_id, 'Checked', '', $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -537,7 +495,7 @@ class PartsTransactionController {
         }
         
         $userID = $_SESSION['user_id'];
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
         $cancellation_reason = htmlspecialchars($_POST['cancellation_reason'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
@@ -548,14 +506,14 @@ class PartsTransactionController {
         }
 
     
-        $quantityCheck = $this->partsTransactionModel->get_exceeded_part_quantity_count($parts_transaction_id)['total'] ?? 0;
+        $quantityCheck = $this->stockTransferAdviceModel->get_exceeded_part_quantity_count($stock_transfer_advice_id)['total'] ?? 0;
 
         if($quantityCheck > 0){
             echo json_encode(['success' => false, 'cartQuantity' => true]);
             exit;
         }
 
-        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Cancelled', $cancellation_reason, $userID);
+        $this->stockTransferAdviceModel->updateStockTransferAdviceStatus($stock_transfer_advice_id, 'Cancelled', $cancellation_reason, $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -567,7 +525,7 @@ class PartsTransactionController {
         }
         
         $userID = $_SESSION['user_id'];
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
         $draft_reason = htmlspecialchars($_POST['draft_reason'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
@@ -577,7 +535,7 @@ class PartsTransactionController {
             exit;
         }
 
-        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Draft', $draft_reason, $userID);
+        $this->stockTransferAdviceModel->updateStockTransferAdviceStatus($stock_transfer_advice_id, 'Draft', $draft_reason, $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -589,7 +547,7 @@ class PartsTransactionController {
         }
         
         $userID = $_SESSION['user_id'];
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
         $approval_remarks = htmlspecialchars($_POST['approval_remarks'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
@@ -599,21 +557,21 @@ class PartsTransactionController {
             exit;
         }
 
-        $quantityCheck = $this->partsTransactionModel->get_exceeded_part_quantity_count($parts_transaction_id)['total'] ?? 0;
+        $quantityCheck = $this->stockTransferAdviceModel->get_exceeded_part_quantity_count($stock_transfer_advice_id)['total'] ?? 0;
 
         if($quantityCheck > 0){
             echo json_encode(['success' => false, 'cartQuantity' => true]);
             exit;
         }
 
-        $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
-        $customer_type = $partsTransactionDetails['customer_type'] ?? null;
-        $company_id = $partsTransactionDetails['company_id'] ?? null;
-        $issuance_no = $partsTransactionDetails['issuance_no'] ?? null;
+        $stockTransferAdviceDetails = $this->stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
+        $customer_type = $stockTransferAdviceDetails['customer_type'] ?? null;
+        $company_id = $stockTransferAdviceDetails['company_id'] ?? null;
+        $issuance_no = $stockTransferAdviceDetails['issuance_no'] ?? null;
 
         if($customer_type == 'Internal'){
 
-            $check_linked_job_order = $this->partsTransactionModel->check_linked_job_order($parts_transaction_id)['total'] ?? 0;
+            $check_linked_job_order = $this->stockTransferAdviceModel->check_linked_job_order($stock_transfer_advice_id)['total'] ?? 0;
 
             if($check_linked_job_order == 0){
                 echo json_encode(['success' => false, 'jobOrder' => true]);
@@ -628,7 +586,7 @@ class PartsTransactionController {
                     $reference_number = (int)$this->systemSettingModel->getSystemSetting(34)['value'] + 1;
                 }
 
-                $this->partsTransactionModel->updatePartsTransactionSlipReferenceNumber($parts_transaction_id, $reference_number, $userID);
+                $this->stockTransferAdviceModel->updateStockTransferAdviceSlipReferenceNumber($stock_transfer_advice_id, $reference_number, $userID);
 
                 if($company_id == '2'){
                     $this->systemSettingModel->updateSystemSettingValue(32, $reference_number, $userID);
@@ -645,7 +603,7 @@ class PartsTransactionController {
                     $reference_number = (int)$this->systemSettingModel->getSystemSetting(37)['value'] + 1;
                 }
 
-                $this->partsTransactionModel->updatePartsTransactionSlipReferenceNumber($parts_transaction_id, $reference_number, $userID);
+                $this->stockTransferAdviceModel->updateStockTransferAdviceSlipReferenceNumber($stock_transfer_advice_id, $reference_number, $userID);
 
                 if($company_id == '1'){
                     $this->systemSettingModel->updateSystemSettingValue(37, $reference_number, $userID);
@@ -653,7 +611,7 @@ class PartsTransactionController {
             }
         }
     
-        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Validated', $approval_remarks, $userID);
+        $this->stockTransferAdviceModel->updateStockTransferAdviceStatus($stock_transfer_advice_id, 'Validated', $approval_remarks, $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -691,16 +649,16 @@ class PartsTransactionController {
             exit;
         }
 
-        $checkPartsTransactionCartExist = $this->partsTransactionModel->checkPartsTransactionCartExist($part_transaction_cart_id);
-        $total = $checkPartsTransactionCartExist['total'] ?? 0;
+        $checkStockTransferAdviceCartExist = $this->stockTransferAdviceModel->checkStockTransferAdviceCartExist($part_transaction_cart_id);
+        $total = $checkStockTransferAdviceCartExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->partsTransactionModel->updatePartsTransactionCart($part_transaction_cart_id, $quantity, $add_on, $discount, $discount_type, $discount_total, $part_item_subtotal, $part_item_total, $remarks, $userID);
+            $this->stockTransferAdviceModel->updateStockTransferAdviceCart($part_transaction_cart_id, $quantity, $add_on, $discount, $discount_type, $discount_total, $part_item_subtotal, $part_item_total, $remarks, $userID);
 
-            $partsTransactionCartDetails = $this->partsTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
-            $part_transaction_id = $partsTransactionCartDetails['part_transaction_id'];
+            $stockTransferAdviceCartDetails = $this->stockTransferAdviceModel->getStockTransferAdviceCart($part_transaction_cart_id);
+            $part_transaction_id = $stockTransferAdviceCartDetails['part_transaction_id'];
 
-            $this->partsTransactionModel->updatePartTransactionSummary($part_transaction_id);
+            $this->stockTransferAdviceModel->updatePartTransactionSummary($part_transaction_id);
             
             echo json_encode(['success' => true]);
             exit;
@@ -717,7 +675,7 @@ class PartsTransactionController {
     
         $userID = $_SESSION['user_id'];
         $document_name = htmlspecialchars($_POST['document_name'], ENT_QUOTES, 'UTF-8');
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
         $isActive = $user['is_active'] ?? 0;
@@ -770,8 +728,8 @@ class PartsTransactionController {
         $fileName = $this->securityModel->generateFileName();
         $fileNew = $fileName . '.' . $transactionDocumentActualFileExtension;
 
-        $directory = DEFAULT_PRODUCT_RELATIVE_PATH_FILE . $parts_transaction_id  . '/part_transaction/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_PRODUCT_FULL_PATH_FILE . $parts_transaction_id . '/part_transaction/' . $fileNew;
+        $directory = DEFAULT_PRODUCT_RELATIVE_PATH_FILE . $stock_transfer_advice_id  . '/part_transaction/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_PRODUCT_FULL_PATH_FILE . $stock_transfer_advice_id . '/part_transaction/' . $fileNew;
         $filePath = $directory . $fileNew;
 
         $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
@@ -786,7 +744,7 @@ class PartsTransactionController {
             exit;
         }
 
-        $this->partsTransactionModel->insertPartsTransactionDocument($parts_transaction_id, $document_name, $filePath, $userID);
+        $this->stockTransferAdviceModel->insertStockTransferAdviceDocument($stock_transfer_advice_id, $document_name, $filePath, $userID);
 
         echo json_encode(['success' => true]);
         exit;
@@ -799,22 +757,22 @@ class PartsTransactionController {
 
     # -------------------------------------------------------------
     #
-    # Function: deletePartsTransaction
+    # Function: deleteStockTransferAdvice
     # Description: 
-    # Delete the parts transaction if it exists; otherwise, return an error message.
+    # Delete the stock transfer advice if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deletePartsTransaction() {
+    public function deleteStockTransferAdvice() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $partsTransactionID = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stockTransferAdviceID = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -823,28 +781,28 @@ class PartsTransactionController {
             exit;
         }
     
-        $checkPartsTransactionExist = $this->partsTransactionModel->checkPartsTransactionExist($partsTransactionID);
-        $total = $checkPartsTransactionExist['total'] ?? 0;
+        $checkStockTransferAdviceExist = $this->stockTransferAdviceModel->checkStockTransferAdviceExist($stockTransferAdviceID);
+        $total = $checkStockTransferAdviceExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
     
-        $this->partsTransactionModel->deletePartsTransaction($partsTransactionID);
+        $this->stockTransferAdviceModel->deleteStockTransferAdvice($stockTransferAdviceID);
             
         echo json_encode(['success' => true]);
         exit;
     }
 
-    public function deletePartsTransactionCart() {
+    public function deleteStockTransferAdviceCart() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $parts_transaction_cart_id = htmlspecialchars($_POST['parts_transaction_cart_id'], ENT_QUOTES, 'UTF-8');
-        $parts_transaction_id = htmlspecialchars($_POST['parts_transaction_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_cart_id = htmlspecialchars($_POST['stock_transfer_advice_cart_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -853,9 +811,9 @@ class PartsTransactionController {
             exit;
         }
     
-        $this->partsTransactionModel->deletePartsTransactionCart($parts_transaction_cart_id);
+        $this->stockTransferAdviceModel->deleteStockTransferAdviceCart($stock_transfer_advice_cart_id);
 
-        $this->partsTransactionModel->updatePartTransactionSummary($parts_transaction_id);
+        $this->stockTransferAdviceModel->updatePartTransactionSummary($stock_transfer_advice_id);
             
         echo json_encode(['success' => true]);
         exit;
@@ -867,7 +825,7 @@ class PartsTransactionController {
         }
     
         $userID = $_SESSION['user_id'];
-        $parts_transaction_job_order_id = htmlspecialchars($_POST['parts_transaction_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_job_order_id = htmlspecialchars($_POST['stock_transfer_advice_job_order_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -876,7 +834,7 @@ class PartsTransactionController {
             exit;
         }
     
-        $this->partsTransactionModel->deletePartsTransactionJobOrder($parts_transaction_job_order_id);
+        $this->stockTransferAdviceModel->deleteStockTransferAdviceJobOrder($stock_transfer_advice_job_order_id);
             
         echo json_encode(['success' => true]);
         exit;
@@ -887,7 +845,7 @@ class PartsTransactionController {
         }
     
         $userID = $_SESSION['user_id'];
-        $parts_transaction_additional_job_order_id = htmlspecialchars($_POST['parts_transaction_additional_job_order_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_additional_job_order_id = htmlspecialchars($_POST['stock_transfer_advice_additional_job_order_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -896,7 +854,7 @@ class PartsTransactionController {
             exit;
         }
     
-        $this->partsTransactionModel->deletePartsTransactionAdditionalJobOrder($parts_transaction_additional_job_order_id);
+        $this->stockTransferAdviceModel->deleteStockTransferAdviceAdditionalJobOrder($stock_transfer_advice_additional_job_order_id);
             
         echo json_encode(['success' => true]);
         exit;
@@ -905,22 +863,22 @@ class PartsTransactionController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteMultiplePartsTransaction
+    # Function: deleteMultipleStockTransferAdvice
     # Description: 
-    # Delete the selected parts transactions if it exists; otherwise, skip it.
+    # Delete the selected stock transfer advices if it exists; otherwise, skip it.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteMultiplePartsTransaction() {
+    public function deleteMultipleStockTransferAdvice() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $partsTransactionIDs = $_POST['parts_transaction_id'];
+        $stockTransferAdviceIDs = $_POST['stock_transfer_advice_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -929,8 +887,8 @@ class PartsTransactionController {
             exit;
         }
 
-        foreach($partsTransactionIDs as $partsTransactionID){
-            $this->partsTransactionModel->deletePartsTransaction($partsTransactionID);
+        foreach($stockTransferAdviceIDs as $stockTransferAdviceID){
+            $this->stockTransferAdviceModel->deleteStockTransferAdvice($stockTransferAdviceID);
         }
             
         echo json_encode(['success' => true]);
@@ -944,23 +902,23 @@ class PartsTransactionController {
 
     # -------------------------------------------------------------
     #
-    # Function: getPartsTransactionDetails
+    # Function: getStockTransferAdviceDetails
     # Description: 
-    # Handles the retrieval of parts transaction details such as parts transaction name, etc.
+    # Handles the retrieval of stock transfer advice details such as stock transfer advice name, etc.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getPartsTransactionDetails() {
+    public function getStockTransferAdviceDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
-        if (isset($_POST['parts_transaction_id']) && !empty($_POST['parts_transaction_id'])) {
+        if (isset($_POST['stock_transfer_advice_id']) && !empty($_POST['stock_transfer_advice_id'])) {
             $userID = $_SESSION['user_id'];
-            $parts_transaction_id = $_POST['parts_transaction_id'];
+            $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -969,25 +927,14 @@ class PartsTransactionController {
                 exit;
             }
     
-            $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
+            $stockTransferAdviceDetails = $this->stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
 
             $response = [
                 'success' => true,
-                'customer_type' => $partsTransactionDetails['customer_type'],
-                'customer_id' => $partsTransactionDetails['customer_id'],
-                'company_id' => $partsTransactionDetails['company_id'],
-                'customer_ref_id' => $partsTransactionDetails['customer_ref_id'],
-                'issuance_no' => $partsTransactionDetails['issuance_no'],
-                'reference_number' => $partsTransactionDetails['reference_number'],
-                'remarks' => $partsTransactionDetails['remarks'],
-                'issuance_for' => $partsTransactionDetails['issuance_for'],
-                'request_by' => $partsTransactionDetails['request_by'],
-                'discount' => $partsTransactionDetails['discount'],
-                'discount_type' => $partsTransactionDetails['discount_type'],
-                'overall_total' => $partsTransactionDetails['overall_total'],
-                'addOnDiscount' => number_format($partsTransactionDetails['overall_total'] ?? 0, 2) . ' PHP',
-                'issuance_date' =>  $this->systemModel->checkDate('empty', $partsTransactionDetails['issuance_date'], '', 'm/d/Y', ''),
-                'reference_date' =>  $this->systemModel->checkDate('empty', $partsTransactionDetails['reference_date'], '', 'm/d/Y', ''),
+                'reference_no' => $stockTransferAdviceDetails['reference_no'],
+                'transferred_from' => $stockTransferAdviceDetails['transferred_from'],
+                'transferred_to' => $stockTransferAdviceDetails['transferred_to'],
+                'remarks' => $stockTransferAdviceDetails['remarks'],
             ];
 
             echo json_encode($response);
@@ -995,7 +942,7 @@ class PartsTransactionController {
         }
     }
 
-    public function getPartsTransactionCartDetails() {
+    public function getStockTransferAdviceCartDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -1011,54 +958,17 @@ class PartsTransactionController {
                 exit;
             }
     
-            $partsTransactionCartDetails = $this->partsTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
+            $stockTransferAdviceCartDetails = $this->stockTransferAdviceModel->getStockTransferAdviceCart($part_transaction_cart_id);
 
             $response = [
                 'success' => true,
-                'part_id' => $partsTransactionCartDetails['part_id'],
-                'quantity' => $partsTransactionCartDetails['quantity'],
-                'price' => $partsTransactionCartDetails['price'],
-                'discount' => $partsTransactionCartDetails['discount'],
-                'add_on' => $partsTransactionCartDetails['add_on'],
-                'remarks' => $partsTransactionCartDetails['remarks'],
-                'discount_type' => $partsTransactionCartDetails['discount_type']
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-
-    public function getPartsTransactionCartTotal() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['parts_transaction_id']) && !empty($_POST['parts_transaction_id'])) {
-            $userID = $_SESSION['user_id'];
-            $part_transaction_id = $_POST['parts_transaction_id'];
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $subTotal = $this->partsTransactionModel->getPartsTransactionCartTotal($part_transaction_id, 'subtotal')['total'];
-            $discountAmount = $this->partsTransactionModel->getPartsTransactionCartTotal($part_transaction_id, 'discount')['total'];
-            $total = $this->partsTransactionModel->getPartsTransactionCartTotal($part_transaction_id, 'total')['total'];
-            $addOn = $this->partsTransactionModel->getPartsTransactionCartTotal($part_transaction_id, 'add-on')['total'];
-            $overallTotal = $this->partsTransactionModel->getPartsTransactionCartTotal($part_transaction_id, 'overall total')['total'];
-
-            $response = [
-                'success' => true,
-                'subtotal_reference' => $total,
-                'subTotal' => number_format($subTotal, 2) . ' PHP',
-                'discountAmount' => number_format($discountAmount, 2) . ' PHP',
-                'addOn' => number_format($addOn, 2) . ' PHP',
-                'total' => number_format($total, 2) . ' PHP',
-                'overallTotal' => number_format($overallTotal, 2) . ' PHP'
+                'part_id' => $stockTransferAdviceCartDetails['part_id'],
+                'quantity' => $stockTransferAdviceCartDetails['quantity'],
+                'price' => $stockTransferAdviceCartDetails['price'],
+                'discount' => $stockTransferAdviceCartDetails['discount'],
+                'add_on' => $stockTransferAdviceCartDetails['add_on'],
+                'remarks' => $stockTransferAdviceCartDetails['remarks'],
+                'discount_type' => $stockTransferAdviceCartDetails['discount_type']
             ];
 
             echo json_encode($response);
@@ -1071,7 +981,7 @@ class PartsTransactionController {
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';
-require_once '../model/parts-transaction-model.php';
+require_once '../model/stock-transfer-advice-model.php';
 require_once '../model/parts-model.php';
 require_once '../model/product-model.php';
 require_once '../model/user-model.php';
@@ -1081,6 +991,6 @@ require_once '../model/system-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new PartsTransactionController(new PartsTransactionModel(new DatabaseModel), new PartsModel(new DatabaseModel), new ProductModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new StockTransferAdviceController(new StockTransferAdviceModel(new DatabaseModel), new PartsModel(new DatabaseModel), new ProductModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

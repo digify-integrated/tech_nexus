@@ -894,6 +894,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'ACTION' },
             { 'data' : 'ORDER' },
             { 'data' : 'PART' },
+            { 'data' : 'PART_FOR' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED_QUANTITY' },
             { 'data' : 'REMAINING_QUANTITY' },
@@ -912,6 +913,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 6 },
             { 'width': 'auto', 'aTargets': 7 },
             { 'width': 'auto', 'aTargets': 8 },
+            { 'width': 'auto', 'aTargets': 9 },
         ];
     }
     else{
@@ -919,6 +921,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'ACTION' },
             { 'data' : 'ORDER' },
             { 'data' : 'PART' },
+            { 'data' : 'PART_FOR' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'RECEIVED_QUANTITY' },
             { 'data' : 'REMAINING_QUANTITY' },
@@ -935,6 +938,7 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 5 },
             { 'width': 'auto', 'aTargets': 6 },
             { 'width': 'auto', 'aTargets': 7 },
+            { 'width': 'auto', 'aTargets': 8 },
         ];
     }
 

@@ -129,10 +129,10 @@
                 </select>
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-lg-2 col-form-label <?php echo $suppliesHidden; ?>">Product <span class="text-danger">*</span></label>
+          <div class="form-group row <?php echo $suppliesHidden; ?>">
+            <label class="col-lg-2 col-form-label ">Product <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <select class="form-control select2 <?php echo $suppliesHidden; ?>" name="product_id" id="product_id" <?php echo $disabled; ?>>
+              <select class="form-control select2" name="product_id" id="product_id" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
               </select>

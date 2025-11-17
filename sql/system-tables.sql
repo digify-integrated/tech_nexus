@@ -6777,3 +6777,53 @@ CREATE TABLE sales_proposal_condition(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE stock_transfer_advice(
+	stock_transfer_advice_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	reference_no VARCHAR(100) NOT NULL,
+	transferred_from INT UNSIGNED NOT NULL,
+	transferred_to INT UNSIGNED NOT NULL,
+    sta_status ENUM('Draft', 'On-Process', 'Completed', 'Posted') DEFAULT 'Draft',
+	on_process_date DATETIME,
+	completion_date DATETIME,
+	posted_date DATETIME,
+	cancellation_date DATETIME,
+	set_to_draft_date DATETIME,
+	set_to_draft_reason VARCHAR(500),
+	remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE stock_transfer_advice_cart(
+	stock_transfer_advice_cart_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    stock_transfer_advice_id VARCHAR(100) NOT NULL,
+	part_id INT NOT NULL,
+	price DOUBLE NOT NULL DEFAULT 0,
+	quantity INT NOT NULL DEFAULT 0,
+	remarks VARCHAR(5000) NOT NULL,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE stock_transfer_advice_job_order(
+	stock_transfer_advice_job_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    stock_transfer_advice_id VARCHAR(100) NOT NULL,
+	job_order_id INT NOT NULL,
+	type VARCHAR(100) NOT NULL,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE stock_transfer_advice_additional_job_order(
+	stock_transfer_advice_additional_job_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    stock_transfer_advice_id VARCHAR(100) NOT NULL,
+	additional_job_order_id INT NOT NULL,
+	type VARCHAR(100) NOT NULL,
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);

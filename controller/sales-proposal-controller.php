@@ -2158,14 +2158,6 @@ class SalesProposalController {
             exit;
         }
 
-        $checkApprovalCondition = $this->salesProposalModel->checkApprovalCondition($salesProposalID, 'Before Final Approval');
-        $total = $checkApprovalCondition['total'] ?? 0;
-    
-        if($total > 0){
-            echo json_encode(['success' => false, 'condition' =>  true]);
-            exit;
-        }
-
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
         $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
         $productType = $salesProposalDetails['product_type'];
@@ -2430,8 +2422,13 @@ class SalesProposalController {
         $approverEmail = $approverDetails['email'];
 
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Final Approval', $initialApprovalRemarks, $userID);
-        $this->sendFinalApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null);
         
+        $checkApprovalCondition = $this->salesProposalModel->checkApprovalCondition($salesProposalID, 'Before Final Approval');
+        $total = $checkApprovalCondition['total'] ?? 0;
+
+        if($total == 0){
+            $this->sendFinalApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null);
+        }        
             
         echo json_encode(['success' => true]);
         exit;
@@ -3518,6 +3515,35 @@ class SalesProposalController {
         }
 
         $this->salesProposalModel->updateSalesProposalConditionAsComplete($salesProposalConditionID, $userID);
+
+        $salesProposalConditionDetails = $this->salesProposalModel->getSalesProposalCondition($salesProposalConditionID);
+        $salesProposalID = $salesProposalConditionDetails['sales_proposal_id'];
+
+        $checkApprovalCondition = $this->salesProposalModel->checkApprovalCondition($salesProposalID, 'Before Final Approval');
+        $total = $checkApprovalCondition['total'] ?? 0;
+    
+        if($total == 0){
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
+
+            if($salesProposalStatus == 'For Final Approval'){
+                $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
+                $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
+                $productType = $salesProposalDetails['product_type'];
+                $productID = $salesProposalDetails['product_id'];
+                $customerID = $salesProposalDetails['customer_id'];
+
+                $customerDetails = $this->customerModel->getPersonalInformation($customerID);
+                $customerName = strtoupper($customerDetails['file_as'] ?? null);
+
+                $productDetails = $this->productModel->getProduct($productID);
+                
+                $approverDetails = $this->userModel->getContactByContactID($finalApprovingOfficer);
+                $approverEmail = $approverDetails['email'];
+                
+                $this->sendFinalApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null);
+            }
+        }
 
         echo json_encode(['success' => true]);
         exit;
@@ -5794,7 +5820,7 @@ class SalesProposalController {
         $mailer->setFrom($mailFromEmail, $mailFromName);
         #$mailer->addAddress('l.agulto@christianmotors.ph');
         $mailer->addAddress('p.saulo@christianmotors.ph');
-        $mailer->addAddress('pm.vicente@christianmotors.ph');
+        $mailer->addAddress('j.pineda@christianmotors.ph');
         $mailer->Subject = $emailSubject;
         $mailer->Body = $message;
     

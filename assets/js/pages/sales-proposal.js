@@ -14,8 +14,8 @@
             allSalesProposalTable('#all-sales-proposal-table');
         }
 
-        if($('#sales-proposal-approval-condition-table').length){
-            salesProposalApprovalConditionTable('#sales-proposal-approval-condition-table');
+        if($('#sales-proposal-all-approval-condition-table').length){
+            salesProposalAllApprovalConditionTable('#sales-proposal-all-approval-condition-table');
         }
 
         if($('#sales-proposal-job-order-table').length){
@@ -48,6 +48,10 @@
 
         if($('#sales-proposal-for-ci-table').length){
             salesProposalForCITable('#sales-proposal-for-ci-table');
+        }
+
+        if($('#sales-proposal-approval-condition-table').length){
+            salesProposalApprovalConditionTable('#sales-proposal-approval-condition-table');
         }
 
         if($('#sales-proposal-for-ci-evaluation-table').length){
@@ -2185,6 +2189,70 @@ function salesProposalForCITable(datatable_name, buttons = false, show_all = fal
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '25%', 'aTargets': 3 },
         { 'width': '25%', 'type': 'date', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '10%','bSortable': false, 'aTargets': 6 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 4, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function salesProposalAllApprovalConditionTable(datatable_name, buttons = false, show_all = false){
+    const type = 'sales proposal all approval condition table';
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'BEFORE_FINAL_APPROVAL' },
+        { 'data' : 'BEFORE_RELEASE' },
+        { 'data' : 'AFTER_RELEASE' },
+        { 'data' : 'TOTAL' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '15%', 'aTargets': 0 },
+        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '25%', 'aTargets': 3 },
+        { 'width': '25%', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5 },
         { 'width': '10%','bSortable': false, 'aTargets': 6 }
     ];
@@ -7205,14 +7273,14 @@ function calculateRenewalAmount(){
         var multiplier = 0.030;
 
         // Convert the string "MM/DD/YYYY" to a JavaScript Date object
-        var created_date = new Date(created_date_str);
+        var created_date = new Date(created_date_str).getTime();
 
         // Create the comparison date: midnight at the start of Oct 21, 2025
-        var cutoff_date = new Date('2025-10-22'); 
+        var cutoff_date = new Date('10/22/2025').getTime(); 
 
         // Check if the created date is strictly BEFORE the cutoff date
-        if(created_date >= cutoff_date){
-            multiplier = 0.030;
+        if(created_date < cutoff_date){
+            multiplier = 0.025;
         }
 
         if(delivery_price > 0){

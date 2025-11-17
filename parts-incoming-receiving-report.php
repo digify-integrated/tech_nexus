@@ -209,7 +209,7 @@
         $classModel = new ClassModel($databaseModel);
         $modeOfAcquisitionModel = new ModeOfAcquisitionModel($databaseModel);
 
-        $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_incoming_cart WHERE part_incoming_id = :part_incoming_id ORDER BY created_date');
+        $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_incoming_cart WHERE part_incoming_id = :part_incoming_id ORDER BY created_date ASC');
         $sql->bindValue(':part_incoming_id', $part_incoming_id, PDO::PARAM_INT);
         $sql->execute();
         $options = $sql->fetchAll(PDO::FETCH_ASSOC);

@@ -469,6 +469,13 @@ class PartsReturnController {
                     $customer_type = $partsTransactionDetails['customer_type'] ?? '';
                     $customer_id = $partsTransactionDetails['customer_id'] ?? '';
 
+                      if($customer_type == 'Internal' && $customer_id == 958){
+                        $issuance_for = $partsTransactionDetails['issuance_for'] ?? '';
+                    }
+                    else{
+                        $issuance_for = null;
+                    }
+
                     if($company_id == '2'){
                         $p_reference_number = $partsTransactionDetails['issuance_no'] ?? '';
                     }
@@ -490,7 +497,7 @@ class PartsReturnController {
                     
                     $this->partTransactionModel->createPartsTransactionProductExpense($customer_id, 'Return Slip', $parts_return_id, ($price * -1), 'Parts & ACC', 'Issuance No.: ' . $reference_number . ' - '.  $remarks, $userID); 
                     
-                    $this->partTransactionModel->createPartsTransactionEntryReversed($parts_transaction_id, $company_id, $p_reference_number, $cost, $price, $customer_type, $is_service, $product_status, $userID);
+                    $this->partTransactionModel->createPartsTransactionEntryReversed($parts_transaction_id, $company_id, $p_reference_number, $cost, $price, $customer_type, $is_service, $product_status, $issuance_for, $userID);
                 }
             }
             else{

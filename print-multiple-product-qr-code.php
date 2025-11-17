@@ -45,8 +45,8 @@ function generateProductQRCodePDF($products) {
     $margin = 10;
     
     // Grid settings
-    $columns = 3; // Number of QR codes per row
-    $rows = 3; // Number of QR codes per column
+    $columns = 4; // Number of QR codes per row
+    $rows = 4; // Number of QR codes per column
     $qrSize = ($pageWidth - 2 * $margin) / $columns; // Adjust size to fit columns
     $cellPadding = 10; // Padding inside each cell
     $rowSpacing = 17; // Extra spacing between rows

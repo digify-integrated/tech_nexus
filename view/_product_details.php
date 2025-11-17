@@ -753,6 +753,7 @@ if($addProductExpense['total'] > 0){
                   <option value="Tare Weight Certificate">Tare Weight Certificate</option>
                   <option value="Chassis Number">Chassis Number</option>
                   <option value="Engine Number">Engine Number</option>
+                  <option value="Plate Number">Plate Number</option>
                   <option value="Delivery Receipt">Delivery Receipt</option>
                 </select>
               </div>
