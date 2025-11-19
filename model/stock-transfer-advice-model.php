@@ -28,16 +28,11 @@ class StockTransferAdviceModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateStockTransferAdviceCart($p_part_transaction_cart_id, $p_quantity, $p_add_on, $p_discount, $p_discount_type, $p_discount_total, $p_sub_total, $p_total, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateStockTransferAdviceCart(:p_part_transaction_cart_id, :p_quantity, :p_add_on, :p_discount, :p_discount_type, :p_discount_total, :p_sub_total, :p_total, :p_remarks, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_cart_id', $p_part_transaction_cart_id, PDO::PARAM_INT);
+    public function updateStockTransferAdviceCart($p_stock_transfer_advice_id, $p_quantity, $p_price, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateStockTransferAdviceCart(:p_stock_transfer_advice_id, :p_quantity, :p_price, :p_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_quantity', $p_quantity, PDO::PARAM_STR);
-        $stmt->bindValue(':p_add_on', $p_add_on, PDO::PARAM_STR);
-        $stmt->bindValue(':p_discount', $p_discount, PDO::PARAM_STR);
-        $stmt->bindValue(':p_discount_type', $p_discount_type, PDO::PARAM_STR);
-        $stmt->bindValue(':p_discount_total', $p_discount_total, PDO::PARAM_STR);
-        $stmt->bindValue(':p_sub_total', $p_sub_total, PDO::PARAM_STR);
-        $stmt->bindValue(':p_total', $p_total, PDO::PARAM_STR);
+        $stmt->bindValue(':p_price', $p_price, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -49,20 +44,58 @@ class StockTransferAdviceModel {
         $stmt->execute();
     }
 
-    public function updateStockTransferAdviceStatus($p_stock_transfer_advice_id, $p_part_transaction_status, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateStockTransferAdviceStatus(:p_stock_transfer_advice_id, :p_part_transaction_status, :p_remarks, :p_last_log_by)');
+    public function updateStockTransferAdviceStatus($p_stock_transfer_advice_id, $p_stock_transfer_advice_status, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateStockTransferAdviceStatus(:p_stock_transfer_advice_id, :p_stock_transfer_advice_status, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
-        $stmt->bindValue(':p_part_transaction_status', $p_part_transaction_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_stock_transfer_advice_status', $p_stock_transfer_advice_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
 
-    public function updateStockTransferAdvice($p_stock_transfer_advice_id, $p_transferred_from, $p_transferred_to, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateStockTransferAdvice(:p_stock_transfer_advice_id, :p_transferred_from, :p_transferred_to, :p_remarks, :p_last_log_by)');
+    public function updateStockTransferAdvice($p_stock_transfer_advice_id, $p_transferred_from, $p_transferred_to, $p_sta_type, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateStockTransferAdvice(:p_stock_transfer_advice_id, :p_transferred_from, :p_transferred_to, :p_sta_type, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_transferred_from', $p_transferred_from, PDO::PARAM_INT);
         $stmt->bindValue(':p_transferred_to', $p_transferred_to, PDO::PARAM_INT);
+        $stmt->bindValue(':p_sta_type', $p_sta_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateStockTransferAdviceOnProcess($p_stock_transfer_advice_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE stock_transfer_advice
+        SET 
+            on_process_date = NOW(),
+            sta_status = "On-Process",
+            last_log_by = :p_last_log_by
+        WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id;');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateStockTransferAdviceStatusDraft($p_stock_transfer_advice_id, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE stock_transfer_advice
+        SET 
+            set_to_draft_date = NOW(),
+            sta_status = "Draft",
+            set_to_draft_reason = :p_remarks,
+            last_log_by = :p_last_log_by
+        WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id;');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateStockTransferAdviceStatusCancel($p_stock_transfer_advice_id, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE stock_transfer_advice
+        SET 
+            cancellation_date = NOW(),
+            sta_status = "Cancelled",
+            cancellation_reason = :p_remarks,
+            last_log_by = :p_last_log_by
+        WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id;');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -79,17 +112,18 @@ class StockTransferAdviceModel {
     # Description: Inserts the stock transfer advice.
     #
     # Parameters:
-    # - $p_part_transaction_id (string): The stock transfer advice ID.
+    # - $p_stock_transfer_advice_id (string): The stock transfer advice ID.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertStockTransferAdvice($reference_number, $transferred_from, $transferred_to, $remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertStockTransferAdvice(:reference_number, :transferred_from, :transferred_to, :remarks, :p_last_log_by, @p_stock_transfer_advice_id)');
+    public function insertStockTransferAdvice($reference_number, $transferred_from, $transferred_to, $p_sta_type, $remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertStockTransferAdvice(:reference_number, :transferred_from, :transferred_to, :p_sta_type, :remarks, :p_last_log_by, @p_stock_transfer_advice_id)');
         $stmt->bindValue(':reference_number', $reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':transferred_from', $transferred_from, PDO::PARAM_INT);
         $stmt->bindValue(':transferred_to', $transferred_to, PDO::PARAM_INT);
+        $stmt->bindValue(':p_sta_type', $p_sta_type, PDO::PARAM_STR);
         $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -125,52 +159,87 @@ class StockTransferAdviceModel {
         $stmt->execute();
     }
 
-    public function updateStockTransferAdviceSlipReferenceNumber($p_part_transaction_id, $slip_reference_no, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateStockTransferAdviceSlipReferenceNumber(:p_part_transaction_id, :slip_reference_no, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+    public function updateStockTransferAdviceSlipReferenceNumber($p_stock_transfer_advice_id, $slip_reference_no, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateStockTransferAdviceSlipReferenceNumber(:p_stock_transfer_advice_id, :slip_reference_no, :p_last_log_by)');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':slip_reference_no', $slip_reference_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
 
-    public function insertPartItem($p_part_transaction_id, $p_part_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPartItem(:p_part_transaction_id, :p_part_id, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+    public function insertStockTransferAdvicePartItem($p_stock_transfer_advice_id, $p_part_id, $part_from, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('INSERT INTO stock_transfer_advice_cart (
+        stock_transfer_advice_id,
+        part_id,
+        price,
+        quantity,
+        part_from,
+        last_log_by
+    ) VALUES (
+        :p_stock_transfer_advice_id,
+        :p_part_id,
+        0,
+        1,
+        :part_from,
+        :p_last_log_by
+    )');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
+        $stmt->bindValue(':part_from', $part_from, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
 
-    public function insertStockTransferAdviceJobOrder($p_part_transaction_id, $p_job_order_id, $p_type, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertStockTransferAdviceJobOrder(:p_part_transaction_id, :p_job_order_id, :p_type, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+    public function insertStockTransferAdviceJobOrder($p_stock_transfer_advice_id, $p_job_order_id, $p_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('INSERT INTO stock_transfer_advice_job_order (
+            stock_transfer_advice_id,
+            job_order_id,
+            type,
+            last_log_by
+        ) VALUES (
+            :p_stock_transfer_advice_id,
+            :p_job_order_id,
+            :p_type,
+            :p_last_log_by
+        );');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_job_order_id', $p_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
 
-    public function insertStockTransferAdviceAdditionalJobOrder($p_part_transaction_id, $p_additional_job_order_id, $p_type, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertStockTransferAdviceAdditionalJobOrder(:p_part_transaction_id, :p_additional_job_order_id, :p_type, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+    public function insertStockTransferAdviceAdditionalJobOrder($p_stock_transfer_advice_id, $p_additional_job_order_id, $p_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare(' INSERT INTO stock_transfer_advice_additional_job_order (
+            stock_transfer_advice_id,
+            additional_job_order_id,
+            type,
+            last_log_by
+        ) VALUES (
+            :p_stock_transfer_advice_id,
+            :p_additional_job_order_id,
+            :p_type,
+            :p_last_log_by
+        );');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_additional_job_order_id', $p_additional_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
 
-    public function insertStockTransferAdviceDocument($p_part_transaction_id, $p_document_name, $p_document_file_path, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertStockTransferAdviceDocument(:p_part_transaction_id, :p_document_name, :p_document_file_path, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+    public function insertStockTransferAdviceDocument($p_stock_transfer_advice_id, $p_document_name, $p_document_file_path, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertStockTransferAdviceDocument(:p_stock_transfer_advice_id, :p_document_name, :p_document_file_path, :p_last_log_by)');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_document_name', $p_document_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_document_file_path', $p_document_file_path, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
 
-    public function createStockTransferAdviceEntry($p_part_transaction_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_customer_type, $p_is_service, $p_product_status, $p_issuance_for, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL createStockTransferAdviceEntry(:p_part_transaction_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_customer_type, :p_is_service, :p_product_status, :p_issuance_for, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+    public function createStockTransferAdviceEntry($p_stock_transfer_advice_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_customer_type, $p_is_service, $p_product_status, $p_issuance_for, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createStockTransferAdviceEntry(:p_stock_transfer_advice_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_customer_type, :p_is_service, :p_product_status, :p_issuance_for, :p_last_log_by)');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
@@ -183,9 +252,9 @@ class StockTransferAdviceModel {
         $stmt->execute();
     }
 
-    public function createStockTransferAdviceEntryReversed($p_part_transaction_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_customer_type, $p_is_service, $p_product_status, $p_issuance_for, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL createStockTransferAdviceEntryReversed(:p_part_transaction_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_customer_type, :p_is_service, :p_product_status, :p_issuance_for, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+    public function createStockTransferAdviceEntryReversed($p_stock_transfer_advice_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_customer_type, $p_is_service, $p_product_status, $p_issuance_for, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createStockTransferAdviceEntryReversed(:p_stock_transfer_advice_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_customer_type, :p_is_service, :p_product_status, :p_issuance_for, :p_last_log_by)');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
@@ -198,9 +267,9 @@ class StockTransferAdviceModel {
         $stmt->execute();
     }
 
-    public function createStockTransferAdviceEntry2($p_part_transaction_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_customer_type, $p_is_service, $p_product_status, $p_journal_entry_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL createStockTransferAdviceEntry2(:p_part_transaction_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_customer_type, :p_is_service, :p_product_status, :p_journal_entry_date, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
+    public function createStockTransferAdviceEntry2($p_stock_transfer_advice_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_customer_type, $p_is_service, $p_product_status, $p_journal_entry_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createStockTransferAdviceEntry2(:p_stock_transfer_advice_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_customer_type, :p_is_service, :p_product_status, :p_journal_entry_date, :p_last_log_by)');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
@@ -257,9 +326,9 @@ class StockTransferAdviceModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function checkStockTransferAdviceCartExist($p_part_transaction_cart_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL checkStockTransferAdviceCartExist(:p_part_transaction_cart_id)');
-        $stmt->bindValue(':p_part_transaction_cart_id', $p_part_transaction_cart_id, PDO::PARAM_INT);
+    public function checkStockTransferAdviceCartExist($p_stock_transfer_advice_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkStockTransferAdviceCartExist(:p_stock_transfer_advice_id)');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -285,25 +354,19 @@ class StockTransferAdviceModel {
         $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_INT);
         $stmt->execute();
     }
-    public function deleteStockTransferAdviceCart($p_part_transaction_cart_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteStockTransferAdviceCart(:p_part_transaction_cart_id)');
-        $stmt->bindValue(':p_part_transaction_cart_id', $p_part_transaction_cart_id, PDO::PARAM_INT);
+    public function deleteStockTransferAdviceCart($p_stock_transfer_advice_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteStockTransferAdviceCart(:p_stock_transfer_advice_id)');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     public function deleteStockTransferAdviceJobOrder($p_stock_transfer_advice_job_order_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteStockTransferAdviceJobOrder(:p_stock_transfer_advice_job_order_id)');
+        $stmt = $this->db->getConnection()->prepare(' DELETE FROM stock_transfer_advice_job_order WHERE stock_transfer_advice_job_order_id = :p_stock_transfer_advice_job_order_id;');
         $stmt->bindValue(':p_stock_transfer_advice_job_order_id', $p_stock_transfer_advice_job_order_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     public function deleteStockTransferAdviceAdditionalJobOrder($p_stock_transfer_advice_additional_job_order_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteStockTransferAdviceAdditionalJobOrder(:p_stock_transfer_advice_additional_job_order_id)');
+        $stmt = $this->db->getConnection()->prepare('DELETE FROM stock_transfer_advice_additional_job_order WHERE stock_transfer_advice_additional_job_order_id = :p_stock_transfer_advice_additional_job_order_id');
         $stmt->bindValue(':p_stock_transfer_advice_additional_job_order_id', $p_stock_transfer_advice_additional_job_order_id, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    
-    public function deleteStockTransferAdviceDocument($p_part_transaction_document_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteStockTransferAdviceDocument(:p_part_transaction_document_id)');
-        $stmt->bindValue(':p_part_transaction_document_id', $p_part_transaction_document_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -331,17 +394,56 @@ class StockTransferAdviceModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getStockTransferAdviceCart($p_part_transaction_cart_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL getStockTransferAdviceCart(:p_part_transaction_cart_id)');
-        $stmt->bindValue(':p_part_transaction_cart_id', $p_part_transaction_cart_id, PDO::PARAM_INT);
+    public function getStockTransferAdviceCart($p_stock_transfer_advice_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getStockTransferAdviceCart(:p_stock_transfer_advice_id)');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getStockTransferAdviceCartTotal($p_part_transaction_id, $p_type) {
-        $stmt = $this->db->getConnection()->prepare('CALL getStockTransferAdviceCartTotal(:p_part_transaction_id, :p_type)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
+    public function getStockTransferAdviceCartTotal($p_stock_transfer_advice_id, $p_part_from) {
+        $stmt = $this->db->getConnection()->prepare('SELECT SUM(price) AS total FROM stock_transfer_advice_cart
+        WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id AND part_from = :p_part_from');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_part_from', $p_part_from, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getAssignedPartCount($p_stock_transfer_advice_id, $p_part_from) {
+
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(stock_transfer_advice_cart_id) AS total FROM stock_transfer_advice_cart
+            WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id AND part_from = :p_part_from');
+
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_part_from', $p_part_from, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getAssignedPartPrice($p_stock_transfer_advice_id, $p_part_from) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(stock_transfer_advice_cart_id) AS total FROM stock_transfer_advice_cart
+            WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id AND part_from = :p_part_from AND price = 0');
+
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_part_from', $p_part_from, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getJobOrderCount($p_stock_transfer_advice_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(stock_transfer_advice_job_order_id) AS total FROM stock_transfer_advice_job_order
+            WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id');
+
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getAdditionalJobOrderCount($p_stock_transfer_advice_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(stock_transfer_advice_additional_job_order_id) AS total FROM stock_transfer_advice_additional_job_order
+            WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id');
+
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -377,14 +479,14 @@ class StockTransferAdviceModel {
         return $htmlOptions;
     }
     public function generatePartTransactionReleasedOptions($company_id) {
-        $stmt = $this->db->getConnection()->prepare('SELECT * FROM part_transaction WHERE (part_transaction_status = "Released" OR part_transaction_status = "Checked") AND company_id = :company_id ORDER BY part_transaction_id ASC');
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM stock_transfer_advice WHERE (stock_transfer_advice_status = "Released" OR stock_transfer_advice_status = "Checked") AND company_id = :company_id ORDER BY stock_transfer_advice_id ASC');
         $stmt->bindValue(':company_id', $company_id, PDO::PARAM_INT);
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $htmlOptions = '';
         foreach ($options as $row) {
-            $stockTransferAdviceID = $row['part_transaction_id'];
+            $stockTransferAdviceID = $row['stock_transfer_advice_id'];
             $stockTransferAdviceName = $row['reference_number'];
             $issuance_no = $row['issuance_no'];
 

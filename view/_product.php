@@ -315,6 +315,7 @@
                           }
                         ?>
                         <th>Price</th>
+                        <th>Created Date</th>
                         <th>Status</th>
                         <th>Actions</th>
                       </tr>

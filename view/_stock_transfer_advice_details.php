@@ -1,6 +1,15 @@
 <?php
     $partTransactionDetails = $stockTransferAdviceModel->getStockTransferAdvice($stockTransferAdviceID);
     $sta_status = $partTransactionDetails['sta_status'] ?? 'Draft';
+    $sta_type = $partTransactionDetails['sta_type'] ?? 'Transfer';
+    $transferred_from = $partTransactionDetails['transferred_from'] ?? null;
+    $transferred_to = $partTransactionDetails['transferred_to']  ?? null;
+
+    $productDetails1 = $productModel->getProduct($transferred_from);
+    $productName1 = $productDetails1['description'] ?? null;
+
+    $productDetails2 = $productModel->getProduct($transferred_to);
+    $productName2 = $productDetails2['description'] ?? null;   
     
     $approveStockTransferAdvice = $userModel->checkSystemActionAccessRights($user_id, 201);
     $releaseStockTransferAdvice = $userModel->checkSystemActionAccessRights($user_id, 202);
@@ -12,6 +21,7 @@
     }
 ?>
 
+                <input type="hidden" id="part-from-source">
 <div class="row">
   <div class="col-lg-12">
     <div class="card">
@@ -27,8 +37,16 @@
             }
 
             if($sta_status == 'On-Process'){
+                echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
+            }
+
+            if($sta_status == 'On-Process'){
               echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
             }
+
+            if($sta_status == 'Draft' || $sta_status == 'On-Process'){
+                echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
+              }
 
             if(($sta_status == 'On-Process' || $sta_status == 'Completed' || $sta_status == 'Posted')){
                 echo '<a href="stock-transfer-advice-form.php?id='. $stockTransferAdviceID .'" class="button btn btn-info ms-2" target="_blank">Print STA Form</a>';
@@ -50,8 +68,16 @@
         <form id="stock-transfer-advice-form" method="post" action="#">
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Reference No.</label>
-            <div class="col-lg-10">
+            <div class="col-lg-4">
               <input type="text" class="form-control" id="reference_no" name="reference_no" maxlength="100" autocomplete="off" readonly>
+            </div>
+            <label class="col-lg-2 col-form-label">STA Type <span class="text-danger">*</span></label>
+            <div class="col-lg-4" id="internal-select">
+                <select class="form-control select2" name="sta_type" id="sta_type" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <option value="Transfer">Transfer</option>
+                  <option value="Swap">Swap</option>
+                </select>
             </div>
           </div>
           <div class="form-group row">
@@ -87,13 +113,27 @@
     <div class="card">
         <div class="card-header">
             <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h5>Stock Transfer Advice Order</h5>
+                <div class="col-md-9">
+                    <h5>Parts Transfer</h5>
                 </div>
-                <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                <div class="col-sm-3 text-sm-end mt-3 mt-sm-0">
                     <?php
-                        if($sta_status == 'Draft'){
-                            echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part">Add Part</button>';
+                        if($sta_status == 'Draft' && $sta_type == 'Swap'){
+                          echo '<div class="btn-group m-r-10">
+                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Add Part</button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                      <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part-from">From -> To</button></li>
+                                      <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part-to">To -> From</button></li>
+                                    </ul>
+                                  </div>';
+                        }
+                        else if($sta_status == 'Draft' && $sta_type == 'Transfer'){
+                          echo '<div class="btn-group m-r-10">
+                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Add Part</button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                      <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part-from">From -> To</button></li>
+                                    </ul>
+                                  </div>';
                         }
                     ?>
                 </div>
@@ -101,13 +141,15 @@
         </div>
         <div class="card-body p-0">
             <div class="dt-responsive table-responsive">
-                <table class="table mb-0" id="parts-item-table">
+                <table class="table mb-0 w-100" id="parts-item-table">
                     <thead>
                         <tr>
-                            <th class="text-end"></th>
+                            <th class="text-center"></th>
+                            <th>Transferred From</th>
+                            <th>Transferred To</th>
                             <th>Part</th>
                             <th class="text-center">Quantity</th>
-                            <th class="text-end">Price</th>
+                            <th class="text-center">Price</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -120,14 +162,18 @@
             <ul class="list-group list-group-flush">
                 <li class="list-group-item px-0">
                     <div class="float-end">
-                        <h5 class="mb-0" id="total-summary">0.00 PHP</h5>
+                        <h5 class="mb-0" id="total_summary_from">0.00 PHP</h5>
                     </div>
-                    <input type="hidden" id="subtotal-reference">
                     <h5 class="mb-0 d-inline-block">Total</h5>
                 </li>
             </ul>
         </div>
     </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
     <div class="card">
         <div class="card-header">
             <div class="row align-items-center">
@@ -453,71 +499,30 @@
 <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="part-cart-offcanvas" aria-labelledby="part-cart-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="part-cart-offcanvas-label" style="margin-bottom:-0.5rem"><?php echo $cardLabel; ?> Item</h2>
+        <h2 id="part-cart-offcanvas-label" style="margin-bottom:-0.5rem">Stock Transfer Advice Item</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
           <form id="part-item-form" method="post" action="#">
-            <input type="hidden" id="part_transaction_cart_id" name="part_transaction_cart_id">
+            <input type="hidden" id="stock_transfer_advice_cart_id" name="stock_transfer_advice_cart_id">
             <input type="hidden" id="part_id" name="part_id">
             <div class="form-group row">
-              <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label">Price</label>
-                <input type="number" class="form-control" id="part_price" name="part_price" min="0" readonly>
-              </div>
-              <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label">Available Stock</label>
-                <input type="number" class="form-control" id="available_stock" name="available_stock" min="0.01" step="0.01" readonly>
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Part</label>
+                <input type="text" class="form-control" id="part_name" name="part_name" readonly>
               </div>
             </div>
             <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Price <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="part_price" name="part_price" min="0.01" step="0.01">
+              </div>
                 <div class="col-lg-6 mt-3 mt-lg-0">
                     <label class="form-label">Quantity <span class="text-danger">*</span></label>
                     <input type="number" class="form-control" id="quantity" name="quantity" min="0.01" step="0.01">
                 </div>
-                <div class="col-lg-6 mt-3 mt-lg-0">
-                    <label class="form-label">Add-On</label>
-                    <input type="number" class="form-control" id="add_on" name="add_on" min="0" step="0.01">
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-lg12 mt-3 mt-lg-0">
-                    <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#replenishment-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                        With Discount?
-                    </a>
-                    <div class="collapse" id="replenishment-date-filter-collapse">
-                        <div class="row py-3">
-                            <div class="col-lg-4 mt-3 mt-lg-0">
-                                <label class="form-label">Discount</label>
-                                <input type="number" class="form-control" id="discount" name="discount" min="0" step="0.01">
-                            </div>
-                            <div class="col-lg-4 mt-3 mt-lg-0">
-                                <label class="form-label">Type</label>
-                                <select class="form-control offcanvas-select2" name="discount_type" id="discount_type">
-                                    <option value="">--</option>
-                                    <option value="Percentage">Percentage</option>
-                                    <option value="Amount">Amount</option>
-                                </select>
-                            </div>
-                            <div class="col-lg-4 mt-3 mt-lg-0">
-                                <label class="form-label">Discount Total</label>
-                                <input type="number" class="form-control" id="discount_total" name="discount_total" min="0" readonly>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label">Sub-Total</label>
-                <input type="number" class="form-control" id="part_item_subtotal" name="part_item_subtotal" min="0" readonly>
-              </div>
-              <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label">Total</label>
-                <input type="number" class="form-control" id="part_item_total" name="part_item_total" min="0" readonly>
-              </div>
             </div>
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">

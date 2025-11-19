@@ -19,6 +19,7 @@ require_once '../model/contractor-model.php';
 require_once '../model/work-center-model.php';
 require_once '../model/department-model.php';
 require_once '../model/customer-model.php';
+require_once '../model/product-subcategory-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -37,6 +38,7 @@ $contractorModel = new ContractorModel($databaseModel);
 $workCenterModel = new WorkCenterModel($databaseModel);
 $departmentModel = new DepartmentModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
+$productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -44,12 +46,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = [];
     
     switch ($type) {
-        case 'add part table':
+        case 'add part from table':
             $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
             $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part
-            WHERE part_id NOT IN (SELECT part_id FROM stock_transfer_advice_cart WHERE stock_transfer_advice_id = :stock_transfer_advice_id)
+            WHERE part_id NOT IN (SELECT part_id FROM stock_transfer_advice_cart WHERE stock_transfer_advice_id = :stock_transfer_advice_id AND part_from = :part_from)
             ORDER BY description');
             $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
+            $sql->bindValue(':part_from', 'From', PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -75,236 +78,126 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
-        case 'job order table':
+        case 'add part to table':
             $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
-
-            $partTransactionDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
-            $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
-
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction_job_order WHERE part_transaction_id = :stock_transfer_advice_id AND type = :type');
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part
+            WHERE part_id NOT IN (SELECT part_id FROM stock_transfer_advice_cart WHERE stock_transfer_advice_id = :stock_transfer_advice_id AND part_from = :part_from)
+            ORDER BY description');
             $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
-            $sql->bindValue(':type', 'job order', PDO::PARAM_STR);
+            $sql->bindValue(':part_from', 'To', PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                $part_transaction_job_order_id  = $row['part_transaction_job_order_id'];
-                $job_order = $row['job_order_id'];
-                
-                $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalJobOrder($job_order);
-                $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
-                $job_order = $salesProposalJobOrderDetails['job_order'] ?? null;
-                $contractor_id = $salesProposalJobOrderDetails['contractor_id'] ?? null;
-                $work_center_id = $salesProposalJobOrderDetails['work_center_id'] ?? null;
-
-                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
-                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
-
-                $contractorDetails = $contractorModel->getContractor($contractor_id);
-                $contractor_name = $contractorDetails['contractor_name'] ?? null;
-
-                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
-                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
-
-                $action = '';
-                if($part_transaction_status == 'Draft' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
-                    $action = '<button type="button" class="btn btn-icon btn-danger delete-job-order" data-stock-transfer-advice-job-order-id="'. $part_transaction_job_order_id  .'" title="Delete Job Order">
-                                        <i class="ti ti-trash"></i>
-                                    </button>';
-                }
+                $part_id = $row['part_id'];
+                $description = $row['description'];
+                $bar_code = $row['bar_code'];
+                $part_price = $row['part_price'];
+                $quantity = $row['quantity'];
+                $partsImage = $systemModel->checkImage($row['part_image'], 'default');
 
                 $response[] = [
-                    'OS_NUMBER' => $sales_proposal_number,
-                    'JOB_ORDER' => $job_order,
-                    'CONTRACTOR' => $contractor_name,
-                    'WORK_CENTER' => $work_center_name,
-                    'ACTION' => '<div class="d-flex gap-2">
-                                   '. $action .'
-                                </div>'
+                    'PART' => ' <div class="d-flex align-items-center"><img src="'. $partsImage .'" alt="image" loading="lazy" class="bg-light wid-50 rounded">
+                                    <div class="flex-grow-1 ms-2">
+                                        <h5 class="mb-1">'. $description .'</h5>
+                                        <p class="text-sm text-muted mb-0">'. $bar_code .'</p>
+                                    </div>
+                                </div>',
+                    'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-part" type="checkbox" value="'. $part_id.'"></div>'
                 ];
             }
 
             echo json_encode($response);
         break;
-        case 'internal job order table':
+        case 'add job order table':
             $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
+            $generate_job_order = $_POST['generate_job_order'];
 
-            $partTransactionDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
-            $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
+            $partsTransactionDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
+            $transferred_from = $partsTransactionDetails['transferred_from'] ?? null;
+            $transferred_to = $partsTransactionDetails['transferred_to'] ?? null;
 
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction_job_order WHERE part_transaction_id = :stock_transfer_advice_id AND type = :type');
+            $query = '';
+
+            if($generate_job_order == 'job order'){
+                $query = 'SELECT * FROM sales_proposal_job_order
+                            WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id IN ('. $transferred_from .', '. $transferred_to .') AND sales_proposal_status IN ("On-Process"))
+                            AND sales_proposal_job_order_id NOT IN (select job_order_id from stock_transfer_advice_job_order WHERE stock_transfer_advice_id = :stock_transfer_advice_id)
+                            AND progress < 100
+                            ORDER BY job_order';
+            }
+            else{
+                $query = ' SELECT * FROM backjob_monitoring_job_order
+                            WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id IN ('. $transferred_from .', '. $transferred_to .') AND status NOT IN ("Draft", "Cancelled", "For Approval"))
+                            AND backjob_monitoring_job_order_id NOT IN (select job_order_id from stock_transfer_advice_job_order WHERE stock_transfer_advice_id = :stock_transfer_advice_id)
+                            AND progress < 100
+                            ORDER BY job_order';
+            }
+
+            $sql = $databaseModel->getConnection()->prepare($query);
             $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
-            $sql->bindValue(':type', 'internal job order', PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                $part_transaction_job_order_id  = $row['part_transaction_job_order_id'];
-                $job_order = $row['job_order_id'];
-                
-                $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringJobOrder($job_order);
-                $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
-                $backjob_monitoring_id = $backJobMonitoringJobOrderDetails['backjob_monitoring_id'] ?? null;
-                $job_order = $backJobMonitoringJobOrderDetails['job_order'] ?? null;
-                $contractor_id = $backJobMonitoringJobOrderDetails['contractor_id'] ?? null;
-                $work_center_id = $backJobMonitoringJobOrderDetails['work_center_id'] ?? null;
-
-                $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
-                $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
-
-                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
-                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
-
-                $contractorDetails = $contractorModel->getContractor($contractor_id);
-                $contractor_name = $contractorDetails['contractor_name'] ?? null;
-
-                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
-                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
-
-                $action = '';
-                if($part_transaction_status == 'Draft' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
-                    $action = '<button type="button" class="btn btn-icon btn-danger delete-internal-job-order" data-stock-transfer-advice-job-order-id="'. $part_transaction_job_order_id  .'" title="Delete Internal Job Order">
-                                        <i class="ti ti-trash"></i>
-                                    </button>';
+                if($generate_job_order === 'job order'){
+                    $job_order_id = $row['sales_proposal_job_order_id'];
+                    $sales_proposal_id = $row['sales_proposal_id'];
+                }
+                else{
+                    $job_order_id = $row['backjob_monitoring_job_order_id'];
+                    $sales_proposal_id = $row['sales_proposal_id'];
                 }
 
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $reference_id = $salesProposalDetails['sales_proposal_number'] ?? '--';
+                $customer_id = $salesProposalDetails['customer_id'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                $customerName = $customerDetails['file_as'] ?? null;
+
+                $job_order = $row['job_order'];
+
                 $response[] = [
-                    'TYPE' => $backJobMonitoringType,
-                    'OS_NUMBER' => $sales_proposal_number,
-                    'JOB_ORDER' => $job_order,
-                    'CONTRACTOR' => $contractor_name,
-                    'WORK_CENTER' => $work_center_name,
-                    'ACTION' => '<div class="d-flex gap-2">
-                                   '. $action .'
-                                </div>'
+                    'CUSTOMER_NAME' => $customerName,
+                    'REFERENCE_ID' => $reference_id,
+                    'JOB_ORDER' => strtoupper($job_order),
+                    'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-job-order" type="checkbox" value="'. $job_order_id.'"></div>'
                 ];
             }
 
             echo json_encode($response);
         break;
-        case 'additional job order table':
-            $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
 
-            $partTransactionDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
-            $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
-
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction_additional_job_order WHERE part_transaction_id = :stock_transfer_advice_id AND type = :type');
-            $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
-            $sql->bindValue(':type', 'additional job order', PDO::PARAM_STR);
-            $sql->execute();
-            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-            $sql->closeCursor();
-
-            foreach ($options as $row) {
-                $part_transaction_additional_job_order_id   = $row['part_transaction_additional_job_order_id'];
-                $job_order = $row['additional_job_order_id'];
-                
-                $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalAdditionalJobOrder($job_order);
-                $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
-                $job_order = $salesProposalJobOrderDetails['particulars'] ?? null;
-                $contractor_id = $salesProposalJobOrderDetails['contractor_id'] ?? null;
-                $work_center_id = $salesProposalJobOrderDetails['work_center_id'] ?? null;
-
-                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
-                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
-
-                $contractorDetails = $contractorModel->getContractor($contractor_id);
-                $contractor_name = $contractorDetails['contractor_name'] ?? null;
-
-                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
-                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
-
-                $action = '';
-                if($part_transaction_status == 'Draft' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
-                    $action = '<button type="button" class="btn btn-icon btn-danger delete-additional-job-order" data-stock-transfer-advice-additional-job-order-id="'. $part_transaction_additional_job_order_id   .'" title="Delete Additional Job Order">
-                                        <i class="ti ti-trash"></i>
-                                    </button>';
-                }
-
-                $response[] = [
-                    'OS_NUMBER' => $sales_proposal_number,
-                    'JOB_ORDER' => $job_order,
-                    'CONTRACTOR' => $contractor_name,
-                    'WORK_CENTER' => $work_center_name,
-                    'ACTION' => '<div class="d-flex gap-2">
-                                   '. $action .'
-                                </div>'
-                ];
-            }
-
-            echo json_encode($response);
-        break;
-        case 'internal additional job order table':
-            $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
-
-            $partTransactionDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
-            $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
-
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction_additional_job_order WHERE part_transaction_id = :stock_transfer_advice_id AND type = :type');
-            $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
-            $sql->bindValue(':type', 'internal additional job order', PDO::PARAM_STR);
-            $sql->execute();
-            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-            $sql->closeCursor();
-
-            foreach ($options as $row) {
-                $part_transaction_additional_job_order_id   = $row['part_transaction_additional_job_order_id '];
-                $job_order = $row['additional_job_order_id'];
-                
-                $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringAdditionalJobOrder($job_order);
-                $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
-                $backjob_monitoring_id = $backJobMonitoringJobOrderDetails['backjob_monitoring_id'] ?? null;
-                $job_order = $backJobMonitoringJobOrderDetails['particulars'] ?? null;
-                $contractor_id = $backJobMonitoringJobOrderDetails['contractor_id'] ?? null;
-                $work_center_id = $backJobMonitoringJobOrderDetails['work_center_id'] ?? null;
-
-                $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
-                $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
-
-                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
-                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
-
-                $contractorDetails = $contractorModel->getContractor($contractor_id);
-                $contractor_name = $contractorDetails['contractor_name'] ?? null;
-
-                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
-                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
-
-                $action = '';
-                if($part_transaction_status == 'Draft' || $part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval'){
-                    $action = '<button type="button" class="btn btn-icon btn-danger delete-internal-additional-job-order" data-stock-transfer-advice-additional-job-order-id="'. $part_transaction_additional_job_order_id  .'" title="Delete Internal Additional Job Order">
-                                        <i class="ti ti-trash"></i>
-                                    </button>';
-                }
-
-                $response[] = [
-                    'TYPE' => $backJobMonitoringType,
-                    'OS_NUMBER' => $sales_proposal_number,
-                    'JOB_ORDER' => $job_order,
-                    'CONTRACTOR' => $contractor_name,
-                    'WORK_CENTER' => $work_center_name,
-                    'ACTION' => '<div class="d-flex gap-2">
-                                   '. $action .'
-                                </div>'
-                ];
-            }
-
-            echo json_encode($response);
-        break;
         case 'add additional job order table':
             $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
             $generate_job_order = $_POST['generate_job_order'];
 
-            $stockTransferAdviceDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
-            $customer_id = $stockTransferAdviceDetails['customer_id'] ?? null;
+            $partsTransactionDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
+            $transferred_from = $partsTransactionDetails['transferred_from'] ?? null;
+            $transferred_to = $partsTransactionDetails['transferred_to'] ?? null;
 
-            #$company = $_POST['company'];
-            $sql = $databaseModel->getConnection()->prepare('CALL generateStockTransferAdviceAdditionalJobOrderOptions(:stock_transfer_advice_id, :customer_id, :generate_job_order)');
+           $query = '';
+
+            if($generate_job_order == 'job order'){
+                $query = ' SELECT * FROM sales_proposal_additional_job_order
+                            WHERE sales_proposal_id IN (select sales_proposal_id FROM sales_proposal where product_id IN ('. $transferred_from .', '. $transferred_to .') AND sales_proposal_status IN ("On-Process"))
+                            AND sales_proposal_additional_job_order_id NOT IN (select additional_job_order_id from stock_transfer_advice_additional_job_order WHERE stock_transfer_advice_id = :stock_transfer_advice_id)
+                            AND progress < 100
+                            ORDER BY particulars;';
+            }
+            else{
+                $query = 'SELECT * FROM backjob_monitoring_additional_job_order
+                        WHERE backjob_monitoring_id IN (select backjob_monitoring_id FROM backjob_monitoring where product_id IN ('. $transferred_from .', '. $transferred_to .') AND status NOT IN ("Draft", "Cancelled", "For Approval"))
+                        AND backjob_monitoring_additional_job_order_id NOT IN (select additional_job_order_id from stock_transfer_advice_additional_job_order WHERE stock_transfer_advice_id = :stock_transfer_advice_id)
+                        AND progress < 100
+                        ORDER BY particulars;';
+            }
+
+            $sql = $databaseModel->getConnection()->prepare($query);
             $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
-            $sql->bindValue(':customer_id', $customer_id, PDO::PARAM_STR);
-            $sql->bindValue(':generate_job_order', $generate_job_order, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -338,81 +231,50 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
-        # -------------------------------------------------------------
-
-        case 'part item table':
+        case 'job order table':
             $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
 
-            $partTransactionDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
-            $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
+            $stockTransferAdviceDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
+            $sta_status = $stockTransferAdviceDetails['sta_status'] ?? 'Draft';
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePartItemTable(:stock_transfer_advice_id)');
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM stock_transfer_advice_job_order WHERE stock_transfer_advice_id = :stock_transfer_advice_id AND type = :type');
             $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
+            $sql->bindValue(':type', 'job order', PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $order = 0;
             foreach ($options as $row) {
-                $part_transaction_cart_id = $row['part_transaction_cart_id'];
-                $part_id = $row['part_id'];
-                $quantity = $row['quantity'];
-                $discount = $row['discount'];
-                $discount_type = $row['discount_type'];
-                $discount_total = $row['discount_total'];
-                $sub_total = $row['sub_total'];
-                $total = $row['total'];
-                $add_on = $row['add_on'];
-                $price = $row['price'];
+                $stock_transfer_advice_job_order_id = $row['stock_transfer_advice_job_order_id'];
+                $job_order = $row['job_order_id'];
+                
+                $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalJobOrder($job_order);
+                $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
+                $job_order = $salesProposalJobOrderDetails['job_order'] ?? null;
+                $contractor_id = $salesProposalJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $salesProposalJobOrderDetails['work_center_id'] ?? null;
 
-                $partDetails = $partsModel->getParts($part_id);
-                $description = $partDetails['description'];
-                $bar_code = $partDetails['bar_code'];
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
 
-                $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
 
-                if($discount_type === 'Amount'){
-                    $discount = number_format($discount, 2) . ' PHP';
-                }
-                else{
-                    $discount = number_format($discount, decimals: 2) . '%';
-                }
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
                 $action = '';
-                if($part_transaction_status == 'Draft'){
-                    $action = ' <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#part-cart-offcanvas" aria-controls="part-cart-offcanvas" data-stock-transfer-advice-cart-id="'. $part_transaction_cart_id .'" title="Update Part Item">
-                                        <i class="ti ti-edit"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-icon btn-danger delete-part-cart" data-stock-transfer-advice-cart-id="'. $part_transaction_cart_id .'" title="Delete Part Item">
+                if($sta_status == 'Draft'){
+                    $action = '<button type="button" class="btn btn-icon btn-danger delete-job-order" data-stock-transfer-advice-job-order-id="'. $stock_transfer_advice_job_order_id  .'" title="Delete Job Order">
                                         <i class="ti ti-trash"></i>
                                     </button>';
                 }
-                
-                $partDetails = $partsModel->getParts($part_id);
-                $partQuantity = $partDetails['quantity'] ?? 0;
-                $unitSale = $partDetails['unit_sale'] ?? null;
-
-                $unitCode = $unitModel->getUnit($unitSale);
-                $short_name = $unitCode['short_name'] ?? null;
-
-                $order += 1;
 
                 $response[] = [
-                    'PART' => '<div class="d-flex align-items-center"><img src="'. $partsImage .'" alt="image" class="bg-light wid-50 rounded">
-                                    <div class="flex-grow-1 ms-3">
-                                        <h5 class="mb-1">'. $description .'</h5>
-                                        <p class="text-sm text-muted mb-0">'. $bar_code .'</p>
-                                    </div>
-                                </div>',
-                    'PRICE' => number_format($price, 2) .' PHP',
-                    'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
-                    'AVAILABLE_STOCK' => number_format($partQuantity, 0, '', ',') . ' ' . $short_name,
-                    'ADD_ON' => number_format($add_on, 2) .' PHP',
-                    'DISCOUNT' => $discount,
-                    'ORDER' => $order,
-                    'DISCOUNT_TOTAL' => number_format($discount_total, 2) .' PHP',
-                    'SUBTOTAL' => number_format($sub_total, 2) .' PHP',
-                    'TOTAL' => number_format($total, 2) .' PHP',
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -421,219 +283,267 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
-        case 'part item table 2':
-            $parts_id = $_POST['parts_id'];
-
-            $stock_transfer_advice_start_date = $systemModel->checkDate('empty', $_POST['stock_transfer_advice_start_date'], '', 'Y-m-d', '');
-            $stock_transfer_advice_end_date = $systemModel->checkDate('empty', $_POST['stock_transfer_advice_end_date'], '', 'Y-m-d', '');
-
-            $partDetails = $partsModel->getParts($parts_id);
-            $unitSale = $partDetails['unit_sale'] ?? null;
-
-            $unitCode = $unitModel->getUnit($unitSale);
-            $short_name = $unitCode['short_name'] ?? null;            
-
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePartItemTable2(:parts_id, :stock_transfer_advice_start_date, :stock_transfer_advice_end_date)');
-            $sql->bindValue(':parts_id', $parts_id, PDO::PARAM_STR);
-            $sql->bindValue(':stock_transfer_advice_start_date', $stock_transfer_advice_start_date, PDO::PARAM_STR);
-            $sql->bindValue(':stock_transfer_advice_end_date', $stock_transfer_advice_end_date, PDO::PARAM_STR);
-            $sql->execute();
-            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-            $sql->closeCursor();
-
-            foreach ($options as $row) {
-                $part_transaction_cart_id = $row['part_transaction_cart_id'];
-                $part_transaction_id = $row['part_transaction_id'];
-                $quantity = $row['quantity'];
-                $discount = $row['discount'];
-                $discount_type = $row['discount_type'];
-                $discount_total = $row['discount_total'];
-                $sub_total = $row['sub_total'];
-                $total = $row['total'];
-                $add_on = $row['add_on'];
-                $price = $row['price'];
-                
-
-
-                $partTransactionDetails = $stockTransferAdviceModel->getStockTransferAdvice($part_transaction_id);
-                $company_id = $partTransactionDetails['company_id'];
-                 $customer_type = $partTransactionDetails['customer_type'];
-                $customer_id = $partTransactionDetails['customer_id'];
-                $request_by = $partTransactionDetails['request_by'];
-                $customer_ref_id = $partTransactionDetails['customer_ref_id'];
-                $released_date = $systemModel->checkDate('empty', $partTransactionDetails['released_date'], '', 'm/d/Y h:i:s', '');
-
-                
-                $customerDetails = $customerModel->getPersonalInformation($customer_ref_id);
-                $customerName = $customerDetails['file_as'] ?? null;               
-
-                if($customer_type == 'Internal'){
-                    $productDetails = $productModel->getProduct($customer_id);
-                    $stock_number = $productDetails['stock_number'];
-                }
-                else{
-                    $stock_number = '--';
-                }
-
-                $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
-
-                if($discount_type === 'Amount'){
-                    $discount = number_format($discount, 2) . ' PHP';
-                }
-                else{
-                    $discount = number_format($discount, decimals: 2) . '%';
-                }
-
-                $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
-
-                if($company_id == '1'){
-                    $link = 'supplies-transaction';
-                }
-                else if($company_id == '2'){
-                    $link = 'netruck-stock-transfer-advice';
-                }
-                else{
-                    $link = 'stock-transfer-advice';
-                }
-                
-                $response[] = [
-                    'PART_TRANSACTION_NO' => '<a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" target="_blank">
-                                        '. $part_transaction_id .'
-                                    </a>',
-                    'PRODUCT' => $stock_number,
-                    'CUSTOMER' => $customerName,
-                    'REQUESTED_BY' => $request_by,
-                    'RELEASED_DATE' => $released_date,
-                    'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
-                    'ADD_ON' => number_format($add_on, 2) .' PHP',
-                    'DISCOUNT' => $discount,
-                    'DISCOUNT_TOTAL' => number_format($discount_total, 2) .' PHP',
-                    'SUBTOTAL' => number_format($sub_total, 2) .' PHP',
-                    'TOTAL' => number_format($total, 2) .' PHP',
-                ];
-            }
-
-            echo json_encode($response);
-        break;
-        case 'part item table 3':
-            $product_id = $_POST['product_id'];
-
-            $stock_transfer_advice_start_date = $systemModel->checkDate('empty', $_POST['stock_transfer_advice_start_date'], '', 'Y-m-d', '');
-            $stock_transfer_advice_end_date = $systemModel->checkDate('empty', $_POST['stock_transfer_advice_end_date'], '', 'Y-m-d', '');                   
-
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePartItemTable3(:product_id, :stock_transfer_advice_start_date, :stock_transfer_advice_end_date)');
-            $sql->bindValue(':product_id', $product_id, PDO::PARAM_STR);
-            $sql->bindValue(':stock_transfer_advice_start_date', $stock_transfer_advice_start_date, PDO::PARAM_STR);
-            $sql->bindValue(':stock_transfer_advice_end_date', $stock_transfer_advice_end_date, PDO::PARAM_STR);
-            $sql->execute();
-            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-            $sql->closeCursor();
-
-            foreach ($options as $row) {
-                $part_transaction_cart_id = $row['part_transaction_cart_id'];
-                $part_transaction_id = $row['part_transaction_id'];
-                $part_id = $row['part_id'];
-                $quantity = $row['quantity'];
-                $discount = $row['discount'];
-                $discount_type = $row['discount_type'];
-                $discount_total = $row['discount_total'];
-                $sub_total = $row['sub_total'];
-                $total = $row['total'];
-                $add_on = $row['add_on'];
-                $price = $row['price'];
-               
-                $partDetails = $partsModel->getParts($part_id);
-                 $description = $partDetails['description'];
-                $unitSale = $partDetails['unit_sale'] ?? null;
-
-                $unitCode = $unitModel->getUnit($unitSale);
-                $short_name = $unitCode['short_name'] ?? null;   
-
-                $partTransactionDetails = $stockTransferAdviceModel->getStockTransferAdvice($part_transaction_id);
-                $company_id = $partTransactionDetails['company_id'];
-                $customer_type = $partTransactionDetails['customer_type'];
-                $customer_ref_id = $partTransactionDetails['customer_ref_id'];
-                $customer_id = $partTransactionDetails['customer_id'];
-
-                $customerDetails = $customerModel->getPersonalInformation($customer_ref_id);
-                $customer_ref_name = $customerDetails['file_as'] ?? null;
-
-                if($customer_type == 'Internal'){
-                    $productDetails = $productModel->getProduct($customer_id);
-                    $stock_number = $productDetails['stock_number'];
-                }
-                else{
-                    $stock_number = '--';
-                }
-
-                $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
-
-                if($discount_type === 'Amount'){
-                    $discount = number_format($discount, 2) . ' PHP';
-                }
-                else{
-                    $discount = number_format($discount, decimals: 2) . '%';
-                }
-
-                $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
-
-                if($company_id == '1'){
-                    $link = 'supplies-transaction';
-                }
-                else if($company_id == '2'){
-                    $link = 'netruck-stock-transfer-advice';
-                }
-                else{
-                    $link = 'stock-transfer-advice';
-                }
-                
-                $response[] = [
-                    'PART_TRANSACTION_NO' => '<a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" target="_blank">
-                                        '. $part_transaction_id .'
-                                    </a>',
-                    'CUSTOMER' => $customer_ref_name,
-                    'PRODUCT' => $stock_number,
-                    'PART' => $description,
-                    'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
-                    'ADD_ON' => number_format($add_on, 2) .' PHP',
-                    'DISCOUNT' => $discount,
-                    'DISCOUNT_TOTAL' => number_format($discount_total, 2) .' PHP',
-                    'SUBTOTAL' => number_format($sub_total, 2) .' PHP',
-                    'TOTAL' => number_format($total, 2) .' PHP',
-                ];
-            }
-
-            echo json_encode($response);
-        break;
-        case 'part transaction document table':
+        case 'internal job order table':
             $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
-            $sql = $databaseModel->getConnection()->prepare('CALL generateStockTransferAdviceDocument(:stock_transfer_advice_id)');
+
+            $stockTransferAdviceDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
+            $sta_status = $stockTransferAdviceDetails['sta_status'] ?? 'Draft';
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM stock_transfer_advice_job_order WHERE stock_transfer_advice_id = :stock_transfer_advice_id AND type = :type');
+            $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
+            $sql->bindValue(':type', 'internal job order', PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $stock_transfer_advice_job_order_id  = $row['stock_transfer_advice_job_order_id'];
+                $job_order = $row['job_order_id'];
+                
+                $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringJobOrder($job_order);
+                $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
+                $backjob_monitoring_id = $backJobMonitoringJobOrderDetails['backjob_monitoring_id'] ?? null;
+                $job_order = $backJobMonitoringJobOrderDetails['job_order'] ?? null;
+                $contractor_id = $backJobMonitoringJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $backJobMonitoringJobOrderDetails['work_center_id'] ?? null;
+
+                $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
+                $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
+                $action = '';
+                if($sta_status == 'Draft'){
+                    $action = '<button type="button" class="btn btn-icon btn-danger delete-internal-job-order" data-stock-transfer-advice-job-order-id="'. $stock_transfer_advice_job_order_id  .'" title="Delete Internal Job Order">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'TYPE' => $backJobMonitoringType,
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'additional job order table':
+            $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
+
+            $stockTransferAdviceDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
+            $sta_status = $stockTransferAdviceDetails['sta_status'] ?? 'Draft';
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM stock_transfer_advice_additional_job_order WHERE stock_transfer_advice_id = :stock_transfer_advice_id AND type = :type');
+            $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
+            $sql->bindValue(':type', 'additional job order', PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $stock_transfer_advice_additional_job_order_id   = $row['stock_transfer_advice_additional_job_order_id'];
+                $job_order = $row['additional_job_order_id'];
+                
+                $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalAdditionalJobOrder($job_order);
+                $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
+                $job_order = $salesProposalJobOrderDetails['particulars'] ?? null;
+                $contractor_id = $salesProposalJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $salesProposalJobOrderDetails['work_center_id'] ?? null;
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
+                $action = '';
+                if($sta_status == 'Draft'){
+                    $action = '<button type="button" class="btn btn-icon btn-danger delete-additional-job-order" data-stock-transfer-advice-additional-job-order-id="'. $stock_transfer_advice_additional_job_order_id   .'" title="Delete Additional Job Order">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'internal additional job order table':
+            $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
+
+            $stockTransferAdviceDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
+            $sta_status = $stockTransferAdviceDetails['sta_status'] ?? 'Draft';
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM stock_transfer_advice_additional_job_order WHERE stock_transfer_advice_id = :stock_transfer_advice_id AND type = :type');
+            $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
+            $sql->bindValue(':type', 'internal additional job order', PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $stock_transfer_advice_additional_job_order_id   = $row['stock_transfer_advice_additional_job_order_id '];
+                $job_order = $row['additional_job_order_id'];
+                
+                $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringAdditionalJobOrder($job_order);
+                $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
+                $backjob_monitoring_id = $backJobMonitoringJobOrderDetails['backjob_monitoring_id'] ?? null;
+                $job_order = $backJobMonitoringJobOrderDetails['particulars'] ?? null;
+                $contractor_id = $backJobMonitoringJobOrderDetails['contractor_id'] ?? null;
+                $work_center_id = $backJobMonitoringJobOrderDetails['work_center_id'] ?? null;
+
+                $backJobMonitoringDetails = $backjobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
+                $backJobMonitoringType = $backJobMonitoringDetails['type'] ?? null;
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
+
+                $contractorDetails = $contractorModel->getContractor($contractor_id);
+                $contractor_name = $contractorDetails['contractor_name'] ?? null;
+
+                $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
+                $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+
+                $action = '';
+                if($sta_status == 'Draft'){
+                    $action = '<button type="button" class="btn btn-icon btn-danger delete-internal-additional-job-order" data-stock-transfer-advice-additional-job-order-id="'. $stock_transfer_advice_additional_job_order_id  .'" title="Delete Internal Additional Job Order">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'TYPE' => $backJobMonitoringType,
+                    'OS_NUMBER' => $sales_proposal_number,
+                    'JOB_ORDER' => $job_order,
+                    'CONTRACTOR' => $contractor_name,
+                    'WORK_CENTER' => $work_center_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        
+        # -------------------------------------------------------------
+
+        case 'part item table':
+            $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
+
+            $stockTransferAdviceDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
+            $sta_status = $stockTransferAdviceDetails['sta_status'] ?? null;
+            $transferred_from = $stockTransferAdviceDetails['transferred_from'] ?? null;
+            $transferred_to = $stockTransferAdviceDetails['transferred_to']  ?? null;
+
+            $productDetails1 = $productModel->getProduct($transferred_from);
+            $productName1 = $productDetails1['description'] ?? null;
+            $productSubategoryID1 = $productDetails1['product_subcategory_id'] ?? '';
+
+            $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID1);
+            $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+
+            $stockNumber1 = str_replace($productSubcategoryCode, '', $productDetails1['stock_number'] ?? '');
+            $fullStockNumber1 = $productSubcategoryCode . $stockNumber1;
+
+            $productDetails2 = $productModel->getProduct($transferred_to);
+            $productName2 = $productDetails2['description'] ?? null;   
+            $productSubategoryID2 = $productDetails2['product_subcategory_id'] ?? '';
+
+            $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID2);
+            $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+
+            $stockNumber2 = str_replace($productSubcategoryCode, '', $productDetails2['stock_number'] ?? '');
+            $fullStockNumber2 = $productSubcategoryCode . $stockNumber2;
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM stock_transfer_advice_cart
+            WHERE stock_transfer_advice_id = :stock_transfer_advice_id
+            ORDER BY stock_transfer_advice_id');
             $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                $part_transaction_document_id = $row['part_transaction_document_id'];
-                $document_name = $row['document_name'];
-                $document_file_path = $row['document_file_path'];
-                $transaction_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
+                $stock_transfer_advice_cart_id = $row['stock_transfer_advice_cart_id'];
+                $part_id = $row['part_id'];
+                $quantity = $row['quantity'];
+                $price = $row['price'];
+                $part_from = $row['part_from'];
 
-                $documentType = '<a href="'. $document_file_path .'" target="_blank">' . $document_name . "</a>";
+                $partDetails = $partsModel->getParts($part_id);
+                $description = $partDetails['description'];
+                $unitSale = $partDetails['unit_sale'] ?? null;
+                $bar_code = $partDetails['bar_code'];
+
+                $unitCode = $unitModel->getUnit($unitSale);
+                $short_name = $unitCode['short_name'] ?? null;            
+
+                $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
+
+                $action = '';
+                if($sta_status == 'Draft'){
+                    $action = ' <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#part-cart-offcanvas" aria-controls="part-cart-offcanvas" data-stock-transfer-advice-cart-id="'. $stock_transfer_advice_cart_id .'" title="Update Part Item">
+                                        <i class="ti ti-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-icon btn-danger delete-part-cart" data-stock-transfer-advice-cart-id="'. $stock_transfer_advice_cart_id .'" title="Delete Part Item">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                if($part_from == 'From'){
+                    $transferred_from = $fullStockNumber1;
+                    $transferred_to = $fullStockNumber2;
+                }
+                else{
+                    $transferred_from = $fullStockNumber2; 
+                    $transferred_to = $fullStockNumber1; 
+                }
 
                 $response[] = [
-                    'DOCUMENT' => $documentType,
-                    'UPLOAD_DATE' => $transaction_date,
+                    'TRANSFERRED_FROM' => $transferred_from,
+                    'TRANSFERRED_TO' => $transferred_to,
+                    'PART' => '<div class="d-flex align-items-center"><img src="'. $partsImage .'" alt="image" class="bg-light wid-50 rounded">
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="mb-1">'. $description .'</h5>
+                                        <p class="text-sm text-muted mb-0">'. $bar_code .'</p>
+                                    </div>
+                                </div>',
+                    'PRICE' => number_format($price, 2) .' PHP',
+                    'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
                     'ACTION' => '<div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-icon btn-danger delete-parts-document" data-stock-transfer-advice-document-id="'. $part_transaction_document_id .'" title="Delete Transaction Document">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </div>'
+                                   '. $action .'
+                                </div>'
                 ];
             }
 
             echo json_encode($response);
         break;
+
         case 'stock transfer advice table':
             $filter_created_date_start_date = $systemModel->checkDate('empty', $_POST['filter_created_date_start_date'], '', 'Y-m-d', '');
             $filter_created_date_end_date = $systemModel->checkDate('empty', $_POST['filter_created_date_end_date'], '', 'Y-m-d', '');
@@ -729,8 +639,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                $part_transaction_id = $row['part_transaction_id'];
-                $part_transaction_status = $row['part_transaction_status'];
+                $stock_transfer_advice_id = $row['stock_transfer_advice_id'];
+                $sta_status = $row['sta_status'];
                 $customer_type = $row['customer_type'];
                 $customer_id = $row['customer_id'];
                 $number_of_items = $row['number_of_items'];
@@ -744,20 +654,20 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $transaction_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
                 $issuance_date = $systemModel->checkDate('empty', $row['issuance_date'], '', 'm/d/Y', '');
 
-                if($part_transaction_status === 'Draft'){
-                    $part_transaction_status = '<span class="badge bg-secondary">' . $part_transaction_status . '</span>';
+                if($sta_status === 'Draft'){
+                    $sta_status = '<span class="badge bg-secondary">' . $sta_status . '</span>';
                 }
-                else if($part_transaction_status === 'Cancelled'){
-                    $part_transaction_status = '<span class="badge bg-warning">' . $part_transaction_status . '</span>';
+                else if($sta_status === 'Cancelled'){
+                    $sta_status = '<span class="badge bg-warning">' . $sta_status . '</span>';
                 }
-                else if($part_transaction_status === 'For Approval'){
-                    $part_transaction_status = '<span class="badge bg-info">' . $part_transaction_status . '</span>';
+                else if($sta_status === 'For Approval'){
+                    $sta_status = '<span class="badge bg-info">' . $sta_status . '</span>';
                 }
                 else{
-                    $part_transaction_status = '<span class="badge bg-success">' . $part_transaction_status . '</span>';
+                    $sta_status = '<span class="badge bg-success">' . $sta_status . '</span>';
                 }
 
-                $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
+                $stock_transfer_advice_id_encrypted = $securityModel->encryptData($stock_transfer_advice_id);
 
                 if($company_id == '1'){
                     $link = 'supplies-transaction';
@@ -791,7 +701,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $response[] = [
-                    'TRANSACTION_ID' => '<a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" title="View Details" target="_blank">
+                    'TRANSACTION_ID' => '<a href="'. $link .'.php?id='. $stock_transfer_advice_id_encrypted .'" title="View Details" target="_blank">
                                        '. $number .'
                                     </a>',
                     'CUSTOMER_TYPE' => $customer_type,
@@ -800,9 +710,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TOTAL_AMOUNT' => number_format($total_amount, 2) . ' PHP',
                     'TRANSACTION_DATE' => $transaction_date,
                     'ISSUANCE_DATE' => $issuance_date,
-                    'STATUS' => $part_transaction_status,
+                    'STATUS' => $sta_status,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
+                                    <a href="'. $link .'.php?id='. $stock_transfer_advice_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
@@ -820,8 +730,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             $list = '';
             foreach ($options as $row) {
-               $part_transaction_id = $row['part_transaction_id'];
-                $part_transaction_status = $row['part_transaction_status'];
+               $stock_transfer_advice_id = $row['stock_transfer_advice_id'];
+                $sta_status = $row['sta_status'];
                 $customer_type = $row['customer_type'];
                 $customer_id = $row['customer_id'];
                 $number_of_items = $row['number_of_items'];
@@ -835,24 +745,24 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $transaction_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
                 $issuance_date = $systemModel->checkDate('empty', $row['issuance_date'], '', 'm/d/Y', '');
 
-                if($part_transaction_status === 'Draft'){
-                    $part_transaction_status = '<span class="badge bg-secondary">' . $part_transaction_status . '</span>';
+                if($sta_status === 'Draft'){
+                    $sta_status = '<span class="badge bg-secondary">' . $sta_status . '</span>';
                 }
-                else if($part_transaction_status === 'Cancelled'){
-                    $part_transaction_status = '<span class="badge bg-warning">' . $part_transaction_status . '</span>';
+                else if($sta_status === 'Cancelled'){
+                    $sta_status = '<span class="badge bg-warning">' . $sta_status . '</span>';
                 }
-                else if($part_transaction_status === 'For Approval' || $part_transaction_status === 'For Validation'){
-                    $part_transaction_status = '<span class="badge bg-info">For Validation</span>';
+                else if($sta_status === 'For Approval' || $sta_status === 'For Validation'){
+                    $sta_status = '<span class="badge bg-info">For Validation</span>';
                 }
-                else if($part_transaction_status === 'Approved' || $part_transaction_status === 'Validated'){
-                    $part_transaction_status = '<span class="badge bg-success">Validated</span>';
+                else if($sta_status === 'Approved' || $sta_status === 'Validated'){
+                    $sta_status = '<span class="badge bg-success">Validated</span>';
                 }
                 else{
-                    $part_transaction_status = '<span class="badge bg-success">' . $part_transaction_status . '</span>';
+                    $sta_status = '<span class="badge bg-success">' . $sta_status . '</span>';
                 }
 
 
-                $part_transaction_id_encrypted = $securityModel->encryptData($part_transaction_id);
+                $stock_transfer_advice_id_encrypted = $securityModel->encryptData($stock_transfer_advice_id);
 
                 if($company_id == '1'){
                     $link = 'supplies-transaction';
@@ -894,7 +804,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                               <div class="flex-grow-1 ms-3">
                                   <div class="row g-1">
                                         <div class="col-9">
-                                            <a href="'. $link .'.php?id='. $part_transaction_id_encrypted .'" title="View Details" target="_blank">
+                                            <a href="'. $link .'.php?id='. $stock_transfer_advice_id_encrypted .'" title="View Details" target="_blank">
                                                 <p class="mb-0"><b>'. strtoupper($transaction_reference) .'</b></p>
                                                 <p class="text-muted mb-0"><small>Issuance Number: '. $number .'</small></p>
                                                 <p class="text-muted mb-0"><small>Transaction Type: '. strtoupper($customer_type) .'</small></p>
@@ -904,7 +814,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             </a>
                                       </div>
                                       <div class="col-3 text-end">
-                                          '. $part_transaction_status .'
+                                          '. $sta_status .'
                                       </div>
                                   </div>
                               </div>

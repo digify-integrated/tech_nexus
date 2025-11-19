@@ -90,6 +90,9 @@ class StockTransferAdviceController {
                 case 'get stock transfer advice cart details':
                     $this->getStockTransferAdviceCartDetails();
                     break;
+                case 'get stock transfer advice cart total':
+                    $this->getStockTransferAdviceCartTotalDetails();
+                    break;
                 case 'delete stock transfer advice':
                     $this->deleteStockTransferAdvice();
                     break;
@@ -167,13 +170,14 @@ class StockTransferAdviceController {
         $stock_transfer_advice_id = isset($_POST['stock_transfer_advice_id']) ? htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8') : null;
         $transferred_from = htmlspecialchars($_POST['transferred_from'], ENT_QUOTES, 'UTF-8');
         $transferred_to = htmlspecialchars($_POST['transferred_to'], ENT_QUOTES, 'UTF-8');
+        $sta_type = htmlspecialchars($_POST['sta_type'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8'); 
 
         $checkStockTransferAdviceExist = $this->stockTransferAdviceModel->checkStockTransferAdviceExist($stock_transfer_advice_id);
         $total = $checkStockTransferAdviceExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->stockTransferAdviceModel->updateStockTransferAdvice($stock_transfer_advice_id, $transferred_from, $transferred_to, $remarks, $userID);
+            $this->stockTransferAdviceModel->updateStockTransferAdvice($stock_transfer_advice_id, $transferred_from, $transferred_to, $sta_type, $remarks, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => false, 'stockTransferAdviceID' => $this->securityModel->encryptData($stock_transfer_advice_id)]);
             exit;
@@ -181,7 +185,7 @@ class StockTransferAdviceController {
         else {
             $reference_number = (int)$this->systemSettingModel->getSystemSetting(43)['value'] + 1;
 
-            $stock_transfer_advice_id = $this->stockTransferAdviceModel->insertStockTransferAdvice($reference_number, $transferred_from, $transferred_to, $remarks, $userID);
+            $stock_transfer_advice_id = $this->stockTransferAdviceModel->insertStockTransferAdvice($reference_number, $transferred_from, $transferred_to, $sta_type, $remarks, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(43, $reference_number, $userID);
 
@@ -214,6 +218,7 @@ class StockTransferAdviceController {
         
         $userID = $_SESSION['user_id'];
         $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
+        $part_from_source = htmlspecialchars($_POST['part_from_source'], ENT_QUOTES, 'UTF-8');
         $part_ids = explode(',', $_POST['part_id']);
         
         $user = $this->userModel->getUserByID($userID);
@@ -225,9 +230,7 @@ class StockTransferAdviceController {
         
         foreach ($part_ids as $part_id) {
             if(!empty($part_id)){
-                $this->stockTransferAdviceModel->insertPartItem($stock_transfer_advice_id, $part_id, $userID);
-            
-                $this->stockTransferAdviceModel->updatePartTransactionSummary($stock_transfer_advice_id);
+                $this->stockTransferAdviceModel->insertStockTransferAdvicePartItem($stock_transfer_advice_id, $part_id, $part_from_source, $userID);
             }
         }
         
@@ -305,28 +308,57 @@ class StockTransferAdviceController {
         }
 
         $partTransactionDetails = $this->stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
-        $number_of_items = $partTransactionDetails['number_of_items'] ?? 0;
+        $sta_type = $partTransactionDetails['sta_type'] ?? 'Draft';
 
-        if($number_of_items == 0){
-            echo json_encode(['success' => false, 'noItem' => true]);
-            exit;
+        $quantity = 0;
+        $price = 0;
+        $quantityFrom = 0;
+        $priceFrom = 0;
+        $quantityTo = 0;
+        $priceTo = 0;
+
+        if($sta_type == 'Transfer'){
+            $quantity = $this->stockTransferAdviceModel->getAssignedPartCount($stock_transfer_advice_id, p_part_from: 'To')['total'] ?? 0;
+            $price = $this->stockTransferAdviceModel->getAssignedPartPrice($stock_transfer_advice_id, 'To')['total'] ?? 0;
         }
 
-        $quantityCheck = $this->stockTransferAdviceModel->get_exceeded_part_quantity_count($stock_transfer_advice_id)['total'] ?? 0;
+        if($sta_type == 'Swap'){
+            $quantityFrom = $this->stockTransferAdviceModel->getAssignedPartCount($stock_transfer_advice_id, 'From')['total'] ?? 0;
+            $priceFrom = $this->stockTransferAdviceModel->getAssignedPartPrice($stock_transfer_advice_id, 'From')['total'] ?? 0;
+            $quantityTo = $this->stockTransferAdviceModel->getAssignedPartCount($stock_transfer_advice_id, 'To')['total'] ?? 0;
+            $priceTo = $this->stockTransferAdviceModel->getAssignedPartPrice($stock_transfer_advice_id, 'To')['total'] ?? 0;
+        }
 
-        if($quantityCheck > 0){
+        $jobOrderCount = $this->stockTransferAdviceModel->getJobOrderCount($stock_transfer_advice_id)['total'] ?? 0;
+        $additionalJobOrderCount = $this->stockTransferAdviceModel->getAdditionalJobOrderCount($stock_transfer_advice_id)['total'] ?? 0;
+        $jobOrderTotal = $jobOrderCount + $additionalJobOrderCount;
+
+        if($quantity == 0 && $sta_type == 'Transfer'){
             echo json_encode(['success' => false, 'cartQuantity' => true]);
             exit;
         }
 
-         $check_exceed_part_quantity = $this->stockTransferAdviceModel->check_exceed_part_quantity($stock_transfer_advice_id)['total'] ?? 0;
+        if(($quantityFrom == 0 || $quantityTo == 0) && $sta_type == 'Swap'){
+            echo json_encode(['success' => false, 'cartQuantity' => true]);
+            exit;
+        }
 
-        if($check_exceed_part_quantity > 0){
-            echo json_encode(['success' => false, 'partQuantityExceed' => true]);
+        if($price == 0 && $sta_type == 'Transfer'){
+            echo json_encode(['success' => false, 'cartPrice' => true]);
+            exit;
+        }
+
+        if(($priceFrom > 0 || $priceTo > 0) && $sta_type == 'Swap'){
+            echo json_encode(['success' => false, 'cartPrice' => true]);
+            exit;
+        }
+
+        if($jobOrderTotal == 0){
+            echo json_encode(['success' => false, 'jobOrder' => true]);
             exit;
         }
     
-        $this->stockTransferAdviceModel->updateStockTransferAdviceStatus($stock_transfer_advice_id, 'On-Process', '', $userID);
+        $this->stockTransferAdviceModel->updateStockTransferAdviceOnProcess($stock_transfer_advice_id, $userID);
 
         echo json_encode(['success' => true]);
         exit;
@@ -505,15 +537,7 @@ class StockTransferAdviceController {
             exit;
         }
 
-    
-        $quantityCheck = $this->stockTransferAdviceModel->get_exceeded_part_quantity_count($stock_transfer_advice_id)['total'] ?? 0;
-
-        if($quantityCheck > 0){
-            echo json_encode(['success' => false, 'cartQuantity' => true]);
-            exit;
-        }
-
-        $this->stockTransferAdviceModel->updateStockTransferAdviceStatus($stock_transfer_advice_id, 'Cancelled', $cancellation_reason, $userID);
+        $this->stockTransferAdviceModel->updateStockTransferAdviceStatusCancel($stock_transfer_advice_id, $cancellation_reason, $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -535,83 +559,7 @@ class StockTransferAdviceController {
             exit;
         }
 
-        $this->stockTransferAdviceModel->updateStockTransferAdviceStatus($stock_transfer_advice_id, 'Draft', $draft_reason, $userID);
-        
-        echo json_encode(['success' => true]);
-        exit;
-    }
-
-    public function tagAsApproved() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-        
-        $userID = $_SESSION['user_id'];
-        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
-        $approval_remarks = htmlspecialchars($_POST['approval_remarks'], ENT_QUOTES, 'UTF-8');
-        
-        $user = $this->userModel->getUserByID($userID);
-        
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-
-        $quantityCheck = $this->stockTransferAdviceModel->get_exceeded_part_quantity_count($stock_transfer_advice_id)['total'] ?? 0;
-
-        if($quantityCheck > 0){
-            echo json_encode(['success' => false, 'cartQuantity' => true]);
-            exit;
-        }
-
-        $stockTransferAdviceDetails = $this->stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
-        $customer_type = $stockTransferAdviceDetails['customer_type'] ?? null;
-        $company_id = $stockTransferAdviceDetails['company_id'] ?? null;
-        $issuance_no = $stockTransferAdviceDetails['issuance_no'] ?? null;
-
-        if($customer_type == 'Internal'){
-
-            $check_linked_job_order = $this->stockTransferAdviceModel->check_linked_job_order($stock_transfer_advice_id)['total'] ?? 0;
-
-            if($check_linked_job_order == 0){
-                echo json_encode(['success' => false, 'jobOrder' => true]);
-                exit;
-            }
-            
-            if(empty($issuance_no)){
-                if($company_id == '2'){
-                    $reference_number = (int)$this->systemSettingModel->getSystemSetting(32)['value'] + 1;
-                }
-                else{
-                    $reference_number = (int)$this->systemSettingModel->getSystemSetting(34)['value'] + 1;
-                }
-
-                $this->stockTransferAdviceModel->updateStockTransferAdviceSlipReferenceNumber($stock_transfer_advice_id, $reference_number, $userID);
-
-                if($company_id == '2'){
-                    $this->systemSettingModel->updateSystemSettingValue(32, $reference_number, $userID);
-                }
-                else{
-                    $this->systemSettingModel->updateSystemSettingValue(34, $reference_number, $userID);
-                }
-            }
-        }
-
-        if($customer_type == 'Department'){
-            if(empty($issuance_no)){
-                if($company_id == '1'){
-                    $reference_number = (int)$this->systemSettingModel->getSystemSetting(37)['value'] + 1;
-                }
-
-                $this->stockTransferAdviceModel->updateStockTransferAdviceSlipReferenceNumber($stock_transfer_advice_id, $reference_number, $userID);
-
-                if($company_id == '1'){
-                    $this->systemSettingModel->updateSystemSettingValue(37, $reference_number, $userID);
-                }
-            }
-        }
-    
-        $this->stockTransferAdviceModel->updateStockTransferAdviceStatus($stock_transfer_advice_id, 'Validated', $approval_remarks, $userID);
+        $this->stockTransferAdviceModel->updateStockTransferAdviceStatusDraft($stock_transfer_advice_id, $draft_reason, $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -623,15 +571,10 @@ class StockTransferAdviceController {
         }
         
         $userID = $_SESSION['user_id'];
-        $part_transaction_cart_id = htmlspecialchars($_POST['part_transaction_cart_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_cart_id = htmlspecialchars($_POST['stock_transfer_advice_cart_id'], ENT_QUOTES, 'UTF-8');
         $parts_id = $_POST['part_id'];
         $quantity = $_POST['quantity'];
-        $discount = $_POST['discount'];
-        $add_on = $_POST['add_on'];
-        $discount_type = $_POST['discount_type'];
-        $discount_total = $_POST['discount_total'];
-        $part_item_subtotal = $_POST['part_item_subtotal'];
-        $part_item_total = $_POST['part_item_total'];
+        $price = $_POST['part_price'];
         $remarks = $_POST['item_remarks'];
         
         $user = $this->userModel->getUserByID($userID);
@@ -641,24 +584,11 @@ class StockTransferAdviceController {
             exit;
         }
 
-        $partsDetails = $this->partsModel->getParts($parts_id);
-        $partQuantity = $partsDetails['quantity'] ?? 0;
-
-        if($quantity > $partQuantity){
-            echo json_encode(['success' => false, 'quantity' => true]);
-            exit;
-        }
-
-        $checkStockTransferAdviceCartExist = $this->stockTransferAdviceModel->checkStockTransferAdviceCartExist($part_transaction_cart_id);
+        $checkStockTransferAdviceCartExist = $this->stockTransferAdviceModel->checkStockTransferAdviceCartExist($stock_transfer_advice_cart_id);
         $total = $checkStockTransferAdviceCartExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->stockTransferAdviceModel->updateStockTransferAdviceCart($part_transaction_cart_id, $quantity, $add_on, $discount, $discount_type, $discount_total, $part_item_subtotal, $part_item_total, $remarks, $userID);
-
-            $stockTransferAdviceCartDetails = $this->stockTransferAdviceModel->getStockTransferAdviceCart($part_transaction_cart_id);
-            $part_transaction_id = $stockTransferAdviceCartDetails['part_transaction_id'];
-
-            $this->stockTransferAdviceModel->updatePartTransactionSummary($part_transaction_id);
+            $this->stockTransferAdviceModel->updateStockTransferAdviceCart($stock_transfer_advice_cart_id, $quantity, $price, $remarks, $userID);
             
             echo json_encode(['success' => true]);
             exit;
@@ -812,8 +742,6 @@ class StockTransferAdviceController {
         }
     
         $this->stockTransferAdviceModel->deleteStockTransferAdviceCart($stock_transfer_advice_cart_id);
-
-        $this->stockTransferAdviceModel->updatePartTransactionSummary($stock_transfer_advice_id);
             
         echo json_encode(['success' => true]);
         exit;
@@ -934,6 +862,7 @@ class StockTransferAdviceController {
                 'reference_no' => $stockTransferAdviceDetails['reference_no'],
                 'transferred_from' => $stockTransferAdviceDetails['transferred_from'],
                 'transferred_to' => $stockTransferAdviceDetails['transferred_to'],
+                'sta_type' => $stockTransferAdviceDetails['sta_type'],
                 'remarks' => $stockTransferAdviceDetails['remarks'],
             ];
 
@@ -947,9 +876,9 @@ class StockTransferAdviceController {
             return;
         }
     
-        if (isset($_POST['part_transaction_cart_id']) && !empty($_POST['part_transaction_cart_id'])) {
+        if (isset($_POST['stock_transfer_advice_cart_id']) && !empty($_POST['stock_transfer_advice_cart_id'])) {
             $userID = $_SESSION['user_id'];
-            $part_transaction_cart_id = $_POST['part_transaction_cart_id'];
+            $stock_transfer_advice_cart_id = $_POST['stock_transfer_advice_cart_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -958,17 +887,50 @@ class StockTransferAdviceController {
                 exit;
             }
     
-            $stockTransferAdviceCartDetails = $this->stockTransferAdviceModel->getStockTransferAdviceCart($part_transaction_cart_id);
+            $stockTransferAdviceCartDetails = $this->stockTransferAdviceModel->getStockTransferAdviceCart($stock_transfer_advice_cart_id);
+            $part_id = $stockTransferAdviceCartDetails['part_id'];
+
+            $partsDetails = $this->partsModel->getParts($part_id);
+            $description = $partsDetails['description'] ?? '';
+
 
             $response = [
                 'success' => true,
-                'part_id' => $stockTransferAdviceCartDetails['part_id'],
+                'part_id' => $part_id,
+                'part_name' => $description,
+                'price' => $stockTransferAdviceCartDetails['price'] ?? 0,
                 'quantity' => $stockTransferAdviceCartDetails['quantity'],
-                'price' => $stockTransferAdviceCartDetails['price'],
-                'discount' => $stockTransferAdviceCartDetails['discount'],
-                'add_on' => $stockTransferAdviceCartDetails['add_on'],
-                'remarks' => $stockTransferAdviceCartDetails['remarks'],
-                'discount_type' => $stockTransferAdviceCartDetails['discount_type']
+                'remarks' => $stockTransferAdviceCartDetails['remarks']
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+
+    public function getStockTransferAdviceCartTotalDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['stock_transfer_advice_id']) && !empty($_POST['stock_transfer_advice_id'])) {
+            $userID = $_SESSION['user_id'];
+            $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $fromTotal = $this->stockTransferAdviceModel->getStockTransferAdviceCartTotal($stock_transfer_advice_id, 'From')['total'] ?? 0;
+            $toTotal = $this->stockTransferAdviceModel->getStockTransferAdviceCartTotal($stock_transfer_advice_id, 'To')['total'] ?? 0;
+
+            $response = [
+                'success' => true,
+                'total_summary_from' => number_format($fromTotal, 2),
+                'total_summary_to' => number_format($toTotal, 2)
             ];
 
             echo json_encode($response);

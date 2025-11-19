@@ -37,6 +37,16 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">STA Type <span class="text-danger">*</span></label>
+            <div class="col-lg-10" id="internal-select">
+                <select class="form-control select2" name="sta_type" id="sta_type">
+                  <option value="">--</option>
+                  <option value="Transfer">Transfer</option>
+                  <option value="Swap">Swap</option>
+                </select>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Remarks</label>
             <div class="col-lg-10">
               <textarea class="form-control" id="remarks" name="remarks" maxlength="2000"></textarea>

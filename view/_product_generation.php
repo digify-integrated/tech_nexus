@@ -284,6 +284,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $stockNumber = str_replace($productSubcategoryCode, '', $row['stock_number']);
                     $fullStockNumber = $productSubcategoryCode . $stockNumber;
                     $forSaleDate = $systemModel->checkDate('summary', $row['for_sale_date'], '', 'm/d/Y h:i:s A', '');
+                    $created_date = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
 
                     $productCost = $productModel->getTotalProductCost($productID)['expense_amount'] ?? 0;
                     
@@ -322,6 +323,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'PRODUCT_COST' => number_format($productCost,2),
                         'PRODUCT_PRICE' => number_format($productPrice,2),
                         'PRODUCT_STATUS' => $productStatus,
+                        'CREATED_DATE' => $created_date,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <a href="product.php?id='. $productIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
                                             <i class="ti ti-eye"></i>

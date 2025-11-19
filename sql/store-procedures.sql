@@ -21762,22 +21762,33 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE insertStockTransferAdvice(IN p_reference_number VARCHAR(100), IN p_transferred_from INT, IN p_transferred_to INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_stock_transfer_advice_id INT)
+CREATE PROCEDURE insertStockTransferAdvice(IN p_reference_number VARCHAR(100), IN p_transferred_from INT, IN p_transferred_to INT, IN p_sta_type ENUM('Transfer', 'Swap'), IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_stock_transfer_advice_id INT)
 BEGIN
-    INSERT INTO stock_transfer_advice (reference_no, transferred_from, transferred_to, remarks, last_log_by) 
-	VALUES(p_reference_number, p_transferred_from, p_transferred_to, p_remarks, p_last_log_by);
+    INSERT INTO stock_transfer_advice (reference_no, transferred_from, transferred_to, sta_type, remarks, last_log_by) 
+	VALUES(p_reference_number, p_transferred_from, p_transferred_to, p_sta_type, p_remarks, p_last_log_by);
 	
     SET p_stock_transfer_advice_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateStockTransferAdvice(IN p_stock_transfer_advice_id INT, IN p_transferred_from INT, IN p_transferred_to INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updateStockTransferAdvice(IN p_stock_transfer_advice_id INT, IN p_transferred_from INT, IN p_transferred_to INT, IN p_sta_type ENUM('Transfer', 'Swap'), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
 	UPDATE stock_transfer_advice
     SET transferred_from = p_transferred_from,
     transferred_to = p_transferred_to,
+    sta_type = p_sta_type,
     remarks = p_remarks,
     last_log_by = p_last_log_by
     WHERE stock_transfer_advice_id = p_stock_transfer_advice_id;
+END //
+
+CREATE PROCEDURE updateStockTransferAdviceCart(IN p_stock_transfer_advice_cart_id INT, IN p_quantity DOUBLE, IN p_price DOUBLE, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+BEGIN
+	UPDATE stock_transfer_advice_cart
+    SET price = p_price,
+    quantity = p_quantity,
+    remarks = p_remarks,
+    last_log_by = p_last_log_by
+    WHERE stock_transfer_advice_cart_id = p_stock_transfer_advice_cart_id;
 END //
 
 CREATE PROCEDURE checkStockTransferAdviceExist (IN p_stock_transfer_advice_id INT)
@@ -21787,8 +21798,62 @@ BEGIN
     WHERE stock_transfer_advice_id = p_stock_transfer_advice_id;
 END //
 
+CREATE PROCEDURE checkStockTransferAdviceCartExist  (IN p_stock_transfer_advice_cart_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM stock_transfer_advice_cart
+    WHERE stock_transfer_advice_cart_id = p_stock_transfer_advice_cart_id;
+END //
+
 CREATE PROCEDURE getStockTransferAdvice(IN p_stock_transfer_advice_id INT)
 BEGIN
 	SELECT * FROM stock_transfer_advice
+    WHERE stock_transfer_advice_id = p_stock_transfer_advice_id;
+END //
+
+CREATE PROCEDURE insertStockTransferAdvicePartItem(
+    IN p_stock_transfer_advice_id VARCHAR(100),
+    IN p_part_id INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Insert into the cart with quantity = 1 and no discount applied
+    INSERT INTO stock_transfer_advice_cart (
+        stock_transfer_advice_id,
+        part_id,
+        price,
+        quantity,
+        last_log_by
+    ) VALUES (
+        p_stock_transfer_advice_id,
+        p_part_id,
+        0,
+        1,
+        p_last_log_by
+    );
+END //
+
+CREATE PROCEDURE generateStockTransferAdvicePartItemTable(IN p_stock_transfer_advice_id INT)
+BEGIN
+	SELECT * FROM stock_transfer_advice_cart
+    WHERE stock_transfer_advice_id = p_stock_transfer_advice_id
+	ORDER BY stock_transfer_advice_id;
+END //
+
+CREATE PROCEDURE getStockTransferAdviceCart(IN p_stock_transfer_advice_cart_id INT)
+BEGIN
+	SELECT * FROM stock_transfer_advice_cart
+    WHERE stock_transfer_advice_cart_id = p_stock_transfer_advice_cart_id;
+END //
+
+CREATE PROCEDURE deleteStockTransferAdviceCart(IN p_stock_transfer_advice_cart_id INT)
+BEGIN
+	DELETE FROM stock_transfer_advice_cart
+    WHERE stock_transfer_advice_cart_id = p_stock_transfer_advice_cart_id;
+END //
+
+CREATE PROCEDURE getStockTransferAdviceCartTotal(IN p_stock_transfer_advice_id INT)
+BEGIN
+	SELECT SUM(price) AS total FROM stock_transfer_advice_cart
     WHERE stock_transfer_advice_id = p_stock_transfer_advice_id;
 END //

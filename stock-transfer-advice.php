@@ -76,7 +76,7 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="netruck-stock-transfer-advice.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="stock-transfer-advice.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($stockTransferAdviceID)){
                             echo '<li class="breadcrumb-item" id="stock-transfer-advice-id">'. $stockTransferAdviceID .'</li>';
