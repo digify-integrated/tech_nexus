@@ -41,18 +41,18 @@
             }
 
             if($sta_status == 'On-Process'){
-              echo '<button class="btn btn-success ms-2" type="button" id="release">Release</button>';
+              echo '<button class="btn btn-success ms-2" type="button" id="complete">Complete</button>';
             }
 
             if($sta_status == 'Draft' || $sta_status == 'On-Process'){
                 echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
               }
 
-            if(($sta_status == 'On-Process' || $sta_status == 'Completed' || $sta_status == 'Posted')){
+            if($sta_status == 'On-Process' || $sta_status == 'Completed' || $sta_status == 'Posted'){
                 echo '<a href="stock-transfer-advice-form.php?id='. $stockTransferAdviceID .'" class="button btn btn-info ms-2" target="_blank">Print STA Form</a>';
             }
 
-            if($sta_status == 'Completed' && $checkStockTransferAdvice['total'] > 0){
+            if($sta_status == 'Completed' && $postSTA['total'] > 0){
               echo '<button class="btn btn-success ms-2" type="button" id="posted">Posted</button>';
             }
 
@@ -68,15 +68,25 @@
         <form id="stock-transfer-advice-form" method="post" action="#">
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Reference No.</label>
-            <div class="col-lg-4">
+            <div class="col-lg-10">
               <input type="text" class="form-control" id="reference_no" name="reference_no" maxlength="100" autocomplete="off" readonly>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">STA Type <span class="text-danger">*</span></label>
             <div class="col-lg-4" id="internal-select">
                 <select class="form-control select2" name="sta_type" id="sta_type" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <option value="Transfer">Transfer</option>
                   <option value="Swap">Swap</option>
+                </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
+            <div class="col-lg-4" id="internal-select">
+                <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                  <option value="2">NE Truck Builders</option>
+                  <option value="3">FUSO Tarlac</option>
                 </select>
             </div>
           </div>

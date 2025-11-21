@@ -2459,6 +2459,7 @@ function displayDetails(transaction){
                         checkOptionExist('#product_id', response.product_id, '');
                         checkOptionExist('#product_id2', response.product_id, '');
 
+                        
                         if($('#unit-img').length){
                             document.getElementById('unit-img').src = response.unitImage;
                         }

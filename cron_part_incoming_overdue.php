@@ -41,7 +41,7 @@ $table = '<table border="1" cellspacing="0" cellpadding="5">
             <thead>
             <tbody>';
 
-$sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_incoming WHERE part_incoming_status = "Completed" ORDER BY company_id');
+$sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_incoming WHERE part_incoming_status = "Completed" AND company_id != 1 ORDER BY company_id');
 $sql->execute();
 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
 $sql->closeCursor();

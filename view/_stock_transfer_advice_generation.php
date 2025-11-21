@@ -553,7 +553,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $filter_completed_date_end_date = $systemModel->checkDate('empty', $_POST['filter_completed_date_end_date'], '', 'Y-m-d', '');
             $filter_sta_status = $_POST['filter_sta_status'];
 
-            if (!empty($transaction_filter_sta_statusstatus_filter)) {
+            if (!empty($filter_sta_status)) {
                 // Convert string to array and trim each value
                 $values_array = array_filter(array_map('trim', explode(',', $filter_sta_status)));
 
@@ -611,6 +611,94 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $stock_transfer_advice_id_encrypted = $securityModel->encryptData($stock_transfer_advice_id);
 
                 $response[] = [
+                    'REFERENCE_NO' => $reference_no,
+                    'FROM' => '<div class="col">
+                                        <h6 class="mb-0">'. $productName1 .'</h6>
+                                        <p class="f-12 mb-0">'. $stockNumber1 .'</p>
+                                    </div>',
+                    'TO' => '<div class="col">
+                                        <h6 class="mb-0">'. $productName2 .'</h6>
+                                        <p class="f-12 mb-0">'. $stockNumber2 .'</p>
+                                    </div>',
+                    'STATUS' => $sta_status,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="stock-transfer-advice.php?id='. $stock_transfer_advice_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'stock transfer advice posting table':
+            $filter_created_date_start_date = $systemModel->checkDate('empty', $_POST['filter_created_date_start_date'], '', 'Y-m-d', '');
+            $filter_created_date_end_date = $systemModel->checkDate('empty', $_POST['filter_created_date_end_date'], '', 'Y-m-d', '');
+            $filter_on_process_date_start_date = $systemModel->checkDate('empty', $_POST['filter_on_process_date_start_date'], '', 'Y-m-d', '');
+            $filter_on_process_date_end_date = $systemModel->checkDate('empty', $_POST['filter_on_process_date_end_date'], '', 'Y-m-d', '');
+            $filter_completed_date_start_date = $systemModel->checkDate('empty', $_POST['filter_completed_date_start_date'], '', 'Y-m-d', '');
+            $filter_completed_date_end_date = $systemModel->checkDate('empty', $_POST['filter_completed_date_end_date'], '', 'Y-m-d', '');
+            $filter_sta_status = $_POST['filter_sta_status'];
+
+            if (!empty($filter_sta_status)) {
+                // Convert string to array and trim each value
+                $values_array = array_filter(array_map('trim', explode(',', $filter_sta_status)));
+
+                // Quote each value safely
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . addslashes($value) . "'";
+                }, $values_array);
+
+                // Implode into comma-separated string
+                $filter_sta_status = implode(', ', $quoted_values_array);
+            } else {
+                $filter_sta_status = null;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateStockTransferAdviceTable(:filter_created_date_start_date, :filter_created_date_end_date, :filter_on_process_date_start_date, :filter_on_process_date_end_date, :filter_completed_date_start_date, :filter_completed_date_end_date, :filter_sta_status)');
+            $sql->bindValue(':filter_created_date_start_date', $filter_created_date_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_created_date_end_date', $filter_created_date_end_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_on_process_date_start_date', $filter_on_process_date_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_on_process_date_end_date', $filter_on_process_date_end_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_completed_date_start_date', $filter_completed_date_start_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_completed_date_end_date', $filter_completed_date_end_date, PDO::PARAM_STR);
+            $sql->bindValue(':filter_sta_status', $filter_sta_status, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $stock_transfer_advice_id = $row['stock_transfer_advice_id'];
+                $reference_no = $row['reference_no'];
+                $transferred_from = $row['transferred_from'];
+                $transferred_to = $row['transferred_to'];
+                $sta_status = $row['sta_status'];
+
+                if($sta_status === 'Draft'){
+                    $sta_status = '<span class="badge bg-secondary">' . $sta_status . '</span>';
+                }
+                else if($sta_status === 'Cancelled'){
+                    $sta_status = '<span class="badge bg-warning">' . $sta_status . '</span>';
+                }
+                else if($sta_status === 'On-Process'){
+                    $sta_status = '<span class="badge bg-info">'. $sta_status .'</span>';
+                }
+                else{
+                    $sta_status = '<span class="badge bg-success">' . $sta_status . '</span>';
+                }
+
+                $productDetails1 = $productModel->getProduct($transferred_from);
+                $productName1 = $productDetails1['description'] ?? null;
+                $stockNumber1 = $productDetails1['stock_number'] ?? null;
+
+                $productDetails2 = $productModel->getProduct($transferred_to);
+                $productName2 = $productDetails2['description'] ?? null;
+                $stockNumber2 = $productDetails2['stock_number'] ?? null;
+
+                $stock_transfer_advice_id_encrypted = $securityModel->encryptData($stock_transfer_advice_id);
+
+                $response[] = [
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $stock_transfer_advice_id .'">',
                     'REFERENCE_NO' => $reference_no,
                     'FROM' => '<div class="col">
                                         <h6 class="mb-0">'. $productName1 .'</h6>

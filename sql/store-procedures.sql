@@ -14274,8 +14274,10 @@ END //
 
 CREATE PROCEDURE generateJobOrderBackjobOptions()
 BEGIN
-	SELECT *
+	SELECT sp.sales_proposal_id, sp.sales_proposal_number, file_as, stock_number
     FROM sales_proposal sp
+    LEFT OUTER JOIN personal_information ON personal_information.contact_id = sp.customer_id
+    LEFT OUTER JOIN product ON product.product_id = sp.product_id
     WHERE EXISTS (
         SELECT 1
         FROM sales_proposal_job_order spjo
@@ -16424,7 +16426,7 @@ BEGIN
     IF p_company_id = 2 THEN
         SET new_part_price = ROUND(new_part_cost * 1.3, 2);
     ELSEIF p_company_id = 3 THEN
-        SET new_part_price = ROUND(new_part_cost * 1.65, 2);
+        SET new_part_price = ROUND(new_part_cost * 1.6, 2);
     ELSE
         SET new_part_price = current_part_price; -- keep old price
     END IF;
@@ -19821,19 +19823,19 @@ BEGIN
    
     SET v_credit = '40102020 Cash Sales Parts';
 
-    IF p_is_service = 'Yes'  THEN
-        SET v_chart_item = '50203040 Fuel, oil and lubricants Expenses';
-    END IF;
-
     IF p_sold_status = 'Sold' THEN
         SET v_chart_item = '50402010 Cost of Sales Unit';
     ELSE
         SET v_chart_item = '10501010 Inventory Unit';
     END IF;
 
+    IF p_is_service = 'Yes'  THEN
+        SET v_chart_item = '50203040 Fuel, oil and lubricants Expenses';
+    END IF;
+
     IF p_issuance_for = 'Tools' AND p_customer_type = 'Internal' THEN
         SET v_chart_item = '10703010 Machinery and Hand Tools';
-    ELSE
+    ELSEIF p_issuance_for = 'Repairs' AND p_customer_type = 'Internal' THEN 
         SET v_chart_item = '50209005 Repairs and Maintenance Materials - Unit';        
     END IF;
 
@@ -21762,19 +21764,20 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE insertStockTransferAdvice(IN p_reference_number VARCHAR(100), IN p_transferred_from INT, IN p_transferred_to INT, IN p_sta_type ENUM('Transfer', 'Swap'), IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_stock_transfer_advice_id INT)
+CREATE PROCEDURE insertStockTransferAdvice(IN p_reference_number VARCHAR(100), IN p_transferred_from INT, IN p_transferred_to INT, IN p_company_id INT, IN p_sta_type ENUM('Transfer', 'Swap'), IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_stock_transfer_advice_id INT)
 BEGIN
-    INSERT INTO stock_transfer_advice (reference_no, transferred_from, transferred_to, sta_type, remarks, last_log_by) 
-	VALUES(p_reference_number, p_transferred_from, p_transferred_to, p_sta_type, p_remarks, p_last_log_by);
+    INSERT INTO stock_transfer_advice (reference_no, transferred_from, transferred_to, company_id, sta_type, remarks, last_log_by) 
+	VALUES(p_reference_number, p_transferred_from, p_transferred_to, p_company_id, p_sta_type, p_remarks, p_last_log_by);
 	
     SET p_stock_transfer_advice_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateStockTransferAdvice(IN p_stock_transfer_advice_id INT, IN p_transferred_from INT, IN p_transferred_to INT, IN p_sta_type ENUM('Transfer', 'Swap'), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updateStockTransferAdvice(IN p_stock_transfer_advice_id INT, IN p_transferred_from INT, IN p_transferred_to INT, IN p_company_id INT, IN p_sta_type ENUM('Transfer', 'Swap'), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
 	UPDATE stock_transfer_advice
     SET transferred_from = p_transferred_from,
     transferred_to = p_transferred_to,
+    company_id = p_company_id,
     sta_type = p_sta_type,
     remarks = p_remarks,
     last_log_by = p_last_log_by
@@ -21857,3 +21860,137 @@ BEGIN
 	SELECT SUM(price) AS total FROM stock_transfer_advice_cart
     WHERE stock_transfer_advice_id = p_stock_transfer_advice_id;
 END //
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS createStockTransferAdviceEntry //
+CREATE PROCEDURE createStockTransferAdviceEntry(
+    IN p_stock_transfer_advice_id INT,
+    IN p_company_id INT,
+    IN p_reference_number VARCHAR(500),
+    IN p_transferred_to INT,
+    IN p_cost DECIMAL(15,2),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_chart_item VARCHAR(100);
+    DECLARE v_credit VARCHAR(100);
+
+    CASE p_company_id
+        WHEN 1 THEN
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_analytic_lines = 'NE TRUCK';
+            SET v_analytic_distribution = '{"2": 100.0}';
+        WHEN 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 4 THEN
+            SET v_analytic_lines = 'PCG PROPERTY';
+            SET v_analytic_distribution = '{"4": 100.0}';
+        WHEN 5 THEN
+            SET v_analytic_lines = 'GCB PROPERTY';
+            SET v_analytic_distribution = '{"3": 100.0}';
+        WHEN 6 THEN
+            SET v_analytic_lines = 'GCB FARMING';
+            SET v_analytic_distribution = '{"11": 100.0}';
+        WHEN 7 THEN
+            SET v_analytic_lines = 'PCG FARMING';
+            SET v_analytic_distribution = '{"15": 100.0}';
+        WHEN 8 THEN
+            SET v_analytic_lines = 'NE FUEL';
+            SET v_analytic_distribution = '{"6": 100.0}';
+        WHEN 9 THEN
+            SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
+            SET v_analytic_distribution = '{"17": 100.0}';
+        WHEN 10 THEN
+            SET v_analytic_lines = 'Avida';
+            SET v_analytic_distribution = '{"20": 100.0}';
+        WHEN 11 THEN
+            SET v_analytic_lines = 'Caalibangbangan';
+            SET v_analytic_distribution = '{"19": 100.0}';
+        WHEN 12 THEN
+            SET v_analytic_lines = 'Sta Rosa';
+            SET v_analytic_distribution = '{"18": 100.0}';
+        WHEN 13 THEN
+            SET v_analytic_lines = 'KPC VENTURE INC';
+            SET v_analytic_distribution = '{"16": 100.0}';
+        WHEN 14 THEN
+            SET v_analytic_lines = 'NE HAULING';
+            SET v_analytic_distribution = '{"7": 100.0}';
+        ELSE
+            SET v_analytic_lines = 'DEFAULT';
+            SET v_analytic_distribution = '{"0": 0.0}';
+    END CASE;
+
+    IF p_transferred_to = '958' THEN
+        SET v_chart_item = '10501020 Inventory Parts';
+        SET v_credit = '10501010 Inventory Unit';
+    ELSE
+        SET v_chart_item = '10501010 Inventory Unit';
+        SET v_credit = '10501010 Inventory Unit';
+    END IF;
+    
+    -- Insert debit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_stock_transfer_advice_id, 
+        NOW(), 
+        p_reference_number, 
+        'Stock Transfer Advice', 
+        v_chart_item, 
+        p_cost, 
+        0, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert credit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_stock_transfer_advice_id, 
+        NOW(), 
+        p_reference_number, 
+        'Stock Transfer Advice', 
+        v_credit, 
+        0, 
+        p_cost, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+END//

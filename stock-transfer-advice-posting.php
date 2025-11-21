@@ -13,13 +13,13 @@
   $productModel = new ProductModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
 
-  $pageTitle = 'Stock Transfer Advice';
+  $pageTitle = 'Stock Transfer Advice Posting';
     
-  $stockTransferAdviceReadAccess = $userModel->checkMenuItemAccessRights($user_id, 177, 'read');
-  $stockTransferAdviceCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 177, 'create');
-  $stockTransferAdviceWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 177, 'write');
-  $stockTransferAdviceDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 177, 'delete');
-  $stockTransferAdviceDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 177, 'duplicate');
+  $stockTransferAdviceReadAccess = $userModel->checkMenuItemAccessRights($user_id, 179, 'read');
+  $stockTransferAdviceCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 179, 'create');
+  $stockTransferAdviceWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 179, 'write');
+  $stockTransferAdviceDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 179, 'delete');
+  $stockTransferAdviceDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 179, 'duplicate');
   $postSTA = $userModel->checkSystemActionAccessRights($user_id, 231);
 
   if ($stockTransferAdviceReadAccess['total'] == 0) {
@@ -107,7 +107,7 @@
             require_once('view/_stock_transfer_advice_details.php');
           }
           else{
-            require_once('view/_stock_transfer_advice.php');
+            require_once('view/_stock_transfer_advice_posting.php');
           }
         ?>
       </div>

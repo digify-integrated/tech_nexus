@@ -6,6 +6,10 @@
             stockTransferAdviceTable('#stock-transfer-advice-table');
         }
 
+        if($('#stock-transfer-advice-posting-table').length){
+            stockTransferAdvicePostingTable('#stock-transfer-advice-posting-table');
+        }
+
         if($('#parts-item-table').length){
            partItemTable('#parts-item-table');
         }
@@ -45,13 +49,86 @@
         });
 
         $(document).on('click','#apply-filter',function() {
-            stockTransferAdviceTable('#stock-transfer-advice-table');
+            if($('#stock-transfer-advice-table').length){
+                stockTransferAdviceTable('#stock-transfer-advice-table');
+            }
+
+            if($('#stock-transfer-advice-posting-table').length){
+                stockTransferAdvicePostingTable('#stock-transfer-advice-posting-table');
+            }
         });
         
-        if($('#stock-transfer-advice-id').length){            
+        if($('#stock-transfer-advice-id').length){
             displayDetails('get stock transfer advice cart total');
             displayDetails('get stock transfer advice details');
         }
+
+        $(document).on('click','#post-stock-transfer-advice',function() {
+            let stock_transfer_advice_id = [];
+            const transaction = 'tag multiple transaction as posted';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    stock_transfer_advice_id.push(element.value);
+                }
+            });
+    
+            if(stock_transfer_advice_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple STA Post',
+                    text: 'Are you sure you want to POST these STAs?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Post',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/stock-transfer-advice-controller.php',
+                            dataType: 'json',
+                            data: {
+                                stock_transfer_advice_id: stock_transfer_advice_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('STA Post Success', 'The selected stock transfer advice have been posted successfully.', 'success');
+                                    reloadDatatable('#stock-transfer-advice-posting-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('STA Post Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Post Multiple STA Post Error', 'Please select the STAs you wish to post.', 'danger');
+            }
+        });
 
         $(document).on('click','.update-part-cart',function() {
             const stock_transfer_advice_cart_id = $(this).data('stock-transfer-advice-cart-id');
@@ -100,7 +177,7 @@
                                 else if (response.cartPrice) {
                                     showNotification('Stock Transfer Advice On-Process Error', 'One of the parts assigned does not have a price.', 'danger');
                                 }
-                                else if (response.jobOrderTotal) {
+                                else if (response.jobOrder) {
                                     showNotification('Stock Transfer Advice On-Process Error', 'Please add a job order or additional job order.', 'danger');
                                 }
                                 else {
@@ -121,16 +198,16 @@
             });
         });
 
-        $(document).on('click','#release',function() {
+        $(document).on('click','#complete',function() {
             var stock_transfer_advice_id = $('#stock-transfer-advice-id').text();
-            const transaction = 'tag transaction as released';
+            const transaction = 'tag transaction as completed';
     
             Swal.fire({
-                title: 'Confirm Transaction Release',
-                text: 'Are you sure you want to tag this transaction as released?',
+                title: 'Confirm STA Complete',
+                text: 'Are you sure you want to tag this STA as completed?',
                 icon: 'warning',
                 showCancelButton: !0,
-                confirmButtonText: 'Release',
+                confirmButtonText: 'Complete',
                 cancelButtonText: 'Cancel',
                 confirmButtonClass: 'btn btn-success mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
@@ -147,7 +224,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Transaction Released Success', 'The transaction has been tagged as released successfully.', 'success');
+                                setNotification('STA Complete Success', 'The transaction has been tagged as completed successfully.', 'success');
                                 window.location.reload();
                             }
                             else {
@@ -155,14 +232,8 @@
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
                                 }
-                                else if (response.partQuantityExceed) {
-                                    showNotification('Transaction Released Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
-                                }
-                                else if (response.cartQuantity) {
-                                    showNotification('Transaction Released Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
-                                }
                                 else {
-                                    showNotification('Transaction Released Error', response.message, 'danger');
+                                    showNotification('STA Complete Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -179,16 +250,16 @@
             });
         });
 
-        $(document).on('click','#checked',function() {
+        $(document).on('click','#posted',function() {
             var stock_transfer_advice_id = $('#stock-transfer-advice-id').text();
-            const transaction = 'tag transaction as checked';
+            const transaction = 'tag transaction as posted';
     
             Swal.fire({
-                title: 'Confirm Transaction Checked',
-                text: 'Are you sure you want to tag this transaction as checked?',
+                title: 'Confirm STA Post',
+                text: 'Are you sure you want to tag this transaction as posted?',
                 icon: 'warning',
                 showCancelButton: !0,
-                confirmButtonText: 'Check',
+                confirmButtonText: 'Post',
                 cancelButtonText: 'Cancel',
                 confirmButtonClass: 'btn btn-success mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
@@ -205,7 +276,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Transaction Checked Success', 'The transaction has been tagged as checked successfully.', 'success');
+                                setNotification('STA Post Success', 'The sta has been tagged as posted successfully.', 'success');
                                 window.location.reload();
                             }
                             else {
@@ -653,6 +724,90 @@ function stockTransferAdviceTable(datatable_name, buttons = false, show_all = fa
             }
         },
         'order': [[ 0, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function stockTransferAdvicePostingTable(datatable_name, buttons = false, show_all = false){
+    const type = 'stock transfer advice posting table';
+    var filter_created_date_start_date = $('#filter_created_date_start_date').val();
+    var filter_created_date_end_date = $('#filter_created_date_end_date').val();
+    var filter_on_process_date_start_date = $('#filter_on_process_date_start_date').val();
+    var filter_on_process_date_end_date = $('#filter_on_process_date_end_date').val();
+    var filter_completed_date_start_date = $('#filter_completed_date_start_date').val();
+    var filter_completed_date_end_date = $('#filter_completed_date_end_date').val();
+
+    var sta_status_filter = [];
+
+    $('.sta-status-checkbox:checked').each(function() {
+        sta_status_filter.push($(this).val());
+    });
+
+    var filter_sta_status = sta_status_filter.join(', ');
+
+    var settings;
+
+    const column = [
+        { 'data' : 'CHECK_BOX' },
+        { 'data' : 'REFERENCE_NO' },
+        { 'data' : 'FROM' },
+        { 'data' : 'TO' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_stock_transfer_advice_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 
+                'filter_created_date_start_date' : filter_created_date_start_date, 
+                'filter_created_date_end_date' : filter_created_date_end_date,
+                'filter_on_process_date_start_date' : filter_on_process_date_start_date,
+                'filter_on_process_date_end_date' : filter_on_process_date_end_date,
+                'filter_completed_date_start_date' : filter_completed_date_start_date,
+                'filter_completed_date_end_date' : filter_completed_date_end_date,
+                'filter_sta_status' : filter_sta_status,
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -1212,30 +1367,53 @@ $.validator.addMethod("notEqualTo", function (value, element, param) {
     return this.optional(element) || value !== $(param).val();
 }, "Transferred from and to cannot be the same");
 
+$.validator.addMethod("not958", function(value) {
+    return value !== "958";
+}, "Value cannot be parts stock");
+
+// transferred_to must not be 958 when sta_type = 'Swap'
+$.validator.addMethod("not958OnSwap", function(value, element, params) {
+    const staType = $(params).val();
+    if (staType === "Swap") {
+        return value !== "958";
+    }
+    return true; // valid when not Swap
+}, "Transferred to cannot be parts stock when STA Type is Swap");
+
 function stockTransferAdviceForm(){
     $('#stock-transfer-advice-form').validate({
         rules: {
             transferred_from: {
-                required: true
+                required: true,
+                not958: true
             },
             sta_type: {
+                required: true
+            },
+            company_id: {
                 required: true
             },
             transferred_to: {
                 required: true,
-                notEqualTo: "#transferred_from"
+                notEqualTo: "#transferred_from",
+                not958OnSwap: "#sta_type"
             },
         },
         messages: {
             transferred_from: {
-                required: 'Please choose the customer'
+                required: 'Please choose the transferred from',
+                not958: "Transferred from cannot be parts stock"
             },
             sta_type: {
                 required: 'Please choose the sta type'
             },
+            company_id: {
+                required: 'Please choose the company'
+            },
             transferred_to: {
-                required: 'Please choose the customer',
-                notEqualTo: "Transferred from and transferred to cannot be the same"
+                required: 'Please choose the transferred to',
+                notEqualTo: "Transferred from and transferred to cannot be the same",
+                not958OnSwap: "Transferred to cannot be parts stock when STA Type is Swap"
             },
         },
         errorPlacement: function (error, element) {
@@ -1270,12 +1448,11 @@ function stockTransferAdviceForm(){
         submitHandler: function(form) {
             const stock_transfer_advice_id = $('#stock-transfer-advice-id').text();
             const transaction = 'save stock transfer advice';
-            const company_id = $('#page-company').val();
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/stock-transfer-advice-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&stock_transfer_advice_id=' + stock_transfer_advice_id + '&company_id=' + company_id,
+                data: $(form).serialize() + '&transaction=' + transaction + '&stock_transfer_advice_id=' + stock_transfer_advice_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
@@ -1287,15 +1464,7 @@ function stockTransferAdviceForm(){
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
 
-                        if(company_id == '1'){
-                             window.location = 'supplies-transaction.php?id=' + response.stockTransferAdviceID;
-                        }
-                        else if(company_id == '2'){
-                             window.location = 'netruck-stock-transfer-advice.php?id=' + response.stockTransferAdviceID;
-                        }
-                        else{
-                             window.location = 'stock-transfer-advice.php?id=' + response.stockTransferAdviceID;
-                        }
+                        window.location = 'stock-transfer-advice.php?id=' + response.stockTransferAdviceID;
                        
                     }
                     else {
@@ -1780,6 +1949,7 @@ function displayDetails(transaction){
                         checkOptionExist('#transferred_from', response.transferred_from, '');
                         checkOptionExist('#transferred_to', response.transferred_to, '');
                         checkOptionExist('#sta_type', response.sta_type, '');
+                        checkOptionExist('#company_id', response.company_id, '');
                     } 
                     else {
                         if(response.isInactive){

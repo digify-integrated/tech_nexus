@@ -181,7 +181,7 @@ class BackJobMonitoringController {
         $payment_date = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
 
         $backjobOrderMonitoringJobOrderDetails = $this->backJobMonitoringModel->getBackJobMonitoringJobOrder($backjobMonitoringJobOrderID);
-        $backjob_monitoring_id = $backjobOrderMonitoringJobOrderDetails['backjob_monitoring_id'];
+        $sales_proposal_id = $backjobOrderMonitoringJobOrderDetails['sales_proposal_id'];
         $cost_markup = $backjobOrderMonitoringJobOrderDetails['cost_markup'];
         $job_cost = $backjobOrderMonitoringJobOrderDetails['cost'];
         $job_order = $backjobOrderMonitoringJobOrderDetails['job_order'];
@@ -192,7 +192,7 @@ class BackJobMonitoringController {
 
         $entry_type = 'Internal Job Order';
 
-        $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
+        $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($sales_proposal_id);
         $sales_proposal_id = $backJobMonitoringDetails['sales_proposal_id'] ?? null;
         $product_id = $backJobMonitoringDetails['product_id'] ?? null;
 
@@ -210,9 +210,9 @@ class BackJobMonitoringController {
             $product_status = $productDetails['product_status'] ?? 'Draft';
         }
 
-        $this->backJobMonitoringModel->createBackjobJobOrderEntry($backjob_monitoring_id, $backjobMonitoringJobOrderID, $entry_type, $company_id, $job_cost, $cost_markup, $product_status, $userID);
+        $this->backJobMonitoringModel->createBackjobJobOrderEntry($sales_proposal_id, $backjobMonitoringJobOrderID, $entry_type, $company_id, $job_cost, $cost_markup, $product_status, $userID);
 
-        $this->productModel->insertProductExpense($product_id, 'Contractor Report', $backjob_monitoring_id, $cost_markup, $work_center_name, $job_order, date('Y-m-d'), $userID);
+        $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_id, $cost_markup, $work_center_name, $job_order, date('Y-m-d'), $userID);
 
         $this->backJobMonitoringModel->updateBackjobMonitoringJobOrderPaid($backjobMonitoringJobOrderID, $reference_number, $payment_date, $userID);
 
@@ -245,7 +245,7 @@ class BackJobMonitoringController {
         $payment_date = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
 
         $backjobOrderMonitoringJobOrderDetails = $this->backJobMonitoringModel->getBackJobMonitoringAdditionalJobOrder($salesAdditionalProposalJobOrderID);
-        $backjob_monitoring_id = $backjobOrderMonitoringJobOrderDetails['backjob_monitoring_id'];
+        $sales_proposal_id = $backjobOrderMonitoringJobOrderDetails['sales_proposal_id'];
         $cost_markup = $backjobOrderMonitoringJobOrderDetails['cost_markup'];
         $job_cost = $backjobOrderMonitoringJobOrderDetails['job_cost']; 
         $work_center_id = $backjobOrderMonitoringJobOrderDetails['work_center_id'];
@@ -255,7 +255,7 @@ class BackJobMonitoringController {
         $work_center_name = $workCenterDetails['work_center_name'] ?? null;
         $entry_type = 'Internal Additional Job Order';
 
-        $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
+        $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($sales_proposal_id);
         $sales_proposal_id = $backJobMonitoringDetails['sales_proposal_id'] ?? null;
         $product_id = $backJobMonitoringDetails['product_id'] ?? null;
 
@@ -273,9 +273,9 @@ class BackJobMonitoringController {
             $product_status = $productDetails['product_status'] ?? 'Draft';
         }
 
-        $this->backJobMonitoringModel->createBackjobJobOrderEntry($backjob_monitoring_id, $salesAdditionalProposalJobOrderID, $entry_type, $company_id, $job_cost, $cost_markup, $product_status, $userID);
+        $this->backJobMonitoringModel->createBackjobJobOrderEntry($sales_proposal_id, $salesAdditionalProposalJobOrderID, $entry_type, $company_id, $job_cost, $cost_markup, $product_status, $userID);
 
-        $this->productModel->insertProductExpense($product_id, 'Contractor Report', $backjob_monitoring_id, $cost_markup, $work_center_name, $particulars, date('Y-m-d'), $userID);
+        $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_id, $cost_markup, $work_center_name, $particulars, date('Y-m-d'), $userID);
     
         $this->backJobMonitoringModel->updateBackjobMonitoringAdditionalJobOrderPaid($salesAdditionalProposalJobOrderID, $reference_number, $payment_date, $userID);
             
@@ -325,10 +325,10 @@ class BackJobMonitoringController {
         }
 
         if($type === 'Backjob'){
-            $backjob_monitoring_id = htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8');
+            $sales_proposal_id = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         }
         else{
-            $backjob_monitoring_id = null;
+            $sales_proposal_id = null;
         }
 
         if($type === 'Internal Repair'){
@@ -338,7 +338,7 @@ class BackJobMonitoringController {
             $product_id = htmlspecialchars($_POST['product_id2'], ENT_QUOTES, 'UTF-8');
         }
         else{
-            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($backjob_monitoring_id);
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($sales_proposal_id);
             $product_id = $salesProposalDetails['product_id'] ?? null;
         }
     
@@ -346,22 +346,22 @@ class BackJobMonitoringController {
         $total = $checkBackJobMonitoringExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->backJobMonitoringModel->updateBackJobMonitoring($backjobMonitoringID, $type, $product_id, $backjob_monitoring_id, $userID);
+            $this->backJobMonitoringModel->updateBackJobMonitoring($backjobMonitoringID, $type, $product_id, $sales_proposal_id, $userID);
 
             $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
 
             if($type != $backJobMonitoringDetails['type'] && $type == 'Backjob'){
-                $this->backJobMonitoringModel->loadBackJobMonitoringJobOrder($backjobMonitoringID, $backjob_monitoring_id, $userID);
+                $this->backJobMonitoringModel->loadBackJobMonitoringJobOrder($backjobMonitoringID, $sales_proposal_id, $userID);
             }
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'backjobMonitoringID' => $this->securityModel->encryptData($backjobMonitoringID)]);
             exit;
         } 
         else {
-            $backjobMonitoringID = $this->backJobMonitoringModel->insertBackJobMonitoring($type, $product_id, $backjob_monitoring_id, $userID);
+            $backjobMonitoringID = $this->backJobMonitoringModel->insertBackJobMonitoring($type, $product_id, $sales_proposal_id, $userID);
 
             if($type == 'Backjob'){
-                $this->backJobMonitoringModel->loadBackJobMonitoringJobOrder($backjobMonitoringID, $backjob_monitoring_id, $userID);
+                $this->backJobMonitoringModel->loadBackJobMonitoringJobOrder($backjobMonitoringID, $sales_proposal_id, $userID);
             }
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'backjobMonitoringID' => $this->securityModel->encryptData($backjobMonitoringID)]);
@@ -1577,7 +1577,7 @@ class BackJobMonitoringController {
         
         $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
         $type = $backJobMonitoringDetails['type'];
-        $backjob_monitoring_id = $backJobMonitoringDetails['backjob_monitoring_id'] ?? null;
+        $sales_proposal_id = $backJobMonitoringDetails['sales_proposal_id'] ?? null;
         $outgoing_checklist = $backJobMonitoringDetails['outgoing_checklist'];
         $quality_control_form = $backJobMonitoringDetails['quality_control_form'];
         $unit_image = $backJobMonitoringDetails['unit_image'];
@@ -1596,7 +1596,7 @@ class BackJobMonitoringController {
         }
 
         if($type == 'Backjob'){
-            $reference_number = $backjob_monitoring_id;
+            $reference_number = $sales_proposal_id;
         }
         else{
             $reference_number = $backjobMonitoringID;
@@ -1738,7 +1738,7 @@ class BackJobMonitoringController {
                 'success' => true,
                 'type' => $backJobMonitoringDetails['type'],
                 'product_id' => $backJobMonitoringDetails['product_id'],
-                'backjob_monitoring_id' => $backJobMonitoringDetails['backjob_monitoring_id'],
+                'sales_proposal_id' => $backJobMonitoringDetails['sales_proposal_id'],
                 'unitImage' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_image'], 'default'),
                 'unitBack' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_back'], 'default'),
                 'unitLeft' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_left'], 'default'),

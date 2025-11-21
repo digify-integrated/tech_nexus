@@ -38,11 +38,19 @@
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">STA Type <span class="text-danger">*</span></label>
-            <div class="col-lg-10" id="internal-select">
+            <div class="col-lg-4" id="internal-select">
                 <select class="form-control select2" name="sta_type" id="sta_type">
                   <option value="">--</option>
                   <option value="Transfer">Transfer</option>
                   <option value="Swap">Swap</option>
+                </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
+            <div class="col-lg-4" id="internal-select">
+                <select class="form-control select2" name="company_id" id="company_id">
+                <option value="">--</option>
+                  <option value="2">NE Truck Builders</option>
+                  <option value="3">FUSO Tarlac</option>
                 </select>
             </div>
           </div>

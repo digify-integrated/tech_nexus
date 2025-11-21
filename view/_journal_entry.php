@@ -75,6 +75,10 @@
                                 <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-10" value="Internal Additional Job Order" checked/>
                                 <label class="form-check-label" for="journal-id-10">Internal Additional Job Order</label>
                               </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-11" value="Stock Transfer Advice" checked/>
+                                <label class="form-check-label" for="journal-id-11">Stock Transfer Advice</label>
+                              </div>
                             </div>
                           </div>
                         </div>
