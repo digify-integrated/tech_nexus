@@ -256,7 +256,7 @@
                       <div class="form-group row">
                         <div class="col-lg-4">
                           <label class="form-label">Document Name <span class="text-danger">*</span></label>
-                          <input type="text" class="form-control" id="document_name" name="document_name" maxlength="100" autocomplete="off">
+                          <input type="text" class="form-control" id="document_name" name="document_name" maxlength="150" autocomplete="off">
                         </div>
                         <div class="col-lg-4 mt-3 mt-lg-0">
                           <label class="form-label">Document Category <span class="text-danger">*</span></label>

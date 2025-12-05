@@ -65,7 +65,7 @@
             </div>
             
           </div>
-          <div class="form-group row <?php if($company == '2' || $company == '1') echo 'd-none'; ?>">
+          <div class="form-group row d-none">
             <label class="col-lg-2 col-form-label">Reference Number</label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off">

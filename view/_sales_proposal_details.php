@@ -1826,7 +1826,7 @@
 <div>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-client-confirmation-offcanvas" aria-labelledby="sales-proposal-client-confirmation-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-client-confirmation-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmantion</h2>
+      <h2 id="sales-proposal-client-confirmation-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmation</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -1855,7 +1855,7 @@
 <div>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-comaker-confirmation-offcanvas" aria-labelledby="sales-proposal-client-confirmation-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-comaker-confirmation-offcanvas-label" style="margin-bottom:-0.5rem">Co-maker Confirmantion</h2>
+      <h2 id="sales-proposal-comaker-confirmation-offcanvas-label" style="margin-bottom:-0.5rem">Co-maker Confirmation</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -1942,7 +1942,7 @@
 <div>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-new-engine-stencil-offcanvas" aria-labelledby="sales-proposal-engine-stencil-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-engine-stencil-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmantion</h2>
+      <h2 id="sales-proposal-engine-stencil-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmation</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">

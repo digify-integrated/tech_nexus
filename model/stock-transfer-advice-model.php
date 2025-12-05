@@ -69,6 +69,18 @@ class StockTransferAdviceModel {
         SET 
             on_process_date = NOW(),
             sta_status = "On-Process",
+            approval_by = :p_last_log_by,
+            last_log_by = :p_last_log_by
+        WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id;');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateStockTransferAdviceForApproval($p_stock_transfer_advice_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE stock_transfer_advice
+        SET 
+            for_approval_date = NOW(),
+            sta_status = "For Approval",
             last_log_by = :p_last_log_by
         WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id;');
         $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
@@ -189,6 +201,32 @@ class StockTransferAdviceModel {
         $stmt->execute();
     }
 
+    public function insertStockTransferAdviceReplacement($stock_transfer_advice_cart_id, $stock_transfer_advice_id, $part_replace, $part_id, $replacement_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('INSERT INTO stock_transfer_advice_replacement (
+            stock_transfer_advice_cart_id,
+            stock_transfer_advice_id,
+            part_replace,
+            part_id,
+            remarks,
+            last_log_by
+        ) 
+        VALUES (
+            :stock_transfer_advice_cart_id,
+            :stock_transfer_advice_id,
+            :part_replace,
+            :part_id,
+            :replacement_remarks,
+            :p_last_log_by
+        );');
+        $stmt->bindValue(':stock_transfer_advice_cart_id', $stock_transfer_advice_cart_id, PDO::PARAM_STR);
+        $stmt->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
+        $stmt->bindValue(':part_replace', $part_replace, PDO::PARAM_STR);
+        $stmt->bindValue(':part_id', $part_id, PDO::PARAM_STR);
+        $stmt->bindValue(':replacement_remarks', $replacement_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function updateStockTransferAdviceSlipReferenceNumber($p_stock_transfer_advice_id, $slip_reference_no, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateStockTransferAdviceSlipReferenceNumber(:p_stock_transfer_advice_id, :slip_reference_no, :p_last_log_by)');
         $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
@@ -197,7 +235,7 @@ class StockTransferAdviceModel {
         $stmt->execute();
     }
 
-    public function insertStockTransferAdvicePartItem($p_stock_transfer_advice_id, $p_part_id, $part_from, $p_last_log_by) {
+    public function insertStockTransferAdvicePartItem($p_stock_transfer_advice_id, $p_part_id, $part_from, $part_price, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('INSERT INTO stock_transfer_advice_cart (
         stock_transfer_advice_id,
         part_id,
@@ -208,7 +246,7 @@ class StockTransferAdviceModel {
     ) VALUES (
         :p_stock_transfer_advice_id,
         :p_part_id,
-        0,
+        :part_price,
         1,
         :part_from,
         :p_last_log_by
@@ -216,6 +254,7 @@ class StockTransferAdviceModel {
         $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->bindValue(':part_from', $part_from, PDO::PARAM_STR);
+        $stmt->bindValue(':part_price', $part_price, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -328,6 +367,17 @@ class StockTransferAdviceModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function checkStockTransferAdviceReplacementExist($stock_transfer_advice_id, $stock_transfer_advice_cart_id, $part_replace, $part_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
+    FROM stock_transfer_advice_replacement
+    WHERE stock_transfer_advice_id = :stock_transfer_advice_id AND stock_transfer_advice_cart_id = :stock_transfer_advice_cart_id AND part_replace = :part_replace AND part_id = :part_id;');
+        $stmt->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_INT);
+        $stmt->bindValue(':stock_transfer_advice_cart_id', $stock_transfer_advice_cart_id, PDO::PARAM_INT);
+        $stmt->bindValue(':part_replace', $part_replace, PDO::PARAM_STR);
+        $stmt->bindValue(':part_id', $part_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -363,6 +413,11 @@ class StockTransferAdviceModel {
     public function deleteStockTransferAdviceAdditionalJobOrder($p_stock_transfer_advice_additional_job_order_id) {
         $stmt = $this->db->getConnection()->prepare('DELETE FROM stock_transfer_advice_additional_job_order WHERE stock_transfer_advice_additional_job_order_id = :p_stock_transfer_advice_additional_job_order_id');
         $stmt->bindValue(':p_stock_transfer_advice_additional_job_order_id', $p_stock_transfer_advice_additional_job_order_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function deletePartReplacement($stock_transfer_advice_replacement_id) {
+        $stmt = $this->db->getConnection()->prepare('DELETE FROM stock_transfer_advice_replacement WHERE stock_transfer_advice_replacement_id = :stock_transfer_advice_replacement_id');
+        $stmt->bindValue(':stock_transfer_advice_replacement_id', $stock_transfer_advice_replacement_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -410,6 +465,16 @@ class StockTransferAdviceModel {
         WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id AND part_from = :p_part_from');
         $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_part_from', $p_part_from, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getStockTransferAdviceItemPrice($p_part_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT cost 
+        from part_incoming_cart 
+        LEFT JOIN part_incoming ON part_incoming.part_incoming_id = part_incoming_cart.part_incoming_id
+        WHERE part_id = :p_part_id AND part_incoming_status IN ("Completed", "Posted") ORDER BY completion_date DESC LIMIT 1;');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

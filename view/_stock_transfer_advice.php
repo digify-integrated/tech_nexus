@@ -119,6 +119,10 @@
                           <label class="form-check-label" for="sta-status-draft">Draft</label>
                         </div>
                         <div class="form-check my-2">
+                          <input class="form-check-input sta-status-checkbox" type="checkbox" id="sta-status-for-approval" value="For Approval"/>
+                          <label class="form-check-label" for="sta-status-for-approval">For Approval</label>
+                        </div>
+                        <div class="form-check my-2">
                           <input class="form-check-input sta-status-checkbox" type="checkbox" id="sta-status-on-process" value="On-Process" checked/>
                           <label class="form-check-label" for="sta-status-on-process">On-Process</label>
                         </div>

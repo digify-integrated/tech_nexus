@@ -13,9 +13,17 @@
         if($('#parts-item-table').length){
            partItemTable('#parts-item-table');
         }
+
+        if($('#parts-replacement-table').length){
+           partReplacementTable('#parts-replacement-table');
+        }
         
         if($('#add-part-form').length){
             addPartsForm();
+        }
+        
+        if($('#replacement-form').length){
+            replacementForm();
         }
 
         if($('#cancel-transaction-form').length){
@@ -137,16 +145,84 @@
             displayDetails('get stock transfer advice cart details');
         });
 
+        $(document).on('click','.add-replacement',function() {
+            const stock_transfer_advice_cart_id = $(this).data('stock-transfer-advice-cart-id');
+
+            $('#stock_transfer_advice_cart_id').val(stock_transfer_advice_cart_id);
+            displayDetails('get stock transfer advice cart details');
+        });
+
         $(document).on('click','#on-process',function() {
             var stock_transfer_advice_id = $('#stock-transfer-advice-id').text();
             const transaction = 'tag transaction as on process';
     
             Swal.fire({
-                title: 'Confirm Stock Transfer Advice On-Process',
-                text: 'Are you sure you want to tag this stock transfer advice as on-process?',
+                title: 'Confirm Stock Transfer Advice Approve',
+                text: 'Are you sure you want to tag this stock transfer advice as approve?',
                 icon: 'warning',
                 showCancelButton: !0,
-                confirmButtonText: 'On-Process',
+                confirmButtonText: 'Approve',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/stock-transfer-advice-controller.php',
+                        dataType: 'json',
+                        data: {
+                            stock_transfer_advice_id : stock_transfer_advice_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Stock Transfer Advice Approve Success', 'The stock transfer advice has been tagged as approved successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.cartQuantity) {
+                                    showNotification('Stock Transfer Advice Approve Error', 'Please add parts you want to transfer.', 'danger');
+                                }
+                                else if (response.cartPrice) {
+                                    showNotification('Stock Transfer Advice Approve Error', 'One of the parts assigned does not have a price.', 'danger');
+                                }
+                                else if (response.jobOrder) {
+                                    showNotification('Stock Transfer Advice Approve Error', 'Please add a job order or additional job order.', 'danger');
+                                }
+                                else {
+                                    showNotification('Stock Transfer Advice Approve Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#for-approval',function() {
+            var stock_transfer_advice_id = $('#stock-transfer-advice-id').text();
+            const transaction = 'tag transaction as for approval';
+    
+            Swal.fire({
+                title: 'Confirm Stock Transfer Advice For Approval',
+                text: 'Are you sure you want to tag this stock transfer advice as for approval?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'For Approval',
                 cancelButtonText: 'Cancel',
                 confirmButtonClass: 'btn btn-info mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
@@ -345,6 +421,64 @@
                                 }
                                 else {
                                     showNotification('Delete Part Item Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+         $(document).on('click','.delete-part-replacement',function() {
+            const stock_transfer_advice_replacement_id = $(this).data('stock-transfer-advice-replacement-id');
+            var stock_transfer_advice_id = $('#stock-transfer-advice-id').text();
+            const transaction = 'delete part replacement';
+    
+            Swal.fire({
+                title: 'Confirm Part Replacement Deletion',
+                text: 'Are you sure you want to delete this part replacement?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/stock-transfer-advice-controller.php',
+                        dataType: 'json',
+                        data: {
+                            stock_transfer_advice_replacement_id : stock_transfer_advice_replacement_id, 
+                            stock_transfer_advice_id : stock_transfer_advice_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Part Replacement Success', 'The part item has been deleted successfully.', 'success');
+                                    reloadDatatable('#parts-replacement-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Part Replacement Error', 'The part item does not exists.', 'danger');
+                                    reloadDatatable('#parts-replacement-table');
+                                }
+                                else {
+                                    showNotification('Delete Part Replacement Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -1363,6 +1497,64 @@ function partItemTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
+function partReplacementTable(datatable_name, buttons = false, show_all = false){
+    var stock_transfer_advice_id = $('#stock-transfer-advice-id').text();
+    const type = 'part replacement table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'ACTION' },
+        { 'data' : 'SOURCE' },
+        { 'data' : 'PART' },
+        { 'data' : 'STATUS' },
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'bSortable': false, 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_stock_transfer_advice_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'stock_transfer_advice_id' : stock_transfer_advice_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 $.validator.addMethod("notEqualTo", function (value, element, param) {
     return this.optional(element) || value !== $(param).val();
 }, "Transferred from and to cannot be the same");
@@ -1594,6 +1786,62 @@ function addJobOrderForm(){
                     enableFormSubmitButton('submit-add-job-order', 'Submit');
                     $('#add-job-order-offcanvas').offcanvas('hide');
                     reloadDatatable('#job-order-table');
+                }
+            });
+            return false;
+        }
+    });
+}
+
+function replacementForm(){
+    $('#replacement-form').validate({
+        rules: {
+            part_replace: {
+                required: true
+            },
+        },
+        messages: {
+            part_replace: {
+                required: 'Please choose the product'
+            },
+        },
+        submitHandler: function(form) {
+            var stock_transfer_advice_id = $('#stock-transfer-advice-id').text();
+            var stock_transfer_advice_cart_id = $('#stock_transfer_advice_cart_id').val();
+            const transaction = 'save stock transfer replacement';
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/stock-transfer-advice-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&stock_transfer_advice_id=' + stock_transfer_advice_id + '&stock_transfer_advice_cart_id=' + stock_transfer_advice_cart_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-replacement');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotification('Save Replacement Success', 'The replacement has been saved successfully.', 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-replacement', 'Submit');
+                    $('#replacement-offcanvas').offcanvas('hide');
+                    resetModalForm('replacement-form');
+                    reloadDatatable('#parts-replacement-table');
                 }
             });
             return false;

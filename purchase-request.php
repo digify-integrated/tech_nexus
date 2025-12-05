@@ -1,43 +1,35 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/stock-transfer-advice-model.php');
-  require('model/customer-model.php');
-  require('model/product-model.php');
-  require('model/miscellaneous-client-model.php');
+  require('model/purchase-request-model.php');
   require('model/company-model.php');
-
-  $stockTransferAdviceModel = new StockTransferAdviceModel($databaseModel);
-  $customerModel = new CustomerModel($databaseModel);
-  $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
-  $productModel = new ProductModel($databaseModel);
+  
+  $purchaseRequestModel = new PurchaseRequestModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
 
-  $pageTitle = 'Stock Transfer Advice';
+  $pageTitle = 'Purchase Request';
     
-  $stockTransferAdviceReadAccess = $userModel->checkMenuItemAccessRights($user_id, 177, 'read');
-  $stockTransferAdviceCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 177, 'create');
-  $stockTransferAdviceWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 177, 'write');
-  $stockTransferAdviceDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 177, 'delete');
-  $stockTransferAdviceDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 177, 'duplicate');
-  $postSTA = $userModel->checkSystemActionAccessRights($user_id, 231);
-  $approveSTA = $userModel->checkSystemActionAccessRights($user_id, 232);
+  $purchaseRequestReadAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'read');
+  $purchaseRequestCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'create');
+  $purchaseRequestWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'write');
+  $purchaseRequestDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'delete');
+  $purchaseRequestDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'duplicate');
 
-  if ($stockTransferAdviceReadAccess['total'] == 0) {
+  if ($purchaseRequestReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: stock-transfer-advice.php');
+      header('location: purchase-request.php');
       exit;
     }
 
-    $stockTransferAdviceID = $securityModel->decryptData($_GET['id']);
+    $purchaseRequestID = $securityModel->decryptData($_GET['id']);
 
-    $checkStockTransferAdviceExist = $stockTransferAdviceModel->checkStockTransferAdviceExist($stockTransferAdviceID);
-    $total = $checkStockTransferAdviceExist['total'] ?? 0;
+    $checkPurchaseRequestExist = $purchaseRequestModel->checkPurchaseRequestExist($purchaseRequestID);
+    $total = $checkPurchaseRequestExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
@@ -45,7 +37,7 @@
     }
   }
   else{
-    $stockTransferAdviceID = null;
+    $purchaseRequestID = null;
   }
 
   $newRecord = isset($_GET['new']);
@@ -58,7 +50,6 @@
 <head>
     <?php include_once('config/_title.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
-    <link rel="stylesheet" href="./assets/css/plugins/datepicker-bs5.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
@@ -80,10 +71,10 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="stock-transfer-advice.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="purchase-request.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($stockTransferAdviceID)){
-                            echo '<li class="breadcrumb-item" id="stock-transfer-advice-id">'. $stockTransferAdviceID .'</li>';
+                        if(!$newRecord && !empty($purchaseRequestID)){
+                            echo '<li class="breadcrumb-item" id="purchase-request-id">'. $purchaseRequestID .'</li>';
                         }
 
                         if($newRecord){
@@ -101,14 +92,14 @@
           </div>
         </div>
         <?php
-          if($newRecord && $stockTransferAdviceCreateAccess['total'] > 0){
-            require_once('view/_stock_transfer_advice_new.php');
+          if($newRecord && $purchaseRequestCreateAccess['total'] > 0){
+            require_once('view/_purchase_request_new.php');
           }
-          else if(!empty($stockTransferAdviceID) && $stockTransferAdviceWriteAccess['total'] > 0){
-            require_once('view/_stock_transfer_advice_details.php');
+          else if(!empty($purchaseRequestID) && $purchaseRequestWriteAccess['total'] > 0){
+            require_once('view/_purchase_request_details.php');
           }
           else{
-            require_once('view/_stock_transfer_advice.php');
+            require_once('view/_purchase_request.php');
           }
         ?>
       </div>
@@ -125,9 +116,8 @@
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
-    <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/stock-transfer-advice.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/purchase-request.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

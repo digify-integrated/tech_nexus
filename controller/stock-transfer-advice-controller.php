@@ -101,6 +101,9 @@ class StockTransferAdviceController {
                 case 'delete part item':
                     $this->deleteStockTransferAdviceCart();
                     break;
+                case 'delete part replacement':
+                    $this->deletePartReplacement();
+                    break;
                 case 'delete job order':
                     $this->deleteJobOrder();
                     break;
@@ -113,14 +116,17 @@ class StockTransferAdviceController {
                 case 'delete internal additional job order':
                     $this->deleteAdditionalJobOrder();
                     break;
-                case 'add stock transfer advice document':
-                    $this->addPartsDocument();
+                case 'save stock transfer replacement':
+                    $this->addStockTransferReplacement();
                     break;
                 case 'delete multiple stock transfer advice':
                     $this->deleteMultipleStockTransferAdvice();
                     break;
                 case 'tag transaction as on process':
                     $this->tagAsOnProcess();
+                    break;
+                case 'tag transaction as for approval':
+                    $this->tagAsForApproval();
                     break;
                 case 'tag transaction as completed':
                     $this->tagAsCompleted();
@@ -230,9 +236,42 @@ class StockTransferAdviceController {
         
         foreach ($part_ids as $part_id) {
             if(!empty($part_id)){
-                $this->stockTransferAdviceModel->insertStockTransferAdvicePartItem($stock_transfer_advice_id, $part_id, $part_from_source, $userID);
+                $part_price =  $this->stockTransferAdviceModel->getStockTransferAdviceItemPrice($part_id)['cost'] ?? 0;
+                $this->stockTransferAdviceModel->insertStockTransferAdvicePartItem($stock_transfer_advice_id, $part_id, $part_from_source, $part_price, $userID);
             }
         }
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function addStockTransferReplacement() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_cart_id = htmlspecialchars($_POST['stock_transfer_advice_cart_id'], ENT_QUOTES, 'UTF-8');
+        $part_replace = $_POST['part_replace'];
+        $replacement_remarks = $_POST['replacement_remarks'];
+
+        $stockTransferAdviceCartDetails = $this->stockTransferAdviceModel->getStockTransferAdviceCart($stock_transfer_advice_cart_id);
+        $part_id = $stockTransferAdviceCartDetails['part_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $checkStockTransferAdviceReplacementExist = $this->stockTransferAdviceModel->checkStockTransferAdviceReplacementExist($stock_transfer_advice_id, $stock_transfer_advice_cart_id, $part_replace, $part_id);
+        $total = $checkStockTransferAdviceReplacementExist['total'] ?? 0;
+    
+        if ($total == 0) {
+            $this->stockTransferAdviceModel->insertStockTransferAdviceReplacement($stock_transfer_advice_cart_id, $stock_transfer_advice_id, $part_replace, $part_id, $replacement_remarks, $userID);
+        }       
         
         echo json_encode(['success' => true]);
         exit;
@@ -359,6 +398,78 @@ class StockTransferAdviceController {
         }
     
         $this->stockTransferAdviceModel->updateStockTransferAdviceOnProcess($stock_transfer_advice_id, $userID);
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function tagAsForApproval() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $partTransactionDetails = $this->stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
+        $sta_type = $partTransactionDetails['sta_type'] ?? 'Draft';
+
+        $quantity = 0;
+        $price = 0;
+        $quantityFrom = 0;
+        $priceFrom = 0;
+        $quantityTo = 0;
+        $priceTo = 0;
+
+        if($sta_type == 'Transfer'){
+            $quantity = $this->stockTransferAdviceModel->getAssignedPartCount($stock_transfer_advice_id, p_part_from: 'From')['total'] ?? 0;
+            $price = $this->stockTransferAdviceModel->getAssignedPartPrice($stock_transfer_advice_id, 'From')['total'] ?? 0;
+        }
+
+        if($sta_type == 'Swap'){
+            $quantityFrom = $this->stockTransferAdviceModel->getAssignedPartCount($stock_transfer_advice_id, 'From')['total'] ?? 0;
+            $priceFrom = $this->stockTransferAdviceModel->getAssignedPartPrice($stock_transfer_advice_id, 'From')['total'] ?? 0;
+            $quantityTo = $this->stockTransferAdviceModel->getAssignedPartCount($stock_transfer_advice_id, 'To')['total'] ?? 0;
+            $priceTo = $this->stockTransferAdviceModel->getAssignedPartPrice($stock_transfer_advice_id, 'To')['total'] ?? 0;
+        }
+
+        $jobOrderCount = $this->stockTransferAdviceModel->getJobOrderCount($stock_transfer_advice_id)['total'] ?? 0;
+        $additionalJobOrderCount = $this->stockTransferAdviceModel->getAdditionalJobOrderCount($stock_transfer_advice_id)['total'] ?? 0;
+        $jobOrderTotal = $jobOrderCount + $additionalJobOrderCount;
+
+        if($quantity == 0 && $sta_type == 'Transfer'){
+            echo json_encode(['success' => false, 'cartQuantity' => true]);
+            exit;
+        }
+
+        if(($quantityFrom == 0 || $quantityTo == 0) && $sta_type == 'Swap'){
+            echo json_encode(['success' => false, 'cartQuantity' => true]);
+            exit;
+        }
+
+        if($price > 0 && $sta_type == 'Transfer'){
+            echo json_encode(['success' => false, 'cartPrice' => true]);
+            exit;
+        }
+
+        if(($priceFrom > 0 || $priceTo > 0) && $sta_type == 'Swap'){
+            echo json_encode(['success' => false, 'cartPrice' => true]);
+            exit;
+        }
+
+        if($jobOrderTotal == 0){
+            echo json_encode(['success' => false, 'jobOrder' => true]);
+            exit;
+        }
+    
+        $this->stockTransferAdviceModel->updateStockTransferAdviceForApproval($stock_transfer_advice_id, $userID);
 
         echo json_encode(['success' => true]);
         exit;
@@ -591,88 +702,6 @@ class StockTransferAdviceController {
         echo json_encode(['success' => true]);
         exit;
     }
-
-    public function addPartsDocument() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $document_name = htmlspecialchars($_POST['document_name'], ENT_QUOTES, 'UTF-8');
-        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
-        
-        $user = $this->userModel->getUserByID($userID);
-        $isActive = $user['is_active'] ?? 0;
-    
-        if (!$isActive) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-
-        $transactionDocumentFileName = $_FILES['transaction_document']['name'];
-        $transactionDocumentFileSize = $_FILES['transaction_document']['size'];
-        $transactionDocumentFileError = $_FILES['transaction_document']['error'];
-        $transactionDocumentTempName = $_FILES['transaction_document']['tmp_name'];
-        $transactionDocumentFileExtension = explode('.', $transactionDocumentFileName);
-        $transactionDocumentActualFileExtension = strtolower(end($transactionDocumentFileExtension));
-
-        $uploadSetting = $this->uploadSettingModel->getUploadSetting(6);
-        $maxFileSize = $uploadSetting['max_file_size'];
-
-        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(6);
-        $allowedFileExtensions = [];
-
-        foreach ($uploadSettingFileExtension as $row) {
-            $fileExtensionID = $row['file_extension_id'];
-            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
-            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
-        }
-
-        if (!in_array($transactionDocumentActualFileExtension, $allowedFileExtensions)) {
-            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
-            echo json_encode($response);
-            exit;
-        }
-        
-        if(empty($transactionDocumentTempName)){
-            echo json_encode(['success' => false, 'message' => 'Please choose the transaction document.']);
-            exit;
-        }
-        
-        if($transactionDocumentFileError){
-            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
-            exit;
-        }
-        
-        if($transactionDocumentFileSize > ($maxFileSize * 1048576)){
-            echo json_encode(['success' => false, 'message' => 'The transaction document exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
-            exit;
-        }
-
-        $fileName = $this->securityModel->generateFileName();
-        $fileNew = $fileName . '.' . $transactionDocumentActualFileExtension;
-
-        $directory = DEFAULT_PRODUCT_RELATIVE_PATH_FILE . $stock_transfer_advice_id  . '/part_transaction/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_PRODUCT_FULL_PATH_FILE . $stock_transfer_advice_id . '/part_transaction/' . $fileNew;
-        $filePath = $directory . $fileNew;
-
-        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
-
-        if(!$directoryChecker){
-            echo json_encode(['success' => false, 'message' => $directoryChecker]);
-            exit;
-        }
-
-        if(!move_uploaded_file($transactionDocumentTempName, $fileDestination)){
-            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
-            exit;
-        }
-
-        $this->stockTransferAdviceModel->insertStockTransferAdviceDocument($stock_transfer_advice_id, $document_name, $filePath, $userID);
-
-        echo json_encode(['success' => true]);
-        exit;
-    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -736,6 +765,28 @@ class StockTransferAdviceController {
         }
     
         $this->stockTransferAdviceModel->deleteStockTransferAdviceCart($stock_transfer_advice_cart_id);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function deletePartReplacement() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $stock_transfer_advice_replacement_id = htmlspecialchars($_POST['stock_transfer_advice_replacement_id'], ENT_QUOTES, 'UTF-8');
+        $stock_transfer_advice_id = htmlspecialchars($_POST['stock_transfer_advice_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->stockTransferAdviceModel->deletePartReplacement($stock_transfer_advice_replacement_id);
             
         echo json_encode(['success' => true]);
         exit;

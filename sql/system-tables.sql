@@ -6808,6 +6808,23 @@ CREATE TABLE stock_transfer_advice_cart(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
+CREATE TABLE stock_transfer_advice_replacement(
+	stock_transfer_advice_replacement_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    stock_transfer_advice_cart_id INT NOT NULL,
+    stock_transfer_advice_id INT NOT NULL,
+    part_replace ENUM('From', 'To', 'Both') DEFAULT 'From',
+	part_id INT NOT NULL,
+    replacement_stats ENUM('For Replacement', 'Replaced', 'Cancelled') DEFAULT 'For Replacement',
+	remarks VARCHAR(5000) NOT NULL,
+    replacement_date DATETIME,
+    part_transaction_id INT,
+	cancellation_date DATETIME,
+	cancellation_reason VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
 CREATE TABLE stock_transfer_advice_job_order(
 	stock_transfer_advice_job_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     stock_transfer_advice_id VARCHAR(100) NOT NULL,
@@ -6824,6 +6841,35 @@ CREATE TABLE stock_transfer_advice_additional_job_order(
 	additional_job_order_id INT NOT NULL,
 	type VARCHAR(100) NOT NULL,
 	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE purchase_request(
+	purchase_request_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    reference_no VARCHAR(100) NOT NULL,
+	purchase_request_status ENUM('Draft', 'For Approval', 'Approved', 'Cancelled') NOT NULL DEFAULT 'Draft',
+	purchase_request_type ENUM('Product', 'Parts', 'Supplies', 'Others') NOT NULL,
+    company_id INT UNSIGNED NOT NULL,
+	remarks VARCHAR(5000),
+	for_approval_date DATETIME,
+	approval_date DATETIME,
+	cancellation_date DATETIME,
+	cancellation_reason VARCHAR(500),
+	last_set_to_draft_date DATETIME,
+	last_set_to_draft_reason VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE purchase_request_product_cart(
+	purchase_request_product_cart_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	purchase_request_id INT UNSIGNED NOT NULL,
+	description VARCHAR(5000) NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    unit_id INT NOT NULL,
+    short_name VARCHAR(10) NOT NULL,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );

@@ -4508,7 +4508,7 @@ BEGIN
     WHERE contact_document_id = p_contact_document_id;
 END //
 
-CREATE PROCEDURE insertContactDocument(IN p_contact_id INT, IN p_document_name VARCHAR(100), IN p_document_type VARCHAR(100), IN p_last_log_by INT, OUT p_contact_document_id INT)
+CREATE PROCEDURE insertContactDocument(IN p_contact_id INT, IN p_document_name VARCHAR(150), IN p_document_type VARCHAR(100), IN p_last_log_by INT, OUT p_contact_document_id INT)
 BEGIN
     INSERT INTO contact_document (contact_id, document_name, document_type, last_log_by) 
 	VALUES(p_contact_id, p_document_name, p_document_type, p_last_log_by);
@@ -12461,10 +12461,13 @@ BEGIN
         WHERE product_id = p_product_id;
     ELSEIF p_product_status = 'Returned' THEN
         UPDATE product
-        SET product_status = 'For Sale',
-        returned_date = NOW(),
-        last_log_by = p_last_log_by
-        WHERE product_id = p_product_id;
+        SET 
+            product_status = 'For Sale',
+            returned_date = NOW(),
+            last_log_by = p_last_log_by
+        WHERE 
+            product_id = p_product_id
+            AND product_status NOT IN ('ROPA', 'Sold');
     ELSEIF p_product_status = 'Consigned' THEN
         UPDATE product
         SET product_status = p_product_status,
@@ -21150,7 +21153,7 @@ BEGIN
 
         -- Update part_transaction_cart while ensuring it doesn't go below zero
         UPDATE part
-        SET quantity = GREATEST(quantity - v_return_quantity, 0),
+        SET quantity = GREATEST(quantity + v_return_quantity, 0),
             last_log_by = p_last_log_by
         WHERE part_id = v_part_id;
     END LOOP;
@@ -21499,7 +21502,7 @@ BEGIN
                 p_part_transaction_id, 
                 NOW(), 
                 p_reference_number, 
-                'Parts Issuance', 
+                'Parts Return', 
                 v_chart_item, 
                 0, 
                 p_cost, 
@@ -21527,7 +21530,7 @@ BEGIN
                 p_part_transaction_id, 
                 NOW(), 
                 p_reference_number, 
-                'Parts Issuance', 
+                'Parts Return', 
                 v_credit, 
                 p_cost, 
                 0, 
@@ -21555,7 +21558,7 @@ BEGIN
                 p_part_transaction_id, 
                 NOW(), 
                 p_reference_number, 
-                'Parts Issuance', 
+                'Parts Return', 
                 v_chart_item, 
                 0, 
                 p_price, 
@@ -21583,7 +21586,7 @@ BEGIN
                 p_part_transaction_id, 
                 NOW(), 
                 p_reference_number, 
-                'Parts Issuance', 
+                'Parts Return', 
                 0, 
                 v_credit, 
                 p_price, 
@@ -21615,7 +21618,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Issuance', 
+            'Parts Return', 
             v_chart_item_2, 
             0, 
             p_cost, 
@@ -21647,7 +21650,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Issuance', 
+            'Parts Return', 
             v_credit_2, 
             p_cost, 
             0, 
@@ -21676,7 +21679,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Issuance', 
+            'Parts Return', 
             v_chart_item_2, 
             0, 
             p_cost, 
@@ -21705,7 +21708,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Issuance', 
+            'Parts Return', 
             v_credit_2, 
             p_cost, 
             0, 
@@ -21994,3 +21997,64 @@ BEGIN
     );
 
 END//
+
+CREATE PROCEDURE generatePurchaseRequestTable(IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_approval_date_start_date DATE, IN p_approval_date_end_date DATE, IN p_purchase_request_status VARCHAR(5000))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM purchase_request';
+    SET conditionList = ' WHERE 1';
+
+    IF p_purchase_request_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND purchase_request_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_purchase_request_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_approval_date_start_date IS NOT NULL AND p_approval_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(approval_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+
+CREATE PROCEDURE checkPurchaseRequestExist(IN p_purchase_request_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM purchase_request
+    WHERE purchase_request_id = p_purchase_request_id;
+END //
+
+CREATE PROCEDURE insertPurchaseRequest(IN p_reference_number VARCHAR(100), IN p_purchase_request_type VARCHAR(100), IN p_company_id INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_purchase_request_id INT)
+BEGIN
+    INSERT INTO purchase_request (reference_number, purchase_request_type, company_id, remarks, last_log_by) 
+	VALUES(p_reference_number, p_purchase_request_type, p_company_id, p_remarks, p_last_log_by);
+	
+    SET p_purchase_request_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updatePurchaseRequest(IN p_purchase_request_id INT, IN p_purchase_request_type VARCHAR(100), IN p_company_id INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+BEGIN
+	UPDATE purchase_request 
+    SET purchase_request_type = p_purchase_request_type, company_id = p_company_id, remarks = p_remarks, last_log_by = p_last_log_by 
+    WHERE purchase_request_id = p_purchase_request_id;
+END //

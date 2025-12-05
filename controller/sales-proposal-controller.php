@@ -2966,6 +2966,14 @@ class SalesProposalController {
         $transactionType = $salesProposalDetails['transaction_type'] ?? null;
         $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
 
+        $productDetails = $this->productModel->getProduct($productID);
+        $product_status = $productDetails['product_status'];
+
+        if($product_status == 'For Return'){
+            echo json_encode(['success' => false, 'forReturn' =>  true]);
+            exit;
+        }
+
         $loanNumber = $salesProposalDetails['loan_number'] ?? null;
 
         if(empty($loanNumber)){

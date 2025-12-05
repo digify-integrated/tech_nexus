@@ -42,6 +42,10 @@
             leaveDashboardApprovalList();
         }
 
+        if($('#sta-for-approval-list').length){
+            leaveSTAForApprovalList();
+        }
+
         if($('#sales-proposal-for-ci-dashboard-list').length){
             salesProposalForCIDashboard();
         }
@@ -555,6 +559,27 @@ function leaveDashboardApprovalList(){
         dataType: 'json',
         success: function (response) {
             document.getElementById('leave-dashboard-approval-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function leaveSTAForApprovalList(){
+    const type = 'stock transfer advice dashboard list';
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_stock_transfer_advice_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('sta-for-approval-list').innerHTML = response.LIST;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

@@ -19,6 +19,7 @@ require_once '../model/contractor-model.php';
 require_once '../model/work-center-model.php';
 require_once '../model/department-model.php';
 require_once '../model/customer-model.php';
+require_once '../model/company-model.php';
 require_once '../model/product-subcategory-model.php';
 
 $databaseModel = new DatabaseModel();
@@ -38,6 +39,7 @@ $contractorModel = new ContractorModel($databaseModel);
 $workCenterModel = new WorkCenterModel($databaseModel);
 $departmentModel = new DepartmentModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
+$companyModel = new CompanyModel($databaseModel);
 $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -459,6 +461,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sta_status = $stockTransferAdviceDetails['sta_status'] ?? null;
             $transferred_from = $stockTransferAdviceDetails['transferred_from'] ?? null;
             $transferred_to = $stockTransferAdviceDetails['transferred_to']  ?? null;
+            $sta_type = $stockTransferAdviceDetails['sta_type']  ?? 'Transfer';
+            
+            $tagForReplacement = $userModel->checkSystemActionAccessRights($user_id, 233);
 
             $productDetails1 = $productModel->getProduct($transferred_from);
             $productName1 = $productDetails1['description'] ?? null;
@@ -506,11 +511,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
 
                 $action = '';
+                
                 if($sta_status == 'Draft'){
-                    $action = ' <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#part-cart-offcanvas" aria-controls="part-cart-offcanvas" data-stock-transfer-advice-cart-id="'. $stock_transfer_advice_cart_id .'" title="Update Part Item">
+                    $action .= ' <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#part-cart-offcanvas" aria-controls="part-cart-offcanvas" data-stock-transfer-advice-cart-id="'. $stock_transfer_advice_cart_id .'" title="Update Part Item">
                                         <i class="ti ti-edit"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-icon btn-danger delete-part-cart" data-stock-transfer-advice-cart-id="'. $stock_transfer_advice_cart_id .'" title="Delete Part Item">
+                                    </button>';
+
+                    $action .= ' <button type="button" class="btn btn-icon btn-warning add-replacement" data-bs-toggle="offcanvas" data-bs-target="#replacement-offcanvas" aria-controls="replacement-offcanvas" data-stock-transfer-advice-cart-id="'. $stock_transfer_advice_cart_id .'" title="Add Replacement">
+                                        <i class="ti ti-refresh-alert"></i>
+                                    </button>';
+                                    
+                    $action .= '<button type="button" class="btn btn-icon btn-danger delete-part-cart" data-stock-transfer-advice-cart-id="'. $stock_transfer_advice_cart_id .'" title="Delete Part Item">
                                         <i class="ti ti-trash"></i>
                                     </button>';
                 }
@@ -535,6 +546,98 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </div>',
                     'PRICE' => number_format($price, 2) .' PHP',
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                   '. $action .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'part replacement table':
+            $stock_transfer_advice_id = $_POST['stock_transfer_advice_id'];
+
+            $stockTransferAdviceDetails = $stockTransferAdviceModel->getStockTransferAdvice($stock_transfer_advice_id);
+            $sta_status = $stockTransferAdviceDetails['sta_status'] ?? null;
+            $transferred_from = $stockTransferAdviceDetails['transferred_from'] ?? null;
+            $transferred_to = $stockTransferAdviceDetails['transferred_to']  ?? null;
+            $sta_type = $stockTransferAdviceDetails['sta_type']  ?? 'Transfer';
+            
+            $tagForReplacement = $userModel->checkSystemActionAccessRights($user_id, 233);
+
+            $productDetails1 = $productModel->getProduct($transferred_from);
+            $productName1 = $productDetails1['description'] ?? null;
+            $productSubategoryID1 = $productDetails1['product_subcategory_id'] ?? '';
+
+            $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID1);
+            $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+
+            $stockNumber1 = str_replace($productSubcategoryCode, '', $productDetails1['stock_number'] ?? '');
+            $fullStockNumber1 = $productSubcategoryCode . $stockNumber1;
+
+            $productDetails2 = $productModel->getProduct($transferred_to);
+            $productName2 = $productDetails2['description'] ?? null;   
+            $productSubategoryID2 = $productDetails2['product_subcategory_id'] ?? '';
+
+            $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID2);
+            $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+
+            $stockNumber2 = str_replace($productSubcategoryCode, '', $productDetails2['stock_number'] ?? '');
+            $fullStockNumber2 = $productSubcategoryCode . $stockNumber2;
+
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM stock_transfer_advice_replacement
+            WHERE stock_transfer_advice_id = :stock_transfer_advice_id
+            ORDER BY stock_transfer_advice_id');
+            $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $stock_transfer_advice_replacement_id = $row['stock_transfer_advice_replacement_id'];
+                $part_replace = $row['part_replace'];
+                $part_id = $row['part_id'];
+                $replacement_stats = $row['replacement_stats'];
+
+                 if($replacement_stats === 'For Replacement'){
+                    $status = '<span class="badge bg-info">' . $replacement_stats . '</span>';
+                }
+                else if($replacement_stats === 'Replaced'){
+                    $status = '<span class="badge bg-success">' . $replacement_stats . '</span>';
+                }
+                else{
+                    $status = '<span class="badge bg-warning">' . $replacement_stats . '</span>';
+                }
+
+                $partDetails = $partsModel->getParts($part_id);
+                $description = $partDetails['description'];
+                $unitSale = $partDetails['unit_sale'] ?? null;
+                $bar_code = $partDetails['bar_code'];
+
+                $unitCode = $unitModel->getUnit($unitSale);
+                $short_name = $unitCode['short_name'] ?? null;            
+
+                $partsImage = $systemModel->checkImage($partDetails['part_image'], 'default');
+
+                $action = '';
+                
+                if($sta_status == 'Draft'){                                    
+                    $action .= '<button type="button" class="btn btn-icon btn-danger delete-part-replacement" data-stock-transfer-advice-replacement-id="'. $stock_transfer_advice_replacement_id .'" title="Delete Part Replacement">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                if($part_replace == 'From'){
+                    $source = $fullStockNumber1;
+                }
+                else{
+                    $source = $fullStockNumber2;
+                }
+
+                $response[] = [
+                    'SOURCE' => $source,
+                    'PART' => $description,
+                    'STATUS' => $status,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -630,6 +733,66 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
 
             echo json_encode($response);
+        break;
+        case 'stock transfer advice dashboard list':
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM stock_transfer_advice WHERE sta_status = "For Approval"');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $list = '';
+            foreach ($options as $row) {
+                $stock_transfer_advice_id = $row['stock_transfer_advice_id'];
+                $reference_no = $row['reference_no'];
+                $transferred_from = $row['transferred_from'];
+                $transferred_to = $row['transferred_to'];
+                $sta_status = $row['sta_status'];
+                $company_id = $row['company_id'];
+                $companyName = $companyModel->getCompany($company_id)['company_name'] ?? null;
+                $for_approval_date = $systemModel->checkDate('empty', $row['for_approval_date'], '', 'm/d/Y', '');
+
+                $statusClasses = [
+                    'For Approval' => 'info',
+                ];
+
+                $productDetails1 = $productModel->getProduct($transferred_from);
+                $productName1 = $productDetails1['description'] ?? null;
+                $stockNumber1 = $productDetails1['stock_number'] ?? null;
+
+                $productDetails2 = $productModel->getProduct($transferred_to);
+                $productName2 = $productDetails2['description'] ?? null;
+                $stockNumber2 = $productDetails2['stock_number'] ?? null;
+
+                $class = $statusClasses[$sta_status] ?? $defaultClass;
+
+                $stock_transfer_advice_id_encrypted = $securityModel->encryptData($stock_transfer_advice_id);
+
+                 $list .= ' <li class="list-group-item">
+                          <div class="d-flex align-items-center">
+                              <div class="flex-grow-1 ms-3">
+                                  <div class="row g-1">
+                                        <div class="col-9">
+                                             <a href="stock-transfer-advice.php?id='. $stock_transfer_advice_id_encrypted .'" target="_blank">
+                                                <p class="m-b-0">'. $productName1 .' ('. $stockNumber1 .') <br/> -> <br/>'. $productName2 .' ('. $stockNumber2 .')</p>
+                                                <p class="text-muted mb-0"><small>Reference No.: '. strtoupper($reference_no) .'</small></p>
+                                                <p class="text-muted mb-0"><small>Company: '. strtoupper($companyName) .'</small></p>
+                                                <p class="text-muted mb-0"><small>For Approval Date: '. strtoupper($for_approval_date) .'</small></p>
+                                            </a>
+                                      </div>
+                                      <div class="col-3 text-end">
+                                          <span class="badge bg-info">' . $sta_status . '</span>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>';
+            }
+
+            if(empty($list)){
+                $list = ' <h6 class="text-center pb-5">No STA Found</h6>';
+            }
+
+            echo json_encode(['LIST' => $list]);
         break;
         case 'stock transfer advice posting table':
             $filter_created_date_start_date = $systemModel->checkDate('empty', $_POST['filter_created_date_start_date'], '', 'Y-m-d', '');
@@ -810,112 +973,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
 
-        case 'stock transfer advice dashboard list':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateStockTransferAdviceDashboardTable()');
-            $sql->execute();
-            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-            $sql->closeCursor();
-
-            $list = '';
-            foreach ($options as $row) {
-               $stock_transfer_advice_id = $row['stock_transfer_advice_id'];
-                $sta_status = $row['sta_status'];
-                $customer_type = $row['customer_type'];
-                $customer_id = $row['customer_id'];
-                $number_of_items = $row['number_of_items'];
-                $add_on = $row['add_on'];
-                $sub_total = $row['sub_total'];
-                $total_discount = $row['total_discount'];
-                $total_amount = $row['total_amount'];
-                $issuance_no = $row['issuance_no'];
-                $company_id = $row['company_id'];
-                $reference_number = $row['reference_number'];
-                $transaction_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
-                $issuance_date = $systemModel->checkDate('empty', $row['issuance_date'], '', 'm/d/Y', '');
-
-                if($sta_status === 'Draft'){
-                    $sta_status = '<span class="badge bg-secondary">' . $sta_status . '</span>';
-                }
-                else if($sta_status === 'Cancelled'){
-                    $sta_status = '<span class="badge bg-warning">' . $sta_status . '</span>';
-                }
-                else if($sta_status === 'For Approval' || $sta_status === 'For Validation'){
-                    $sta_status = '<span class="badge bg-info">For Validation</span>';
-                }
-                else if($sta_status === 'Approved' || $sta_status === 'Validated'){
-                    $sta_status = '<span class="badge bg-success">Validated</span>';
-                }
-                else{
-                    $sta_status = '<span class="badge bg-success">' . $sta_status . '</span>';
-                }
-
-
-                $stock_transfer_advice_id_encrypted = $securityModel->encryptData($stock_transfer_advice_id);
-
-                if($company_id == '1'){
-                    $link = 'supplies-transaction';
-                    $number = $issuance_no;
-                }
-                else if($company_id == '2'){
-                    $link = 'netruck-stock-transfer-advice';
-                    $number = $issuance_no;
-                }
-                else{
-                    $link = 'stock-transfer-advice';
-                    $number = $reference_number;
-                }
-
-                if($customer_type === 'Miscellaneous'){
-                    $customerDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
-                    $transaction_reference = $customerDetails['client_name'] ?? 'N/A';
-                }
-                else if($customer_type === 'Customer'){
-                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
-                    $transaction_reference = $customerDetails['file_as'] ?? null;
-                }
-               else if($customer_type === 'Department'){
-                    $departmentDetails = $departmentModel->getDepartment($customer_id);
-                    $transaction_reference = $departmentDetails['department_name'] ?? null;
-                }
-                else{
-                    $productDetails = $productModel->getProduct($customer_id);
-                    $stock_number = $productDetails['stock_number'];
-                    $description = $productDetails['description'];
-                    $transaction_reference = '<div class="col">
-                                        <h6 class="mb-0">'. $stock_number .'</h6>
-                                            <p class="text-muted f-12 mb-0">'. $description .'</p>
-                                        </div>';
-                }
-
-                 $list .= ' <li class="list-group-item">
-                          <div class="d-flex align-items-center">
-                              <div class="flex-grow-1 ms-3">
-                                  <div class="row g-1">
-                                        <div class="col-9">
-                                            <a href="'. $link .'.php?id='. $stock_transfer_advice_id_encrypted .'" title="View Details" target="_blank">
-                                                <p class="mb-0"><b>'. strtoupper($transaction_reference) .'</b></p>
-                                                <p class="text-muted mb-0"><small>Issuance Number: '. $number .'</small></p>
-                                                <p class="text-muted mb-0"><small>Transaction Type: '. strtoupper($customer_type) .'</small></p>
-                                                <p class="text-muted mb-0"><small>No. Items: '. number_format($number_of_items, 0) .'</small></p>
-                                                <p class="text-muted mb-0"><small>Net Amount: '. number_format($total_amount, 2) .' PHP</small></p>
-                                                <p class="text-muted mb-0"><small>Transaction Date: '. $transaction_date .'</small></p>
-                                            </a>
-                                      </div>
-                                      <div class="col-3 text-end">
-                                          '. $sta_status .'
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                      </li>';
-            }
-
-            if(empty($list)){
-                $list = ' <li class="list-group-item text-center"><b>No Parts Issuance For Approval Found</b></li>';
-            }
-
-            echo json_encode(['LIST' => $list]);
-        break;
+    
         # -------------------------------------------------------------
     }
 }

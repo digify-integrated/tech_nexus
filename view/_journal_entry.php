@@ -60,24 +60,28 @@
                                 <label class="form-check-label" for="journal-id-6">Parts Issuance</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-7" value="Job Order" checked/>
-                                <label class="form-check-label" for="journal-id-7">Job Order</label>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-7" value="Parts Return" checked/>
+                                <label class="form-check-label" for="journal-id-7">Parts Return</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-8" value="Additional Job Order" checked/>
-                                <label class="form-check-label" for="journal-id-8">Additional Job Order</label>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-8" value="Job Order" checked/>
+                                <label class="form-check-label" for="journal-id-8">Job Order</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-9" value="Internal Job Order" checked/>
-                                <label class="form-check-label" for="journal-id-9">Internal Job Order</label>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-9" value="Additional Job Order" checked/>
+                                <label class="form-check-label" for="journal-id-9">Additional Job Order</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-10" value="Internal Additional Job Order" checked/>
-                                <label class="form-check-label" for="journal-id-10">Internal Additional Job Order</label>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-10" value="Internal Job Order" checked/>
+                                <label class="form-check-label" for="journal-id-10">Internal Job Order</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-11" value="Stock Transfer Advice" checked/>
-                                <label class="form-check-label" for="journal-id-11">Stock Transfer Advice</label>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-11" value="Internal Additional Job Order" checked/>
+                                <label class="form-check-label" for="journal-id-11">Internal Additional Job Order</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-12" value="Stock Transfer Advice" checked/>
+                                <label class="form-check-label" for="journal-id-12">Stock Transfer Advice</label>
                               </div>
                             </div>
                           </div>

@@ -510,6 +510,7 @@ class PartsReturnController {
 
                     $this->partsReturnModel->createPartsReturnStockEntry($part_id, $company_id, $parts_return_id . ' - ' . $remarks, $cost, $userID);
                 }
+                
                 $this->partsReturnModel->updatePartsStockReturnValue($parts_return_id, $userID);
             }
         }

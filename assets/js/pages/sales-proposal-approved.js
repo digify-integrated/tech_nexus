@@ -6846,6 +6846,23 @@ function calculateRenewalAmount(){
         var created_date_str = $('#created-date-summary').val();
         var multiplier = 0.030;
 
+         // --- Added logic to set default date if input is empty ---
+        if (!created_date_str) {
+            // Get the current date object
+            var now = new Date();
+            
+            // Format the current date as "MM/DD/YYYY" for consistency
+            // Get month (0-11), day (1-31), and year
+            var month = now.getMonth() + 1; // getMonth() is 0-indexed
+            var day = now.getDate();
+            var year = now.getFullYear();
+            
+            // Pad month/day with leading zero if necessary and format
+            created_date_str = (month < 10 ? '0' : '') + month + '/' +
+                            (day < 10 ? '0' : '') + day + '/' +
+                            year;
+        }
+
         // Convert the string "MM/DD/YYYY" to a JavaScript Date object
         var created_date = new Date(created_date_str).getTime();
 
@@ -6982,6 +6999,23 @@ function calculateTotalOtherCharges(){
         var product_category = $('#product_category').val();
         var created_date_str = $('#created-date-summary').val();
         var multiplier = 0.030;
+
+         // --- Added logic to set default date if input is empty ---
+        if (!created_date_str) {
+            // Get the current date object
+            var now = new Date();
+            
+            // Format the current date as "MM/DD/YYYY" for consistency
+            // Get month (0-11), day (1-31), and year
+            var month = now.getMonth() + 1; // getMonth() is 0-indexed
+            var day = now.getDate();
+            var year = now.getFullYear();
+            
+            // Pad month/day with leading zero if necessary and format
+            created_date_str = (month < 10 ? '0' : '') + month + '/' +
+                            (day < 10 ? '0' : '') + day + '/' +
+                            year;
+        }
 
         // Convert the string "MM/DD/YYYY" to a JavaScript Date object
         var created_date = new Date(created_date_str).getTime();

@@ -181,7 +181,7 @@ class BackJobMonitoringController {
         $payment_date = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
 
         $backjobOrderMonitoringJobOrderDetails = $this->backJobMonitoringModel->getBackJobMonitoringJobOrder($backjobMonitoringJobOrderID);
-        $sales_proposal_id = $backjobOrderMonitoringJobOrderDetails['sales_proposal_id'];
+        $backjob_monitoring_id = $backjobOrderMonitoringJobOrderDetails['backjob_monitoring_id'];
         $cost_markup = $backjobOrderMonitoringJobOrderDetails['cost_markup'];
         $job_cost = $backjobOrderMonitoringJobOrderDetails['cost'];
         $job_order = $backjobOrderMonitoringJobOrderDetails['job_order'];
@@ -192,7 +192,7 @@ class BackJobMonitoringController {
 
         $entry_type = 'Internal Job Order';
 
-        $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($sales_proposal_id);
+        $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
         $sales_proposal_id = $backJobMonitoringDetails['sales_proposal_id'] ?? null;
         $product_id = $backJobMonitoringDetails['product_id'] ?? null;
 
@@ -205,6 +205,7 @@ class BackJobMonitoringController {
             $product_status = $productDetails['product_status'] ?? 'Draft';
         }
         else{
+            $sales_proposal_id = $backjob_monitoring_id;
             $productDetails = $this->productModel->getProduct($product_id);
             $company_id = $productDetails['company_id'] ?? null;
             $product_status = $productDetails['product_status'] ?? 'Draft';

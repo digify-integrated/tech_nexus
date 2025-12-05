@@ -1,18 +1,18 @@
 <?php
-    $partTransactionDetails = $partsTransactionModel->getPartsTransaction($partsTransactionID);
-    $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? 'Draft';
-    $customer_type = $partTransactionDetails['customer_type'];
-    $number_of_items = $partTransactionDetails['number_of_items'] ?? 0;
-    $total_discount = $partTransactionDetails['total_discount'] ?? 0;
+  $purchaseRequestDetails = $purchaseRequestModel->getPurchaseRequest($purchaseRequestID);
+  $purchase_request_status = $purchaseRequestDetails['purchase_request_status'] ?? 'Draft';
+  $customer_type = $purchaseRequestDetails['customer_type'];
+  $number_of_items = $purchaseRequestDetails['number_of_items'] ?? 0;
+  $total_discount = $purchaseRequestDetails['total_discount'] ?? 0;
     
-    $approvePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 201);
-    $releasePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 202);
-    $checkPartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 219);
+  $approvePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 201);
+  $releasePartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 202);
+  $checkPartsTransaction = $userModel->checkSystemActionAccessRights($user_id, 219);
 
-    $disabled = '';
-    if($part_transaction_status != 'Draft'){
-      $disabled = 'disabled';
-    }
+  $disabled = '';
+  if($part_transaction_status != 'Draft'){
+    $disabled = 'disabled';
+  }
 ?>
 
 <div class="row">
@@ -21,7 +21,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5><?php echo $cardLabel; ?> Transaction</h5>
+            <h5>Purchase Request</h5>
           </div>
            <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
           <?php
@@ -51,7 +51,7 @@
               }
 
               if(($part_transaction_status == 'On-Process' || $part_transaction_status == 'Released' || $part_transaction_status == 'Cancelled') && ($company == '2' || $company == '1')){
-                echo '<a href="parts-transaction-requisition-slip.php?id='. $partsTransactionID .'" class="button btn btn-info ms-2" target="_blank">Print Issuance Slip</a>';
+                echo '<a href="purchase-request-requisition-slip.php?id='. $partsTransactionID .'" class="button btn btn-info ms-2" target="_blank">Print Issuance Slip</a>';
               }
             }
             else{
@@ -85,7 +85,7 @@
             }
 
             if ($partsTransactionCreateAccess['total'] > 0 && $part_transaction_status == 'Draft') {
-              echo '<button type="submit" form="parts-transaction-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
+              echo '<button type="submit" form="purchase-request-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
                         <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
             }
           ?>
@@ -93,7 +93,7 @@
         </div>
       </div>
       <div class="card-body">
-        <form id="parts-transaction-form" method="post" action="#">
+        <form id="purchase-request-form" method="post" action="#">
           <div class="form-group row">
             <div class="col-lg-6 mt-3 mt-lg-0">
               <label class="form-label">Customer Type <span class="text-danger">*</span></label>
@@ -418,7 +418,7 @@
         </div>
         <div class="card-body p-0">
             <div class="dt-responsive table-responsive">
-                <table class="table mb-0" id="parts-transaction-document-table">
+                <table class="table mb-0" id="purchase-request-document-table">
                     <thead>
                         <tr>
                             <th>Transaction Document</th>

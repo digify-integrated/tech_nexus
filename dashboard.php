@@ -70,6 +70,7 @@
                 $viewInternalJobOrderForApprovalDashboard = $userModel->checkSystemActionAccessRights($user_id, 217);
                 $viewSalesProposalForCIDashboard = $userModel->checkSystemActionAccessRights($user_id, 222);
                 $viewSalesProposalForVerificationDashboard = $userModel->checkSystemActionAccessRights($user_id, 224);
+                $viewSalesProposalSTAForApprovalDashboard = $userModel->checkSystemActionAccessRights($user_id, 234);
 
                 if ($viewDashboardSalesProposal['total'] > 0) {
                   require_once('view/_sales_proposal_dashboard.php');
@@ -101,6 +102,14 @@
 
                 if ($viewSalesProposalForVerificationDashboard['total'] > 0) {
                   require_once('view/_dashboard_sales_proposal_for_verification.php');
+                }
+
+                if ($viewSalesProposalForVerificationDashboard['total'] > 0) {
+                  require_once('view/_dashboard_sales_proposal_for_verification.php');
+                }
+
+                if ($viewSalesProposalSTAForApprovalDashboard['total'] > 0) {
+                  require_once('view/_dashboard_stock_transfer_advice_for_approval.php');
                 }
 
                 #require_once('view/_transmittal_dashboard.php');

@@ -397,7 +397,7 @@ class InternalDRController {
         $product_id = $unitReturnDetails['product_id'] ?? null;
 
         $this->productModel->updateProductStatus($product_id, 'Returned', '', '', '', $userID);
-        $this->productModel->insertProductExpense($product_id, '', '', 0, 'Returned', 'Returned', $userID);
+        $this->productModel->insertProductExpense($product_id, '', '', 0, 'Returned', 'Returned', date('Y-m-d'), $userID);
             
         echo json_encode(['success' => true]);
         exit;

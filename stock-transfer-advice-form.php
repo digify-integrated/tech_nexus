@@ -112,9 +112,9 @@
     $pdf->Ln(2);
     $pdf->MultiCell(0, 0, '<b>Prepared by (Production Assistant): __________________________________________________ &nbsp; Date: ________________</b>', 0, 'L', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(4);
-    $pdf->MultiCell(0, 0, '<b>Verified by (Production Supervisor): _________________________________________________ &nbsp; Date: ________________</b>', 0, 'L', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(4);
     $pdf->MultiCell(0, 0, '<b>Approved by (General Manager): ____________________________________________________ &nbsp; Date: ________________</b>', 0, 'L', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(4);
+    $pdf->MultiCell(0, 0, '<b>Verified by (Production Supervisor): _________________________________________________ &nbsp; Date: ________________</b>', 0, 'L', 0, 1, '', '', true, 0, true, true, 0);
 
     // Output the PDF to the browser
     $pdf->Output('sta-form.pdf', 'I');
@@ -200,7 +200,7 @@
                 $list .= '<tr>
                             <td  width="70%" style="text-align:left">'. strtoupper($description) .'</td>
                             <td  width="15%" style="text-align:center">'. number_format($quantity, 2) .' '. $short_name .'</td>
-                            <td  width="15%" style="text-align:center">'. number_format($price, 2) .' '. $short_name .'</td>
+                            <td  width="15%" style="text-align:center">'. number_format($price, 2).'</td>
                         </tr>';
             }
 
@@ -226,7 +226,7 @@
                             '.$list.'
                             <tr>
                                 <td style="text-align:right" colspan="2"><b>TOTAL</b></td>
-                                <td style="text-align:center"><b>'. number_format($totalCost, 2) .' PHP</b></td>
+                                <td style="text-align:center"><b>'. number_format($totalCost, 2) .'</b></td>
                             </tr>
                         </tbody>
                     </table>';
@@ -262,7 +262,7 @@
                             <td width="20%" style="text-align:center">'. strtoupper($fullStockNumber2) .'</td>
                             <td width="30%" style="text-align:center">'. strtoupper($description) .'</td>
                             <td width="15%" style="text-align:center">'. number_format($quantity, 2) .' '. $short_name .'</td>
-                            <td width="15%" style="text-align:center">'. number_format($price, 2) .' PHP</td>
+                            <td width="15%" style="text-align:center">'. number_format($price, 2) .'</td>
                         </tr>';
             }
             
@@ -295,7 +295,7 @@
                             <td width="20%" style="text-align:center">'. strtoupper($fullStockNumber1) .'</td>
                             <td width="30%" style="text-align:center">'. strtoupper($description) .'</td>
                             <td width="15%" style="text-align:center">'. number_format($quantity, 2) .' '. $short_name .'</td>
-                            <td width="15%" style="text-align:center">'. number_format($price, 2) .' PHP</td>
+                            <td width="15%" style="text-align:center">'. number_format($price, 2) .'</td>
                         </tr>';
             }
 
@@ -322,7 +322,7 @@
                             '.$toList.'
                             <tr>
                                 <td style="text-align:right" colspan="4"><b>TOTAL</b></td>
-                                <td style="text-align:center"><b>'. number_format($totalCost, 2) .' PHP</b></td>
+                                <td style="text-align:center"><b>'. number_format($totalCost, 2) .'</b></td>
                             </tr>
                         </tbody>
                     </table>';

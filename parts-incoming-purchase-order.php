@@ -168,13 +168,27 @@
     $pdf->SetFont('times', '', 10);
     $pdf->Cell(55, 4, strtoupper($fileAs), 'B', 0, 'C', 0, '', 1);
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
-    $pdf->Cell(55, 4, strtoupper($request_by), 'B', 0, 'C', 0, '', 1);
+    
+    
+    if($company_id == '3'){
+       $pdf->Cell(55, 4, '', 'B', 0, 'C', 0, '', 1);
+    }
+    else{
+       $pdf->Cell(55, 4, strtoupper($request_by), 'B', 0, 'C', 0, '', 1);
+    }
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(55, 4, '', 'B', 0, 'L', 0, '', 1);
     $pdf->Ln(5);
     $pdf->Cell(55, 8, 'PREPARED BY', 0, 0, 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
-    $pdf->Cell(55, 8, 'REQUESTED BY', 0, 0, 'C');
+    
+    if($company_id == '3'){
+        $pdf->Cell(55, 8, 'RECOMMENDED BY', 0, 0, 'C');
+    }
+    else{
+        $pdf->Cell(55, 8, 'REQUESTED BY', 0, 0, 'C');
+    }
+
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(55, 8, 'APPROVED BY', 0, 0, 'C');
 
@@ -193,6 +207,7 @@
         require_once 'model/work-center-model.php';
         require_once 'model/parts-model.php';
         require_once 'model/unit-model.php';
+        require_once 'model/parts-incoming-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -201,6 +216,11 @@
         $workCenterModel = new WorkCenterModel($databaseModel);
         $partsModel = new PartsModel($databaseModel);
         $unitModel = new UnitModel($databaseModel);
+        $partsIncomingModel = new PartsIncomingModel($databaseModel);
+
+         $partsIncomingDetails = $partsIncomingModel->getPartsIncoming($part_incoming_id);
+
+        $company_id = $partsIncomingDetails['company_id'] ?? '';
     
        $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_incoming_cart WHERE part_incoming_id = :part_incoming_id ORDER BY part_id desc');
         $sql->bindValue(':part_incoming_id', $part_incoming_id, PDO::PARAM_INT);
@@ -217,6 +237,7 @@
 
             $partDetails = $partsModel->getParts($part_id);
             $unitSale = $partDetails['unit_sale'] ?? null;
+            $part_number = $partDetails['part_number'] ?? '';
             $description = $partDetails['description'];
             $part_quantity = $partDetails['quantity'];
 
@@ -232,11 +253,22 @@
                     </tr>';
             }
             else{
-                $list .= '<tr>
+                if($company_id == '3'){
+                    $list .= '<tr>
+                        <td width="15%" style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
+                        <td width="20%" style="text-align:center">'. strtoupper($part_number) .'</td>
+                        <td width="35%" style="text-align:center">'. strtoupper($description) .'</td>
+                        <td width="30%">'. strtoupper($remarks) .'</td>
+                    </tr>';
+                }
+                else{
+                    $list .= '<tr>
                         <td width="20%" style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
                         <td width="35%" style="text-align:center">'. strtoupper($description) .'</td>
                         <td width="45%">'. strtoupper($remarks) .'</td>
                     </tr>';
+                }
+                
             }
         }
 
@@ -249,11 +281,21 @@
                             </tr>';
             }
             else{
-                $header = '<tr style="text-align:center">
+                if($company_id == '3'){
+                    $header = '<tr style="text-align:center">
+                                <td width="15%"><b>Qty.</b></td>
+                                <td width="20%"><b>Part No.</b></td>
+                                <td width="35%"><b>Particulars</b></td>
+                                <td width="30%"><b>Remarks</b></td>
+                            </tr>';
+                }
+                else{
+                    $header = '<tr style="text-align:center">
                                 <td width="20%"><b>Qty.</b></td>
                                 <td width="35%"><b>Particulars</b></td>
                                 <td width="45%"><b>Remarks</b></td>
                             </tr>';
+                }
             }
 
         $response = '<table border="1" width="100%" cellpadding="5" align="left">

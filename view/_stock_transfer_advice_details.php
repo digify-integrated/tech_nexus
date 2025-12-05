@@ -21,7 +21,7 @@
     }
 ?>
 
-                <input type="hidden" id="part-from-source">
+<input type="hidden" id="part-from-source">
 <div class="row">
   <div class="col-lg-12">
     <div class="card">
@@ -32,11 +32,15 @@
           </div>
            <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
           <?php
-            if($sta_status == 'Draft'){
-              echo '<button class="btn btn-info ms-2" type="button" id="on-process">On-Process</button>';
+            if($sta_status == 'For Approval' && $approveSTA['total'] > 0){
+              echo '<button class="btn btn-info ms-2" type="button" id="on-process">Approve</button>';
             }
 
-            if($sta_status == 'On-Process'){
+            if($sta_status == 'Draft'){
+              echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Approval</button>';
+            }
+
+            if($sta_status == 'On-Process' || $sta_status == 'For Approval'){
                 echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
             }
 
@@ -44,12 +48,12 @@
               echo '<button class="btn btn-success ms-2" type="button" id="complete">Complete</button>';
             }
 
-            if($sta_status == 'Draft' || $sta_status == 'On-Process'){
-                echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
-              }
+            if($sta_status == 'Draft' || $sta_status == 'On-Process' || $sta_status == 'For Approval'){
+              echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-transaction-offcanvas" aria-controls="cancel-transaction-offcanvas" id="cancelled">Cancel</button>';
+            }
 
             if($sta_status == 'On-Process' || $sta_status == 'Completed' || $sta_status == 'Posted'){
-                echo '<a href="stock-transfer-advice-form.php?id='. $stockTransferAdviceID .'" class="button btn btn-info ms-2" target="_blank">Print STA Form</a>';
+              echo '<a href="stock-transfer-advice-form.php?id='. $stockTransferAdviceID .'" class="button btn btn-info ms-2" target="_blank">Print STA Form</a>';
             }
 
             if($sta_status == 'Completed' && $postSTA['total'] > 0){
@@ -75,35 +79,35 @@
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">STA Type <span class="text-danger">*</span></label>
             <div class="col-lg-4" id="internal-select">
-                <select class="form-control select2" name="sta_type" id="sta_type" <?php echo $disabled; ?>>
-                  <option value="">--</option>
-                  <option value="Transfer">Transfer</option>
-                  <option value="Swap">Swap</option>
-                </select>
+              <select class="form-control select2" name="sta_type" id="sta_type" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <option value="Transfer">Transfer</option>
+                <option value="Swap">Swap</option>
+              </select>
             </div>
             <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
             <div class="col-lg-4" id="internal-select">
-                <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
-                <option value="">--</option>
-                  <option value="2">NE Truck Builders</option>
-                  <option value="3">FUSO Tarlac</option>
-                </select>
+              <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
+              <option value="">--</option>
+                <option value="2">NE Truck Builders</option>
+                <option value="3">FUSO Tarlac</option>
+              </select>
             </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Transferred From <span class="text-danger">*</span></label>
             <div class="col-lg-4" id="internal-select">
-                <select class="form-control select2" name="transferred_from" id="transferred_from" <?php echo $disabled; ?>>
-                  <option value="">--</option>
-                  <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
-                </select>
+              <select class="form-control select2" name="transferred_from" id="transferred_from" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
+              </select>
             </div>
             <label class="col-lg-2 col-form-label">Transferred To <span class="text-danger">*</span></label>
             <div class="col-lg-4" id="internal-select">
-                <select class="form-control select2" name="transferred_to" id="transferred_to" <?php echo $disabled; ?>>
-                  <option value="">--</option>
-                  <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
-                </select>
+              <select class="form-control select2" name="transferred_to" id="transferred_to" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
+              </select>
             </div>
           </div>
           <div class="form-group row">
@@ -121,63 +125,92 @@
 <div class="row">
   <div class="col-lg-12">
     <div class="card">
-        <div class="card-header">
-            <div class="row align-items-center">
-                <div class="col-md-9">
-                    <h5>Parts Transfer</h5>
-                </div>
-                <div class="col-sm-3 text-sm-end mt-3 mt-sm-0">
-                    <?php
-                        if($sta_status == 'Draft' && $sta_type == 'Swap'){
-                          echo '<div class="btn-group m-r-10">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-md-9">
+            <h5>Parts Transfer</h5>
+          </div>
+          <div class="col-sm-3 text-sm-end mt-3 mt-sm-0">
+            <?php
+                if($sta_status == 'Draft' && $sta_type == 'Swap'){
+                  echo '<div class="btn-group m-r-10">
                                     <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Add Part</button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                       <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part-from">From -> To</button></li>
                                       <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part-to">To -> From</button></li>
                                     </ul>
                                   </div>';
-                        }
-                        else if($sta_status == 'Draft' && $sta_type == 'Transfer'){
-                          echo '<div class="btn-group m-r-10">
+                }
+                else if($sta_status == 'Draft' && $sta_type == 'Transfer'){
+                  echo '<div class="btn-group m-r-10">
                                     <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Add Part</button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                       <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-part-offcanvas" aria-controls="add-part-offcanvas" id="add-part-from">From -> To</button></li>
                                     </ul>
                                   </div>';
-                        }
-                    ?>
-                </div>
-            </div>
+                }
+            ?>
+          </div>
         </div>
-        <div class="card-body p-0">
-            <div class="dt-responsive table-responsive">
-                <table class="table mb-0 w-100" id="parts-item-table">
-                    <thead>
-                        <tr>
-                            <th class="text-center"></th>
-                            <th>Transferred From</th>
-                            <th>Transferred To</th>
-                            <th>Part</th>
-                            <th class="text-center">Quantity</th>
-                            <th class="text-center">Price</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="dt-responsive table-responsive">
+          <table class="table mb-0 w-100" id="parts-item-table">
+            <thead>
+              <tr>
+                <th class="text-center"></th>
+                <th>Transferred From</th>
+                <th>Transferred To</th>
+                <th>Part</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-center">Price</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
+      </div>
     </div>
     <div class="card">
-        <div class="card-body py-2">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item px-0">
-                    <div class="float-end">
-                        <h5 class="mb-0" id="total_summary_from">0.00 PHP</h5>
-                    </div>
-                    <h5 class="mb-0 d-inline-block">Total</h5>
-                </li>
-            </ul>
+      <div class="card-body py-2">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item px-0">
+            <div class="float-end">
+              <h5 class="mb-0" id="total_summary_from">0.00 PHP</h5>
+            </div>
+            <h5 class="mb-0 d-inline-block">Total</h5>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-md-9">
+            <h5>Parts Replacement</h5>
+          </div>
         </div>
+      </div>
+    <div class="card-body p-0">
+      <div class="dt-responsive table-responsive">
+         <table class="table mb-0 w-100" id="parts-replacement-table">
+            <thead>
+              <tr>
+                <th class="text-center"></th>
+                <th>Product</th>
+                <th>Part</th>
+                <th>Replacement Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -546,6 +579,46 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-part-item" form="part-item-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="replacement-offcanvas" aria-labelledby="replacement-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="replacement-offcanvas-label" style="margin-bottom:-0.5rem">Replacement</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="replacement-form" method="post" action="#">
+            <input type="hidden" id="stock_transfer_advice_replacement_id" name="stock_transfer_advice_replacement_id">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Product</label>
+                <select class="form-control offcanvas-select2" name="part_replace" id="part_replace">
+                  <option value="">--</option>
+                  <option value="From">From - <?php echo $productName1; ?></option>
+                  <option value="To">To - <?php echo $productName2; ?></option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Remarks</label>
+                <textarea class="form-control" id="replacement_remarks" name="replacement_remarks" maxlength="1000"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-replacement" form="replacement-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
