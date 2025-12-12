@@ -53,12 +53,13 @@ class StockTransferAdviceModel {
         $stmt->execute();
     }
 
-    public function updateStockTransferAdvice($p_stock_transfer_advice_id, $p_transferred_from, $p_transferred_to, $p_company_id, $p_sta_type, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateStockTransferAdvice(:p_stock_transfer_advice_id, :p_transferred_from, :p_transferred_to, :p_company_id, :p_sta_type, :p_remarks, :p_last_log_by)');
+    public function updateStockTransferAdvice($p_stock_transfer_advice_id, $p_transferred_from, $p_transferred_to, $p_company_id, $p_customer_id, $p_sta_type, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateStockTransferAdvice(:p_stock_transfer_advice_id, :p_transferred_from, :p_transferred_to, :p_company_id, :p_customer_id, :p_sta_type, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_transferred_from', $p_transferred_from, PDO::PARAM_INT);
         $stmt->bindValue(':p_transferred_to', $p_transferred_to, PDO::PARAM_INT);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_sta_type', $p_sta_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
@@ -69,10 +70,11 @@ class StockTransferAdviceModel {
         SET 
             on_process_date = NOW(),
             sta_status = "On-Process",
-            approval_by = :p_last_log_by,
+            approval_by = :p_approval_by,
             last_log_by = :p_last_log_by
         WHERE stock_transfer_advice_id = :p_stock_transfer_advice_id;');
         $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_approval_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -153,12 +155,13 @@ class StockTransferAdviceModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertStockTransferAdvice($reference_number, $transferred_from, $transferred_to, $p_company_id, $p_sta_type, $remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertStockTransferAdvice(:reference_number, :transferred_from, :transferred_to, :p_company_id, :p_sta_type, :remarks, :p_last_log_by, @p_stock_transfer_advice_id)');
+    public function insertStockTransferAdvice($reference_number, $transferred_from, $transferred_to, $p_company_id, $p_customer_id, $p_sta_type, $remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertStockTransferAdvice(:reference_number, :transferred_from, :transferred_to, :p_company_id, :p_customer_id, :p_sta_type, :remarks, :p_last_log_by, @p_stock_transfer_advice_id)');
         $stmt->bindValue(':reference_number', $reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':transferred_from', $transferred_from, PDO::PARAM_INT);
         $stmt->bindValue(':transferred_to', $transferred_to, PDO::PARAM_INT);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_sta_type', $p_sta_type, PDO::PARAM_STR);
         $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);

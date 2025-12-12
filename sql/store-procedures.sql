@@ -16435,7 +16435,6 @@ BEGIN
     END IF;
 
     -- Prepare new quantity and status
-    SET new_quantity = current_quantity + p_received_quantity;
     SET new_status = CASE 
                         WHEN new_status IN ('Out of Stock', 'Draft') THEN 'For Sale'
                         ELSE new_status
@@ -16450,7 +16449,7 @@ BEGIN
     SET 
         part_cost = new_part_cost,
         part_price = new_part_price,
-        quantity = new_quantity,
+        quantity = total_quantity,
         part_status = new_status,
         for_sale_date = new_for_sale_date,
         last_log_by = p_last_log_by
@@ -19843,8 +19842,13 @@ BEGIN
     END IF;
 
     IF v_chart_item = '50402010 Cost of Sales Unit' OR v_chart_item = '10501010 Inventory Unit' THEN
-        SET v_debit_analytic_lines = 'CGMI';
-        SET v_debit_analytic_distribution = '{"1": 100.0}';
+        IF p_company_id = 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        ELSE
+            SET v_debit_analytic_lines = 'CGMI';
+            SET v_debit_analytic_distribution = '{"1": 100.0}';
+        END IF;
     ELSE
         SET v_debit_analytic_lines = v_analytic_lines;
         SET v_debit_analytic_distribution = v_analytic_distribution;
@@ -21472,8 +21476,13 @@ BEGIN
     END IF;
 
     IF v_chart_item = '50402010 Cost of Sales Unit' OR v_chart_item = '10501010 Inventory Unit' THEN
-        SET v_debit_analytic_lines = 'CGMI';
-        SET v_debit_analytic_distribution = '{"1": 100.0}';
+        IF p_company_id = 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        ELSE
+            SET v_debit_analytic_lines = 'CGMI';
+            SET v_debit_analytic_distribution = '{"1": 100.0}';
+        END IF;
     ELSE
         SET v_debit_analytic_lines = v_analytic_lines;
         SET v_debit_analytic_distribution = v_analytic_distribution;
@@ -21767,20 +21776,21 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE insertStockTransferAdvice(IN p_reference_number VARCHAR(100), IN p_transferred_from INT, IN p_transferred_to INT, IN p_company_id INT, IN p_sta_type ENUM('Transfer', 'Swap'), IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_stock_transfer_advice_id INT)
+CREATE PROCEDURE insertStockTransferAdvice(IN p_reference_number VARCHAR(100), IN p_transferred_from INT, IN p_transferred_to INT, IN p_company_id INT, IN p_customer_id INT, IN p_sta_type ENUM('Transfer', 'Swap'), IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_stock_transfer_advice_id INT)
 BEGIN
-    INSERT INTO stock_transfer_advice (reference_no, transferred_from, transferred_to, company_id, sta_type, remarks, last_log_by) 
-	VALUES(p_reference_number, p_transferred_from, p_transferred_to, p_company_id, p_sta_type, p_remarks, p_last_log_by);
+    INSERT INTO stock_transfer_advice (reference_no, transferred_from, transferred_to, company_id, customer_id, sta_type, remarks, last_log_by) 
+	VALUES(p_reference_number, p_transferred_from, p_transferred_to, p_company_id, p_customer_id, p_sta_type, p_remarks, p_last_log_by);
 	
     SET p_stock_transfer_advice_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateStockTransferAdvice(IN p_stock_transfer_advice_id INT, IN p_transferred_from INT, IN p_transferred_to INT, IN p_company_id INT, IN p_sta_type ENUM('Transfer', 'Swap'), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updateStockTransferAdvice(IN p_stock_transfer_advice_id INT, IN p_transferred_from INT, IN p_transferred_to INT, IN p_company_id INT, IN p_customer_id INT, IN p_sta_type ENUM('Transfer', 'Swap'), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
 	UPDATE stock_transfer_advice
     SET transferred_from = p_transferred_from,
     transferred_to = p_transferred_to,
     company_id = p_company_id,
+    customer_id = customer_id,
     sta_type = p_sta_type,
     remarks = p_remarks,
     last_log_by = p_last_log_by

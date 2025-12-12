@@ -457,8 +457,6 @@ class PartsReturnController {
 
         if($company_id == '2' || $company_id == '3'){
             if($return_type == 'Issuance'){
-                $this->partsReturnModel->updatePartsReturnValue($parts_return_id, $userID);
-
                 $partReturnCartDetails = $this->partsReturnModel->getPartsReturnCart2($parts_return_id);
 
                 foreach ($partReturnCartDetails as $row) {
@@ -497,8 +495,21 @@ class PartsReturnController {
                     
                     $this->partTransactionModel->createPartsTransactionProductExpense($customer_id, 'Return Slip', $parts_return_id, ($price * -1), 'Parts & ACC', 'Issuance No.: ' . $reference_number . ' - '.  $remarks, $userID); 
                     
-                    $this->partTransactionModel->createPartsTransactionEntryReversed($parts_transaction_id, $company_id, $p_reference_number, $cost, $price, $customer_type, $is_service, $product_status, $issuance_for, $userID);
+                    $this->partTransactionModel->createPartsTransactionEntryReversed(
+                        $parts_transaction_id,
+                         $company_id, 
+                         $p_reference_number, 
+                         $cost, 
+                         $price, 
+                         $customer_type, 
+                         $is_service, 
+                         $product_status, 
+                         $issuance_for, 
+                         $userID
+                        );
                 }
+ 
+                $this->partsReturnModel->updatePartsReturnValue($parts_return_id, $userID);
             }
             else{
                 $partReturnCartDetails = $this->partsReturnModel->getPartsReturnCart2($parts_return_id);

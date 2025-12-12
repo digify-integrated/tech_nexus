@@ -372,8 +372,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </button>';
                     }
 
-                    
-
                     $view = '';
                     if($reference_type == 'Issuance Slip'){
                         $partTransactionDetails = $partsTransactionModel->getPartsTransaction($reference_number);
@@ -394,6 +392,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         } else {
                             $view = ''; // Or handle the else case accordingly
                         }
+                    }
+                    else if($reference_type == 'Stock Transfer Advice'){
+                        $stock_transfer_advice_id_encrypted = $securityModel->encryptData($reference_number);
+                        $view = '<a href="stock-transfer-advice.php?id='. $stock_transfer_advice_id_encrypted .'"" class="btn btn-icon btn-primary" title="View Details" target="_blank">
+                                        <i class="ti ti-eye"></i>
+                                    </a>';
                     }
                     else if($reference_type == 'Return Slip'){
                         $partTransactionDetails = $partsReturnModel->getPartsReturn($reference_number);

@@ -72,9 +72,16 @@
         <form id="stock-transfer-advice-form" method="post" action="#">
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Reference No.</label>
-            <div class="col-lg-10">
+            <div class="col-lg-4">
               <input type="text" class="form-control" id="reference_no" name="reference_no" maxlength="100" autocomplete="off" readonly>
             </div>
+              <label class="col-lg-2 col-form-label">Customer Reference</label>
+              <div class="col-lg-4" id="internal-select">
+                <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
+                </select>
+              </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">STA Type <span class="text-danger">*</span></label>

@@ -823,6 +823,7 @@ function partsTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'CLASS' },
             { 'data' : 'QUANTITY' },
             { 'data' : 'PRODUCT_COST' },
+            { 'data' : 'PRODUCT_TOTAL_COST' },
             { 'data' : 'PRODUCT_PRICE' },
             { 'data' : 'PRODUCT_STATUS' },
             { 'data' : 'ACTION' }
@@ -838,7 +839,8 @@ function partsTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 6 },
             { 'width': 'auto', 'aTargets': 7 },
             { 'width': 'auto', 'aTargets': 8 },
-            { 'width': '10%','bSortable': false, 'aTargets': 9 }
+            { 'width': 'auto', 'aTargets': 9 },
+            { 'width': '10%','bSortable': false, 'aTargets': 10 }
         ];
     }
     else{

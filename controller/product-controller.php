@@ -209,12 +209,7 @@ class ProductController {
             exit;
         }
 
-        /*if($unitCost == 0 || $productPrice == 0){
-            echo json_encode(['success' => false, 'zeroCost' =>  true]);
-            exit;
-        }*/
-
-        if($unitCost == 0){
+        if($unitCost == 0 || $productPrice == 0){
             echo json_encode(['success' => false, 'zeroCost' =>  true]);
             exit;
         }

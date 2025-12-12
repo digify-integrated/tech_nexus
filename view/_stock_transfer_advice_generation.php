@@ -38,7 +38,6 @@ $salesProposalModel = new SalesProposalModel($databaseModel);
 $contractorModel = new ContractorModel($databaseModel);
 $workCenterModel = new WorkCenterModel($databaseModel);
 $departmentModel = new DepartmentModel($databaseModel);
-$customerModel = new CustomerModel($databaseModel);
 $companyModel = new CompanyModel($databaseModel);
 $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
 $securityModel = new SecurityModel();
@@ -688,7 +687,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $reference_no = $row['reference_no'];
                 $transferred_from = $row['transferred_from'];
                 $transferred_to = $row['transferred_to'];
+                $customer_id = $row['customer_id'];
                 $sta_status = $row['sta_status'];
+
+                $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                $customerName = strtoupper($customerDetails['file_as'] ?? '');
 
                 if($sta_status === 'Draft'){
                     $sta_status = '<span class="badge bg-secondary">' . $sta_status . '</span>';
@@ -715,6 +718,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'REFERENCE_NO' => $reference_no,
+                    'CUSTOMER' => $customerName,
                     'FROM' => '<div class="col">
                                         <h6 class="mb-0">'. $productName1 .'</h6>
                                         <p class="f-12 mb-0">'. $stockNumber1 .'</p>
@@ -748,6 +752,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $transferred_to = $row['transferred_to'];
                 $sta_status = $row['sta_status'];
                 $company_id = $row['company_id'];
+                $customer_id = $row['customer_id'];
                 $companyName = $companyModel->getCompany($company_id)['company_name'] ?? null;
                 $for_approval_date = $systemModel->checkDate('empty', $row['for_approval_date'], '', 'm/d/Y', '');
 
@@ -767,6 +772,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $stock_transfer_advice_id_encrypted = $securityModel->encryptData($stock_transfer_advice_id);
 
+                $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                $customerName = strtoupper($customerDetails['file_as']) ?? '';
+
                  $list .= ' <li class="list-group-item">
                           <div class="d-flex align-items-center">
                               <div class="flex-grow-1 ms-3">
@@ -775,6 +783,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                              <a href="stock-transfer-advice.php?id='. $stock_transfer_advice_id_encrypted .'" target="_blank">
                                                 <p class="m-b-0">'. $productName1 .' ('. $stockNumber1 .') <br/> -> <br/>'. $productName2 .' ('. $stockNumber2 .')</p>
                                                 <p class="text-muted mb-0"><small>Reference No.: '. strtoupper($reference_no) .'</small></p>
+                                                <p class="text-muted mb-0"><small>Customer Reference: '. strtoupper($customerName) .'</small></p>
                                                 <p class="text-muted mb-0"><small>Company: '. strtoupper($companyName) .'</small></p>
                                                 <p class="text-muted mb-0"><small>For Approval Date: '. strtoupper($for_approval_date) .'</small></p>
                                             </a>

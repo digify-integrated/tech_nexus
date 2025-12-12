@@ -49,6 +49,9 @@
     $firstTable = generateFirst($stockTransferAdviceID);
     $summaryTable = generatePrint($stockTransferAdviceID);
 
+    $createdByDetails = $userModel->getUserByID($_SESSION['user_id']);
+    $createdByName = strtoupper($createdByDetails['file_as'] ?? null);
+
     ob_start();
 
     class MYPDF extends TCPDF {

@@ -818,6 +818,7 @@ function stockTransferAdviceTable(datatable_name, buttons = false, show_all = fa
 
     const column = [
         { 'data' : 'REFERENCE_NO' },
+        { 'data' : 'CUSTOMER' },
         { 'data' : 'FROM' },
         { 'data' : 'TO' },
         { 'data' : 'STATUS' },
@@ -829,7 +830,8 @@ function stockTransferAdviceTable(datatable_name, buttons = false, show_all = fa
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -2198,6 +2200,7 @@ function displayDetails(transaction){
                         checkOptionExist('#transferred_to', response.transferred_to, '');
                         checkOptionExist('#sta_type', response.sta_type, '');
                         checkOptionExist('#company_id', response.company_id, '');
+                        checkOptionExist('#customer_id', response.customer_id, '');
                     } 
                     else {
                         if(response.isInactive){

@@ -408,24 +408,10 @@ class PartsIncomingController {
 
         $getPartsIncomingCartByID = $this->partsIncomingModel->getPartsIncomingCartByID($parts_incoming_id);
 
-        $aggregated = [];
-
         foreach ($getPartsIncomingCartByID as $row) {
             $part_id = $row['part_id'];
             $received_quantity = $row['received_quantity'];
-            $total_cost = $row['total_cost'];
-
-            if (!isset($aggregated[$part_id])) {
-                $aggregated[$part_id] = ['quantity' => 0, 'total_cost' => 0];
-            }
-
-            $aggregated[$part_id]['quantity'] += $received_quantity;
-            $aggregated[$part_id]['total_cost'] += $total_cost;
-        }
-
-        foreach ($aggregated as $part_id => $data) {
-            $received_quantity = $data['quantity'];
-            $total_cost = $data['total_cost'] / $received_quantity;
+            $total_cost = $row['total_cost'] / $received_quantity;
 
             $this->partsIncomingModel->updatePartsAverageCostAndSRP(
                 $part_id,

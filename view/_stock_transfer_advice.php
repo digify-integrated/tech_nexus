@@ -40,6 +40,7 @@
             <thead>
               <tr>
                 <th>Reference No.</th>
+                <th>Customer Reference</th>
                 <th>Transferred From</th>
                 <th>Transferred To</th>
                 <th>Status</th>

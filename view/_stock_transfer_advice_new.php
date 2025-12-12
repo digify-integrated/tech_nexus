@@ -21,6 +21,15 @@
       <div class="card-body">
         <form id="stock-transfer-advice-form" method="post" action="#">
           <div class="form-group row">
+              <label class="col-lg-2 col-form-label">Customer Reference</label>
+              <div class="col-lg-10" id="internal-select">
+                <select class="form-control select2" name="customer_id" id="customer_id">
+                  <option value="">--</option>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
+                </select>
+              </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Transferred From <span class="text-danger">*</span></label>
             <div class="col-lg-4" id="internal-select">
                 <select class="form-control select2" name="transferred_from" id="transferred_from">

@@ -176,6 +176,7 @@ class StockTransferAdviceController {
         $transferred_from = htmlspecialchars($_POST['transferred_from'], ENT_QUOTES, 'UTF-8');
         $transferred_to = htmlspecialchars($_POST['transferred_to'], ENT_QUOTES, 'UTF-8');
         $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
+        $customer_id = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
         $sta_type = htmlspecialchars($_POST['sta_type'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8'); 
 
@@ -183,7 +184,7 @@ class StockTransferAdviceController {
         $total = $checkStockTransferAdviceExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->stockTransferAdviceModel->updateStockTransferAdvice($stock_transfer_advice_id, $transferred_from, $transferred_to, $company_id, $sta_type, $remarks, $userID);
+            $this->stockTransferAdviceModel->updateStockTransferAdvice($stock_transfer_advice_id, $transferred_from, $transferred_to, $company_id, $customer_id, $sta_type, $remarks, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => false, 'stockTransferAdviceID' => $this->securityModel->encryptData($stock_transfer_advice_id)]);
             exit;
@@ -191,7 +192,7 @@ class StockTransferAdviceController {
         else {
             $reference_number = (int)$this->systemSettingModel->getSystemSetting(43)['value'] + 1;
 
-            $stock_transfer_advice_id = $this->stockTransferAdviceModel->insertStockTransferAdvice($reference_number, $transferred_from, $transferred_to, $company_id, $sta_type, $remarks, $userID);
+            $stock_transfer_advice_id = $this->stockTransferAdviceModel->insertStockTransferAdvice($reference_number, $transferred_from, $transferred_to, $company_id, $customer_id, $sta_type, $remarks, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(43, $reference_number, $userID);
 
@@ -506,6 +507,7 @@ class StockTransferAdviceController {
                 $part_id = $row['part_id'] ?? 0;
                 $quantity = $row['quantity'] ?? 0;
                 $total_cost = $price / $quantity;
+                $negativePrice = $price * -1;
 
                 if($transferred_to == '958'){
                     $this->partsIncomingModel->updatePartsAverageCostAndSRP(
@@ -517,8 +519,9 @@ class StockTransferAdviceController {
                     );
                 }
 
-                $this->stockTransferAdviceModel->createStockTransferAdviceProductExpense($transferred_from, 'Stock Transfer Advice', $stock_transfer_advice_id, ($price * -1), 'Stock Transfer Advice', 'STA Reference No.: ' . $reference_no . ' - '.  $remarks, $userID); 
                 $this->stockTransferAdviceModel->createStockTransferAdviceProductExpense($transferred_to, 'Stock Transfer Advice', $stock_transfer_advice_id, $price, 'Stock Transfer Advice', 'STA Reference No.: ' . $reference_no . ' - '.  $remarks, $userID); 
+
+                $this->stockTransferAdviceModel->createStockTransferAdviceProductExpense($transferred_from, 'Stock Transfer Advice', $stock_transfer_advice_id, $negativePrice, 'Stock Transfer Advice', 'STA Reference No.: ' . $reference_no . ' - '.  $remarks, $userID); 
             }
         }
         else{
@@ -526,18 +529,21 @@ class StockTransferAdviceController {
 
             foreach ($from as $row) {
                 $price = $row['price'] ?? 0;
+                $negativePrice = $price * -1;
 
-                $this->stockTransferAdviceModel->createStockTransferAdviceProductExpense($transferred_from, 'Stock Transfer Advice', $stock_transfer_advice_id, ($price * -1), 'Stock Transfer Advice', 'STA Reference No.: ' . $reference_no . ' - '.  $remarks, $userID); 
                 $this->stockTransferAdviceModel->createStockTransferAdviceProductExpense($transferred_to, 'Stock Transfer Advice', $stock_transfer_advice_id, $price, 'Stock Transfer Advice', 'STA Reference No.: ' . $reference_no . ' - '.  $remarks, $userID); 
+
+                $this->stockTransferAdviceModel->createStockTransferAdviceProductExpense($transferred_from, 'Stock Transfer Advice', $stock_transfer_advice_id, $negativePrice, 'Stock Transfer Advice', 'STA Reference No.: ' . $reference_no . ' - '.  $remarks, $userID); 
             }
 
             $to = $this->stockTransferAdviceModel->getStockTransferAdviceCartByMain($stock_transfer_advice_id, 'To');
 
             foreach ($to as $row) {
                 $price = $row['price'] ?? 0;
+                $negativePrice = $price * -1;
 
                 $this->stockTransferAdviceModel->createStockTransferAdviceProductExpense($transferred_from, 'Stock Transfer Advice', $stock_transfer_advice_id, $price, 'Stock Transfer Advice', 'STA Reference No.: ' . $reference_no . ' - '.  $remarks, $userID); 
-                $this->stockTransferAdviceModel->createStockTransferAdviceProductExpense($transferred_to, 'Stock Transfer Advice', $stock_transfer_advice_id, ($price * -1), 'Stock Transfer Advice', 'STA Reference No.: ' . $reference_no . ' - '.  $remarks, $userID); 
+                $this->stockTransferAdviceModel->createStockTransferAdviceProductExpense($transferred_to, 'Stock Transfer Advice', $stock_transfer_advice_id, $negativePrice, 'Stock Transfer Advice', 'STA Reference No.: ' . $reference_no . ' - '.  $remarks, $userID); 
             }
         }
 
@@ -909,6 +915,7 @@ class StockTransferAdviceController {
                 'transferred_to' => $stockTransferAdviceDetails['transferred_to'],
                 'sta_type' => $stockTransferAdviceDetails['sta_type'],
                 'company_id' => $stockTransferAdviceDetails['company_id'],
+                'customer_id' => $stockTransferAdviceDetails['customer_id'],
                 'remarks' => $stockTransferAdviceDetails['remarks'],
             ];
 

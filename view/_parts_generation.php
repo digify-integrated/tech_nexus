@@ -152,6 +152,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'CLASS' => $part_class_name . ' <br/>(' . $part_subclass_name . ')',
                         'QUANTITY' => number_format($quantity, 2),
                         'PRODUCT_COST' => number_format($part_cost,2) . ' PHP',
+                        'PRODUCT_TOTAL_COST' => number_format(($part_cost * $quantity),2) . ' PHP',
                         'PRODUCT_PRICE' => number_format($part_price,2) . ' PHP',
                         'PRODUCT_STATUS' => $partsStatus,
                         'ACTION' => '<div class="d-flex gap-2">

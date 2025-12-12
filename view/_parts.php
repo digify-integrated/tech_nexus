@@ -251,7 +251,8 @@
                         <th class="w-100">Quantity</th>
                         <?php
                           if($viewSalesProposalPartCost['total'] > 0){
-                            echo '<th id="cost_column" class="w-100">Cost</th>';
+                            echo '<th id="cost_column" class="w-100">Cost Per Unit</th>';
+                            echo '<th id="cost_column" class="w-100">Total Cost</th>';
                           }
                         ?>
                         <th class="w-100">Price</th>
