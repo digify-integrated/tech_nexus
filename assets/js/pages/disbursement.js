@@ -587,6 +587,20 @@
             return false;
         });
 
+        $(document).on('click','#submit-print-bir',function() {
+            const coverage_start_date = $('#coverage_start_date').val();
+            const coverage_end_date = $('#coverage_end_date').val();
+            const witholding_amount = $('#witholding_amount').val();
+            const disbursement_id = $('#disbursement-id').text();
+
+            if(coverage_start_date == '' || coverage_end_date == '' || witholding_amount == '' || witholding_amount == 0){
+                showNotification('Print Error', 'Fill-out the form before proceeding.', 'danger');
+            }
+            else{
+                window.open('print-bir-2307-manual.php?id=' + disbursement_id + '&start_date=' + coverage_start_date + '&end_date=' + coverage_end_date + '&amount=' + witholding_amount, '_blank');
+            }            
+        });
+
         $(document).on('click','#discard-create',function() {
             const disbursement_category = $('#disbursement_category').val();
 

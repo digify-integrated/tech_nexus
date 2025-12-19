@@ -4,24 +4,24 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h5>Purchase Request List</h5>
+            <h5>Purchase Order List</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <?php
-              if($purchaseRequestCreateAccess['total'] > 0 || $purchaseRequestDeleteAccess['total'] > 0){
+              if($purchaseOrderCreateAccess['total'] > 0 || $purchaseOrderDeleteAccess['total'] > 0){
                 $action = '';
                               
-                if($purchaseRequestDeleteAccess['total'] > 0){
+                if($purchaseOrderDeleteAccess['total'] > 0){
                   $action .= '<div class="btn-group m-r-10">
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                  <li><button class="dropdown-item" type="button" id="delete-purchase-request">Delete Purchase Request</button></li>
+                                  <li><button class="dropdown-item" type="button" id="delete-purchase-order">Delete Purchase Order</button></li>
                                 </ul>
                               </div>';
                   }
 
-                if($purchaseRequestCreateAccess['total'] > 0){
-                  $action .= '<a href="purchase-request.php?new" class="btn btn-success">Create</a>';
+                if($purchaseOrderCreateAccess['total'] > 0){
+                  $action .= '<a href="purchase-order.php?new" class="btn btn-success">Create</a>';
                 }
                               
                 echo $action;
@@ -36,7 +36,7 @@
       </div>
       <div class="card-body">
         <div class="table-responsive dt-responsive">
-          <table id="purchase-request-table" class="table table-hover nowrap w-100">
+          <table id="purchase-order-table" class="table table-hover nowrap w-100">
             <thead>
               <tr>
                 <th class="all">
@@ -45,7 +45,7 @@
                   </div>
                 </th>
                 <th>Reference No.</th>
-                <th>Purchase Request Type</th>
+                <th>Purchase Order Type</th>
                 <th>Company</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -101,7 +101,7 @@
                 </li>
                 <li class="list-group-item px-0 py-2">
                   <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#request-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                    Purchase Request Status
+                    Purchase Order Status
                   </a>
                   <div class="collapse" id="request-status-filter-collapse">
                     <div class="row py-3">

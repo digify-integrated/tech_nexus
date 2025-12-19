@@ -3,17 +3,17 @@ session_start();
 
 # -------------------------------------------------------------
 #
-# Function: PurchaseRequestController
+# Function: PurchaseOrderController
 # Description: 
-# The PurchaseRequestController class handles purchase request related operations and interactions.
+# The PurchaseOrderController class handles purchase order related operations and interactions.
 #
 # Parameters: None
 #
 # Returns: None
 #
 # -------------------------------------------------------------
-class PurchaseRequestController {
-    private $purchaseRequestModel;
+class PurchaseOrderController {
+    private $purchaseOrderModel;
     private $partsModel;
     private $productModel;
     private $unitModel;
@@ -28,19 +28,19 @@ class PurchaseRequestController {
     #
     # Function: __construct
     # Description: 
-    # The constructor initializes the object with the provided PurchaseRequestModel, UserModel and SecurityModel instances.
-    # These instances are used for purchase request related, user related operations and security related operations, respectively.
+    # The constructor initializes the object with the provided PurchaseOrderModel, UserModel and SecurityModel instances.
+    # These instances are used for purchase order related, user related operations and security related operations, respectively.
     #
     # Parameters:
-    # - @param PurchaseRequestModel $purchaseRequestModel     The PurchaseRequestModel instance for purchase request related operations.
+    # - @param PurchaseOrderModel $purchaseOrderModel     The PurchaseOrderModel instance for purchase order related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(PurchaseRequestModel $purchaseRequestModel, PartsModel $partsModel, ProductModel $productModel, UnitModel $unitModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
-        $this->purchaseRequestModel = $purchaseRequestModel;
+    public function __construct(PurchaseOrderModel $purchaseOrderModel, PartsModel $partsModel, ProductModel $productModel, UnitModel $unitModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
+        $this->purchaseOrderModel = $purchaseOrderModel;
         $this->partsModel = $partsModel;
         $this->productModel = $productModel;
         $this->unitModel = $unitModel;
@@ -71,26 +71,26 @@ class PurchaseRequestController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'save purchase request':
-                    $this->savePurchaseRequest();
+                case 'save purchase order':
+                    $this->savePurchaseOrder();
                     break;
-                case 'save purchase request item':
-                    $this->savePurchaseRequestItem();
+                case 'save purchase order item':
+                    $this->savePurchaseOrderItem();
                     break;
-                case 'get purchase request details':
-                    $this->getPurchaseRequestDetails();
+                case 'get purchase order details':
+                    $this->getPurchaseOrderDetails();
                     break;
-                case 'get purchase request cart details':
-                    $this->getPurchaseRequestCartDetails();
+                case 'get purchase order cart details':
+                    $this->getPurchaseOrderCartDetails();
                     break;
-                case 'delete purchase request':
-                    $this->deletePurchaseRequest();
+                case 'delete purchase order':
+                    $this->deletePurchaseOrder();
                     break;
                 case 'delete item':
-                    $this->deletePurchaseRequestCart();
+                    $this->deletePurchaseOrderCart();
                     break;
-                case 'delete multiple purchase request':
-                    $this->deleteMultiplePurchaseRequest();
+                case 'delete multiple purchase order':
+                    $this->deleteMultiplePurchaseOrder();
                     break;
                 case 'tag request as for approval':
                     $this->tagAsForApproval();
@@ -118,74 +118,74 @@ class PurchaseRequestController {
 
     # -------------------------------------------------------------
     #
-    # Function: savePurchaseRequest
+    # Function: savePurchaseOrder
     # Description: 
-    # Updates the existing purchase request if it exists; otherwise, inserts a new purchase request.
+    # Updates the existing purchase order if it exists; otherwise, inserts a new purchase order.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function savePurchaseRequest() {
+    public function savePurchaseOrder() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $purchase_request_id = isset($_POST['purchase_request_id']) ? htmlspecialchars($_POST['purchase_request_id'], ENT_QUOTES, 'UTF-8') : null;
-        $purchase_request_type = htmlspecialchars($_POST['purchase_request_type'], ENT_QUOTES, 'UTF-8');
+        $purchase_order_id = isset($_POST['purchase_order_id']) ? htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8') : null;
+        $purchase_order_type = htmlspecialchars($_POST['purchase_order_type'], ENT_QUOTES, 'UTF-8');
         $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
 
-        $checkPurchaseRequestExist = $this->purchaseRequestModel->checkPurchaseRequestExist($purchase_request_id);
-        $total = $checkPurchaseRequestExist['total'] ?? 0;
+        $checkPurchaseOrderExist = $this->purchaseOrderModel->checkPurchaseOrderExist($purchase_order_id);
+        $total = $checkPurchaseOrderExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->purchaseRequestModel->updatePurchaseRequest($purchase_request_id, $purchase_request_type, $company_id, $remarks, $userID);
+            $this->purchaseOrderModel->updatePurchaseOrder($purchase_order_id, $purchase_order_type, $company_id, $remarks, $userID);
 
-            echo json_encode(value: ['success' => true, 'insertRecord' => false, 'purchaseRequestID' => $this->securityModel->encryptData($purchase_request_id)]);
+            echo json_encode(value: ['success' => true, 'insertRecord' => false, 'purchaseOrderID' => $this->securityModel->encryptData($purchase_order_id)]);
             exit;
         } 
         else {
             $reference_number = (int)$this->systemSettingModel->getSystemSetting(44)['value'] + 1;
 
-            $purchase_request_id = $this->purchaseRequestModel->insertPurchaseRequest($reference_number, $purchase_request_type, $company_id, $remarks, $userID);
+            $purchase_order_id = $this->purchaseOrderModel->insertPurchaseOrder($reference_number, $purchase_order_type, $company_id, $remarks, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(44, $reference_number, $userID);
 
-            echo json_encode(value: ['success' => true, 'insertRecord' => true, 'purchaseRequestID' => $this->securityModel->encryptData($purchase_request_id)]);
+            echo json_encode(value: ['success' => true, 'insertRecord' => true, 'purchaseOrderID' => $this->securityModel->encryptData($purchase_order_id)]);
             exit;
         }
     }
 
-    public function savePurchaseRequestItem() {
+    public function savePurchaseOrderItem() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $purchase_request_id = htmlspecialchars($_POST['purchase_request_id'], ENT_QUOTES, 'UTF-8');
-        $purchase_request_cart_id = htmlspecialchars($_POST['purchase_request_cart_id'], ENT_QUOTES, 'UTF-8');
+        $purchase_order_id = htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8');
+        $purchase_order_cart_id = htmlspecialchars($_POST['purchase_order_cart_id'], ENT_QUOTES, 'UTF-8');
         $description = htmlspecialchars($_POST['description'], ENT_QUOTES, 'UTF-8');
         $quantity = htmlspecialchars($_POST['quantity'], ENT_QUOTES, 'UTF-8');
         $unit_id = htmlspecialchars($_POST['unit_id'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['item_remarks'], ENT_QUOTES, 'UTF-8');
 
-        $checkPurchaseRequestItemExist = $this->purchaseRequestModel->checkPurchaseRequestItemExist($purchase_request_cart_id);
-        $total = $checkPurchaseRequestItemExist['total'] ?? 0;
+        $checkPurchaseOrderItemExist = $this->purchaseOrderModel->checkPurchaseOrderItemExist($purchase_order_cart_id);
+        $total = $checkPurchaseOrderItemExist['total'] ?? 0;
 
         $unitCode = $this->unitModel->getUnit($unit_id);
         $short_name = $unitCode['short_name'] ?? null;
     
         if ($total > 0) {
-            $this->purchaseRequestModel->updatePurchaseRequestItem($purchase_request_cart_id, $description, $quantity, $unit_id, $short_name, $remarks, $userID);
+            $this->purchaseOrderModel->updatePurchaseOrderItem($purchase_order_cart_id, $description, $quantity, $unit_id, $short_name, $remarks, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->purchaseRequestModel->insertPurchaseRequestItem($purchase_request_id, $description, $quantity, $unit_id, $short_name, $remarks, $userID);
+            $this->purchaseOrderModel->insertPurchaseOrderItem($purchase_order_id, $description, $quantity, $unit_id, $short_name, $remarks, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => true]);
             exit;
@@ -198,7 +198,7 @@ class PurchaseRequestController {
         }
         
         $userID = $_SESSION['user_id'];
-        $purchase_request_id = htmlspecialchars($_POST['purchase_request_id'], ENT_QUOTES, 'UTF-8');
+        $purchase_order_id = htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
         
@@ -207,14 +207,14 @@ class PurchaseRequestController {
             exit;
         }
 
-        $getPurchaseRequestItemCount = $this->purchaseRequestModel->getPurchaseRequestItemCount($purchase_request_id)['total'] ?? 0;
+        $getPurchaseOrderItemCount = $this->purchaseOrderModel->getPurchaseOrderItemCount($purchase_order_id)['total'] ?? 0;
 
-        if($getPurchaseRequestItemCount == 0){
+        if($getPurchaseOrderItemCount == 0){
             echo json_encode(['success' => false, 'noItem' => true]);
             exit;
         }
     
-        $this->purchaseRequestModel->updatePurchaseRequestForApproval($purchase_request_id, $userID);
+        $this->purchaseOrderModel->updatePurchaseOrderForApproval($purchase_order_id, $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -226,7 +226,7 @@ class PurchaseRequestController {
         }
         
         $userID = $_SESSION['user_id'];
-        $purchase_request_id = htmlspecialchars($_POST['purchase_request_id'], ENT_QUOTES, 'UTF-8');
+        $purchase_order_id = htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8');
         $cancellation_reason = htmlspecialchars($_POST['cancellation_reason'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
@@ -236,7 +236,7 @@ class PurchaseRequestController {
             exit;
         }
 
-        $this->purchaseRequestModel->updatePurchaseRequestCancel($purchase_request_id, $cancellation_reason, $userID);
+        $this->purchaseOrderModel->updatePurchaseOrderCancel($purchase_order_id, $cancellation_reason, $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -248,7 +248,7 @@ class PurchaseRequestController {
         }
         
         $userID = $_SESSION['user_id'];
-        $purchase_request_id = htmlspecialchars($_POST['purchase_request_id'], ENT_QUOTES, 'UTF-8');
+        $purchase_order_id = htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8');
         $draft_reason = htmlspecialchars($_POST['draft_reason'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
@@ -258,7 +258,7 @@ class PurchaseRequestController {
             exit;
         }
 
-        $this->purchaseRequestModel->updatePurchaseRequestDraft($purchase_request_id, $draft_reason, $userID);
+        $this->purchaseOrderModel->updatePurchaseOrderDraft($purchase_order_id, $draft_reason, $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -270,7 +270,7 @@ class PurchaseRequestController {
         }
         
         $userID = $_SESSION['user_id'];
-        $purchase_request_id = htmlspecialchars($_POST['purchase_request_id'], ENT_QUOTES, 'UTF-8');
+        $purchase_order_id = htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8');
         $approval_remarks = htmlspecialchars($_POST['approval_remarks'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
@@ -280,7 +280,7 @@ class PurchaseRequestController {
             exit;
         }
 
-        $this->purchaseRequestModel->updatePurchaseRequestApprove($purchase_request_id, $approval_remarks, $userID);
+        $this->purchaseOrderModel->updatePurchaseOrderApprove($purchase_order_id, $approval_remarks, $userID);
         
         echo json_encode(['success' => true]);
         exit;
@@ -293,22 +293,22 @@ class PurchaseRequestController {
 
     # -------------------------------------------------------------
     #
-    # Function: deletePurchaseRequest
+    # Function: deletePurchaseOrder
     # Description: 
-    # Delete the purchase request if it exists; otherwise, return an error message.
+    # Delete the purchase order if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deletePurchaseRequest() {
+    public function deletePurchaseOrder() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $purchaseRequestID = htmlspecialchars($_POST['purchase_request_id'], ENT_QUOTES, 'UTF-8');
+        $purchaseOrderID = htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -317,27 +317,27 @@ class PurchaseRequestController {
             exit;
         }
     
-        $checkPurchaseRequestExist = $this->purchaseRequestModel->checkPurchaseRequestExist($purchaseRequestID);
-        $total = $checkPurchaseRequestExist['total'] ?? 0;
+        $checkPurchaseOrderExist = $this->purchaseOrderModel->checkPurchaseOrderExist($purchaseOrderID);
+        $total = $checkPurchaseOrderExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
     
-        $this->purchaseRequestModel->deletePurchaseRequest($purchaseRequestID);
+        $this->purchaseOrderModel->deletePurchaseOrder($purchaseOrderID);
             
         echo json_encode(['success' => true]);
         exit;
     }
 
-    public function deletePurchaseRequestCart() {
+    public function deletePurchaseOrderCart() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $purchase_request_cart_id = htmlspecialchars($_POST['purchase_request_cart_id'], ENT_QUOTES, 'UTF-8');
+        $purchase_order_cart_id = htmlspecialchars($_POST['purchase_order_cart_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -346,7 +346,7 @@ class PurchaseRequestController {
             exit;
         }
     
-        $this->purchaseRequestModel->deletePurchaseRequestCart($purchase_request_cart_id);
+        $this->purchaseOrderModel->deletePurchaseOrderCart($purchase_order_cart_id);
 
         echo json_encode(['success' => true]);
         exit;
@@ -355,22 +355,22 @@ class PurchaseRequestController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteMultiplePurchaseRequest
+    # Function: deleteMultiplePurchaseOrder
     # Description: 
-    # Delete the selected purchase requests if it exists; otherwise, skip it.
+    # Delete the selected purchase orders if it exists; otherwise, skip it.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteMultiplePurchaseRequest() {
+    public function deleteMultiplePurchaseOrder() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $purchaseRequestIDs = $_POST['purchase_request_id'];
+        $purchaseOrderIDs = $_POST['purchase_order_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -379,8 +379,8 @@ class PurchaseRequestController {
             exit;
         }
 
-        foreach($purchaseRequestIDs as $purchaseRequestID){
-            $this->purchaseRequestModel->deletePurchaseRequest($purchaseRequestID);
+        foreach($purchaseOrderIDs as $purchaseOrderID){
+            $this->purchaseOrderModel->deletePurchaseOrder($purchaseOrderID);
         }
             
         echo json_encode(['success' => true]);
@@ -394,23 +394,23 @@ class PurchaseRequestController {
 
     # -------------------------------------------------------------
     #
-    # Function: getPurchaseRequestDetails
+    # Function: getPurchaseOrderDetails
     # Description: 
-    # Handles the retrieval of purchase request details such as purchase request name, etc.
+    # Handles the retrieval of purchase order details such as purchase order name, etc.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getPurchaseRequestDetails() {
+    public function getPurchaseOrderDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
-        if (isset($_POST['purchase_request_id']) && !empty($_POST['purchase_request_id'])) {
+        if (isset($_POST['purchase_order_id']) && !empty($_POST['purchase_order_id'])) {
             $userID = $_SESSION['user_id'];
-            $purchase_request_id = $_POST['purchase_request_id'];
+            $purchase_order_id = $_POST['purchase_order_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -419,28 +419,28 @@ class PurchaseRequestController {
                 exit;
             }
     
-            $purchaseRequestDetails = $this->purchaseRequestModel->getPurchaseRequest($purchase_request_id);
+            $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrder($purchase_order_id);
 
             $response = [
                 'success' => true,
-                'reference_no' => $purchaseRequestDetails['reference_no'],
-                'purchase_request_type' => $purchaseRequestDetails['purchase_request_type'],
-                'company_id' => $purchaseRequestDetails['company_id'],
-                'remarks' => $purchaseRequestDetails['remarks']
+                'reference_no' => $purchaseOrderDetails['reference_no'],
+                'purchase_order_type' => $purchaseOrderDetails['purchase_order_type'],
+                'company_id' => $purchaseOrderDetails['company_id'],
+                'remarks' => $purchaseOrderDetails['remarks']
             ];
 
             echo json_encode($response);
             exit;
         }
     }
-    public function getPurchaseRequestCartDetails() {
+    public function getPurchaseOrderCartDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
-        if (isset($_POST['purchase_request_cart_id']) && !empty($_POST['purchase_request_cart_id'])) {
+        if (isset($_POST['purchase_order_cart_id']) && !empty($_POST['purchase_order_cart_id'])) {
             $userID = $_SESSION['user_id'];
-            $purchase_request_cart_id = $_POST['purchase_request_cart_id'];
+            $purchase_order_cart_id = $_POST['purchase_order_cart_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -449,14 +449,14 @@ class PurchaseRequestController {
                 exit;
             }
     
-            $purchaseRequestDetails = $this->purchaseRequestModel->getPurchaseRequestCart($purchase_request_cart_id);
+            $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrderCart($purchase_order_cart_id);
 
             $response = [
                 'success' => true,
-                'description' => $purchaseRequestDetails['description'],
-                'quantity' => $purchaseRequestDetails['quantity'],
-                'unit_id' => $purchaseRequestDetails['unit_id'],
-                'remarks' => $purchaseRequestDetails['remarks']
+                'description' => $purchaseOrderDetails['description'],
+                'quantity' => $purchaseOrderDetails['quantity'],
+                'unit_id' => $purchaseOrderDetails['unit_id'],
+                'remarks' => $purchaseOrderDetails['remarks']
             ];
 
             echo json_encode($response);
@@ -469,7 +469,7 @@ class PurchaseRequestController {
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';
-require_once '../model/purchase-request-model.php';
+require_once '../model/purchase-order-model.php';
 require_once '../model/parts-model.php';
 require_once '../model/unit-model.php';
 require_once '../model/product-model.php';
@@ -480,5 +480,5 @@ require_once '../model/system-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new PurchaseRequestController(new PurchaseRequestModel(new DatabaseModel), new PartsModel(new DatabaseModel), new ProductModel(new DatabaseModel), new UnitModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new PurchaseOrderController(new PurchaseOrderModel(new DatabaseModel), new PartsModel(new DatabaseModel), new ProductModel(new DatabaseModel), new UnitModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();

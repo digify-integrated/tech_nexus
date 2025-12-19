@@ -24,7 +24,8 @@
                     }
              
                     if (($disbursementStatus == 'Draft' || $disbursementStatus == 'Posted')) {
-                      $dropdown .= '<li><a href="print-bir-2307.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print BIR Form 2307 (FOR VALIDATION BY ACCOUNTING)</a></li>';
+                      $dropdown .= '<li><a href="print-bir-2307.php?id='. $disbursementID .'" class="dropdown-item" target="_blank">Print BIR Form 2307</a></li>';
+                      $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#bir-offcanvas" aria-controls="bir-offcanvas">Print BIR Form 2307 (Manual)</button></li>';
                     }
              
                     if ($postDisbursement['total'] > 0 && $disbursementStatus == 'Draft') {
@@ -475,6 +476,52 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-particulars" form="particulars-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+   <div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="bir-offcanvas" aria-labelledby="bir-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="bir-offcanvas-label" style="margin-bottom:-0.5rem">Print BIR 2307 Manual Values</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="form-group row">
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Coverage Start Date <span class="text-danger">*</span></label>
+              <div class="input-group date">
+                <input type="text" class="form-control regular-datepicker" id="coverage_start_date" name="coverage_start_date" autocomplete="off">
+                <span class="input-group-text">
+                  <i class="feather icon-calendar"></i>
+                </span>
+              </div>
+            </div>
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Coverage End Date <span class="text-danger">*</span></label>
+              <div class="input-group date">
+                <input type="text" class="form-control regular-datepicker" id="coverage_end_date" name="coverage_end_date" autocomplete="off">
+                <span class="input-group-text">
+                  <i class="feather icon-calendar"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-12 mt-3 mt-lg-0">
+              <label class="form-label">Withholding Amount <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="witholding_amount" name="witholding_amount" step="0.01">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="button" class="btn btn-primary" id="submit-print-bir">Print</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

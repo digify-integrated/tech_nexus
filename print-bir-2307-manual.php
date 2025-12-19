@@ -34,14 +34,15 @@ if(isset($_GET['id'])){
     }
 
     $disbursementID = $_GET['id'];
+    $transaction_start_date = $systemModel->checkDate('empty', $_GET['start_date'], '', 'm/d/Y', '');
+    $transaction_end_date = $systemModel->checkDate('empty', $_GET['end_date'], '', 'm/d/Y', '');
+    $witholding_amount = $_GET['amount'] ?? 0;
 
     $disbursementDetails = $disbursementModel->getDisbursement($disbursementID);
     $payable_type = $disbursementDetails['payable_type'] ?? '';
     $customer_id = $disbursementDetails['customer_id'] ?? '';
     $company_id = $disbursementDetails['company_id'] ?? '';
-    $transaction_start_date = $systemModel->checkDate('empty', $disbursementDetails['transaction_date'], '', 'm/01/Y', '');
-    $transaction_end_date = $systemModel->checkDate('empty', $disbursementDetails['transaction_date'], '', 'm/t/Y', '');
-
+    
     $companyDetails = $companyModel->getCompany($company_id);
     $company_name = $companyDetails['company_name'] ?? null;
     $tax_id = $companyDetails['tax_id'] ?? null;
@@ -282,35 +283,35 @@ foreach ($options as $row) {
     $disbursement_particulars_id = $row['disbursement_particulars_id'];
     $base_amount = $row['base_amount'];
     $tax_quarter = $row['tax_quarter'];
-    $withholding_amount = $row['withholding_amount'];
+    $withholding_amount = $witholding_amount;
     $with_withholding = $row['with_withholding'];
 
     if($with_withholding == '1'){
-        $goodsTotal = $goodsTotal + $base_amount;
-        $goodsWithholdingTotal = $goodsWithholdingTotal + $withholding_amount;
+        $goodsTotal = $withholding_amount / 0.01;
+        $goodsWithholdingTotal = $witholding_amount;
 
         if($tax_quarter == '1'){
-            $goods1stQuarterTotal = $goods1stQuarterTotal + $base_amount;
+            $goods1stQuarterTotal = $goodsTotal;
         }
         else if($tax_quarter == '2'){
-            $goods2ndQuarterTotal = $goods2ndQuarterTotal + $base_amount;
+            $goods2ndQuarterTotal = $goodsTotal;
         }
         else{
-            $goods3rdQuarterTotal = $goods3rdQuarterTotal + $base_amount;
+            $goods3rdQuarterTotal = $goodsTotal;
         }
     }
     else if($with_withholding == '2'){
-        $serviceTotal = $serviceTotal + $base_amount;
-        $serviceWithholdingTotal = $serviceWithholdingTotal + $withholding_amount;
+        $serviceTotal = $withholding_amount / 0.02;
+        $serviceWithholdingTotal = $witholding_amount;
 
         if($tax_quarter == '1'){
-            $service1stQuarterTotal = $service1stQuarterTotal + $base_amount;
+            $service1stQuarterTotal = $serviceTotal;
         }
         else if($tax_quarter == '2'){
-            $service2ndQuarterTotal = $service2ndQuarterTotal + $base_amount;
+            $service2ndQuarterTotal = $serviceTotal;
         }
         else{
-            $service3rdQuarterTotal = $service3rdQuarterTotal + $base_amount;
+            $service3rdQuarterTotal = $serviceTotal;
         }
     }
 }

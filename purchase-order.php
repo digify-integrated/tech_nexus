@@ -11,11 +11,11 @@
 
   $pageTitle = 'Purchase Order';
     
-  $purchaseOrderReadAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'read');
-  $purchaseOrderCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'create');
-  $purchaseOrderWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'write');
-  $purchaseOrderDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'delete');
-  $purchaseOrderDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'duplicate');
+  $purchaseOrderReadAccess = $userModel->checkMenuItemAccessRights($user_id, 182, 'read');
+  $purchaseOrderCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 182, 'create');
+  $purchaseOrderWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 182, 'write');
+  $purchaseOrderDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 182, 'delete');
+  $purchaseOrderDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 182, 'duplicate');
 
   if ($purchaseOrderReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -95,13 +95,13 @@
         </div>
         <?php
           if($newRecord && $purchaseOrderCreateAccess['total'] > 0){
-            require_once('view/_purchase_request_new.php');
+            require_once('view/_purchase_order_new.php');
           }
           else if(!empty($purchaseOrderID) && $purchaseOrderWriteAccess['total'] > 0){
-            require_once('view/_purchase_request_details.php');
+            require_once('view/_purchase_order_details.php');
           }
           else{
-            require_once('view/_purchase_request.php');
+            require_once('view/_purchase_order.php');
           }
         ?>
       </div>

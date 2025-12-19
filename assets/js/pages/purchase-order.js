@@ -2,44 +2,44 @@
     'use strict';
 
     $(function() {
-        if($('#purchase-request-table').length){
-            purchaseRequestTable('#purchase-request-table');
+        if($('#purchase-order-table').length){
+            purchaseOrderTable('#purchase-order-table');
         }
 
-        if($('#purchase-request-item-table').length){
-            purchaseRequestItemTable('#purchase-request-item-table');
+        if($('#purchase-order-item-table').length){
+            purchaseOrderItemTable('#purchase-order-item-table');
         }
 
         $(document).on('click','#apply-filter',function() {
-            purchaseRequestTable('#purchase-request-table');
+            purchaseOrderTable('#purchase-order-table');
         });
         
-        if($('#purchase-request-id').length){
-            displayDetails('get purchase request details');
+        if($('#purchase-order-id').length){
+            displayDetails('get purchase order details');
         }
 
-        if($('#purchase-request-form').length){
-            purchaseRequestForm();
+        if($('#purchase-order-form').length){
+            purchaseOrderForm();
         }
 
         if($('#add-item-form').length){
             addItemForm();
         }
 
-         if($('#cancel-purchase-request-form').length){
-            cancelPurchaseRequestForm();
+         if($('#cancel-purchase-order-form').length){
+            cancelPurchaseOrderForm();
         }
 
-        if($('#draft-purchase-request-form').length){
-            draftPurchaseRequestForm();
+        if($('#draft-purchase-order-form').length){
+            draftPurchaseOrderForm();
         }
 
-        if($('#approve-purchase-request-form').length){
-            approvePurchaseRequestForm();
+        if($('#approve-purchase-order-form').length){
+            approvePurchaseOrderForm();
         }
 
         $(document).on('click','#for-approval',function() {
-            var purchase_request_id = $('#purchase-request-id').text();
+            var purchase_order_id = $('#purchase-order-id').text();
             const transaction = 'tag request as for approval';
     
             Swal.fire({
@@ -56,10 +56,10 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/purchase-request-controller.php',
+                        url: 'controller/purchase-order-controller.php',
                         dataType: 'json',
                         data: {
-                            purchase_request_id : purchase_request_id, 
+                            purchase_order_id : purchase_order_id, 
                             transaction : transaction
                         },
                         success: function (response) {
@@ -94,7 +94,7 @@
         });
 
         $(document).on('click','#release',function() {
-            var purchase_request_id = $('#purchase-request-id').text();
+            var purchase_order_id = $('#purchase-order-id').text();
             const transaction = 'tag transaction as released';
     
             Swal.fire({
@@ -111,10 +111,10 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/purchase-request-controller.php',
+                        url: 'controller/purchase-order-controller.php',
                         dataType: 'json',
                         data: {
-                            purchase_request_id : purchase_request_id, 
+                            purchase_order_id : purchase_order_id, 
                             transaction : transaction
                         },
                         success: function (response) {
@@ -152,7 +152,7 @@
         });
 
         $(document).on('click','#checked',function() {
-            var purchase_request_id = $('#purchase-request-id').text();
+            var purchase_order_id = $('#purchase-order-id').text();
             const transaction = 'tag transaction as checked';
     
             Swal.fire({
@@ -169,10 +169,10 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/purchase-request-controller.php',
+                        url: 'controller/purchase-order-controller.php',
                         dataType: 'json',
                         data: {
-                            purchase_request_id : purchase_request_id, 
+                            purchase_order_id : purchase_order_id, 
                             transaction : transaction
                         },
                         success: function (response) {
@@ -204,8 +204,8 @@
         });
 
         $(document).on('click','.delete-part-cart',function() {
-            const purchase_request_cart_id = $(this).data('purchase-request-cart-id');
-            var purchase_request_id = $('#purchase-request-id').text();
+            const purchase_order_cart_id = $(this).data('purchase-order-cart-id');
+            var purchase_order_id = $('#purchase-order-id').text();
             const transaction = 'delete item';
     
             Swal.fire({
@@ -222,17 +222,17 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/purchase-request-controller.php',
+                        url: 'controller/purchase-order-controller.php',
                         dataType: 'json',
                         data: {
-                            purchase_request_cart_id : purchase_request_cart_id, 
-                            purchase_request_id : purchase_request_id, 
+                            purchase_order_cart_id : purchase_order_cart_id, 
+                            purchase_order_id : purchase_order_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
                                 showNotification('Delete Item Success', 'The item has been deleted successfully.', 'success');
-                                reloadDatatable('#purchase-request-item-table');
+                                reloadDatatable('#purchase-order-item-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -241,7 +241,7 @@
                                 }
                                 else if (response.notExist) {
                                     showNotification('Delete Item Error', 'The item does not exists.', 'danger');
-                                    reloadDatatable('#purchase-request-item-table');
+                                    reloadDatatable('#purchase-order-item-table');
                                 }
                                 else {
                                     showNotification('Delete Item Error', response.message, 'danger');
@@ -262,21 +262,21 @@
         });
 
          $(document).on('click','.update-part-cart',function() {
-            const purchase_request_cart_id = $(this).data('purchase-request-cart-id');
+            const purchase_order_cart_id = $(this).data('purchase-order-cart-id');
 
-            $('#purchase_request_cart_id').val(purchase_request_cart_id);
-            displayDetails('get purchase request cart details');
+            $('#purchase_order_cart_id').val(purchase_order_cart_id);
+            displayDetails('get purchase order cart details');
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('purchase-request.php');
+            discardCreate('purchase-order.php');
         });
 
     });
 })(jQuery);
 
-function purchaseRequestTable(datatable_name, buttons = false, show_all = false){
-    const type = 'purchase request table';
+function purchaseOrderTable(datatable_name, buttons = false, show_all = false){
+    const type = 'purchase order table';
     var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
     var filter_approval_date_start_date = $('#filter_approval_date_start_date').val();
@@ -314,7 +314,7 @@ function purchaseRequestTable(datatable_name, buttons = false, show_all = false)
 
     settings = {
         'ajax': { 
-            'url' : 'view/_purchase_request_generation.php',
+            'url' : 'view/_purchase_order_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 
@@ -355,9 +355,9 @@ function purchaseRequestTable(datatable_name, buttons = false, show_all = false)
     $(datatable_name).dataTable(settings);
 }
 
-function purchaseRequestItemTable(datatable_name, buttons = false, show_all = false){
-    const purchase_request_id = $('#purchase-request-id').text();
-    const type = 'purchase request item table';
+function purchaseOrderItemTable(datatable_name, buttons = false, show_all = false){
+    const purchase_order_id = $('#purchase-order-id').text();
+    const type = 'purchase order item table';
     var settings;
 
     const column = [ 
@@ -378,10 +378,10 @@ function purchaseRequestItemTable(datatable_name, buttons = false, show_all = fa
 
     settings = {
         'ajax': { 
-            'url' : 'view/_purchase_request_generation.php',
+            'url' : 'view/_purchase_order_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'purchase_request_id' : purchase_request_id},
+            'data': {'type' : type, 'purchase_order_id' : purchase_order_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -413,10 +413,10 @@ function purchaseRequestItemTable(datatable_name, buttons = false, show_all = fa
     $(datatable_name).dataTable(settings);
 }
 
-function purchaseRequestForm(){
-    $('#purchase-request-form').validate({
+function purchaseOrderForm(){
+    $('#purchase-order-form').validate({
         rules: {
-            purchase_request_type: {
+            purchase_order_type: {
                 required: true
             },
             company_id: {
@@ -424,8 +424,8 @@ function purchaseRequestForm(){
             },
         },
         messages: {
-            purchase_request_type: {
-                required: 'Please choose the purchase request type'
+            purchase_order_type: {
+                required: 'Please choose the purchase order type'
             },
             company_id: {
                 required: 'Please choose the company'
@@ -461,13 +461,13 @@ function purchaseRequestForm(){
             }
         },
         submitHandler: function(form) {
-            const purchase_request_id = $('#purchase-request-id').text();
-            const transaction = 'save purchase request';
+            const purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'save purchase order';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/purchase-request-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_request_id=' + purchase_request_id,
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
@@ -475,11 +475,11 @@ function purchaseRequestForm(){
                 success: function (response) {
                     if (response.success) {
                         const notificationMessage = response.insertRecord ? 'Insert Purchase Request Success' : 'Update Purchase Request Success';
-                        const notificationDescription = response.insertRecord ? 'The purchase request has been inserted successfully.' : 'The purchase request has been updated successfully.';
+                        const notificationDescription = response.insertRecord ? 'The purchase order has been inserted successfully.' : 'The purchase order has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
 
-                        window.location = 'purchase-request.php?id=' + response.purchaseRequestID;
+                        window.location = 'purchase-order.php?id=' + response.purchaseOrderID;
                     }
                     else {
                         if (response.isInactive) {
@@ -562,20 +562,20 @@ function addItemForm(){
             }
         },
         submitHandler: function(form) {
-            const purchase_request_id = $('#purchase-request-id').text();
-            const transaction = 'save purchase request item';
+            const purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'save purchase order item';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/purchase-request-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_request_id=' + purchase_request_id,
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        showNotification('Save Item Success', 'The purchase request has been saved successfully', 'success');
+                        showNotification('Save Item Success', 'The purchase order has been saved successfully', 'success');
                     }
                     else {
                         if (response.isInactive) {
@@ -597,7 +597,7 @@ function addItemForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-add-item', 'Submit');
                     $('#add-item-offcanvas').offcanvas('hide');
-                    reloadDatatable('#purchase-request-item-table');
+                    reloadDatatable('#purchase-order-item-table');
                     resetModalForm('add-item-form');
                 }
             });
@@ -607,8 +607,8 @@ function addItemForm(){
     });
 }
 
-function cancelPurchaseRequestForm(){
-    $('#cancel-purchase-request-form').validate({
+function cancelPurchaseOrderForm(){
+    $('#cancel-purchase-order-form').validate({
         rules: {
             cancellation_reason: {
                 required: true
@@ -649,13 +649,13 @@ function cancelPurchaseRequestForm(){
             }
         },
         submitHandler: function(form) {
-            var purchase_request_id = $('#purchase-request-id').text();
+            var purchase_order_id = $('#purchase-order-id').text();
             const transaction = 'tag request as cancelled';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/purchase-request-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_request_id=' + purchase_request_id,
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-cancel-transaction');
@@ -698,8 +698,8 @@ function cancelPurchaseRequestForm(){
     });
 }
 
-function draftPurchaseRequestForm(){
-    $('#draft-purchase-request-form').validate({
+function draftPurchaseOrderForm(){
+    $('#draft-purchase-order-form').validate({
         rules: {
             draft_reason: {
                 required: true
@@ -740,13 +740,13 @@ function draftPurchaseRequestForm(){
             }
         },
         submitHandler: function(form) {
-            var purchase_request_id = $('#purchase-request-id').text();
+            var purchase_order_id = $('#purchase-order-id').text();
             const transaction = 'tag request as draft';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/purchase-request-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_request_id=' + purchase_request_id,
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-draft-transaction');
@@ -786,8 +786,8 @@ function draftPurchaseRequestForm(){
     });
 }
 
-function approvePurchaseRequestForm(){
-    $('#approve-purchase-request-form').validate({
+function approvePurchaseOrderForm(){
+    $('#approve-purchase-order-form').validate({
         rules: {
             approval_remarks: {
                 required: true
@@ -828,13 +828,13 @@ function approvePurchaseRequestForm(){
             }
         },
         submitHandler: function(form) {
-            var purchase_request_id = $('#purchase-request-id').text();
+            var purchase_order_id = $('#purchase-order-id').text();
             const transaction = 'tag request as approved';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/purchase-request-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_request_id=' + purchase_request_id,
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-approve-transaction');
@@ -882,15 +882,15 @@ function approvePurchaseRequestForm(){
 
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get purchase request details':
-            var purchase_request_id = $('#purchase-request-id').text();
+        case 'get purchase order details':
+            var purchase_order_id = $('#purchase-order-id').text();
             
             $.ajax({
-                url: 'controller/purchase-request-controller.php',
+                url: 'controller/purchase-order-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    purchase_request_id : purchase_request_id, 
+                    purchase_order_id : purchase_order_id, 
                     transaction : transaction
                 },
                 success: function(response) {
@@ -898,7 +898,7 @@ function displayDetails(transaction){
                         $('#reference_no').val(response.reference_no);
                         $('#remarks').val(response.remarks);
                         
-                        checkOptionExist('#purchase_request_type', response.purchase_request_type, '');       
+                        checkOptionExist('#purchase_order_type', response.purchase_order_type, '');       
                         checkOptionExist('#company_id', response.company_id, '');       
                     } 
                     else {
@@ -919,20 +919,20 @@ function displayDetails(transaction){
                 }
             });
             break;
-        case 'get purchase request cart details':
-            const purchase_request_cart_id = $('#purchase_request_cart_id').val();
+        case 'get purchase order cart details':
+            const purchase_order_cart_id = $('#purchase_order_cart_id').val();
             
             $.ajax({
-                url: 'controller/purchase-request-controller.php',
+                url: 'controller/purchase-order-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    purchase_request_cart_id : purchase_request_cart_id, 
+                    purchase_order_cart_id : purchase_order_cart_id, 
                     transaction : transaction
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#purchase_request_cart_id').val(purchase_request_cart_id);
+                        $('#purchase_order_cart_id').val(purchase_order_cart_id);
                         $('#quantity').val(response.quantity);
                         $('#description').val(response.description);
                         $('#item_remarks').val(response.remarks);

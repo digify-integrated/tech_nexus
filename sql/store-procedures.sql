@@ -1101,7 +1101,7 @@ BEGIN
 	SELECT leasing_application_repayment_id, reference, due_date, tenant_name, unpaid_rental FROM leasing_application_repayment
     LEFT OUTER JOIN leasing_application ON leasing_application.leasing_application_id = leasing_application_repayment.leasing_application_id
     LEFT OUTER JOIN tenant ON tenant.tenant_id = leasing_application.tenant_id
-    WHERE ((application_status = 'Active' AND unpaid_rental > 0 AND repayment_status = 'Unpaid' OR repayment_status = 'Partially Paid' ) OR leasing_application_repayment_id IN (SELECT leasing_application_repayment_id FROM loan_collections WHERE loan_collection_id = p_collection_id))
+    WHERE ((application_status = 'Active' AND unpaid_rental > 0 AND (repayment_status = 'Unpaid' OR repayment_status = 'Partially Paid')) OR leasing_application_repayment_id IN (SELECT leasing_application_repayment_id FROM loan_collections WHERE loan_collection_id = p_collection_id))
 	ORDER BY reference;
 END //
 
@@ -1111,7 +1111,7 @@ BEGIN
     LEFT OUTER JOIN leasing_application_repayment ON leasing_application_repayment.leasing_application_repayment_id = leasing_other_charges.leasing_application_repayment_id
     LEFT OUTER JOIN leasing_application ON leasing_application.leasing_application_id = leasing_other_charges.leasing_application_id
     LEFT OUTER JOIN tenant ON tenant.tenant_id = leasing_application.tenant_id
-    WHERE ((application_status = 'Active' AND leasing_other_charges.outstanding_balance > 0 AND repayment_status = 'Unpaid' OR repayment_status = 'Partially Paid') OR leasing_other_charges_id IN (SELECT leasing_other_charges_id FROM loan_collections WHERE loan_collection_id = p_collection_id))
+    WHERE ((application_status = 'Active' AND leasing_other_charges.outstanding_balance > 0 AND (repayment_status = 'Unpaid' OR repayment_status = 'Partially Paid')) OR leasing_other_charges_id IN (SELECT leasing_other_charges_id FROM loan_collections WHERE loan_collection_id = p_collection_id))
 	ORDER BY reference;
 END //
 
@@ -22054,10 +22054,10 @@ BEGIN
     WHERE purchase_request_id = p_purchase_request_id;
 END //
 
-CREATE PROCEDURE insertPurchaseRequest(IN p_reference_number VARCHAR(100), IN p_purchase_request_type VARCHAR(100), IN p_company_id INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_purchase_request_id INT)
+CREATE PROCEDURE insertPurchaseRequest(IN p_reference_no VARCHAR(100), IN p_purchase_request_type VARCHAR(100), IN p_company_id INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_purchase_request_id INT)
 BEGIN
-    INSERT INTO purchase_request (reference_number, purchase_request_type, company_id, remarks, last_log_by) 
-	VALUES(p_reference_number, p_purchase_request_type, p_company_id, p_remarks, p_last_log_by);
+    INSERT INTO purchase_request (reference_no, purchase_request_type, company_id, remarks, last_log_by) 
+	VALUES(p_reference_no, p_purchase_request_type, p_company_id, p_remarks, p_last_log_by);
 	
     SET p_purchase_request_id = LAST_INSERT_ID();
 END //
@@ -22066,5 +22066,11 @@ CREATE PROCEDURE updatePurchaseRequest(IN p_purchase_request_id INT, IN p_purcha
 BEGIN
 	UPDATE purchase_request 
     SET purchase_request_type = p_purchase_request_type, company_id = p_company_id, remarks = p_remarks, last_log_by = p_last_log_by 
+    WHERE purchase_request_id = p_purchase_request_id;
+END //
+
+CREATE PROCEDURE getPurchaseRequest(IN p_purchase_request_id INT)
+BEGIN
+	SELECT * FROM purchase_request
     WHERE purchase_request_id = p_purchase_request_id;
 END //

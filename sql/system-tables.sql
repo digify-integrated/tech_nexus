@@ -6854,6 +6854,7 @@ CREATE TABLE purchase_request(
 	remarks VARCHAR(5000),
 	for_approval_date DATETIME,
 	approval_date DATETIME,
+	approval_remarks VARCHAR(500),
 	cancellation_date DATETIME,
 	cancellation_reason VARCHAR(500),
 	last_set_to_draft_date DATETIME,
@@ -6863,13 +6864,85 @@ CREATE TABLE purchase_request(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
-CREATE TABLE purchase_request_product_cart(
-	purchase_request_product_cart_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+CREATE TABLE purchase_request_cart(
+	purchase_request_cart_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	purchase_request_id INT UNSIGNED NOT NULL,
 	description VARCHAR(5000) NOT NULL,
     quantity INT NOT NULL DEFAULT 1,
     unit_id INT NOT NULL,
     short_name VARCHAR(10) NOT NULL,
+	remarks VARCHAR(5000),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+DROP TABLE IF EXISTS purchase_order;
+CREATE TABLE purchase_order(
+	purchase_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    reference_no VARCHAR(100) NOT NULL,
+	purchase_order_status ENUM('Draft', 'For Approval', 'Approved', 'On-Process', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Draft',
+	purchase_order_type ENUM('Product', 'Parts', 'Supplies', 'Others') NOT NULL,
+    company_id INT UNSIGNED NOT NULL,
+    supplier_id INT UNSIGNED NOT NULL,
+	remarks VARCHAR(5000),
+	for_approval_date DATETIME,
+	approval_date DATETIME,
+	approval_remarks VARCHAR(500),
+	cancellation_date DATETIME,
+	cancellation_reason VARCHAR(500),
+	last_set_to_draft_date DATETIME,
+	last_set_to_draft_reason VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+DROP TABLE IF EXISTS purchase_order_unit;
+CREATE TABLE purchase_order_unit(
+	purchase_order_unit_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    purchase_order_id INT UNSIGNED NOT NULL,
+    purchase_request_id INT,
+    purchase_request_cart_id INT,
+    brand_id INT,
+    model_id INT,
+    body_type_id INT,
+    class_id INT,
+    color_id INT,
+    make_id INT,
+    year_model VARCHAR(10),
+    product_category_id INT,
+	length DOUBLE,
+	length_unit INT UNSIGNED,
+    cabin_id INT,
+    quantity INT DEFAULT 1,
+	remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+DROP TABLE IF EXISTS purchase_order_part;
+CREATE TABLE purchase_order_part(
+	purchase_order_part_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    purchase_order_id INT UNSIGNED NOT NULL,
+    purchase_request_id INT,
+    purchase_request_cart_id INT,
+    part_id INT,
+    quantity INT DEFAULT 1,
+	remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+DROP TABLE IF EXISTS purchase_order_other;
+CREATE TABLE purchase_order_other(
+	purchase_order_other_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    purchase_order_id INT UNSIGNED NOT NULL,
+    item VARCHAR(500),
+    quantity INT DEFAULT 1,
+	remarks VARCHAR(5000),
+	created_date DATETIME DEFAULT NOW(),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );

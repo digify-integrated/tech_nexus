@@ -6,7 +6,7 @@ require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require_once '../model/parts-model.php';
-require_once '../model/purchase-request-model.php';
+require_once '../model/purchase-order-model.php';
 require_once '../model/parts-subclass-model.php';
 require_once '../model/parts-class-model.php';
 require_once '../model/unit-model.php';
@@ -26,7 +26,7 @@ $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
 $companyModel = new CompanyModel($databaseModel);
 $partsModel = new PartsModel($databaseModel);
-$purchaseRequestModel = new PurchaseRequestModel($databaseModel);
+$purchaseOrderModel = new PurchaseOrderModel($databaseModel);
 $partsSubclassModel = new PartsSubclassModel($databaseModel);
 $partsClassModel = new PartsClassModel($databaseModel);
 $unitModel = new UnitModel($databaseModel);
@@ -46,7 +46,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = [];
     
     switch ($type) {
-        
         case 'purchase request table':
             $filter_transaction_date_start_date = $systemModel->checkDate('empty', $_POST['filter_transaction_date_start_date'], '', 'Y-m-d', '');
             $filter_transaction_date_end_date = $systemModel->checkDate('empty', $_POST['filter_transaction_date_end_date'], '', 'Y-m-d', '');
@@ -69,7 +68,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filter_request_status = null;
             }
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePurchaseRequestTable(:filter_transaction_date_start_date, :filter_transaction_date_end_date, :filter_approval_date_start_date, :filter_approval_date_end_date, :filter_request_status)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePurchaseOrderTable(:filter_transaction_date_start_date, :filter_transaction_date_end_date, :filter_approval_date_start_date, :filter_approval_date_end_date, :filter_request_status)');
             $sql->bindValue(':filter_transaction_date_start_date', $filter_transaction_date_start_date, PDO::PARAM_STR);
             $sql->bindValue(':filter_transaction_date_end_date', $filter_transaction_date_end_date, PDO::PARAM_STR);
             $sql->bindValue(':filter_approval_date_start_date', $filter_approval_date_start_date, PDO::PARAM_STR);
@@ -80,40 +79,40 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                $purchase_request_id = $row['purchase_request_id'];
+                $purchase_order_id = $row['purchase_order_id'];
                 $reference_no = $row['reference_no'];
-                $purchase_request_status = $row['purchase_request_status'];
-                $purchase_request_type = $row['purchase_request_type'];
+                $purchase_order_status = $row['purchase_order_status'];
+                $purchase_order_type = $row['purchase_order_type'];
                 $company_id = $row['company_id'];
 
                 $companyName = $companyModel->getCompany($company_id)['company_name'] ?? null;
 
-                if($purchase_request_status === 'Draft'){
-                    $purchase_request_status = '<span class="badge bg-secondary">' . $purchase_request_status . '</span>';
+                if($purchase_order_status === 'Draft'){
+                    $purchase_order_status = '<span class="badge bg-secondary">' . $purchase_order_status . '</span>';
                 }
-                else if($purchase_request_status === 'Cancelled'){
-                    $purchase_request_status = '<span class="badge bg-warning">' . $purchase_request_status . '</span>';
+                else if($purchase_order_status === 'Cancelled'){
+                    $purchase_order_status = '<span class="badge bg-warning">' . $purchase_order_status . '</span>';
                 }
-                else if($purchase_request_status === 'For Approval'){
-                    $purchase_request_status = '<span class="badge bg-info">For Approval</span>';
+                else if($purchase_order_status === 'For Approval'){
+                    $purchase_order_status = '<span class="badge bg-info">For Approval</span>';
                 }
-                else if($purchase_request_status === 'Approved'){
-                    $purchase_request_status = '<span class="badge bg-success">Approved</span>';
+                else if($purchase_order_status === 'Approved'){
+                    $purchase_order_status = '<span class="badge bg-success">Approved</span>';
                 }
                 else{
-                    $purchase_request_status = '<span class="badge bg-success">' . $purchase_request_status . '</span>';
+                    $purchase_order_status = '<span class="badge bg-success">' . $purchase_order_status . '</span>';
                 }
 
-                $purchase_request_id_encrypted = $securityModel->encryptData($purchase_request_id);
+                $purchase_order_id_encrypted = $securityModel->encryptData($purchase_order_id);
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $purchase_request_id .'">',
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $purchase_order_id .'">',
                     'REFERENCE_NO' => $reference_no,
-                    'PURCHASE_REQUEST_TYPE' => $purchase_request_type,
+                    'PURCHASE_REQUEST_TYPE' => $purchase_order_type,
                     'COMPANY' => $companyName,
-                    'STATUS' => $purchase_request_status,
+                    'STATUS' => $purchase_order_status,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="purchase-request.php?id='. $purchase_request_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
+                                    <a href="purchase-order.php?id='. $purchase_order_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
@@ -123,19 +122,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
         case 'purchase request item table':
-            $purchase_request_id = $_POST['purchase_request_id'];
+            $purchase_order_id = $_POST['purchase_order_id'];
 
-            $purchaseRequestDetails = $purchaseRequestModel->getPurchaseRequest($purchase_request_id);
-            $purchase_request_status = $purchaseRequestDetails['purchase_request_status'] ?? 'Draft';
+            $purchaseOrderDetails = $purchaseOrderModel->getPurchaseOrder($purchase_order_id);
+            $purchase_order_status = $purchaseOrderDetails['purchase_order_status'] ?? 'Draft';
 
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM purchase_request_cart WHERE purchase_request_id = :purchase_request_id');
-            $sql->bindValue(':purchase_request_id', $purchase_request_id, PDO::PARAM_INT);
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM purchase_order_cart WHERE purchase_order_id = :purchase_order_id');
+            $sql->bindValue(':purchase_order_id', $purchase_order_id, PDO::PARAM_INT);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                $purchase_request_cart_id = $row['purchase_request_cart_id'];
+                $purchase_order_cart_id = $row['purchase_order_cart_id'];
                 $description = $row['description'];
                 $quantity = $row['quantity'];
                 $unit_id = $row['unit_id'];
@@ -143,16 +142,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $remarks = $row['remarks'];
 
                 $action = '';
-                if($purchase_request_status == 'Draft'){
-                    $action = ' <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#add-item-offcanvas" aria-controls="add-item-offcanvas" data-purchase-request-cart-id="'. $purchase_request_cart_id .'" title="Update Part Item">
+                if($purchase_order_status == 'Draft'){
+                    $action = ' <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#add-item-offcanvas" aria-controls="add-item-offcanvas" data-purchase-order-cart-id="'. $purchase_order_cart_id .'" title="Update Part Item">
                                         <i class="ti ti-edit"></i>
                                     </button>
-                                    <button type="button" class="btn btn-icon btn-danger delete-part-cart" data-purchase-request-cart-id="'. $purchase_request_cart_id .'" title="Delete Item">
+                                    <button type="button" class="btn btn-icon btn-danger delete-part-cart" data-purchase-order-cart-id="'. $purchase_order_cart_id .'" title="Delete Item">
                                         <i class="ti ti-trash"></i>
                                     </button>';
                 }
 
-                $purchase_request_id_encrypted = $securityModel->encryptData($purchase_request_id);
+                $purchase_order_id_encrypted = $securityModel->encryptData($purchase_order_id);
 
                 $response[] = [
                     'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,

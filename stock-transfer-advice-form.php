@@ -44,6 +44,11 @@
 
         $partsReturnDetails = $stockTransferAdviceModel->getStockTransferAdvice($stockTransferAdviceID);
         $reference_number = $partsReturnDetails['reference_no'] ?? 1;
+        $approval_by = $partsReturnDetails['approval_by'] ?? 1;
+        $on_process_date = $systemModel->checkDate('empty', $partsReturnDetails['on_process_date'], '', 'm/d/Y', '');
+
+        $approvalByDetails = $userModel->getUserByID($approval_by);
+        $approvalByName = strtoupper($approvalByDetails['file_as'] ?? '');
     }
 
     $firstTable = generateFirst($stockTransferAdviceID);
@@ -111,13 +116,29 @@
     $pdf->Ln(2);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
     $pdf->Ln(-4);
+
+    $pdf->writeHTML($summaryTable, true, false, true, false, '');
     $pdf->MultiCell(0, 0, '<b>3. APPROVALS</b>', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(2);
-    $pdf->MultiCell(0, 0, '<b>Prepared by (Production Assistant): __________________________________________________ &nbsp; Date: ________________</b>', 0, 'L', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(4);
-    $pdf->MultiCell(0, 0, '<b>Approved by (General Manager): ____________________________________________________ &nbsp; Date: ________________</b>', 0, 'L', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(4);
-    $pdf->MultiCell(0, 0, '<b>Verified by (Production Supervisor): _________________________________________________ &nbsp; Date: ________________</b>', 0, 'L', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(60, 20, '<b>Prepared by (Production Assistant):</b> ', 0, 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(80, 5, '<b>'. $createdByName .'</b>', 'B', 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(5, 5, '', 0, 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(12, 5, '<b>Date:</b>', 0, 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(28, 5, '<b>'. date('m/d/Y') .'</b>', 'B', 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->Ln(8);
+
+    $pdf->MultiCell(60, 20, '<b>Approved by (General Manager):</b> ', 0, 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(80, 5, '<b>'. $approvalByName .'</b>', 'B', 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(5, 5, '', 0, 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(12, 5, '<b>Date:</b>', 0, 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(28, 5, '<b>'. $on_process_date .'</b>', 'B', 'L', 0, 0, '', '', true, 0, true, true, 0);
+
+    $pdf->Ln(8);
+    $pdf->MultiCell(60, 20, '<b>Verified by (Production Supervisor):</b> ', 0, 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(80, 5, '', 'B', 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(5, 5, '', 0, 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(12, 5, '<b>Date:</b>', 0, 'L', 0, 0, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(28, 5, '', 'B', 'L', 0, 0, '', '', true, 0, true, true, 0);
 
     // Output the PDF to the browser
     $pdf->Output('sta-form.pdf', 'I');

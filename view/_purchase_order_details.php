@@ -1,13 +1,13 @@
 <?php
-  $purchaseRequestDetails = $purchaseRequestModel->getPurchaseRequest($purchaseRequestID);
-  $purchase_request_status = $purchaseRequestDetails['purchase_request_status'] ?? 'Draft';
+  $purchaseOrderDetails = $purchaseOrderModel->getPurchaseOrder($purchaseOrderID);
+  $purchase_order_status = $purchaseOrderDetails['purchase_order_status'] ?? 'Draft';
     
-  $approvePurchaseRequest = $userModel->checkSystemActionAccessRights($user_id, 201);
-  $releasePurchaseRequest = $userModel->checkSystemActionAccessRights($user_id, 202);
-  $checkPurchaseRequest = $userModel->checkSystemActionAccessRights($user_id, 219);
+  $approvePurchaseOrder = $userModel->checkSystemActionAccessRights($user_id, 201);
+  $releasePurchaseOrder = $userModel->checkSystemActionAccessRights($user_id, 202);
+  $checkPurchaseOrder = $userModel->checkSystemActionAccessRights($user_id, 219);
 
   $disabled = '';
-  if($purchase_request_status != 'Draft'){
+  if($purchase_order_status != 'Draft'){
     $disabled = 'disabled';
   }
 ?>
@@ -18,28 +18,28 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5>Purchase Request</h5>
+            <h5>Purchase Order</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
           <?php
-             if($purchase_request_status == 'Draft'){
+             if($purchase_order_status == 'Draft'){
                 echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Approval</button>';
               }
 
-              if($purchase_request_status == 'For Approval' && $approvePurchaseRequest['total'] > 0){
-                echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-purchase-request-offcanvas" aria-controls="approve-purchase-request-offcanvas" id="approved">Approve</button>';
+              if($purchase_order_status == 'For Approval' && $approvePurchaseOrder['total'] > 0){
+                echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-purchase-order-offcanvas" aria-controls="approve-purchase-order-offcanvas" id="approved">Approve</button>';
               }
 
-              if($purchase_request_status == 'Draft' || $purchase_request_status == 'For Approval'){
-                echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-purchase-request-offcanvas" aria-controls="cancel-purchase-request-offcanvas" id="cancelled">Cancel</button>';
+              if($purchase_order_status == 'Draft' || $purchase_order_status == 'For Approval'){
+                echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-purchase-order-offcanvas" aria-controls="cancel-purchase-order-offcanvas" id="cancelled">Cancel</button>';
               }
 
-              if($purchase_request_status == 'For Approval'){
-                echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-purchase-request-offcanvas" aria-controls="draft-purchase-request-offcanvas" id="draft">Set To Draft</button>';
+              if($purchase_order_status == 'For Approval'){
+                echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-purchase-order-offcanvas" aria-controls="draft-purchase-order-offcanvas" id="draft">Set To Draft</button>';
               }
 
-            if ($purchaseRequestCreateAccess['total'] > 0 && $purchase_request_status == 'Draft') {
-              echo '<button type="submit" form="purchase-request-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
+            if ($purchaseOrderCreateAccess['total'] > 0 && $purchase_order_status == 'Draft') {
+              echo '<button type="submit" form="purchase-order-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
                         <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
             }
           ?>
@@ -47,7 +47,7 @@
         </div>
       </div>
       <div class="card-body">
-        <form id="purchase-request-form" method="post" action="#">
+        <form id="purchase-order-form" method="post" action="#">
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Reference No.</label>
             <div class="col-lg-10">
@@ -55,9 +55,9 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Purchase Request Type <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Purchase Order Type <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <select class="form-control select2" name="purchase_request_type" id="purchase_request_type" <?php echo $disabled; ?>>
+              <select class="form-control select2" name="purchase_order_type" id="purchase_order_type" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <option value="Product">Product</option>
                 <option value="Parts">Parts</option>
@@ -91,11 +91,11 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5>Purchase Request Item</h5>
+            <h5>Purchase Order Item</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <?php
-              if($purchase_request_status == 'Draft'){
+              if($purchase_order_status == 'Draft'){
                 echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-item-offcanvas" aria-controls="add-item-offcanvas" id="add-item">Add Item</button>';
               }
             ?>
@@ -104,7 +104,7 @@
       </div>
       <div class="card-body p-0">
         <div class="dt-responsive table-responsive">
-          <table class="table mb-0" id="purchase-request-item-table">
+          <table class="table mb-0" id="purchase-order-item-table">
             <thead>
               <tr>
                 <th class="text-end"></th>
@@ -134,7 +134,7 @@
               </div>
               <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
                 <div class="card-body p-b-0">
-                  '. $userModel->generateLogNotes('parts_transaction', $purchaseRequestID) .'
+                  '. $userModel->generateLogNotes('parts_transaction', $purchaseOrderID) .'
                 </div>
               </div>
             </div>
@@ -145,14 +145,14 @@
 <div>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="add-item-offcanvas" aria-labelledby="add-item-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="add-item-offcanvas-label" style="margin-bottom:-0.5rem">Purchase Request Item</h2>
+      <h2 id="add-item-offcanvas-label" style="margin-bottom:-0.5rem">Purchase Order Item</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
           <form id="add-item-form" method="post" action="#">
-            <input type="hidden" id="purchase_request_cart_id" name="purchase_request_cart_id">
+            <input type="hidden" id="purchase_order_cart_id" name="purchase_order_cart_id">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Item <span class="text-danger">*</span></label>
@@ -192,15 +192,15 @@
 </div>
 
  <div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="cancel-purchase-request-offcanvas" aria-labelledby="cancel-purchase-request-offcanvas-label">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cancel-purchase-order-offcanvas" aria-labelledby="cancel-purchase-order-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="cancel-purchase-request-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Request</h2>
+        <h2 id="cancel-purchase-order-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Request</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="cancel-purchase-request-form" method="post" action="#">
+          <form id="cancel-purchase-order-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Cancellation Reason <span class="text-danger">*</span></label>
@@ -212,7 +212,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-cancel-transaction" form="cancel-purchase-request-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-cancel-transaction" form="cancel-purchase-order-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
@@ -220,15 +220,15 @@
   </div>
 
  <div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="draft-purchase-request-offcanvas" aria-labelledby="draft-purchase-request-offcanvas-label">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="draft-purchase-order-offcanvas" aria-labelledby="draft-purchase-order-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="draft-purchase-request-offcanvas-label" style="margin-bottom:-0.5rem">Set To Draft</h2>
+        <h2 id="draft-purchase-order-offcanvas-label" style="margin-bottom:-0.5rem">Set To Draft</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="draft-purchase-request-form" method="post" action="#">
+          <form id="draft-purchase-order-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Set To Draft Reason <span class="text-danger">*</span></label>
@@ -240,7 +240,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-draft-transaction" form="draft-purchase-request-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-draft-transaction" form="draft-purchase-order-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
@@ -248,15 +248,15 @@
   </div>
 
  <div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="approve-purchase-request-offcanvas" aria-labelledby="approve-purchase-request-offcanvas-label">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="approve-purchase-order-offcanvas" aria-labelledby="approve-purchase-order-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="approve-purchase-request-offcanvas-label" style="margin-bottom:-0.5rem">Approve Request</h2>
+        <h2 id="approve-purchase-order-offcanvas-label" style="margin-bottom:-0.5rem">Approve Request</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="approve-purchase-request-form" method="post" action="#">
+          <form id="approve-purchase-order-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Approval Remarks <span class="text-danger">*</span></label>
@@ -268,7 +268,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-approve-transaction" form="approve-purchase-request-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-approve-transaction" form="approve-purchase-order-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
