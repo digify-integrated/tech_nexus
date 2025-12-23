@@ -299,7 +299,6 @@
                             <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                           </div>
                         </th>
-                        <th>Image</th>
                         <th>Stock No.</th>
                         <th>Remarks</th>
                         <th>Category</th>

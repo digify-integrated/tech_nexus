@@ -1298,7 +1298,6 @@ function productTable(datatable_name, buttons = false, show_all = false){
 
         column = [ 
             { 'data' : 'CHECK_BOX' },
-            { 'data' : 'IMAGE' },
             { 'data' : 'STOCK_NUMBER' },
             { 'data' : 'REMARKS' },
             { 'data' : 'CATEGORY' },
@@ -1317,9 +1316,9 @@ function productTable(datatable_name, buttons = false, show_all = false){
 
         column_definition = [
             { 'width': '1%','bSortable': false, 'aTargets': 0 },
-            { 'width': '1%','bSortable': false, 'aTargets': 1 },
+            { 'width': '40%', 'aTargets': 1 },
             { 'width': '30%', 'aTargets': 2 },
-            { 'width': '30%', 'aTargets': 3 },
+            { 'width': 'auto', 'aTargets': 3 },
             { 'width': 'auto', 'aTargets': 4 },
             { 'width': 'auto', 'aTargets': 5 },
             { 'width': 'auto', 'aTargets': 6 },
@@ -1328,16 +1327,14 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 9 },
             { 'width': 'auto', 'aTargets': 10 },
             { 'width': 'auto', 'aTargets': 11 },
-            { 'width': 'auto', 'aTargets': 12 },
-            { 'width': 'auto', 'type' : 'date', 'aTargets': 13 },
-            { 'width': 'auto', 'aTargets': 14 },
-            { 'width': '10%','bSortable': false, 'aTargets': 15 }
+            { 'width': '10%', 'type' : 'date', 'aTargets': 12 },
+            { 'width': 'auto', 'aTargets': 13 },
+            { 'width': '10%','bSortable': false, 'aTargets': 14 }
         ];
     }
     else{
         column = [ 
             { 'data' : 'CHECK_BOX' },
-            { 'data' : 'IMAGE' },
             { 'data' : 'STOCK_NUMBER' },
             { 'data' : 'REMARKS' },
             { 'data' : 'CATEGORY' },
@@ -1355,8 +1352,8 @@ function productTable(datatable_name, buttons = false, show_all = false){
 
         column_definition = [
             { 'width': '1%','bSortable': false, 'aTargets': 0 },
-            { 'width': '1%','bSortable': false, 'aTargets': 1 },
-            { 'width': '40%', 'aTargets': 2 },
+            { 'width': '40%', 'aTargets': 1 },
+            { 'width': 'auto', 'aTargets': 2 },
             { 'width': 'auto', 'aTargets': 3 },
             { 'width': 'auto', 'aTargets': 4 },
             { 'width': 'auto', 'aTargets': 5 },
@@ -1365,10 +1362,9 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 8 },
             { 'width': 'auto', 'aTargets': 9 },
             { 'width': 'auto', 'aTargets': 10 },
-            { 'width': 'auto', 'aTargets': 11 },
-            { 'width': 'auto', 'type' : 'date', 'aTargets': 12 },
-            { 'width': 'auto', 'aTargets': 13 },
-            { 'width': '10%','bSortable': false, 'aTargets': 14 }
+            { 'width': '10%', 'type' : 'date', 'aTargets': 11 },
+            { 'width': 'auto', 'aTargets': 12 },
+            { 'width': '10%','bSortable': false, 'aTargets': 13 }
         ];
     }
 
@@ -1437,7 +1433,7 @@ function productTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function productExpenseTable(datatable_name, buttons = false, show_all = false){
+function productExpenseTable(datatable_name, buttons = false, show_all = true){
     const type = 'product expense table';
     const product_id = $('#product-id').text();
     const reference_type_filter = $('#reference_type_filter').val();
@@ -1460,7 +1456,7 @@ function productExpenseTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'type': 'date', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
-        { 'width': '20%', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': '5%','bSortable': false, 'aTargets': 6 },
         { 'width': '5%','bSortable': false, 'aTargets': 7 }

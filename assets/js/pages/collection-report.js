@@ -57,7 +57,7 @@ function collectionReportTable(datatable_name, buttons = false, show_all = false
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'type': 'date', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
-        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '15%', 'aTargets': 7 },
         { 'width': 'auto', 'aTargets': 8 },
         { 'width': 'auto', 'aTargets': 9 },
         { 'width': 'auto', 'aTargets': 10 },

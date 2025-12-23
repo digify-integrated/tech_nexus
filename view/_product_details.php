@@ -672,24 +672,24 @@ if($addProductExpense['total'] > 0){
     </div>
   </div>
   <div class="card-body">
-    <div class="dt-responsive table-responsive">
-      <table id="product-expense-table" class="table table-hover nowrap w-100 dataTable">
+    <div class="table-responsive dt-responsive">
+      <table id="product-expense-table" class="table table-hover wrap w-100">
         <thead>
           <tr>
             <th>Date</th>
             <th>Issuance Date</th>
-            <th class="all">Reference Type</th>
-            <th class="all">Reference Number</th>
-            <th class="all">Particulars</th>
+            <th class="all">Ref. Type</th>
+            <th class="all">Ref. No.</th>
+            <th class="w-100 wrap">Particulars</th>
             <th class="all">Type</th>
             <th class="all">Amount</th>
             <th class="all">Actions</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody class="wrap"></tbody>
         <tfoot>
           <tr>
-              <td class="text-end" colspan="6"><b>TOTAL</b></td>
+              <td class="text-end w-100" colspan="6"><b>TOTAL</b></td>
               <td></td> 
               <td></td>
           </tr>

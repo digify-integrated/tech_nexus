@@ -130,7 +130,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $getCreatedByLog = $pdcManagementModel->getCreatedByLog('loan_collections', $loanCollectionID);
-                $changed_by = $getCreatedByLog['changed_by'];
+                $changed_by = $getCreatedByLog['changed_by'] ?? '';
 
                 $createdByName = 'Lalaine Penacilla';
 
@@ -157,13 +157,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'TRANSACTION_DATE' => $transactionDate,
                     'PAYMENT_DATE' => $paymentDate,
-                    'REFNO' => $refno,
+                    'REFNO' => '<p class="text-wrap">'.$refno.'</p>',
                     'PAYMENT_AMOUNT' => $paymentAmount,
                     'CHECK_NUMBER' => $checkNumber,
                     'CHECK_DATE' => $checkDate,
                     'LOAN_NUMBER' => $loanNumber,
-                    'PAYMENT_DETAILS' => $paymentDetails,
-                    'BANK_BRANCH' => $bankBranch,
+                    'PAYMENT_DETAILS' => '<p class="text-wrap">'.$paymentDetails.'</p>',
+                    'BANK_BRANCH' => '<p class="text-wrap">'.$bankBranch.'</p>',
                     'MODE_OF_PAYMENT' => $modeOfPayment,
                     'COLLECTION_STATUS' => $collectionStatus,
                     'COLLECTED_BY' => $createdByName

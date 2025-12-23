@@ -284,7 +284,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $stockNumber = str_replace($productSubcategoryCode, '', $row['stock_number']);
                     $fullStockNumber = $productSubcategoryCode . $stockNumber;
                     $forSaleDate = $systemModel->checkDate('summary', $row['for_sale_date'], '', 'm/d/Y h:i:s A', '');
-                    $created_date = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                    $created_date = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y', '');
+                    $created_time = $systemModel->checkDate('summary', $row['created_date'], '', 'h:i:s A', '');
 
                     $productCost = $productModel->getTotalProductCost($productID)['expense_amount'] ?? 0;
                     
@@ -308,8 +309,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'IMAGE' => '<a href="'. $productImage .'" target="_blank">View Image</a>',
                         'STOCK_NUMBER' => '<div class="row">
                                         <div class="col">
-                                            <h6 class="mb-0">'. $fullStockNumber .'</h6>
-                                            <p class="f-12 mb-0 text-wrap">'. $description .'</p>
+                                            <a href="product.php?id='. $productIDEncrypted .'" title="View Details" target="_blank">
+                                                <h6 class="mb-0">'. $fullStockNumber .'</h6>
+                                                <p class="f-12 mb-0 text-wrap">'. $description .'</p>
+                                            </a>
+                                            <a href="'. $productImage .'" target="_blank">View Image</a>
                                         </div>
                                     </div>',
                         'CATEGORY' => $productCategoryName . ' <br/>(' . $productSubcategoryName . ')',
@@ -323,7 +327,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'PRODUCT_COST' => number_format($productCost,2),
                         'PRODUCT_PRICE' => number_format($productPrice,2),
                         'PRODUCT_STATUS' => $productStatus,
-                        'CREATED_DATE' => $created_date,
+                        'CREATED_DATE' => $created_date . '<br/>' . $created_time,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <a href="product.php?id='. $productIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
                                             <i class="ti ti-eye"></i>
@@ -362,7 +366,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $particulars = $row['particulars'];
                     $expense_amount = number_format($row['expense_amount'], 2);
 
-                    $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                    $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y', '');
+                    $createdTime = $systemModel->checkDate('summary', $row['created_date'], '', 'h:i:s A', '');
                     $issuance_date = $systemModel->checkDate('summary', $row['issuance_date'], '', 'm/d/Y', '');
 
                     $delete = '';
@@ -421,12 +426,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
     
                     $response[] = [
-                        'CREATED_DATE' => $createdDate,
+                        'CREATED_DATE' => $createdDate . '<br/>' . $createdTime,
                         'ISSUANCE_DATE' => $issuance_date,
                         'REFERENCE_TYPE' => $reference_type,
                         'REFERENCE_NUMBER' => $reference_number,
                         'EXPENSE_AMOUNT' => $expense_amount,
-                        'PARTICULARS' => $particulars,
+                        'PARTICULARS' => '<p class="text-wrap">'.$particulars.'</p>',
                         'EXPENSE_TYPE' => $expenseType,
                         'ACTION' => '<div class="d-flex gap-2">
                                         '. $view .'

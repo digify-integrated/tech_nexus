@@ -84,7 +84,7 @@
                         <div class="collapse" id="transaction-date-filter-collapse">
                           <div class="row py-3">
                             <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_transaction_date_start_date" id="filter_transaction_date_start_date" placeholder="Start Date" value="<?php echo date('m/d/Y'); ?>">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_transaction_date_start_date" id="filter_transaction_date_start_date" placeholder="Start Date" value="<?php echo date('m/d/Y', strtotime('-1 day')); ?>">
                               <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_transaction_date_end_date" id="filter_transaction_date_end_date" placeholder="End Date" value="<?php echo date('m/d/Y'); ?>">
                             </div>
                           </div>
@@ -151,26 +151,26 @@
               </div>
             </div>
           </div>
-          <div class="card-body">
+          <div class="card-body text-wrap">
             <div class="table-responsive dt-responsive">
               <table id="collection-report-table" class="table table-hover text-wrap w-100">
                 <thead>
                   <tr>
                     <th>Transaction Date</th>
                     <th>Payment Date</th>
-                    <th>Reference Number</th>
-                    <th>Reference Amount</th>
-                    <th>Check Number</th>
+                    <th>Ref. No.</th>
+                    <th>Ref. Amount</th>
+                    <th>Check No.</th>
                     <th>Check Date</th>
-                    <th>Loan Number</th>
-                    <th>Payment Details</th>
+                    <th>Loan No.</th>
+                    <th class="w-20">Payment Details</th>
                     <th>Bank/Branch</th>
                     <th>Collection Method</th>
                     <th>Status</th>
                     <th>Collected From</th>
                   </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody class="text-wrap"></tbody>
               </table>
             </div>
           </div>
