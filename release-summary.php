@@ -49,7 +49,12 @@
     $corporateName = $customerDetails['corporate_name'] ?? '--';
 
     $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
-    $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
+    $address = $customerPrimaryAddress['address'] ?? '--';
+    $city = $customerPrimaryAddress['city_name'] ?? '--';
+    $state = $customerPrimaryAddress['state_name'] ?? '--';
+    $country = $customerPrimaryAddress['country_name'] ?? '--';
+
+    $customerAddress = $address . ', ' . $city . ', ' . $state . ', ' . $country;
 
     $customerContactInformation = $customerModel->getCustomerPrimaryContactInformation($customerID);
     $customerMobile = !empty($customerContactInformation['mobile']) ? $customerContactInformation['mobile'] : '--';
@@ -147,7 +152,12 @@
     }
 
     $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
-    $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
+     $address = $customerPrimaryAddress['address'] ?? '--';
+    $city = $customerPrimaryAddress['city_name'] ?? '--';
+    $state = $customerPrimaryAddress['state_name'] ?? '--';
+    $country = $customerPrimaryAddress['country_name'] ?? '--';
+
+    $customerAddress = $address . ', ' . $city . ', ' . $state . ', ' . $country;
 
 
     $comakerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($comakerID);

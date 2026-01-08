@@ -263,7 +263,7 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'That the condition of this obligation is that should the MORTGAGOR perform the obligation to pay the hereinabove cited indebtedness of '. $amountInWords->format($totalPn) .' (PHP '. number_format($totalPn, 2) .') together with accrued interest thereon, this chattel mortgage shall at once become null and void and of no effect whatsoever, otherwise, it shall remain in full force and effect.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'IN WITNESS WHEREOF, the parties have hereunto set their hands, this________, day of_______ 2016______ at ___________________________ Philippines.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'IN WITNESS WHEREOF, the parties have hereunto set their hands, this___________, day of _________________ at ___________________________ Philippines.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->Cell(90, 4, $customerName, 'B', 0 , 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');

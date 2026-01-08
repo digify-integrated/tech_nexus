@@ -1,37 +1,37 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/purchase-order-model.php');
+  require('model/purchase-request-model.php');
   require('model/company-model.php');
   require('model/unit-model.php');
   
-  $purchaseOrderModel = new PurchaseOrderModel($databaseModel);
+  $purchaseRequestModel = new PurchaseRequestModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
   $unitModel = new UnitModel($databaseModel);
 
-  $pageTitle = 'Purchase Order';
+  $pageTitle = 'Purchase Request';
     
-  $purchaseOrderReadAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'read');
-  $purchaseOrderCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'create');
-  $purchaseOrderWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'write');
-  $purchaseOrderDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'delete');
-  $purchaseOrderDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'duplicate');
+  $purchaseRequestReadAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'read');
+  $purchaseRequestCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'create');
+  $purchaseRequestWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'write');
+  $purchaseRequestDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'delete');
+  $purchaseRequestDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 180, 'duplicate');
 
-  if ($purchaseOrderReadAccess['total'] == 0) {
+  if ($purchaseRequestReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: purchase-order.php');
+      header('location: purchase-request.php');
       exit;
     }
 
-    $purchaseOrderID = $securityModel->decryptData($_GET['id']);
+    $purchaseRequestID = $securityModel->decryptData($_GET['id']);
 
-    $checkPurchaseOrderExist = $purchaseOrderModel->checkPurchaseOrderExist($purchaseOrderID);
-    $total = $checkPurchaseOrderExist['total'] ?? 0;
+    $checkPurchaseRequestExist = $purchaseRequestModel->checkPurchaseRequestExist($purchaseRequestID);
+    $total = $checkPurchaseRequestExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
@@ -39,7 +39,7 @@
     }
   }
   else{
-    $purchaseOrderID = null;
+    $purchaseRequestID = null;
   }
 
   $newRecord = isset($_GET['new']);
@@ -58,10 +58,10 @@
 
 <body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="false" data-pc-theme="light">
     <?php 
-        include_once('config/_preloader.html'); 
-        include_once('config/_navbar.php'); 
-        include_once('config/_header.php'); 
-        include_once('config/_announcement.php'); 
+      include_once('config/_preloader.html'); 
+      include_once('config/_navbar.php'); 
+      include_once('config/_header.php'); 
+      include_once('config/_announcement.php'); 
     ?>   
 
     <section class="pc-container">
@@ -73,10 +73,10 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="purchase-order.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="purchase-request.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($purchaseOrderID)){
-                            echo '<li class="breadcrumb-item" id="purchase-order-id">'. $purchaseOrderID .'</li>';
+                        if(!$newRecord && !empty($purchaseRequestID)){
+                            echo '<li class="breadcrumb-item" id="purchase-request-id">'. $purchaseRequestID .'</li>';
                         }
 
                         if($newRecord){
@@ -94,10 +94,10 @@
           </div>
         </div>
         <?php
-          if($newRecord && $purchaseOrderCreateAccess['total'] > 0){
+          if($newRecord && $purchaseRequestCreateAccess['total'] > 0){
             require_once('view/_purchase_request_new.php');
           }
-          else if(!empty($purchaseOrderID) && $purchaseOrderWriteAccess['total'] > 0){
+          else if(!empty($purchaseRequestID) && $purchaseRequestWriteAccess['total'] > 0){
             require_once('view/_purchase_request_details.php');
           }
           else{
@@ -119,7 +119,7 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/purchase-order.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/purchase-request.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

@@ -43,16 +43,16 @@ class PartsModel {
     # Description: Updates the parts image.
     #
     # Parameters:
-    # - $p_parts_id (int): The parts ID.
+    # - $p_part_id (int): The parts ID.
     # - $p_parts_image (string): The parts category ID.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updatePartsImage($p_parts_id, $p_parts_image, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePartsImage(:p_parts_id, :p_parts_image, :p_last_log_by)');
-        $stmt->bindValue(':p_parts_id', $p_parts_id, PDO::PARAM_INT);
+    public function updatePartsImage($p_part_id, $p_parts_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsImage(:p_part_id, :p_parts_image, :p_last_log_by)');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_parts_image', $p_parts_image, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -60,18 +60,18 @@ class PartsModel {
     # -------------------------------------------------------------
     
     # -------------------------------------------------------------
-    public function insertPartsImage($p_parts_id, $p_parts_image, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPartsImage(:p_parts_id, :p_parts_image, :p_last_log_by)');
-        $stmt->bindValue(':p_parts_id', $p_parts_id, PDO::PARAM_INT);
+    public function insertPartsImage($p_part_id, $p_parts_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartsImage(:p_part_id, :p_parts_image, :p_last_log_by)');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_parts_image', $p_parts_image, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
     # -------------------------------------------------------------
-    public function insertPartsDocument($p_parts_id, $p_document_type, $p_parts_image, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPartsDocument(:p_parts_id, :p_document_type, :p_parts_image, :p_last_log_by)');
-        $stmt->bindValue(':p_parts_id', $p_parts_id, PDO::PARAM_INT);
+    public function insertPartsDocument($p_part_id, $p_document_type, $p_parts_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartsDocument(:p_part_id, :p_document_type, :p_parts_image, :p_last_log_by)');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_document_type', $p_document_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_parts_image', $p_parts_image, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
@@ -80,9 +80,9 @@ class PartsModel {
     # -------------------------------------------------------------
     
     # -------------------------------------------------------------
-    public function updatePartsStatus($p_parts_id, $p_parts_status, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePartsStatus(:p_parts_id, :p_parts_status, :p_last_log_by)');
-        $stmt->bindValue(':p_parts_id', $p_parts_id, PDO::PARAM_INT);
+    public function updatePartsStatus($p_part_id, $p_parts_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsStatus(:p_part_id, :p_parts_status, :p_last_log_by)');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_parts_status', $p_parts_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -90,9 +90,9 @@ class PartsModel {
     # -------------------------------------------------------------
     
     # -------------------------------------------------------------
-    public function insertPartsExpense($p_parts_id, $p_reference_type, $p_reference_number, $p_expense_amount, $p_expense_type, $p_particulars, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPartsExpense(:p_parts_id, :p_reference_type, :p_reference_number, :p_expense_amount, :p_expense_type, :p_particulars, :p_last_log_by)');
-        $stmt->bindValue(':p_parts_id', $p_parts_id, PDO::PARAM_INT);
+    public function insertPartsExpense($p_part_id, $p_reference_type, $p_reference_number, $p_expense_amount, $p_expense_type, $p_particulars, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartsExpense(:p_part_id, :p_reference_type, :p_reference_number, :p_expense_amount, :p_expense_type, :p_particulars, :p_last_log_by)');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_reference_type', $p_reference_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_expense_amount', $p_expense_amount, PDO::PARAM_STR);
@@ -174,14 +174,14 @@ class PartsModel {
     # Description: Checks if a parts exists.
     #
     # Parameters:
-    # - $p_parts_id (int): The parts ID.
+    # - $p_part_id (int): The parts ID.
     #
     # Returns: The result of the query as an associative array.
     #
     # -------------------------------------------------------------
-    public function checkPartsExist($p_parts_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL checkPartsExist(:p_parts_id)');
-        $stmt->bindValue(':p_parts_id', $p_parts_id, PDO::PARAM_INT);
+    public function checkPartsExist($p_part_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkPartsExist(:p_part_id)');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -215,14 +215,14 @@ class PartsModel {
     # Description: Deletes the parts.
     #
     # Parameters:
-    # - $p_parts_id (int): The parts ID.
+    # - $p_part_id (int): The parts ID.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function deleteParts($p_parts_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteParts(:p_parts_id)');
-        $stmt->bindValue(':p_parts_id', $p_parts_id, PDO::PARAM_INT);
+    public function deleteParts($p_part_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteParts(:p_part_id)');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -259,15 +259,15 @@ class PartsModel {
     # Description: Retrieves the details of a parts.
     #
     # Parameters:
-    # - $p_parts_id (int): The parts ID.
+    # - $p_part_id (int): The parts ID.
     #
     # Returns:
     # - An array containing the parts details.
     #
     # -------------------------------------------------------------
-    public function getParts($p_parts_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL getParts(:p_parts_id)');
-        $stmt->bindValue(':p_parts_id', $p_parts_id, PDO::PARAM_INT);
+    public function getParts($p_part_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getParts(:p_part_id)');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -327,9 +327,9 @@ class PartsModel {
 
     
     # -------------------------------------------------------------
-    public function getTotalPartsCost($p_parts_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL getTotalPartsCost(:p_parts_id)');
-        $stmt->bindValue(':p_parts_id', $p_parts_id, PDO::PARAM_INT);
+    public function getTotalPartsCost($p_part_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getTotalPartsCost(:p_part_id)');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -356,11 +356,11 @@ class PartsModel {
 
         $htmlOptions = '';
         foreach ($options as $row) {
-            $partsID = $row['parts_id'];
+            $partsID = $row['part_id'];
             $description = $row['description'];
             $stockNumber = $row['stock_number'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
         }
 
         return $htmlOptions;
@@ -384,11 +384,11 @@ class PartsModel {
 
         $htmlOptions = '';
         foreach ($options as $row) {
-            $partsID = $row['parts_id'];
+            $partsID = $row['part_id'];
             $description = $row['description'];
             $stockNumber = $row['stock_number'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
         }
 
         return $htmlOptions;
@@ -397,17 +397,31 @@ class PartsModel {
 
     # -------------------------------------------------------------
     public function generateAllPartsOptions() {
-        $stmt = $this->db->getConnection()->prepare('CALL generateAllPartsOptions()');
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM part WHERE company_id != 1 ORDER BY description');
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $htmlOptions = '';
         foreach ($options as $row) {
-            $partsID = $row['parts_id'];
+            $partsID = $row['part_id'];
             $description = $row['description'];
-            $stockNumber = $row['stock_number'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    public function generateAllSupplyOptions() {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM part WHERE company_id NOT IN (3, 4) ORDER BY description');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $partsID = $row['part_id'];
+            $description = $row['description'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
         }
 
         return $htmlOptions;
@@ -422,11 +436,11 @@ class PartsModel {
 
         $htmlOptions = '';
         foreach ($options as $row) {
-            $partsID = $row['parts_id'];
+            $partsID = $row['part_id'];
             $description = $row['description'];
             $stockNumber = $row['stock_number'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
         }
 
         return $htmlOptions;

@@ -576,76 +576,82 @@ if($addProductExpense['total'] > 0){
             <div class="col-lg-3">
               <input type="number" class="form-control" id="unit_cost" name="unit_cost" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
+            <label class="col-lg-3 col-form-label">Best Price</label>
+            <div class="col-lg-3">
+              <input type="number" class="form-control" id="best_price" name="best_price" min="0" step="0.01" <?php echo $disabledLandedCostForm2; ?>>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-3 col-form-label">FX Rate</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="fx_rate" name="fx_rate" min="0.0001" value="1" step="0.0001" <?php echo $disabledLandedCostForm; ?>>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Converted Amount</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="converted_amount" name="converted_amount" min="0" step="0.01" readonly>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Package Deal</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="package_deal" name="package_deal" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Tax Duties</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="taxes_duties" name="taxes_duties" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Freight</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="freight" name="freight" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-3 col-form-label">LTO Registration</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="lto_registration" name="lto_registration" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Royalties</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="royalties" name="royalties" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Conversion</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="conversion" name="conversion" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Arrastre</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="arrastre" name="arrastre" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Wharrfage</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="wharrfage" name="wharrfage" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Insurance</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="insurance" name="insurance" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Aircon</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="aircon" name="aircon" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
+          </div>
+          <div class="form-group row mb-0">
             <label class="col-lg-3 col-form-label">Import Permit</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="import_permit" name="import_permit" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
-          </div>
-          <div class="form-group row mb-0">
             <label class="col-lg-3 col-form-label">Others</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="others" name="others" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
+          </div>
+          <div class="form-group row mb-0">
             <label class="col-lg-3 col-form-label">Total Landed Cost</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="total_landed_cost" name="total_landed_cost" min="0" step="0.01" readonly>

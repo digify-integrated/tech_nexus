@@ -36,16 +36,16 @@
                                   <label class="form-check-label" for="collection-customer">Customer</label>
                                 </div>
                                 <div class="form-check my-2">
-                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-leasing" value="Leasing" checked/>
+                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-miscellaneous" value="Miscellaneous" checked/>
+                                  <label class="form-check-label" for="collection-miscellaneous">Miscellaneous</label>
+                                </div>
+                                <div class="form-check my-2">
+                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-leasing" value="Leasing"/>
                                   <label class="form-check-label" for="collection-leasing">Leasing</label>
                                 </div>
                                 <div class="form-check my-2">
-                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-leasing-other" value="Leasing Other" checked/>
+                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-leasing-other" value="Leasing Other"/>
                                   <label class="form-check-label" for="collection-leasing-other">Leasing Other</label>
-                                </div>
-                                <div class="form-check my-2">
-                                  <input class="form-check-input collection-checkbox" type="checkbox" id="collection-miscellaneous" value="Miscellaneous" checked/>
-                                  <label class="form-check-label" for="collection-miscellaneous">Miscellaneous</label>
                                 </div>
                               </div>
                             </div>
@@ -85,7 +85,7 @@
                           <div class="row py-3">
                             <div class="col-12">
                               <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_transaction_date_start_date" id="filter_transaction_date_start_date" placeholder="Start Date" value="<?php echo date('m/d/Y', strtotime('-1 day')); ?>">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_transaction_date_end_date" id="filter_transaction_date_end_date" placeholder="End Date" value="<?php echo date('m/d/Y'); ?>">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_transaction_date_end_date" id="filter_transaction_date_end_date" placeholder="End Date" value="<?php echo date('m/d/Y', strtotime('-1 day')); ?>">
                             </div>
                           </div>
                         </div>

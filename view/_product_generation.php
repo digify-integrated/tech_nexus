@@ -260,6 +260,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productSubategoryID = $row['product_subcategory_id'];
                     $description = $row['description'];
                     $productPrice = $row['product_price'];
+                    $bestPrice = $row['best_price'];
                     $engine_number = $row['engine_number'];
                     $chassis_number = $row['chassis_number'];
                     $body_type_id = $row['body_type_id'];
@@ -326,6 +327,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'RR_NO' => $rr_no,
                         'PRODUCT_COST' => number_format($productCost,2),
                         'PRODUCT_PRICE' => number_format($productPrice,2),
+                        'BEST_PRICE' => number_format($bestPrice,2),
                         'PRODUCT_STATUS' => $productStatus,
                         'CREATED_DATE' => $created_date . '<br/>' . $created_time,
                         'ACTION' => '<div class="d-flex gap-2">

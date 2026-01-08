@@ -134,10 +134,11 @@ class PurchaseRequestModel {
     }
 
     public function updatePurchaseRequestItem($purchase_request_cart_id, $description, $quantity, $unit_id, $short_name, $remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('UPDATE purchase_request_cart SET description = :description, quantity = :quantity, unit_id = :unit_id, short_name = :short_name, remarks = :remarks, last_log_by = :p_last_log_by WHERE purchase_request_cart_id = :purchase_request_cart_id');
+        $stmt = $this->db->getConnection()->prepare('UPDATE purchase_request_cart SET description = :description, quantity = :quantity, available_order = :available_order, unit_id = :unit_id, short_name = :short_name, remarks = :remarks, last_log_by = :p_last_log_by WHERE purchase_request_cart_id = :purchase_request_cart_id');
         $stmt->bindValue(':purchase_request_cart_id', $purchase_request_cart_id, PDO::PARAM_STR);
         $stmt->bindValue(':description', $description, PDO::PARAM_STR);
         $stmt->bindValue(':quantity', $quantity, PDO::PARAM_STR);
+        $stmt->bindValue(':available_order', $quantity, PDO::PARAM_STR);
         $stmt->bindValue(':unit_id', $unit_id, PDO::PARAM_STR);
         $stmt->bindValue(':short_name', $short_name, PDO::PARAM_STR);
         $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
@@ -177,10 +178,11 @@ class PurchaseRequestModel {
     }
 
     public function insertPurchaseRequestItem($purchase_request_id, $description, $quantity, $unit_id, $short_name, $remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('INSERT INTO purchase_request_cart (purchase_request_id, description, quantity, unit_id, short_name, remarks, last_log_by) VALUES (:purchase_request_id, :description, :quantity, :unit_id, :short_name, :remarks, :p_last_log_by)');
+        $stmt = $this->db->getConnection()->prepare('INSERT INTO purchase_request_cart (purchase_request_id, description, quantity, available_order, unit_id, short_name, remarks, last_log_by) VALUES (:purchase_request_id, :description, :quantity, :available_order, :unit_id, :short_name, :remarks, :p_last_log_by)');
         $stmt->bindValue(':purchase_request_id', $purchase_request_id, PDO::PARAM_STR);
         $stmt->bindValue(':description', $description, PDO::PARAM_STR);
         $stmt->bindValue(':quantity', $quantity, PDO::PARAM_STR);
+        $stmt->bindValue(':available_order', $quantity, PDO::PARAM_STR);
         $stmt->bindValue(':unit_id', $unit_id, PDO::PARAM_STR);
         $stmt->bindValue(':short_name', $short_name, PDO::PARAM_STR);
         $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
@@ -436,6 +438,25 @@ class PurchaseRequestModel {
 
         return $htmlOptions;
     }
+
+    public function generatePurchaseRequestCartOptions($type): string {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM purchase_request_cart WHERE purchase_request_id IN (SELECT purchase_request_id FROM purchase_request WHERE purchase_request_status = "Approved" AND purchase_request_type = :type) AND available_order > 0 ORDER BY purchase_request_cart_id ASC');
+        $stmt->bindValue(':type', $type, PDO::PARAM_STR);
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $purchase_request_cart_id  = $row['purchase_request_cart_id'];
+            $description = $row['description'];
+            $available_order = $row['available_order'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($purchase_request_cart_id , ENT_QUOTES) . '">' . htmlspecialchars($description, ENT_QUOTES) .' (Available To Order: '. $available_order .')</option>';
+        }
+
+        return $htmlOptions;
+    }
+
     public function generatePartTransactionReleasedOptions($company_id) {
         $stmt = $this->db->getConnection()->prepare('SELECT * FROM part_transaction WHERE (part_transaction_status = "Released" OR part_transaction_status = "Checked") AND company_id = :company_id ORDER BY part_transaction_id ASC');
         $stmt->bindValue(':company_id', $company_id, PDO::PARAM_INT);

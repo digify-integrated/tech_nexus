@@ -1309,6 +1309,7 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'RR_NO' },
             { 'data' : 'PRODUCT_COST' },
             { 'data' : 'PRODUCT_PRICE' },
+            { 'data' : 'BEST_PRICE' },
             { 'data' : 'CREATED_DATE' },
             { 'data' : 'PRODUCT_STATUS' },
             { 'data' : 'ACTION' }
@@ -1327,9 +1328,10 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 9 },
             { 'width': 'auto', 'aTargets': 10 },
             { 'width': 'auto', 'aTargets': 11 },
-            { 'width': '10%', 'type' : 'date', 'aTargets': 12 },
-            { 'width': 'auto', 'aTargets': 13 },
-            { 'width': '10%','bSortable': false, 'aTargets': 14 }
+            { 'width': 'auto', 'aTargets': 12 },
+            { 'width': '10%', 'type' : 'date', 'aTargets': 13 },
+            { 'width': 'auto', 'aTargets': 14 },
+            { 'width': '10%','bSortable': false, 'aTargets': 15 }
         ];
     }
     else{
@@ -1345,6 +1347,7 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'WAREHOUSE' },
             { 'data' : 'RR_NO' },
             { 'data' : 'PRODUCT_PRICE' },
+            { 'data' : 'BEST_PRICE' },
             { 'data' : 'CREATED_DATE' },
             { 'data' : 'PRODUCT_STATUS' },
             { 'data' : 'ACTION' }
@@ -1362,9 +1365,10 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 8 },
             { 'width': 'auto', 'aTargets': 9 },
             { 'width': 'auto', 'aTargets': 10 },
-            { 'width': '10%', 'type' : 'date', 'aTargets': 11 },
-            { 'width': 'auto', 'aTargets': 12 },
-            { 'width': '10%','bSortable': false, 'aTargets': 13 }
+            { 'width': 'auto', 'aTargets': 11 },
+            { 'width': '10%', 'type' : 'date', 'aTargets': 12 },
+            { 'width': 'auto', 'aTargets': 13 },
+            { 'width': '10%','bSortable': false, 'aTargets': 14 }
         ];
     }
 
@@ -2274,6 +2278,7 @@ function displayDetails(transaction){
                         $('#mileage').val(response.mileage);
                         $('#length').val(response.length);
                         $('#product_price').val(response.productPrice);
+                        $('#best_price').val(response.bestPrice);
                         $('#product_cost').val(response.productCost);
                         $('#remarks').val(response.remarks);
                         $('#quantity').val(response.quantity);

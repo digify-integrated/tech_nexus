@@ -404,7 +404,7 @@ class PartsIncomingController {
         $partsIncomingDetails = $this->partsIncomingModel->getPartsIncoming($parts_incoming_id);
         $product_id = $partsIncomingDetails['product_id'] ?? '';
         $company_id = $partsIncomingDetails['company_id'] ?? '';
-
+        $supplier_id = $partsIncomingDetails['supplier_id'] ?? '';
 
         $getPartsIncomingCartByID = $this->partsIncomingModel->getPartsIncomingCartByID($parts_incoming_id);
 
@@ -416,6 +416,7 @@ class PartsIncomingController {
             $this->partsIncomingModel->updatePartsAverageCostAndSRP(
                 $part_id,
                 $company_id,
+                $supplier_id,
                 $received_quantity,
                 $total_cost,
                 $userID

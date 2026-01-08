@@ -100,6 +100,32 @@
                   </div>
                 </li>
                 <li class="list-group-item px-0 py-2">
+                  <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#onprocess-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                    On Process Date
+                  </a>
+                  <div class="collapse" id="onprocess-date-filter-collapse">
+                    <div class="row py-3">
+                      <div class="col-12">
+                        <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_onprocess_date_start_date" id="filter_onprocess_date_start_date" placeholder="Start Date">
+                        <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_onprocess_date_end_date" id="filter_onprocess_date_end_date" placeholder="End Date" >
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li class="list-group-item px-0 py-2">
+                  <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#completion-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                    Completion Date
+                  </a>
+                  <div class="collapse" id="completion-date-filter-collapse">
+                    <div class="row py-3">
+                      <div class="col-12">
+                        <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_completion_date_start_date" id="filter_completion_date_start_date" placeholder="Start Date">
+                        <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_completion_date_end_date" id="filter_completion_date_end_date" placeholder="End Date" >
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li class="list-group-item px-0 py-2">
                   <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#request-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                     Purchase Order Status
                   </a>
@@ -117,6 +143,14 @@
                         <div class="form-check my-2">
                           <input class="form-check-input request-status-checkbox" type="checkbox" id="request-status-approved" value="Approved" checked/>
                           <label class="form-check-label" for="request-status-approved">Approved</label>
+                        </div>
+                        <div class="form-check my-2">
+                          <input class="form-check-input request-status-checkbox" type="checkbox" id="request-status-onprocess" value="On-Process" checked/>
+                          <label class="form-check-label" for="request-status-onprocess">On-Process</label>
+                        </div>
+                        <div class="form-check my-2">
+                          <input class="form-check-input request-status-checkbox" type="checkbox" id="request-status-completed" value="Completed" checked/>
+                          <label class="form-check-label" for="request-status-completed">Completed</label>
                         </div>
                         <div class="form-check my-2">
                           <input class="form-check-input request-status-checkbox" type="checkbox" id="request-status-cancelled" value="Cancelled"/>

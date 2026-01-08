@@ -6476,6 +6476,10 @@ function displayDetails(transaction){
                             if($('#product_cost_label').length){
                                 $('#product_cost_label').text(parseFloat(response.productCost).toLocaleString("en-US"));
                             }
+
+                            if($('#product_best_price_label').length){
+                                $('#product_best_price_label').text(parseFloat(response.bestPrice).toLocaleString("en-US"));
+                            }
                         } 
                         else {
                             if(response.isInactive){

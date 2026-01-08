@@ -578,6 +578,7 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
     var settings;
 
     if(view_cost > 0){
+         var order = [[ 9, 'desc' ]];
         var column = [
             { 'data' : 'TRANSACTION_ID' },
             { 'data' : 'PRODUCT' },
@@ -611,6 +612,7 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
         ];
     }
     else{
+        var order = [[ 8, 'desc' ]];
         var column = [
             { 'data' : 'TRANSACTION_ID' },
             { 'data' : 'PRODUCT' },
@@ -668,7 +670,7 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 0, 'desc' ]],
+        'order': order,
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

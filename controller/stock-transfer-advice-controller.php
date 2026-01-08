@@ -513,6 +513,7 @@ class StockTransferAdviceController {
                     $this->partsIncomingModel->updatePartsAverageCostAndSRP(
                         $part_id,
                         $company_id,
+                        0,
                         $quantity,
                         $total_cost,
                         $userID

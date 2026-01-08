@@ -970,16 +970,22 @@
 
           <div class="tab-pane" id="v-pricing-computation">
             <form id="sales-proposal-pricing-computation-form" method="post" action="#">
-            <?php
+              <?php
                 if($viewSalesProposalProductCost['total'] > 0){
                   echo '<div class="form-group row">
-                  <label class="col-lg-6 col-form-label">Product Cost :</label>
-                  <div class="col-lg-6">
-                    <label class="col-form-label" id="product_cost_label"></label>
-                  </div>
-                </div>';
+                        <label class="col-lg-6 col-form-label">Product Cost :</label>
+                        <div class="col-lg-6">
+                          <label class="col-form-label" id="product_cost_label"></label>
+                        </div>
+                      </div>';
                 }
               ?>
+              <div class="form-group row">
+                <label class="col-lg-6 col-form-label">Product Best Price :</label>
+                <div class="col-lg-6">
+                  <label class="col-form-label" id="product_best_price_label">0.00 Php</label>
+                </div>
+              </div>
               <div class="row">
             <div class="col-lg-6">
               <div class="form-group row">

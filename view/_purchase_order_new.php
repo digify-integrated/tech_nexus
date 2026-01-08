@@ -40,6 +40,15 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Supplier <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="supplier_id" id="supplier_id">
+                <option value="">--</option>
+                <?php echo $supplierModel->generateSupplierOptions(); ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Remarks</label>
             <div class="col-lg-10">
               <textarea class="form-control" id="remarks" name="remarks" maxlength="2000"></textarea>

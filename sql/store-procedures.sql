@@ -6902,10 +6902,11 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
-CREATE PROCEDURE updateProductLandedCost(IN p_product_id INT, IN p_product_price DOUBLE, IN p_fx_rate DOUBLE, IN p_converted_amount DOUBLE, IN p_unit_cost DOUBLE, IN p_package_deal DOUBLE, IN p_taxes_duties DOUBLE, IN p_freight DOUBLE, IN p_lto_registration DOUBLE, IN p_royalties DOUBLE, IN p_conversion DOUBLE, IN p_arrastre DOUBLE, IN p_wharrfage DOUBLE, IN p_insurance DOUBLE, IN p_aircon DOUBLE, IN p_import_permit DOUBLE, IN p_others DOUBLE, IN p_total_landed_cost DOUBLE, IN p_payment_ref_no VARCHAR(100), IN p_payment_ref_date DATE, IN p_payment_ref_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateProductLandedCost(IN p_product_id INT, IN p_product_price DOUBLE, IN p_best_price DOUBLE, IN p_fx_rate DOUBLE, IN p_converted_amount DOUBLE, IN p_unit_cost DOUBLE, IN p_package_deal DOUBLE, IN p_taxes_duties DOUBLE, IN p_freight DOUBLE, IN p_lto_registration DOUBLE, IN p_royalties DOUBLE, IN p_conversion DOUBLE, IN p_arrastre DOUBLE, IN p_wharrfage DOUBLE, IN p_insurance DOUBLE, IN p_aircon DOUBLE, IN p_import_permit DOUBLE, IN p_others DOUBLE, IN p_total_landed_cost DOUBLE, IN p_payment_ref_no VARCHAR(100), IN p_payment_ref_date DATE, IN p_payment_ref_amount DOUBLE, IN p_last_log_by INT)
 BEGIN
 	UPDATE product
     SET product_price = p_product_price,
+    best_price = p_best_price,
     fx_rate = p_fx_rate,
     converted_amount = p_converted_amount,
     unit_cost = p_unit_cost,
@@ -15392,6 +15393,7 @@ BEGIN
             sql_query,
             ' AND (bar_code LIKE ', QUOTE(CONCAT('%', p_parts_search, '%')),
             ' OR part_number LIKE ', QUOTE(CONCAT('%', p_parts_search, '%')),
+            ' OR part_id LIKE ', QUOTE(CONCAT('%', p_parts_search, '%')),
             ' OR description LIKE ', QUOTE(CONCAT('%', p_parts_search, '%')), ')'
         );
 
@@ -16388,6 +16390,7 @@ DROP PROCEDURE IF EXISTS updatePartsAverageCostAndSRP//
 CREATE PROCEDURE updatePartsAverageCostAndSRP (
     IN p_part_id INT,
     IN p_company_id INT,
+    IN p_supplier_id INT,
     IN p_received_quantity DOUBLE,
     IN p_cost DOUBLE,
     IN p_last_log_by INT
@@ -16426,12 +16429,12 @@ BEGIN
     END IF;
 
     -- Compute new part price
-    IF p_company_id = 2 THEN
+    IF p_company_id = 2 AND p_supplier_id != 9 THEN
         SET new_part_price = ROUND(new_part_cost * 1.3, 2);
-    ELSEIF p_company_id = 3 THEN
+    ELSEIF p_company_id = 3 AND p_supplier_id != 9 THEN
         SET new_part_price = ROUND(new_part_cost * 1.6, 2);
     ELSE
-        SET new_part_price = current_part_price; -- keep old price
+        SET new_part_price = current_part_price;
     END IF;
 
     -- Prepare new quantity and status
@@ -19059,7 +19062,7 @@ BEGIN
     SET product_status = 'For Return',
     for_return_date = NOW(),
     last_log_by = p_last_log_by
-    WHERE product_id = p_product_id;
+    WHERE product_id = p_product_id AND product_status NOT IN ('Sold');
 END //
 
 CREATE PROCEDURE getUnitReturn(IN p_unit_return_id INT)
@@ -22073,4 +22076,87 @@ CREATE PROCEDURE getPurchaseRequest(IN p_purchase_request_id INT)
 BEGIN
 	SELECT * FROM purchase_request
     WHERE purchase_request_id = p_purchase_request_id;
+END //
+
+
+CREATE PROCEDURE checkPurchaseOrderExist(IN p_purchase_order_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM purchase_order
+    WHERE purchase_order_id = p_purchase_order_id;
+END //
+
+CREATE PROCEDURE insertPurchaseOrder(IN p_reference_no VARCHAR(100), IN p_purchase_order_type VARCHAR(100), IN p_company_id INT, IN p_supplier_id INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_purchase_order_id INT)
+BEGIN
+    INSERT INTO purchase_order (reference_no, purchase_order_type, company_id, supplier_id, remarks, last_log_by) 
+	VALUES(p_reference_no, p_purchase_order_type, p_company_id, p_supplier_id, p_remarks, p_last_log_by);
+	
+    SET p_purchase_order_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updatePurchaseOrder(IN p_purchase_order_id INT, IN p_purchase_order_type VARCHAR(100), IN p_company_id INT, IN p_supplier_id INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+BEGIN
+	UPDATE purchase_order 
+    SET purchase_order_type = p_purchase_order_type, company_id = p_company_id, supplier_id = p_supplier_id, remarks = p_remarks, last_log_by = p_last_log_by 
+    WHERE purchase_order_id = p_purchase_order_id;
+END //
+
+CREATE PROCEDURE getPurchaseOrder(IN p_purchase_order_id INT)
+BEGIN
+	SELECT * FROM purchase_order
+    WHERE purchase_order_id = p_purchase_order_id;
+END //
+
+CREATE PROCEDURE generatePurchaseOrderTable(IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_approval_date_start_date DATE, IN p_approval_date_end_date DATE, IN p_onprocess_date_start_date DATE, IN p_onprocess_date_end_date DATE, IN p_completion_date_start_date DATE, IN p_completion_date_end_date DATE, IN p_purchase_order_status VARCHAR(5000))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM purchase_order';
+    SET conditionList = ' WHERE 1';
+
+    IF p_purchase_order_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND purchase_order_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_purchase_order_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_approval_date_start_date IS NOT NULL AND p_approval_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(approval_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_onprocess_date_start_date IS NOT NULL AND p_onprocess_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(onprocess_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_onprocess_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_onprocess_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_completion_date_start_date IS NOT NULL AND p_completion_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(completion_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_completion_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_completion_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //

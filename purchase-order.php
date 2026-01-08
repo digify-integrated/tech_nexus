@@ -4,10 +4,32 @@
   require('model/purchase-order-model.php');
   require('model/company-model.php');
   require('model/unit-model.php');
+  require('model/body-type-model.php');
+  require('model/color-model.php');
+  require('model/supplier-model.php');
+  require('model/brand-model.php');
+  require('model/cabin-model.php');
+  require('model/model-model.php');
+  require('model/make-model.php');
+  require('model/class-model.php');
+  require('model/purchase-request-model.php');
+  require('model/product-subcategory-model.php');
+  require('model/parts-model.php');
   
   $purchaseOrderModel = new PurchaseOrderModel($databaseModel);
+  $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
+  $purchaseRequestModel = new PurchaseRequestModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
   $unitModel = new UnitModel($databaseModel);
+  $bodyTypeModel = new BodyTypeModel($databaseModel);
+  $colorModel = new ColorModel($databaseModel);
+  $supplierModel = new SupplierModel($databaseModel);
+  $brandModel = new BrandModel($databaseModel);
+  $cabinModel = new CabinModel($databaseModel);
+  $modelModel = new ModelModel($databaseModel);
+  $makeModel = new MakeModel($databaseModel);
+  $classModel = new ClassModel($databaseModel);
+  $partsModel = new PartsModel($databaseModel);
 
   $pageTitle = 'Purchase Order';
     

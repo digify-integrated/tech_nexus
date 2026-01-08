@@ -699,6 +699,7 @@ class ProductController {
         $userID = $_SESSION['user_id'];
         $productID = isset($_POST['product_id']) ? htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8') : null;
         $productPrice = $_POST['product_price'];
+        $bestPrice = $_POST['best_price'];
         $unitCost = $_POST['unit_cost'];
         $fxRate = $_POST['fx_rate'];
         $convertedAmount = $_POST['converted_amount'];
@@ -730,7 +731,7 @@ class ProductController {
         $total = $checkProductExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->productModel->updateProductLandedCost($productID, $productPrice, $fxRate, $convertedAmount, $unitCost, $packageDeal, $taxesDuties, $freight, $ltoRegistration, $royalties, $conversion, $arrastre, $wharrfage, $insurance, $aircon, $importPermit, $others, $totalLandedCost, $paymentRefNo, $paymentRefDate, $paymentRefAmount, $userID);
+            $this->productModel->updateProductLandedCost($productID, $productPrice, $bestPrice, $fxRate, $convertedAmount, $unitCost, $packageDeal, $taxesDuties, $freight, $ltoRegistration, $royalties, $conversion, $arrastre, $wharrfage, $insurance, $aircon, $importPermit, $others, $totalLandedCost, $paymentRefNo, $paymentRefDate, $paymentRefAmount, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'productID' => $this->securityModel->encryptData($productID)]);
             exit;
@@ -1501,6 +1502,7 @@ class ProductController {
                 'colorName' => $colorName,
                 'productCost' => $productCost,
                 'productPrice' => $productDetails['product_price'],
+                'bestPrice' => $productDetails['best_price'],
                 'remarks' => $productDetails['remarks'],
                 'orcrNo' => $productDetails['orcr_no'],
                 'receivedFrom' => $productDetails['received_from'],

@@ -333,7 +333,7 @@ function purchaseRequestTable(datatable_name, buttons = false, show_all = false)
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 0, 'desc' ]],
+        'order': [[ 1, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -517,7 +517,7 @@ function addItemForm(){
             quantity: {
                 required: true
             },
-            unit_sale: {
+            unit_id: {
                 required: true
             },
         },
@@ -528,7 +528,7 @@ function addItemForm(){
             quantity: {
                 required: 'Please enter the quantity'
             },
-            unit_sale: {
+            unit_id: {
                 required: 'Please choose the unit'
             },
         },
@@ -571,7 +571,7 @@ function addItemForm(){
                 data: $(form).serialize() + '&transaction=' + transaction + '&purchase_request_id=' + purchase_request_id,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-data');
+                    disableFormSubmitButton('submit-add-item');
                 },
                 success: function (response) {
                     if (response.success) {
