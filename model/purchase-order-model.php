@@ -148,6 +148,13 @@ class PurchaseOrderModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    public function updatePurchaseOrderComplete($p_purchase_order_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE purchase_order SET purchase_order_status = "Completed", completion_date = NOW(), last_log_by = :p_last_log_by WHERE purchase_order_id = :p_purchase_order_id');
+        $stmt->bindValue(':p_purchase_order_id', $p_purchase_order_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     
     public function updatePurchaseOrderItemUnitReceive($purchase_order_unit_id, $received_quantity, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('UPDATE purchase_order_unit SET actual_quantity = actual_quantity + :received_quantity, last_log_by = :p_last_log_by WHERE purchase_order_unit_id = :purchase_order_unit_id');
@@ -494,6 +501,30 @@ class PurchaseOrderModel {
     }
     public function getPurchaseOrderCartSupplyCount($p_purchase_order_id) {
         $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
+        FROM purchase_order_supply
+        WHERE purchase_order_id = :p_purchase_order_id;');
+        $stmt->bindValue(':p_purchase_order_id', $p_purchase_order_id, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getPurchaseOrderCartUnit($p_purchase_order_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT *
+        FROM purchase_order_unit
+        WHERE purchase_order_id = :p_purchase_order_id;');
+        $stmt->bindValue(':p_purchase_order_id', $p_purchase_order_id, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getPurchaseOrderCartPart($p_purchase_order_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT *
+        FROM purchase_order_part
+        WHERE purchase_order_id = :p_purchase_order_id;');
+        $stmt->bindValue(':p_purchase_order_id', $p_purchase_order_id, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getPurchaseOrderCartSupply($p_purchase_order_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT *
         FROM purchase_order_supply
         WHERE purchase_order_id = :p_purchase_order_id;');
         $stmt->bindValue(':p_purchase_order_id', $p_purchase_order_id, PDO::PARAM_STR);

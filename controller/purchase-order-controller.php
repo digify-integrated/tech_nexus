@@ -127,6 +127,9 @@ class PurchaseOrderController {
                 case 'tag request as on-process':
                     $this->tagAsOnProcess();
                     break;
+                case 'tag request as complete':
+                    $this->tagAsComplete();
+                    break;
                 case 'tag request as cancelled':
                     $this->tagAsCancelled();
                     break;
@@ -456,6 +459,70 @@ class PurchaseOrderController {
         }
 
         $this->purchaseOrderModel->updatePurchaseOrderOnProcess($purchase_order_id, $userID);
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function tagAsComplete() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $purchase_order_id = htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrder($purchase_order_id);
+        $purchase_order_type = $purchaseOrderDetails['purchase_order_type'] ?? '';
+
+        if($purchase_order_type == 'Product'){
+            $cartID = $this->purchaseOrderModel->getPurchaseOrderCartUnit($purchase_order_id);
+        }
+        else if($purchase_order_type == 'Parts'){
+            $cartID = $this->purchaseOrderModel->getPurchaseOrderCartPart($purchase_order_id);
+        }
+        else if($purchase_order_type == 'Supplies'){
+            $cartID = $this->purchaseOrderModel->getPurchaseOrderCartSupply($purchase_order_id);
+        }
+
+        foreach ($cartID as $row) {
+            if($purchase_order_type == 'Product'){
+                $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, '', $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $is_service, $userID);        
+            }
+            else if($purchase_order_type == 'Parts' || $purchase_order_type == 'Supplies'){
+                if($company_id == '1'){
+                    $reference_number = ((int)($this->systemSettingModel->getSystemSetting(38)['value'] ?? 0)) + 1;
+                }
+                else if($company_id == '2'){
+                    $reference_number = ((int)($this->systemSettingModel->getSystemSetting(31)['value'] ?? 0)) + 1;
+                }
+                else if($company_id == '3'){
+                    $reference_number = ((int)($this->systemSettingModel->getSystemSetting(p_system_setting_id: 40)['value'] ?? 0)) + 1;
+                }
+
+                $parts_incoming_id = $this->partsIncomingModel->insertPartsIncoming($reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $company_id, $request_by, $product_id, $customer_ref_id, $remarks, $incoming_for, $userID);
+
+                if($company_id == '1'){
+                    $this->systemSettingModel->updateSystemSettingValue(38, $reference_number, $userID);
+                }
+                else if($company_id == '2'){
+                    $this->systemSettingModel->updateSystemSettingValue(31, $reference_number, $userID);
+                }
+                else if($company_id == '3'){
+                    $this->systemSettingModel->updateSystemSettingValue(40, $reference_number, $userID);
+                }
+            }
+        }
+
+
+        $this->purchaseOrderModel->updatePurchaseOrderComplete($purchase_order_id, $userID);
         
         echo json_encode(['success' => true]);
         exit;
