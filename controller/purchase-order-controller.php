@@ -17,6 +17,7 @@ class PurchaseOrderController {
     private $purchaseRequestModel;
     private $partsModel;
     private $productModel;
+    private $productSubcategoryModel;
     private $unitModel;
     private $userModel;
     private $uploadSettingModel;
@@ -40,11 +41,12 @@ class PurchaseOrderController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(PurchaseOrderModel $purchaseOrderModel, PurchaseRequestModel $purchaseRequestModel, PartsModel $partsModel, ProductModel $productModel, UnitModel $unitModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(PurchaseOrderModel $purchaseOrderModel, PurchaseRequestModel $purchaseRequestModel, PartsModel $partsModel, ProductModel $productModel, ProductSubcategoryModel $productSubcategoryModel, UnitModel $unitModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->purchaseOrderModel = $purchaseOrderModel;
         $this->purchaseRequestModel = $purchaseRequestModel;
         $this->partsModel = $partsModel;
         $this->productModel = $productModel;
+        $this->productSubcategoryModel = $productSubcategoryModel;
         $this->unitModel = $unitModel;
         $this->userModel = $userModel;
         $this->uploadSettingModel = $uploadSettingModel;
@@ -481,6 +483,8 @@ class PurchaseOrderController {
 
         $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrder($purchase_order_id);
         $purchase_order_type = $purchaseOrderDetails['purchase_order_type'] ?? '';
+        $company_id = $purchaseOrderDetails['company_id'] ?? '';
+        $supplierID = $purchaseOrderDetails['supplier_id'] ?? '';
 
         if($purchase_order_type == 'Product'){
             $cartID = $this->purchaseOrderModel->getPurchaseOrderCartUnit($purchase_order_id);
@@ -494,30 +498,70 @@ class PurchaseOrderController {
 
         foreach ($cartID as $row) {
             if($purchase_order_type == 'Product'){
-                $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, '', $supplierID, $refNo, $brandID, $cabinID, $modelID, $makeID, $classID, $modeOfAcquisitionID, $broker, $registeredOwner, $modeOfRegistration, $yearModel, $arrivalDate, $checklistDate, $withCR, $withPlate, $returnedToSupplier, $quantity, $preorder, $is_service, $userID);        
-            }
-            else if($purchase_order_type == 'Parts' || $purchase_order_type == 'Supplies'){
-                if($company_id == '1'){
-                    $reference_number = ((int)($this->systemSettingModel->getSystemSetting(38)['value'] ?? 0)) + 1;
+                $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrderUnit($row['purchase_order_unit_id']);
+                $purchase_request_cart_id = $purchaseOrderDetails['purchase_request_cart_id'];
+                $brand_id = $purchaseOrderDetails['brand_id'];
+                $model_id = $purchaseOrderDetails['model_id'];
+                $body_type_id = $purchaseOrderDetails['body_type_id'];
+                $class_id = $purchaseOrderDetails['class_id'];
+                $color_id = $purchaseOrderDetails['color_id'];
+                $make_id = $purchaseOrderDetails['make_id'];
+                $year_model = $purchaseOrderDetails['year_model'];
+                $product_category_id = $purchaseOrderDetails['product_category_id'];
+                $length = $purchaseOrderDetails['length'];
+                $length_unit = $purchaseOrderDetails['length_unit'];
+                $cabin_id = $purchaseOrderDetails['cabin_id'];
+                $quantity = $purchaseOrderDetails['quantity'];
+                $unit_id = $purchaseOrderDetails['unit_id'];
+                $price_unit = $purchaseOrderDetails['price']; // Note: mapping 'price' to $price_unit
+                $remarks = $purchaseOrderDetails['remarks'];
+
+                $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($product_category_id);
+                $productCategoryID = $productSubcategoryDetails['product_category_id'];
+                $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'];
+
+                $stockNumberLatest = $this->systemSettingModel->getSystemSetting(17)['value'] + 1;
+                $stockNumber = $productSubcategoryCode . date('my') . $stockNumberLatest;
+                $this->systemSettingModel->updateSystemSettingValue(17, $stockNumberLatest, $userID);
+
+                $brandName = $this->brandModel->getBrand($brandID)['brand_name'] ?? '';
+                $makeName = $this->makeModel->getMake($makeID)['make_name'] ?? '';
+                $cabinName = $this->cabinModel->getCabin($cabinID)['cabin_name'] ?? '';
+                $modelName = $this->modelModel->getModel($modelID)['model_name'] ?? '';
+                $bodyTypeName = $this->bodyTypeModel->getBodyType($bodyTypeID)['body_type_name'] ?? '';
+
+
+                $descriptionParts = [];
+
+                if (!empty($brandName)) {
+                    $descriptionParts[] = $brandName;
                 }
-                else if($company_id == '2'){
-                    $reference_number = ((int)($this->systemSettingModel->getSystemSetting(31)['value'] ?? 0)) + 1;
+                if (!empty($makeName)) {
+                    $descriptionParts[] = $makeName;
                 }
-                else if($company_id == '3'){
-                    $reference_number = ((int)($this->systemSettingModel->getSystemSetting(p_system_setting_id: 40)['value'] ?? 0)) + 1;
+                if (!empty($cabinName)) {
+                    $descriptionParts[] = $cabinName;
+                }
+                if (!empty($modelName)) {
+                    $descriptionParts[] = $modelName;
+                }
+                if (!empty($bodyTypeName)) {
+                    $descriptionParts[] = $bodyTypeName;
+                }
+                if (!empty($length)) {
+                    $descriptionParts[] = $length;
+                }
+                if (!empty($unitShortName)) {
+                    $descriptionParts[] = $unitShortName;
+                }
+                if (!empty($yearModel)) {
+                    $descriptionParts[] = $yearModel;
                 }
 
-                $parts_incoming_id = $this->partsIncomingModel->insertPartsIncoming($reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $company_id, $request_by, $product_id, $customer_ref_id, $remarks, $incoming_for, $userID);
+                $description = implode(' ', $descriptionParts);
 
-                if($company_id == '1'){
-                    $this->systemSettingModel->updateSystemSettingValue(38, $reference_number, $userID);
-                }
-                else if($company_id == '2'){
-                    $this->systemSettingModel->updateSystemSettingValue(31, $reference_number, $userID);
-                }
-                else if($company_id == '3'){
-                    $this->systemSettingModel->updateSystemSettingValue(40, $reference_number, $userID);
-                }
+                
+                $this->productModel->insertProduct($productCategoryID, $product_category_id, $company_id, $stockNumber, '', '', '', $description, '', $body_type_id, $length, $length_unit, '', '', $color_id, $remarks, '', '', '', '', '', '', '', '', $supplierID, '', $brand_id, $cabin_id, $model_id, $make_id, $class_id, '', '', '', '', $year_model, '', '', '', '', '', $quantity, 'No', 'No', $userID);        
             }
         }
 
@@ -946,6 +990,7 @@ require_once '../model/purchase-request-model.php';
 require_once '../model/parts-model.php';
 require_once '../model/unit-model.php';
 require_once '../model/product-model.php';
+require_once '../model/product-subcategory-model.php';
 require_once '../model/user-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
@@ -953,5 +998,5 @@ require_once '../model/system-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new PurchaseOrderController(new PurchaseOrderModel(new DatabaseModel), new PurchaseRequestModel(new DatabaseModel), new PartsModel(new DatabaseModel), new ProductModel(new DatabaseModel), new UnitModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new PurchaseOrderController(new PurchaseOrderModel(new DatabaseModel), new PurchaseRequestModel(new DatabaseModel), new PartsModel(new DatabaseModel), new ProductModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new UnitModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
