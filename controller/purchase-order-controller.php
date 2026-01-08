@@ -524,12 +524,11 @@ class PurchaseOrderController {
                 $stockNumber = $productSubcategoryCode . date('my') . $stockNumberLatest;
                 $this->systemSettingModel->updateSystemSettingValue(17, $stockNumberLatest, $userID);
 
-                $brandName = $this->brandModel->getBrand($brandID)['brand_name'] ?? '';
-                $makeName = $this->makeModel->getMake($makeID)['make_name'] ?? '';
-                $cabinName = $this->cabinModel->getCabin($cabinID)['cabin_name'] ?? '';
-                $modelName = $this->modelModel->getModel($modelID)['model_name'] ?? '';
-                $bodyTypeName = $this->bodyTypeModel->getBodyType($bodyTypeID)['body_type_name'] ?? '';
-
+                $brandName = $this->brandModel->getBrand($brand_id)['brand_name'] ?? '';
+                $makeName = $this->makeModel->getMake($make_id)['make_name'] ?? '';
+                $cabinName = $this->cabinModel->getCabin($cabin_id)['cabin_name'] ?? '';
+                $modelName = $this->modelModel->getModel($model_id)['model_name'] ?? '';
+                $bodyTypeName = $this->bodyTypeModel->getBodyType($body_type_id)['body_type_name'] ?? '';
 
                 $descriptionParts = [];
 
@@ -560,7 +559,6 @@ class PurchaseOrderController {
 
                 $description = implode(' ', $descriptionParts);
 
-                
                 $this->productModel->insertProduct($productCategoryID, $product_category_id, $company_id, $stockNumber, '', '', '', $description, '', $body_type_id, $length, $length_unit, '', '', $color_id, $remarks, '', '', '', '', '', '', '', '', $supplierID, '', $brand_id, $cabin_id, $model_id, $make_id, $class_id, '', '', '', '', $year_model, '', '', '', '', '', $quantity, 'No', 'No', $userID);        
             }
         }
