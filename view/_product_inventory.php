@@ -34,10 +34,10 @@
                     <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                   </div>
                 </th>
-                <th>Batch Number</th>
-                <th>Open Date</th>
-                <th>Close Date</th>
-                <th>Actions</th>
+                <th class="w-100">Batch Number</th>
+                <th class="w-100">Open Date</th>
+                <th class="w-100">Close Date</th>
+                <th class="w-100">Actions</th>
               </tr>
             </thead>
             <tbody></tbody>

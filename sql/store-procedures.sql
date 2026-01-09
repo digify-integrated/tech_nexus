@@ -9780,10 +9780,10 @@ BEGIN
     START TRANSACTION;
 
     UPDATE leasing_application_repayment
-    SET unpaid_rental = (unpaid_rental - p_payment_amount),
-    paid_rental = (paid_rental + p_payment_amount),
-    outstanding_balance = (outstanding_balance - p_payment_amount),
-    last_log_by = p_last_log_by
+    SET unpaid_rental = ROUND(unpaid_rental - p_payment_amount, 2),
+        paid_rental = ROUND(paid_rental + p_payment_amount, 2),
+        outstanding_balance = ROUND(outstanding_balance - p_payment_amount, 2),
+        last_log_by = p_last_log_by
     WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
 
 	INSERT INTO leasing_collections (leasing_application_repayment_id, leasing_application_id, payment_for, payment_id, reference_number, payment_mode, payment_date, payment_amount, last_log_by) 
@@ -9805,42 +9805,44 @@ BEGIN
 
     IF p_payment_for = 'Electricity' THEN
         UPDATE leasing_application_repayment
-        SET unpaid_electricity = (unpaid_electricity - p_payment_amount),
-        paid_electricity = (paid_electricity + p_payment_amount),
-        outstanding_balance = (outstanding_balance - p_payment_amount),
-        last_log_by = p_last_log_by
+        SET unpaid_electricity = ROUND(unpaid_electricity - p_payment_amount, 2),
+            paid_electricity = ROUND(paid_electricity + p_payment_amount, 2),
+            outstanding_balance = ROUND(outstanding_balance - p_payment_amount, 2),
+            last_log_by = p_last_log_by
         WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
 
         UPDATE leasing_other_charges
-        SET due_amount = (due_amount - p_payment_amount),
-        due_paid = (due_paid + p_payment_amount),
-        outstanding_balance = (outstanding_balance - p_payment_amount)
+        SET due_amount = ROUND(due_amount - p_payment_amount, 2),
+            due_paid = ROUND(due_paid + p_payment_amount, 2),
+            outstanding_balance = ROUND(outstanding_balance - p_payment_amount, 2)
         WHERE leasing_other_charges_id = p_payment_id;
+
     ELSEIF p_payment_for = 'Water' THEN
         UPDATE leasing_application_repayment
-        SET unpaid_water = (unpaid_water - p_payment_amount),
-        paid_water = (paid_water + p_payment_amount),
-        outstanding_balance = (outstanding_balance - p_payment_amount),
-        last_log_by = p_last_log_by
+        SET unpaid_water = ROUND(unpaid_water - p_payment_amount, 2),
+            paid_water = ROUND(paid_water + p_payment_amount, 2),
+            outstanding_balance = ROUND(outstanding_balance - p_payment_amount, 2),
+            last_log_by = p_last_log_by
         WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
 
         UPDATE leasing_other_charges
-        SET due_amount = (due_amount - p_payment_amount),
-        due_paid = (due_paid + p_payment_amount),
-        outstanding_balance = (outstanding_balance - p_payment_amount)
+        SET due_amount = ROUND(due_amount - p_payment_amount, 2),
+            due_paid = ROUND(due_paid + p_payment_amount, 2),
+            outstanding_balance = ROUND(outstanding_balance - p_payment_amount, 2)
         WHERE leasing_other_charges_id = p_payment_id;
+
     ELSE
         UPDATE leasing_application_repayment
-        SET unpaid_other_charges = (unpaid_other_charges - p_payment_amount),
-        paid_other_charges = (paid_other_charges + p_payment_amount),
-        outstanding_balance = (outstanding_balance - p_payment_amount),
-        last_log_by = p_last_log_by
+        SET unpaid_other_charges = ROUND(unpaid_other_charges - p_payment_amount, 2),
+            paid_other_charges = ROUND(paid_other_charges + p_payment_amount, 2),
+            outstanding_balance = ROUND(outstanding_balance - p_payment_amount, 2),
+            last_log_by = p_last_log_by
         WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
 
         UPDATE leasing_other_charges
-        SET due_amount = (due_amount - p_payment_amount),
-        due_paid = (due_paid + p_payment_amount),
-        outstanding_balance = (outstanding_balance - p_payment_amount)
+        SET due_amount = ROUND(due_amount - p_payment_amount, 2),
+            due_paid = ROUND(due_paid + p_payment_amount, 2),
+            outstanding_balance = ROUND(outstanding_balance - p_payment_amount, 2)
         WHERE leasing_other_charges_id = p_payment_id;
     END IF;
 

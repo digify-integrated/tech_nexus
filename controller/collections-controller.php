@@ -381,7 +381,7 @@ class CollectionsController {
             $total = $checkLoanCollectionExist['total'] ?? 0;
 
             if($total > 0){
-                $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
+                
 
                 $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
                 $paymentAmount = $collectionsDetails['payment_amount'];
@@ -389,6 +389,14 @@ class CollectionsController {
                 $payment_advice = $collectionsDetails['payment_advice'];
                 $pdc_type = $collectionsDetails['pdc_type'];
                 $leasing_collections_id = $collectionsDetails['leasing_collections_id'] ?? null;
+                $reversal_reference_number = $collectionsDetails['reversal_reference_number'] ?? null;
+
+                if(empty($reversal_reference_number)){
+                    $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
+                }
+                else{
+                    $referenceNumber = $reversal_reference_number;
+                }
 
                 if($companyID == 1){
                     $systemSettingID = 11;
@@ -415,8 +423,10 @@ class CollectionsController {
                 $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
         
                 $this->collectionsModel->updateCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, $referenceNumber, $userID);
-                            
-                $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
+
+                if(empty($reversal_reference_number)){
+                    $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
+                }
 
                 if($payment_advice == 'No'){
                     $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);

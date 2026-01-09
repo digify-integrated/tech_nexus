@@ -490,15 +490,32 @@ class InternalDRController {
         $product_id = $internalDRDetails['product_id'];
         $estimated_return_date = $internalDRDetails['estimated_return_date'];
 
+        if (!empty($estimated_return_date) && !empty($product_id)) {
+            $returnDate = new DateTime($estimated_return_date);
+            $today      = new DateTime('today');
+
+           if ((int)$product_id === 24) {
+                $returnDate = new DateTime($estimated_return_date);
+                $today      = new DateTime('today');
+                $maxDate    = (clone $today)->modify('+5 days');
+
+                if ($returnDate > $maxDate) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'The estimated return date cannot be more than 5 days from today.'
+                    ]);
+                    exit;
+                }
+            }
+        }
+
         if(!empty($estimated_return_date) && !empty($product_id)){
             $this->internalDRModel->insertUnitReturn($internalDRID, $product_id, $estimated_return_date, $userID);
             $this->internalDRModel->updateProductForReturn($product_id, $userID);
         }
 
         if($drType === 'Backjob' || $drType === 'Warranty'){
-            $this->internalDRModel->updateSalesProposalBackjobProgress($backjob_monitoring_id, $userID);
-
-            
+            $this->internalDRModel->updateSalesProposalBackjobProgress($backjob_monitoring_id, $userID);            
         }
 
         echo json_encode(['success' => true]);

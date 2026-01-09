@@ -6880,8 +6880,8 @@ DROP TABLE IF EXISTS purchase_order;
 CREATE TABLE purchase_order(
 	purchase_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     reference_no VARCHAR(100) NOT NULL,
-	purchase_order_status ENUM('Draft', 'For Approval', 'Approved', 'On-Process', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Draft',
-	purchase_order_type ENUM('Product', 'Parts', 'Supplies', 'Others') NOT NULL,
+	purchase_order_status ENUM('Draft', 'For Approval', 'Approved', 'On-Process', 'Completed', 'Posted', 'Cancelled') NOT NULL DEFAULT 'Draft',
+	purchase_order_type ENUM('Product', 'Others') NOT NULL,
     company_id INT UNSIGNED NOT NULL,
     supplier_id INT UNSIGNED NOT NULL,
 	remarks VARCHAR(5000),
@@ -6914,42 +6914,6 @@ CREATE TABLE purchase_order_unit(
 	length DOUBLE,
 	length_unit INT UNSIGNED,
     cabin_id INT,
-    quantity DOUBLE DEFAULT 1,
-    actual_quantity DOUBLE DEFAULT 0,
-    cancelled_quantity DOUBLE DEFAULT 0,
-    unit_id INT,
-    price DOUBLE DEFAULT 1,
-	remarks VARCHAR(5000),
-	created_date DATETIME DEFAULT NOW(),
-    last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
-);
-
-DROP TABLE IF EXISTS purchase_order_part;
-CREATE TABLE purchase_order_part(
-	purchase_order_part_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    purchase_order_id INT UNSIGNED NOT NULL,
-    purchase_request_id INT,
-    purchase_request_cart_id INT,
-    part_id INT,
-    quantity DOUBLE DEFAULT 1,
-    actual_quantity DOUBLE DEFAULT 0,
-    cancelled_quantity DOUBLE DEFAULT 0,
-    unit_id INT,
-    price DOUBLE DEFAULT 1,
-	remarks VARCHAR(5000),
-	created_date DATETIME DEFAULT NOW(),
-    last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
-);
-
-DROP TABLE IF EXISTS purchase_order_supply;
-CREATE TABLE purchase_order_supply(
-	purchase_order_supply_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    purchase_order_id INT UNSIGNED NOT NULL,
-    purchase_request_id INT,
-    purchase_request_cart_id INT,
-    part_id INT,
     quantity DOUBLE DEFAULT 1,
     actual_quantity DOUBLE DEFAULT 0,
     cancelled_quantity DOUBLE DEFAULT 0,

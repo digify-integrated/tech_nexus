@@ -60,7 +60,6 @@
               <select class="form-control select2" name="purchase_request_type" id="purchase_request_type" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <option value="Product">Product</option>
-                <option value="Parts">Parts</option>
                 <option value="Supplies">Supplies</option>
                 <option value="Others">Others</option>
               </select>

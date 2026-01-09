@@ -641,7 +641,7 @@ if($addProductExpense['total'] > 0){
               <input type="number" class="form-control" id="aircon" name="aircon" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
             </div>
           </div>
-          <div class="form-group row mb-0">
+          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Import Permit</label>
             <div class="col-lg-3">
               <input type="number" class="form-control" id="import_permit" name="import_permit" min="0" step="0.01" <?php echo $disabledLandedCostForm; ?>>
