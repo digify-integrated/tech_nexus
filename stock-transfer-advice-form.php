@@ -117,7 +117,6 @@
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
     $pdf->Ln(-4);
 
-    $pdf->writeHTML($summaryTable, true, false, true, false, '');
     $pdf->MultiCell(0, 0, '<b>3. APPROVALS</b>', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(2);
     $pdf->MultiCell(60, 20, '<b>Prepared by (Production Assistant):</b> ', 0, 'L', 0, 0, '', '', true, 0, true, true, 0);

@@ -24,6 +24,11 @@ class PurchaseOrderController {
     private $fileExtensionModel;
     private $securityModel;
     private $systemSettingModel;
+    private $brandModel;
+    private $makeModel;
+    private $cabinModel;
+    private $modelModel;
+    private $bodyTypeModel;
     private $systemModel;
 
     # -------------------------------------------------------------
@@ -41,7 +46,7 @@ class PurchaseOrderController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(PurchaseOrderModel $purchaseOrderModel, PurchaseRequestModel $purchaseRequestModel, PartsModel $partsModel, ProductModel $productModel, ProductSubcategoryModel $productSubcategoryModel, UnitModel $unitModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(PurchaseOrderModel $purchaseOrderModel, PurchaseRequestModel $purchaseRequestModel, PartsModel $partsModel, ProductModel $productModel, ProductSubcategoryModel $productSubcategoryModel, UnitModel $unitModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, BrandModel $brandModel, MakeModel $makeModel, CabinModel $cabinModel, ModelModel $modelModel, BodyTypeModel $bodyTypeModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->purchaseOrderModel = $purchaseOrderModel;
         $this->purchaseRequestModel = $purchaseRequestModel;
         $this->partsModel = $partsModel;
@@ -52,6 +57,11 @@ class PurchaseOrderController {
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
         $this->systemSettingModel = $systemSettingModel;
+        $this->brandModel = $brandModel;
+        $this->makeModel = $makeModel;
+        $this->cabinModel = $cabinModel;
+        $this->modelModel = $modelModel;
+        $this->bodyTypeModel = $bodyTypeModel;
         $this->securityModel = $securityModel;
         $this->systemModel = $systemModel;
     }
@@ -75,17 +85,11 @@ class PurchaseOrderController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'save purchase order':
-                    $this->savePurchaseOrder();
+                case 'save unit purchase order':
+                    $this->saveUnitPurchaseOrder();
                     break;
                 case 'save purchase order item unit':
                     $this->savePurchaseOrderItemUnit();
-                    break;
-                case 'save purchase order item part':
-                    $this->savePurchaseOrderItemPart();
-                    break;
-                case 'save purchase order item supply':
-                    $this->savePurchaseOrderItemSupply();
                     break;
                 case 'save purchase order receive':
                     $this->savePurchaseOrderRecieve();
@@ -98,12 +102,6 @@ class PurchaseOrderController {
                     break;
                 case 'get purchase order unit details':
                     $this->getPurchaseOrderUnitDetails();
-                    break;
-                case 'get purchase order part details':
-                    $this->getPurchaseOrderPartDetails();
-                    break;
-                case 'get purchase order supply details':
-                    $this->getPurchaseOrderSupplyDetails();
                     break;
                 case 'get receive details':
                     $this->getReceiveDetails();
@@ -155,7 +153,7 @@ class PurchaseOrderController {
 
     # -------------------------------------------------------------
     #
-    # Function: savePurchaseOrder
+    # Function: saveUnitPurchaseOrder
     # Description: 
     # Updates the existing purchase order if it exists; otherwise, inserts a new purchase order.
     #
@@ -164,14 +162,14 @@ class PurchaseOrderController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function savePurchaseOrder() {
+    public function saveUnitPurchaseOrder() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
         $purchase_order_id = isset($_POST['purchase_order_id']) ? htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8') : null;
-        $purchase_order_type = htmlspecialchars($_POST['purchase_order_type'], ENT_QUOTES, 'UTF-8');
+        $purchase_order_type = 'Product';
         $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $supplier_id = htmlspecialchars($_POST['supplier_id'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
@@ -184,7 +182,7 @@ class PurchaseOrderController {
 
             echo json_encode(value: ['success' => true, 'insertRecord' => false, 'purchaseOrderID' => $this->securityModel->encryptData($purchase_order_id)]);
             exit;
-        } 
+        }
         else {
             $reference_number = (int)$this->systemSettingModel->getSystemSetting(45)['value'] + 1;
 
@@ -201,117 +199,132 @@ class PurchaseOrderController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
-    
+
         $userID = $_SESSION['user_id'];
-        $purchase_order_id = isset($_POST['purchase_order_id']) ? htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8') : null;
-        $purchase_order_unit_id = htmlspecialchars($_POST['purchase_order_unit_id'], ENT_QUOTES, 'UTF-8');
-        $purchase_request_cart_id = htmlspecialchars($_POST['purchase_request_cart_id'], ENT_QUOTES, 'UTF-8');
-        $product_subcategory_id = htmlspecialchars($_POST['product_subcategory_id'], ENT_QUOTES, 'UTF-8');
-        $cabin_id = htmlspecialchars($_POST['cabin_id'], ENT_QUOTES, 'UTF-8');
-        $brand_id = htmlspecialchars($_POST['brand_id'], ENT_QUOTES, 'UTF-8');
-        $model_id = htmlspecialchars($_POST['model_id'], ENT_QUOTES, 'UTF-8');
-        $body_type_id = htmlspecialchars($_POST['body_type_id'], ENT_QUOTES, 'UTF-8');
-        $class_id = htmlspecialchars($_POST['class_id'], ENT_QUOTES, 'UTF-8');
-        $color_id = htmlspecialchars($_POST['color_id'], ENT_QUOTES, 'UTF-8');
-        $make_id = htmlspecialchars($_POST['make_id'], ENT_QUOTES, 'UTF-8');
-        $year_model = htmlspecialchars($_POST['year_model'], ENT_QUOTES, 'UTF-8');
-        $quantity = htmlspecialchars($_POST['quantity_unit'], ENT_QUOTES, 'UTF-8');
-        $quantity_unit_id = htmlspecialchars($_POST['quantity_unit_id'], ENT_QUOTES, 'UTF-8');
-        $length = htmlspecialchars($_POST['length'], ENT_QUOTES, 'UTF-8');
-        $length_unit = htmlspecialchars($_POST['length_unit'], ENT_QUOTES, 'UTF-8');
-        $price_unit = htmlspecialchars($_POST['price_unit'], ENT_QUOTES, 'UTF-8');
-        $remarks = htmlspecialchars($_POST['unit_remarks'], ENT_QUOTES, 'UTF-8');
 
-        $purchaseRequestDetails = $this->purchaseRequestModel->getPurchaseRequestCart($purchase_request_cart_id);
-        $available_order = $purchaseRequestDetails['available_order'] ?? 0;
+        $purchase_order_id       = $_POST['purchase_order_id'] ?? null;
+        $purchase_order_unit_id  = $_POST['purchase_order_unit_id'] ?? null;
+        $purchase_request_cart_id= $_POST['purchase_request_cart_id'] ?? null;
 
-        if($quantity > $available_order) {
-            echo json_encode(value: ['success' => false, 'message' => 'The quantity ordered exceeds the available quantity for this item. Please adjust the quantity and try again.']);
+        $product_category_id     = $_POST['product_subcategory_id'] ?? null;
+        $brand_id                = $_POST['brand_id'] ?? null;
+        $model_id                = $_POST['model_id'] ?? null;
+        $body_type_id            = $_POST['body_type_id'] ?? null;
+        $class_id                = $_POST['class_id'] ?? null;
+        $color_id                = $_POST['color_id'] ?? null;
+        $make_id                 = $_POST['make_id'] ?? null;
+        $year_model              = $_POST['year_model'] ?? null;
+        $cabin_id                = $_POST['cabin_id'] ?? null;
+
+        $quantity                = $_POST['quantity_unit'] ?? 0;
+        $unit_id                 = $_POST['quantity_unit_id'] ?? null;
+
+        $length                  = $_POST['length'] ?? null;
+        $length_unit             = $_POST['length_unit'] ?? null;
+
+        $price_unit              = $_POST['price_unit'] ?? 0;
+        $fx_rate                 = $_POST['fx_rate'] ?? 0;
+        $converted_amount        = $_POST['converted_amount'] ?? 0;
+        $package_deal            = $_POST['package_deal'] ?? null;
+        $taxes_duties             = $_POST['taxes_duties'] ?? null;
+        $freight                 = $_POST['freight'] ?? null;
+        $lto_registration        = $_POST['lto_registration'] ?? null;
+        $royalties               = $_POST['royalties'] ?? null;
+        $conversion              = $_POST['conversion'] ?? null;
+        $arrastre                = $_POST['arrastre'] ?? null;
+        $wharrfage               = $_POST['wharrfage'] ?? null;
+        $insurance               = $_POST['insurance'] ?? null;
+        $aircon                  = $_POST['aircon'] ?? null;
+        $import_permit           = $_POST['import_permit'] ?? null;
+        $others                  = $_POST['others'] ?? null;
+        $total_landed_cost       = $_POST['total_landed_cost'] ?? null;
+        $preorder                = $_POST['preorder'] ?? null;
+        $remarks                 = $_POST['unit_remarks'] ?? null;
+
+        $exists = $this->purchaseOrderModel
+            ->checkPurchaseOrderItemUnitExist($purchase_order_unit_id)['total'] ?? 0;
+
+        if ($exists > 0) {
+            $this->purchaseOrderModel->updatePurchaseOrderItemUnit(
+                $purchase_order_unit_id,
+                $purchase_request_cart_id,
+                $product_category_id,
+                $cabin_id,
+                $brand_id,
+                $model_id,
+                $body_type_id,
+                $class_id,
+                $color_id,
+                $make_id,
+                $year_model,
+                $quantity,
+                $unit_id,
+                $length,
+                $length_unit,
+                $price_unit,
+                $fx_rate,
+                $converted_amount,
+                $package_deal,
+                $taxes_duties,
+                $freight,
+                $lto_registration,
+                $royalties,
+                $conversion,
+                $arrastre,
+                $wharrfage,
+                $insurance,
+                $aircon,
+                $import_permit,
+                $others,
+                $total_landed_cost,
+                $preorder,
+                $remarks,
+                $userID
+            );
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         }
 
-        $checkPurchaseOrderItemUnitExist = $this->purchaseOrderModel->checkPurchaseOrderItemUnitExist($purchase_order_unit_id);
-        $total = $checkPurchaseOrderItemUnitExist['total'] ?? 0;
-    
-        if ($total > 0) {
-            $this->purchaseOrderModel->updatePurchaseOrderItemUnit($purchase_order_unit_id, $purchase_request_cart_id, $product_subcategory_id, $cabin_id, $brand_id, $model_id, $body_type_id, $class_id, $color_id, $make_id, $year_model, $quantity, $quantity_unit_id, $length, $length_unit, $price_unit, $remarks, $userID);
+        $this->purchaseOrderModel->insertPurchaseOrderItemUnit(
+            $purchase_order_id,
+            $purchase_request_cart_id,
+            $product_category_id,
+            $cabin_id,
+            $brand_id,
+            $model_id,
+            $body_type_id,
+            $class_id,
+            $color_id,
+            $make_id,
+            $year_model,
+            $quantity,
+            $unit_id,
+            $length,
+            $length_unit,
+            $price_unit,
+            $fx_rate,
+            $converted_amount,
+            $package_deal,
+            $taxes_duties,
+            $freight,
+            $lto_registration,
+            $royalties,
+            $conversion,
+            $arrastre,
+            $wharrfage,
+            $insurance,
+            $aircon,
+            $import_permit,
+            $others,
+            $total_landed_cost,
+            $preorder,
+            $remarks,
+            $userID
+        );
 
-            echo json_encode(value: ['success' => true, 'insertRecord' => false]);
-            exit;
-        } 
-        else {
-            $this->purchaseOrderModel->insertPurchaseOrderItemUnit($purchase_order_id, $purchase_request_cart_id, $product_subcategory_id, $cabin_id, $brand_id, $model_id, $body_type_id, $class_id, $color_id, $make_id, $year_model, $quantity, $quantity_unit_id, $length, $length_unit, $price_unit, $remarks, $userID);
-
-            echo json_encode(value: ['success' => true, 'insertRecord' => true]);
-            exit;
-        }
-    }
-
-    public function savePurchaseOrderItemPart() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $purchase_order_id = isset($_POST['purchase_order_id']) ? htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8') : null;
-        $purchase_order_part_id = htmlspecialchars($_POST['purchase_order_part_id'], ENT_QUOTES, 'UTF-8');
-        $purchase_request_cart_part_id = htmlspecialchars($_POST['purchase_request_cart_part_id'], ENT_QUOTES, 'UTF-8');
-        $part_id = htmlspecialchars($_POST['part_id'], ENT_QUOTES, 'UTF-8');
-        $price_part = htmlspecialchars($_POST['price_part'], ENT_QUOTES, 'UTF-8');
-        $quantity_part = htmlspecialchars($_POST['quantity_part'], ENT_QUOTES, 'UTF-8');
-        $quantity_part_id = htmlspecialchars($_POST['quantity_part_id'], ENT_QUOTES, 'UTF-8');
-        $remarks = htmlspecialchars($_POST['part_remarks'], ENT_QUOTES, 'UTF-8');
-
-        $checkPurchaseOrderItemPartExist = $this->purchaseOrderModel->checkPurchaseOrderItemPartExist($purchase_order_part_id);
-        $total = $checkPurchaseOrderItemPartExist['total'] ?? 0;
-    
-        if ($total > 0) {
-            $this->purchaseOrderModel->updatePurchaseOrderItemPart(
-                $purchase_order_part_id,
-                $purchase_request_cart_part_id,
-                $part_id, $price_part, $quantity_part, $quantity_part_id, $remarks, $userID);
-            
-            echo json_encode(value: ['success' => true, 'insertRecord' => false]);
-            exit;
-        } 
-        else {
-            $this->purchaseOrderModel->insertPurchaseOrderItemPart($purchase_order_id, $purchase_request_cart_part_id, $part_id, $price_part, $quantity_part, $quantity_part_id, $remarks, $userID);
-
-            echo json_encode(value: ['success' => true, 'insertRecord' => true]);
-            exit;
-        }
-    }
-
-    public function savePurchaseOrderItemSupply() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $purchase_order_id = isset($_POST['purchase_order_id']) ? htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8') : null;
-        $purchase_order_supply_id = htmlspecialchars($_POST['purchase_order_supply_id'], ENT_QUOTES, 'UTF-8');
-        $purchase_request_cart_supply_id = htmlspecialchars($_POST['purchase_request_cart_supply_id'], ENT_QUOTES, 'UTF-8');
-        $supply_id = htmlspecialchars($_POST['supply_id'], ENT_QUOTES, 'UTF-8');
-        $price_supply = htmlspecialchars($_POST['price_supply'], ENT_QUOTES, 'UTF-8');
-        $quantity_supply = htmlspecialchars($_POST['quantity_supply'], ENT_QUOTES, 'UTF-8');
-        $quantity_supply_id = htmlspecialchars($_POST['quantity_supply_id'], ENT_QUOTES, 'UTF-8');
-        $remarks = htmlspecialchars($_POST['supply_remarks'], ENT_QUOTES, 'UTF-8');
-
-        $checkPurchaseOrderItemSupplyExist = $this->purchaseOrderModel->checkPurchaseOrderItemSupplyExist($purchase_order_supply_id);
-        $total = $checkPurchaseOrderItemSupplyExist['total'] ?? 0;
-    
-        if ($total > 0) {
-            $this->purchaseOrderModel->updatePurchaseOrderItemSupply($purchase_order_supply_id, $purchase_request_cart_supply_id, $supply_id, $price_supply, $quantity_supply, $quantity_supply_id, $remarks, $userID);
-
-            echo json_encode(value: ['success' => true, 'insertRecord' => false]);
-            exit;
-        } 
-        else {
-            $this->purchaseOrderModel->insertPurchaseOrderItemSupply($purchase_order_id, $purchase_request_cart_supply_id, $supply_id, $price_supply, $quantity_supply, $quantity_supply_id, $remarks, $userID);
-
-            echo json_encode(value: ['success' => true, 'insertRecord' => true]);
-            exit;
-        }
+        echo json_encode(['success' => true, 'insertRecord' => true]);
+        exit;
     }
 
     public function savePurchaseOrderRecieve() {
@@ -485,15 +498,10 @@ class PurchaseOrderController {
         $purchase_order_type = $purchaseOrderDetails['purchase_order_type'] ?? '';
         $company_id = $purchaseOrderDetails['company_id'] ?? '';
         $supplierID = $purchaseOrderDetails['supplier_id'] ?? '';
+        $reference_no = $purchaseOrderDetails['reference_no'] ?? '';
 
         if($purchase_order_type == 'Product'){
             $cartID = $this->purchaseOrderModel->getPurchaseOrderCartUnit($purchase_order_id);
-        }
-        else if($purchase_order_type == 'Parts'){
-            $cartID = $this->purchaseOrderModel->getPurchaseOrderCartPart($purchase_order_id);
-        }
-        else if($purchase_order_type == 'Supplies'){
-            $cartID = $this->purchaseOrderModel->getPurchaseOrderCartSupply($purchase_order_id);
         }
 
         foreach ($cartID as $row) {
@@ -515,14 +523,36 @@ class PurchaseOrderController {
                 $unit_id = $purchaseOrderDetails['unit_id'];
                 $price_unit = $purchaseOrderDetails['price']; // Note: mapping 'price' to $price_unit
                 $remarks = $purchaseOrderDetails['remarks'];
+                $preorder = $purchaseOrderDetails['preorder'] ?? '';
+                $fx_rate = $purchaseOrderDetails['fx_rate'] ?? 0;
+                $converted_amount = $purchaseOrderDetails['converted_amount'] ?? 0;
+                $package_deal = $purchaseOrderDetails['package_deal'] ?? 0;
+                $taxes_duties = $purchaseOrderDetails['taxes_duties'] ?? 0;
+                $freight = $purchaseOrderDetails['freight'] ?? 0;
+                $lto_registration = $purchaseOrderDetails['lto_registration'] ?? 0;
+                $royalties = $purchaseOrderDetails['royalties'] ?? 0;
+                $conversion = $purchaseOrderDetails['conversion'] ?? 0;
+                $arrastre = $purchaseOrderDetails['arrastre'] ?? 0;
+                $wharrfage = $purchaseOrderDetails['wharrfage'] ?? 0;
+                $insurance = $purchaseOrderDetails['insurance'] ?? 0;
+                $aircon = $purchaseOrderDetails['aircon'] ?? 0;
+                $import_permit = $purchaseOrderDetails['import_permit'] ?? 0;
+                $others = $purchaseOrderDetails['others'] ?? 0;
+                $total_landed_cost = $purchaseOrderDetails['total_landed_cost'] ?? 0;
 
                 $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($product_category_id);
                 $productCategoryID = $productSubcategoryDetails['product_category_id'];
                 $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'];
 
                 $stockNumberLatest = $this->systemSettingModel->getSystemSetting(17)['value'] + 1;
-                $stockNumber = $productSubcategoryCode . date('my') . $stockNumberLatest;
-                $this->systemSettingModel->updateSystemSettingValue(17, $stockNumberLatest, $userID);
+                
+                if($preorder == 'No'){
+                    $stockNumber = $productSubcategoryCode . date('my') . $stockNumberLatest;
+                    $this->systemSettingModel->updateSystemSettingValue(17, $stockNumberLatest, $userID);
+                }
+                else{
+                    $stockNumber = '';
+                }
 
                 $brandName = $this->brandModel->getBrand($brand_id)['brand_name'] ?? '';
                 $makeName = $this->makeModel->getMake($make_id)['make_name'] ?? '';
@@ -559,10 +589,83 @@ class PurchaseOrderController {
 
                 $description = implode(' ', $descriptionParts);
 
-                $this->productModel->insertProduct($productCategoryID, $product_category_id, $company_id, $stockNumber, '', '', '', $description, '', $body_type_id, $length, $length_unit, '', '', $color_id, $remarks, '', '', '', '', '', '', '', '', $supplierID, '', $brand_id, $cabin_id, $model_id, $make_id, $class_id, '', '', '', '', $year_model, '', '', '', '', '', $quantity, 'No', 'No', $userID);        
+                $productID = $this->productModel->insertProduct(
+                    $productCategoryID,
+                    $product_category_id,
+                    $company_id,
+                    $stockNumber,
+                    '',
+                    '',
+                    '',
+                    $description,
+                    '',
+                    $body_type_id,
+                    $length,
+                    $length_unit,
+                    '',
+                    '',
+                    $color_id,
+                    $remarks,
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    $supplierID,
+                    '',
+                    $brand_id,
+                    $cabin_id,
+                    $model_id,
+                    $make_id,
+                    $class_id,
+                    '',
+                    '',
+                    '',
+                    '',
+                    $year_model,
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    $quantity,
+                    $preorder,
+                    'No',
+                    $userID
+                );
+
+                $this->productModel->updateProductLandedCost(
+                    $productID,
+                    $price_unit,
+                    0,
+                    $fx_rate,
+                    $converted_amount,
+                    $price_unit,
+                    $package_deal,
+                    $taxes_duties,
+                    $freight,
+                    $lto_registration,
+                    $royalties,
+                    $conversion,
+                    $arrastre,
+                    $wharrfage,
+                    $insurance,
+                    $aircon,
+                    $import_permit,
+                    $others,
+                    $total_landed_cost,
+                    '',
+                    '',
+                    '',
+                    $userID
+                );
+
+                $this->purchaseOrderModel->createPurchaseOrderUnitEntry($purchase_order_id, $company_id, $reference_no, $total_landed_cost, $userID);
             }
         }
-
 
         $this->purchaseOrderModel->updatePurchaseOrderComplete($purchase_order_id, $userID);
         
@@ -849,86 +952,38 @@ class PurchaseOrderController {
 
             $response = [
                 'success' => true,
-                'purchase_request_cart_id' => $purchaseOrderDetails['purchase_request_cart_id'],
-                'brand_id' => $purchaseOrderDetails['brand_id'],
-                'model_id' => $purchaseOrderDetails['model_id'],
-                'body_type_id' => $purchaseOrderDetails['body_type_id'],
-                'class_id' => $purchaseOrderDetails['class_id'],
-                'color_id' => $purchaseOrderDetails['color_id'],
-                'make_id' => $purchaseOrderDetails['make_id'],
-                'year_model' => $purchaseOrderDetails['year_model'],
-                'product_category_id' => $purchaseOrderDetails['product_category_id'],
-                'length' => $purchaseOrderDetails['length'],
-                'length_unit' => $purchaseOrderDetails['length_unit'],
-                'cabin_id' => $purchaseOrderDetails['cabin_id'],
-                'quantity' => $purchaseOrderDetails['quantity'],
-                'unit_id' => $purchaseOrderDetails['unit_id'],
-                'price_unit' => $purchaseOrderDetails['price'],
-                'remarks' => $purchaseOrderDetails['remarks']
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    public function getPurchaseOrderPartDetails() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['purchase_order_part_id']) && !empty($_POST['purchase_order_part_id'])) {
-            $userID = $_SESSION['user_id'];
-            $purchase_order_part_id = $_POST['purchase_order_part_id'];
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-
-            $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrderPart($purchase_order_part_id);
-
-            $response = [
-                'success' => true,
-                'purchase_request_cart_id' => $purchaseOrderDetails['purchase_request_cart_id'],
-                'part_id' => $purchaseOrderDetails['part_id'],
-                'quantity' => $purchaseOrderDetails['quantity'],
-                'unit_id' => $purchaseOrderDetails['unit_id'],
-                'price' => $purchaseOrderDetails['price'],
-                'remarks' => $purchaseOrderDetails['remarks']
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    public function getPurchaseOrderSupplyDetails() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['purchase_order_supply_id']) && !empty($_POST['purchase_order_supply_id'])) {
-            $userID = $_SESSION['user_id'];
-            $purchase_order_supply_id = $_POST['purchase_order_supply_id'];
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-
-            $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrderSupply($purchase_order_supply_id);
-
-            $response = [
-                'success' => true,
-                'purchase_request_cart_id' => $purchaseOrderDetails['purchase_request_cart_id'],
-                'part_id' => $purchaseOrderDetails['part_id'],
-                'quantity' => $purchaseOrderDetails['quantity'],
-                'unit_id' => $purchaseOrderDetails['unit_id'],
-                'price' => $purchaseOrderDetails['price'],
-                'remarks' => $purchaseOrderDetails['remarks']
+                'purchase_request_cart_id' => $purchaseOrderDetails['purchase_request_cart_id'] ?? null,
+                'brand_id' => $purchaseOrderDetails['brand_id'] ?? null,
+                'model_id' => $purchaseOrderDetails['model_id'] ?? null,
+                'body_type_id' => $purchaseOrderDetails['body_type_id'] ?? null,
+                'class_id' => $purchaseOrderDetails['class_id'] ?? null,
+                'color_id' => $purchaseOrderDetails['color_id'] ?? null,
+                'make_id' => $purchaseOrderDetails['make_id'] ?? null,
+                'year_model' => $purchaseOrderDetails['year_model'] ?? '',
+                'product_category_id' => $purchaseOrderDetails['product_category_id'] ?? null,
+                'length' => $purchaseOrderDetails['length'] ?? 0,
+                'length_unit' => $purchaseOrderDetails['length_unit'] ?? null,
+                'cabin_id' => $purchaseOrderDetails['cabin_id'] ?? null,
+                'quantity' => $purchaseOrderDetails['quantity'] ?? 1,
+                'unit_id' => $purchaseOrderDetails['unit_id'] ?? null,
+                'price_unit' => $purchaseOrderDetails['price'] ?? 0,
+                'remarks' => $purchaseOrderDetails['remarks'] ?? '',
+                'preorder' => $purchaseOrderDetails['preorder'] ?? '',
+                'fx_rate' => $purchaseOrderDetails['fx_rate'] ?? 0,
+                'converted_amount' => $purchaseOrderDetails['converted_amount'] ?? 0,
+                'package_deal' => $purchaseOrderDetails['package_deal'] ?? 0,
+                'taxes_duties' => $purchaseOrderDetails['taxes_duties'] ?? 0,
+                'freight' => $purchaseOrderDetails['freight'] ?? 0,
+                'lto_registration' => $purchaseOrderDetails['lto_registration'] ?? 0,
+                'royalties' => $purchaseOrderDetails['royalties'] ?? 0,
+                'conversion' => $purchaseOrderDetails['conversion'] ?? 0,
+                'arrastre' => $purchaseOrderDetails['arrastre'] ?? 0,
+                'wharrfage' => $purchaseOrderDetails['wharrfage'] ?? 0,
+                'insurance' => $purchaseOrderDetails['insurance'] ?? 0,
+                'aircon' => $purchaseOrderDetails['aircon'] ?? 0,
+                'import_permit' => $purchaseOrderDetails['import_permit'] ?? 0,
+                'others' => $purchaseOrderDetails['others'] ?? 0,
+                'total_landed_cost' => $purchaseOrderDetails['total_landed_cost'] ?? 0
             ];
 
             echo json_encode($response);
@@ -994,7 +1049,12 @@ require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/security-model.php';
+require_once '../model/brand-model.php';
+require_once '../model/make-model.php';
+require_once '../model/cabin-model.php';
+require_once '../model/model-model.php';
+require_once '../model/body-type-model.php';
 require_once '../model/system-model.php';
 
-$controller = new PurchaseOrderController(new PurchaseOrderModel(new DatabaseModel), new PurchaseRequestModel(new DatabaseModel), new PartsModel(new DatabaseModel), new ProductModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new UnitModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new PurchaseOrderController(new PurchaseOrderModel(new DatabaseModel), new PurchaseRequestModel(new DatabaseModel), new PartsModel(new DatabaseModel), new ProductModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new UnitModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new BrandModel(new DatabaseModel), new MakeModel(new DatabaseModel), new CabinModel(new DatabaseModel), new ModelModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();

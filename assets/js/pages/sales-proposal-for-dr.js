@@ -1453,15 +1453,8 @@
             salesProposalSummaryPDCManualInputTable();    
         }
 
-        if($('#sales-proposal-id').length){
-            displayDetails('get sales proposal basic details');
-           
-
-            if($('#sales-proposal-tab-12').length){
-                displayDetails('get comaker details');
-            }
-                    
-            calculateRenewalAmount();
+        if ($('#sales-proposal-id').length) {
+            loadSalesProposalSequentially();
         }
 
         $(document).on('click','#apply-filter',function() {
@@ -5576,18 +5569,6 @@ function displayDetails(transaction){
                         fullErrorMessage += ', Response: ${xhr.responseText}';
                     }
                     showErrorDialog(fullErrorMessage);
-                },
-                complete: function(){
-                 displayDetails('get sales proposal fuel details');
-                 displayDetails('get sales proposal other charges details');
-                 displayDetails('get sales proposal confirmation details');
-                 displayDetails('get sales proposal unit details');
-                 displayDetails('get sales proposal fuel details');
-                 displayDetails('get sales proposal refinancing details');
-                 displayDetails('get sales proposal pricing computation details');
-                 displayDetails('get sales proposal renewal amount details');
-
-                 calculateTotalOtherCharges();
                 }
             });
             break;
@@ -6562,6 +6543,8 @@ function calculateTotalDeliveryPrice(){
     $('#total_delivery_price').val(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
     $('#summary-deliver-price').text(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
     $('#total_delivery_price_label').val(total);
+    
+    $('#summary-deliver-price').text(parseFloat(total.toFixed(2)).toLocaleString("en-US"));
 
     calculatePricingComputation();
 }
@@ -7333,18 +7316,76 @@ function traverseTabs(direction) {
 }
 
 function disableFormAndSelect2(formId) {
-    // Disable all form elements
+    // Disable all form elements EXCEPT readonly ones
     var form = document.getElementById(formId);
     var elements = form.elements;
+
     for (var i = 0; i < elements.length; i++) {
+        // Skip elements that have readonly
+        if (elements[i].hasAttribute('readonly')) {
+            continue;
+        }
+
         elements[i].disabled = true;
     }
 
-    // Disable Select2 dropdowns
+    // Disable Select2 dropdowns (unchanged)
     var select2Dropdowns = form.getElementsByClassName('select2');
     for (var j = 0; j < select2Dropdowns.length; j++) {
         var select2Instance = $(select2Dropdowns[j]);
         select2Instance.select2('destroy');
         select2Instance.prop('disabled', true);
     }
+}
+
+
+function loadSalesProposalSequentially() {
+
+    var queue = $.Deferred().resolve();
+
+    queue = queue.then(function () {
+        return displayDetails('get sales proposal basic details');
+    });
+
+    queue = queue.then(function () {
+        return displayDetails('get sales proposal unit details');
+    });
+
+    queue = queue.then(function () {
+        return displayDetails('get sales proposal fuel details');
+    });
+
+    queue = queue.then(function () {
+        return displayDetails('get sales proposal refinancing details');
+    });
+
+    queue = queue.then(function () {
+        return displayDetails('get sales proposal pricing computation details');
+    });
+
+    queue = queue.then(function () {
+        return displayDetails('get sales proposal other charges details');
+    });
+
+    queue = queue.then(function () {
+        return displayDetails('get sales proposal renewal amount details');
+    });
+
+    queue = queue.then(function () {
+        return displayDetails('get sales proposal confirmation details');
+    });
+
+    if ($('#sales-proposal-tab-12').length) {
+        queue = queue.then(function () {
+            return displayDetails('get comaker details');
+        });
+    }
+
+    queue.then(function () {
+        // FINAL computations only once
+        calculateFuelTotal();
+        calculateTotalDeliveryPrice();
+        calculateTotalOtherCharges();
+        calculateRenewalAmount();
+    });
 }

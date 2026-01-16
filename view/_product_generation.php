@@ -269,6 +269,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $warehouseID = $row['warehouse_id'];
                     $remarks = $row['remarks'];
                     $rr_no = $row['rr_no'];
+                    $plate_number = $row['plate_number'];
                     $productStatus = $productModel->getProductStatus($row['product_status']);
                     $productImage = $systemModel->checkImage($row['product_image'], 'default');
 
@@ -317,7 +318,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <a href="'. $productImage .'" target="_blank">View Image</a>
                                         </div>
                                     </div>',
-                        'CATEGORY' => $productCategoryName . ' <br/>(' . $productSubcategoryName . ')',
+                        'PLATE_NUMBER' => $plate_number,
                         'REMARKS' => '<span class="text-wrap w-100">' . $remarks . "</span>",
                         'ENGINE_NUMBER' => $engine_number,
                         'CHASSIS_NUMBER' => $chassis_number,
@@ -695,7 +696,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <div class="position-absolute top-50 start-100 translate-middle">
                                             <button class="btn btn-sm btn-primary btn-icon delete-product-image" data-product-image-id="'. $product_image_id .'"><i class="ti ti-trash"></i></button>
                                         </div>
-                                        <img src="'. $product_image .'" alt="user-image" class="wid-80 rounded img-fluid ms-2">
+                                        <a href="force-download.php?action=download_raw&path='. urlencode($product_image) .'">
+                                            <img src="'. $product_image .'" alt="user-image" class="wid-80 rounded img-fluid ms-2">
+                                        </a>
                                         </div>
                                     </div>';
 

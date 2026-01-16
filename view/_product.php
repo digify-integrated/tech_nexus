@@ -301,7 +301,7 @@
                         </th>
                         <th>Stock No.</th>
                         <th>Remarks</th>
-                        <th>Category</th>
+                        <th>Plate No.</th>
                         <th>Engine No.</th>
                         <th>Chassis No.</th>
                         <th>Body Type</th>
@@ -315,7 +315,6 @@
                         ?>
                         <th>Price</th>
                         <th>Best Price</th>
-                        <th>Created Date</th>
                         <th>Status</th>
                         <th>Actions</th>
                       </tr>

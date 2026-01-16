@@ -134,7 +134,7 @@ class ProductController {
                     $this->deleteProductDocument();
                     break;
                 case 'delete multiple product':
-                    $this->deleteMultipleProduct();
+                    //$this->deleteMultipleProduct();
                     break;
                 case 'delete product expense':
                     $this->deleteProductExpense();
@@ -158,7 +158,7 @@ class ProductController {
                     $this->saveProductExpense();
                     break;
                 case 'duplicate product':
-                    $this->duplicateProduct();
+                    //$this->duplicateProduct();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -1522,7 +1522,7 @@ class ProductController {
                 'registered_owner' => $productDetails['registered_owner'],
                 'mode_of_registration' => $productDetails['mode_of_registration'],
                 'year_model' => $productDetails['year_model'],
-                'fx_rate' => $productDetails['fx_rate'],
+                'fx_rate' => !empty($productDetails['fx_rate']) ? $productDetails['fx_rate'] ?? 1 : 1,
                 'unit_cost' => $productDetails['unit_cost'],
                 'package_deal' => $productDetails['package_deal'],
                 'taxes_duties' => $productDetails['taxes_duties'],

@@ -246,167 +246,232 @@ class PurchaseOrderModel {
         $stmt->execute();
     }
 
-    public function insertPurchaseOrderItemUnit($purchase_order_id, $purchase_request_cart_id, $product_category_id, $cabin_id, $brand_id, $model_id, $body_type_id, $class_id, $color_id, $make_id, $year_model, $quantity, $unit_id, $length, $length_unit, $price_unit, $remarks, $userID) {
-        $stmt = $this->db->getConnection()->prepare('INSERT INTO purchase_order_unit (purchase_order_id, purchase_request_cart_id, product_category_id, cabin_id, brand_id, model_id, body_type_id, class_id, color_id, make_id, year_model, quantity, unit_id, length, length_unit, price, remarks, last_log_by) VALUES (:purchase_order_id, :purchase_request_cart_id, :product_category_id, :cabin_id, :brand_id, :model_id, :body_type_id, :class_id, :color_id, :make_id, :year_model, :quantity, :unit_id, :length, :length_unit, :price_unit, :remarks, :last_log_by)');
-        
-        $stmt->bindValue(':purchase_order_id', $purchase_order_id);
-        $stmt->bindValue(':purchase_request_cart_id', $purchase_request_cart_id);
-        $stmt->bindValue(':product_category_id', $product_category_id);
-        $stmt->bindValue(':cabin_id', $cabin_id);
-        $stmt->bindValue(':brand_id', $brand_id, PDO::PARAM_STR);
-        $stmt->bindValue(':model_id', $model_id, PDO::PARAM_STR);
-        $stmt->bindValue(':body_type_id', $body_type_id, PDO::PARAM_STR);
-        $stmt->bindValue(':class_id', $class_id, PDO::PARAM_STR);
-        $stmt->bindValue(':color_id', $color_id, PDO::PARAM_STR);
-        $stmt->bindValue(':make_id', $make_id, PDO::PARAM_STR);
-        $stmt->bindValue(':year_model', $year_model, PDO::PARAM_STR);
-        $stmt->bindValue(':quantity', $quantity, PDO::PARAM_STR);
-        $stmt->bindValue(':unit_id', $unit_id, PDO::PARAM_STR);
-        $stmt->bindValue(':length', $length, PDO::PARAM_STR);
-        $stmt->bindValue(':length_unit', $length_unit, PDO::PARAM_STR);
-        $stmt->bindValue(':price_unit', $price_unit, PDO::PARAM_STR);
-        $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
-        $stmt->bindValue(':last_log_by', $userID, PDO::PARAM_INT);
-        
-        $stmt->execute();
-    }
-
-    public function updatePurchaseOrderItemUnit($purchase_order_unit_id, $purchase_request_cart_id, $product_category_id, $cabin_id, $brand_id, $model_id, $body_type_id, $class_id, $color_id, $make_id, $year_model, $quantity, $unit_id, $length, $length_unit, $price_unit, $remarks, $userID) {
-        // Added unit_id = :unit_id to the SQL string below
-        $stmt = $this->db->getConnection()->prepare('UPDATE purchase_order_unit SET purchase_request_cart_id = :purchase_request_cart_id, product_category_id = :product_category_id, cabin_id = :cabin_id, brand_id = :brand_id, model_id = :model_id, body_type_id = :body_type_id, class_id = :class_id, color_id = :color_id, make_id = :make_id, year_model = :year_model, quantity = :quantity, unit_id = :unit_id, length = :length, length_unit = :length_unit, price = :price_unit, remarks = :remarks, last_log_by = :last_log_by WHERE purchase_order_unit_id = :purchase_order_unit_id');
-        
-        $stmt->bindValue(':purchase_order_unit_id', $purchase_order_unit_id, PDO::PARAM_STR);
-        $stmt->bindValue(':purchase_request_cart_id', $purchase_request_cart_id, PDO::PARAM_STR);
-        $stmt->bindValue(':product_category_id', $product_category_id, PDO::PARAM_STR);
-        $stmt->bindValue(':cabin_id', $cabin_id, PDO::PARAM_STR);
-        $stmt->bindValue(':brand_id', $brand_id, PDO::PARAM_STR);
-        $stmt->bindValue(':model_id', $model_id, PDO::PARAM_STR);
-        $stmt->bindValue(':body_type_id', $body_type_id, PDO::PARAM_STR);
-        $stmt->bindValue(':class_id', $class_id, PDO::PARAM_STR);
-        $stmt->bindValue(':color_id', $color_id, PDO::PARAM_STR);
-        $stmt->bindValue(':make_id', $make_id, PDO::PARAM_STR);
-        $stmt->bindValue(':year_model', $year_model, PDO::PARAM_STR);
-        $stmt->bindValue(':quantity', $quantity, PDO::PARAM_STR);
-        $stmt->bindValue(':unit_id', $unit_id, PDO::PARAM_STR); // This now has a matching target in the SQL
-        $stmt->bindValue(':length', $length, PDO::PARAM_STR);
-        $stmt->bindValue(':length_unit', $length_unit, PDO::PARAM_STR);
-        $stmt->bindValue(':price_unit', $price_unit, PDO::PARAM_STR);
-        $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
-        $stmt->bindValue(':last_log_by', $userID, PDO::PARAM_INT);
-        
-        $stmt->execute();
-    }
-
-    public function insertPurchaseOrderItemPart($purchase_order_id, $purchase_request_cart_id, $part_id, $price_part, $quantity_part, $quantity_part_id, $remarks, $userID) {
-        $stmt = $this->db->getConnection()->prepare('INSERT INTO purchase_order_part (purchase_order_id, purchase_request_cart_id, part_id, price, quantity, unit_id, remarks, last_log_by) VALUES (:purchase_order_id, :purchase_request_cart_id, :part_id, :price_part, :quantity_part, :quantity_part_id, :remarks, :last_log_by)');
-        
-        // Using standard mapping based on your SQL Table Schema
-        $stmt->bindValue(':purchase_order_id', $purchase_order_id, PDO::PARAM_INT);
-        $stmt->bindValue(':purchase_request_cart_id', $purchase_request_cart_id, PDO::PARAM_INT);
-        $stmt->bindValue(':part_id', $part_id, PDO::PARAM_INT);
-        $stmt->bindValue(':price_part', $price_part); // DOUBLE/FLOAT
-        $stmt->bindValue(':quantity_part', $quantity_part); // DOUBLE/FLOAT
-        $stmt->bindValue(':quantity_part_id', $quantity_part_id, PDO::PARAM_INT);
-        $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
-        $stmt->bindValue(':last_log_by', $userID, PDO::PARAM_INT);
-        
-        return $stmt->execute();
-    }
-
-    public function updatePurchaseOrderItemPart($purchase_order_part_id, $purchase_request_cart_id, $part_id, $price_part, $quantity_part, $quantity_part_id, $remarks, $userID) {
-        // Fixed: Now targets purchase_order_part table and uses correct columns
-        $sql = "UPDATE purchase_order_part 
-                SET purchase_request_cart_id = :purchase_request_cart_id, 
-                    part_id = :part_id, 
-                    price = :price_part, 
-                    quantity = :quantity_part, 
-                    unit_id = :quantity_part_id, 
-                    remarks = :remarks, 
-                    last_log_by = :last_log_by 
-                WHERE purchase_order_part_id = :purchase_order_part_id";
+    public function insertPurchaseOrderItemUnit(
+        $purchase_order_id,
+        $purchase_request_cart_id,
+        $product_category_id,
+        $cabin_id,
+        $brand_id,
+        $model_id,
+        $body_type_id,
+        $class_id,
+        $color_id,
+        $make_id,
+        $year_model,
+        $quantity,
+        $unit_id,
+        $length,
+        $length_unit,
+        $price,
+        $fx_rate,
+        $converted_amount,
+        $package_deal,
+        $taxes_duties,
+        $freight,
+        $lto_registration,
+        $royalties,
+        $conversion,
+        $arrastre,
+        $wharrfage,
+        $insurance,
+        $aircon,
+        $import_permit,
+        $others,
+        $total_landed_cost,
+        $preorder,
+        $remarks,
+        $userID
+    ) {
+        $sql = "
+            INSERT INTO purchase_order_unit (
+                purchase_order_id, purchase_request_cart_id, product_category_id,
+                cabin_id, brand_id, model_id, body_type_id, class_id,
+                color_id, make_id, year_model,
+                quantity, unit_id, length, length_unit, price,
+                fx_rate, converted_amount, package_deal, taxes_duties,
+                freight, lto_registration, royalties, conversion,
+                arrastre, wharrfage, insurance, aircon,
+                import_permit, others, total_landed_cost, preorder,
+                remarks, last_log_by
+            ) VALUES (
+                :purchase_order_id, :purchase_request_cart_id, :product_category_id,
+                :cabin_id, :brand_id, :model_id, :body_type_id, :class_id,
+                :color_id, :make_id, :year_model,
+                :quantity, :unit_id, :length, :length_unit, :price,
+                :fx_rate, :converted_amount, :package_deal, :taxes_duties,
+                :freight, :lto_registration, :royalties, :conversion,
+                :arrastre, :wharrfage, :insurance, :aircon,
+                :import_permit, :others, :total_landed_cost, :preorder,
+                :remarks, :last_log_by
+            )
+        ";
 
         $stmt = $this->db->getConnection()->prepare($sql);
-        
-        $stmt->bindValue(':purchase_order_part_id', $purchase_order_part_id, PDO::PARAM_INT);
-        $stmt->bindValue(':purchase_request_cart_id', $purchase_request_cart_id, PDO::PARAM_INT);
-        $stmt->bindValue(':part_id', $part_id, PDO::PARAM_INT);
-        $stmt->bindValue(':price_part', $price_part);
-        $stmt->bindValue(':quantity_part', $quantity_part);
-        $stmt->bindValue(':quantity_part_id', $quantity_part_id, PDO::PARAM_INT);
-        $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
-        $stmt->bindValue(':last_log_by', $userID, PDO::PARAM_INT);
-        
-        return $stmt->execute();
+        $stmt->execute([
+            'purchase_order_id'        => $purchase_order_id,
+            'purchase_request_cart_id' => $purchase_request_cart_id,
+            'product_category_id'      => $product_category_id,
+            'cabin_id'                 => $cabin_id,
+            'brand_id'                 => $brand_id,
+            'model_id'                 => $model_id,
+            'body_type_id'             => $body_type_id,
+            'class_id'                 => $class_id,
+            'color_id'                 => $color_id,
+            'make_id'                  => $make_id,
+            'year_model'               => $year_model,
+            'quantity'                 => $quantity,
+            'unit_id'                  => $unit_id,
+            'length'                   => $length,
+            'length_unit'              => $length_unit,
+            'price'                    => $price,
+            'fx_rate'                  => $fx_rate,
+            'converted_amount'         => $converted_amount,
+            'package_deal'             => $package_deal,
+            'taxes_duties'             => $taxes_duties,
+            'freight'                  => $freight,
+            'lto_registration'         => $lto_registration,
+            'royalties'                => $royalties,
+            'conversion'               => $conversion,
+            'arrastre'                 => $arrastre,
+            'wharrfage'                => $wharrfage,
+            'insurance'                => $insurance,
+            'aircon'                   => $aircon,
+            'import_permit'            => $import_permit,
+            'others'                   => $others,
+            'total_landed_cost'        => $total_landed_cost,
+            'preorder'                 => $preorder,
+            'remarks'                  => $remarks,
+            'last_log_by'              => $userID
+        ]);
+
     }
 
-    public function insertPurchaseOrderItemSupply($purchase_order_id, $purchase_request_cart_id, $part_id, $price_part, $quantity_part, $quantity_part_id, $remarks, $userID) {
-        $stmt = $this->db->getConnection()->prepare('INSERT INTO purchase_order_supply (purchase_order_id, purchase_request_cart_id, part_id, price, quantity, unit_id, remarks, last_log_by) VALUES (:purchase_order_id, :purchase_request_cart_id, :part_id, :price_part, :quantity_part, :quantity_part_id, :remarks, :last_log_by)');
-        
-        // Using standard mapping based on your SQL Table Schema
-        $stmt->bindValue(':purchase_order_id', $purchase_order_id, PDO::PARAM_INT);
-        $stmt->bindValue(':purchase_request_cart_id', $purchase_request_cart_id, PDO::PARAM_INT);
-        $stmt->bindValue(':part_id', $part_id, PDO::PARAM_INT);
-        $stmt->bindValue(':price_part', $price_part); // DOUBLE/FLOAT
-        $stmt->bindValue(':quantity_part', $quantity_part); // DOUBLE/FLOAT
-        $stmt->bindValue(':quantity_part_id', $quantity_part_id, PDO::PARAM_INT);
-        $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
-        $stmt->bindValue(':last_log_by', $userID, PDO::PARAM_INT);
-        
-        return $stmt->execute();
+
+    public function createPurchaseOrderUnitEntry($p_purchase_order_id, $p_company_id, $p_reference_no, $p_cost, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createPurchaseOrderUnitEntry(:p_purchase_order_id, :p_company_id, :p_reference_no, :p_cost, :p_last_log_by)');
+        $stmt->bindValue(':p_purchase_order_id', $p_purchase_order_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_no', $p_reference_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
     }
 
-    public function updatePurchaseOrderItemSupply($purchase_order_part_id, $purchase_request_cart_id, $part_id, $price_part, $quantity_part, $quantity_part_id, $remarks, $userID) {
-        // Fixed: Now targets purchase_order_part table and uses correct columns
-        $sql = "UPDATE purchase_order_supply 
-                SET purchase_request_cart_id = :purchase_request_cart_id, 
-                    part_id = :part_id, 
-                    price = :price_part, 
-                    quantity = :quantity_part, 
-                    unit_id = :quantity_part_id, 
-                    remarks = :remarks, 
-                    last_log_by = :last_log_by 
-                WHERE purchase_order_part_id = :purchase_order_part_id";
+    public function updatePurchaseOrderItemUnit(
+        $purchase_order_unit_id,
+        $purchase_request_cart_id,
+        $product_category_id,
+        $cabin_id,
+        $brand_id,
+        $model_id,
+        $body_type_id,
+        $class_id,
+        $color_id,
+        $make_id,
+        $year_model,
+        $quantity,
+        $unit_id,
+        $length,
+        $length_unit,
+        $price,
+        $fx_rate,
+        $converted_amount,
+        $package_deal,
+        $taxes_duties,
+        $freight,
+        $lto_registration,
+        $royalties,
+        $conversion,
+        $arrastre,
+        $wharrfage,
+        $insurance,
+        $aircon,
+        $import_permit,
+        $others,
+        $total_landed_cost,
+        $preorder,
+        $remarks,
+        $userID
+    ) {
+        $sql = "UPDATE purchase_order_unit SET
+                    purchase_request_cart_id = :purchase_request_cart_id,
+                    product_category_id     = :product_category_id,
+                    cabin_id                = :cabin_id,
+                    brand_id                = :brand_id,
+                    model_id                = :model_id,
+                    body_type_id            = :body_type_id,
+                    class_id                = :class_id,
+                    color_id                = :color_id,
+                    make_id                 = :make_id,
+                    year_model              = :year_model,
+                    quantity                = :quantity,
+                    unit_id                 = :unit_id,
+                    length                  = :length,
+                    length_unit             = :length_unit,
+                    price                   = :price,
+                    fx_rate                 = :fx_rate,
+                    converted_amount        = :converted_amount,
+                    package_deal            = :package_deal,
+                    taxes_duties            = :taxes_duties,
+                    freight                 = :freight,
+                    lto_registration        = :lto_registration,
+                    royalties               = :royalties,
+                    conversion              = :conversion,
+                    arrastre                = :arrastre,
+                    wharrfage               = :wharrfage,
+                    insurance               = :insurance,
+                    aircon                  = :aircon,
+                    import_permit           = :import_permit,
+                    others                  = :others,
+                    total_landed_cost       = :total_landed_cost,
+                    preorder                = :preorder,
+                    remarks                 = :remarks,
+                    last_log_by             = :last_log_by
+                WHERE purchase_order_unit_id = :purchase_order_unit_id";
 
         $stmt = $this->db->getConnection()->prepare($sql);
-        
-        $stmt->bindValue(':purchase_order_part_id', $purchase_order_part_id, PDO::PARAM_INT);
+
+        $stmt->bindValue(':purchase_order_unit_id', $purchase_order_unit_id, PDO::PARAM_INT);
         $stmt->bindValue(':purchase_request_cart_id', $purchase_request_cart_id, PDO::PARAM_INT);
-        $stmt->bindValue(':part_id', $part_id, PDO::PARAM_INT);
-        $stmt->bindValue(':price_part', $price_part);
-        $stmt->bindValue(':quantity_part', $quantity_part);
-        $stmt->bindValue(':quantity_part_id', $quantity_part_id, PDO::PARAM_INT);
+        $stmt->bindValue(':product_category_id', $product_category_id, PDO::PARAM_INT);
+        $stmt->bindValue(':cabin_id', $cabin_id, PDO::PARAM_INT);
+        $stmt->bindValue(':brand_id', $brand_id, PDO::PARAM_INT);
+        $stmt->bindValue(':model_id', $model_id, PDO::PARAM_INT);
+        $stmt->bindValue(':body_type_id', $body_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':class_id', $class_id, PDO::PARAM_INT);
+        $stmt->bindValue(':color_id', $color_id, PDO::PARAM_INT);
+        $stmt->bindValue(':make_id', $make_id, PDO::PARAM_INT);
+        $stmt->bindValue(':year_model', $year_model, PDO::PARAM_STR);
+
+        $stmt->bindValue(':quantity', $quantity);
+        $stmt->bindValue(':unit_id', $unit_id, PDO::PARAM_INT);
+        $stmt->bindValue(':length', $length);
+        $stmt->bindValue(':length_unit', $length_unit, PDO::PARAM_INT);
+        $stmt->bindValue(':price', $price);
+
+        $stmt->bindValue(':fx_rate', $fx_rate);
+        $stmt->bindValue(':converted_amount', $converted_amount);
+        $stmt->bindValue(':package_deal', $package_deal);
+        $stmt->bindValue(':taxes_duties', $taxes_duties);
+        $stmt->bindValue(':freight', $freight);
+        $stmt->bindValue(':lto_registration', $lto_registration);
+        $stmt->bindValue(':royalties', $royalties);
+        $stmt->bindValue(':conversion', $conversion);
+        $stmt->bindValue(':arrastre', $arrastre);
+        $stmt->bindValue(':wharrfage', $wharrfage);
+        $stmt->bindValue(':insurance', $insurance);
+        $stmt->bindValue(':aircon', $aircon);
+        $stmt->bindValue(':import_permit', $import_permit);
+        $stmt->bindValue(':others', $others);
+
+        $stmt->bindValue(':total_landed_cost', $total_landed_cost);
+        $stmt->bindValue(':preorder', $preorder, PDO::PARAM_STR);
         $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
         $stmt->bindValue(':last_log_by', $userID, PDO::PARAM_INT);
-        
-        return $stmt->execute();
-    }
 
-    public function insertPurchaseOrderJobOrder($p_part_transaction_id, $p_job_order_id, $p_type, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPurchaseOrderJobOrder(:p_part_transaction_id, :p_job_order_id, :p_type, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
-        $stmt->bindValue(':p_job_order_id', $p_job_order_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
 
-    public function insertPurchaseOrderAdditionalJobOrder($p_part_transaction_id, $p_additional_job_order_id, $p_type, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPurchaseOrderAdditionalJobOrder(:p_part_transaction_id, :p_additional_job_order_id, :p_type, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
-        $stmt->bindValue(':p_additional_job_order_id', $p_additional_job_order_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-
-    public function insertPurchaseOrderDocument($p_part_transaction_id, $p_document_name, $p_document_file_path, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPurchaseOrderDocument(:p_part_transaction_id, :p_document_name, :p_document_file_path, :p_last_log_by)');
-        $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
-        $stmt->bindValue(':p_document_name', $p_document_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_document_file_path', $p_document_file_path, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
 
     public function createPurchaseOrderEntry($p_part_transaction_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_customer_type, $p_is_service, $p_product_status, $p_issuance_for, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL createPurchaseOrderEntry(:p_part_transaction_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_customer_type, :p_is_service, :p_product_status, :p_issuance_for, :p_last_log_by)');
@@ -513,7 +578,7 @@ class PurchaseOrderModel {
         WHERE purchase_order_id = :p_purchase_order_id;');
         $stmt->bindValue(':p_purchase_order_id', $p_purchase_order_id, PDO::PARAM_STR);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     public function getPurchaseOrderCartPart($p_purchase_order_id) {
         $stmt = $this->db->getConnection()->prepare('SELECT *

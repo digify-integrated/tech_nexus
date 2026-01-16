@@ -136,13 +136,15 @@ class PurchaseRequestController {
         $purchase_request_id = isset($_POST['purchase_request_id']) ? htmlspecialchars($_POST['purchase_request_id'], ENT_QUOTES, 'UTF-8') : null;
         $purchase_request_type = htmlspecialchars($_POST['purchase_request_type'], ENT_QUOTES, 'UTF-8');
         $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
+        $month_coverage = htmlspecialchars($_POST['month_coverage'], ENT_QUOTES, 'UTF-8');
+        $coverage_period = htmlspecialchars($_POST['coverage_period'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
 
         $checkPurchaseRequestExist = $this->purchaseRequestModel->checkPurchaseRequestExist($purchase_request_id);
         $total = $checkPurchaseRequestExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->purchaseRequestModel->updatePurchaseRequest($purchase_request_id, $purchase_request_type, $company_id, $remarks, $userID);
+            $this->purchaseRequestModel->updatePurchaseRequest($purchase_request_id, $purchase_request_type, $company_id, $month_coverage, $coverage_period, $remarks, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => false, 'purchaseRequestID' => $this->securityModel->encryptData($purchase_request_id)]);
             exit;
@@ -150,7 +152,7 @@ class PurchaseRequestController {
         else {
             $reference_number = (int)$this->systemSettingModel->getSystemSetting(44)['value'] + 1;
 
-            $purchase_request_id = $this->purchaseRequestModel->insertPurchaseRequest($reference_number, $purchase_request_type, $company_id, $remarks, $userID);
+            $purchase_request_id = $this->purchaseRequestModel->insertPurchaseRequest($reference_number, $purchase_request_type, $company_id, $month_coverage, $coverage_period, $remarks, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(44, $reference_number, $userID);
 
@@ -426,6 +428,8 @@ class PurchaseRequestController {
                 'reference_no' => $purchaseRequestDetails['reference_no'],
                 'purchase_request_type' => $purchaseRequestDetails['purchase_request_type'],
                 'company_id' => $purchaseRequestDetails['company_id'],
+                'month_coverage' => $purchaseRequestDetails['month_coverage'],
+                'coverage_period' => $purchaseRequestDetails['coverage_period'],
                 'remarks' => $purchaseRequestDetails['remarks']
             ];
 

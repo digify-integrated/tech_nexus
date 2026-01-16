@@ -83,6 +83,10 @@
                                 <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-12" value="Stock Transfer Advice" checked/>
                                 <label class="form-check-label" for="journal-id-12">Stock Transfer Advice</label>
                               </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-12" value="Purchase Order" checked/>
+                                <label class="form-check-label" for="journal-id-12">Purchase Order</label>
+                              </div>
                             </div>
                           </div>
                         </div>

@@ -77,7 +77,7 @@ BEGIN
     SET is_locked = 1, account_lock_duration = CAST(4294967295 AS SIGNED), last_log_by = p_last_log_by 
     WHERE user_id = p_user_id;
 END //
-
+query: 
 CREATE PROCEDURE unlockUserAccount(IN p_user_id INT, IN p_last_log_by INT)
 BEGIN
 	UPDATE users 
@@ -22059,18 +22059,18 @@ BEGIN
     WHERE purchase_request_id = p_purchase_request_id;
 END //
 
-CREATE PROCEDURE insertPurchaseRequest(IN p_reference_no VARCHAR(100), IN p_purchase_request_type VARCHAR(100), IN p_company_id INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_purchase_request_id INT)
+CREATE PROCEDURE insertPurchaseRequest(IN p_reference_no VARCHAR(100), IN p_purchase_request_type VARCHAR(100), IN p_company_id INT, IN p_month_coverage VARCHAR(100), IN p_coverage_period VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_purchase_request_id INT)
 BEGIN
-    INSERT INTO purchase_request (reference_no, purchase_request_type, company_id, remarks, last_log_by) 
-	VALUES(p_reference_no, p_purchase_request_type, p_company_id, p_remarks, p_last_log_by);
+    INSERT INTO purchase_request (reference_no, purchase_request_type, company_id, month_coverage, coverage_period, remarks, last_log_by) 
+	VALUES(p_reference_no, p_purchase_request_type, p_company_id, p_month_coverage, p_coverage_period, p_remarks, p_last_log_by);
 	
     SET p_purchase_request_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updatePurchaseRequest(IN p_purchase_request_id INT, IN p_purchase_request_type VARCHAR(100), IN p_company_id INT, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updatePurchaseRequest(IN p_purchase_request_id INT, IN p_purchase_request_type VARCHAR(100), IN p_company_id INT, IN p_month_coverage VARCHAR(100), IN p_coverage_period VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
 	UPDATE purchase_request 
-    SET purchase_request_type = p_purchase_request_type, company_id = p_company_id, remarks = p_remarks, last_log_by = p_last_log_by 
+    SET purchase_request_type = p_purchase_request_type, company_id = p_company_id, remarks = p_remarks, month_coverage = p_month_coverage, coverage_period = p_coverage_period, last_log_by = p_last_log_by 
     WHERE purchase_request_id = p_purchase_request_id;
 END //
 
@@ -22162,3 +22162,131 @@ BEGIN
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END //
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS createPurchaseOrderUnitEntry //
+CREATE PROCEDURE createPurchaseOrderUnitEntry(
+    IN p_purchase_order_id INT,
+    IN p_company_id INT,
+    IN p_reference_no VARCHAR(100),
+    IN p_cost DECIMAL(15,2),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_chart_item VARCHAR(100);
+    DECLARE v_credit VARCHAR(100);
+
+    CASE p_company_id
+        WHEN 1 THEN
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_analytic_lines = 'NE TRUCK';
+            SET v_analytic_distribution = '{"2": 100.0}';
+        WHEN 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 4 THEN
+            SET v_analytic_lines = 'PCG PROPERTY';
+            SET v_analytic_distribution = '{"4": 100.0}';
+        WHEN 5 THEN
+            SET v_analytic_lines = 'GCB PROPERTY';
+            SET v_analytic_distribution = '{"3": 100.0}';
+        WHEN 6 THEN
+            SET v_analytic_lines = 'GCB FARMING';
+            SET v_analytic_distribution = '{"11": 100.0}';
+        WHEN 7 THEN
+            SET v_analytic_lines = 'PCG FARMING';
+            SET v_analytic_distribution = '{"15": 100.0}';
+        WHEN 8 THEN
+            SET v_analytic_lines = 'NE FUEL';
+            SET v_analytic_distribution = '{"6": 100.0}';
+        WHEN 9 THEN
+            SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
+            SET v_analytic_distribution = '{"17": 100.0}';
+        WHEN 10 THEN
+            SET v_analytic_lines = 'Avida';
+            SET v_analytic_distribution = '{"20": 100.0}';
+        WHEN 11 THEN
+            SET v_analytic_lines = 'Caalibangbangan';
+            SET v_analytic_distribution = '{"19": 100.0}';
+        WHEN 12 THEN
+            SET v_analytic_lines = 'Sta Rosa';
+            SET v_analytic_distribution = '{"18": 100.0}';
+        WHEN 13 THEN
+            SET v_analytic_lines = 'KPC VENTURE INC';
+            SET v_analytic_distribution = '{"16": 100.0}';
+        WHEN 14 THEN
+            SET v_analytic_lines = 'NE HAULING';
+            SET v_analytic_distribution = '{"7": 100.0}';
+        ELSE
+            SET v_analytic_lines = 'DEFAULT';
+            SET v_analytic_distribution = '{"0": 0.0}';
+    END CASE;
+
+    SET v_chart_item = '10501010 Inventory Unit';
+    SET v_credit = '20101000 Accounts Payable Unit';
+    
+    -- Insert debit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_purchase_order_id, 
+        NOW(), 
+        p_reference_no, 
+        'Purchase Order', 
+        v_chart_item, 
+        p_cost, 
+        0, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert credit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_purchase_order_id, 
+        NOW(), 
+        p_reference_no, 
+        'Purchase Order', 
+        v_credit, 
+        0, 
+        p_cost, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+END//

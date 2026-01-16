@@ -411,7 +411,7 @@ class PartsIncomingController {
         foreach ($getPartsIncomingCartByID as $row) {
             $part_id = $row['part_id'];
             $received_quantity = $row['received_quantity'];
-            $total_cost = $row['total_cost'] / $received_quantity;
+            $total_cost = $row['cost'] * $received_quantity;
 
             $this->partsIncomingModel->updatePartsAverageCostAndSRP(
                 $part_id,

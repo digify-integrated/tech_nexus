@@ -26,7 +26,7 @@
             addItemForm();
         }
 
-         if($('#cancel-purchase-request-form').length){
+        if($('#cancel-purchase-request-form').length){
             cancelPurchaseRequestForm();
         }
 
@@ -268,6 +268,17 @@
             displayDetails('get purchase request cart details');
         });
 
+        $(document).on('change', '#purchase_request_type', function () {
+            if ($(this).val() == 'Supplies') {
+                $('#supply_coverage').removeClass('d-none');
+            } else {
+                $('#supply_coverage').addClass('d-none');
+                checkOptionExist('#coverage_period', '', '');
+                checkOptionExist('#month_coverage', '', '');
+            }
+        });
+
+
         $(document).on('click','#discard-create',function() {
             discardCreate('purchase-request.php');
         });
@@ -422,6 +433,16 @@ function purchaseRequestForm(){
             company_id: {
                 required: true
             },
+            month_coverage: {
+                required: function () {
+                    return $('#purchase_request_type').val() === 'Supplies';
+                }
+            },
+            coverage_period: {
+                required: function () {
+                    return $('#purchase_request_type').val() === 'Supplies';
+                }
+            }
         },
         messages: {
             purchase_request_type: {
@@ -430,6 +451,12 @@ function purchaseRequestForm(){
             company_id: {
                 required: 'Please choose the company'
             },
+            month_coverage: {
+                required: 'Please specify the month coverage'
+            },
+            coverage_period: {
+                required: 'Please specify the coverage period'
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -899,7 +926,9 @@ function displayDetails(transaction){
                         $('#remarks').val(response.remarks);
                         
                         checkOptionExist('#purchase_request_type', response.purchase_request_type, '');       
-                        checkOptionExist('#company_id', response.company_id, '');       
+                        checkOptionExist('#company_id', response.company_id, '');    
+                        checkOptionExist('#coverage_period', response.coverage_period, '');
+                        checkOptionExist('#month_coverage', response.month_coverage, '');   
                     } 
                     else {
                         if(response.isInactive){

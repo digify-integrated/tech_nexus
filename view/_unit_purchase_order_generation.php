@@ -140,7 +140,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'COMPANY' => $companyName,
                     'STATUS' => $purchase_order_status,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="purchase-order.php?id='. $purchase_order_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
+                                    <a href="unit-purchase-order.php?id='. $purchase_order_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

@@ -3661,16 +3661,21 @@ class SalesProposalController {
         $docStampTax = str_replace(',', '', $_POST['doc_stamp_tax']);
         $transactionFee = str_replace(',', '', $_POST['transaction_fee']);
 
-        $insurancePremiumDiscount = str_replace(',', '', $_POST['insurance_premium_discount']);
-        $insurancePremiumSubtotal = $insurancePremium - $insurancePremiumDiscount;
-        $handlingFeeDiscount = str_replace(',', '', $_POST['handling_fee_discount']);
-        $handlingFeeSubtotal = $handlingFee - $handlingFeeDiscount;
-        $transferFeeDiscount = str_replace(',', '', $_POST['transfer_fee_discount']);
-        $transferFeeSubtotal = $transferFee - $transferFeeDiscount;
-        $docStampTaxDiscount = str_replace(',', '', $_POST['doc_stamp_tax_discount']);
-        $docStampTaxSubtotal = $docStampTax - $docStampTaxDiscount;
-        $transactionFeeDiscount = str_replace(',', '', $_POST['transaction_fee_discount']);
-        $transactionFeeSubtotal = $transactionFee - $transactionFeeDiscount;
+       $insurancePremiumDiscount = (float) str_replace(',', '', $_POST['insurance_premium_discount'] ?? 0);
+        $insurancePremiumSubtotal = (float) $insurancePremium - $insurancePremiumDiscount;
+
+        $handlingFeeDiscount = (float) str_replace(',', '', $_POST['handling_fee_discount'] ?? 0);
+        $handlingFeeSubtotal = (float) $handlingFee - $handlingFeeDiscount;
+
+        $transferFeeDiscount = (float) str_replace(',', '', $_POST['transfer_fee_discount'] ?? 0);
+        $transferFeeSubtotal = (float) $transferFee - $transferFeeDiscount;
+
+        $docStampTaxDiscount = (float) str_replace(',', '', $_POST['doc_stamp_tax_discount'] ?? 0);
+        $docStampTaxSubtotal = (float) $docStampTax - $docStampTaxDiscount;
+
+        $transactionFeeDiscount = (float) str_replace(',', '', $_POST['transaction_fee_discount'] ?? 0);
+        $transactionFeeSubtotal = (float) $transactionFee - $transactionFeeDiscount;
+
 
         $totalOtherCharges = $insurancePremiumSubtotal + $handlingFeeSubtotal + $transferFeeSubtotal + $docStampTaxSubtotal + $transactionFeeSubtotal + $registrationFee;
 

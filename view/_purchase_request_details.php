@@ -30,6 +30,10 @@
                 echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-purchase-request-offcanvas" aria-controls="approve-purchase-request-offcanvas" id="approved">Approve</button>';
               }
 
+              if($purchase_request_status == 'For Approval'){
+                echo  '<a href="print-purchase-request.php?id='. $purchaseRequestID .'" class="btn btn-info" target="_blank">Print Purchase Request</a>';
+              }
+
               if($purchase_request_status == 'Draft' || $purchase_request_status == 'For Approval'){
                 echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-purchase-request-offcanvas" aria-controls="cancel-purchase-request-offcanvas" id="cancelled">Cancel</button>';
               }
@@ -69,6 +73,23 @@
               <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <?php echo $companyModel->generateCompanyOptions(); ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row d-none" id="supply_coverage">
+            <label class="col-lg-2 col-form-label">Month <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="month_coverage" id="month_coverage" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <?php echo $systemModel->generateMonthOptions(); ?>
+              </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Coverage <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="coverage_period" id="coverage_period" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <option value="1st Half">1st Half</option>
+                <option value="2nd Half">2nd Half</option>
               </select>
             </div>
           </div>

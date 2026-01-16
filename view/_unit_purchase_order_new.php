@@ -21,14 +21,11 @@
       <div class="card-body">
         <form id="purchase-order-form" method="post" action="#">
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Purchase Order Type <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Supplier <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <select class="form-control select2" name="purchase_order_type" id="purchase_order_type">
+              <select class="form-control select2" name="supplier_id" id="supplier_id">
                 <option value="">--</option>
-                <option value="Product">Product</option>
-                <option value="Parts">Parts</option>
-                <option value="Supplies">Supplies</option>
-                <option value="Others">Others</option>
+                <?php echo $supplierModel->generateSupplierOptions(); ?>
               </select>
             </div>
             <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
@@ -40,13 +37,6 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Supplier <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-              <select class="form-control select2" name="supplier_id" id="supplier_id">
-                <option value="">--</option>
-                <?php echo $supplierModel->generateSupplierOptions(); ?>
-              </select>
-            </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Remarks</label>

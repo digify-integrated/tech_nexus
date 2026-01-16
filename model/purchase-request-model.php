@@ -75,11 +75,26 @@ class PurchaseRequestModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertPurchaseRequest($p_reference_number, $p_purchase_request_type, $p_company_id, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPurchaseRequest(:p_reference_number, :p_purchase_request_type, :p_company_id, :p_remarks, :p_last_log_by, @p_purchase_request_id)');
+
+     public function updatePurchaseRequest($p_purchase_request_id, $p_purchase_request_type, $p_company_id, $p_month_coverage, $p_coverage_period, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePurchaseRequest(:p_purchase_request_id, :p_purchase_request_type, :p_company_id, :p_month_coverage, :p_coverage_period, :p_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_purchase_request_id', $p_purchase_request_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_purchase_request_type', $p_purchase_request_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_month_coverage', $p_month_coverage, PDO::PARAM_STR);
+        $stmt->bindValue(':p_coverage_period', $p_coverage_period, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function insertPurchaseRequest($p_reference_number, $p_purchase_request_type, $p_company_id, $p_month_coverage, $p_coverage_period, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPurchaseRequest(:p_reference_number, :p_purchase_request_type, :p_company_id, :p_month_coverage, :p_coverage_period, :p_remarks, :p_last_log_by, @p_purchase_request_id)');
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_purchase_request_type', $p_purchase_request_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_month_coverage', $p_month_coverage, PDO::PARAM_STR);
+        $stmt->bindValue(':p_coverage_period', $p_coverage_period, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -115,15 +130,7 @@ class PurchaseRequestModel {
         $stmt->execute();
     }
 
-    public function updatePurchaseRequest($p_purchase_request_id, $p_purchase_request_type, $p_company_id, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePurchaseRequest(:p_purchase_request_id, :p_purchase_request_type, :p_company_id, :p_remarks, :p_last_log_by)');
-        $stmt->bindValue(':p_purchase_request_id', $p_purchase_request_id, PDO::PARAM_STR);
-        $stmt->bindValue(':p_purchase_request_type', $p_purchase_request_type, PDO::PARAM_STR);
-        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
+   
 
     public function updatePurchaseRequestSlipReferenceNumber($p_part_transaction_id, $slip_reference_no, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updatePurchaseRequestSlipReferenceNumber(:p_part_transaction_id, :slip_reference_no, :p_last_log_by)');

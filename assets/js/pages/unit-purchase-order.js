@@ -34,14 +34,6 @@
             addItemUnitForm();
         }
 
-        if($('#add-item-part-form').length){
-            addItemPartForm();
-        }
-
-        if($('#add-item-supply-form').length){
-            addItemSupplyForm();
-        }
-
         if($('#receive-item-form').length){
             receiveItemForm();
         }
@@ -61,6 +53,62 @@
         if($('#approve-purchase-order-form').length){
             approvePurchaseOrderForm();
         }
+
+         $(document).on('change','#unit_cost',function() {
+            calculateConvertedAmount();
+        });
+
+        $(document).on('change','#fx_rate',function() {
+            calculateConvertedAmount();
+        });
+
+        $(document).on('change','#package_deal',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#taxes_duties',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#freight',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#lto_registration',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#royalties',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#conversion',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#arrastre',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#wharrfage',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#insurance',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#aircon',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#import_permit',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#others',function() {
+            calculateTotalLandedCost();
+        });
 
         $(document).on('click','#for-approval',function() {
             var purchase_order_id = $('#purchase-order-id').text();
@@ -527,7 +575,7 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('purchase-order.php');
+            discardCreate('unit-purchase-order.php');
         });
 
          $(document).on('click','.receive-quantity',function() {
@@ -596,7 +644,7 @@ function purchaseOrderTable(datatable_name, buttons = false, show_all = false){
 
     settings = {
         'ajax': { 
-            'url' : 'view/_purchase_order_generation.php',
+            'url' : 'view/_unit_purchase_order_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 
@@ -672,7 +720,7 @@ function purchaseOrderItemUnitTable(datatable_name, buttons = false, show_all = 
 
     settings = {
         'ajax': { 
-            'url' : 'view/_purchase_order_generation.php',
+            'url' : 'view/_unit_purchase_order_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'purchase_order_id' : purchase_order_id},
@@ -738,7 +786,7 @@ function purchaseOrderItemPartTable(datatable_name, buttons = false, show_all = 
 
     settings = {
         'ajax': { 
-            'url' : 'view/_purchase_order_generation.php',
+            'url' : 'view/_unit_purchase_order_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'purchase_order_id' : purchase_order_id},
@@ -804,7 +852,7 @@ function purchaseOrderItemSupplyTable(datatable_name, buttons = false, show_all 
 
     settings = {
         'ajax': { 
-            'url' : 'view/_purchase_order_generation.php',
+            'url' : 'view/_unit_purchase_order_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'purchase_order_id' : purchase_order_id},
@@ -842,9 +890,6 @@ function purchaseOrderItemSupplyTable(datatable_name, buttons = false, show_all 
 function purchaseOrderForm(){
     $('#purchase-order-form').validate({
         rules: {
-            purchase_order_type: {
-                required: true
-            },
             company_id: {
                 required: true
             },
@@ -853,9 +898,6 @@ function purchaseOrderForm(){
             },
         },
         messages: {
-            purchase_order_type: {
-                required: 'Please choose the purchase order type'
-            },
             company_id: {
                 required: 'Please choose the company'
             },
@@ -894,7 +936,7 @@ function purchaseOrderForm(){
         },
         submitHandler: function(form) {
             const purchase_order_id = $('#purchase-order-id').text();
-            const transaction = 'save purchase order';
+            const transaction = 'save unit purchase order';
         
             $.ajax({
                 type: 'POST',
@@ -911,7 +953,7 @@ function purchaseOrderForm(){
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
 
-                        window.location = 'purchase-order.php?id=' + response.purchaseOrderID;
+                        window.location = 'unit-purchase-order.php?id=' + response.purchaseOrderID;
                     }
                     else {
                         if (response.isInactive) {
@@ -1055,228 +1097,6 @@ function addItemUnitForm(){
                     enableFormSubmitButton('submit-add-item', 'Submit');
                     reloadDatatable('#unit-order-item-table');
                     resetModalForm('add-item-unit-form');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function addItemPartForm(){
-    $('#add-item-part-form').validate({
-        rules: {
-            purchase_request_cart_part_id: {
-                required: true
-            },
-            part_id: {
-                required: true
-            },
-            price_part: {
-                required: true
-            },
-            quantity_part: {
-                required: true
-            },
-            quantity_part_id: {
-                required: true
-            },
-        },
-        messages: {
-            purchase_request_cart_part_id: {
-                required: 'Please choose the purchase order'
-            },
-            part_id: {
-                required: 'Please choose the part'
-            },
-            price_part: {
-                required: 'Please enter the price'
-            },
-            quantity_part: {
-                required: 'Please enter the quantity'
-            },
-            quantity_part_id: {
-                required: 'Please choose the unit'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const purchase_order_id = $('#purchase-order-id').text();
-            const transaction = 'save purchase order item part';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/purchase-order-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-add-item-part');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Save Item Success', 'The purchase order has been saved successfully', 'success');
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Purchase Order Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-add-item-part', 'Submit');
-                    $('#add-item-part-offcanvas').offcanvas('hide');
-                    reloadDatatable('#part-order-item-table');
-                    resetModalForm('add-item-part-form');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function addItemSupplyForm(){
-    $('#add-item-supply-form').validate({
-        rules: {
-            purchase_request_cart_supply_id: {
-                required: true
-            },
-            supply_id: {
-                required: true
-            },
-            price_part: {
-                required: true
-            },
-            quantity_part: {
-                required: true
-            },
-            quantity_part_id: {
-                required: true
-            },
-        },
-        messages: {
-            purchase_request_cart_part_id: {
-                required: 'Please choose the purchase order'
-            },
-            supply_id: {
-                required: 'Please choose the supply'
-            },
-            price_part: {
-                required: 'Please enter the price'
-            },
-            quantity_part: {
-                required: 'Please enter the quantity'
-            },
-            quantity_part_id: {
-                required: 'Please choose the unit'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const purchase_order_id = $('#purchase-order-id').text();
-            const transaction = 'save purchase order item supply';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/purchase-order-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-add-item-supply');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Save Item Success', 'The purchase order has been saved successfully', 'success');
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Purchase Order Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-add-item-supply', 'Submit');
-                    $('#add-item-supply-offcanvas').offcanvas('hide');
-                    reloadDatatable('#supply-order-item-table');
-                    resetModalForm('add-item-supply-form');
                 }
             });
         
@@ -1822,113 +1642,53 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
+                        // Hidden / core IDs
                         $('#purchase_order_unit_id').val(purchase_order_unit_id);
-                        $('#length').val(response.length);
-                        $('#year_model').val(response.year_model);
-                        $('#quantity_unit').val(response.quantity);
-                        $('#unit_remarks').val(response.remarks);
-                        $('#price_unit').val(response.price_unit);
-                        
                         checkOptionExist('#purchase_request_cart_id', response.purchase_request_cart_id, '');
                         checkOptionExist('#product_subcategory_id', response.product_category_id, '');
                         checkOptionExist('#brand_id', response.brand_id, '');
                         checkOptionExist('#model_id', response.model_id, '');
-                        checkOptionExist('#length_unit', response.length_unit, '');
                         checkOptionExist('#body_type_id', response.body_type_id, '');
                         checkOptionExist('#class_id', response.class_id, '');
                         checkOptionExist('#color_id', response.color_id, '');
                         checkOptionExist('#make_id', response.make_id, '');
                         checkOptionExist('#cabin_id', response.cabin_id, '');
+                        checkOptionExist('#length_unit', response.length_unit, '');
                         checkOptionExist('#quantity_unit_id', response.unit_id, '');
-                    } 
-                    else {
+
+                        // Numeric / text fields
+                        $('#length').val(response.length);
+                        $('#year_model').val(response.year_model);
+                        $('#quantity_unit').val(response.quantity);
+                        $('#price_unit').val(response.price_unit);
+                        $('#unit_remarks').val(response.remarks);
+
+                        // Additional fields from table
+                        $('#preorder').val(response.preorder);
+                        $('#fx_rate').val(response.fx_rate);
+                        $('#converted_amount').val(response.converted_amount);
+                        $('#package_deal').val(response.package_deal);
+                        $('#taxes_duties').val(response.taxes_duties);
+                        $('#freight').val(response.freight);
+                        $('#lto_registration').val(response.lto_registration);
+                        $('#royalties').val(response.royalties);
+                        $('#conversion').val(response.conversion);
+                        $('#arrastre').val(response.arrastre);
+                        $('#wharrfage').val(response.wharrfage);
+                        $('#insurance').val(response.insurance);
+                        $('#aircon').val(response.aircon);
+                        $('#import_permit').val(response.import_permit);
+                        $('#others').val(response.others);
+                        $('#total_landed_cost').val(response.total_landed_cost);
+
+                    } else {
                         if(response.isInactive){
                             window.location = 'logout.php?logout';
-                        }
-                        else{
+                        } else {
                             showNotification('Get Part Details Error', response.message, 'danger');
                         }
                     }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get purchase order part details':
-            const purchase_order_part_id = $('#purchase_order_part_id').val();
-            
-            $.ajax({
-                url: 'controller/purchase-order-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    purchase_order_part_id : purchase_order_part_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#purchase_order_part_id').val(purchase_order_part_id);
-                        $('#price_part').val(response.price);
-                        $('#quantity_part').val(response.quantity);
-                        $('#part_remarks').val(response.remarks);
-                        
-                        checkOptionExist('#purchase_request_cart_part_id', response.purchase_request_cart_id, '');
-                        checkOptionExist('#part_id', response.part_id, '');
-                        checkOptionExist('#quantity_part_id', response.unit_id, '');
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get purchase order supply details':
-            const purchase_order_supply_id = $('#purchase_order_supply_id').val();
-            
-            $.ajax({
-                url: 'controller/purchase-order-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    purchase_order_supply_id : purchase_order_supply_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#purchase_order_supply_id').val(purchase_order_supply_id);
-                        $('#price_supply').val(response.price);
-                        $('#quantity_supply').val(response.quantity);
-                        $('#supply_remarks').val(response.remarks);
-                        
-                        checkOptionExist('#purchase_request_cart_supply_id', response.purchase_request_cart_id, '');
-                        checkOptionExist('#supply_id', response.part_id, '');
-                        checkOptionExist('#quantity_supply_id', response.unit_id, '');
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Part Details Error', response.message, 'danger');
-                        }
-                    }
+
                 },
                 error: function(xhr, status, error) {
                     var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -1976,4 +1736,34 @@ function displayDetails(transaction){
             });
             break;
     }
+}
+
+function calculateConvertedAmount() {
+    var price_unit = parseFloat($('#price_unit').val()) || 0;
+    var fx_rate = parseFloat($('#fx_rate').val()) || 0;
+    var total = price_unit * fx_rate;
+
+    $('#converted_amount').val(total.toFixed(2));
+
+    calculateTotalLandedCost();
+}
+
+function calculateTotalLandedCost() {
+    var converted_amount = parseFloat($('#converted_amount').val()) || 0;
+    var package_deal = parseFloat($('#package_deal').val()) || 0;
+    var taxes_duties = parseFloat($('#taxes_duties').val()) || 0;
+    var freight = parseFloat($('#freight').val()) || 0;
+    var lto_registration = parseFloat($('#lto_registration').val()) || 0;
+    var royalties = parseFloat($('#royalties').val()) || 0;
+    var conversion = parseFloat($('#conversion').val()) || 0;
+    var arrastre = parseFloat($('#arrastre').val()) || 0;
+    var wharrfage = parseFloat($('#wharrfage').val()) || 0;
+    var insurance = parseFloat($('#insurance').val()) || 0;
+    var aircon = parseFloat($('#aircon').val()) || 0;
+    var import_permit = parseFloat($('#import_permit').val()) || 0;
+    var others = parseFloat($('#others').val()) || 0;
+
+    var total = converted_amount + package_deal + taxes_duties + freight + lto_registration + royalties + conversion + arrastre + wharrfage + insurance + aircon + import_permit + others;
+
+    $('#total_landed_cost').val(total.toFixed(2));
 }

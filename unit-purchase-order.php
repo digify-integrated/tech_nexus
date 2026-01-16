@@ -31,7 +31,7 @@
   $classModel = new ClassModel($databaseModel);
   $partsModel = new PartsModel($databaseModel);
 
-  $pageTitle = 'Purchase Order';
+  $pageTitle = 'Unit Purchase Order';
     
   $purchaseOrderReadAccess = $userModel->checkMenuItemAccessRights($user_id, 182, 'read');
   $purchaseOrderCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 182, 'create');
@@ -46,7 +46,7 @@
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: purchase-order.php');
+      header('location: unit-purchase-order.php');
       exit;
     }
 
@@ -95,7 +95,7 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="purchase-order.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="unit-purchase-order.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($purchaseOrderID)){
                             echo '<li class="breadcrumb-item" id="purchase-order-id">'. $purchaseOrderID .'</li>';
@@ -117,13 +117,13 @@
         </div>
         <?php
           if($newRecord && $purchaseOrderCreateAccess['total'] > 0){
-            require_once('view/_purchase_order_new.php');
+            require_once('view/_unit_purchase_order_new.php');
           }
           else if(!empty($purchaseOrderID) && $purchaseOrderWriteAccess['total'] > 0){
-            require_once('view/_purchase_order_details.php');
+            require_once('view/_unit_purchase_order_details.php');
           }
           else{
-            require_once('view/_purchase_order.php');
+            require_once('view/_unit_purchase_order.php');
           }
         ?>
       </div>
@@ -141,7 +141,7 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/purchase-order.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/unit-purchase-order.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

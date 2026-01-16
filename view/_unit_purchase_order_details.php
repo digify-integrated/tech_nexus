@@ -35,6 +35,10 @@
                 echo '<button class="btn btn-success ms-2" type="button" id="complete">Complete</button>';
               }
 
+              if($purchase_order_status == 'For Approval'){
+                echo  '<a href="print-purchase-order.php?id='. $purchaseOrderID .'" class="btn btn-info" target="_blank">Print Purchase Order</a>';
+              }
+
               if($purchase_order_status == 'For Approval' && $approvePurchaseOrder['total'] > 0){
                 echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-purchase-order-offcanvas" aria-controls="approve-purchase-order-offcanvas" id="approved">Approve</button>';
               }
@@ -59,26 +63,16 @@
         <form id="purchase-order-form" method="post" action="#">
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Reference No.</label>
-            <div class="col-lg-4">
+            <div class="col-lg-10">
               <input type="text" class="form-control" id="reference_no" name="reference_no" maxlength="100" autocomplete="off" readonly>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Supplier <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="supplier_id" id="supplier_id" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <?php echo $supplierModel->generateSupplierOptions(); ?>
-              </select>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Purchase Order Type <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-              <select class="form-control select2" name="purchase_order_type" id="purchase_order_type" <?php echo $disabled; ?>>
-                <option value="">--</option>
-                <option value="Product">Product</option>
-                <option value="Parts">Parts</option>
-                <option value="Supplies">Supplies</option>
-                <option value="Others">Others</option>
               </select>
             </div>
             <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
@@ -102,86 +96,23 @@
 </div>
 
 <?php
-  $card = '';
-    $table = '';
-    $button = '';
+  $table = '<table class="table mb-0 w-100" id="unit-order-item-table">
+              <thead>
+                <tr>
+                  <th class="text-end"></th>
+                  <th>Unit</th>
+                  <th>Request</th>
+                  <th class="text-center">Qty.</th>
+                  <th class="text-center">Actual Qty.</th>
+                  <th class="text-center">Cancelled Qty.</th>
+                  <th class="text-center">Price</th>
+                  <th class="text-center">Remarks</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>';
 
-    if($purchase_order_type == 'Product'){
-      $table = '<table class="table mb-0 w-100" id="unit-order-item-table">
-                  <thead>
-                    <tr>
-                      <th class="text-end"></th>
-                      <th>Unit</th>
-                      <th>Request</th>
-                      <th class="text-center">Qty.</th>
-                      <th class="text-center">Actual Qty.</th>
-                      <th class="text-center">Cancelled Qty.</th>
-                      <th class="text-center">Price</th>
-                      <th class="text-center">Remarks</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>';
-
-      $button = $purchase_order_status == 'Draft' ?'<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-item-unit-offcanvas" aria-controls="add-item-unit-offcanvas" id="add-item-unit">Add Item</button>' : '';
-    }
-    else if($purchase_order_type == 'Parts'){
-      $table = '<table class="table mb-0 w-100" id="part-order-item-table">
-                  <thead>
-                    <tr>
-                      <th class="text-end"></th>
-                      <th>Part</th>
-                      <th>Request</th>
-                      <th class="text-center">Qty.</th>
-                      <th class="text-center">Actual Qty.</th>
-                      <th class="text-center">Cancelled Qty.</th>
-                      <th class="text-center">Price</th>
-                      <th class="text-center">Remarks</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>';
-
-      $button =  $purchase_order_status == 'Draft' ?'<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-item-part-offcanvas" aria-controls="add-item-part-offcanvas" id="add-item-part">Add Item</button>' : '';
-    }
-    else if($purchase_order_type == 'Supplies'){
-      $table = '<table class="table mb-0 w-100" id="supply-order-item-table">
-                  <thead>
-                    <tr>
-                      <th class="text-end"></th>
-                      <th>Supply</th>
-                      <th>Request</th>
-                      <th class="text-center">Qty.</th>
-                      <th class="text-center">Actual Qty.</th>
-                      <th class="text-center">Cancelled Qty.</th>
-                      <th class="text-center">Price</th>
-                      <th class="text-center">Remarks</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>';
-
-      $button =  $purchase_order_status == 'Draft' ?'<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-item-supply-offcanvas" aria-controls="add-item-supply-offcanvas" id="add-item-supply">Add Item</button>' : '';
-    }
-    else{
-      $table = '<table class="table mb-0 w-100" id="others-order-item-table">
-                  <thead>
-                    <tr>
-                      <th class="text-end"></th>
-                      <th>Order</th>
-                      <th>Request</th>
-                      <th class="text-center">Qty.</th>
-                      <th class="text-center">Actual Qty.</th>
-                      <th class="text-center">Cancelled Qty.</th>
-                      <th class="text-center">Price</th>
-                      <th class="text-center">Remarks</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>';
-
-      $button =  $purchase_order_status == 'Draft' ?'<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-item-others-offcanvas" aria-controls="add-item-others-offcanvas" id="add-item-others">Add Item</button>' : '';
-    }
+  $button = $purchase_order_status == 'Draft' ?'<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-item-unit-offcanvas" aria-controls="add-item-unit-offcanvas" id="add-item-unit">Add Item</button>' : '';
 ?>
 
 <div class="row">
@@ -274,7 +205,7 @@
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Length</label>
                 <div class="input-group">
-                  <input type="number" class="form-control" id="length" name="length" min="0" step="0.01">
+                  <input type="number" class="form-control" id="length" name="length" min="0" step="0.01" value="0">
                   <select class="form-control" name="length_unit" id="length_unit">
                     <?php echo $unitModel->generateUnitByShortNameOptions(1); ?>
                   </select>
@@ -343,6 +274,90 @@
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Price <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="price_unit" name="price_unit" value="0" min="0.01" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Preorder <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="preorder" id="preorder">
+                  <option value="">--</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">FX Rate</label>
+                <input type="number" class="form-control" id="fx_rate" name="fx_rate" value="0" min="0" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Converted Amount</label>
+                <input type="number" class="form-control" id="converted_amount" name="converted_amount" value="0" min="0" step="0.01" readonly>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Package Deal</label>
+                <input type="number" class="form-control" id="package_deal" name="package_deal" value="0" min="0" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Taxes Duties</label>
+                <input type="number" class="form-control" id="taxes_duties" name="taxes_duties" value="0" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Freight</label>
+                <input type="number" class="form-control" id="freight" name="freight" value="0" min="0" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">LTO Registration</label>
+                <input type="number" class="form-control" id="lto_registration" name="lto_registration" value="0" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Royalties</label>
+                <input type="number" class="form-control" id="royalties" name="royalties" value="0" min="0" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Conversion</label>
+                <input type="number" class="form-control" id="conversion" name="conversion" value="0" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Arrastre</label>
+                <input type="number" class="form-control" id="arrastre" name="arrastre" value="0" min="0" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Wharrfage</label>
+                <input type="number" class="form-control" id="wharrfage" name="wharrfage" value="0" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Import Permit</label>
+                <input type="number" class="form-control" id="import_permit" name="import_permit" value="0" min="0" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Others</label>
+                <input type="number" class="form-control" id="others" name="others" value="0" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Insurance</label>
+                <input type="number" class="form-control" id="insurance" name="insurance" value="0" min="0" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Aircon</label>
+                <input type="number" class="form-control" id="aircon" name="aircon" value="0" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Total Landed Cost</label>
+                <input type="number" class="form-control" id="total_landed_cost" name="total_landed_cost" value="0" min="0" step="0.01" readonly>
               </div>
             </div>
             <div class="form-group row">

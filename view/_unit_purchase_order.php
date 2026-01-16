@@ -21,7 +21,7 @@
                   }
 
                 if($purchaseOrderCreateAccess['total'] > 0){
-                  $action .= '<a href="purchase-order.php?new" class="btn btn-success">Create</a>';
+                  $action .= '<a href="unit-purchase-order.php?new" class="btn btn-success">Create</a>';
                 }
                               
                 echo $action;

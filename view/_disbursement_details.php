@@ -453,11 +453,11 @@
             <div class="form-group row">
               <div class="col-lg-4 mt-3 mt-lg-0">
                 <label class="form-label">VAT Amount</label>
-                <input type="number" class="form-control" id="vat_amount" name="vat_amount" step="0.01" readonly>
+                <input type="number" class="form-control" id="vat_amount" name="vat_amount" step="0.01">
               </div>
               <div class="col-lg-4 mt-3 mt-lg-0">
                 <label class="form-label">Withholding Amount</label>
-                <input type="number" class="form-control" id="withholding_amount" name="withholding_amount" step="0.01" readonly>
+                <input type="number" class="form-control" id="withholding_amount" name="withholding_amount" step="0.01">
               </div>
               <div class="col-lg-4 mt-3 mt-lg-0">
                 <label class="form-label">Total Amount</label>

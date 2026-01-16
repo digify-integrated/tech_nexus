@@ -1061,9 +1061,8 @@
             calculateTax();
         });
 
-        $(document).on('change','#particulars_amount',function() {
-            calculateTax();
-        });
+        $(document).on('change', '#vat_amount', calculateTotalOnly);
+        $(document).on('change', '#withholding_amount', calculateTotalOnly);
     });
 })(jQuery);
 
@@ -2462,3 +2461,10 @@ function calculateTax() {
 }
 
 
+function calculateTotalOnly() {
+    const particularsAmount = Number($('#particulars_amount').val()) || 0;
+    const withholdingAmount = Number($('#withholding_amount').val()) || 0;
+
+    const total = particularsAmount - withholdingAmount;
+    $('#total_amount').val(total.toFixed(2));
+}

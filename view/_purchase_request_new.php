@@ -26,7 +26,6 @@
               <select class="form-control select2" name="purchase_request_type" id="purchase_request_type">
                 <option value="">--</option>
                 <option value="Product">Product</option>
-                <option value="Parts">Parts</option>
                 <option value="Supplies">Supplies</option>
                 <option value="Others">Others</option>
               </select>
@@ -36,6 +35,23 @@
               <select class="form-control select2" name="company_id" id="company_id">
                 <option value="">--</option>
                 <?php echo $companyModel->generateCompanyOptions(); ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row d-none" id="supply_coverage">
+            <label class="col-lg-2 col-form-label">Month <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="month_coverage" id="month_coverage" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <?php echo $systemModel->generateMonthOptions(); ?>
+              </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Coverage <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="coverage_period" id="coverage_period" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <option value="1st Half">1st Half</option>
+                <option value="2nd Half">2nd Half</option>
               </select>
             </div>
           </div>

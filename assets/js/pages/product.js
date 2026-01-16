@@ -1300,7 +1300,7 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'CHECK_BOX' },
             { 'data' : 'STOCK_NUMBER' },
             { 'data' : 'REMARKS' },
-            { 'data' : 'CATEGORY' },
+            { 'data' : 'PLATE_NUMBER' },
             { 'data' : 'ENGINE_NUMBER' },
             { 'data' : 'CHASSIS_NUMBER' },
             { 'data' : 'BODY_TYPE' },
@@ -1310,7 +1310,6 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'PRODUCT_COST' },
             { 'data' : 'PRODUCT_PRICE' },
             { 'data' : 'BEST_PRICE' },
-            { 'data' : 'CREATED_DATE' },
             { 'data' : 'PRODUCT_STATUS' },
             { 'data' : 'ACTION' }
         ];
@@ -1329,9 +1328,8 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 10 },
             { 'width': 'auto', 'aTargets': 11 },
             { 'width': 'auto', 'aTargets': 12 },
-            { 'width': '10%', 'type' : 'date', 'aTargets': 13 },
-            { 'width': 'auto', 'aTargets': 14 },
-            { 'width': '10%','bSortable': false, 'aTargets': 15 }
+            { 'width': 'auto', 'aTargets': 13 },
+            { 'width': '10%','bSortable': false, 'aTargets': 14 }
         ];
     }
     else{
@@ -1339,7 +1337,7 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'CHECK_BOX' },
             { 'data' : 'STOCK_NUMBER' },
             { 'data' : 'REMARKS' },
-            { 'data' : 'CATEGORY' },
+            { 'data' : 'PLATE_NUMBER' },
             { 'data' : 'ENGINE_NUMBER' },
             { 'data' : 'CHASSIS_NUMBER' },
             { 'data' : 'BODY_TYPE' },
@@ -1348,7 +1346,6 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'RR_NO' },
             { 'data' : 'PRODUCT_PRICE' },
             { 'data' : 'BEST_PRICE' },
-            { 'data' : 'CREATED_DATE' },
             { 'data' : 'PRODUCT_STATUS' },
             { 'data' : 'ACTION' }
         ];
@@ -1366,9 +1363,8 @@ function productTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'aTargets': 9 },
             { 'width': 'auto', 'aTargets': 10 },
             { 'width': 'auto', 'aTargets': 11 },
-            { 'width': '10%', 'type' : 'date', 'aTargets': 12 },
-            { 'width': 'auto', 'aTargets': 13 },
-            { 'width': '10%','bSortable': false, 'aTargets': 14 }
+            { 'width': 'auto', 'aTargets': 12 },
+            { 'width': '10%','bSortable': false, 'aTargets': 13 }
         ];
     }
 
