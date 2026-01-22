@@ -99,6 +99,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $part_class_id = $row['part_class_id'];
                     $part_subclass_id = $row['part_subclass_id'];
                     $description = $row['description'];
+                    $part_number = $row['part_number'];
                     $bar_code = $row['bar_code'];
                     $quantity = $row['quantity'];
                     $part_price = $row['part_price'];
@@ -135,8 +136,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $link = 'parts';
                     }
 
-                    if(empty($bar_code)){
-                        $bar_code = $partsID;
+                    if(empty($part_number)){
+                        $part_number = $partsID;
                     }
     
                     $response[] = [
@@ -144,7 +145,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'IMAGE' => '<a href="'. $partsImage .'" target="_blank">View Image</a>',
                         'PART' => '<div class="row">
                                         <div class="col">
-                                            <h6 class="mb-0">'. $bar_code .'</h6>
+                                            <h6 class="mb-0">'. $part_number .'</h6>
                                             <p class="f-12 mb-0 text-wrap">'. $description .'</p>
                                         </div>
                                     </div>',

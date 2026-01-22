@@ -65,6 +65,9 @@ class DailyEmployeeStatusController {
                 case 'get daily employee status count':
                     $this->getDailyEmployeeStatusCount();
                     break;
+                case 'get employee daily status details':
+                    $this->getEmployeeDailyStatusDetails();
+                    break;
                 case 'change attendance status':
                     $this->changeAttendanceStatus();
                     break;
@@ -82,18 +85,46 @@ class DailyEmployeeStatusController {
         }
     
         $userID = $_SESSION['user_id'];
-        $employee_daily_status_id = $_POST['employee_daily_status_id'];
-        $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
-    
+
         $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
+        
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+
+        $employee_daily_status_id = $_POST['employee_daily_status_id'];
+        $employeeDailyStatusIds = array_map('trim', explode(',', $employee_daily_status_id));
+
+        $is_present = htmlspecialchars($_POST['is_present'], ENT_QUOTES, 'UTF-8');
+        $is_late = htmlspecialchars($_POST['is_late'], ENT_QUOTES, 'UTF-8');
+        $late_minutes = htmlspecialchars($_POST['late_minutes'], ENT_QUOTES, 'UTF-8');
+        $is_undertime = htmlspecialchars($_POST['is_undertime'], ENT_QUOTES, 'UTF-8');
+        $undertime_minutes = htmlspecialchars($_POST['undertime_minutes'], ENT_QUOTES, 'UTF-8');
+        $is_on_unpaid_leave = $_POST['is_on_unpaid_leave'];
+        $unpaid_leave_minutes = $_POST['unpaid_leave_minutes'] * 60;
+        $is_on_paid_leave = htmlspecialchars($_POST['is_on_paid_leave'], ENT_QUOTES, 'UTF-8');
+        $is_on_official_business = htmlspecialchars($_POST['is_on_official_business'], ENT_QUOTES, 'UTF-8');
+        $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
+
+        foreach ($employeeDailyStatusIds as $statusId) {
+
+            $this->dailyEmployeeStatusModel->updateDailyEmployeeStatusDetails(
+                $statusId,
+                $is_present,
+                $is_late,
+                $late_minutes,
+                $is_undertime,
+                $undertime_minutes,
+                $is_on_unpaid_leave,
+                $unpaid_leave_minutes,
+                $is_on_paid_leave,
+                $is_on_official_business,
+                $remarks,
+                $userID
+            );
         }
-    
-        $this->dailyEmployeeStatusModel->updateDailyEmployeeStatusRemarks($employee_daily_status_id, $remarks, $userID);
-            
+
         echo json_encode(['success' => true]);
         exit;
     }
@@ -172,6 +203,43 @@ class DailyEmployeeStatusController {
                 'absentCount' => number_format($absent['total_count'],0),
                 'onLeaveCount' => number_format($onLeave['total_count'],0),
                 'officialBusinessCount' => number_format($officialBusiness['total_count'],0),
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+
+     public function getEmployeeDailyStatusDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+
+        if (isset($_POST['employee_daily_status_id']) && !empty($_POST['employee_daily_status_id'])) {
+            $userID = $_SESSION['user_id'];
+            $employee_daily_status_id = $_POST['employee_daily_status_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $employeeDailyStatus = $this->dailyEmployeeStatusModel->getEmployeeDailyStatusDetails($employee_daily_status_id);
+
+            $response = [
+                'success' => true,
+                'late_minutes' => $employeeDailyStatus['late_minutes'],
+                'undertime_minutes' => $employeeDailyStatus['undertime_minutes'],
+                'unpaid_leave_minutes' => $employeeDailyStatus['unpaid_leave_minutes'] / 60,
+                'remarks' => $employeeDailyStatus['remarks'],
+                'is_present' => $employeeDailyStatus['is_present'],
+                'is_late' => $employeeDailyStatus['is_late'],
+                'is_undertime' => $employeeDailyStatus['is_undertime'],
+                'is_on_unpaid_leave' => $employeeDailyStatus['is_on_unpaid_leave'],
+                'is_on_paid_leave' => $employeeDailyStatus['is_on_paid_leave'],
+                'is_on_official_business' => $employeeDailyStatus['is_on_official_business'],
             ];
 
             echo json_encode($response);

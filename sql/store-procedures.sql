@@ -10603,7 +10603,9 @@ CREATE PROCEDURE generatePDCManagementTable(
     IN p_cancellation_start_date DATE,
     IN p_cancellation_end_date DATE,
     IN p_clear_start_date DATE,
-    IN p_clear_end_date DATE
+    IN p_clear_end_date DATE,
+    IN p_payment_details VARCHAR(1000),
+    IN p_loan_number VARCHAR(100)
 )
 BEGIN
     DECLARE base_query TEXT DEFAULT 'SELECT * FROM loan_collections WHERE mode_of_payment = "Check"';
@@ -10667,6 +10669,16 @@ BEGIN
 
     SET cond = IF(p_pdc_management_company IS NOT NULL AND p_pdc_management_company <> '',
         CONCAT(cond, ' AND company_id IN (', p_pdc_management_company, ')'),
+        cond
+    );
+
+    SET cond = IF(p_payment_details IS NOT NULL AND p_payment_details <> '',
+        CONCAT(cond, ' AND payment_details IN (', p_payment_details, ')'),
+        cond
+    );
+
+    SET cond = IF(loan_number IS NOT NULL AND loan_number <> '',
+        CONCAT(cond, ' AND loan_number IN (', loan_number, ')'),
         cond
     );
 
@@ -12258,14 +12270,12 @@ BEGIN
     -- First, insert all active employees as 'Present'
     INSERT INTO employee_daily_status (
         contact_id,
-        status,
         remarks,
         attendance_date,
         last_log_by
     )
     SELECT 
         ei.contact_id,
-        'Present',
         NULL,
         CURRENT_DATE,
         p_last_log_by
@@ -12275,7 +12285,16 @@ BEGIN
     -- Update status to 'Official Business' where leave_type_id = 3 and leave is approved for today
     UPDATE employee_daily_status eds
     INNER JOIN leave_application la ON la.contact_id = eds.contact_id
-    SET eds.status = 'Official Business'
+    SET eds.is_on_official_business = 'Yes'
+    WHERE la.leave_date = CURRENT_DATE
+      AND la.leave_type_id = 2
+      AND la.status = 'Approved'
+      AND eds.attendance_date = CURRENT_DATE;
+
+    -- Update status to 'Official Business' where leave_type_id = 3 and leave is approved for today
+    UPDATE employee_daily_status eds
+    INNER JOIN leave_application la ON la.contact_id = eds.contact_id
+    SET eds.is_on_unpaid_leave = 'Yes'
     WHERE la.leave_date = CURRENT_DATE
       AND la.leave_type_id = 3
       AND la.status = 'Approved'
@@ -12284,13 +12303,12 @@ BEGIN
     -- Update status to 'On-Leave' where leave_type_id != 3 and leave is approved for today
     UPDATE employee_daily_status eds
     INNER JOIN leave_application la ON la.contact_id = eds.contact_id
-    SET eds.status = 'On-Leave'
+    SET eds.is_on_paid_leave = 'Yes'
     WHERE la.leave_date = CURRENT_DATE
       AND la.leave_type_id = 1
       AND la.status = 'Approved'
       AND eds.attendance_date = CURRENT_DATE;
 END //
-
 
 
 /* Chart of Account Table Stored Procedures */
@@ -14830,7 +14848,17 @@ BEGIN
 
     -- Filter by attendance status (expects properly quoted values from PHP)
     IF p_filter_attendance_status IS NOT NULL AND p_filter_attendance_status <> '' THEN
-        SET baseQuery = CONCAT(baseQuery, ' AND status IN (', p_filter_attendance_status, ')');
+        IF p_filter_attendance_status = 'late' THEN
+            SET baseQuery = CONCAT(baseQuery, ' AND is_late = "Yes"');
+        ELSEIF p_filter_attendance_status = 'undertime' THEN
+            SET baseQuery = CONCAT(baseQuery, ' AND is_undertime = "Yes"');
+        ELSEIF p_filter_attendance_status = 'on paid leave' THEN
+            SET baseQuery = CONCAT(baseQuery, ' AND is_on_paid_leave = "Yes"');
+        ELSEIF p_filter_attendance_status = 'on unpaid leave' THEN
+            SET baseQuery = CONCAT(baseQuery, ' AND is_on_unpaid_leave = "Yes"');
+        ELSEIF p_filter_attendance_status = 'on official business' THEN
+            SET baseQuery = CONCAT(baseQuery, ' AND is_on_official_business = "Yes"');
+        END IF;
     END IF;
 
     IF p_filter_branch IS NOT NULL AND p_filter_branch <> '' THEN
@@ -15086,20 +15114,21 @@ BEGIN
 END //
 
 DROP PROCEDURE insertPartSubclass//
-CREATE PROCEDURE insertPartsSubclass(IN p_part_subclass_name VARCHAR(100), IN p_part_class_id INT, IN p_last_log_by INT, OUT p_part_subclass_id INT)
+CREATE PROCEDURE insertPartsSubclass(IN p_part_subclass_name VARCHAR(100), IN p_part_class_id INT, IN p_part_subclass_code VARCHAR(50), IN p_last_log_by INT, OUT p_part_subclass_id INT)
 BEGIN
-    INSERT INTO part_subclass (part_subclass_name, part_class_id, last_log_by) 
-	VALUES(p_part_subclass_name, p_part_class_id, p_last_log_by);
+    INSERT INTO part_subclass (part_subclass_name, part_class_id, part_subclass_code, last_log_by) 
+	VALUES(p_part_subclass_name, p_part_class_id, p_part_subclass_code, p_last_log_by);
 	
     SET p_part_subclass_id = LAST_INSERT_ID();
 END //
 
 DROP PROCEDURE updatePartSubclass//
-CREATE PROCEDURE updatePartsSubclass(IN p_part_subclass_id INT, IN p_part_subclass_name VARCHAR(100), IN p_part_class_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsSubclass(IN p_part_subclass_id INT, IN p_part_subclass_name VARCHAR(100), IN p_part_class_id INT, IN p_part_subclass_code VARCHAR(50), IN p_last_log_by INT)
 BEGIN
 	UPDATE part_subclass
     SET part_subclass_name = p_part_subclass_name,
     part_class_id = p_part_class_id,
+    part_subclass_code = p_part_subclass_code,
     last_log_by = p_last_log_by
     WHERE part_subclass_id = p_part_subclass_id;
 END //
@@ -15212,12 +15241,64 @@ BEGIN
     WHERE part_document_id = p_part_document_id;
 END //
 
-CREATE PROCEDURE insertParts(IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_part_number VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_stock_alert INT, IN p_quantity INT, IN p_brand_id INT, IN p_warehouse_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT, OUT p_part_id INT)
+CREATE PROCEDURE insertParts(
+    IN p_part_category_id VARCHAR(500),
+    IN p_part_class_id VARCHAR(500),
+    IN p_part_subclass_id VARCHAR(500),
+    IN p_description VARCHAR(2000),
+    IN p_bar_code VARCHAR(100),
+    IN p_part_number VARCHAR(100),
+    IN p_company_id INT,
+    IN p_unit_sale INT,
+    IN p_stock_alert INT,
+    IN p_quantity INT,
+    IN p_brand_id INT,
+    IN p_warehouse_id INT,
+    IN p_remarks VARCHAR(1000),
+    IN p_last_log_by INT,
+    OUT p_part_id INT
+)
 BEGIN
-    INSERT INTO part (part_category_id, part_class_id, part_subclass_id, description, bar_code, part_number, company_id, unit_sale, stock_alert, quantity, brand_id, warehouse_id, remarks, last_log_by) 
-	VALUES(p_part_category_id, p_part_class_id, p_part_subclass_id, p_description, p_bar_code, p_part_number, p_company_id, p_unit_sale, p_stock_alert, p_quantity, p_brand_id, p_warehouse_id, p_remarks, p_last_log_by);
-	
+    INSERT INTO part (
+        part_category_id,
+        part_class_id,
+        part_subclass_id,
+        description,
+        bar_code,
+        part_number,
+        company_id,
+        unit_sale,
+        stock_alert,
+        quantity,
+        brand_id,
+        warehouse_id,
+        remarks,
+        last_log_by
+    )
+    VALUES (
+        p_part_category_id,
+        p_part_class_id,
+        p_part_subclass_id,
+        p_description,
+        p_bar_code,
+        p_part_number,
+        p_company_id,
+        p_unit_sale,
+        p_stock_alert,
+        p_quantity,
+        p_brand_id,
+        p_warehouse_id,
+        p_remarks,
+        p_last_log_by
+    );
+
     SET p_part_id = LAST_INSERT_ID();
+
+    IF p_part_number IS NULL OR p_part_number = '' THEN
+        UPDATE part
+        SET part_number = p_part_id
+        WHERE part_id = p_part_id;
+    END IF;
 END //
 
 CREATE PROCEDURE updateParts(IN p_part_id INT, IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_part_number VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_stock_alert INT, IN p_part_price DOUBLE, IN p_quantity DOUBLE, IN p_brand_id INT, IN p_warehouse_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
@@ -16461,6 +16542,88 @@ BEGIN
     WHERE part_id = p_part_id;
 END //
 
+CREATE PROCEDURE updatePartsQuantityOnHandReturnStock (
+    IN p_part_id INT,
+    IN p_return_quantity INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_old_quantity INT;
+    DECLARE v_new_quantity INT;
+
+    START TRANSACTION;
+
+    -- Lock row and get current quantity
+    SELECT quantity
+    INTO v_old_quantity
+    FROM part
+    WHERE part_id = p_part_id
+    FOR UPDATE;
+
+    -- Add returned quantity
+    UPDATE part
+    SET quantity = quantity + p_return_quantity
+    WHERE part_id = p_part_id;
+
+    -- Get updated quantity
+    SELECT quantity
+    INTO v_new_quantity
+    FROM part
+    WHERE part_id = p_part_id;
+
+    -- If stock moved from 0 to available, update status and date
+    IF v_old_quantity = 0 AND v_new_quantity > 0 THEN
+        UPDATE part
+        SET part_status = 'For Sale',
+            for_sale_date = NOW()
+        WHERE part_id = p_part_id;
+    END IF;
+
+    -- Optional audit logging
+    -- INSERT INTO part_log (part_id, action, performed_by)
+    -- VALUES (p_part_id, 'Return to Stock', p_last_log_by);
+
+    COMMIT;
+END//
+
+
+
+CREATE PROCEDURE updatePartsQuantityOnHandReturnSupplier (
+    IN p_part_id INT,
+    IN p_return_quantity INT,
+    IN p_last_log_by INT
+)
+BEGIN
+    DECLARE v_new_quantity INT;
+
+    START TRANSACTION;
+
+    -- Update quantity
+    UPDATE part
+    SET quantity = quantity - p_return_quantity
+    WHERE part_id = p_part_id;
+
+    -- Get the updated quantity
+    SELECT quantity
+    INTO v_new_quantity
+    FROM part
+    WHERE part_id = p_part_id
+    FOR UPDATE;
+
+    -- If quantity is now zero, update status
+    IF v_new_quantity = 0 THEN
+        UPDATE part
+        SET part_status = 'Out of Stock'
+        WHERE part_id = p_part_id;
+    END IF;
+
+    -- Optional: log user who performed the action
+    -- (uncomment and adapt if you have an audit/log table)
+    -- INSERT INTO part_log (part_id, action, performed_by)
+    -- VALUES (p_part_id, 'Return to Supplier', p_last_log_by);
+
+    COMMIT;
+END//
 
 DELIMITER ;
 
@@ -19628,9 +19791,9 @@ BEGIN
 
 END//
 
-DROP PROCEDURE IF EXISTS createPartsReturnStockEntry //
-CREATE PROCEDURE createPartsReturnStockEntry(
-    IN p_part_id INT,
+DROP PROCEDURE IF EXISTS createPartsIncomingEntryReversed //
+CREATE PROCEDURE createPartsIncomingEntryReversed(
+    IN p_part_incoming_id INT,
     IN p_company_id INT,
     IN p_reference_number VARCHAR(500),
     IN p_cost DECIMAL(15,2),
@@ -19643,112 +19806,86 @@ BEGIN
     DECLARE v_chart_item VARCHAR(100);
     DECLARE v_credit VARCHAR(100);
 
+    -- === SAME ANALYTIC LOGIC ===
     CASE p_company_id
-        WHEN 1 THEN
-            SET v_analytic_lines = 'CGMI';
-            SET v_analytic_distribution = '{"1": 100.0}';
-        WHEN 2 THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
-        WHEN 3 THEN
-            SET v_analytic_lines = 'FUSO';
-            SET v_analytic_distribution = '{"1": 100.0}';
-        WHEN 4 THEN
-            SET v_analytic_lines = 'PCG PROPERTY';
-            SET v_analytic_distribution = '{"4": 100.0}';
-        WHEN 5 THEN
-            SET v_analytic_lines = 'GCB PROPERTY';
-            SET v_analytic_distribution = '{"3": 100.0}';
-        WHEN 6 THEN
-            SET v_analytic_lines = 'GCB FARMING';
-            SET v_analytic_distribution = '{"11": 100.0}';
-        WHEN 7 THEN
-            SET v_analytic_lines = 'PCG FARMING';
-            SET v_analytic_distribution = '{"15": 100.0}';
-        WHEN 8 THEN
-            SET v_analytic_lines = 'NE FUEL';
-            SET v_analytic_distribution = '{"6": 100.0}';
-        WHEN 9 THEN
-            SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
-            SET v_analytic_distribution = '{"17": 100.0}';
-        WHEN 10 THEN
-            SET v_analytic_lines = 'Avida';
-            SET v_analytic_distribution = '{"20": 100.0}';
-        WHEN 11 THEN
-            SET v_analytic_lines = 'Caalibangbangan';
-            SET v_analytic_distribution = '{"19": 100.0}';
-        WHEN 12 THEN
-            SET v_analytic_lines = 'Sta Rosa';
-            SET v_analytic_distribution = '{"18": 100.0}';
-        WHEN 13 THEN
-            SET v_analytic_lines = 'KPC VENTURE INC';
-            SET v_analytic_distribution = '{"16": 100.0}';
-        WHEN 14 THEN
-            SET v_analytic_lines = 'NE HAULING';
-            SET v_analytic_distribution = '{"7": 100.0}';
-        ELSE
-            SET v_analytic_lines = 'DEFAULT';
-            SET v_analytic_distribution = '{"0": 0.0}';
+        WHEN 1 THEN SET v_analytic_lines = 'CGMI'; SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN SET v_analytic_lines = 'NE TRUCK'; SET v_analytic_distribution = '{"2": 100.0}';
+        WHEN 3 THEN SET v_analytic_lines = 'FUSO'; SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 4 THEN SET v_analytic_lines = 'PCG PROPERTY'; SET v_analytic_distribution = '{"4": 100.0}';
+        WHEN 5 THEN SET v_analytic_lines = 'GCB PROPERTY'; SET v_analytic_distribution = '{"3": 100.0}';
+        WHEN 6 THEN SET v_analytic_lines = 'GCB FARMING'; SET v_analytic_distribution = '{"11": 100.0}';
+        WHEN 7 THEN SET v_analytic_lines = 'PCG FARMING'; SET v_analytic_distribution = '{"15": 100.0}';
+        WHEN 8 THEN SET v_analytic_lines = 'NE FUEL'; SET v_analytic_distribution = '{"6": 100.0}';
+        WHEN 9 THEN SET v_analytic_lines = 'AKIHIRO TRUCK TRADING'; SET v_analytic_distribution = '{"17": 100.0}';
+        WHEN 10 THEN SET v_analytic_lines = 'Avida'; SET v_analytic_distribution = '{"20": 100.0}';
+        WHEN 11 THEN SET v_analytic_lines = 'Caalibangbangan'; SET v_analytic_distribution = '{"19": 100.0}';
+        WHEN 12 THEN SET v_analytic_lines = 'Sta Rosa'; SET v_analytic_distribution = '{"18": 100.0}';
+        WHEN 13 THEN SET v_analytic_lines = 'KPC VENTURE INC'; SET v_analytic_distribution = '{"16": 100.0}';
+        WHEN 14 THEN SET v_analytic_lines = 'NE HAULING'; SET v_analytic_distribution = '{"7": 100.0}';
+        ELSE SET v_analytic_lines = 'DEFAULT'; SET v_analytic_distribution = '{"0": 0.0}';
     END CASE;
 
+    -- SAME ACCOUNTS AS ORIGINAL
     SET v_chart_item = '10501020 Inventory Parts';
-    SET v_credit = '20101020 Accounts Payable Parts';
-    
-    -- Insert debit entry
+    SET v_credit     = '20101020 Accounts Payable Parts';
+
+    -- === REVERSAL ENTRIES (DEBIT <-> CREDIT) ===
+
+    -- Reverse inventory debit
     INSERT INTO journal_entry (
-        loan_number, 
-        journal_entry_date, 
-        reference_code, 
-        journal_id, 
-        journal_item, 
-        debit, 
-        credit, 
-        journal_label, 
-        analytic_lines, 
-        analytic_distribution, 
-        created_date, 
+        loan_number,
+        journal_entry_date,
+        reference_code,
+        journal_id,
+        journal_item,
+        debit,
+        credit,
+        journal_label,
+        analytic_lines,
+        analytic_distribution,
+        created_date,
         last_log_by
     ) VALUES (
-        p_part_id, 
-        NOW(), 
-        p_reference_number, 
-        'Parts createPartsIncomingEntry', 
-        v_chart_item, 
-        p_cost, 
-        0, 
-        '', 
-        v_analytic_lines, 
-        v_analytic_distribution, 
-        NOW(), 
+        p_part_incoming_id,
+        NOW(),
+        p_reference_number,
+        'Parts Purchase Reversal',
+        v_chart_item,
+        0,
+        p_cost,
+        '',
+        v_analytic_lines,
+        v_analytic_distribution,
+        NOW(),
         p_last_log_by
     );
 
-    -- Insert credit entry
+    -- Reverse accounts payable credit
     INSERT INTO journal_entry (
-        loan_number, 
-        journal_entry_date, 
-        reference_code, 
-        journal_id, 
-        journal_item, 
-        debit, 
-        credit, 
-        journal_label, 
-        analytic_lines, 
-        analytic_distribution, 
-        created_date, 
+        loan_number,
+        journal_entry_date,
+        reference_code,
+        journal_id,
+        journal_item,
+        debit,
+        credit,
+        journal_label,
+        analytic_lines,
+        analytic_distribution,
+        created_date,
         last_log_by
     ) VALUES (
-        p_part_id, 
-        NOW(), 
-        p_reference_number, 
-        'Parts Return', 
-        v_credit, 
-        0, 
-        p_cost, 
-        '', 
-        v_analytic_lines, 
-        v_analytic_distribution, 
-        NOW(), 
+        p_part_incoming_id,
+        NOW(),
+        p_reference_number,
+        'Parts Purchase Reversal',
+        v_credit,
+        p_cost,
+        0,
+        '',
+        v_analytic_lines,
+        v_analytic_distribution,
+        NOW(),
         p_last_log_by
     );
 
@@ -21404,7 +21541,6 @@ CREATE PROCEDURE createPartsTransactionEntryReversed(
     IN p_last_log_by INT
 )
 BEGIN
-    -- Declare variables
     DECLARE v_analytic_lines VARCHAR(500);
     DECLARE v_analytic_distribution VARCHAR(500);
     DECLARE v_debit_analytic_lines VARCHAR(500);
@@ -21414,59 +21550,26 @@ BEGIN
     DECLARE v_chart_item_2 VARCHAR(100);
     DECLARE v_credit_2 VARCHAR(100);
 
+    -- === SAME ANALYTIC SETUP ===
     CASE p_company_id
-        WHEN 1 THEN
-            SET v_analytic_lines = 'CGMI';
-            SET v_analytic_distribution = '{"1": 100.0}';
-        WHEN 2 THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
-        WHEN 3 THEN
-            SET v_analytic_lines = 'FUSO';
-            SET v_analytic_distribution = '{"1": 100.0}';
-        WHEN 4 THEN
-            SET v_analytic_lines = 'PCG PROPERTY';
-            SET v_analytic_distribution = '{"4": 100.0}';
-        WHEN 5 THEN
-            SET v_analytic_lines = 'GCB PROPERTY';
-            SET v_analytic_distribution = '{"3": 100.0}';
-        WHEN 6 THEN
-            SET v_analytic_lines = 'GCB FARMING';
-            SET v_analytic_distribution = '{"11": 100.0}';
-        WHEN 7 THEN
-            SET v_analytic_lines = 'PCG FARMING';
-            SET v_analytic_distribution = '{"15": 100.0}';
-        WHEN 8 THEN
-            SET v_analytic_lines = 'NE FUEL';
-            SET v_analytic_distribution = '{"6": 100.0}';
-        WHEN 9 THEN
-            SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
-            SET v_analytic_distribution = '{"17": 100.0}';
-        WHEN 10 THEN
-            SET v_analytic_lines = 'Avida';
-            SET v_analytic_distribution = '{"20": 100.0}';
-        WHEN 11 THEN
-            SET v_analytic_lines = 'Caalibangbangan';
-            SET v_analytic_distribution = '{"19": 100.0}';
-        WHEN 12 THEN
-            SET v_analytic_lines = 'Sta Rosa';
-            SET v_analytic_distribution = '{"18": 100.0}';
-        WHEN 13 THEN
-            SET v_analytic_lines = 'KPC VENTURE INC';
-            SET v_analytic_distribution = '{"16": 100.0}';
-        WHEN 14 THEN
-            SET v_analytic_lines = 'NE HAULING';
-            SET v_analytic_distribution = '{"7": 100.0}';
-        ELSE
-            SET v_analytic_lines = 'DEFAULT';
-            SET v_analytic_distribution = '{"0": 0.0}';
+        WHEN 1 THEN SET v_analytic_lines = 'CGMI'; SET v_analytic_distribution = '{"1":100.0}';
+        WHEN 2 THEN SET v_analytic_lines = 'NE TRUCK'; SET v_analytic_distribution = '{"2":100.0}';
+        WHEN 3 THEN SET v_analytic_lines = 'FUSO'; SET v_analytic_distribution = '{"1":100.0}';
+        WHEN 4 THEN SET v_analytic_lines = 'PCG PROPERTY'; SET v_analytic_distribution = '{"4":100.0}';
+        WHEN 5 THEN SET v_analytic_lines = 'GCB PROPERTY'; SET v_analytic_distribution = '{"3":100.0}';
+        WHEN 6 THEN SET v_analytic_lines = 'GCB FARMING'; SET v_analytic_distribution = '{"11":100.0}';
+        WHEN 7 THEN SET v_analytic_lines = 'PCG FARMING'; SET v_analytic_distribution = '{"15":100.0}';
+        WHEN 8 THEN SET v_analytic_lines = 'NE FUEL'; SET v_analytic_distribution = '{"6":100.0}';
+        WHEN 9 THEN SET v_analytic_lines = 'AKIHIRO TRUCK TRADING'; SET v_analytic_distribution = '{"17":100.0}';
+        WHEN 10 THEN SET v_analytic_lines = 'Avida'; SET v_analytic_distribution = '{"20":100.0}';
+        WHEN 11 THEN SET v_analytic_lines = 'Caalibangbangan'; SET v_analytic_distribution = '{"19":100.0}';
+        WHEN 12 THEN SET v_analytic_lines = 'Sta Rosa'; SET v_analytic_distribution = '{"18":100.0}';
+        WHEN 13 THEN SET v_analytic_lines = 'KPC VENTURE INC'; SET v_analytic_distribution = '{"16":100.0}';
+        WHEN 14 THEN SET v_analytic_lines = 'NE HAULING'; SET v_analytic_distribution = '{"7":100.0}';
+        ELSE SET v_analytic_lines = 'DEFAULT'; SET v_analytic_distribution = '{"0":0.0}';
     END CASE;
-   
-    SET v_credit = '40102020 Cash Sales Parts';
 
-    IF p_is_service = 'Yes'  THEN
-        SET v_chart_item = '50203040 Fuel, oil and lubricants Expenses';
-    END IF;
+    SET v_credit = '40102020 Cash Sales Parts';
 
     IF p_sold_status = 'Sold' THEN
         SET v_chart_item = '50402010 Cost of Sales Unit';
@@ -21474,19 +21577,23 @@ BEGIN
         SET v_chart_item = '10501010 Inventory Unit';
     END IF;
 
-    IF p_issuance_for = 'Tools' AND p_customer_type = 'Internal' THEN
-        SET v_chart_item = '10703010 Machinery and Hand Tools';
-    ELSE
-        SET v_chart_item = '50209005 Repairs and Maintenance Materials - Unit';        
+    IF p_is_service = 'Yes' THEN
+        SET v_chart_item = '50203040 Fuel, oil and lubricants Expenses';
     END IF;
 
-    IF v_chart_item = '50402010 Cost of Sales Unit' OR v_chart_item = '10501010 Inventory Unit' THEN
+    IF p_issuance_for = 'Tools' AND p_customer_type = 'Internal' THEN
+        SET v_chart_item = '10703010 Machinery and Hand Tools';
+    ELSEIF p_issuance_for = 'Repairs' AND p_customer_type = 'Internal' THEN
+        SET v_chart_item = '50209005 Repairs and Maintenance Materials - Unit';
+    END IF;
+
+    IF v_chart_item IN ('50402010 Cost of Sales Unit','10501010 Inventory Unit') THEN
         IF p_company_id = 3 THEN
             SET v_analytic_lines = 'FUSO';
-            SET v_analytic_distribution = '{"1": 100.0}';
+            SET v_analytic_distribution = '{"1":100.0}';
         ELSE
             SET v_debit_analytic_lines = 'CGMI';
-            SET v_debit_analytic_distribution = '{"1": 100.0}';
+            SET v_debit_analytic_distribution = '{"1":100.0}';
         END IF;
     ELSE
         SET v_debit_analytic_lines = v_analytic_lines;
@@ -21494,246 +21601,56 @@ BEGIN
     END IF;
 
     SET v_chart_item_2 = '50402020 Cost of Sales Parts';
-    SET v_credit_2 = '10501020 Inventory Parts';
+    SET v_credit_2    = '10501020 Inventory Parts';
 
+    -- === REVERSAL ENTRIES ===
     IF p_customer_type = 'Internal' THEN
 
-        IF p_issuance_for = 'Tools' OR p_issuance_for = 'Repairs' THEN
-            INSERT INTO journal_entry (
-                loan_number, 
-                journal_entry_date, 
-                reference_code, 
-                journal_id, 
-                journal_item, 
-                debit, 
-                credit, 
-                journal_label, 
-                analytic_lines, 
-                analytic_distribution, 
-                created_date, 
-                last_log_by
-            ) VALUES (
-                p_part_transaction_id, 
-                NOW(), 
-                p_reference_number, 
-                'Parts Return', 
-                v_chart_item, 
-                0, 
-                p_cost, 
-                '', 
-                v_debit_analytic_lines, 
-                v_debit_analytic_distribution, 
-                NOW(), 
-                p_last_log_by
-            );
+        IF p_issuance_for IN ('Tools','Repairs') THEN
 
-            INSERT INTO journal_entry (
-                loan_number, 
-                journal_entry_date, 
-                reference_code, 
-                journal_id, 
-                journal_item, 
-                debit, 
-                credit, 
-                journal_label, 
-                analytic_lines, 
-                analytic_distribution, 
-                created_date, 
-                last_log_by
-            ) VALUES (
-                p_part_transaction_id, 
-                NOW(), 
-                p_reference_number, 
-                'Parts Return', 
-                v_credit, 
-                p_cost, 
-                0, 
-                '', 
-                v_analytic_lines, 
-                v_analytic_distribution, 
-                NOW(), 
-                p_last_log_by
-            );
+            -- reverse first pair
+            INSERT INTO journal_entry VALUES
+            (p_part_transaction_id,NOW(),p_reference_number,'Parts Issuance Reversal',
+             v_chart_item,0,p_cost,'',v_debit_analytic_lines,v_debit_analytic_distribution,NOW(),p_last_log_by);
+
+            INSERT INTO journal_entry VALUES
+            (p_part_transaction_id,NOW(),p_reference_number,'Parts Issuance Reversal',
+             v_credit,p_cost,0,'',v_analytic_lines,v_analytic_distribution,NOW(),p_last_log_by);
+
         ELSE
-           INSERT INTO journal_entry (
-                loan_number, 
-                journal_entry_date, 
-                reference_code, 
-                journal_id, 
-                journal_item, 
-                debit, 
-                credit, 
-                journal_label, 
-                analytic_lines, 
-                analytic_distribution, 
-                created_date, 
-                last_log_by
-            ) VALUES (
-                p_part_transaction_id, 
-                NOW(), 
-                p_reference_number, 
-                'Parts Return', 
-                v_chart_item, 
-                0, 
-                p_price, 
-                '', 
-                v_debit_analytic_lines, 
-                v_debit_analytic_distribution, 
-                NOW(), 
-                p_last_log_by
-            );
 
-            INSERT INTO journal_entry (
-                loan_number, 
-                journal_entry_date, 
-                reference_code, 
-                journal_id, 
-                journal_item, 
-                debit, 
-                credit, 
-                journal_label, 
-                analytic_lines, 
-                analytic_distribution, 
-                created_date, 
-                last_log_by
-            ) VALUES (
-                p_part_transaction_id, 
-                NOW(), 
-                p_reference_number, 
-                'Parts Return', 
-                0, 
-                v_credit, 
-                p_price, 
-                '', 
-                v_analytic_lines, 
-                v_analytic_distribution, 
-                NOW(), 
-                p_last_log_by
-            );
+            INSERT INTO journal_entry VALUES
+            (p_part_transaction_id,NOW(),p_reference_number,'Parts Issuance Reversal',
+             v_chart_item,0,p_price,'',v_debit_analytic_lines,v_debit_analytic_distribution,NOW(),p_last_log_by);
+
+            INSERT INTO journal_entry VALUES
+            (p_part_transaction_id,NOW(),p_reference_number,'Parts Issuance Reversal',
+             v_credit,p_price,0,'',v_analytic_lines,v_analytic_distribution,NOW(),p_last_log_by);
+
         END IF;
-        -- Insert debit entry
-        
 
-        -- Insert debit entry
-        INSERT INTO journal_entry (
-            loan_number, 
-            journal_entry_date, 
-            reference_code, 
-            journal_id, 
-            journal_item, 
-            debit, 
-            credit, 
-            journal_label, 
-            analytic_lines, 
-            analytic_distribution, 
-            created_date, 
-            last_log_by
-        ) VALUES (
-            p_part_transaction_id, 
-            NOW(), 
-            p_reference_number, 
-            'Parts Return', 
-            v_chart_item_2, 
-            0, 
-            p_cost, 
-            '', 
-            v_analytic_lines, 
-            v_analytic_distribution, 
-            NOW(), 
-            p_last_log_by
-        );
+        -- reverse inventory movement
+        INSERT INTO journal_entry VALUES
+        (p_part_transaction_id,NOW(),p_reference_number,'Parts Issuance Reversal',
+         v_chart_item_2,0,p_cost,'',v_analytic_lines,v_analytic_distribution,NOW(),p_last_log_by);
 
-        -- Insert credit entry
-        
+        INSERT INTO journal_entry VALUES
+        (p_part_transaction_id,NOW(),p_reference_number,'Parts Issuance Reversal',
+         v_credit_2,p_cost,0,'',v_analytic_lines,v_analytic_distribution,NOW(),p_last_log_by);
 
-        -- Insert credit entry
-        INSERT INTO journal_entry (
-            loan_number, 
-            journal_entry_date, 
-            reference_code, 
-            journal_id, 
-            journal_item, 
-            debit, 
-            credit, 
-            journal_label, 
-            analytic_lines, 
-            analytic_distribution, 
-            created_date, 
-            last_log_by
-        ) VALUES (
-            p_part_transaction_id, 
-            NOW(), 
-            p_reference_number, 
-            'Parts Return', 
-            v_credit_2, 
-            p_cost, 
-            0, 
-            '', 
-            v_analytic_lines, 
-            v_analytic_distribution, 
-            NOW(), 
-            p_last_log_by
-        );
     ELSE
-        -- Insert debit entry
-        INSERT INTO journal_entry (
-            loan_number, 
-            journal_entry_date, 
-            reference_code, 
-            journal_id, 
-            journal_item, 
-            debit, 
-            credit, 
-            journal_label, 
-            analytic_lines, 
-            analytic_distribution, 
-            created_date, 
-            last_log_by
-        ) VALUES (
-            p_part_transaction_id, 
-            NOW(), 
-            p_reference_number, 
-            'Parts Return', 
-            v_chart_item_2, 
-            0, 
-            p_cost, 
-            '', 
-            v_analytic_lines, 
-            v_analytic_distribution, 
-            NOW(), 
-            p_last_log_by
-        );
 
-        -- Insert credit entry
-        INSERT INTO journal_entry (
-            loan_number, 
-            journal_entry_date, 
-            reference_code, 
-            journal_id, 
-            journal_item, 
-            debit, 
-            credit, 
-            journal_label, 
-            analytic_lines, 
-            analytic_distribution, 
-            created_date, 
-            last_log_by
-        ) VALUES (
-            p_part_transaction_id, 
-            NOW(), 
-            p_reference_number, 
-            'Parts Return', 
-            v_credit_2, 
-            p_cost, 
-            0, 
-            '', 
-            v_analytic_lines, 
-            v_analytic_distribution, 
-            NOW(), 
-            p_last_log_by
-        );
-    END IF;	
+        INSERT INTO journal_entry VALUES
+        (p_part_transaction_id,NOW(),p_reference_number,'Parts Issuance Reversal',
+         v_chart_item_2,0,p_cost,'',v_analytic_lines,v_analytic_distribution,NOW(),p_last_log_by);
+
+        INSERT INTO journal_entry VALUES
+        (p_part_transaction_id,NOW(),p_reference_number,'Parts Issuance Reversal',
+         v_credit_2,p_cost,0,'',v_analytic_lines,v_analytic_distribution,NOW(),p_last_log_by);
+
+    END IF;
 END//
+
 
 CREATE PROCEDURE generateStockTransferAdviceTable(IN p_filter_created_date_start_date DATE, IN p_filter_created_date_end_date DATE, IN p_filter_on_process_date_start_date DATE, IN p_filter_on_process_date_end_date DATE, IN p_filter_completed_date_start_date DATE, IN p_filter_completed_date_end_date DATE, IN p_filter_sta_status VARCHAR(5000))
 BEGIN

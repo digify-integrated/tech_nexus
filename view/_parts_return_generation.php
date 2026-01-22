@@ -48,11 +48,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $company_id = $_POST['company_id'];
             $return_type = $_POST['return_type'];
 
-            if($return_type == 'Issuance'){
+            if($return_type != 'Stock to Supplier'){
                 $query = 'SELECT * FROM part_transaction_cart WHERE part_transaction_id IN (SELECT part_transaction_id FROM part_transaction WHERE company_id = :company_id AND part_transaction_status IN ("Checked", "Released") AND part_transaction_id NOT IN (SELECT part_transaction_id FROM part_return_cart WHERE part_return_id = :parts_return_id)) AND return_quantity > 0';
             }
             else{
-                $query = 'SELECT * FROM part WHERE company_id = :company_id AND part_id NOT IN (SELECT part_id FROM part_return_cart WHERE part_return_id = :parts_return_id) AND quantity > 0';
+                $query = 'SELECT * FROM part WHERE company_id = :company_id AND part_id NOT IN (SELECT part_id FROM part_return_cart WHERE part_return_id = :parts_return_id) AND quantity > 0 AND part_status = "For Sale"';
             }
 
             $sql = $databaseModel->getConnection()->prepare($query);
@@ -63,7 +63,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                if($return_type == 'Issuance'){
+                if($return_type != 'Stock to Supplier'){
                     $part_transaction_cart_id = $row['part_transaction_cart_id'];
                     $part_transaction_id = $row['part_transaction_id'];
                     $part_id = $row['part_id'];

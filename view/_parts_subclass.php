@@ -41,7 +41,7 @@
                   </div>
                 </th>
                 <th>Part Subclass</th>
-                <th>Product Category</th>
+                <th>Part Class</th>
                 <th>Actions</th>
               </tr>
             </thead>

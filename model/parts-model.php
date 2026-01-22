@@ -80,10 +80,26 @@ class PartsModel {
     # -------------------------------------------------------------
     
     # -------------------------------------------------------------
-    public function updatePartsStatus($p_part_id, $p_parts_status, $p_last_log_by) {
+    public function updatePartsStatus($p_part_id, $p_parts_status, $p_last_log_by): void {
         $stmt = $this->db->getConnection()->prepare('CALL updatePartsStatus(:p_part_id, :p_parts_status, :p_last_log_by)');
         $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_parts_status', $p_parts_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updatePartsQuantityOnHandReturnSupplier($p_part_id, $return_quantity, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsQuantityOnHandReturnSupplier(:p_part_id, :return_quantity, :p_last_log_by)');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
+        $stmt->bindValue(':return_quantity', $return_quantity, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updatePartsQuantityOnHandReturnStock($p_part_id, $return_quantity, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE part SET quantity = quantity + :return_quantity WHERE part_id = :p_part_id');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
+        $stmt->bindValue(':return_quantity', $return_quantity, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

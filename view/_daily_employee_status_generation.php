@@ -82,17 +82,18 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $employee_daily_status_id = $row['employee_daily_status_id'];
                 $contact_id = $row['contact_id'];
                 $status = $row['status'];
+                $is_late = $row['is_late'];
+                $is_undertime = $row['is_undertime'];
+                $is_present = $row['is_present'];
+                $is_on_paid_leave = $row['is_on_paid_leave'];
+                $is_on_unpaid_leave = $row['is_on_unpaid_leave'];
+                $is_on_official_business = $row['is_on_official_business'];
+                $late_minutes = $row['late_minutes'];
+                $undertime_minutes = $row['undertime_minutes'];
+                $unpaid_leave_minutes = $row['unpaid_leave_minutes'];
                 $remarks = $row['remarks'];
 
                 $attendance_date = $systemModel->checkDate('empty', $row['attendance_date'], '', 'F d, Y', '');
-
-                $statusClasses = [
-                    'Present' => 'success',
-                    'Late' => 'warning',
-                    'Absent' => 'danger',
-                    'On-Leave' => 'info',
-                    'Official Business' => 'success',
-                ];
 
                 $employeeDetails = $employeeModel->getPersonalInformation($contact_id);
                 $fileAs = $employeeDetails['file_as'] ?? '';
@@ -103,19 +104,36 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $departmentName = $departmentModel->getDepartment($departmentID)['department_name'] ?? null;
                 $branchName = $branchModel->getBranch($branch_id)['branch_name'] ?? null;
-                
-                $defaultClass = 'dark';
-                
-                $class = $statusClasses[$status] ?? $defaultClass;
-                
-                $badge = '<span class="badge bg-' . $class . '">' . $status . '</span>';
 
-                $action = '';
-                if($status != 'Present'){
-                    $action = '<button type="button" class="btn btn-icon btn-success add-remarks" data-bs-toggle="offcanvas" data-bs-target="#add-remarks-offcanvas" aria-controls="add-remarks-offcanvas" data-employee-daily-status-id="'. $employee_daily_status_id .'" title="Add Remarks">
-                                        <i class="ti ti-file-text"></i>
-                                    </button>';
+                $badge = '';
+                
+                if($is_present === 'Yes'){
+                    $badge .= '<span class="badge bg-success">Present</span><br/>';
                 }
+                
+                if($is_on_paid_leave === 'Yes'){
+                    $badge .= '<span class="badge bg-success">On Paid Leave</span><br/>';
+                }
+                
+                if($is_on_unpaid_leave === 'Yes' && $unpaid_leave_minutes > 0){
+                    $badge .= '<span class="badge bg-danger">On Unpaid Leave: '. ($unpaid_leave_minutes / 60) .' hour(s)</span><br/>';
+                }
+
+                if($is_on_official_business === 'Yes'){
+                    $badge .= '<span class="badge bg-info">On Official Business</span><br/>';
+                }
+
+                if($is_late === 'Yes' && $late_minutes){
+                    $badge .= '<span class="badge bg-warning">Late: '. $late_minutes .' minute(s)</span><br/>';
+                }
+
+                if($is_undertime === 'Yes' && $undertime_minutes > 0){
+                    $badge .= '<span class="badge bg-warning">Undertime: '. $undertime_minutes .' minute(s)</span><br/>';
+                }
+
+                $action = '<button type="button" class="btn btn-icon btn-primary add-remarks" data-bs-toggle="offcanvas" data-bs-target="#add-remarks-offcanvas" aria-controls="add-remarks-offcanvas" data-employee-daily-status-id="'. $employee_daily_status_id .'" title="Add Remarks">
+                                        <i class="ti ti-file-text"></i> 
+                                    </button>';
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $employee_daily_status_id .'">',
@@ -136,7 +154,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
         case 'employee status dashboard list':
-            $filter_attendance_date = $systemModel->checkDate('empty', $_POST['filter_attendance_date'], '', 'Y-m-d', '');
+           $filter_attendance_date = $systemModel->checkDate(
+                'empty',
+                $_POST['filter_attendance_date'],
+                '',
+                'Y-m-d',
+                ''
+            );
             $filter_status = null;
             $filter_attendance_status = $_POST['filter_attendance_status'] ?? '';
             $branch_filter = $_POST['branch_filter'] ?? '';
@@ -157,9 +181,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filter_branch = null;
             }
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateDailyEmployeeStatusTable(:filter_attendance_date, :filter_status, :filter_branch)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDailyEmployeeStatusTable(:filter_attendance_date, :list_type, :filter_branch)');
             $sql->bindValue(':filter_attendance_date', $filter_attendance_date, PDO::PARAM_STR);
-            $sql->bindValue(':filter_status', $filter_status, PDO::PARAM_STR);
+            $sql->bindValue(':list_type', $list_type, PDO::PARAM_STR);
             $sql->bindValue(':filter_branch', $filter_branch, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);

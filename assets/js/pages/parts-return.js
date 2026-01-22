@@ -38,7 +38,7 @@
 
         $(document).on('click','#add-part',function() {
             if($('#add-part-table').length){
-                addPartTable('#add-part-table');
+               addPartTable('#add-part-table');    
             }
         });
 

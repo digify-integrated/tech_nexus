@@ -40,13 +40,20 @@ if($productWriteAccess['total'] > 0 && $checkSalesProposalProduct['total'] == 0 
                                 </div>
                             </div>';
 }
-
-if($updateProductImage['total'] > 0 && $checkSalesProposalProduct['total'] == 0 && $productStatus == 'Draft'){
+$uploadImage = '';
+if($updateProductImage['total'] > 0 && $productStatus == 'Draft'){
   $updateProductImageButton = '<div class="col-4">
                                   <div class="d-grid">
                                     <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-product-image-offcanvas" aria-controls="update-product-image-offcanvas" id="update-product-image">Update Image</button>
                                   </div>
                               </div>';
+
+  $uploadImage = '<div class="row">
+                        <div class="text-center mt-2">
+                          <label class="btn btn-outline-secondary" for="product_other_image"><i class="ti ti-upload me-2"></i> Click to Upload</label> 
+                          <input type="file" id="product_other_image" name="product_other_image" class="d-none">
+                          </div>
+                      </div>';
 }
 
 if($productDeleteAccess['total'] > 0){
@@ -152,12 +159,7 @@ if($addProductExpense['total'] > 0){
                 <hr/>
             </div>
             <div class="row" id="product_other_images"></div>
-            <div class="row">
-              <div class="text-center mt-2">
-                <label class="btn btn-outline-secondary" for="product_other_image"><i class="ti ti-upload me-2"></i> Click to Upload</label> 
-                <input type="file" id="product_other_image" name="product_other_image" class="d-none">
-                </div>
-            </div>
+            <?php echo $uploadImage; ?>
           </div>
         </div>
         <div class="row">

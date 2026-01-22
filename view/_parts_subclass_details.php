@@ -60,6 +60,13 @@
                           </select>
                         </div>
                       </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label">Code</label>
+                      <div class="col-lg-4">
+                        <label class="col-form-label form-details fw-normal" id="part_subclass_code_label"></label>
+                        <input type="text" class="form-control d-none form-edit" id="part_subclass_code" name="part_subclass_code" maxlength="50" autocomplete="off">
+                      </div>
                     </div>';
             }
             else{
@@ -71,6 +78,12 @@
                       <label class="col-lg-2 col-form-label">Part Class</label>
                       <div class="col-lg-10">
                         <label class="col-form-label form-details fw-normal" id="parts_class_id_label"></label>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label">Code</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="part_subclass_code_label"></label>
                       </div>
                     </div>';
             }

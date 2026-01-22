@@ -73,6 +73,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             
             $values = $_POST['filter_pdc_management_status'];
             $values_company = $_POST['filter_pdc_management_company'];
+            $payment_details = $_POST['filter_pdc_management_payment_details'];
             $loan_number = $_POST['loan_number'];
 
             if(!empty($values)){
@@ -105,7 +106,22 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filterPDCManagementCompany = null;
             }
 
-            /*$sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTable(:filterPDCManagementStatus, :filterPDCManagementCompany, :filterCheckDateStartDate, :filterCheckDateEndDate, :filterRedepositDateStartDate, :filterRedepositDateEndDate, :filterOnHoldDateStartDate, :filterOnHoldDateEndDate, :filterForDepositDateStartDate, :filterForDepositDateEndDate, :filterDepositDateStartDate, :filterDepositDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterPulledOutDateStartDate, :filterPulledOutDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate, :filterClearDateStartDate, :filterClearDateEndDate)');
+            if(!empty($payment_details)){
+                $values_array = explode(', ', $payment_details);
+
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . $value . "'";
+                }, $values_array);
+    
+                $quoted_values_string = implode(', ', $quoted_values_array);
+    
+                $filterPDCPaymentDetails = $quoted_values_string;
+            }
+            else{
+                $filterPDCPaymentDetails = null;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTable(:filterPDCManagementStatus, :filterPDCManagementCompany, :filterCheckDateStartDate, :filterCheckDateEndDate, :filterRedepositDateStartDate, :filterRedepositDateEndDate, :filterOnHoldDateStartDate, :filterOnHoldDateEndDate, :filterForDepositDateStartDate, :filterForDepositDateEndDate, :filterDepositDateStartDate, :filterDepositDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterPulledOutDateStartDate, :filterPulledOutDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate, :filterClearDateStartDate, :filterClearDateEndDate, :filterPDCPaymentDetails, :loan_number)');
             $sql->bindValue(':filterPDCManagementStatus', $filterPDCManagementStatus, PDO::PARAM_STR);
             $sql->bindValue(':filterPDCManagementCompany', $filterPDCManagementCompany, PDO::PARAM_STR);
             $sql->bindValue(':filterCheckDateStartDate', $filterCheckDateStartDate, PDO::PARAM_STR);
@@ -125,15 +141,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->bindValue(':filterCancellationDateStartDate', $filterCancellationDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterCancellationDateEndDate', $filterCancellationDateEndDate, PDO::PARAM_STR);
             $sql->bindValue(':filterClearDateStartDate', $filterClearDateStartDate, PDO::PARAM_STR);
-            $sql->bindValue(':filterClearDateEndDate', $filterClearDateEndDate, PDO::PARAM_STR);*/
-
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTable(:loan_number, :filterPDCManagementStatus, :filterCheckDateStartDate, :filterCheckDateEndDate, :filterRedepositDateStartDate, :filterRedepositDateEndDate)');
+            $sql->bindValue(':filterClearDateEndDate', $filterClearDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterPDCPaymentDetails', $filterPDCPaymentDetails, PDO::PARAM_STR);
             $sql->bindValue(':loan_number', $loan_number, PDO::PARAM_STR);
-            $sql->bindValue(':filterPDCManagementStatus', $filterPDCManagementStatus, PDO::PARAM_STR);
-            $sql->bindValue(':filterCheckDateStartDate', $filterCheckDateStartDate, PDO::PARAM_STR);
-            $sql->bindValue(':filterCheckDateEndDate', $filterCheckDateEndDate, PDO::PARAM_STR);
-            $sql->bindValue(':filterRedepositDateStartDate', $filterRedepositDateStartDate, PDO::PARAM_STR);
-            $sql->bindValue(':filterRedepositDateEndDate', $filterRedepositDateEndDate, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -218,6 +228,199 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'STATUS' => $badge,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'pdc management table 2':
+            $filterCheckDateStartDate = $systemModel->checkDate('empty', $_POST['filter_check_date_start_date'], '', 'Y-m-d', '');
+            $filterCheckDateEndDate = $systemModel->checkDate('empty', $_POST['filter_check_date_end_date'], '', 'Y-m-d', '');
+
+            $filterRedepositDateStartDate = $systemModel->checkDate('empty', $_POST['filter_redeposit_date_start_date'], '', 'Y-m-d', '');
+            $filterRedepositDateEndDate = $systemModel->checkDate('empty', $_POST['filter_redeposit_date_end_date'], '', 'Y-m-d', '');
+
+            $filterOnHoldDateStartDate = $systemModel->checkDate('empty', $_POST['filter_onhold_date_start_date'], '', 'Y-m-d', '');
+            $filterOnHoldDateEndDate = $systemModel->checkDate('empty', $_POST['filter_onhold_date_end_date'], '', 'Y-m-d', '');
+
+            $filterForDepositDateStartDate = $systemModel->checkDate('empty', $_POST['filter_for_deposit_date_start_date'], '', 'Y-m-d', '');
+            $filterForDepositDateEndDate = $systemModel->checkDate('empty', $_POST['filter_for_deposit_date_end_date'], '', 'Y-m-d', '');
+
+            $filterDepositDateStartDate = $systemModel->checkDate('empty', $_POST['filter_deposit_date_start_date'], '', 'Y-m-d', '');
+            $filterDepositDateEndDate = $systemModel->checkDate('empty', $_POST['filter_deposit_date_end_date'], '', 'Y-m-d', '');
+
+            $filterReversedDateStartDate = $systemModel->checkDate('empty', $_POST['filter_reversed_date_start_date'], '', 'Y-m-d', '');
+            $filterReversedDateEndDate = $systemModel->checkDate('empty', $_POST['filter_reversed_date_end_date'], '', 'Y-m-d', '');
+
+            $filterPulledOutDateStartDate = $systemModel->checkDate('empty', $_POST['filter_pulled_out_date_start_date'], '', 'Y-m-d', '');
+            $filterPulledOutDateEndDate = $systemModel->checkDate('empty', $_POST['filter_pulled_out_date_end_date'], '', 'Y-m-d', '');
+
+            $filterCancellationDateStartDate = $systemModel->checkDate('empty', $_POST['filter_cancellation_date_start_date'], '', 'Y-m-d', '');
+            $filterCancellationDateEndDate = $systemModel->checkDate('empty', $_POST['filter_cancellation_date_end_date'], '', 'Y-m-d', '');
+
+            $filterClearDateStartDate = $systemModel->checkDate('empty', $_POST['filter_clear_date_start_date'], '', 'Y-m-d', '');
+            $filterClearDateEndDate = $systemModel->checkDate('empty', $_POST['filter_clear_date_end_date'], '', 'Y-m-d', '');
+            
+            $values = $_POST['filter_pdc_management_status'];
+            $values_company = $_POST['filter_pdc_management_company'];
+            $payment_details = $_POST['filter_pdc_management_payment_details'];
+            $loan_number = $_POST['loan_number'];
+
+            if(!empty($values)){
+                $values_array = explode(', ', $values);
+    
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . $value . "'";
+                }, $values_array);
+    
+                $quoted_values_string = implode(', ', $quoted_values_array);
+    
+                $filterPDCManagementStatus = $quoted_values_string;
+            }
+            else{
+                $filterPDCManagementStatus = null;
+            }
+
+            if(!empty($values_company)){
+                $values_array = explode(', ', $values_company);
+    
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . $value . "'";
+                }, $values_array);
+    
+                $quoted_values_string = implode(', ', $quoted_values_array);
+    
+                $filterPDCManagementCompany = $quoted_values_string;
+            }
+            else{
+                $filterPDCManagementCompany = null;
+            }
+
+            if(!empty($payment_details)){
+                $values_array = explode(', ', $payment_details);
+
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . $value . "'";
+                }, $values_array);
+    
+                $quoted_values_string = implode(', ', $quoted_values_array);
+    
+                $filterPDCPaymentDetails = $quoted_values_string;
+            }
+            else{
+                $filterPDCPaymentDetails = null;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTable(:filterPDCManagementStatus, :filterPDCManagementCompany, :filterCheckDateStartDate, :filterCheckDateEndDate, :filterRedepositDateStartDate, :filterRedepositDateEndDate, :filterOnHoldDateStartDate, :filterOnHoldDateEndDate, :filterForDepositDateStartDate, :filterForDepositDateEndDate, :filterDepositDateStartDate, :filterDepositDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterPulledOutDateStartDate, :filterPulledOutDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate, :filterClearDateStartDate, :filterClearDateEndDate, :filterPDCPaymentDetails, :loan_number)');
+            $sql->bindValue(':filterPDCManagementStatus', $filterPDCManagementStatus, PDO::PARAM_STR);
+            $sql->bindValue(':filterPDCManagementCompany', $filterPDCManagementCompany, PDO::PARAM_STR);
+            $sql->bindValue(':filterCheckDateStartDate', $filterCheckDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterCheckDateEndDate', $filterCheckDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterRedepositDateStartDate', $filterRedepositDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterRedepositDateEndDate', $filterRedepositDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterOnHoldDateStartDate', $filterOnHoldDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterOnHoldDateEndDate', $filterOnHoldDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterForDepositDateStartDate', $filterForDepositDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterForDepositDateEndDate', $filterForDepositDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterDepositDateStartDate', $filterDepositDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterDepositDateEndDate', $filterDepositDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterReversedDateStartDate', $filterReversedDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterReversedDateEndDate', $filterReversedDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterPulledOutDateStartDate', $filterPulledOutDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterPulledOutDateEndDate', $filterPulledOutDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterCancellationDateStartDate', $filterCancellationDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterCancellationDateEndDate', $filterCancellationDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterClearDateStartDate', $filterClearDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterClearDateEndDate', $filterClearDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterPDCPaymentDetails', $filterPDCPaymentDetails, PDO::PARAM_STR);
+            $sql->bindValue(':loan_number', $loan_number, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $loanCollectionID = $row['loan_collection_id'];
+                $salesProposalID = $row['sales_proposal_id'];
+                $loanNumber = $row['loan_number'];
+                $customerID = $row['customer_id'];
+                $productID = $row['product_id'];
+                $paymentDetails = $row['payment_details'];
+                $checkNumber = $row['check_number'];
+                $paymentAmount = $row['payment_amount'];
+                $bankBranch = $row['bank_branch'];
+                $collectionStatus = $row['collection_status'];
+                $pdcType = $row['pdc_type'];
+                $leasingApplicationID = $row['leasing_application_id'];
+                $checkDate = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
+                $redepositDate = $systemModel->checkDate('empty', $row['new_deposit_date'], '', 'm/d/Y', '');
+                $reversalDate = $systemModel->checkDate('empty', $row['reversal_date'], '', 'm/d/Y', '');
+
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
+                
+                if($pdcType == 'Leasing'){
+                    $getLeasingApplication = $leasingApplicationModel->getLeasingApplication($leasingApplicationID);
+                    $loanNumber = $getLeasingApplication['leasing_application_number'] ?? '';
+                    $tenantID = $getLeasingApplication['tenant_id'] ?? '';
+                    $propertyID = $getLeasingApplication['property_id'] ?? '';
+
+                    $getTenant = $tenantModel->getTenant($tenantID);
+                    $customerName = $getTenant['tenant_name'] ?? '';
+
+                    $getProperty = $propertyModel->getProperty($propertyID);
+                    $corporateName = $getProperty['property_name'] ?? '';
+
+                }
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $statusClasses = [
+                    'Pending' => 'info',
+                    'Cleared' => 'success',
+                    'On-Hold' => 'dark',
+                    'Cancelled' => 'warning',
+                    'Redeposit' => 'info',
+                    'For Deposit' => 'warning',
+                    'Deposited' => 'success',
+                    'Pulled-Out' => 'dark',
+                    'Reversed' => 'danger'
+                ];
+                
+                $defaultClass = 'dark';
+                
+                $class = $statusClasses[$collectionStatus] ?? $defaultClass;
+                
+                $badge = '<span class="badge bg-' . $class . '">' . $collectionStatus . '</span>';
+
+                $loanCollectionIDEncrypted = $securityModel->encryptData($loanCollectionID);
+
+                $response[] = [
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $loanCollectionID .'">',
+                    'LOAN_NUMBER' => ' <a href="leasing-pdc.php?id='. $loanCollectionIDEncrypted .'" title="View Details">
+                                        '. $loanNumber .'
+                                    </a>',
+                    'CUSTOMER' => '<a href="leasing-pdc.php?id='. $loanCollectionIDEncrypted .'" title="View Details"><div class="col">
+                                                    <h6 class="mb-0">'. $customerName .'</h6>
+                                                    <p class="f-12 mb-0">'. $corporateName .'</p>
+                                                </div></a>',
+                    'PRODUCT' => '<a href="leasing-pdc.php?id='. $loanCollectionIDEncrypted .'" title="View Details">' . $stockNumber . '<br/>' . $productName . '</a>',
+                    'PAYMENT_DETAILS' => $paymentDetails,
+                    'CHECK_NUMBER' => $checkNumber,
+                    'CHECK_DATE' => $checkDate,
+                    'REDEPOSIT_DATE' => $redepositDate,
+                    'PAYMENT_AMOUNT' => number_format($paymentAmount, 2),
+                    'BANK_BRANCH' => $bankBranch,
+                    'REVERSAL_DATE' => $reversalDate,
+                    'STATUS' => $badge,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="leasing-pdc.php?id='. $loanCollectionIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

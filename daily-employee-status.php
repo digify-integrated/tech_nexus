@@ -28,6 +28,7 @@
 <head>
     <?php include_once('config/_title.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/datepicker-bs5.min.css">
+    <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
@@ -78,6 +79,7 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
+    <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/pages/daily-employee-status.js?v=<?php echo rand(); ?>"></script>
 </body>
 

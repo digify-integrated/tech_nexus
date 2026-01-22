@@ -1,66 +1,3 @@
-<div class="row">
-  <div class="col-lg-6">
-    <div class="card">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-12">
-            <h3 class="mb-1" id="present-count">0</h3>
-            <p class="text-muted mb-0">Present</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-6">
-    <div class="card">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-12">
-            <h3 class="mb-1" id="late-count">0</h3>
-            <p class="text-muted mb-0">Late</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>   
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-12">
-            <h3 class="mb-1" id="absent-count">0</h3>
-            <p class="text-muted mb-0">Absent</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-12">
-            <h3 class="mb-1" id="on-leave-count">0</h3>
-            <p class="text-muted mb-0">On-Leave</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-12">
-            <h3 class="mb-1" id="official-business-count">0</h3>
-            <p class="text-muted mb-0">Official Business</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
 
 <div class="row">
   <div class="col-lg-12">
@@ -160,11 +97,7 @@
                     $action = '<div class="btn-group m-r-10">
                                       <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                       <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><button class="dropdown-item" type="button" id="tag-as-present">Tag As Present</button></li>
-                                        <li><button class="dropdown-item" type="button" id="tag-as-absent">Tag As Absent</button></li>
-                                        <li><button class="dropdown-item" type="button" id="tag-as-late">Tag As Late</button></li>
-                                        <li><button class="dropdown-item" type="button" id="tag-as-on-leave">Tag As On-Leave</button></li>
-                                        <li><button class="dropdown-item" type="button" id="tag-as-official-business">Tag As Official Business</button></li>
+                                        <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-remarks-offcanvas" aria-controls="add-remarks-offcanvas" id="change-status">Change Status</button></li>
                                     </ul>
                                 </div>';
                                   
@@ -208,29 +141,106 @@
 
 
 <div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="add-remarks-offcanvas" aria-labelledby="add-remarks-offcanvas-label">
-      <div class="offcanvas-header">
-        <h2 id="add-remarks-offcanvas-label" style="margin-bottom:-0.5rem">Add Remarks</h2>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="add-remarks-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Remarks <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="remarks" name="remarks" maxlength="500"></textarea>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="add-remarks-offcanvas" aria-labelledby="add-remarks-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="add-remarks-offcanvas-label" style="margin-bottom:-0.5rem">Update Status</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+  <div class="offcanvas-body">
+    <div class="row">
+      <div class="col-lg-12">
+        <form id="add-remarks-form" method="post" action="#">
+          <input type="hidden" id="employee_daily_status_id" name="employee_daily_status_id">
+          <div class="form-group row">
+            <div class="col-lg-12 mt-3 mt-lg-0">
+              <label class="form-label">Is Present? <span class="text-danger">*</span></label>
+              <select class="form-control offcanvas-select2" name="is_present" id="is_present">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Is Late? <span class="text-danger">*</span></label>
+              <select class="form-control offcanvas-select2" name="is_late" id="is_late">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Late Minutes</label>
+              <div class="col-12">
+                <input type="number" class="form-control" id="late_minutes" name="late_minutes" value="0" min="0" step="1" readonly>
               </div>
             </div>
-          </form>
-        </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Is Undertime? <span class="text-danger">*</span></label>
+              <select class="form-control offcanvas-select2" name="is_undertime" id="is_undertime">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Undertime Minutes</label>
+              <div class="col-12">
+                <input type="number" class="form-control" id="undertime_minutes" name="undertime_minutes" value="0" min="0" step="1" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Is On Unpaid Leave? <span class="text-danger">*</span></label>
+              <select class="form-control offcanvas-select2" name="is_on_unpaid_leave" id="is_on_unpaid_leave">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Unpaid Leave Hours</label>
+              <div class="col-12">
+                <input type="number" class="form-control" id="unpaid_leave_minutes" name="unpaid_leave_minutes" value="0" min="0" step="1" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Is On Paid Leave? <span class="text-danger">*</span></label>
+              <select class="form-control offcanvas-select2" name="is_on_paid_leave" id="is_on_paid_leave">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="col-lg-6 mt-3 mt-lg-0">
+              <label class="form-label">Is On Official Business? <span class="text-danger">*</span></label>
+              <select class="form-control offcanvas-select2" name="is_on_official_business" id="is_on_official_business">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-12 mt-3 mt-lg-0">
+              <label class="form-label">Remarks</label>
+              <textarea class="form-control" id="remarks" name="remarks" maxlength="500"></textarea>
+            </div>
+          </div>
+        </form>
       </div>
-      <div class="row">
-        <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-add-remarks" form="add-remarks-form">Submit</button>
-          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-        </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <button type="submit" class="btn btn-primary" id="submit-add-remarks" form="add-remarks-form">Submit</button>
+        <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
       </div>
     </div>
   </div>
+</div>

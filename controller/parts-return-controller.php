@@ -16,6 +16,7 @@ class PartsReturnController {
     private $partsReturnModel;
     private $partsModel;
     private $partTransactionModel;
+    private $partsIncomingModel;
     private $productModel;
     private $userModel;
     private $uploadSettingModel;
@@ -39,10 +40,11 @@ class PartsReturnController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(PartsReturnModel $partsReturnModel, PartsModel $partsModel, PartsTransactionModel $partTransactionModel, ProductModel $productModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(PartsReturnModel $partsReturnModel, PartsModel $partsModel, PartsTransactionModel $partTransactionModel, PartsIncomingModel $partsIncomingModel, ProductModel $productModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->partsReturnModel = $partsReturnModel;
         $this->partsModel = $partsModel;
         $this->partTransactionModel = $partTransactionModel;
+        $this->partsIncomingModel = $partsIncomingModel;
         $this->productModel = $productModel;
         $this->userModel = $userModel;
         $this->uploadSettingModel = $uploadSettingModel;
@@ -452,38 +454,42 @@ class PartsReturnController {
         $partsReturnDetails = $this->partsReturnModel->getPartsReturn($parts_return_id);
         $company_id = $partsReturnDetails['company_id'] ?? 2;
         $remarks = $partsReturnDetails['remarks'] ?? null;
-        $return_type = $partsReturnDetails['return_type'] ?? 'Issuance';
-        $reference_number = $partsReturnDetails['reference_number'] ?? 'Issuance';
+        $return_type = $partsReturnDetails['return_type'] ?? '';
+        $reference_number = $partsReturnDetails['reference_number'] ?? '';
 
         if($company_id == '2' || $company_id == '3'){
-            if($return_type == 'Issuance'){
-                $partReturnCartDetails = $this->partsReturnModel->getPartsReturnCart2($parts_return_id);
+            $partReturnCartDetails = $this->partsReturnModel->getPartsReturnCart2($parts_return_id);
 
-                foreach ($partReturnCartDetails as $row) {
-                    $parts_transaction_id = $row['part_transaction_id'];
+            foreach ($partReturnCartDetails as $row) {
+                $part_id                    = $row['part_id'] ?? null;
+                $return_quantity            = $row['return_quantity'] ?? 1;
+                $part_transaction_id        = $row['part_transaction_id'] ?? null;
+                $part_transaction_cart_id   = $row['part_transaction_cart_id'] ?? null;
+                
+                if($return_type == 'Stock to Supplier'){
+                    $partDetails = $this->partsModel->getParts($part_id);
+                    $part_cost = $partDetails['part_cost'] ?? 0;
+                    $cost = $part_cost * $return_quantity;
 
-                    $partsTransactionDetails = $this->partTransactionModel->getPartsTransaction($parts_transaction_id);
+                    $this->partsIncomingModel->createPartsIncomingEntryReversed($parts_return_id, $company_id, $reference_number, $cost, $userID);
+
+                    $this->partsModel->updatePartsQuantityOnHandReturnSupplier($part_id, $return_quantity, $userID);
+                }
+                else if($return_type == 'Issuance to Supplier'){
+                    $partDetails = $this->partsModel->getParts($part_id);
+                    $part_cost = $partDetails['part_cost'] ?? 0;
+                    $part_price = $partDetails['part_price'] ?? 0;
+                    $cost = $part_cost * $return_quantity;
+                    $price = $part_price * $return_quantity;
+
+                    $this->partsIncomingModel->createPartsIncomingEntryReversed($parts_return_id, $company_id, $reference_number, $cost, $userID);
+
+                    $partsTransactionDetails = $this->partTransactionModel->getPartsTransaction($part_transaction_id);
                     $company_id = $partsTransactionDetails['company_id'] ?? '';
                     $customer_type = $partsTransactionDetails['customer_type'] ?? '';
                     $customer_id = $partsTransactionDetails['customer_id'] ?? '';
 
-                      if($customer_type == 'Internal' && $customer_id == 958){
-                        $issuance_for = $partsTransactionDetails['issuance_for'] ?? '';
-                    }
-                    else{
-                        $issuance_for = null;
-                    }
-
-                    if($company_id == '2'){
-                        $p_reference_number = $partsTransactionDetails['issuance_no'] ?? '';
-                    }
-                    else{
-                        $p_reference_number = $partsTransactionDetails['reference_number'] ?? '';
-                    }
-
-                    $cost = $this->partsReturnModel->getPartsReturnCartTotal($parts_return_id, 'total cost')['total'];
-                    $price = $this->partsReturnModel->getPartsReturnCartTotal($parts_return_id, 'total price')['total'];
-                    $is_service = 'No';
+                    $this->partTransactionModel->createPartsTransactionProductExpense($customer_id, 'Return Slip', $parts_return_id, ($price * -1), 'Parts & ACC', 'Issuance No.: ' . $reference_number . ' - '.  $remarks, $userID); 
 
                     if($customer_type == 'Internal'){
                         $productDetails = $this->productModel->getProduct($customer_id);
@@ -492,37 +498,73 @@ class PartsReturnController {
                     else{
                         $product_status = 'Draft';
                     }
-                    
-                    $this->partTransactionModel->createPartsTransactionProductExpense($customer_id, 'Return Slip', $parts_return_id, ($price * -1), 'Parts & ACC', 'Issuance No.: ' . $reference_number . ' - '.  $remarks, $userID); 
+
+                    if($customer_type == 'Internal' && $customer_id == 958){
+                        $issuance_for = $partsTransactionDetails['issuance_for'] ?? '';
+                    }
+                    else{
+                        $issuance_for = null;
+                    }
                     
                     $this->partTransactionModel->createPartsTransactionEntryReversed(
-                        $parts_transaction_id,
-                         $company_id, 
-                         $p_reference_number, 
-                         $cost, 
-                         $price, 
-                         $customer_type, 
-                         $is_service, 
-                         $product_status, 
-                         $issuance_for, 
-                         $userID
-                        );
+                        $part_transaction_id,
+                        $company_id, 
+                        $reference_number, 
+                        $cost, 
+                        $price, 
+                        $customer_type, 
+                        'No', 
+                        $product_status, 
+                        $issuance_for, 
+                        $userID
+                    );
                 }
- 
-                $this->partsReturnModel->updatePartsReturnValue($parts_return_id, $userID);
-            }
-            else{
-                $partReturnCartDetails = $this->partsReturnModel->getPartsReturnCart2($parts_return_id);
+                else{
+                    $partDetails = $this->partsModel->getParts($part_id);
+                    $part_cost = $partDetails['part_cost'] ?? 0;
+                    $part_price = $partDetails['part_price'] ?? 0;
+                    $cost = $part_cost * $return_quantity;
+                    $price = $part_price * $return_quantity;
 
-                foreach ($partReturnCartDetails as $row) {
-                    $part_id = $row['part_id'];
+                    $this->partsIncomingModel->createPartsIncomingEntryReversed($parts_return_id, $company_id, $reference_number, $cost, $userID);
 
-                    $cost = $this->partsReturnModel->getPartsReturnCartStockTotal($parts_return_id, 'total cost')['total'];
+                    $partsTransactionDetails = $this->partTransactionModel->getPartsTransaction($part_transaction_id);
+                    $company_id = $partsTransactionDetails['company_id'] ?? '';
+                    $customer_type = $partsTransactionDetails['customer_type'] ?? '';
+                    $customer_id = $partsTransactionDetails['customer_id'] ?? '';
 
-                    $this->partsReturnModel->createPartsReturnStockEntry($part_id, $company_id, $parts_return_id . ' - ' . $remarks, $cost, $userID);
+                    $this->partTransactionModel->createPartsTransactionProductExpense($customer_id, 'Return Slip', $parts_return_id, ($price * -1), 'Parts & ACC', 'Issuance No.: ' . $reference_number . ' - '.  $remarks, $userID); 
+
+                    if($customer_type == 'Internal'){
+                        $productDetails = $this->productModel->getProduct($customer_id);
+                        $product_status = $productDetails['product_status'] ?? 'Draft';
+                    }
+                    else{
+                        $product_status = 'Draft';
+                    }
+
+                    if($customer_type == 'Internal' && $customer_id == 958){
+                        $issuance_for = $partsTransactionDetails['issuance_for'] ?? '';
+                    }
+                    else{
+                        $issuance_for = null;
+                    }
+                    
+                    $this->partTransactionModel->createPartsTransactionEntryReversed(
+                        $part_transaction_id,
+                        $company_id, 
+                        $reference_number, 
+                        $cost, 
+                        $price, 
+                        $customer_type, 
+                        'No', 
+                        $product_status, 
+                        $issuance_for, 
+                        $userID
+                    );
+
+                    $this->partsModel->updatePartsQuantityOnHandReturnStock($part_id, $return_quantity, $userID);
                 }
-                
-                $this->partsReturnModel->updatePartsStockReturnValue($parts_return_id, $userID);
             }
         }
 
@@ -596,6 +638,7 @@ require_once '../model/database-model.php';
 require_once '../model/parts-return-model.php';
 require_once '../model/parts-model.php';
 require_once '../model/parts-transaction-model.php';
+require_once '../model/parts-incoming-model.php';
 require_once '../model/product-model.php';
 require_once '../model/user-model.php';
 require_once '../model/upload-setting-model.php';
@@ -604,6 +647,6 @@ require_once '../model/system-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new PartsReturnController(new PartsReturnModel(new DatabaseModel), new PartsModel(new DatabaseModel), new PartsTransactionModel(new DatabaseModel), new ProductModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new PartsReturnController(new PartsReturnModel(new DatabaseModel), new PartsModel(new DatabaseModel), new PartsTransactionModel(new DatabaseModel), new PartsIncomingModel(new DatabaseModel), new ProductModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

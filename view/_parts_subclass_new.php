@@ -31,6 +31,12 @@
                </select>
             </div>
           </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Code</label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="part_subclass_code" name="part_subclass_code" maxlength="50" autocomplete="off">
+            </div>
+          </div>
         </form>
       </div>
     </div>

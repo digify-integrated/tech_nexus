@@ -4,7 +4,7 @@
     $type = $backJobMonitoringDetails['type'] ?? null;
     $approval_form = $backJobMonitoringDetails['approval_form'] ?? null;
     $hidden = ''; 
-    $hiddenCost = 'd-none'; 
+    $hiddenCost = 'readonly'; 
     $releaseButton = ''; 
     $draftButton = ''; 
     $cancelButton = ''; 
@@ -38,10 +38,6 @@
 
     if(($type == 'Internal Repair') && $status == 'Ready For Release'){
         $releaseButton = '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#tag-as-released-offcanvas" aria-controls="tag-as-released-offcanvas">Tag As Completed</button></li>';
-    }
-  
-    if(($type == 'Internal Repair' || $type == 'Warranty')){
-        $hiddenCost = '';
     }
 
     if($status == 'Draft' && $type != 'Internal Repair'){
@@ -735,6 +731,8 @@
 </div>
 
 <?php
+  $readonly = '';
+  $disabled = '';
   if($status == 'Ready For Release' || $status == 'For DR'){
     $readonly = 'readonly';
     $disabled = 'disabled';
@@ -753,13 +751,13 @@
         <div class="col-lg-12">
           <form id="job-order-progress-form" method="post" action="#">
             <input type="hidden" id="backjob_monitoring_job_order_id" name="backjob_monitoring_job_order_id">
-            <div class="form-group row <?php echo $hiddenCost; ?>">
+            <div class="form-group row">
               <div class="col-lg-12">
                 <label class="form-label">Job Order <span class="text-danger">*</span></label>
                 <input type="text" class="form-control text-uppercase" id="job_order" name="job_order" maxlength="500" autocomplete="off" <?php echo $readonly; ?>>
               </div>
             </div>
-            <div class="form-group row <?php echo $hiddenCost; ?>">
+            <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label" for="job_order_cost">Cost <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01">
@@ -857,15 +855,13 @@
         <div class="col-lg-12">
           <form id="additional-job-order-progress-form" method="post" action="#">
             <input type="hidden" id="backjob_monitoring_additional_job_order_id" name="backjob_monitoring_additional_job_order_id">
-            <div class="form-group row <?php echo $hiddenCost; ?>">
-              <div class="col-lg-12">
+            <div class="form-group row">
+              <div class="col-lg-6">
                 <label class="form-label">Job Order Number <span class="text-danger">*</span></label>
                 <input type="hidden" id="sales_proposal_additional_job_order_id" name="sales_proposal_additional_job_order_id">
                 <input type="text" class="form-control text-uppercase" id="job_order_number" name="job_order_number" maxlength="500" autocomplete="off" <?php echo $readonly; ?>>
               </div>
-            </div>
-            <div class="form-group row <?php echo $hiddenCost; ?>">
-              <div class="col-lg-12 mt-3 mt-lg-0">
+               <div class="col-lg-6">
                 <label class="form-label">Job Order Date <span class="text-danger">*</span></label>
                 <div class="input-group date">
                   <input type="text" class="form-control regular-datepicker" id="job_order_date" name="job_order_date" autocomplete="off" <?php echo $readonly; ?>>
@@ -875,13 +871,13 @@
                 </div>
               </div>
             </div>
-            <div class="form-group row <?php echo $hiddenCost; ?>">
+            <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Particulars <span class="text-danger">*</span></label>
                 <input type="text" class="form-control text-uppercase" id="particulars" name="particulars" maxlength="1000" autocomplete="off" <?php echo $readonly; ?>>
               </div>
             </div>
-            <div class="form-group row <?php echo $hiddenCost; ?>">
+            <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label" for="additional_job_order_cost">Cost <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="additional_job_order_cost" name="additional_job_order_cost" min="0" step="0.01">

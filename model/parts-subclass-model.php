@@ -29,11 +29,12 @@ class PartsSubclassModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updatePartsSubclass($p_parts_subclass_id, $p_parts_subclass_name, $p_parts_class_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePartsSubclass(:p_parts_subclass_id, :p_parts_subclass_name, :p_parts_class_id, :p_last_log_by)');
+    public function updatePartsSubclass($p_parts_subclass_id, $p_parts_subclass_name, $p_parts_class_id, $part_subclass_code, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsSubclass(:p_parts_subclass_id, :p_parts_subclass_name, :p_parts_class_id, :p_part_subclass_code, :p_last_log_by)');
         $stmt->bindValue(':p_parts_subclass_id', $p_parts_subclass_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_parts_subclass_name', $p_parts_subclass_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_parts_class_id', $p_parts_class_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_part_subclass_code', $part_subclass_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -57,10 +58,11 @@ class PartsSubclassModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertPartsSubclass($p_parts_subclass_name, $p_parts_class_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPartsSubclass(:p_parts_subclass_name, :p_parts_class_id, :p_last_log_by, @p_parts_subclass_id)');
+    public function insertPartsSubclass($p_parts_subclass_name, $p_parts_class_id, $part_subclass_code, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartsSubclass(:p_parts_subclass_name, :p_parts_class_id, :p_part_subclass_code, :p_last_log_by, @p_parts_subclass_id)');
         $stmt->bindValue(':p_parts_subclass_name', $p_parts_subclass_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_parts_class_id', $p_parts_class_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_part_subclass_code', $part_subclass_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -198,32 +200,37 @@ class PartsSubclassModel {
 
         return $htmlOptions;
     }
-    # -------------------------------------------------------------
+    public function generatePartsSubclassOptionsByClass($p_parts_class_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT part_subclass_id, part_subclass_name FROM part_subclass WHERE part_class_id = :p_parts_class_id ORDER BY part_subclass_name');
+        $stmt->bindValue(':p_parts_class_id', $p_parts_class_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    # -------------------------------------------------------------
-    #
-    # Function: generateGroupedPartsSubclassOptions
-    # Description: Generates the parts subclass options.
-    #
-    # Parameters: None
-    #
-    # Returns: String.
-    #
-    # -------------------------------------------------------------
+        $htmlOptions = [];
+        foreach ($options as $row) {
+            $part_subclass_id = $row['part_subclass_id'];
+            $part_subclass_name = $row['part_subclass_name'];
+
+            $htmlOptions[] = '<option value="' . htmlspecialchars($part_subclass_id, ENT_QUOTES) . '">' . htmlspecialchars($part_subclass_name, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+
     public function generateGroupedPartsSubclassOptions() {
-        $stmt = $this->db->getConnection()->prepare('SELECT parts_class_id, parts_class_name FROM parts_class ORDER BY parts_class_name');
+        $stmt = $this->db->getConnection()->prepare('SELECT part_class_id, part_class_name FROM part_class ORDER BY part_class_name');
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $htmlOptions = [];
 
         foreach ($options as $row) {
-            $partsClassID = $row['part_class_id'];
-            $partsClassName = $row['part_class_name'];
+            $part_class_id = $row['part_class_id'];
+            $partClassName = $row['part_class_name'];
 
-            $htmlOptions[] = '<optgroup label="'. $partsClassName .'">';
+            $htmlOptions[] = '<optgroup label="'. $partClassName .'">';
 
-            $subcategoryOptions = $this->generatePartsSubclassByCategoryOptions($partsClassID);
+            $subcategoryOptions = $this->generatePartsSubclassOptionsByClass($part_class_id);
 
             foreach ($subcategoryOptions as $subcategoryOption) {
                 $htmlOptions[] = $subcategoryOption;
@@ -235,6 +242,7 @@ class PartsSubclassModel {
         return implode('', $htmlOptions);
     }
     # -------------------------------------------------------------
+
 
     # -------------------------------------------------------------
     #

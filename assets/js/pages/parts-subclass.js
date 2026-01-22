@@ -326,6 +326,11 @@ function partsSubclassForm(){
             parts_class_id: {
                 required: true
             },
+            part_subclass_code: {
+                required: function () {
+                    return $('#parts_class_id').val() === '6';
+                }
+            }
         },
         messages: {
             parts_subclass_name: {
@@ -334,6 +339,9 @@ function partsSubclassForm(){
             parts_class_id: {
                 required: 'Please choose the part class'
             },
+            part_subclass_code: {
+                required: 'Part subclass code is required for this part class'
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -431,11 +439,13 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#parts_subclass_id').val(parts_subclass_id);
                         $('#parts_subclass_name').val(response.partsSubclassName);
+                        $('#part_subclass_code').val(response.partSubclassCode);
 
                         checkOptionExist('#parts_class_id', response.partsClassID, '');
 
                         $('#parts_subclass_name_label').text(response.partsSubclassName);
                         $('#parts_class_id_label').text(response.partsClassName);
+                        $('#part_subclass_code_label').text(response.partSubclassCode);
                     } 
                     else {
                         if(response.isInactive){

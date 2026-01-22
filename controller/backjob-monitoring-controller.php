@@ -248,7 +248,7 @@ class BackJobMonitoringController {
         $backjobOrderMonitoringJobOrderDetails = $this->backJobMonitoringModel->getBackJobMonitoringAdditionalJobOrder($salesAdditionalProposalJobOrderID);
         $sales_proposal_id = $backjobOrderMonitoringJobOrderDetails['sales_proposal_id'];
         $cost_markup = $backjobOrderMonitoringJobOrderDetails['cost_markup'];
-        $job_cost = $backjobOrderMonitoringJobOrderDetails['job_cost']; 
+        $job_cost = $backjobOrderMonitoringJobOrderDetails['cost']; 
         $work_center_id = $backjobOrderMonitoringJobOrderDetails['work_center_id'];
         $particulars = $backjobOrderMonitoringJobOrderDetails['particulars'];
 
@@ -257,7 +257,6 @@ class BackJobMonitoringController {
         $entry_type = 'Internal Additional Job Order';
 
         $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($sales_proposal_id);
-        $sales_proposal_id = $backJobMonitoringDetails['sales_proposal_id'] ?? null;
         $product_id = $backJobMonitoringDetails['product_id'] ?? null;
 
         if(!empty($sales_proposal_id)){

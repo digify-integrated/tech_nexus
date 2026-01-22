@@ -23,8 +23,9 @@
             <div class="col-lg-4">
               <select class="form-control select2" name="return_type" id="return_type">
                 <option value="">--</option>
-                <option value="Stock">Stock</option>
-                <option value="Issuance">Issuance</option>
+                <option value="Stock to Supplier">Stock to Supplier</option>
+                <option value="Issuance to Supplier">Issuance to Supplier</option>
+                <option value="Issuance to Stock">Issuance to Stock</option>
               </select>
             </div>
             <label class="col-lg-2 col-form-label">Supplier <span class="text-danger">*</span></label>

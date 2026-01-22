@@ -226,9 +226,7 @@ class PartsController {
         $userID = $_SESSION['user_id'];
         $brand_id = $_POST['brand_id'];
         $bar_code = $_POST['bar_code'];
-        $part_number = $_POST['part_number'];
         $part_category_id = $_POST['part_category_id'];
-        $part_class_id = $_POST['part_class_id'];
         $part_subclass_id = $_POST['part_subclass_id'];
         $company_id = $_POST['company_id'];
         $quantity = $_POST['quantity'];
@@ -244,8 +242,20 @@ class PartsController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        $partSubclassDetails = $this->partsSubclassModel->getPartsSubclass($part_subclass_id);
+        $part_class_id = $partSubclassDetails['part_class_id'];
+
+        if($part_class_id == 4){
+            $stockNumberLatest = $this->systemSettingModel->getSystemSetting(47)['value'] + 1;
+            $stockNumber = $partSubclassDetails['part_subclass_code'] . date('my') . $stockNumberLatest;
+            $this->systemSettingModel->updateSystemSettingValue(47, $stockNumberLatest, $userID);
+        }
+        else{
+            $stockNumber = '';
+        }
     
-        $partsID = $this->partsModel->insertParts($part_category_id, $part_class_id, $part_subclass_id, $description, $bar_code, $part_number, $company_id, $unit_sale, $stock_alert, $quantity, $brand_id, $warehouse_id, $remarks, $userID);        
+        $partsID = $this->partsModel->insertParts($part_category_id, $part_class_id, $part_subclass_id, $description, $bar_code, $stockNumber, $company_id, $unit_sale, $stock_alert, $quantity, $brand_id, $warehouse_id, $remarks, $userID);        
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'partsID' => $this->securityModel->encryptData($partsID)]);
         exit;
@@ -274,7 +284,6 @@ class PartsController {
         $bar_code = $_POST['bar_code'];
         $part_number = $_POST['part_number'];
         $part_category_id = $_POST['part_category_id'];
-        $part_class_id = $_POST['part_class_id'];
         $part_subclass_id = $_POST['part_subclass_id'];
         $company_id = $_POST['company_id'];
         $quantity = $_POST['quantity'];
@@ -285,6 +294,9 @@ class PartsController {
         $description = $_POST['description'];
         $part_price = $_POST['part_price'];
 
+
+        $partSubclassDetails = $this->partsSubclassModel->getPartsSubclass($part_subclass_id);
+        $part_class_id = $partSubclassDetails['part_class_id'];
     
         $user = $this->userModel->getUserByID($userID);
     

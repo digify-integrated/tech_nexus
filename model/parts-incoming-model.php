@@ -188,6 +188,15 @@ class PartsIncomingModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function createPartsIncomingEntryReversed($p_part_incoming_id, $p_company_id, $p_reference_number, $p_cost, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createPartsIncomingEntryReversed(:p_part_incoming_id, :p_company_id, :p_reference_number, :p_cost, :p_last_log_by)');
+        $stmt->bindValue(':p_part_incoming_id', $p_part_incoming_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

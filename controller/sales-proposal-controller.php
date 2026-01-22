@@ -2967,7 +2967,7 @@ class SalesProposalController {
         $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
 
         $productDetails = $this->productModel->getProduct($productID);
-        $product_status = $productDetails['product_status'];
+        $product_status = $productDetails['product_status'] ?? null;
 
         if($product_status == 'For Return'){
             echo json_encode(['success' => false, 'forReturn' =>  true]);

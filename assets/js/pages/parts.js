@@ -620,9 +620,6 @@ function partsForm(){
             part_category_id: {
                 required: true
             },
-            part_class_id: {
-                required: true
-            },
             part_subclass_id: {
                 required: true
             },
@@ -651,9 +648,6 @@ function partsForm(){
             },
             part_category_id: {
                 required: 'Please choose the category'
-            },
-            part_class_id: {
-                required: 'Please choose the class'
             },
             part_subclass_id: {
                 required: 'Please choose the subclass'
@@ -1100,9 +1094,6 @@ function partsDetailsForm(){
             part_category_id: {
                 required: true
             },
-            part_class_id: {
-                required: true
-            },
             part_subclass_id: {
                 required: true
             },
@@ -1134,9 +1125,6 @@ function partsDetailsForm(){
             },
             part_category_id: {
                 required: 'Please choose the category'
-            },
-            part_class_id: {
-                required: 'Please choose the class'
             },
             part_subclass_id: {
                 required: 'Please choose the subclass'
@@ -1485,7 +1473,6 @@ function displayDetails(transaction){
 
                         checkOptionExist('#brand_id', response.brand_id, '');
                         checkOptionExist('#part_category_id', response.part_category_id, '');
-                        checkOptionExist('#part_class_id', response.part_class_id, '');
                         checkOptionExist('#part_subclass_id', response.part_subclass_id, '');
                         checkOptionExist('#unit_sale', response.unit_sale, '');
                         checkOptionExist('#warehouse_id', response.warehouse_id, '');

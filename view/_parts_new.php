@@ -30,12 +30,9 @@
                 <?php echo $brandModel->generateBrandOptions(); ?>
               </select>
             </div>
-            <label class="col-lg-3 col-form-label">Category <span class="text-danger">*</span></label>
+            <label class="col-lg-3 col-form-label">Bar Code</label>
             <div class="col-lg-3">
-              <select class="form-control select2" name="part_category_id" id="part_category_id">
-                <option value="">--</option>
-                <?php echo $partsCategoryModel->generatePartsCategoryOptions(); ?>
-              </select>
+              <input type="text" class="form-control" id="bar_code" name="bar_code" maxlength="100" autocomplete="off">
             </div>
           </div>
           <div class="form-group row d-none">
@@ -43,32 +40,28 @@
             <div class="col-lg-3">
               <input type="text" class="form-control" id="part_number" name="part_number" maxlength="100" autocomplete="off">
             </div>
-            <label class="col-lg-3 col-form-label">Bar Code <span class="text-danger">*</span></label>
-            <div class="col-lg-3">
-              <input type="text" class="form-control" id="bar_code" name="bar_code" maxlength="100" autocomplete="off">
-            </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-3 col-form-label">Class <span class="text-danger">*</span></label>
+            <label class="col-lg-3 col-form-label">Category <span class="text-danger">*</span></label>
             <div class="col-lg-3">
-              <select class="form-control select2" name="part_class_id" id="part_class_id">
-              <option value="">--</option>
-                <?php echo $partsClassModel->generatePartsClassOptions(); ?>
+              <select class="form-control select2" name="part_category_id" id="part_category_id">
+                <option value="">--</option>
+                <?php echo $partsCategoryModel->generatePartsCategoryOptions(); ?>
               </select>
             </div>
             <label class="col-lg-3 col-form-label">Subclass <span class="text-danger">*</span></label>
             <div class="col-lg-3">
               <select class="form-control select2" name="part_subclass_id" id="part_subclass_id">
               <option value="">--</option>
-                <?php echo $partsSubclassModel->generatePartsSubclassOptions(); ?>
+                <?php echo $partsSubclassModel->generateGroupedPartsSubclassOptions(); ?>
               </select>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-3 col-form-label d-none">Quantity <span class="text-danger">*</span></label>
             <div class="col-lg-3 d-none">
               <input type="number" class="form-control" id="quantity" name="quantity" value="0" min="0" step="0.01">
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-3 col-form-label">Unit Sale <span class="text-danger">*</span></label>
             <div class="col-lg-3">
               <select class="form-control select2" name="unit_sale" id="unit_sale">

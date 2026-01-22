@@ -262,7 +262,7 @@ function dailyEmployeeStatusDashboard(datatable_name, buttons = false, show_all 
 
 function generateAbsentEmployeeList(){
     const type = 'employee status dashboard list';
-    const list_type = 'Absent';
+    const list_type = 'on unpaid leave';
     var filter_attendance_date = $('#filter_attendance_date').val();
     var branch_filter_values = [];
 
@@ -295,7 +295,7 @@ function generateAbsentEmployeeList(){
 
 function generateLateEmployeeList(){
     const type = 'employee status dashboard list';
-    const list_type = 'Late';
+    const list_type = 'late';
     var filter_attendance_date = $('#filter_attendance_date').val();
     var branch_filter_values = [];
 
@@ -328,7 +328,7 @@ function generateLateEmployeeList(){
 
 function generateOnLeaveEmployeeList(){
     const type = 'employee status dashboard list';
-    const list_type = 'On-Leave';
+    const list_type = 'on paid leave';
     var filter_attendance_date = $('#filter_attendance_date').val();
     var branch_filter_values = [];
 
@@ -361,7 +361,7 @@ function generateOnLeaveEmployeeList(){
 
 function generateOfficialBusinessEmployeeList(){
     const type = 'employee status dashboard list';
-    const list_type = 'Official Business';
+    const list_type = 'on official business';
     var filter_attendance_date = $('#filter_attendance_date').val();
     var branch_filter_values = [];
 

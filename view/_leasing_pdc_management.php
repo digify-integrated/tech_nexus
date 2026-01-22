@@ -43,7 +43,7 @@
                           </div>
                         </div>
                       </li>
-                      <li class="list-group-item px-0 py-2">
+                      <li class="list-group-item px-0 py-2 d-none">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#payment-details-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Payment Details
                         </a>
@@ -111,7 +111,7 @@
                                   <label class="form-check-label" for="payment-details-transfer-fee">Transfer Fee</label>
                               </div>
                               <div class="form-check my-2">
-                                  <input class="form-check-input payment-details-filter" type="checkbox" id="payment-details-rental" value="Rental">
+                                  <input class="form-check-input payment-details-filter" type="checkbox" id="payment-details-rental" value="Rental" checked>
                                   <label class="form-check-label" for="payment-details-rental">Rental</label>
                               </div>
                             </div>
@@ -197,8 +197,8 @@
                         <div class="collapse" id="check-date-filter-collapse">
                           <div class="row py-3">
                             <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_check_date_start_date" id="filter_check_date_start_date" placeholder="Start Date" value="<?php echo date('01/01/Y'); ?>">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_check_date_end_date" id="filter_check_date_end_date" placeholder="End Date" value="<?php echo date('m/d/Y'); ?>">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_check_date_start_date" id="filter_check_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_check_date_end_date" id="filter_check_date_end_date" placeholder="End Date">
                             </div>
                           </div>
                         </div>
@@ -210,8 +210,8 @@
                         <div class="collapse" id="redeposit-date-filter-collapse">
                           <div class="row py-3">
                             <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_redeposit_date_start_date" id="filter_redeposit_date_start_date" placeholder="Start Date" value="<?php echo date('01/01/Y'); ?>">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_redeposit_date_end_date" id="filter_redeposit_date_end_date" placeholder="End Date" value="<?php echo date('m/d/Y'); ?>">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_redeposit_date_start_date" id="filter_redeposit_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_redeposit_date_end_date" id="filter_redeposit_date_end_date" placeholder="End Date">
                             </div>
                           </div>
                         </div>
@@ -393,7 +393,7 @@
           </div>
           <div class="card-body">
             <div class="table-responsive dt-responsive">
-              <table id="pdc-management-table" class="table table-hover text-wrap w-100 text-uppercase">
+              <table id="pdc-management-table-2" class="table table-hover text-wrap w-100 text-uppercase">
                 <thead>
                   <tr>
                     <th class="all">

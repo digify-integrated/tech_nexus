@@ -15,9 +15,38 @@
             getEmployeeStatusCount();
         });
 
-        $(document).on('click','#tag-as-present',function() {
+        $(document).on('change','#is_late',function() {
+            if($(this).val() == 'Yes'){
+                $('#late_minutes').prop('readonly', false);
+            }
+            else{
+                $('#late_minutes').val('0');
+                $('#late_minutes').prop('readonly', true);
+            }
+        });
+
+        $(document).on('change','#is_undertime',function() {
+            if($(this).val() == 'Yes'){
+                $('#undertime_minutes').prop('readonly', false);
+            }
+            else{
+                $('#undertime_minutes').val('0');
+                $('#undertime_minutes').prop('readonly', true);
+            }
+        });
+
+        $(document).on('change','#is_on_unpaid_leave',function() {
+            if($(this).val() == 'Yes'){
+                $('#unpaid_leave_minutes').prop('readonly', false);
+            }
+            else{
+                $('#unpaid_leave_minutes').val('0');
+                $('#unpaid_leave_minutes').prop('readonly', true);
+            }
+        });
+
+        $(document).on('click','#change-status',function() {
             let employee_daily_status_id = [];
-            const transaction = 'change attendance status';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
@@ -26,61 +55,10 @@
             });
     
             if(employee_daily_status_id.length > 0){
-                Swal.fire({
-                    title: 'Tag As Present',
-                    text: 'Are you sure you want to tag employees as present?',
-                    icon: 'warning',
-                    showCancelButton: !0,
-                    confirmButtonText: 'Present',
-                    cancelButtonText: 'Cancel',
-                    confirmButtonClass: 'btn btn-success mt-2',
-                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                    buttonsStyling: !1
-                }).then(function(result) {
-                    if (result.value) {
-                        $.ajax({
-                            type: 'POST',
-                            url: 'controller/daily-employee-status-controller.php',
-                            dataType: 'json',
-                            data: {
-                                employee_daily_status_id: employee_daily_status_id,
-                                type: 'Present',
-                                transaction : transaction
-                            },
-                            success: function (response) {
-                                if (response.success) {
-                                    showNotification('Tag As Present Success', 'The selected employees have been tagged as present successfully.', 'success');
-                                    reloadDatatable('#daily-employee-status-table');
-                                    getEmployeeStatusCount();
-                                }
-                                else {
-                                    if (response.isInactive) {
-                                        setNotification('User Inactive', response.message, 'danger');
-                                        window.location = 'logout.php?logout';
-                                    }
-                                    else {
-                                        showNotification('Tag As Present Error', response.message, 'danger');
-                                    }
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                                if (xhr.responseText) {
-                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                                }
-                                showErrorDialog(fullErrorMessage);
-                            },
-                            complete: function(){
-                                toggleHideActionDropdown();
-                            }
-                        });
-                        
-                        return false;
-                    }
-                });
+                $('#employee_daily_status_id').val(employee_daily_status_id);
             }
             else{
-                showNotification('Tag As Present Error', 'Please select the employee you wish to tagged as present.', 'danger');
+                showNotification('Change Status Error', 'Please select the employee you wish to change the status.', 'danger');
             }
         });
 
@@ -360,10 +338,12 @@
             }
         });
 
-         $(document).on('click','.add-remarks',function() {
+        $(document).on('click','.add-remarks',function() {
             const employee_daily_status_id = $(this).data('employee-daily-status-id');
     
             sessionStorage.setItem('employee_daily_status_id', employee_daily_status_id);
+
+            displayDetails('get employee daily status details');
         });
 
         getEmployeeStatusCount();
@@ -485,14 +465,95 @@ function getEmployeeStatusCount(){
 function addRemarksForm(){
     $('#add-remarks-form').validate({
         rules: {
-            remarks: {
+            is_present: {
                 required: true
             },
+            is_late: {
+                required: true
+            },
+            late_minutes: {
+                required: {
+                    depends: function () {
+                        return $('#is_late').val() === 'Yes';
+                    }
+                },
+                min: {
+                    depends: function () {
+                        return $('#is_late').val() === 'Yes';
+                    },
+                    param: 1
+                }
+            },
+            is_undertime: {
+                required: true
+            },
+            undertime_minutes: {
+                required: {
+                    depends: function () {
+                        return $('#is_undertime').val() === 'Yes';
+                    }
+                },
+                min: {
+                    depends: function () {
+                        return $('#is_undertime').val() === 'Yes';
+                    },
+                    param: 1
+                }
+            },
+            is_on_unpaid_leave: {
+                required: true
+            },
+            unpaid_leave_minutes: {
+                required: {
+                    depends: function () {
+                        return $('#is_on_unpaid_leave').val() === 'Yes';
+                    }
+                },
+                min: {
+                    depends: function () {
+                        return $('#is_on_unpaid_leave').val() === 'Yes';
+                    },
+                    param: 1
+                }
+            },
+            is_on_paid_leave: {
+                required: true
+            },
+            is_on_official_business: {
+                required: true
+            }
         },
         messages: {
-            remarks: {
-                required: 'Please enter the remarks'
+            is_present: {
+                required: 'Please choose if present or not'
             },
+            is_late: {
+                required: 'Please choose if late or not'
+            },
+            late_minutes: {
+                required: 'Late minutes is required when marked as late',
+                min: 'Late minutes must be at least 1'
+            },
+            is_undertime: {
+                required: 'Please choose if undertime or not'
+            },
+            undertime_minutes: {
+                required: 'Undertime minutes is required when marked as undertime',
+                min: 'Undertime minutes must be at least 1'
+            },
+            is_on_unpaid_leave: {
+                required: 'Please choose if on unpaid leave or not'
+            },
+            unpaid_leave_minutes: {
+                required: 'Unpaid leave minutes is required when on unpaid leave',
+                min: 'Unpaid leave minutes must be at least 1'
+            },
+            is_on_paid_leave: {
+                required: 'Please choose if on paid leave or not'
+            },
+            is_on_official_business: {
+                required: 'Please choose if on official business or not'
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -524,25 +585,24 @@ function addRemarksForm(){
             }
         },
         submitHandler: function(form) {
-            var employee_daily_status_id = sessionStorage.getItem('employee_daily_status_id');
             const transaction = 'add remarks';
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/daily-employee-status-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&employee_daily_status_id=' + employee_daily_status_id,
+                data: $(form).serialize() + '&transaction=' + transaction,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-add-remarks');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = 'Add Remarks Success';
-                        const notificationDescription = 'Added remarks successfully.';
+                        const notificationMessage = 'Update Status Success';
+                        const notificationDescription = 'Update status successfully.';
                         
                         showNotification(notificationMessage, notificationDescription, 'success');
                         reloadDatatable('#daily-employee-status-table');
-                        $('#remarks').val('');
+                        $('#add-remarks-offcanvas').offcanvas('hide');
                     }
                     else {
                         if (response.isInactive) {
@@ -569,4 +629,56 @@ function addRemarksForm(){
             return false;
         }
     });
+}
+
+function displayDetails(transaction){
+    switch (transaction) {
+        case 'get employee daily status details':
+            var employee_daily_status_id = sessionStorage.getItem('employee_daily_status_id');
+            
+            $.ajax({
+                url: 'controller/daily-employee-status-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    employee_daily_status_id : employee_daily_status_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetForm('add-remarks-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#employee_daily_status_id').val(employee_daily_status_id);
+                        $('#late_minutes').val(response.late_minutes);
+                        $('#undertime_minutes').val(response.undertime_minutes);
+                        $('#unpaid_leave_minutes').val(response.unpaid_leave_minutes);
+                        $('#remarks').val(response.remarks);
+
+                        checkOptionExist('#is_present', response.is_present, '');
+                        checkOptionExist('#is_late', response.is_late, '');
+                        checkOptionExist('#is_undertime', response.is_undertime, '');
+                        checkOptionExist('#is_on_unpaid_leave', response.is_on_unpaid_leave, '');
+                        checkOptionExist('#is_on_paid_leave', response.is_on_paid_leave, '');
+                        checkOptionExist('#is_on_official_business', response.is_on_official_business, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Employee Daily Status Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+    }
 }

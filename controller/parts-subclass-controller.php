@@ -107,6 +107,7 @@ class PartsSubclassController {
         $partsSubclassID = isset($_POST['parts_subclass_id']) ? htmlspecialchars($_POST['parts_subclass_id'], ENT_QUOTES, 'UTF-8') : null;
         $partsSubclassName = htmlspecialchars($_POST['parts_subclass_name'], ENT_QUOTES, 'UTF-8');
         $partsClassID = htmlspecialchars($_POST['parts_class_id'], ENT_QUOTES, 'UTF-8');
+        $part_subclass_code = htmlspecialchars($_POST['part_subclass_code'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -119,13 +120,13 @@ class PartsSubclassController {
         $total = $checkPartsSubclassExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->partsSubclassModel->updatePartsSubclass($partsSubclassID, $partsSubclassName, $partsClassID, $userID);
+            $this->partsSubclassModel->updatePartsSubclass($partsSubclassID, $partsSubclassName, $partsClassID, $part_subclass_code, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'partsSubclassID' => $this->securityModel->encryptData($partsSubclassID)]);
             exit;
         } 
         else {
-            $partsSubclassID = $this->partsSubclassModel->insertPartsSubclass($partsSubclassName, $partsClassID, $userID);
+            $partsSubclassID = $this->partsSubclassModel->insertPartsSubclass($partsSubclassName, $partsClassID, $part_subclass_code, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'partsSubclassID' => $this->securityModel->encryptData($partsSubclassID)]);
             exit;
@@ -298,6 +299,7 @@ class PartsSubclassController {
             $response = [
                 'success' => true,
                 'partsSubclassName' => $partsSubclassDetails['part_subclass_name'],
+                'partSubclassCode' => $partsSubclassDetails['part_subclass_code'],
                 'partsClassID' => $partsClassID,
                 'partsClassName' => $partsClassName
             ];

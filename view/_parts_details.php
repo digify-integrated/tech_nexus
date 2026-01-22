@@ -157,33 +157,24 @@ if($addPartExpense['total'] > 0){
                   </select>
                 </div>
               </div>
-              <div class="form-group row d-none">
+              <div class="form-group row">
                 <label class="col-lg-3 col-form-label">Bar Code</label>
                 <div class="col-lg-3">
                   <input type="text" class="form-control" id="bar_code" name="bar_code" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
                 </div>
                 <label class="col-lg-3 col-form-label"><?php echo $cardLabel; ?> Number <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
-                  <input type="text" class="form-control" id="part_number" name="part_number" maxlength="100" autocomplete="off" <?php echo $disabledPartsForm; ?>>
+                  <input type="text" class="form-control" id="part_number" name="part_number" maxlength="100" autocomplete="off" readonly >
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-3 col-form-label">Class <span class="text-danger">*</span></label>
-                <div class="col-lg-3">
-                  <select class="form-control select2" name="part_class_id" id="part_class_id" <?php echo $disabledPartsForm; ?>>
-                  <option value="">--</option>
-                    <?php echo $partsClassModel->generatePartsClassOptions(); ?>
-                  </select>
-                </div>
                 <label class="col-lg-3 col-form-label">Subclass <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <select class="form-control select2" name="part_subclass_id" id="part_subclass_id" <?php echo $disabledPartsForm; ?>>
                   <option value="">--</option>
-                    <?php echo $partsSubclassModel->generatePartsSubclassOptions(); ?>
+                    <?php echo $partsSubclassModel->generateGroupedPartsSubclassOptions(); ?>
                   </select>
                 </div>
-              </div>
-              <div class="form-group row">
                 <label class="col-lg-3 col-form-label d-none">Quantity <span class="text-danger">*</span></label>
                 <div class="col-lg-3 d-none">
                   <input type="number" class="form-control" id="quantity" name="quantity" value="0" min="0" step="0.01" <?php echo $disabledPartsForm; ?>>
@@ -195,12 +186,12 @@ if($addPartExpense['total'] > 0){
                     <?php echo $unitModel->generateUnitOptions(); ?>
                   </select>
                 </div>
+              </div>
+              <div class="form-group row">
                 <label class="col-lg-3 col-form-label">Stock Alert <span class="text-danger">*</span></label>
                 <div class="col-lg-3">
                   <input type="number" class="form-control" id="stock_alert" name="stock_alert" value="0" min="0" step="1" <?php echo $disabledPartsForm; ?>>
                 </div>
-              </div>
-              <div class="form-group row">
                 <label class="col-lg-3 col-form-label"><?php echo $cardLabel; ?> Price (SRP) <span class="text-danger <?php if($company == '2' || $company == '1') echo 'd-none'; ?>">*</span></label>
                 <div class="col-lg-3">
                   <input type="number" class="form-control" id="part_price" name="part_price" min="0" step="0.01" <?php echo $disabledLandedCostForm2; ?>>
