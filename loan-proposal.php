@@ -1704,7 +1704,7 @@
                         <thead>
                             <tr style="text-align:center">
                                 <td><b>Business</b></td>
-                                <td><b>Supplier</b></td>
+                                <td><b>Supplier/Customer</b></td>
                                 <td><b>Contact Person</b></td>
                                 <td><b>Years of Transaction</b></td>
                                 <td><b>Remarks</b></td>

@@ -1296,13 +1296,15 @@ class CIReportModel {
     $x0 = 0.0;
     $x1 = $rate;
 
-    $calcF = function($r) use ($nper, $pmt, $pv, $fv, $type, $tol) {
+    $calcF = function ($r) use ($nper, $pmt, $pv, $fv, $type, $tol) {
         if (abs($r) < $tol) {
             return $pv + $pmt * $nper + $fv;
-        } else {
-            $pow = pow(1 + $r, $nper);
-            return $pv * $pow + $pmt * (1 + $r * $type) * ($pow - 1) / $r + $fv;
         }
+
+        $pow = pow(1 + $r, $nper);
+        return $pv * $pow
+            + $pmt * (1 + $r * $type) * ($pow - 1) / $r
+            + $fv;
     };
 
     $y0 = $calcF($x0);
@@ -1313,7 +1315,7 @@ class CIReportModel {
             break; // avoid division by zero
         }
 
-        // Secant method update (Excel uses this)
+        // Secant method update
         $rate = $x1 - $y1 * ($x1 - $x0) / ($y1 - $y0);
 
         $x0 = $x1;
@@ -1327,8 +1329,10 @@ class CIReportModel {
         }
     }
 
-    throw new RuntimeException('RATE did not converge');
+    // Fallback: return the initial guess instead of throwing
+    return $guess;
 }
+
 
 
 

@@ -27,6 +27,9 @@
                   else if($company == '2'){
                     $action .= '<a href="netruck-parts-incoming.php?new" class="btn btn-success">Create</a>';
                   }
+                  else if($company == '8'){
+                    $action .= '<a href="fuel-incoming.php?new" class="btn btn-success">Create</a>';
+                  }
                   else{
                     $action .= '<a href="parts-incoming.php?new" class="btn btn-success">Create</a>';
                   }

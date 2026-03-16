@@ -9,6 +9,7 @@
   require('model/application-source-model.php');
   require('model/contractor-model.php');
   require('model/work-center-model.php');
+  require('model/company-model.php');
 
   $pageTitle = 'Job Order Monitoring';
   
@@ -20,6 +21,7 @@
   $applicationSourceModel = new ApplicationSourceModel($databaseModel);
   $contractorModel = new ContractorModel($databaseModel);
   $workCenterModel = new WorkCenterModel($databaseModel);
+  $companyModel = new CompanyModel($databaseModel);
     
   $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id,  130, 'read');
   

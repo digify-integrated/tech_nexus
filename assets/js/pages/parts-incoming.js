@@ -525,6 +525,9 @@ function partsIncomingForm(){
                         else if(company_id == '2'){
                             window.location = 'netruck-parts-incoming.php?id=' + response.partsIncomingID;
                         }
+                        else if(company_id == '8'){
+                            window.location = 'fuel-incoming.php?id=' + response.partsIncomingID;
+                        }
                         else{
                             window.location = 'parts-incoming.php?id=' + response.partsIncomingID;
                         }

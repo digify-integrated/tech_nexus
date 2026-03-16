@@ -11,6 +11,7 @@
   $viewSalesProposalProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
   $tagCIAsComplete = $userModel->checkSystemActionAccessRights($user_id, 135);
   $approveInstallmentSales = $userModel->checkSystemActionAccessRights($user_id, 143);
+    $uploadCreditAdvice = $userModel->checkSystemActionAccessRights($user_id, 236);
 
   $checkCustomerExist = $customerModel->checkCustomerExist($customerID);
   $total = $checkCustomerExist['total'] ?? 0;
@@ -818,7 +819,7 @@
                         <h5 class="mb-0">Credit Advice</h5>
                         <?php
                           if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft'){
-                            if($transactionType == 'Bank Financing'){
+                            if($transactionType == 'Bank Financing' && $uploadCreditAdvice['total'] > 0){
                               echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-credit-advice-offcanvas" aria-controls="sales-proposal-credit-advice-offcanvas" id="sales-proposal-credit-advice">Credit Advice</button>';
                             }
                           }

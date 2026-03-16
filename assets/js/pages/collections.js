@@ -948,7 +948,7 @@ function collectionsForm(){
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
                        
-                        if(payment_advice === 'No'){
+                        if(payment_advice == 'No'){
                             window.location = 'collections.php?id=' + response.loanCollectionID;
                         }
                         else{

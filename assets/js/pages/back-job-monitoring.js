@@ -2230,6 +2230,9 @@ function JobOrderProgressForm(){
             job_order_progress: {
                 required: true
             },
+            job_order_company_id: {
+                required: true
+            },
             job_order_completion_date: {
                 required: function () {
                     return $('#job_order_progress').val() == '100';
@@ -2239,6 +2242,9 @@ function JobOrderProgressForm(){
         messages: {
             job_order_progress: {
                 required: 'Please enter the progress'
+            },
+            job_order_company_id: {
+                required: 'Please choose the company provider'
             },
             job_order_completion_date: {
                 required: 'Completion date is required when progress is 100%'
@@ -2336,6 +2342,9 @@ function AdditionalJobOrderProgressForm(){
             additional_job_order_progress: {
                 required: true
             },
+            additional_job_order_company_id: {
+                required: true
+            },
             additional_job_order_completion_date: {
                 required: function () {
                     return $('#job_order_progress').val() == '100';
@@ -2345,6 +2354,9 @@ function AdditionalJobOrderProgressForm(){
         messages: {
             additional_job_order_progress: {
                 required: 'Please enter the progress'
+            },
+            additional_job_order_company_id: {
+                required: 'Please choose the company provider'
             },
             additional_job_order_completion_date: {
                 required: 'Completion date is required when progress is 100%'
@@ -2535,6 +2547,7 @@ function displayDetails(transaction){
                             $('#job_order_date_started').val(response.dateStarted);
     
                             checkOptionExist('#job_order_contractor_id', response.contractorID, '');
+                            checkOptionExist('#job_order_company_id', response.companyID, '');
                             checkOptionExist('#job_order_work_center_id', response.workCenterID, '');
                         } 
                         else {
@@ -2582,6 +2595,7 @@ function displayDetails(transaction){
                             $('#additional_job_order_date_started').val(response.dateStarted);
     
                             checkOptionExist('#additional_job_order_contractor_id', response.contractorID, '');
+                            checkOptionExist('#additional_job_order_company_id', response.companyID, '');
                             checkOptionExist('#additional_job_order_work_center_id', response.workCenterID, '');
                         } 
                         else {

@@ -241,8 +241,8 @@ class SalesProposalModel {
         $stmt->execute();
     }
 
-    public function updateSalesProposalJobOrderProgress($p_sales_proposal_job_order_id, $p_cost, $p_job_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalJobOrderProgress(:p_sales_proposal_job_order_id, :p_cost, :p_job_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_remarks, :p_last_log_by)');
+    public function updateSalesProposalJobOrderProgress($p_sales_proposal_job_order_id, $p_cost, $p_job_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_remarks, $p_company_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalJobOrderProgress(:p_sales_proposal_job_order_id, :p_cost, :p_job_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_remarks, :p_company_id, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_job_order_id', $p_sales_proposal_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_job_cost', $p_job_cost, PDO::PARAM_STR);
@@ -255,6 +255,7 @@ class SalesProposalModel {
         $stmt->bindValue(':p_planned_finish_date', $p_planned_finish_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_date_started', $p_date_started, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue('p_company_id', $p_company_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -316,11 +317,12 @@ class SalesProposalModel {
 
     
 
-    public function createJobOrderEntry($p_sales_proposal_number, $p_job_order_id, $p_entry_type, $p_company_id, $p_cost, $p_markup, $p_sold_status, $p_last_log_by): void {
-        $stmt = $this->db->getConnection()->prepare('CALL createJobOrderEntry(:p_sales_proposal_number, :p_job_order_id, :p_entry_type, :p_company_id, :p_cost, :p_markup, :p_sold_status, :p_last_log_by)');
+    public function createJobOrderEntry($p_sales_proposal_number, $p_job_order_id, $p_entry_type, $p_debit_company_id, $p_company_id, $p_cost, $p_markup, $p_sold_status, $p_last_log_by): void {
+        $stmt = $this->db->getConnection()->prepare('CALL createJobOrderEntry(:p_sales_proposal_number, :p_job_order_id, :p_entry_type, :p_debit_company_id, :p_company_id, :p_cost, :p_markup, :p_sold_status, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_number', $p_sales_proposal_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_job_order_id', $p_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_entry_type', $p_entry_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_debit_company_id', $p_debit_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_markup', $p_markup, PDO::PARAM_STR);
@@ -329,8 +331,8 @@ class SalesProposalModel {
         $stmt->execute();
     }
 
-    public function updateSalesProposalAdditionalJobOrderProgress($sales_proposal_additional_job_order_id, $p_cost, $p_job_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderProgress(:sales_proposal_additional_job_order_id, :p_cost, :p_job_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_remarks, :p_last_log_by)');
+    public function updateSalesProposalAdditionalJobOrderProgress($sales_proposal_additional_job_order_id, $p_cost, $p_job_cost, $p_progress, $p_contractor_id, $p_work_center_id, $p_backjob, $p_completion_date, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_remarks, $p_company_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderProgress(:sales_proposal_additional_job_order_id, :p_cost, :p_job_cost, :p_progress, :p_contractor_id, :p_work_center_id, :p_backjob, :p_completion_date, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_remarks, :p_company_id, :p_last_log_by)');
         $stmt->bindValue(':sales_proposal_additional_job_order_id', $sales_proposal_additional_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_job_cost', $p_job_cost, PDO::PARAM_STR);
@@ -343,6 +345,7 @@ class SalesProposalModel {
         $stmt->bindValue(':p_planned_finish_date', $p_planned_finish_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_date_started', $p_date_started, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -372,6 +375,16 @@ class SalesProposalModel {
     # -------------------------------------------------------------
     public function updateSalesProposalClientConfirmation($p_sales_proposal_id, $p_client_confirmation, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalClientConfirmation(:p_sales_proposal_id, :p_client_confirmation, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_client_confirmation', $p_client_confirmation, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateSalesProposalNoDeposit($p_sales_proposal_id, $p_client_confirmation, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal
+        SET no_deposit_approval = :p_client_confirmation,
+        last_log_by = :p_last_log_by
+        WHERE sales_proposal_id = :p_sales_proposal_id;');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_client_confirmation', $p_client_confirmation, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
@@ -425,6 +438,14 @@ class SalesProposalModel {
     public function updateSalesProposalSetToDraft($p_sales_proposal_id, $p_sales_proposal_form, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalSetToDraft(:p_sales_proposal_id, :p_sales_proposal_form, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_sales_proposal_form', $p_sales_proposal_form, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function insertSalesProposalSetToDraft($p_sales_proposal_id, $p_sales_proposal_form, $p_set_to_draft_reason, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('INSERT INTO sales_proposal_set_to_draft_file (sales_proposal_id, reason, file, last_log_by) VALUES (:p_sales_proposal_id, :p_set_to_draft_reason, :p_sales_proposal_form, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_set_to_draft_reason', $p_set_to_draft_reason, PDO::PARAM_STR);
         $stmt->bindValue(':p_sales_proposal_form', $p_sales_proposal_form, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -2246,6 +2267,12 @@ class SalesProposalModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function getSalesProposalDepositAmountTotal($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT SUM(deposit_amount) as total FROM sales_proposal_deposit_amount WHERE sales_proposal_id = :p_sales_proposal_id');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -2484,6 +2511,18 @@ class SalesProposalModel {
     # -------------------------------------------------------------
     public function cronSalesProposalCancelDraft($p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL cronSalesProposalCancelDraft(:p_last_log_by)');
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function cronSalesProposalCancelProceed($p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL cronSalesProposalCancelProceed(:p_last_log_by)');
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function cronSalesProposalCancelFuelProceed($p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL cronSalesProposalCancelFuelProceed(:p_last_log_by)');
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);

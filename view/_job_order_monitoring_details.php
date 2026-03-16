@@ -103,6 +103,7 @@
   </div>
 
   <?php
+    $readonly = '';
     if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){
       $readonly = 'readonly';
       $disabled = 'disabled';
@@ -133,9 +134,18 @@
             </div>
             <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Company Provider <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="job_order_company_id" id="job_order_company_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                </select>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="job_order_progress" name="job_order_progress" min="0" max="100" step="0.01" <?php echo $readonly; ?>>
               </div>
+            </div>
+            <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Contractor</label>
                 <select class="form-control offcanvas-select2" name="job_order_contractor_id" id="job_order_contractor_id" <?php echo $disabled; ?>>
@@ -143,20 +153,11 @@
                   <?php echo $contractorModel->generateContractorOptions(); ?>
                 </select>
               </div>
-            </div>
-            <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Work Center</label>
                 <select class="form-control offcanvas-select2" name="job_order_work_center_id" id="job_order_work_center_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $workCenterModel->generateWorkCenterOptions(); ?>
-                </select>
-              </div>
-              <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label">Backjob? <span class="text-danger">*</span></label>
-                <select class="form-control" name="job_order_backjob" id="job_order_backjob" <?php echo $disabled; ?>>
-                  <option value="No" selected>No</option>
-                  <option value="Yes">Yes</option>
                 </select>
               </div>
             </div>
@@ -201,6 +202,15 @@
               </div>
             </div>
             <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Backjob? <span class="text-danger">*</span></label>
+                <select class="form-control" name="job_order_backjob" id="job_order_backjob" <?php echo $disabled; ?>>
+                  <option value="No" selected>No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label" for="job_order_remarks">Remarks</label>
                 <textarea class="form-control" id="job_order_remarks" name="job_order_remarks" maxlength="1000" <?php echo $readonly; ?>></textarea>
@@ -241,9 +251,18 @@
             </div>
             <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Company Provider <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="additional_job_order_company_id" id="additional_job_order_company_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                </select>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Progress (%) <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="additional_job_order_progress" name="additional_job_order_progress" min="0" max="100" step="0.01" <?php echo $readonly; ?>>
               </div>
+            </div>
+            <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Contractor</label>
                 <select class="form-control offcanvas-select2" name="additional_job_order_contractor_id" id="additional_job_order_contractor_id" <?php echo $disabled; ?>>
@@ -251,20 +270,11 @@
                   <?php echo $contractorModel->generateContractorOptions(); ?>
                 </select>
               </div>
-            </div>
-            <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Work Center</label>
                 <select class="form-control offcanvas-select2" name="additional_job_order_work_center_id" id="additional_job_order_work_center_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $workCenterModel->generateWorkCenterOptions(); ?>
-                </select>
-              </div>
-              <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label">Backjob? <span class="text-danger">*</span></label>
-                <select class="form-control" name="additional_job_order_backjob" id="additional_job_order_backjob" <?php echo $disabled; ?>>
-                  <option value="No" selected>No</option>
-                  <option value="Yes">Yes</option>
                 </select>
               </div>
             </div>
@@ -309,7 +319,14 @@
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Backjob? <span class="text-danger">*</span></label>
+                <select class="form-control" name="additional_job_order_backjob" id="additional_job_order_backjob" <?php echo $disabled; ?>>
+                  <option value="No" selected>No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label">Approval Document</label>
                 <input type="file" class="form-control" id="approval_document" name="approval_document" <?php echo $readonly; ?>>
               </div>

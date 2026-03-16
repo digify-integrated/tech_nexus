@@ -41,12 +41,16 @@ if($productWriteAccess['total'] > 0 && $checkSalesProposalProduct['total'] == 0 
                             </div>';
 }
 $uploadImage = '';
-if($updateProductImage['total'] > 0 && $productStatus == 'Draft'){
+$uploadThumbnailImage = '';
+if($updateProductImage['total'] > 0){
   $updateProductImageButton = '<div class="col-4">
                                   <div class="d-grid">
                                     <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-product-image-offcanvas" aria-controls="update-product-image-offcanvas" id="update-product-image">Update Image</button>
                                   </div>
                               </div>';
+
+  $uploadThumbnailImage = ' <label class="btn btn-outline-secondary" for="product_image"><i class="ti ti-upload me-2"></i> Click to Upload</label> 
+              <input type="file" id="product_image" name="product_image" class="d-none">';
 
   $uploadImage = '<div class="row">
                         <div class="text-center mt-2">
@@ -149,8 +153,7 @@ if($addProductExpense['total'] > 0){
               <img src="<?php echo DEFAULT_AVATAR_IMAGE; ?>" alt="User Image" id="product_thumbnail" class="img-fluid wid-100 hei-100">
             </div>
             <div class="text-center mb-0">
-              <label class="btn btn-outline-secondary" for="product_image"><i class="ti ti-upload me-2"></i> Click to Upload</label> 
-              <input type="file" id="product_image" name="product_image" class="d-none">
+              <?php echo $uploadThumbnailImage; ?>
             </div>
           </div>
           <div class="col-md-6">
@@ -805,6 +808,7 @@ if($addProductExpense['total'] > 0){
                   <option value="Adjustment">Adjustment</option>
                   <option value="Stock Transfer Advice">Stock Transfer Advice</option>
                   <option value="Purchase Order">Purchase Order</option>
+                  <option value="Journal Voucher">Journal Voucher</option>
                 </select>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">

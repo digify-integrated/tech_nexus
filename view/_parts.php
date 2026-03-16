@@ -110,6 +110,12 @@
                                           <label class="form-check-label" for="company-2">NE TRUCK</label>
                                       </div>';
                               }
+                              else if($company == '8'){
+                                echo '<div class="form-check my-2">
+                                          <input class="form-check-input company-filter" type="checkbox" id="company-8" value="8" checked/>
+                                          <label class="form-check-label" for="company-8">NE TRUCK</label>
+                                      </div>';
+                              }
                               else{
                                 echo '<div class="form-check my-2">
                                           <input class="form-check-input company-filter" type="checkbox" id="company-3" value="3" checked/>
@@ -207,6 +213,9 @@
                     }
                     else if($company == '2'){
                       echo '<li class="list-inline-item align-bottom mr-0"><a href="netruck-parts.php?new" class="btn btn-success">Create</a></li>';
+                    }
+                    else if($company == '8'){
+                      echo '<li class="list-inline-item align-bottom mr-0"><a href="fuel-parts.php?new" class="btn btn-success">Create</a></li>';
                     }
                     else{
                       echo '<li class="list-inline-item align-bottom mr-0"><a href="parts.php?new" class="btn btn-success">Create</a></li>';

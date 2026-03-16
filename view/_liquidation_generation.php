@@ -46,7 +46,35 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'liquidation table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateLiquidationTable()');
+            $payroll_deduction_filter = $_POST['payroll_deduction_filter'];
+            $balance_filter = $_POST['balance_filter'];
+            $filter_transaction_date_start_date = $systemModel->checkDate('empty', $_POST['filter_transaction_date_start_date'], '', 'Y-m-d', '');
+            $filter_transaction_date_end_date = $systemModel->checkDate('empty', $_POST['filter_transaction_date_end_date'], '', 'Y-m-d', '');
+            $sql = 'SELECT * FROM liquidation WHERE 1=1';
+
+            if(!empty($filter_transaction_date_start_date) && !empty($filter_transaction_date_end_date)){
+                $sql .= " AND DATE(created_date) BETWEEN '$filter_transaction_date_start_date' AND '$filter_transaction_date_end_date'";
+            }
+
+            if(!empty($payroll_deduction_filter)){
+                if($payroll_deduction_filter === 'Yes'){
+                    $sql .= ' AND payroll_deduction = "Yes"';
+                }
+                else if($payroll_deduction_filter === 'No'){
+                    $sql .= ' AND payroll_deduction = "No"';
+                }
+            }
+
+            if(!empty($balance_filter)){
+                if($balance_filter === 'Without Balance'){
+                    $sql .= ' AND remaining_balance = 0';
+                }
+                else if($balance_filter === 'With Balance'){
+                    $sql .= ' AND remaining_balance > 0';
+                }
+            }
+
+            $sql = $databaseModel->getConnection()->prepare($sql);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -90,6 +118,87 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'REMAINING_BALANCE' => number_format($remaining_balance, 2),
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="liquidation.php?id='. $liquidationIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'liquidation table 2':
+            $payroll_deduction_filter = $_POST['payroll_deduction_filter'];
+            $balance_filter = $_POST['balance_filter'];
+            $filter_transaction_date_start_date = $systemModel->checkDate('empty', $_POST['filter_transaction_date_start_date'], '', 'Y-m-d', '');
+            $filter_transaction_date_end_date = $systemModel->checkDate('empty', $_POST['filter_transaction_date_end_date'], '', 'Y-m-d', '');
+            $sql = 'SELECT * FROM liquidation WHERE 1=1';
+
+            if(!empty($filter_transaction_date_start_date) && !empty($filter_transaction_date_end_date)){
+                $sql .= " AND DATE(created_date) BETWEEN '$filter_transaction_date_start_date' AND '$filter_transaction_date_end_date'";
+            }
+
+            if(!empty($payroll_deduction_filter)){
+                if($payroll_deduction_filter === 'Yes'){
+                    $sql .= ' AND payroll_deduction = "Yes"';
+                }
+                else if($payroll_deduction_filter === 'No'){
+                    $sql .= ' AND payroll_deduction = "No"';
+                }
+            }
+
+            if(!empty($balance_filter)){
+                if($balance_filter === 'Without Balance'){
+                    $sql .= ' AND remaining_balance = 0';
+                }
+                else if($balance_filter === 'With Balance'){
+                    $sql .= ' AND remaining_balance > 0';
+                }
+            }
+
+            $sql = $databaseModel->getConnection()->prepare($sql);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $liquidation_id = $row['liquidation_id'];
+                $disbursement_particulars_id = $row['disbursement_particulars_id'];
+                $disbursement_id = $row['disbursement_id'];
+                $remaining_balance = $row['remaining_balance'];
+                $created_date = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y', '');
+
+                $disbursementDetails = $disbursementModel->getDisbursement($disbursement_id);
+                $transaction_number = $disbursementDetails['transaction_number'] ?? '';
+                $customer_id = $disbursementDetails['customer_id'] ?? '';
+                $payable_type = $disbursementDetails['payable_type'] ?? '';
+
+                $disbursementParticularsDetails = $disbursementModel->getDisbursementParticulars($disbursement_particulars_id);
+                $chart_of_account_id = $disbursementParticularsDetails['chart_of_account_id'];
+
+                $chartOfAccountDetails = $chartOfAccountModel->getChartOfAccount($chart_of_account_id);
+                $chartOfAccountName = $chartOfAccountDetails['name'] ?? null;
+
+                if($payable_type === 'Customer'){
+                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
+                    $customerName = $customerDetails['file_as'] ?? null;
+                }
+                else{
+                    $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
+                    $customerName = $miscellaneousClientDetails['client_name'] ?? null;
+                }
+
+                $liquidationIDEncrypted = $securityModel->encryptData($liquidation_id);
+
+                $response[] = [
+                    'PARTICULARS' => $chartOfAccountName,
+                    'TRANSACTION_NUNMBER' => $transaction_number,
+                    'CUSTOMER_NAME' => '<a href="payroll-deduction.php?id='. $liquidationIDEncrypted .'" title="View Details">
+                                        '. $customerName .'
+                                    </a>',
+                    'CREATED_DATE' => $created_date,
+                    'REMAINING_BALANCE' => number_format($remaining_balance, 2),
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="payroll-deduction.php?id='. $liquidationIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

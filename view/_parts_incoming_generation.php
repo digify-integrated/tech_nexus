@@ -378,7 +378,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 if($company_id == '2'){
-                    $company_name = 'NE Truck Builders';
+                    $company_name = 'Christian General Motors Inc.';
                 }
                 else{
                     $company_name = 'FUSO Tarlac';
@@ -518,6 +518,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 else if($company == '2'){
                     $link = 'netruck-parts-incoming';
                 }
+                else if($company == '8'){
+                    $link = 'fuel-incoming';
+                }
                 else{
                     $link = 'parts-incoming';
                 }
@@ -632,6 +635,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
                 else if($company == '2'){
                     $link = 'netruck-parts-incoming';
+                }
+                else if($company == '8'){
+                    $link = 'fuel-incoming';
                 }
                 else{
                     $link = 'parts-incoming';

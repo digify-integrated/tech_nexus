@@ -93,8 +93,8 @@ class DisbursementModel {
         $stmt->execute();
     }
 
-    public function updateDisbursementParticulars($p_disbursement_particulars_id, $p_disbursement_id, $p_chart_of_account_id, $p_company_id, $p_remarks, $p_particulars_amount, $p_base_amount, $p_with_vat, $p_with_withholding, $p_vat_amount, $p_withholding_amount, $p_total_amount, $p_tax_quarter, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateDisbursementParticulars(:p_disbursement_particulars_id, :p_disbursement_id, :p_chart_of_account_id, :p_company_id, :p_remarks, :p_particulars_amount, :p_base_amount, :p_with_vat, :p_with_withholding, :p_vat_amount, :p_withholding_amount, :p_total_amount, :p_tax_quarter, :p_last_log_by)');
+    public function updateDisbursementParticulars($p_disbursement_particulars_id, $p_disbursement_id, $p_chart_of_account_id, $p_company_id, $p_remarks, $p_particulars_amount, $p_base_amount, $p_with_vat, $p_with_withholding, $p_vat_amount, $p_withholding_amount, $p_total_amount, $p_tax_quarter, $p_payroll_deduction, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateDisbursementParticulars(:p_disbursement_particulars_id, :p_disbursement_id, :p_chart_of_account_id, :p_company_id, :p_remarks, :p_particulars_amount, :p_base_amount, :p_with_vat, :p_with_withholding, :p_vat_amount, :p_withholding_amount, :p_total_amount, :p_tax_quarter, :p_payroll_deduction, :p_last_log_by)');
         $stmt->bindValue(':p_disbursement_particulars_id', $p_disbursement_particulars_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_disbursement_id', $p_disbursement_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_chart_of_account_id', $p_chart_of_account_id, PDO::PARAM_STR);
@@ -108,6 +108,7 @@ class DisbursementModel {
         $stmt->bindValue(':p_withholding_amount', $p_withholding_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_total_amount', $p_total_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_tax_quarter', $p_tax_quarter, PDO::PARAM_INT);
+        $stmt->bindValue(':p_payroll_deduction', $p_payroll_deduction, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -183,8 +184,8 @@ class DisbursementModel {
         return $p_disbursement_id;
     }
     
-    public function insertDisbursementParticulars($p_disbursement_id, $p_chart_of_account_id, $p_company_id, $p_remarks, $p_particulars_amount, $p_base_amount, $p_with_vat, $p_with_withholding, $p_vat_amount, $p_withholding_amount, $p_total_amount, $p_tax_quarter, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertDisbursementParticulars(:p_disbursement_id, :p_chart_of_account_id, :p_company_id, :p_remarks, :p_particulars_amount, :p_base_amount, :p_with_vat, :p_with_withholding, :p_vat_amount, :p_withholding_amount, :p_total_amount, :p_tax_quarter, :p_last_log_by)');
+    public function insertDisbursementParticulars($p_disbursement_id, $p_chart_of_account_id, $p_company_id, $p_remarks, $p_particulars_amount, $p_base_amount, $p_with_vat, $p_with_withholding, $p_vat_amount, $p_withholding_amount, $p_total_amount, $p_tax_quarter, $p_payroll_deduction, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertDisbursementParticulars(:p_disbursement_id, :p_chart_of_account_id, :p_company_id, :p_remarks, :p_particulars_amount, :p_base_amount, :p_with_vat, :p_with_withholding, :p_vat_amount, :p_withholding_amount, :p_total_amount, :p_tax_quarter, :p_payroll_deduction, :p_last_log_by)');
         $stmt->bindValue(':p_disbursement_id', $p_disbursement_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_chart_of_account_id', $p_chart_of_account_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_STR);
@@ -197,6 +198,7 @@ class DisbursementModel {
         $stmt->bindValue(':p_withholding_amount', $p_withholding_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_total_amount', $p_total_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_tax_quarter', $p_tax_quarter, PDO::PARAM_INT);
+        $stmt->bindValue(':p_payroll_deduction', $p_payroll_deduction, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

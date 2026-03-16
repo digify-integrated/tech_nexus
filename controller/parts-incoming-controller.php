@@ -194,6 +194,9 @@ class PartsIncomingController {
             else if($company_id == '2'){
                 $reference_number = ((int)($this->systemSettingModel->getSystemSetting(31)['value'] ?? 0)) + 1;
             }
+            else if($company_id == '8'){
+                $reference_number = ((int)($this->systemSettingModel->getSystemSetting(48)['value'] ?? 0)) + 1;
+            }
             else if($company_id == '3'){
                 $reference_number = ((int)($this->systemSettingModel->getSystemSetting(p_system_setting_id: 40)['value'] ?? 0)) + 1;
             }
@@ -205,6 +208,9 @@ class PartsIncomingController {
             }
             else if($company_id == '2'){
                 $this->systemSettingModel->updateSystemSettingValue(31, $reference_number, $userID);
+            }
+            else if($company_id == '8'){
+                $this->systemSettingModel->updateSystemSettingValue(48, $reference_number, $userID);
             }
             else if($company_id == '3'){
                 $this->systemSettingModel->updateSystemSettingValue(40, $reference_number, $userID);
@@ -274,6 +280,9 @@ class PartsIncomingController {
         else if($company_id == '2'){
             $rr_no = (int)$this->systemSettingModel->getSystemSetting(35)['value'] + 1;
         }
+        else if($company_id == '8'){
+            $rr_no = (int)$this->systemSettingModel->getSystemSetting(49)['value'] + 1;
+        }
         else{
             $rr_no = (int)$this->systemSettingModel->getSystemSetting(36)['value'] + 1;
         }
@@ -285,6 +294,9 @@ class PartsIncomingController {
         }
         else if($company_id == '2'){
             $this->systemSettingModel->updateSystemSettingValue(35, $rr_no, $userID);
+        }
+        else if($company_id == '8'){
+            $this->systemSettingModel->updateSystemSettingValue(49, $rr_no, $userID);
         }
         else{
             $this->systemSettingModel->updateSystemSettingValue(36, $rr_no, $userID);
@@ -411,14 +423,14 @@ class PartsIncomingController {
         foreach ($getPartsIncomingCartByID as $row) {
             $part_id = $row['part_id'];
             $received_quantity = $row['received_quantity'];
-            $total_cost = $row['cost'] * $received_quantity;
+            $cost_per_item = $row['cost'];
 
             $this->partsIncomingModel->updatePartsAverageCostAndSRP(
                 $part_id,
                 $company_id,
                 $supplier_id,
                 $received_quantity,
-                $total_cost,
+                $cost_per_item,
                 $userID
             );
         }

@@ -69,7 +69,7 @@ foreach ($options as $row) {
     }
 
     if($company_id == '2'){
-        $company_name = 'NE Truck Builders';
+        $company_name = 'Christian General Motors Inc.';
     }
     else{
         $company_name = 'FUSO Tarlac';

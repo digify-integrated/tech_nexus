@@ -165,6 +165,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $redepositDate = $systemModel->checkDate('empty', $row['new_deposit_date'], '', 'm/d/Y', '');
                 $reversalDate = $systemModel->checkDate('empty', $row['reversal_date'], '', 'm/d/Y', '');
 
+                $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
+                $repaymentAmount = $pricingComputationDetails['repayment_amount'] ?? 0;
 
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;
@@ -181,7 +183,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $getProperty = $propertyModel->getProperty($propertyID);
                     $corporateName = $getProperty['property_name'] ?? '';
-
                 }
 
                 $productDetails = $productModel->getProduct($productID);
@@ -222,6 +223,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CHECK_NUMBER' => $checkNumber,
                     'CHECK_DATE' => $checkDate,
                     'REDEPOSIT_DATE' => $redepositDate,
+                    'REPAYMENT_AMOUNT' => number_format($repaymentAmount, 2),
                     'PAYMENT_AMOUNT' => number_format($paymentAmount, 2),
                     'BANK_BRANCH' => $bankBranch,
                     'REVERSAL_DATE' => $reversalDate,

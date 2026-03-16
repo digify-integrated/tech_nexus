@@ -5,6 +5,10 @@
         if($('#liquidation-table').length){
             liquidationTable('#liquidation-table');
         }
+
+        if($('#liquidation-table2').length){
+            liquidationTable2('#liquidation-table2');
+        }
         
         if($('#particulars-table').length){
             particularsTable('#particulars-table');
@@ -590,11 +594,24 @@
             }
         });
 
+        $(document).on('click','#apply-filter',function() {
+           if($('#liquidation-table').length){
+                liquidationTable('#liquidation-table');
+            }
+
+            if($('#liquidation-table2').length){
+                liquidationTable2('#liquidation-table2');
+            }
+        });
     });
 })(jQuery);
 
 function liquidationTable(datatable_name, buttons = false, show_all = false){
     const type = 'liquidation table';
+    const payroll_deduction_filter = $('#payroll-deduction-filter').val();
+    const balance_filter = $('#balance-filter').val();
+    const filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
+    const filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
 
     var settings;
 
@@ -625,6 +642,82 @@ function liquidationTable(datatable_name, buttons = false, show_all = false){
             'dataType': 'json',
             'data': {
                 'type' : type,
+                'payroll_deduction_filter' : payroll_deduction_filter,
+                'balance_filter' : balance_filter,
+                'filter_transaction_date_start_date' : filter_transaction_date_start_date,
+                'filter_transaction_date_end_date' : filter_transaction_date_end_date
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function liquidationTable2(datatable_name, buttons = false, show_all = false){
+    const type = 'liquidation table';
+    const payroll_deduction_filter = $('#payroll-deduction-filter').val();
+    const balance_filter = $('#balance-filter').val();
+    const filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
+    const filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
+
+    var settings;
+
+    const column = [
+        { 'data' : 'PARTICULARS' },
+        { 'data' : 'TRANSACTION_NUNMBER' },
+        { 'data' : 'CUSTOMER_NAME' },
+        { 'data' : 'CREATED_DATE' },
+        { 'data' : 'REMAINING_BALANCE' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_liquidation_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'payroll_deduction_filter' : payroll_deduction_filter,
+                'balance_filter' : balance_filter,
+                'filter_transaction_date_start_date' : filter_transaction_date_start_date,
+                'filter_transaction_date_end_date' : filter_transaction_date_end_date
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {

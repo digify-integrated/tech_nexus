@@ -1975,6 +1975,7 @@ END //
 CREATE PROCEDURE generateCompanyOptions()
 BEGIN
 	SELECT company_id, company_name FROM company
+    WHERE company_id != 2
 	ORDER BY company_name;
 END //
 
@@ -7371,7 +7372,7 @@ END //
 CREATE PROCEDURE generateInStockProductOptions()
 BEGIN
 	SELECT product_id, description, stock_number FROM product
-    WHERE product_status = 'In Stock'
+    WHERE product_status = 'For Sale'
 	ORDER BY stock_number;
 END //
 
@@ -8014,6 +8015,34 @@ BEGIN
         AND created_date < NOW() - INTERVAL 31 DAY;
 END //
 
+CREATE PROCEDURE cronSalesProposalCancelProceed(IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+	UPDATE sales_proposal
+        SET sales_proposal_status = 'Cancelled',
+        cancellation_date = NOW(),
+        cancellation_reason = 'Lapsed Approval',
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_status = 'Proceed' 
+        AND product_type NOT IN ('Fuel', 'Brand New')
+        AND approval_date < NOW() - INTERVAL 31 DAY;
+END //
+
+CREATE PROCEDURE cronSalesProposalCancelFuelProceed(IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+	UPDATE sales_proposal
+        SET sales_proposal_status = 'Cancelled',
+        cancellation_date = NOW(),
+        cancellation_reason = 'Lapsed Approval',
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_status = 'Proceed' 
+        AND product_type IN ('Fuel')
+        AND approval_date < NOW() - INTERVAL 11 DAY;
+END //
+
 CREATE PROCEDURE cronSalesProposalOverdueForCI()
 BEGIN
    SELECT * FROM sales_proposal WHERE for_ci_date IS NOT NULL AND ci_completion_date IS NULL AND for_ci_date < NOW() - INTERVAL 3 DAY AND sales_proposal_status NOT IN ('Cancelled', 'Rejected');
@@ -8034,7 +8063,7 @@ BEGIN
 
         UPDATE product SET product_status = 'With Application',
         last_log_by = p_last_log_by
-        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
+        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id) AND product_status NOT IN ('For Return', 'Sold');
     ELSEIF p_sales_proposal_status = 'For CI' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -8110,7 +8139,7 @@ BEGIN
 
         UPDATE product SET product_status = 'On-Process',
         last_log_by = p_last_log_by
-        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
+        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id) AND product_status NOT IN ('For Return');
     ELSEIF p_sales_proposal_status = 'Ready For Release' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -8120,7 +8149,7 @@ BEGIN
 
         UPDATE product SET product_status = 'Ready For Release',
         last_log_by = p_last_log_by
-        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
+        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id) AND product_status NOT IN ('For Return');
     ELSEIF p_sales_proposal_status = 'For DR' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -8130,7 +8159,7 @@ BEGIN
 
         UPDATE product SET product_status = 'For DR',
         last_log_by = p_last_log_by
-        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id);
+        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id) AND product_status NOT IN ('For Return');
     ELSEIF p_sales_proposal_status = 'For Review' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -8179,7 +8208,7 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id AND sales_proposal_status = 'For CI';
 END //
 
-CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cost DOUBLE, IN p_job_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalJobOrderProgress(IN p_sales_proposal_job_order_id INT, IN p_cost DOUBLE, IN p_job_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_remarks VARCHAR(5000), IN p_company_id INT, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_job_order
     SET progress = p_progress,
@@ -8194,11 +8223,12 @@ BEGIN
     planned_finish_date = p_planned_finish_date,
     date_started = p_date_started,
     remarks = p_remarks,
+    company_id = p_company_id,
     last_log_by = p_last_log_by
     WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
 END //
 
-CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cost DOUBLE, IN p_job_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalAdditionalJobOrderProgress(IN p_sales_proposal_additional_job_order_id INT, IN p_cost DOUBLE, IN p_job_cost DOUBLE, IN p_progress DOUBLE, IN p_contractor_id INT, IN p_work_center_id INT, IN p_backjob VARCHAR(5), IN p_completion_date DATE, IN p_planned_start_date DATE, p_planned_finish_date DATE, IN p_date_started DATE, IN p_remarks VARCHAR(5000), IN p_company_id INT, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_additional_job_order
     SET progress = p_progress,
@@ -8213,6 +8243,7 @@ BEGIN
     planned_finish_date = p_planned_finish_date,
     date_started = p_date_started,
     remarks = p_remarks,
+    company_id = p_company_id,
     last_log_by = p_last_log_by
     WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
 END //
@@ -12280,7 +12311,7 @@ BEGIN
         CURRENT_DATE,
         p_last_log_by
     FROM employment_information ei
-    WHERE ei.employment_status = 1;
+    WHERE ei.employment_status = 1 AND employee_id NOT IN (43,44,45);
 
     -- Update status to 'Official Business' where leave_type_id = 3 and leave is approved for today
     UPDATE employee_daily_status eds
@@ -12460,61 +12491,99 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-CREATE PROCEDURE updateProductStatus(IN p_product_id INT, IN p_product_status VARCHAR(50), IN p_particulars VARCHAR(500), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_last_log_by INT)
+DELIMITER //
+
+CREATE PROCEDURE updateProductStatus(
+    IN p_product_id INT,
+    IN p_product_status VARCHAR(50),
+    IN p_particulars VARCHAR(500),
+    IN p_expense_amount DOUBLE,
+    IN p_expense_type VARCHAR(100),
+    IN p_last_log_by INT
+)
 BEGIN
+    DECLARE v_latest_sp_status VARCHAR(50) DEFAULT NULL;
+
     SET time_zone = '+08:00';
 
     IF p_product_status = 'For Sale' THEN
+
         UPDATE product
         SET product_status = p_product_status,
-        for_sale_date = NOW(),
-        rr_date = NOW(),
-        last_log_by = p_last_log_by
+            for_sale_date = NOW(),
+            rr_date = NOW(),
+            last_log_by = p_last_log_by
         WHERE product_id = p_product_id;
 
-        INSERT INTO product_expense (product_id, expense_amount, expense_type, particulars, last_log_by) 
-	    VALUES(p_product_id, p_expense_amount, p_expense_type, p_particulars, p_last_log_by);
+        INSERT INTO product_expense (product_id, expense_amount, expense_type, particulars, last_log_by)
+        VALUES (p_product_id, p_expense_amount, p_expense_type, p_particulars, p_last_log_by);
+
     ELSEIF p_product_status = 'Rented' THEN
+
         UPDATE product
         SET product_status = p_product_status,
-        rented_date = NOW(),
-        last_log_by = p_last_log_by
+            rented_date = NOW(),
+            last_log_by = p_last_log_by
         WHERE product_id = p_product_id;
+
     ELSEIF p_product_status = 'Returned' THEN
+
+        SELECT sp.sales_proposal_status
+          INTO v_latest_sp_status
+        FROM sales_proposal sp
+        WHERE sp.product_id = p_product_id
+          AND sp.sales_proposal_status IN ('For Final Approval', 'Proceed', 'On-Process', 'Ready For Release', 'For DR')
+        ORDER BY sp.created_date DESC
+        LIMIT 1;
+
         UPDATE product
-        SET 
-            product_status = 'For Sale',
+        SET product_status = CASE
+                                WHEN v_latest_sp_status IS NULL THEN 'For Sale'
+                                WHEN v_latest_sp_status = 'For Final Approval' THEN 'With Application'
+                                ELSE v_latest_sp_status
+                             END,
             returned_date = NOW(),
             last_log_by = p_last_log_by
-        WHERE 
-            product_id = p_product_id
-            AND product_status NOT IN ('ROPA', 'Sold');
+        WHERE product_id = p_product_id
+          AND product_status NOT IN ('ROPA', 'Sold');
+
     ELSEIF p_product_status = 'Consigned' THEN
+
         UPDATE product
         SET product_status = p_product_status,
-        consignment_date = NOW(),
-        last_log_by = p_last_log_by
+            consignment_date = NOW(),
+            last_log_by = p_last_log_by
         WHERE product_id = p_product_id;
+
     ELSEIF p_product_status = 'Repossessed' THEN
+
         UPDATE product
         SET product_status = p_product_status,
-        repossessed_date = NOW(),
-        last_log_by = p_last_log_by
+            repossessed_date = NOW(),
+            last_log_by = p_last_log_by
         WHERE product_id = p_product_id;
+
     ELSEIF p_product_status = 'ROPA' THEN
+
         UPDATE product
         SET product_status = 'ROPA',
-        ropa_date = NOW(),
-        last_log_by = p_last_log_by
+            ropa_date = NOW(),
+            last_log_by = p_last_log_by
         WHERE product_id = p_product_id;
+
     ELSE
+
         UPDATE product
         SET product_status = p_product_status,
-        sold_date = NOW(),
-        last_log_by = p_last_log_by
+            sold_date = NOW(),
+            last_log_by = p_last_log_by
         WHERE product_id = p_product_id;
+
     END IF;
-END //
+
+END//
+
+DELIMITER ;
 
 CREATE PROCEDURE insertProductExpense(IN p_product_id INT, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(200), IN p_expense_amount DOUBLE, IN p_expense_type VARCHAR(100), IN p_particulars VARCHAR(5000), IN p_issuance_date DATE, IN p_last_log_by INT)
 BEGIN
@@ -12707,9 +12776,6 @@ BEGIN
         IF p_product_type = 'Fuel' THEN
             SET v_analytic_lines = 'NE FUEL';
             SET v_analytic_distribution = '{"6": 100.0}';
-        ELSEIF p_product_type = 'Repair' THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
         ELSE
             SET v_analytic_lines = 'CGMI';
             SET v_analytic_distribution = '{"1": 100.0}';
@@ -12826,10 +12892,10 @@ BEGIN
     SET p_disbursement_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE insertDisbursementParticulars(IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_company_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_base_amount DOUBLE, IN p_with_vat VARCHAR(5), IN p_with_withholding VARCHAR(5), IN p_vat_amount DOUBLE, IN p_withholding_amount DOUBLE, IN p_total_amount DOUBLE, IN p_tax_quarter INT, IN p_last_log_by INT)
+CREATE PROCEDURE insertDisbursementParticulars(IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_company_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_base_amount DOUBLE, IN p_with_vat VARCHAR(5), IN p_with_withholding VARCHAR(5), IN p_vat_amount DOUBLE, IN p_withholding_amount DOUBLE, IN p_total_amount DOUBLE, IN p_tax_quarter INT, IN p_payroll_deduction VARCHAR(50), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO disbursement_particulars (disbursement_id, chart_of_account_id, company_id, remarks, particulars_amount, base_amount, with_vat, with_withholding, vat_amount, withholding_amount, total_amount, tax_quarter, created_by, last_log_by) 
-	VALUES(p_disbursement_id, p_chart_of_account_id, p_company_id, p_remarks, p_particulars_amount, p_base_amount, p_with_vat, p_with_withholding, p_vat_amount, p_withholding_amount, p_total_amount, p_tax_quarter, p_last_log_by, p_last_log_by);
+    INSERT INTO disbursement_particulars (disbursement_id, chart_of_account_id, company_id, remarks, particulars_amount, base_amount, with_vat, with_withholding, vat_amount, withholding_amount, total_amount, tax_quarter, payroll_deduction, created_by, last_log_by) 
+	VALUES(p_disbursement_id, p_chart_of_account_id, p_company_id, p_remarks, p_particulars_amount, p_base_amount, p_with_vat, p_with_withholding, p_vat_amount, p_withholding_amount, p_total_amount, p_tax_quarter, p_payroll_deduction, p_last_log_by, p_last_log_by);
 END //
 
 CREATE PROCEDURE insertDisbursementCheck(IN p_disbursement_id INT, IN p_bank_branch VARCHAR(100), IN p_check_name VARCHAR(5000), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_check_amount DOUBLE, IN p_last_log_by INT)
@@ -12854,7 +12920,7 @@ BEGIN
     WHERE disbursement_id = p_disbursement_id;
 END //
 
-CREATE PROCEDURE updateDisbursementParticulars(IN p_disbursement_particulars_id INT, IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_company_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_base_amount DOUBLE, IN p_with_vat VARCHAR(5), IN p_with_withholding VARCHAR(5), IN p_vat_amount DOUBLE, IN p_withholding_amount DOUBLE, IN p_total_amount DOUBLE, IN p_tax_quarter INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateDisbursementParticulars(IN p_disbursement_particulars_id INT, IN p_disbursement_id INT, IN p_chart_of_account_id INT, IN p_company_id INT, IN p_remarks VARCHAR(100), IN p_particulars_amount DOUBLE, IN p_base_amount DOUBLE, IN p_with_vat VARCHAR(5), IN p_with_withholding VARCHAR(5), IN p_vat_amount DOUBLE, IN p_withholding_amount DOUBLE, IN p_total_amount DOUBLE, IN p_tax_quarter INT, IN p_payroll_deduction VARCHAR(50), IN p_last_log_by INT)
 BEGIN
     UPDATE disbursement_particulars
     SET disbursement_id = p_disbursement_id,
@@ -12869,6 +12935,7 @@ BEGIN
         withholding_amount = p_withholding_amount,
         total_amount = p_total_amount,
         tax_quarter = p_tax_quarter,
+        payroll_deduction = p_payroll_deduction,
         last_log_by = p_last_log_by
     WHERE disbursement_particulars_id = p_disbursement_particulars_id;
 END //
@@ -13407,8 +13474,8 @@ BEGIN
                 SET v_analytic_lines = 'CGMI';
                 SET v_analytic_distribution = '{"1": 100.0}';
             WHEN 2 THEN
-                SET v_analytic_lines = 'NE TRUCK';
-                SET v_analytic_distribution = '{"2": 100.0}';
+                SET v_analytic_lines = 'CGMI';
+                SET v_analytic_distribution = '{"1": 100.0}';
             WHEN 3 THEN
                 SET v_analytic_lines = 'FUSO';
                 SET v_analytic_distribution = '{"1": 100.0}';
@@ -13631,10 +13698,11 @@ BEGIN
     DECLARE done INT DEFAULT 0;
     DECLARE v_disbursement_particulars_id INT;
     DECLARE v_particulars_amount DOUBLE;
+    DECLARE v_payroll_deduction VARCHAR(50);
 
     -- Cursor to fetch disbursement_particulars data
     DECLARE cur CURSOR FOR 
-        SELECT disbursement_particulars_id, particulars_amount
+        SELECT disbursement_particulars_id, particulars_amount, payroll_deduction
         FROM disbursement_particulars 
         WHERE chart_of_account_id IN (565, 567, 452)
         AND disbursement_id IN (SELECT disbursement_id FROM disbursement WHERE disbursement_id = p_disbursement_id AND disburse_status = 'Posted');
@@ -13645,7 +13713,7 @@ BEGIN
     OPEN cur;
 
     fetch_loop: LOOP
-        FETCH cur INTO v_disbursement_particulars_id, v_particulars_amount;
+        FETCH cur INTO v_disbursement_particulars_id, v_particulars_amount, v_payroll_deduction;
         IF done THEN
             LEAVE fetch_loop;
         END IF;
@@ -13654,6 +13722,7 @@ BEGIN
         INSERT INTO liquidation (
             disbursement_particulars_id, 
             disbursement_id, 
+            payroll_deduction, 
             remaining_balance, 
             transaction_date, 
             created_by, 
@@ -13662,6 +13731,7 @@ BEGIN
         VALUES (
             v_disbursement_particulars_id,
             p_disbursement_id,
+            v_payroll_deduction,
             v_particulars_amount,
             p_transaction_date,
             p_created_by,
@@ -13674,7 +13744,7 @@ END //
 
 CREATE PROCEDURE generateLiquidationTable()
 BEGIN
-    SELECT * FROM liquidation;
+    SELECT * FROM liquidation ;
 END //
 
 CREATE PROCEDURE insertLiquidationParticulars(IN p_liquidation_id INT, IN p_chart_of_account_id INT, IN p_particulars_amount DOUBLE, IN p_reference_type VARCHAR(100), IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
@@ -13752,8 +13822,8 @@ BEGIN
                 SET v_analytic_lines = 'CGMI';
                 SET v_analytic_distribution = '{"1": 100.0}';
             WHEN 2 THEN
-                SET v_analytic_lines = 'NE TRUCK';
-                SET v_analytic_distribution = '{"2": 100.0}';
+                SET v_analytic_lines = 'CGMI';
+                SET v_analytic_distribution = '{"1": 100.0}';
             WHEN 3 THEN
                 SET v_analytic_lines = 'FUSO';
                 SET v_analytic_distribution = '{"1": 100.0}';
@@ -14615,6 +14685,7 @@ CREATE PROCEDURE updateBackJobMonitoringJobOrder(
     IN p_planned_finish_date DATE, 
     IN p_date_started DATE, 
     IN p_remarks VARCHAR(5000), 
+    IN p_company_id INT, 
     IN p_last_log_by INT
 )
 BEGIN
@@ -14640,6 +14711,7 @@ BEGIN
             planned_finish_date = p_planned_finish_date,
             date_started = p_date_started,
             remarks = p_remarks,
+            company_id = p_company_id,
             last_log_by = p_last_log_by
         WHERE backjob_monitoring_job_order_id = p_backjob_monitoring_job_order_id;
     ELSE
@@ -14658,6 +14730,7 @@ BEGIN
             planned_finish_date, 
             date_started, 
             remarks, 
+            company_id, 
             last_log_by
         ) VALUES (
             p_backjob_monitoring_job_order_id, 
@@ -14673,6 +14746,7 @@ BEGIN
             p_planned_finish_date, 
             p_date_started, 
             p_remarks, 
+            p_company_id, 
             p_last_log_by
         );
     END IF;
@@ -14694,6 +14768,7 @@ CREATE PROCEDURE updateBackJobMonitoringAdditionalJobOrder(
     IN p_planned_finish_date DATE, 
     IN p_date_started DATE, 
     IN p_remarks VARCHAR(5000), 
+    IN p_company_id INT, 
     IN p_last_log_by INT
 )
 BEGIN
@@ -14721,6 +14796,7 @@ BEGIN
             planned_finish_date = p_planned_finish_date,
             date_started = p_date_started,
             remarks = p_remarks,
+            company_id = p_company_id,
             last_log_by = p_last_log_by
         WHERE backjob_monitoring_additional_job_order_id = p_backjob_monitoring_additional_job_order_id;
     ELSE
@@ -14741,6 +14817,7 @@ BEGIN
             planned_finish_date, 
             date_started, 
             remarks, 
+            company_id, 
             last_log_by
         ) VALUES (
             p_backjob_monitoring_additional_job_order_id, 
@@ -14758,6 +14835,7 @@ BEGIN
             p_planned_finish_date, 
             p_date_started, 
             p_remarks, 
+            p_company_id, 
             p_last_log_by
         );
     END IF;
@@ -14831,6 +14909,50 @@ END //
 DELIMITER //
 
 CREATE PROCEDURE generateDailyEmployeeStatusTable(
+    IN p_filter_attendance_date DATE,
+    IN p_filter_attendance_status VARCHAR(5000),
+    IN p_filter_branch VARCHAR(5000)
+)
+BEGIN
+    DECLARE baseQuery TEXT;
+    DECLARE finalQuery TEXT;
+
+    SET baseQuery = 'SELECT * FROM employee_daily_status WHERE 1 = 1';
+
+    -- Filter by attendance date
+    IF p_filter_attendance_date IS NOT NULL THEN
+        SET baseQuery = CONCAT(baseQuery, ' AND attendance_date = ', QUOTE(p_filter_attendance_date));
+    END IF;
+
+    -- Filter by attendance status (expects properly quoted values from PHP)
+    IF p_filter_attendance_status IS NOT NULL AND p_filter_attendance_status <> '' THEN
+        IF p_filter_attendance_status = 'late' THEN
+            SET baseQuery = CONCAT(baseQuery, ' AND is_late = "Yes"');
+        ELSEIF p_filter_attendance_status = 'undertime' THEN
+            SET baseQuery = CONCAT(baseQuery, ' AND is_undertime = "Yes"');
+        ELSEIF p_filter_attendance_status = 'on paid leave' THEN
+            SET baseQuery = CONCAT(baseQuery, ' AND is_on_paid_leave = "Yes"');
+        ELSEIF p_filter_attendance_status = 'on unpaid leave' THEN
+            SET baseQuery = CONCAT(baseQuery, ' AND is_on_unpaid_leave = "Yes"');
+        ELSEIF p_filter_attendance_status = 'on official business' THEN
+            SET baseQuery = CONCAT(baseQuery, ' AND is_on_official_business = "Yes"');
+        END IF;
+    END IF;
+
+    IF p_filter_branch IS NOT NULL AND p_filter_branch <> '' THEN
+        SET baseQuery = CONCAT(baseQuery, ' AND contact_id IN (SELECT contact_id FROM employment_information WHERE branch_id IN (', p_filter_branch, '))');
+    END IF;
+
+    -- Add ORDER BY
+    SET finalQuery = CONCAT(baseQuery, ' ORDER BY contact_id ASC');
+
+    -- Debug: SELECT finalQuery; -- optional for troubleshooting
+    PREPARE stmt FROM finalQuery;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateDailyEmployeeStatusTable2(
     IN p_filter_attendance_date DATE,
     IN p_filter_attendance_status VARCHAR(5000),
     IN p_filter_branch VARCHAR(5000)
@@ -15301,7 +15423,7 @@ BEGIN
     END IF;
 END //
 
-CREATE PROCEDURE updateParts(IN p_part_id INT, IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_part_number VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_stock_alert INT, IN p_part_price DOUBLE, IN p_quantity DOUBLE, IN p_brand_id INT, IN p_warehouse_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+CREATE PROCEDURE updateParts(IN p_part_id INT, IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_part_number VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_stock_alert INT, IN p_part_price DOUBLE, IN p_quantity DOUBLE, INz p_brand_id INT, IN p_warehouse_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     UPDATE part
     SET part_category_id = p_part_category_id,
@@ -15313,8 +15435,6 @@ BEGIN
     company_id = p_company_id,
     unit_sale = p_unit_sale,
     stock_alert = p_stock_alert,
-    part_price = p_part_price,
-    quantity = p_quantity,
     brand_id = p_brand_id,
     warehouse_id = p_warehouse_id,
     remarks = p_remarks,
@@ -16053,7 +16173,7 @@ BEGIN
             released_date = NOW(),
             part_transaction_status = p_part_transaction_status,
             last_log_by = p_last_log_by
-        WHERE part_transaction_id = p_parts_transaction_id AND (company_id = '2' OR company_id = '1');
+        WHERE part_transaction_id = p_parts_transaction_id AND (company_id = '2' OR company_id = '1' OR company_id = '8');
 
          UPDATE part_transaction
         SET 
@@ -16500,13 +16620,13 @@ BEGIN
     FOR UPDATE; -- row lock for transaction safety
 
     -- Compute totals
-    SET total_cost_of_parts = current_quantity * current_part_cost;
-    SET total_cost_of_received = p_received_quantity * p_cost;
-    SET total_quantity = current_quantity + p_received_quantity;
+    SET total_cost_of_parts = current_quantity * current_part_cost; -- Parts main table 0
+    SET total_cost_of_received = p_received_quantity * p_cost; -- Parts incoming 2 * 60 = 120
+    SET total_quantity = current_quantity + p_received_quantity; -- 2
 
     IF total_quantity > 0 THEN
-        SET overall_total_cost = total_cost_of_parts + total_cost_of_received;
-        SET new_part_cost = ROUND(overall_total_cost / total_quantity, 2);
+        SET overall_total_cost = total_cost_of_parts + total_cost_of_received; -- 0 + 120 = 120
+        SET new_part_cost = ROUND(overall_total_cost / total_quantity, 2); -- 120 / 2 - 60
     ELSE
         SET new_part_cost = current_part_cost; -- avoid division by zero
     END IF;
@@ -16516,6 +16636,8 @@ BEGIN
         SET new_part_price = ROUND(new_part_cost * 1.3, 2);
     ELSEIF p_company_id = 3 AND p_supplier_id != 9 THEN
         SET new_part_price = ROUND(new_part_cost * 1.6, 2);
+    ELSEIF p_company_id = 8 AND p_supplier_id != 9 THEN
+        SET new_part_price = new_part_cost;
     ELSE
         SET new_part_price = current_part_price;
     END IF;
@@ -19685,8 +19807,8 @@ BEGIN
             SET v_analytic_lines = 'CGMI';
             SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 2 THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 3 THEN
             SET v_analytic_lines = 'FUSO';
             SET v_analytic_distribution = '{"1": 100.0}';
@@ -19809,7 +19931,7 @@ BEGIN
     -- === SAME ANALYTIC LOGIC ===
     CASE p_company_id
         WHEN 1 THEN SET v_analytic_lines = 'CGMI'; SET v_analytic_distribution = '{"1": 100.0}';
-        WHEN 2 THEN SET v_analytic_lines = 'NE TRUCK'; SET v_analytic_distribution = '{"2": 100.0}';
+        WHEN 2 THEN SET v_analytic_lines = 'CGMI'; SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 3 THEN SET v_analytic_lines = 'FUSO'; SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 4 THEN SET v_analytic_lines = 'PCG PROPERTY'; SET v_analytic_distribution = '{"4": 100.0}';
         WHEN 5 THEN SET v_analytic_lines = 'GCB PROPERTY'; SET v_analytic_distribution = '{"3": 100.0}';
@@ -19916,14 +20038,15 @@ BEGIN
     DECLARE v_credit VARCHAR(100);
     DECLARE v_chart_item_2 VARCHAR(100);
     DECLARE v_credit_2 VARCHAR(100);
+    DECLARE v_je_type VARCHAR(100);
 
     CASE p_company_id
         WHEN 1 THEN
             SET v_analytic_lines = 'CGMI';
             SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 2 THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 3 THEN
             SET v_analytic_lines = 'FUSO';
             SET v_analytic_distribution = '{"1": 100.0}';
@@ -19998,6 +20121,16 @@ BEGIN
 
     SET v_chart_item_2 = '50402020 Cost of Sales Parts';
     SET v_credit_2 = '10501020 Inventory Parts';
+    SET v_je_type = 'Parts Issuance';
+
+    IF p_company_id = '8' THEN 
+        SET v_chart_item = '50402080 Cost of Sales Fuel';
+        SET v_credit = '10501060 Inventory Fuel';
+    
+        SET v_chart_item_2 = '50402020 Cost of Sales Parts';
+        SET v_credit_2 = '10501020 Inventory Parts';
+        SET v_je_type = 'Fuel Issuance';
+    END IF;
 
     IF p_customer_type = 'Internal' THEN
 
@@ -20019,7 +20152,7 @@ BEGIN
                 p_part_transaction_id, 
                 NOW(), 
                 p_reference_number, 
-                'Parts Issuance', 
+                v_je_type, 
                 v_chart_item, 
                 p_cost, 
                 0, 
@@ -20047,7 +20180,7 @@ BEGIN
                 p_part_transaction_id, 
                 NOW(), 
                 p_reference_number, 
-                'Parts Issuance', 
+                v_je_type, 
                 v_credit, 
                 0, 
                 p_cost, 
@@ -20075,7 +20208,7 @@ BEGIN
                 p_part_transaction_id, 
                 NOW(), 
                 p_reference_number, 
-                'Parts Issuance', 
+                v_je_type, 
                 v_chart_item, 
                 p_price, 
                 0, 
@@ -20103,7 +20236,7 @@ BEGIN
                 p_part_transaction_id, 
                 NOW(), 
                 p_reference_number, 
-                'Parts Issuance', 
+                v_je_type, 
                 v_credit, 
                 0, 
                 p_price, 
@@ -20135,7 +20268,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Issuance', 
+            v_je_type, 
             v_chart_item_2, 
             p_cost, 
             0, 
@@ -20167,7 +20300,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Issuance', 
+            v_je_type, 
             v_credit_2, 
             0, 
             p_cost, 
@@ -20196,7 +20329,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Issuance', 
+            v_je_type, 
             v_chart_item_2, 
             p_cost, 
             0, 
@@ -20225,7 +20358,7 @@ BEGIN
             p_part_transaction_id, 
             NOW(), 
             p_reference_number, 
-            'Parts Issuance', 
+            v_je_type, 
             v_credit_2, 
             0, 
             p_cost, 
@@ -20265,8 +20398,8 @@ BEGIN
             SET v_analytic_lines = 'CGMI';
             SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 2 THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 3 THEN
             SET v_analytic_lines = 'FUSO';
             SET v_analytic_distribution = '{"1": 100.0}';
@@ -20713,7 +20846,8 @@ CREATE PROCEDURE createJobOrderEntry(
     IN p_sales_proposal_number VARCHAR(100),
     IN p_job_order_id INT,
     IN p_entry_type VARCHAR(50),
-    IN p_company_id INT,
+    IN p_debit_company_id INT,
+    IN p_credit_company_id INT,
     IN p_cost DECIMAL(15,2),
     IN p_markup DECIMAL(15,2),
     IN p_sold_status VARCHAR(100),
@@ -20740,13 +20874,13 @@ BEGIN
     DECLARE v_debit_2_amount DECIMAL(15,2);
     DECLARE v_credit_2_amount DECIMAL(15,2);
 
-    CASE p_company_id
+    CASE p_credit_company_id
         WHEN 1 THEN
             SET v_analytic_lines = 'CGMI';
             SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 2 THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 3 THEN
             SET v_analytic_lines = 'FUSO';
             SET v_analytic_distribution = '{"1": 100.0}';
@@ -20787,15 +20921,26 @@ BEGIN
             SET v_analytic_lines = 'DEFAULT';
             SET v_analytic_distribution = '{"0": 0.0}';
     END CASE;
+
+    CASE p_debit_company_id
+        WHEN 1 THEN
+            SET v_debit_analytic_lines = 'CGMI';
+            SET v_debit_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_debit_analytic_lines = 'CGMI';
+            SET v_debit_analytic_distribution = '{"1": 100.0}';
+        WHEN 3 THEN
+            SET v_debit_analytic_lines = 'FUSO';
+            SET v_debit_analytic_distribution = '{"1": 100.0}';
+        ELSE
+            SET v_debit_analytic_lines = 'CGMI';
+            SET v_debit_analytic_distribution = '{"1": 100.0}';
+    END CASE;
     
     IF p_sold_status = 'Sold' THEN
         SET v_debit = '50402010 Cost of Sales Unit';
-        SET v_debit_analytic_lines = 'CGMI';
-        SET v_debit_analytic_distribution = '{"1": 100.0}';
     ELSE
-        SET v_debit = '10501010 Inventory Unit';
-        SET v_debit_analytic_lines = 'CGMI';
-        SET v_debit_analytic_distribution = '{"1": 100.0}';
+        SET v_debit = '10501010 Inventory Unit';        
     END IF;
 
     SET v_credit = '40101040 Service Charge';
@@ -20938,7 +21083,8 @@ CREATE PROCEDURE createBackjobJobOrderEntry(
     IN p_backjob_monitoring_id VARCHAR(100),
     IN p_job_order_id INT,
     IN p_entry_type VARCHAR(50),
-    IN p_company_id INT,
+    IN p_debit_company_id INT,
+    IN p_credit_company_id INT,
     IN p_cost DECIMAL(15,2),
     IN p_markup DECIMAL(15,2),
     IN p_sold_status VARCHAR(100),
@@ -20965,13 +21111,13 @@ BEGIN
     DECLARE v_debit_2_amount DECIMAL(15,2);
     DECLARE v_credit_2_amount DECIMAL(15,2);
 
-    CASE p_company_id
+    CASE p_credit_company_id
         WHEN 1 THEN
             SET v_analytic_lines = 'CGMI';
             SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 2 THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 3 THEN
             SET v_analytic_lines = 'FUSO';
             SET v_analytic_distribution = '{"1": 100.0}';
@@ -21012,15 +21158,26 @@ BEGIN
             SET v_analytic_lines = 'DEFAULT';
             SET v_analytic_distribution = '{"0": 0.0}';
     END CASE;
+
+    CASE p_debit_company_id
+        WHEN 1 THEN
+            SET v_debit_analytic_lines = 'CGMI';
+            SET v_debit_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_debit_analytic_lines = 'CGMI';
+            SET v_debit_analytic_distribution = '{"1": 100.0}';
+        WHEN 3 THEN
+            SET v_debit_analytic_lines = 'FUSO';
+            SET v_debit_analytic_distribution = '{"1": 100.0}';
+        ELSE
+            SET v_debit_analytic_lines = 'CGMI';
+            SET v_debit_analytic_distribution = '{"1": 100.0}';
+    END CASE;
     
     IF p_sold_status = 'Sold' THEN
         SET v_debit = '50402010 Cost of Sales Unit';
-        SET v_debit_analytic_lines = 'CGMI';
-        SET v_debit_analytic_distribution = '{"1": 100.0}';
     ELSE
         SET v_debit = '10501010 Inventory Unit';
-        SET v_debit_analytic_lines = 'CGMI';
-        SET v_debit_analytic_distribution = '{"1": 100.0}';
     END IF;
 
     SET v_credit = '40101040 Service Charge';
@@ -21553,7 +21710,7 @@ BEGIN
     -- === SAME ANALYTIC SETUP ===
     CASE p_company_id
         WHEN 1 THEN SET v_analytic_lines = 'CGMI'; SET v_analytic_distribution = '{"1":100.0}';
-        WHEN 2 THEN SET v_analytic_lines = 'NE TRUCK'; SET v_analytic_distribution = '{"2":100.0}';
+        WHEN 2 THEN SET v_analytic_lines = 'CGMI'; SET v_analytic_distribution = '{"2":100.0}';
         WHEN 3 THEN SET v_analytic_lines = 'FUSO'; SET v_analytic_distribution = '{"1":100.0}';
         WHEN 4 THEN SET v_analytic_lines = 'PCG PROPERTY'; SET v_analytic_distribution = '{"4":100.0}';
         WHEN 5 THEN SET v_analytic_lines = 'GCB PROPERTY'; SET v_analytic_distribution = '{"3":100.0}';
@@ -21712,7 +21869,7 @@ BEGIN
     SET transferred_from = p_transferred_from,
     transferred_to = p_transferred_to,
     company_id = p_company_id,
-    customer_id = customer_id,
+    customer_id = p_customer_id,
     sta_type = p_sta_type,
     remarks = p_remarks,
     last_log_by = p_last_log_by
@@ -21819,8 +21976,8 @@ BEGIN
             SET v_analytic_lines = 'CGMI';
             SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 2 THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 3 THEN
             SET v_analytic_lines = 'FUSO';
             SET v_analytic_distribution = '{"1": 100.0}';
@@ -21976,18 +22133,18 @@ BEGIN
     WHERE purchase_request_id = p_purchase_request_id;
 END //
 
-CREATE PROCEDURE insertPurchaseRequest(IN p_reference_no VARCHAR(100), IN p_purchase_request_type VARCHAR(100), IN p_company_id INT, IN p_month_coverage VARCHAR(100), IN p_coverage_period VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_purchase_request_id INT)
+CREATE PROCEDURE insertPurchaseRequest(IN p_reference_no VARCHAR(100), IN p_purchase_request_type VARCHAR(100), IN p_department_id INT, IN p_company_id INT, IN p_month_coverage VARCHAR(100), IN p_coverage_period VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT, OUT p_purchase_request_id INT)
 BEGIN
-    INSERT INTO purchase_request (reference_no, purchase_request_type, company_id, month_coverage, coverage_period, remarks, last_log_by) 
-	VALUES(p_reference_no, p_purchase_request_type, p_company_id, p_month_coverage, p_coverage_period, p_remarks, p_last_log_by);
+    INSERT INTO purchase_request (reference_no, purchase_request_type, department_id, company_id, month_coverage, coverage_period, remarks, last_log_by) 
+	VALUES(p_reference_no, p_purchase_request_type, p_department_id, p_company_id, p_month_coverage, p_coverage_period, p_remarks, p_last_log_by);
 	
     SET p_purchase_request_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updatePurchaseRequest(IN p_purchase_request_id INT, IN p_purchase_request_type VARCHAR(100), IN p_company_id INT, IN p_month_coverage VARCHAR(100), IN p_coverage_period VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
+CREATE PROCEDURE updatePurchaseRequest(IN p_purchase_request_id INT, IN p_purchase_request_type VARCHAR(100), IN p_department_id INT, IN p_company_id INT, IN p_month_coverage VARCHAR(100), IN p_coverage_period VARCHAR(100), IN p_remarks VARCHAR(5000), IN p_last_log_by INT)
 BEGIN
 	UPDATE purchase_request 
-    SET purchase_request_type = p_purchase_request_type, company_id = p_company_id, remarks = p_remarks, month_coverage = p_month_coverage, coverage_period = p_coverage_period, last_log_by = p_last_log_by 
+    SET purchase_request_type = p_purchase_request_type, department_id = p_department_id, company_id = p_company_id, remarks = p_remarks, month_coverage = p_month_coverage, coverage_period = p_coverage_period, last_log_by = p_last_log_by 
     WHERE purchase_request_id = p_purchase_request_id;
 END //
 
@@ -22032,7 +22189,61 @@ BEGIN
     DECLARE conditionList VARCHAR(1000);
 
     SET query = 'SELECT * FROM purchase_order';
-    SET conditionList = ' WHERE 1';
+    SET conditionList = ' WHERE purchase_order_type = "Product"';
+
+    IF p_purchase_order_status IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND purchase_order_status IN ( ');
+        SET conditionList = CONCAT(conditionList, p_purchase_order_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(created_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_approval_date_start_date IS NOT NULL AND p_approval_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(approval_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_approval_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_onprocess_date_start_date IS NOT NULL AND p_onprocess_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(onprocess_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_onprocess_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_onprocess_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_completion_date_start_date IS NOT NULL AND p_completion_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(completion_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_completion_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_completion_date_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY created_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generatePurchaseOrderOthersTable(IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_approval_date_start_date DATE, IN p_approval_date_end_date DATE, IN p_onprocess_date_start_date DATE, IN p_onprocess_date_end_date DATE, IN p_completion_date_start_date DATE, IN p_completion_date_end_date DATE, IN p_purchase_order_status VARCHAR(5000))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM purchase_order';
+    SET conditionList = ' WHERE purchase_order_type = "Others"';
 
     IF p_purchase_order_status IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND purchase_order_status IN ( ');
@@ -22102,8 +22313,8 @@ BEGIN
             SET v_analytic_lines = 'CGMI';
             SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 2 THEN
-            SET v_analytic_lines = 'NE TRUCK';
-            SET v_analytic_distribution = '{"2": 100.0}';
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
         WHEN 3 THEN
             SET v_analytic_lines = 'FUSO';
             SET v_analytic_distribution = '{"1": 100.0}';

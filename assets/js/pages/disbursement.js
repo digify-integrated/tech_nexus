@@ -1049,6 +1049,10 @@
             }
         });
 
+        $(document).on('change','#particulars_amount',function() {
+            calculateTax();
+        });
+
         $(document).on('change','#with_vat',function() {
             calculateTax();
         });
@@ -2366,6 +2370,7 @@ function displayDetails(transaction){
                         checkOptionExist('#with_vat', response.withVat, '');
                         checkOptionExist('#with_withholding', response.withWithholding, '');
                         checkOptionExist('#tax_quarter', response.taxQuarter, '');
+                        checkOptionExist('#payroll_deduction', response.payrollDeduction, '');
 
                         calculateTax();
                     } 

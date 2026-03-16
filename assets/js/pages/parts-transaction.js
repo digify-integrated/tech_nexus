@@ -424,19 +424,34 @@
                 $('.issuance-for-details').addClass('d-none');
             }
 
+            if (val === 'Customer' || $('#page-company').val() == '1') {
+                $('.customer-reference-details').addClass('d-none');
+            } else {
+                $('.customer-reference-details').removeClass('d-none');
+            }
+
             // Show based on selection
             switch (val) {
                 case 'Department':
                     $('#department-select, #department-label').removeClass('d-none');
+                    $('#issuance_no_label').text('Issuance Number');
                     break;
                 case 'Customer':
                     $('#customer-select, #customer-label').removeClass('d-none');
+                    if($('#page-company').val() == '3'){
+                        $('#issuance_no_label').text('Sales Proposal Number');
+                    }
+                    else{
+                        $('#issuance_no_label').text('Issuance Number');
+                    }
                     break;
                 case 'Miscellaneous':
                     $('#misc-select, #customer-label').removeClass('d-none'); 
+                    $('#issuance_no_label').text('Issuance Number');
                     break;
                 default: // Internal (or anything else)
                     $('#internal-select, #internal-label').removeClass('d-none');
+                    $('#issuance_no_label').text('Issuance Number');
                     break;
             }
         });
@@ -1393,13 +1408,25 @@ function partsTransactionForm(){
             customer_ref_id: {
                 required: {
                     depends: function () {
-                        var val = $('#page-company').val();
-                        return val === '2' || val === '3';
+                        var companyVal = $('#page-company').val();
+                        var customerType = $("#customer_type").val();
+                        return (companyVal === '2' || companyVal === '3' || companyVal === '8') && customerType != 'Customer'
                     }
                 }
             },
             request_by: {
                 required: true
+            },
+            issuance_no: {
+                required: {
+                    depends: function () {
+                    var val = $('#page-company').val();
+                    return $("select[name='customer_type']").val() === 'Customer' &&
+                            val === '3';
+                    }
+                },
+                minlength: 10,
+                maxlength: 10
             },
             issuance_for: {
                 required: {
@@ -1428,6 +1455,9 @@ function partsTransactionForm(){
             },
             issuance_for: {
                 required: 'Please choose the issuance for'
+            },
+            issuance_no: {
+                required: 'Please enter the sales proposal number'
             },
         },
         errorPlacement: function (error, element) {
@@ -1484,6 +1514,9 @@ function partsTransactionForm(){
                         }
                         else if(company_id == '2'){
                              window.location = 'netruck-parts-transaction.php?id=' + response.partsTransactionID;
+                        }
+                        else if(company_id == '8'){
+                             window.location = 'fuel-issuance.php?id=' + response.partsTransactionID;
                         }
                         else{
                              window.location = 'parts-transaction.php?id=' + response.partsTransactionID;

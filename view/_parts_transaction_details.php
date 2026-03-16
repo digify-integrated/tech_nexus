@@ -49,10 +49,6 @@
               if($part_transaction_status == 'For Validation' || $part_transaction_status == 'For Approval' || $part_transaction_status == 'On-Process'){
                 echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-transaction-offcanvas" aria-controls="draft-transaction-offcanvas" id="draft">Set To Draft</button>';
               }
-
-              if(($part_transaction_status == 'On-Process' || $part_transaction_status == 'Released' || $part_transaction_status == 'Cancelled') && ($company == '2' || $company == '1')){
-                echo '<a href="parts-transaction-requisition-slip.php?id='. $partsTransactionID .'" class="button btn btn-info ms-2" target="_blank">Print Issuance Slip</a>';
-              }
             }
             else{
               if($part_transaction_status == 'Draft'){
@@ -88,6 +84,10 @@
               echo '<button type="submit" form="parts-transaction-form" class="btn btn-success form-edit ms-2" id="submit-data">Save</button>
                         <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
             }
+
+            if(($part_transaction_status == 'On-Process' || $part_transaction_status == 'Released' || $part_transaction_status == 'Checked')){
+                echo '<a href="parts-transaction-requisition-slip.php?id='. $partsTransactionID .'" class="button btn btn-info ms-2" target="_blank">Print Issuance Slip</a>';
+              }
           ?>
           </div>
         </div>
@@ -167,18 +167,18 @@
                 $suppliesHidden = 'd-none';
               }
             ?>
-             <div class="col-lg-6 mt-3 mt-lg-0 <?php echo $suppliesHidden; ?>">
+            <div class="col-lg-6 mt-3  customer-reference-details d-none">
               <label class="form-label">Customer Reference <span class="text-danger">*</span></label>
               <select class="form-control select2" name="customer_ref_id" id="customer_ref_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
             </div>
-            <div class="col-lg-6 mt-3 mt-lg-0 d-none">
-              <label class="form-label">Issuance Number</label>
-              <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off" <?php echo $disabled; ?>>
+            <div class="col-lg-6 mt-3 <?php if($company != '3') echo 'd-none'; ?>">
+              <label class="form-label" id="issuance_no_label">Issuance Number</label>
+              <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="10" autocomplete="off" <?php echo $disabled; ?>>
             </div>
-            <div class="col-lg-6 mt-3 <?php if($company == '3') echo 'd-none'; ?>">
+            <div class="col-lg-6 mt-3 mt-lg-0 <?php if($company == '3') echo 'd-none'; ?>">
               <label class="form-label">Issuance Date</label>
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off" <?php echo $disabled; ?>>
@@ -275,7 +275,7 @@
             </div>
         </div>
     </div>
-    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
+    <div class="card <?php if($customer_type != 'Internal' && $customer_type != 'Customer' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-6">
@@ -337,7 +337,7 @@
             </div>
         </div>
     </div>
-    <div class="card <?php if($customer_type != 'Internal' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
+    <div class="card <?php if($customer_type != 'Internal' && $customer_type != 'Customer' && $part_transaction_status != 'For Validation') echo 'd-none'; ?>">
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col-md-6">

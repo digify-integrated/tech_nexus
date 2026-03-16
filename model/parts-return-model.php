@@ -185,9 +185,9 @@ class PartsReturnModel {
             :last_log_by
         );'); 
         $stmt->bindValue(':part_return_id', $parts_return_id, PDO::PARAM_INT);
-        $stmt->bindValue(':part_transaction_id', $part_transaction_id, PDO::PARAM_INT);
+        $stmt->bindValue(':part_transaction_id', $part_transaction_id, PDO::PARAM_STR);
         $stmt->bindValue(':part_id', $part_id, PDO::PARAM_INT);
-        $stmt->bindValue(':part_transaction_cart_id', $part_transaction_cart_id, PDO::PARAM_INT);
+        $stmt->bindValue(':part_transaction_cart_id', $part_transaction_cart_id, PDO::PARAM_STR);
         $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

@@ -38,7 +38,7 @@
             </div>
             <label class="col-lg-2 col-form-label <?php if($company == '1') echo 'd-none'; ?>" id="customer-label">Customer <span class="text-danger">*</span></label>
             <label class="col-lg-2 col-form-label d-none" id="internal-label">Product <span class="text-danger">*</span></label>
-            <label class="col-lg-2 col-form-label <?php if($company == '2' || $company == '3') echo 'd-none'; ?>" id="department-label">Department <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label <?php if($company == '2' || $company == '3' || $company == '8') echo 'd-none'; ?>" id="department-label">Department <span class="text-danger">*</span></label>
             <div class="col-lg-4 <?php if($company == '1') echo 'd-none'; ?>" id="customer-select">
                 <select class="form-control select2" name="customer_id" id="customer_id">
                   <option value="">--</option>
@@ -57,7 +57,7 @@
                   <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
                 </select>
             </div>
-            <div class="col-lg-4 <?php if($company == '2' || $company == '3') echo 'd-none'; ?>" id="department-select">
+            <div class="col-lg-4 <?php if($company == '2' || $company == '3' || $company == '8') echo 'd-none'; ?>" id="department-select">
                 <select class="form-control select2" name="department_id" id="department_id">
                   <option value="">--</option>
                   <?php echo $departmentModel->generateDepartmentOptions(); ?>
@@ -80,11 +80,7 @@
               </div>
             </div>
           </div>
-          <div class="form-group row ">
-            <label class="col-lg-2 col-form-label d-none">Issuance Number</label>
-            <div class="col-lg-4 d-none">
-              <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off">
-            </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Request By <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off">
@@ -96,12 +92,18 @@
                 $suppliesHidden = 'd-none';
               }
             ?>
-            <label class="col-lg-2 col-form-label <?php echo $suppliesHidden; ?>">Customer Reference <span class="text-danger">*</span></label>
-            <div class="col-lg-4 <?php echo $suppliesHidden; ?>">
+            <label class="col-lg-2 col-form-label customer-reference-details d-none">Customer Reference <span class="text-danger">*</span></label>
+            <div class="col-lg-4 customer-reference-details d-none">
                 <select class="form-control select2" name="customer_ref_id" id="customer_ref_id">
                   <option value="">--</option>
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
+            </div>
+          </div>
+          <div class="form-group row <?php if($company != '3') echo 'd-none'; ?>">
+            <label class="col-lg-2 col-form-label ">Issuance Number</label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="100" autocomplete="off">
             </div>
           </div>
           <div class="form-group row <?php if($company == '3') echo 'd-none'; ?>">

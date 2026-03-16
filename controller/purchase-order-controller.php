@@ -88,8 +88,14 @@ class PurchaseOrderController {
                 case 'save unit purchase order':
                     $this->saveUnitPurchaseOrder();
                     break;
+                case 'save others purchase order':
+                    $this->saveOthersPurchaseOrder();
+                    break;
                 case 'save purchase order item unit':
                     $this->savePurchaseOrderItemUnit();
+                    break;
+                case 'save purchase order item others':
+                    $this->savePurchaseOrderItemOthers();
                     break;
                 case 'save purchase order receive':
                     $this->savePurchaseOrderRecieve();
@@ -103,6 +109,9 @@ class PurchaseOrderController {
                 case 'get purchase order unit details':
                     $this->getPurchaseOrderUnitDetails();
                     break;
+                case 'get purchase order others details':
+                    $this->getPurchaseOrderOthersDetails();
+                    break;
                 case 'get receive details':
                     $this->getReceiveDetails();
                     break;
@@ -111,6 +120,9 @@ class PurchaseOrderController {
                     break;
                 case 'delete item unit':
                     $this->deletePurchaseOrderUnit();
+                    break;
+                case 'delete item others':
+                    $this->deletePurchaseOrderOthers();
                     break;
                 case 'delete item part':
                     $this->deletePurchaseOrderPart();
@@ -170,6 +182,39 @@ class PurchaseOrderController {
         $userID = $_SESSION['user_id'];
         $purchase_order_id = isset($_POST['purchase_order_id']) ? htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8') : null;
         $purchase_order_type = 'Product';
+        $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
+        $supplier_id = htmlspecialchars($_POST['supplier_id'], ENT_QUOTES, 'UTF-8');
+        $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
+
+        $checkPurchaseOrderExist = $this->purchaseOrderModel->checkPurchaseOrderExist($purchase_order_id);
+        $total = $checkPurchaseOrderExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->purchaseOrderModel->updatePurchaseOrder($purchase_order_id, $purchase_order_type, $company_id, $supplier_id, $remarks, $userID);
+
+            echo json_encode(value: ['success' => true, 'insertRecord' => false, 'purchaseOrderID' => $this->securityModel->encryptData($purchase_order_id)]);
+            exit;
+        }
+        else {
+            $reference_number = (int)$this->systemSettingModel->getSystemSetting(45)['value'] + 1;
+
+            $purchase_order_id = $this->purchaseOrderModel->insertPurchaseOrder($reference_number, $purchase_order_type, $company_id, $supplier_id, $remarks, $userID);
+
+            $this->systemSettingModel->updateSystemSettingValue(45, $reference_number, $userID);
+
+            echo json_encode(value: ['success' => true, 'insertRecord' => true, 'purchaseOrderID' => $this->securityModel->encryptData($purchase_order_id)]);
+            exit;
+        }
+    }
+
+    public function saveOthersPurchaseOrder() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $purchase_order_id = isset($_POST['purchase_order_id']) ? htmlspecialchars($_POST['purchase_order_id'], ENT_QUOTES, 'UTF-8') : null;
+        $purchase_order_type = 'Others';
         $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $supplier_id = htmlspecialchars($_POST['supplier_id'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
@@ -327,6 +372,56 @@ class PurchaseOrderController {
         exit;
     }
 
+    public function savePurchaseOrderItemOthers() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+
+        $userID = $_SESSION['user_id'];
+
+        $purchase_order_id       = $_POST['purchase_order_id'] ?? null;
+        $purchase_order_other_id = $_POST['purchase_order_others_id'] ?? null;
+        $purchase_request_cart_id = $_POST['purchase_request_cart_id'] ?? null;
+
+        $item = $_POST['item'] ?? null;
+        $price_unit = $_POST['price_unit'] ?? null;
+        $quantity = $_POST['quantity_unit'] ?? 0;
+        $unit_id = $_POST['quantity_unit_id'] ?? null;
+        $remarks = $_POST['others_remarks'] ?? null;
+
+        $exists = $this->purchaseOrderModel->checkPurchaseOrderItemOthersExist($purchase_order_other_id)['total'] ?? 0;
+
+        if ($exists > 0) {
+            $this->purchaseOrderModel->updatePurchaseOrderItemOthers(
+                $purchase_order_other_id,
+                $purchase_request_cart_id,
+                $item,
+                $price_unit,
+                $quantity,
+                $unit_id,
+                $remarks,
+                $userID
+            );
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        }
+
+        $this->purchaseOrderModel->insertPurchaseOrderItemOthers(
+            $purchase_order_id,
+            $purchase_request_cart_id,
+            $item,
+            $price_unit,
+            $quantity,
+            $unit_id,
+            $remarks,
+            $userID
+        );
+
+        echo json_encode(['success' => true, 'insertRecord' => true]);
+        exit;
+    }
+
     public function savePurchaseOrderRecieve() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -354,6 +449,17 @@ class PurchaseOrderController {
 
             if ($total > 0) {
                 $this->purchaseOrderModel->updatePurchaseOrderItemPartReceive($purchase_order_cart_id, $received_quantity, $userID);
+
+                echo json_encode(value: ['success' => true]);
+                exit;
+            }
+        }
+        else if($type == 'others'){
+            $checkPurchaseOrderItemOthersExist = $this->purchaseOrderModel->checkPurchaseOrderItemOthersExist($purchase_order_cart_id);
+            $total = $checkPurchaseOrderItemOthersExist['total'] ?? 0;
+
+            if ($total > 0) {
+                $this->purchaseOrderModel->updatePurchaseOrderItemOthersReceive($purchase_order_cart_id, $received_quantity, $userID);
 
                 echo json_encode(value: ['success' => true]);
                 exit;
@@ -404,6 +510,17 @@ class PurchaseOrderController {
                 exit;
             }
         }
+        else if($type == 'others'){
+            $checkPurchaseOrderItemOthersExist = $this->purchaseOrderModel->checkPurchaseOrderItemOthersExist($purchase_order_cart_id);
+            $total = $checkPurchaseOrderItemOthersExist['total'] ?? 0;
+
+            if ($total > 0) {
+                $this->purchaseOrderModel->updatePurchaseOrderItemOthersCancel($purchase_order_cart_id, $received_quantity, $userID);
+
+                echo json_encode(value: ['success' => true]);
+                exit;
+            }
+        }
         else {
             $checkPurchaseOrderItemSupplyExist = $this->purchaseOrderModel->checkPurchaseOrderItemSupplyExist($purchase_order_cart_id);
             $total = $checkPurchaseOrderItemSupplyExist['total'] ?? 0;
@@ -437,6 +554,9 @@ class PurchaseOrderController {
 
         if($purchase_order_type == 'Product'){
             $getPurchaseOrderCartCount = $this->purchaseOrderModel->getPurchaseOrderCartUnitCount($purchase_order_id);
+        }
+        else if($purchase_order_type == 'Others'){
+            $getPurchaseOrderCartCount = $this->purchaseOrderModel->getPurchaseOrderCartOthersCount($purchase_order_id);
         }
         else if($purchase_order_type == 'Parts'){
             $getPurchaseOrderCartCount = $this->purchaseOrderModel->getPurchaseOrderCartPartCount($purchase_order_id);
@@ -502,9 +622,8 @@ class PurchaseOrderController {
 
         if($purchase_order_type == 'Product'){
             $cartID = $this->purchaseOrderModel->getPurchaseOrderCartUnit($purchase_order_id);
-        }
 
-        foreach ($cartID as $row) {
+             foreach ($cartID as $row) {
             if($purchase_order_type == 'Product'){
                 $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrderUnit($row['purchase_order_unit_id']);
                 $purchase_request_cart_id = $purchaseOrderDetails['purchase_request_cart_id'];
@@ -666,6 +785,9 @@ class PurchaseOrderController {
                 $this->purchaseOrderModel->createPurchaseOrderUnitEntry($purchase_order_id, $company_id, $reference_no, $total_landed_cost, $userID);
             }
         }
+        }
+
+       
 
         $this->purchaseOrderModel->updatePurchaseOrderComplete($purchase_order_id, $userID);
         
@@ -803,6 +925,27 @@ class PurchaseOrderController {
         }
     
         $this->purchaseOrderModel->deletePurchaseOrderUnit($purchase_order_unit_id);
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function deletePurchaseOrderOthers() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $purchase_order_other_id = htmlspecialchars($_POST['purchase_order_other_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->purchaseOrderModel->deletePurchaseOrderOthers($purchase_order_other_id);
 
         echo json_encode(['success' => true]);
         exit;
@@ -990,6 +1133,38 @@ class PurchaseOrderController {
             exit;
         }
     }
+    public function getPurchaseOrderOthersDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['purchase_order_others_id']) && !empty($_POST['purchase_order_others_id'])) {
+            $userID = $_SESSION['user_id'];
+            $purchase_order_other_id  = $_POST['purchase_order_others_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrderOthers($purchase_order_other_id);
+
+            $response = [
+                'success' => true,
+                'purchase_request_cart_id' => $purchaseOrderDetails['purchase_request_cart_id'] ?? null,
+                'item' => $purchaseOrderDetails['item'] ?? null,
+                'quantity' => $purchaseOrderDetails['quantity'] ?? 1,
+                'unit_id' => $purchaseOrderDetails['unit_id'] ?? null,
+                'price_unit' => $purchaseOrderDetails['price'] ?? 0,
+                'remarks' => $purchaseOrderDetails['remarks'] ?? ''
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
     public function getReceiveDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -1012,6 +1187,9 @@ class PurchaseOrderController {
             }
             else if($type === 'part'){
                 $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrderPart($purchase_order_cart_id);
+            }
+            else if($type === 'others'){
+                $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrderOthers($purchase_order_cart_id);
             }
             else if($type === 'supply'){
                 $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrderSupply($purchase_order_cart_id);

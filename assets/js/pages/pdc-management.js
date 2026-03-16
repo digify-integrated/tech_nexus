@@ -346,7 +346,7 @@
         
         $(document).on('click','#tag-pdc-as-for-deposit',function() {
             let loan_collection_id = [];
-            const transaction = 'tag multiple pdc as for deposit';
+            let transaction = 'tag multiple pdc as for deposit';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
@@ -384,6 +384,60 @@
                                     if (response.isInactive) {
                                         setNotification('User Inactive', response.message, 'danger');
                                         window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.collateralCheck) {
+                                        let transaction = 'tag multiple pdc as for deposit 2';
+            
+                                        Swal.fire({
+                                            title: 'Confirm Collateral PDC For Deposit',
+                                            text: 'Are you sure you want to tag these PDC with collateral check for deposit?',
+                                            icon: 'warning',
+                                            showCancelButton: !0,
+                                            confirmButtonText: 'For Deposit',
+                                            cancelButtonText: 'Cancel',
+                                            confirmButtonClass: 'btn btn-success mt-2',
+                                            cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                                            buttonsStyling: !1
+                                        }).then(function(result) {
+                                            if (result.value) {
+                                                $.ajax({
+                                                    type: 'POST',
+                                                    url: 'controller/pdc-management-controller.php',
+                                                    dataType: 'json',
+                                                    data: {
+                                                        loan_collection_id: loan_collection_id,
+                                                        transaction : transaction
+                                                    },
+                                                    success: function (response) {
+                                                        if (response.success) {
+                                                            showNotification('Tag PDC As For Deposit Success', 'The selected PDC have been tagged as for deposit successfully.', 'success');
+                                                            reloadDatatable('#pdc-management-table');
+                                                        }
+                                                        else {
+                                                            if (response.isInactive) {
+                                                                setNotification('User Inactive', response.message, 'danger');
+                                                                window.location = 'logout.php?logout';
+                                                            }
+                                                            else {
+                                                                showNotification('Tag PDC As For Deposit Error', response.message, 'danger');
+                                                            }
+                                                        }
+                                                    },
+                                                    error: function(xhr, status, error) {
+                                                        var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                                        if (xhr.responseText) {
+                                                            fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                                        }
+                                                        showErrorDialog(fullErrorMessage);
+                                                    },
+                                                    complete: function(){
+                                                        toggleHideActionDropdown();
+                                                    }
+                                                });
+                                                
+                                                return false;
+                                            }
+                                        });
                                     }
                                     else {
                                         showNotification('Tag PDC As For Deposit Error', response.message, 'danger');
@@ -789,6 +843,7 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'BANK_BRANCH' },
         { 'data' : 'PAYMENT_DETAILS' },
         { 'data' : 'STATUS' },
+        { 'data' : 'REPAYMENT_AMOUNT' },
         { 'data' : 'LOAN_NUMBER' },
         { 'data' : 'CUSTOMER' },
         { 'data' : 'PRODUCT' },
@@ -808,7 +863,8 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 9 },
         { 'width': 'auto', 'aTargets': 10 },
         { 'width': 'auto', 'aTargets': 11 },
-        { 'width': 'auto', 'aTargets': 12 }
+        { 'width': 'auto', 'aTargets': 12 },
+        { 'width': 'auto', 'aTargets': 13 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[-1, 10, 25, 50, 100], ['All', 10, 25, 50, 100]];
@@ -860,6 +916,36 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
             'searchPlaceholder': 'Search...',
             'search': '',
             'loadingRecords': 'Just a moment while we fetch your data...'
+        },
+         createdRow: function (row, data, dataIndex) {
+        // NOTE: data.PAYMENT_AMOUNT and data.REPAYMENT_AMOUNT might be formatted strings (e.g. "1,000.00")
+        const toNumber = (val) => {
+            if (val === null || val === undefined) return 0;
+            return parseFloat(String(val).replace(/[^0-9.-]/g, "")) || 0;
+        };
+
+        const paymentAmount = toNumber(data.PAYMENT_AMOUNT);
+        const repaymentAmount = toNumber(data.REPAYMENT_AMOUNT);
+
+        const paymentDetails = (data.PAYMENT_DETAILS || "").toString().trim();
+
+        const shouldHighlight =
+            paymentAmount !== repaymentAmount ||
+            paymentDetails.toLowerCase() === "collateral check";
+
+        if (shouldHighlight) {
+            // Add a red underline to each cell (each column) in the row
+            $(row)
+            .find("td")
+            .css({
+                "text-decoration": "underline",
+                "text-decoration-color": "red",
+                "text-decoration-thickness": "2px",
+                "text-underline-offset": "3px",
+            });
+        }
+        
+
         }
     };
 
@@ -1419,6 +1505,61 @@ function massPDCDepositedForm(){
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
+                        }
+                        else if (response.collateralCheck) {
+                            let transaction = 'tag multiple pdc as deposited 2';
+            
+                            Swal.fire({
+                                title: 'Confirm Collateral PDC Deposit',
+                                text: 'Are you sure you want to tag these PDC with collateral check as deposit?',
+                                icon: 'warning',
+                                showCancelButton: !0,
+                                confirmButtonText: 'Deposit',
+                                cancelButtonText: 'Cancel',
+                                confirmButtonClass: 'btn btn-success mt-2',
+                                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                                buttonsStyling: !1
+                            }).then(function(result) {
+                                if (result.value) {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: 'controller/pdc-management-controller.php',
+                                        dataType: 'json',
+                                        data: $(form).serialize() + '&transaction=' + transaction + '&loan_collection_id=' + loan_collection_id,
+                                        success: function (response) {
+                                            if (response.success) {
+                                                const notificationMessage = 'PDC Deposited Success';
+                                                const notificationDescription = 'The PDC has been tag as deposited successfully.';
+                                                
+                                                showNotification(notificationMessage, notificationDescription, 'success');
+                                                reloadDatatable('#pdc-management-table');
+                                                $('#pdc-deposited-offcanvas').offcanvas('hide');
+                                            }
+                                            else {
+                                                if (response.isInactive) {
+                                                    setNotification('User Inactive', response.message, 'danger');
+                                                    window.location = 'logout.php?logout';
+                                                }
+                                                else {
+                                                    showNotification('PDC Deposited Error', response.message, 'danger');
+                                                }
+                                            }
+                                        },
+                                        error: function(xhr, status, error) {
+                                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                            if (xhr.responseText) {
+                                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                            }
+                                            showErrorDialog(fullErrorMessage);
+                                        },
+                                        complete: function(){
+                                            toggleHideActionDropdown();
+                                        }
+                                    });
+                                                
+                                    return false;
+                                }
+                            });
                         }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');

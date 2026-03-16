@@ -183,6 +183,9 @@
                                 else if(company_id == '2'){
                                     window.location = 'netruck-parts.php?id=' + response.partsID;
                                 }
+                                else if(company_id == '8'){
+                                    window.location = 'fuel-parts.php?id=' + response.partsID;
+                                }
                                 else{
                                     window.location = 'parts.php';
                                 }
@@ -562,6 +565,9 @@
             else if(company_id == '2'){
                 discardCreate('netruck-parts.php');
             }
+            else if(company_id == '8'){
+                discardCreate('fuel-parts.php');
+            }
             else{
                 discardCreate('parts.php');
             }
@@ -593,6 +599,14 @@
             $('#parts-incoming-filter-offcanvas').offcanvas('hide');
         });
 
+        $(document).on('click','#submit-parts-return-filter',function() {
+            if($('#parts-return-table').length){
+                partReturnTable('#parts-return-table');
+            }
+
+            $('#parts-return-filter-offcanvas').offcanvas('hide');
+        });
+
         $(document).on('click','#submit-parts-transaction-filter',function() {
             if($('#parts-transaction-table').length){
                 partTransactionTable('#parts-transaction-table');
@@ -607,6 +621,10 @@
 
         if($('#parts-transaction-table').length){
             partTransactionTable('#parts-transaction-table');
+        }
+
+        if($('#parts-return-table').length){
+            partReturnTable('#parts-return-table');
         }
     });
 })(jQuery);
@@ -724,6 +742,9 @@ function partsForm(){
                         }
                         else if(company_id == '2'){
                             window.location = 'netruck-parts.php?id=' + response.partsID;
+                        }
+                        else if(company_id == '8'){
+                            window.location = 'fuel-parts.php?id=' + response.partsID;
                         }
                         else{
                             window.location = 'parts.php?id=' + response.partsID;
@@ -1644,6 +1665,75 @@ function partTransactionTable(datatable_name, buttons = false, show_all = false)
                 'parts_id' : parts_id,
                 'parts_transaction_start_date' : parts_transaction_start_date,
                 'parts_transaction_end_date' : parts_transaction_end_date,
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function partReturnTable(datatable_name, buttons = false, show_all = false){
+    const parts_id = $('#part-id').text();
+    const type = 'part return item table 2';
+    
+    var parts_return_start_date = $('#parts_return_start_date').val();
+    var parts_return_end_date = $('#parts_return_end_date').val();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'ISSUANCE_NO' },
+        { 'data' : 'COST' },
+        { 'data' : 'RETURN_QUANTITY' },
+        { 'data' : 'RELEASED_DATE' },
+        { 'data' : 'REMARKS' }
+    ];
+
+     var column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'type' : 'date', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_parts_return_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'parts_id' : parts_id,
+                'parts_return_start_date' : parts_return_start_date,
+                'parts_return_end_date' : parts_return_end_date,
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {

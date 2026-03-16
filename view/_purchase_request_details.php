@@ -1,6 +1,7 @@
 <?php
   $purchaseRequestDetails = $purchaseRequestModel->getPurchaseRequest($purchaseRequestID);
   $purchase_request_status = $purchaseRequestDetails['purchase_request_status'] ?? 'Draft';
+  $purchase_request_type = $purchaseRequestDetails['purchase_request_type'] ?? '';
     
   $approvePurchaseRequest = $userModel->checkSystemActionAccessRights($user_id, 201);
   $releasePurchaseRequest = $userModel->checkSystemActionAccessRights($user_id, 202);
@@ -22,12 +23,16 @@
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
           <?php
-             if($purchase_request_status == 'Draft'){
+              if($purchase_request_status == 'Draft'){
                 echo '<button class="btn btn-info ms-2" type="button" id="for-approval">For Approval</button>';
               }
 
               if($purchase_request_status == 'For Approval' && $approvePurchaseRequest['total'] > 0){
                 echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-purchase-request-offcanvas" aria-controls="approve-purchase-request-offcanvas" id="approved">Approve</button>';
+              }
+
+              if($purchase_request_status == 'For Approval'){
+                echo  '<a href="print-purchase-request.php?id='. $purchaseRequestID .'" class="btn btn-info" target="_blank">Print Purchase Request</a>';
               }
 
               if($purchase_request_status == 'For Approval'){
@@ -54,11 +59,9 @@
         <form id="purchase-request-form" method="post" action="#">
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Reference No.</label>
-            <div class="col-lg-10">
+            <div class="col-lg-4">
               <input type="text" class="form-control" id="reference_no" name="reference_no" maxlength="100" autocomplete="off" readonly>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Purchase Request Type <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="purchase_request_type" id="purchase_request_type" <?php echo $disabled; ?>>
@@ -66,6 +69,15 @@
                 <option value="Product">Product</option>
                 <option value="Supplies">Supplies</option>
                 <option value="Others">Others</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Department <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="department_id" id="department_id" <?php echo $disabled; ?>>
+                <option value="">--</option>
+                <?php echo $departmentModel->generateDepartmentOptions(); ?>
               </select>
             </div>
             <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>

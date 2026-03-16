@@ -934,6 +934,112 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        case 'part item table 4':
+           $sales_proposal_id = (int)$_POST['sales_proposal_id'];
+
+            $query = "
+                SELECT ptc.*
+                FROM part_transaction_cart ptc
+                JOIN part_transaction pt
+                ON pt.part_transaction_id = ptc.part_transaction_id
+                WHERE pt.part_transaction_status NOT IN ('Cancelled')
+                AND (
+                        EXISTS (
+                            SELECT 1
+                            FROM part_transaction_additional_job_order pta
+                            JOIN sales_proposal_additional_job_order spaj
+                            ON spaj.sales_proposal_additional_job_order_id = pta.additional_job_order_id
+                            WHERE pta.part_transaction_id = ptc.part_transaction_id
+                            AND pta.type = 'additional job order'
+                            AND spaj.sales_proposal_id = :sp_id_1
+                        )
+                    OR EXISTS (
+                            SELECT 1
+                            FROM part_transaction_job_order ptj
+                            JOIN sales_proposal_job_order spj
+                            ON spj.sales_proposal_job_order_id = ptj.job_order_id
+                            WHERE ptj.part_transaction_id = ptc.part_transaction_id
+                            AND ptj.type = 'job order'
+                            AND spj.sales_proposal_id = :sp_id_2
+                        )
+                )
+            ";
+
+            $sql = $databaseModel->getConnection()->prepare($query);
+            $sql->bindValue(':sp_id_1', $sales_proposal_id, PDO::PARAM_INT);
+            $sql->bindValue(':sp_id_2', $sales_proposal_id, PDO::PARAM_INT);
+            $sql->execute();
+
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_transaction_cart_id = $row['part_transaction_cart_id'];
+                $part_id = $row['part_id'];
+                $part_transaction_id = $row['part_transaction_id'];
+                $quantity = $row['quantity'];
+                $return_quantity = $row['return_quantity'];
+                $cost = $row['cost'];
+                $price = $row['price'];
+
+                  $partDetails = $partsModel->getParts($part_id);
+                $description = $partDetails['description'];
+
+                $returned = $quantity - $return_quantity;
+                $total_cost = ($quantity - $returned) * $cost; 
+                $total_price = ($quantity - $returned) * $price; 
+
+                $partDetails = $partsModel->getParts($part_id);
+                $unitSale = $partDetails['unit_sale'] ?? null;
+
+                $unitCode = $unitModel->getUnit($unitSale);
+                $short_name = $unitCode['short_name'] ?? null;      
+
+                $partTransactionDetails = $partsTransactionModel->getPartsTransaction($part_transaction_id);
+                $issuance_no = $partTransactionDetails['issuance_no'];
+                $company_id = $partTransactionDetails['company_id'];
+                 $customer_type = $partTransactionDetails['customer_type'];
+                $customer_id = $partTransactionDetails['customer_id'];
+                $request_by = $partTransactionDetails['request_by'];
+                $customer_ref_id = $partTransactionDetails['customer_ref_id'];
+                $part_transaction_status = $partTransactionDetails['part_transaction_status'];
+                $released_date = $systemModel->checkDate('empty', $partTransactionDetails['released_date'], '', 'm/d/Y h:i:s', '');
+
+                if($part_transaction_status === 'Released' || $part_transaction_status === 'Checked'){
+                    $status = '<span class="badge bg-success">Released</span>';
+                }
+                else{
+                    $status = '<span class="badge bg-warning">Pending</span>';
+                }
+                
+                $customerDetails = $customerModel->getPersonalInformation($customer_ref_id);
+                $customerName = $customerDetails['file_as'] ?? null;               
+
+                if($customer_type == 'Internal'){
+                    $productDetails = $productModel->getProduct($customer_id);
+                    $stock_number = $productDetails['stock_number'];
+                }
+                else{
+                    $stock_number = '--';
+                }
+
+                $response[] = [
+                    'PART_TRANSACTION_NO' => $issuance_no,
+                    'PART' => $description,
+                    'QUANTITY' => number_format($quantity, 2) . ' ' . $short_name,
+                    'RETURNED_QUANTITY' => number_format($returned, 2) . ' ' . $short_name,
+                    'REQUESTED_BY' => $request_by,
+                    'RELEASED_DATE' => $released_date,
+                    'STATUS' => $status,
+                    'COST' => number_format($cost, 2) .' PHP',
+                    'PRICE' => number_format($price, 2) .' PHP',
+                    'TOTAL_COST' => number_format($total_cost, 2) .' PHP',
+                    'TOTAL_PRICE' => number_format($total_price, 2) .' PHP',
+                ];
+            }
+
+            echo json_encode($response);
+        break;
         case 'part item table 3':
             $product_id = $_POST['product_id'];
 
@@ -1148,6 +1254,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
                 else if($company == '2'){
                     $link = 'netruck-parts-transaction';
+                    $number = $issuance_no;
+                }
+                else if($company == '8'){
+                    $link = 'fuel-issuance';
                     $number = $issuance_no;
                 }
                 else{

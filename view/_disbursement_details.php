@@ -414,11 +414,18 @@
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-lg-6 mt-3 mt-lg-0">
+              <div class="col-lg-4 mt-3 mt-lg-0">
+                <label class="form-label">For Payroll Deduction?</label>
+                <select class="form-control offcanvas-select2" name="payroll_deduction" id="payroll_deduction">
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </div>
+              <div class="col-lg-4 mt-3 mt-lg-0">
                 <label class="form-label">Invoice/Particulars Amount <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="particulars_amount" name="particulars_amount" step="0.01">
               </div>
-              <div class="col-lg-6 mt-3 mt-lg-0">
+              <div class="col-lg-4 mt-3 mt-lg-0">
                 <label class="form-label">Base Amount</label>
                 <input type="number" class="form-control" id="base_amount" name="base_amount" step="0.01" readonly>
               </div>

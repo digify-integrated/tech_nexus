@@ -87,11 +87,17 @@ class PDCManagementController {
                 case 'tag multiple pdc as deposited':
                     $this->tagMultiplePDCAsDeposited();
                     break;
+                case 'tag multiple pdc as deposited 2':
+                    $this->tagMultiplePDCAsDeposited2();
+                    break;
                 case 'tag pdc as for deposit':
                     $this->tagPDCAsForDeposit();
                     break;
                 case 'tag multiple pdc as for deposit':
                     $this->tagMultiplePDCAsForDeposit();
+                    break;
+                case 'tag multiple pdc as for deposit 2':
+                    $this->tagMultiplePDCAsForDeposit2();
                     break;
                 case 'tag pdc as cleared':
                     $this->tagPDCAsCleared();
@@ -195,6 +201,51 @@ class PDCManagementController {
     #
     # -------------------------------------------------------------
     public function tagMultiplePDCAsDeposited() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $loanCollectionID = $_POST['loan_collection_id'];
+        $loanCollectionIDs = explode(',', $loanCollectionID);
+        $depositTo = htmlspecialchars($_POST['deposit_to'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach ($loanCollectionIDs as $loanCollectionID) {
+            $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
+            
+            $paymentdetails = $pdcManagementDetails['payment_details'] ?? '';
+
+            if($paymentdetails == 'Collateral Check'){
+                echo json_encode(['success' => false, 'collateralCheck' => true]);
+                exit; 
+            }
+        }
+
+        foreach($loanCollectionIDs as $loanCollectionID){
+            $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
+            $collectionStatus = $pdcManagementDetails['collection_status'];
+
+            if(!empty($loanCollectionID) && !empty($depositTo) && $collectionStatus == 'For Deposit'){
+                $referenceNumber = $this->systemSettingModel->getSystemSetting(9)['value'] + 1;
+
+                $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $depositTo, $userID);
+    
+                $this->systemSettingModel->updateSystemSettingValue(9, $referenceNumber, $userID);
+            }
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function tagMultiplePDCAsDeposited2() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -336,6 +387,46 @@ class PDCManagementController {
         foreach ($loanCollectionIDs as $loanCollectionID) {
             $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
             
+            $paymentdetails = $pdcManagementDetails['payment_details'] ?? '';
+
+            if($paymentdetails == 'Collateral Check'){
+                echo json_encode(['success' => false, 'collateralCheck' => true]);
+                exit; 
+            }
+        }
+
+        foreach ($loanCollectionIDs as $loanCollectionID) {
+            $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
+            $checkDate = $pdcManagementDetails['check_date'];
+        
+            if (strtotime( $checkDate) <= strtotime($currentDate)) {
+                $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', '', '', $userID);
+            }
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function tagMultiplePDCAsForDeposit2() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $loanCollectionIDs = $_POST['loan_collection_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $currentDate = date('Y-m-d'); // Current date in m-d-Y format
+
+        foreach ($loanCollectionIDs as $loanCollectionID) {
+            $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
             $checkDate = $pdcManagementDetails['check_date'];
         
             if (strtotime( $checkDate) <= strtotime($currentDate)) {

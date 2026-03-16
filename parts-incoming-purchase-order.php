@@ -64,7 +64,7 @@
             $title = 'CHRISTIAN GENERAL MOTORS INC.';
         }
         else if($company_id == '2'){
-            $title = 'NE TRUCKS BUILDERS CORP.';
+            $title = 'CHRISTIAN GENERAL MOTORS INC.';
         }
         else{
             $title = 'FUSO TARLAC';
@@ -218,11 +218,17 @@
         $unitModel = new UnitModel($databaseModel);
         $partsIncomingModel = new PartsIncomingModel($databaseModel);
 
-         $partsIncomingDetails = $partsIncomingModel->getPartsIncoming($part_incoming_id);
+        $partsIncomingDetails = $partsIncomingModel->getPartsIncoming($part_incoming_id);
 
         $company_id = $partsIncomingDetails['company_id'] ?? '';
     
-       $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_incoming_cart WHERE part_incoming_id = :part_incoming_id ORDER BY part_id desc');
+        if($company_id == 1){
+            $sql = $databaseModel->getConnection()->prepare('SELECT part_incoming_cart.part_id AS part_id, part_incoming_cart.quantity AS quantity, part_incoming_cart.remarks AS remarks FROM part_incoming_cart LEFT JOIN part ON part_incoming_cart.part_id = part.part_id WHERE part_incoming_id = :part_incoming_id ORDER BY description');
+        }
+        else{
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_incoming_cart WHERE part_incoming_id = :part_incoming_id ORDER BY part_id desc');
+        }
+
         $sql->bindValue(':part_incoming_id', $part_incoming_id, PDO::PARAM_INT);
         $sql->execute();
         $options = $sql->fetchAll(PDO::FETCH_ASSOC);

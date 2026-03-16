@@ -62,7 +62,7 @@ foreach ($options as $row) {
     $stock_number = $productDetails['stock_number'];
 
     if($company_id == '2'){
-        $company_name = 'NE Truck Builders';
+        $company_name = 'Christian General Motors Inc.';
     }
     else{
         $company_name = 'FUSO Tarlac';

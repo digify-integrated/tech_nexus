@@ -1382,6 +1382,7 @@ class DisbursementController {
         $disbursement_id = $_POST['disbursement_id'];
         $chart_of_account_id = $_POST['chart_of_account_id'];
         $particulars_amount = $_POST['particulars_amount'];
+        $payroll_deduction = $_POST['payroll_deduction'];
         $base_amount = $_POST['base_amount'];
         $company_id = $_POST['particulars_company_id'];
         $with_vat = $_POST['with_vat'];
@@ -1414,7 +1415,7 @@ class DisbursementController {
                 $this->disbursementModel->createDisbursementEntry($disbursement_id, $transaction_number, $fund_source, 'reversed', date('Y-m-d'), $userID);
             }
 
-            $this->disbursementModel->updateDisbursementParticulars($disbursement_particulars_id, $disbursement_id, $chart_of_account_id, $company_id, $remarks, $particulars_amount, $base_amount, $with_vat, $with_withholding, $vat_amount, $withholding_amount, $total_amount, $tax_quarter, $userID);
+            $this->disbursementModel->updateDisbursementParticulars($disbursement_particulars_id, $disbursement_id, $chart_of_account_id, $company_id, $remarks, $particulars_amount, $base_amount, $with_vat, $with_withholding, $vat_amount, $withholding_amount, $total_amount, $tax_quarter, $payroll_deduction, $userID);
 
             if($disburse_status == 'Replenished'){
                 $this->disbursementModel->createDisbursementEntry($disbursement_id, $transaction_number, $fund_source, 'posted', $transaction_date, $userID);
@@ -1424,7 +1425,7 @@ class DisbursementController {
             exit;
         } 
         else {
-            $this->disbursementModel->insertDisbursementParticulars($disbursement_id, $chart_of_account_id, $company_id, $remarks, $particulars_amount, $base_amount, $with_vat, $with_withholding, $vat_amount, $withholding_amount, $total_amount, $tax_quarter, $userID);
+            $this->disbursementModel->insertDisbursementParticulars($disbursement_id, $chart_of_account_id, $company_id, $remarks, $particulars_amount, $base_amount, $with_vat, $with_withholding, $vat_amount, $withholding_amount, $total_amount, $tax_quarter, $payroll_deduction, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -1887,6 +1888,7 @@ class DisbursementController {
                 'particularsAmount' => $disbursementDetails['particulars_amount'],
                 'withVat' => $disbursementDetails['with_vat'],
                 'withWithholding' => $disbursementDetails['with_withholding'],
+                'payrollDeduction' => $disbursementDetails['payroll_deduction'],
                 'taxQuarter' => $disbursementDetails['tax_quarter'],
             ];
 

@@ -50,6 +50,7 @@
         $company_id = $purchaseOrderDetails['company_id'] ?? '';
         $supplier_id = $purchaseOrderDetails['supplier_id'] ?? '';
         $reference_no = $purchaseOrderDetails['reference_no'] ?? '';
+        $purchase_order_type = $purchaseOrderDetails['purchase_order_type'] ?? '';
 
         $companyDetails = $companyModel->getCompany($company_id);
         
@@ -60,8 +61,8 @@
         $supplierName = $supplierModel->getSupplier($supplier_id)['supplier_name'] ?? '';
     }
 
-    $summaryTable = generatePrint($purchase_order_id, 1);
-    $summaryTable2 = generatePrint($purchase_order_id, 2);
+    $summaryTable = generatePrint($purchase_order_id, 1, $purchase_order_type);
+    $summaryTable2 = generatePrint($purchase_order_id, 2, $purchase_order_type);
 
     ob_start();
 
@@ -156,8 +157,7 @@
     $pdf->Output('job-order-list.pdf', 'I');
     ob_end_flush();
 
-    function generatePrint($purchase_order_id, $type){
-        
+    function generatePrint($purchase_order_id, $type, $purchase_order_type){        
         require_once 'model/database-model.php';
         require_once 'model/pdc-management-model.php';
         require_once 'model/system-model.php';
@@ -197,85 +197,106 @@
         $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
         $partsIncomingModel = new PartsIncomingModel($databaseModel);
 
-         $partsIncomingDetails = $partsIncomingModel->getPartsIncoming($purchase_order_id);
+        if($purchase_order_type == 'Product'){
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM purchase_order_unit WHERE purchase_order_id = :purchase_order_id ORDER BY created_date desc');
+            $sql->bindValue(':purchase_order_id', $purchase_order_id, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
 
-        $company_id = $partsIncomingDetails['company_id'] ?? '';
-    
-        $sql = $databaseModel->getConnection()->prepare('SELECT * FROM purchase_order_unit WHERE purchase_order_id = :purchase_order_id ORDER BY created_date desc');
-        $sql->bindValue(':purchase_order_id', $purchase_order_id, PDO::PARAM_INT);
-        $sql->execute();
-        $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-        $sql->closeCursor();
+            $list = '';
+            $averageTotal = 0;
+            foreach ($options as $row) {
+                $quantity = $row['quantity'];
+                $unit_id = $row['unit_id'];
+                $brand_id = $row['brand_id'];
+                    $model_id = $row['model_id'];
+                    $body_type_id = $row['body_type_id'];
+                    $class_id = $row['class_id'];
+                    $color_id = $row['color_id'];
+                    $make_id = $row['make_id'];
+                    $year_model = $row['year_model'];
+                    $product_category_id = $row['product_category_id'];
+                    $length = $row['length'];
+                    $length_unit = $row['length_unit'];
+                    $cabin_id = $row['cabin_id'];
+                    $price = $row['price'];
+                    $remarks = $row['remarks'];
 
-        $list = '';
-        $averageTotal = 0;
-        foreach ($options as $row) {
-            $quantity = $row['quantity'];
-            $unit_id = $row['unit_id'];
-            $brand_id = $row['brand_id'];
-                $model_id = $row['model_id'];
-                $body_type_id = $row['body_type_id'];
-                $class_id = $row['class_id'];
-                $color_id = $row['color_id'];
-                $make_id = $row['make_id'];
-                $year_model = $row['year_model'];
-                 $product_category_id = $row['product_category_id'];
-                $length = $row['length'];
-                $length_unit = $row['length_unit'];
-                $cabin_id = $row['cabin_id'];
-                $price = $row['price'];
-                $remarks = $row['remarks'];
+                    $bodyTypeName = $brandModel->getBrand($body_type_id)['body_type_name'] ?? '';
+                    $brandName = $brandModel->getBrand($brand_id)['brand_name'] ?? '';
+                    $modelName = $modelModel->getModel($model_id)['model_name'] ?? '';
+                    $class_name = $classModel->getClass($class_id)['class_name'] ?? '';
+                    $colorName = $colorModel->getColor($color_id)['color_name'] ?? '';
+                    $makeName = $makeModel->getMake($make_id)['make_name'] ?? '';
+                    $cabinName = $cabinModel->getCabin($cabin_id)['cabin_name'] ?? '';
+                    $short_name = $unitModel->getUnit($unit_id)['short_name'] ?? '';
+                    $length_unit_short_name = $unitModel->getUnit($length_unit)['short_name'] ?? '';
 
-                 $bodyTypeName = $brandModel->getBrand($body_type_id)['body_type_name'] ?? '';
-                $brandName = $brandModel->getBrand($brand_id)['brand_name'] ?? '';
-                $modelName = $modelModel->getModel($model_id)['model_name'] ?? '';
-                $class_name = $classModel->getClass($class_id)['class_name'] ?? '';
-                $colorName = $colorModel->getColor($color_id)['color_name'] ?? '';
-                $makeName = $makeModel->getMake($make_id)['make_name'] ?? '';
-                $cabinName = $cabinModel->getCabin($cabin_id)['cabin_name'] ?? '';
-                $short_name = $unitModel->getUnit($unit_id)['short_name'] ?? '';
-                $length_unit_short_name = $unitModel->getUnit($length_unit)['short_name'] ?? '';
+                    $unit = '';
+                    if(!empty($productSubcategoryName)){
+                        $unit .= 'Product Category: ' . $productSubcategoryName. '<br/>';
+                    }
+                    if(!empty($brandName)){
+                        $unit .= 'Brand: ' . $brandName . '<br/>';
+                    }
+                    if(!empty($year_model)){
+                        $unit .= 'Year Model: ' . $year_model . '<br/>';
+                    }
+                    if(!empty($modelName)){
+                        $unit .= 'Model: ' . $modelName . '<br/>';
+                    }
+                    if(!empty($class_name)){
+                        $unit .= 'Class: ' . $class_name . '<br/>';
+                    }
+                    if(!empty($colorName)){
+                        $unit .= 'Color: ' . $colorName . '<br/>';
+                    }
+                    if(!empty($bodyTypeName)){
+                        $unit .= 'Body Type: ' . $bodyTypeName . '<br/>';
+                    }
+                    if(!empty($makeName)){
+                        $unit .= 'Make: ' . $makeName . '<br/>';
+                    }
+                    if(!empty($cabinName)){
+                        $unit .= 'Cabin: ' . $cabinName . '<br/>';
+                    }
+                    if(!empty($length)){
+                        $unit .= 'Length: ' . $length . ' ' . $length_unit_short_name . '';
+                    }
 
-                $unit = '';
-                if(!empty($productSubcategoryName)){
-                    $unit .= 'Product Category: ' . $productSubcategoryName. '<br/>';
-                }
-                if(!empty($brandName)){
-                    $unit .= 'Brand: ' . $brandName . '<br/>';
-                }
-                if(!empty($year_model)){
-                    $unit .= 'Year Model: ' . $year_model . '<br/>';
-                }
-                if(!empty($modelName)){
-                    $unit .= 'Model: ' . $modelName . '<br/>';
-                }
-                if(!empty($class_name)){
-                    $unit .= 'Class: ' . $class_name . '<br/>';
-                }
-                if(!empty($colorName)){
-                    $unit .= 'Color: ' . $colorName . '<br/>';
-                }
-                if(!empty($bodyTypeName)){
-                    $unit .= 'Body Type: ' . $bodyTypeName . '<br/>';
-                }
-                if(!empty($makeName)){
-                    $unit .= 'Make: ' . $makeName . '<br/>';
-                }
-                if(!empty($cabinName)){
-                    $unit .= 'Cabin: ' . $cabinName . '<br/>';
-                }
-                if(!empty($length)){
-                    $unit .= 'Length: ' . $length . ' ' . $length_unit_short_name . '';
-                }
+            
 
-           
-
-            $list .= '<tr>
-                        <td width="35%" style="text-align:left">'. strtoupper($unit) .'</td>
-                        <td width="20%" style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
-                        <td width="45%">'. strtoupper($remarks) .'</td>
-                    </tr>';
+                $list .= '<tr>
+                            <td width="35%" style="text-align:left">'. strtoupper($unit) .'</td>
+                            <td width="20%" style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
+                            <td width="45%">'. strtoupper($remarks) .'</td>
+                        </tr>';
+            }
         }
+        else{
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM purchase_order_other WHERE purchase_order_id = :purchase_order_id ORDER BY created_date desc');
+            $sql->bindValue(':purchase_order_id', $purchase_order_id, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $list = '';
+            $averageTotal = 0;
+            foreach ($options as $row) {
+                $quantity = $row['quantity'];
+                $unit_id = $row['unit_id'];
+                $item = $row['item'];
+                $remarks = $row['remarks'];
+                $short_name = $unitModel->getUnit($unit_id)['short_name'] ?? '';
+                
+                $list .= '<tr>
+                            <td width="35%" style="text-align:left">'. strtoupper($item) .'</td>
+                            <td width="20%" style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
+                            <td width="45%">'. strtoupper($remarks) .'</td>
+                        </tr>';
+            }
+        }     
 
         $response = '<table border="1" width="100%" cellpadding="5" align="left">
                         <thead>

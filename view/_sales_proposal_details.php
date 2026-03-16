@@ -16,6 +16,7 @@
   $tagChangeRequestForReview = $userModel->checkSystemActionAccessRights($user_id, 166);
   $viewSalesProposalCIReportTab = $userModel->checkSystemActionAccessRights($user_id, 221);
   $addSalesProposalApprovalCondition = $userModel->checkSystemActionAccessRights($user_id, 227);
+  $uploadCreditAdvice = $userModel->checkSystemActionAccessRights($user_id, 236);
 
   $checkCustomerExist = $customerModel->checkCustomerExist($customerID);
   $total = $checkCustomerExist['total'] ?? 0;
@@ -83,7 +84,7 @@
   <div class="col-md-3">
     <div class="card">
       <div class="card-body">
-        <ul class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+        <ul class="nav flex-column nav-pills nav-pills-locked" id="v-pills-tab" role="tablist" aria-orientation="vertical">
           <li>
             <a class="nav-link active"
               id="sales-proposal-tab-1"
@@ -216,6 +217,19 @@
 
           <li>
             <a class="nav-link"
+              id="sales-proposal-tab-16"
+              data-bs-toggle="pill"
+              href="#v-parts-issued"
+              role="tab"
+              aria-controls="v-parts-issued"
+              aria-selected="false"
+              data-step="partsIssued">
+              Issued Parts
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link"
               id="sales-proposal-tab-11"
               data-bs-toggle="pill"
               href="#v-confirmations"
@@ -237,6 +251,19 @@
               aria-selected="false"
               data-step="remarks">
               Remarks
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link"
+              id="sales-proposal-tab-17"
+              data-bs-toggle="pill"
+              href="#v-remarks"
+              role="tab"
+              aria-controls="v-set-to-draft-files"
+              aria-selected="false"
+              data-step="set-to-draft-files">
+              Set To Draft Files
             </a>
           </li>
 
@@ -355,7 +382,7 @@
                                 </li>';
                 }
 
-                if($setToDraftSalesProposal['total'] > 0 && ($salesProposalStatus != 'Released')){
+                if($setToDraftSalesProposal['total'] > 0 && ($salesProposalStatus != 'Released' && $salesProposalStatus != 'Cancelled' && $salesProposalStatus != 'Rejected')){
                   $action .= '<li class="d-none" id="sales-proposal-set-to-draft-button">
                                   <button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-set-to-draft-offcanvas" aria-controls="sales-proposal-set-to-draft-offcanvas" id="sales-proposal-set-to-draft">Set To Draft</button>
                                 </li>';
@@ -483,7 +510,7 @@
                       <select class="form-control select2" name="company_id" id="company_id">
                         <option value="">--</option>
                         <option value="1">Christian General Motors Inc.</option>
-                        <option value="2">NE Truck Builders</option>
+                        <!--<option value="2">NE Truck Builders</option>-->
                         <option value="3">FUSO Tarlac</option>
                       </select>
                     </div>
@@ -1293,7 +1320,7 @@
                         <h5 class="mb-0">Client Confirmation </h5>
                         <?php
                           if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
-                            echo '<button class="btn btn-success me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-client-confirmation-offcanvas" aria-controls="sales-proposal-client-confirmation-offcanvas" id="sales-proposal-client-confirmation">Client Confirmation</button>';
+                            echo '<button class="btn btn-success me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-client-confirmation-offcanvas" aria-controls="sales-proposal-client-confirmation-offcanvas" id="sales-proposal-client-confirmation">Upload</button>';
                           }
                         ?>
                       </li>
@@ -1313,10 +1340,33 @@
                   <div class="card-body py-2">
                     <ul class="list-group list-group-flush">
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">No Deposit Approval</h5>
+                        <?php
+                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
+                            echo '<button class="btn btn-success me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-no-deposit-offcanvas" aria-controls="sales-proposal-no-deposit-offcanvas" id="sales-proposal-no-deposit">Upload</button>';
+                          }
+                        ?>
+                      </li>
+                      <li class="list-group-item px-0">
+                        <div class="row align-items-center mb-3">
+                          <div class="col-sm-12 mb-sm-0">
+                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="No Deposit Approval" id="no-deposit-image" class="img-fluid rounded">
+                          </div>                      
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card">
+                  <div class="card-body py-2">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Comaker Confirmation </h5>
                         <?php
                           if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
-                            echo '<button class="btn btn-success me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-comaker-confirmation-offcanvas" aria-controls="sales-proposal-comaker-confirmation-offcanvas" id="sales-proposal-comaker-confirmation">Comaker Confirmation</button>';
+                            echo '<button class="btn btn-success me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-comaker-confirmation-offcanvas" aria-controls="sales-proposal-comaker-confirmation-offcanvas" id="sales-proposal-comaker-confirmation">Upload</button>';
                           }
                         ?>
                       </li>
@@ -1331,8 +1381,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="row">
               <div class="col-xl-6">
                 <div class="card">
                   <div class="card-body py-2">
@@ -1341,7 +1389,7 @@
                         <h5 class="mb-0">New Engine Stencil </h5>
                         <?php
                           if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
-                            echo '<button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-new-engine-stencil-offcanvas" aria-controls="sales-proposal-new-engine-stencil-offcanvas" id="sales-proposal-new-engine-stencil">New Engine Stencil</button>';
+                            echo '<button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-new-engine-stencil-offcanvas" aria-controls="sales-proposal-new-engine-stencil-offcanvas" id="sales-proposal-new-engine-stencil">Upload</button>';
                           }
                         ?>
                       </li>
@@ -1364,8 +1412,8 @@
                         <h5 class="mb-0">Credit Advice / Purchase Order</h5>
                         <?php
                           if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review' || $salesProposalStatus == 'For DR'){
-                            if($transactionType == 'Bank Financing'){
-                              echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-credit-advice-offcanvas" aria-controls="sales-proposal-credit-advice-offcanvas" id="sales-proposal-credit-advice">Credit Advice</button>';
+                            if($transactionType == 'Bank Financing' && $uploadCreditAdvice['total'] > 0){
+                              echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-credit-advice-offcanvas" aria-controls="sales-proposal-credit-advice-offcanvas" id="sales-proposal-credit-advice">Upload</button>';
                             }
                           }
                         ?>
@@ -1381,8 +1429,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="row">
               <div class="col-xl-6">
                 <div class="card">
                   <div class="card-body py-2">
@@ -1419,8 +1465,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="row">
               <div class="col-xl-6">
                 <div class="card">
                   <div class="card-body py-2">
@@ -1429,7 +1473,7 @@
                         <h5 class="mb-0">Additional Job Order Confirmation</h5>
                         <?php
                           if($salesProposalStatus != 'For DR' && $additionalJobOrderCount['total'] > 0){
-                            echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-confirmation-offcanvas" aria-controls="sales-proposal-job-order-confirmation-offcanvas" id="sales-proposal-job-order-confirmation">Additional Job Order Confirmation</button>';
+                            echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-confirmation-offcanvas" aria-controls="sales-proposal-job-order-confirmation-offcanvas" id="sales-proposal-job-order-confirmation">Upload</button>';
                           }
                         ?>
                       </li>
@@ -1462,8 +1506,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="row">
               <div class="col-xl-6">
                 <div class="card">
                   <div class="card-body py-2">
@@ -1500,8 +1542,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="row">
               <div class="col-xl-6">
                 <div class="card">
                   <div class="card-body py-2">
@@ -1538,8 +1578,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="row">
               <div class="col-xl-12">
                 <div class="card">
                   <div class="card-body py-2">
@@ -1548,7 +1586,7 @@
                         <h5 class="mb-0">Other Document</h5>
                         <?php
                           if($salesProposalStatus != 'Rejected' && $salesProposalStatus != 'Cancelled' && $salesProposalStatus != 'Released'){
-                            echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-other-document-offcanvas" aria-controls="sales-proposal-other-document-offcanvas" id="sales-proposal-other-document">Other Document</button>';
+                            echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-other-document-offcanvas" aria-controls="sales-proposal-other-document-offcanvas" id="sales-proposal-other-document">Upload</button>';
                           }
                         ?>
                           
@@ -1624,6 +1662,25 @@
             </div>
           </div>
 
+          <div class="tab-pane" id="v-set-to-draft-files">
+            <div class="form-group row">
+              <div class="col-lg-12">
+                <div class="table-responsive">
+                  <table id="sales-proposal-draft-file-table" class="table table-hover nowrap w-100">
+                    <thead>
+                      <tr>
+                        <th>Reason</th>
+                        <th>File</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="tab-pane" id="v-ci-report">
             <div class="table-responsive">
               <table id="sales-proposal-ci-report-table" class="table table-hover nowrap w-100">
@@ -1636,6 +1693,29 @@
                     <th>Date Started</th>
                     <th>Date Completed</th>
                     <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="tab-pane" id="v-parts-issued">
+            <div class="table-responsive">
+              <table id="sales-proposal-parts-issued-table" class="table table-hover nowrap w-100">
+                <thead>
+                  <tr>
+                    <th>Issuance No.</th>
+                    <th>Part</th>
+                    <th>QTY.</th>
+                    <th>Returned QTY.</th>
+                    <th>Requested By</th>
+                    <th>Released Date</th>
+                    <th>Status</th>
+                    <th>Cost</th>
+                    <th>Price</th>
+                    <th>Total Cost</th>
+                    <th>Total Price</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -1851,6 +1931,35 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-sales-proposal-client-confirmation" form="sales-proposal-client-confirmation-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-no-deposit-offcanvas" aria-labelledby="sales-proposal-no-deposit-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-no-deposit-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmation</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-no-deposit-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">No Deposit Approval <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="no_deposit_image" name="no_deposit_image">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-no-deposit" form="sales-proposal-no-deposit-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

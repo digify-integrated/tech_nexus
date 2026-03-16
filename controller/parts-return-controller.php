@@ -249,7 +249,7 @@ class PartsReturnController {
             $partsReturnCartDetails = $this->partsReturnModel->getPartsReturnCart($part_return_cart_id);
             $return_quantity = $partsReturnCartDetails['return_quantity'];
 
-            if($return_type == 'Issuance'){
+            if($return_type == 'Issuance to Supplier' || $return_type == 'Issuance to Stock'){
                 $part_transaction_id = $partsReturnCartDetails['part_transaction_id'];
                 $part_transaction_cart_id = $partsReturnCartDetails['part_transaction_cart_id'];
                 $part_id = $partsReturnCartDetails['part_id'];
@@ -505,6 +505,8 @@ class PartsReturnController {
                     else{
                         $issuance_for = null;
                     }
+
+                    $this->partsReturnModel->updatePartsReturnValue($parts_return_id, $userID);
                     
                     $this->partTransactionModel->createPartsTransactionEntryReversed(
                         $part_transaction_id,
@@ -549,6 +551,8 @@ class PartsReturnController {
                     else{
                         $issuance_for = null;
                     }
+
+                    $this->partsReturnModel->updatePartsReturnValue($parts_return_id, $userID);
                     
                     $this->partTransactionModel->createPartsTransactionEntryReversed(
                         $part_transaction_id,
@@ -614,12 +618,14 @@ class PartsReturnController {
         
         foreach ($part_transaction_cart_ids as $part_transaction_cart_id) {
             if(!empty($part_transaction_cart_id)){
-                if($return_type == 'Issuance'){
-                    $getPartsTransactionCart = $this->partTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
-                    $part_transaction_id = $getPartsTransactionCart['part_transaction_id'];
-                    $part_id = $getPartsTransactionCart['part_id'];
+                if($return_type == 'Issuance to Supplier' || $return_type == 'Issuance to Stock'){
+                    $parts = explode('-', $part_transaction_cart_id);
 
-                    $this->partsReturnModel->insertPartReturnItem($parts_return_id, $part_transaction_id, $part_transaction_cart_id, $part_id, $userID);
+                    $part_transaction_id = $parts[0] ?? null;
+                    $part_transaction_cart_id2 = $parts[1] ?? null;
+                    $part_id = $parts[2] ?? null;
+
+                    $this->partsReturnModel->insertPartReturnItem($parts_return_id, $part_transaction_id, $part_transaction_cart_id2, $part_id, $userID);
                 }
                 else{
                     $this->partsReturnModel->insertPartReturnItemStock($parts_return_id, $part_transaction_cart_id, $userID);

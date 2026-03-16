@@ -73,7 +73,7 @@ if($addPartExpense['total'] > 0){
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">';
 
-                        if ($tagForSale['total'] > 0 && $partsStatus == 'Draft' && $company != '2' && $company != '1') {
+                        if ($tagForSale['total'] > 0 && $partsStatus == 'Draft' && ($company != '2' && $company != '1' && $company != '8')) {
                             $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-parts-for-sale">Tag For Sale</button></li>';
                         }
 
@@ -96,6 +96,9 @@ if($addPartExpense['total'] > 0){
                           }
                           else if($company == '2'){
                             echo '<a class="btn btn-success m-r-5 form-details" href="netruck-parts.php?new">Create</a>';
+                          }
+                          else if($company == '8'){
+                            echo '<a class="btn btn-success m-r-5 form-details" href="fuel-parts.php?new">Create</a>';
                           }
                           else{
                             echo '<a class="btn btn-success m-r-5 form-details" href="parts.php?new">Create</a>';
@@ -192,7 +195,7 @@ if($addPartExpense['total'] > 0){
                 <div class="col-lg-3">
                   <input type="number" class="form-control" id="stock_alert" name="stock_alert" value="0" min="0" step="1" <?php echo $disabledPartsForm; ?>>
                 </div>
-                <label class="col-lg-3 col-form-label"><?php echo $cardLabel; ?> Price (SRP) <span class="text-danger <?php if($company == '2' || $company == '1') echo 'd-none'; ?>">*</span></label>
+                <label class="col-lg-3 col-form-label"><?php echo $cardLabel; ?> Price (SRP) <span class="text-danger <?php if($company == '2' || $company == '1' || $company == '8') echo 'd-none'; ?>">*</span></label>
                 <div class="col-lg-3">
                   <input type="number" class="form-control" id="part_price" name="part_price" min="0" step="0.01" <?php echo $disabledLandedCostForm2; ?>>
                 </div>
@@ -310,7 +313,39 @@ if($addPartExpense['total'] > 0){
 </div>
 
 <div class="row">
-  <div class="col-lg-12">
+  <div class="col-lg-6">
+    <div class="card table-card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5><?php echo $cardLabel; ?> Return</h5>
+          </div>
+          <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+            <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#parts-return-filter-offcanvas">
+              Filter
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive w-100">
+          <table class="table mb-0 w-100" id="parts-return-table">
+            <thead>
+                        <tr>
+                            <th class="w-100">Issuance No.</th>
+                            <th>Cost</th>
+                            <th class="text-center">Return Qty.</th>
+                            <th class="text-center">Return Date</th>
+                            <th class="text-center">Remarks</th>
+                        </tr>
+                    </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
     <div class="card table-card">
       <div class="card-header">
         <div class="row align-items-center">
@@ -370,6 +405,44 @@ if($addPartExpense['total'] > 0){
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-parts-transaction-filter">Apply</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="parts-return-filter-offcanvas" aria-labelledby="parts-return-filter-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="parts-return-filter-offcanvas-label" style="margin-bottom:-0.5rem">Filter</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Return Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="parts_return_start_date" name="parts_return_start_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+                <div class="input-group date mt-3">
+                  <input type="text" class="form-control regular-datepicker" id="parts_return_end_date" name="parts_return_end_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-parts-return-filter">Apply</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

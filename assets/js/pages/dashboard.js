@@ -50,6 +50,10 @@
             salesProposalForCIDashboard();
         }
 
+        if($('#sales-proposal-for-ci-verification-dashboard-list').length){
+            salesProposalForCIVerificationDashboard();
+        }
+
         if($('#sales-proposal-for-verification-dashboard-list').length){
             salesProposalForVerificationDashboard();
         }
@@ -601,6 +605,27 @@ function salesProposalForCIDashboard(){
         dataType: 'json',
         success: function (response) {
             document.getElementById('sales-proposal-for-ci-dashboard-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function salesProposalForCIVerificationDashboard(){
+    const type = 'sales proposal for ci verification list';
+
+    $.ajax({
+        type: 'POST',
+        url: 'view/_sales_proposal_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('sales-proposal-for-ci-verification-dashboard-list').innerHTML = response.LIST;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

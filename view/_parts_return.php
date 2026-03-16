@@ -47,8 +47,8 @@
           <table id="parts-return-table" class="table table-hover nowrap w-100">
             <thead>
               <tr>
-               <th>Ref. No.</th>
-               <th>Supplier</th>
+                <th>Ref. No.</th>
+                <th>Supplier</th>
                 <th>Ref. Invoice No.</th>
                 <th>Ref. PO No.</th>
                 <th>Status</th>

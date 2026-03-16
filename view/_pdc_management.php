@@ -409,6 +409,7 @@
                     <th>Bank/Branch</th>
                     <th>Payment Details</th>
                     <th>Status</th>
+                    <th>Amortization</th>
                     <th>Loan Number</th>
                     <th>Customer</th>
                     <th>Product</th>
@@ -520,7 +521,7 @@
   <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="pdc-deposited-offcanvas" aria-labelledby="pdc-deposited-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="pdc-deposited-offcanvas-label" style="margin-bottom:-0.5rem">For Deposit PDC</h2>
+        <h2 id="pdc-deposited-offcanvas-label" style="margin-bottom:-0.5rem">Deposit PDC</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">

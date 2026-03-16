@@ -14,7 +14,7 @@
     $printJobOrder = ''; 
     $printAdditionalJobOrder = ''; 
 
-    if(($type == 'Internal Repair' || $type == 'Warranty') && ($status == 'Draft' || $status == 'On-Process')){
+    if(($type == 'Internal Repair' || $type == 'Warranty') && ($status == 'Draft')){
         $addJobOrder = '<div class="previous me-2">
            <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#job-order-monitoring-offcanvas" aria-controls="job-order-monitoring-offcanvas">Add Job Order</button>
         </div>';
@@ -758,7 +758,14 @@
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Company Provider <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="job_order_company_id" id="job_order_company_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                </select>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label" for="job_order_cost">Cost <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01">
               </div>
@@ -878,7 +885,14 @@
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">Company Provider <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="additional_job_order_company_id" id="additional_job_order_company_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                </select>
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
                 <label class="form-label" for="additional_job_order_cost">Cost <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="additional_job_order_cost" name="additional_job_order_cost" min="0" step="0.01">
               </div>

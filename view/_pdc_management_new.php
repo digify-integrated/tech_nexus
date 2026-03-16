@@ -51,7 +51,7 @@
               <div class="col-lg-10">
                 <select class="form-control select2" name="product_id" id="product_id">
                   <option value="">--</option>
-                  <?php echo $productModel->generateInStockProductOptions(); ?>
+                  <?php echo $productModel->generateForSaleProductOptions(); ?>
                 </select>
               </div>
             </div>

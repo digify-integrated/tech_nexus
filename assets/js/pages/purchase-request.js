@@ -433,6 +433,9 @@ function purchaseRequestForm(){
             company_id: {
                 required: true
             },
+            department_id: {
+                required: true
+            },
             month_coverage: {
                 required: function () {
                     return $('#purchase_request_type').val() === 'Supplies';
@@ -447,6 +450,9 @@ function purchaseRequestForm(){
         messages: {
             purchase_request_type: {
                 required: 'Please choose the purchase request type'
+            },
+            department_id: {
+                required: 'Please choose the department'
             },
             company_id: {
                 required: 'Please choose the company'
@@ -927,6 +933,7 @@ function displayDetails(transaction){
                         
                         checkOptionExist('#purchase_request_type', response.purchase_request_type, '');       
                         checkOptionExist('#company_id', response.company_id, '');    
+                        checkOptionExist('#department_id', response.department_id, '');    
                         checkOptionExist('#coverage_period', response.coverage_period, '');
                         checkOptionExist('#month_coverage', response.month_coverage, '');   
                     } 

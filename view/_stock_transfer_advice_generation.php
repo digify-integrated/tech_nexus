@@ -773,7 +773,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $stock_transfer_advice_id_encrypted = $securityModel->encryptData($stock_transfer_advice_id);
 
                 $customerDetails = $customerModel->getPersonalInformation($customer_id);
-                $customerName = strtoupper($customerDetails['file_as']) ?? '';
+                $customerName = strtoupper($customerDetails['file_as'] ?? '') ;
 
                  $list .= ' <li class="list-group-item">
                           <div class="d-flex align-items-center">

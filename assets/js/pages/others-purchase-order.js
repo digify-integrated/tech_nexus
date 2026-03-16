@@ -1,0 +1,1733 @@
+(function($) {
+    'use strict';
+
+    $(function() {
+        if($('#purchase-order-table').length){
+            purchaseOrderTable('#purchase-order-table');
+        }
+
+        if($('#others-order-item-table').length){
+            purchaseOrderItemOthersTable('#others-order-item-table');
+        }
+
+        if($('#part-order-item-table').length){
+            purchaseOrderItemPartTable('#part-order-item-table');
+        }
+
+        if($('#supply-order-item-table').length){
+            purchaseOrderItemSupplyTable('#supply-order-item-table');
+        }
+
+        $(document).on('click','#apply-filter',function() {
+            purchaseOrderTable('#purchase-order-table');
+        });
+        
+        if($('#purchase-order-id').length){
+            displayDetails('get purchase order details');
+        }
+
+        if($('#purchase-order-form').length){
+            purchaseOrderForm();
+        }
+
+        if($('#add-item-others-form').length){
+            addItemOthersForm();
+        }
+
+        if($('#receive-item-form').length){
+            receiveItemForm();
+        }
+
+        if($('#cancel-receive-item-form').length){
+            cancelItemForm();
+        }
+
+         if($('#cancel-purchase-order-form').length){
+            cancelPurchaseOrderForm();
+        }
+
+        if($('#draft-purchase-order-form').length){
+            draftPurchaseOrderForm();
+        }
+
+        if($('#approve-purchase-order-form').length){
+            approvePurchaseOrderForm();
+        }
+
+         $(document).on('change','#unit_cost',function() {
+            calculateConvertedAmount();
+        });
+
+        $(document).on('change','#fx_rate',function() {
+            calculateConvertedAmount();
+        });
+
+        $(document).on('change','#package_deal',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#taxes_duties',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#freight',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#lto_registration',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#royalties',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#conversion',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#arrastre',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#wharrfage',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#insurance',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#aircon',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#import_permit',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('change','#others',function() {
+            calculateTotalLandedCost();
+        });
+
+        $(document).on('click','#for-approval',function() {
+            var purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'tag request as for approval';
+    
+            Swal.fire({
+                title: 'Confirm Order For Approval',
+                text: 'Are you sure you want to tag this request as for validation?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'For Approval',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/purchase-order-controller.php',
+                        dataType: 'json',
+                        data: {
+                            purchase_order_id : purchase_order_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Order For Approval Success', 'The request has been tagged as for approval successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.noItem) {
+                                    showNotification('Order For Approval Error', 'No item added. Cannot be processed.', 'danger');
+                                }
+                                else {
+                                    showNotification('Order For Approval Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#on-process',function() {
+            var purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'tag request as on-process';
+    
+            Swal.fire({
+                title: 'Confirm Order On-Process',
+                text: 'Are you sure you want to tag this request as on-process?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'On-Process',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/purchase-order-controller.php',
+                        dataType: 'json',
+                        data: {
+                            purchase_order_id : purchase_order_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Order On-Process Success', 'The request has been tagged as on-process successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else {
+                                    showNotification('Order On-Process Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#complete',function() {
+            var purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'tag request as complete';
+    
+            Swal.fire({
+                title: 'Confirm Order Complete',
+                text: 'Are you sure you want to tag this purchase order as complete?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Complete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/purchase-order-controller.php',
+                        dataType: 'json',
+                        data: {
+                            purchase_order_id : purchase_order_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Order Complete Success', 'The purchase order has been tagged as complete successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else {
+                                    showNotification('Order Complete Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#release',function() {
+            var purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'tag transaction as released';
+    
+            Swal.fire({
+                title: 'Confirm Transaction Release',
+                text: 'Are you sure you want to tag this transaction as released?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Release',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/purchase-order-controller.php',
+                        dataType: 'json',
+                        data: {
+                            purchase_order_id : purchase_order_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Transaction Released Success', 'The transaction has been tagged as released successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.partQuantityExceed) {
+                                    showNotification('Transaction Released Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                }
+                                else if (response.cartQuantity) {
+                                    showNotification('Transaction Released Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                                }
+                                else {
+                                    showNotification('Transaction Released Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#checked',function() {
+            var purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'tag transaction as checked';
+    
+            Swal.fire({
+                title: 'Confirm Transaction Checked',
+                text: 'Are you sure you want to tag this transaction as checked?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Check',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/purchase-order-controller.php',
+                        dataType: 'json',
+                        data: {
+                            purchase_order_id : purchase_order_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Transaction Checked Success', 'The transaction has been tagged as checked successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else {
+                                    showNotification('Transaction Checked Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.delete-part-cart-others',function() {
+            const purchase_order_other_id = $(this).data('purchase-order-others-id');
+            var purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'delete item others';
+    
+            Swal.fire({
+                title: 'Confirm Item Deletion',
+                text: 'Are you sure you want to delete this item?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/purchase-order-controller.php',
+                        dataType: 'json',
+                        data: {
+                            purchase_order_other_id : purchase_order_other_id, 
+                            purchase_order_id : purchase_order_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Item Success', 'The item has been deleted successfully.', 'success');
+                                reloadDatatable('#others-order-item-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Item Error', 'The item does not exists.', 'danger');
+                                    reloadDatatable('#others-order-item-table');
+                                }
+                                else {
+                                    showNotification('Delete Item Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.update-part-cart-others',function() {
+            const purchase_order_others_id = $(this).data('purchase-order-others-id');
+
+            $('#purchase_order_others_id').val(purchase_order_others_id);
+            displayDetails('get purchase order others details');
+        });
+
+        $(document).on('click','.delete-part-cart-part',function() {
+            const purchase_order_part_id = $(this).data('purchase-order-part-id');
+            var purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'delete item part';
+    
+            Swal.fire({
+                title: 'Confirm Item Deletion',
+                text: 'Are you sure you want to delete this item?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/purchase-order-controller.php',
+                        dataType: 'json',
+                        data: {
+                            purchase_order_part_id : purchase_order_part_id, 
+                            purchase_order_id : purchase_order_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Item Success', 'The item has been deleted successfully.', 'success');
+                                reloadDatatable('#part-order-item-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Item Error', 'The item does not exists.', 'danger');
+                                    reloadDatatable('#part-order-item-table');
+                                }
+                                else {
+                                    showNotification('Delete Item Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.update-part-cart-part',function() {
+            const purchase_order_part_id = $(this).data('purchase-order-part-id');
+
+            $('#purchase_order_part_id').val(purchase_order_part_id);
+            displayDetails('get purchase order part details');
+        });
+
+        $(document).on('click','.delete-part-cart-supply',function() {
+            const purchase_order_supply_id = $(this).data('purchase-order-supply-id');
+            var purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'delete item supply';
+    
+            Swal.fire({
+                title: 'Confirm Item Deletion',
+                text: 'Are you sure you want to delete this item?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/purchase-order-controller.php',
+                        dataType: 'json',
+                        data: {
+                            purchase_order_supply_id : purchase_order_supply_id, 
+                            purchase_order_id : purchase_order_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Item Success', 'The item has been deleted successfully.', 'success');
+                                reloadDatatable('#supply-order-item-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Item Error', 'The item does not exists.', 'danger');
+                                    reloadDatatable('#supply-order-item-table');
+                                }
+                                else {
+                                    showNotification('Delete Item Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.update-supply-cart-supply',function() {
+            const purchase_order_supply_id = $(this).data('purchase-order-supply-id');
+
+            $('#purchase_order_supply_id').val(purchase_order_supply_id);
+            displayDetails('get purchase order supply details');
+        });
+
+        $(document).on('click','#discard-create',function() {
+            discardCreate('others-purchase-order.php');
+        });
+
+         $(document).on('click','.receive-quantity',function() {
+            const purchase_order_cart_id = $(this).data('purchase-order-cart-id');
+            const type = $(this).data('type');
+
+            sessionStorage.setItem('purchase_order_cart_id', purchase_order_cart_id);
+            sessionStorage.setItem('type', type);
+
+            displayDetails('get receive details');
+        });
+
+        $(document).on('click','.cancel-receive-quantity',function() {
+            const purchase_order_cart_id = $(this).data('purchase-order-cart-id');
+            const type = $(this).data('type');
+
+            sessionStorage.setItem('purchase_order_cart_id', purchase_order_cart_id);
+            sessionStorage.setItem('type', type);
+
+            displayDetails('get receive details');
+        });
+
+    });
+})(jQuery);
+
+function purchaseOrderTable(datatable_name, buttons = false, show_all = false){
+    const type = 'purchase order table';
+    var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
+    var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
+    var filter_approval_date_start_date = $('#filter_approval_date_start_date').val();
+    var filter_approval_date_end_date = $('#filter_approval_date_end_date').val();
+    var filter_onprocess_date_start_date = $('#filter_onprocess_date_start_date').val();
+    var filter_onprocess_date_end_date = $('#filter_onprocess_date_end_date').val();
+    var filter_completion_date_start_date = $('#filter_completion_date_start_date').val();
+    var filter_completion_date_end_date = $('#filter_completion_date_end_date').val();
+
+    var order_status_filter = [];
+
+    $('.order-status-checkbox:checked').each(function() {
+        order_status_filter.push($(this).val());
+    });
+
+    var filter_order_status = order_status_filter.join(', ');
+
+    var settings;
+
+    const column = [
+        { 'data' : 'CHECK_BOX' },
+        { 'data' : 'REFERENCE_NO' },
+        { 'data' : 'PURCHASE_REQUEST_TYPE' },
+        { 'data' : 'COMPANY' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_others_purchase_order_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 
+                'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
+                'filter_transaction_date_end_date' : filter_transaction_date_end_date,
+                'filter_approval_date_start_date' : filter_approval_date_start_date,
+                'filter_approval_date_end_date' : filter_approval_date_end_date,
+                'filter_onprocess_date_start_date' : filter_onprocess_date_start_date,
+                'filter_onprocess_date_end_date' : filter_onprocess_date_end_date,
+                'filter_completion_date_start_date' : filter_completion_date_start_date,
+                'filter_completion_date_end_date' : filter_completion_date_end_date,
+                'filter_order_status' : filter_order_status
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function purchaseOrderItemOthersTable(datatable_name, buttons = false, show_all = false){
+    const purchase_order_id = $('#purchase-order-id').text();
+    const type = 'purchase order item others table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'ACTION' },
+        { 'data' : 'ITEM' },
+        { 'data' : 'REQUEST' },
+        { 'data' : 'QUANTITY' },
+        { 'data' : 'ACTUAL_QUANTITY' },
+        { 'data' : 'CANCELLED_QUANTITY' },
+        { 'data' : 'PRICE' },
+        { 'data' : 'REMARKS' }
+    ];
+
+    const column_definition = [
+        { 'width': '5%', 'bSortable': false, 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_others_purchase_order_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'purchase_order_id' : purchase_order_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function purchaseOrderItemPartTable(datatable_name, buttons = false, show_all = false){
+    const purchase_order_id = $('#purchase-order-id').text();
+    const type = 'purchase order item part table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'ACTION' },
+        { 'data' : 'PART' },
+        { 'data' : 'REQUEST' },
+        { 'data' : 'QUANTITY' },
+        { 'data' : 'ACTUAL_QUANTITY' },
+        { 'data' : 'CANCELLED_QUANTITY' },
+        { 'data' : 'PRICE' },
+        { 'data' : 'REMARKS' }
+    ];
+
+    const column_definition = [
+        { 'width': '5%', 'bSortable': false, 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_others_purchase_order_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'purchase_order_id' : purchase_order_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function purchaseOrderItemSupplyTable(datatable_name, buttons = false, show_all = false){
+    const purchase_order_id = $('#purchase-order-id').text();
+    const type = 'purchase order item supply table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'ACTION' },
+        { 'data' : 'SUPPLY' },
+        { 'data' : 'REQUEST' },
+        { 'data' : 'QUANTITY' },
+        { 'data' : 'ACTUAL_QUANTITY' },
+        { 'data' : 'CANCELLED_QUANTITY' },
+        { 'data' : 'PRICE' },
+        { 'data' : 'REMARKS' }
+    ];
+
+    const column_definition = [
+        { 'width': '5%', 'bSortable': false, 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_others_purchase_order_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'purchase_order_id' : purchase_order_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function purchaseOrderForm(){
+    $('#purchase-order-form').validate({
+        rules: {
+            company_id: {
+                required: true
+            },
+            supplier_id: {
+                required: true
+            },
+        },
+        messages: {
+            company_id: {
+                required: 'Please choose the company'
+            },
+            supplier_id: {
+                required: 'Please choose the supplier'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'save others purchase order';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Purchase Order Success' : 'Update Purchase Order Success';
+                        const notificationDescription = response.insertRecord ? 'The purchase order has been inserted successfully.' : 'The purchase order has been updated successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+
+                        window.location = 'others-purchase-order.php?id=' + response.purchaseOrderID;
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Purchase Order Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function addItemOthersForm(){
+    $('#add-item-others-form').validate({
+        rules: {
+            purchase_request_cart_id: {
+                required: true
+            },
+            item: {
+                required: true
+            },
+            price_unit: {
+                required: true
+            },
+            quantity_unit: {
+                required: true
+            },
+            quantity_unit_id: {
+                required: true
+            },
+        },
+        messages: {
+            purchase_request_cart_id: {
+                required: 'Please choose the purchase order'
+            },
+            item: {
+                required: 'Please enter the item'
+            },
+            price_unit: {
+                required: 'Please enter the price'
+            },
+            quantity_unit: {
+                required: 'Please enter the quantity'
+            },
+            quantity_unit_id: {
+                required: 'Please choose the unit'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'save purchase order item others';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-add-item');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Save Item Success', 'The purchase order has been saved successfully', 'success');
+                        $('#add-item-others-offcanvas').offcanvas('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Purchase Order Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-add-item', 'Submit');
+                    reloadDatatable('#others-order-item-table');
+                    resetModalForm('add-item-others-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+$.validator.addMethod("notGreaterThanRemaining", function(value, element, params) {
+    var remaining = parseFloat($(params).val());
+    var received = parseFloat(value);
+    return received <= remaining;
+}, "Received quantity cannot be greater than remaining quantity.");
+
+function receiveItemForm(){
+    $('#receive-item-form').validate({
+        rules: {
+            received_quantity: {
+                required: true,
+                notGreaterThanRemaining: "#remaining_quantity"
+            },
+        },
+        messages: {
+            received_quantity: {
+                required: 'Please enter the received quantity',
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            let purchase_order_cart_id = sessionStorage.getItem('purchase_order_cart_id');
+            let type = sessionStorage.getItem('type');
+            const transaction = 'save purchase order receive';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_cart_id=' + purchase_order_cart_id + '&type=' + type,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-receive');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Update Received Item Success', 'The received item has been updated successfully', 'success');
+
+                        if(type == 'unit'){
+                            reloadDatatable('#others-order-item-table');
+                        }
+                        else if(type == 'part'){
+                            reloadDatatable('#part-order-item-table');
+                        }
+                        else if(type == 'others'){
+                            reloadDatatable('#others-order-item-table');
+                        }
+                        else{
+                            reloadDatatable('#supply-order-item-table');
+                        }
+
+                        $('#receive-item-offcanvas').offcanvas('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else if (response.remainingQuantity) {
+                            showNotification('Update Received Item', 'Received quantity cannot be greater than remaining quantity', 'danger');
+                        }
+                        else if (response.quantity) {
+                            showNotification('Update Received Item', 'Quantity cannot exceed available stock', 'danger');
+                        }
+                        else {
+                            showNotification('Incoming Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-receive', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function cancelItemForm(){
+    $('#cancel-receive-item-form').validate({
+        rules: {
+            cancel_received_quantity: {
+                required: true,
+                notGreaterThanRemaining: "#cancel_remaining_quantity"
+            },
+        },
+        messages: {
+            cancel_received_quantity: {
+                required: 'Please enter the cancel quantity',
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            let purchase_order_cart_id = sessionStorage.getItem('purchase_order_cart_id');
+            let type = sessionStorage.getItem('type');
+            const transaction = 'save purchase order receive cancel';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_cart_id=' + purchase_order_cart_id + '&type=' + type,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-cancel-receive');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Cancel Remaining Quantity Success', 'The remaining quantity item has been updated successfully', 'success');
+
+                        if(type == 'unit'){
+                            reloadDatatable('#others-order-item-table');
+                        }
+                        else if(type == 'part'){
+                            reloadDatatable('#part-order-item-table');
+                        }
+                        else if(type == 'others'){
+                            reloadDatatable('#others-order-item-table');
+                        }
+                        else{
+                            reloadDatatable('#supply-order-item-table');
+                        }
+
+                        $('#cancel-receive-item-offcanvas').offcanvas('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else if (response.quantity) {
+                            showNotification('Cancel Remaining Quantity', 'Cancel quantity cannot exceed remaining quantity to receive', 'danger');
+                        }
+                        else {
+                            showNotification('Incoming Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-cancel-receive', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function cancelPurchaseOrderForm(){
+    $('#cancel-purchase-order-form').validate({
+        rules: {
+            cancellation_reason: {
+                required: true
+            },
+        },
+        messages: {
+            cancellation_reason: {
+                required: 'Please enter the cancellation reason'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            var purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'tag request as cancelled';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-cancel-transaction');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Cancel Transaction Success';
+                        const notificationDescription = 'The transaction has been tag as cancelled successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else if (response.cartQuantity) {
+                            showNotification('Cancel Transaction Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-cancel-transaction', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function draftPurchaseOrderForm(){
+    $('#draft-purchase-order-form').validate({
+        rules: {
+            draft_reason: {
+                required: true
+            },
+        },
+        messages: {
+            draft_reason: {
+                required: 'Please enter the set to draft reason'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            var purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'tag request as draft';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-draft-transaction');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Set to Draft Transaction Success';
+                        const notificationDescription = 'The transaction has been set to draft successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-draft-transaction', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function approvePurchaseOrderForm(){
+    $('#approve-purchase-order-form').validate({
+        rules: {
+            approval_remarks: {
+                required: true
+            },
+        },
+        messages: {
+            approval_remarks: {
+                required: 'Please enter the validation remarks'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            var purchase_order_id = $('#purchase-order-id').text();
+            const transaction = 'tag request as approved';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/purchase-order-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&purchase_order_id=' + purchase_order_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-approve-transaction');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Validate Transaction Success';
+                        const notificationDescription = 'The transaction has been tag as validated successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else if (response.cartQuantity) {
+                            showNotification('Validate Transaction Error', 'One of the parts added does not have enough quantity. Kindly check the added parts.', 'danger');
+                        }
+                        else if (response.jobOrder) {
+                            showNotification('Validate Transaction Error', 'No job order or additional job order linked. Cannot be processed.', 'danger');
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-approve-transaction', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function displayDetails(transaction){
+    switch (transaction) {
+        case 'get purchase order details':
+            var purchase_order_id = $('#purchase-order-id').text();
+            
+            $.ajax({
+                url: 'controller/purchase-order-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    purchase_order_id : purchase_order_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#reference_no').val(response.reference_no);
+                        $('#remarks').val(response.remarks);
+                        
+                        checkOptionExist('#purchase_order_type', response.purchase_order_type, '');       
+                        checkOptionExist('#company_id', response.company_id, '');       
+                        checkOptionExist('#supplier_id', response.supplier_id, '');       
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Part Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get purchase order others details':
+            const purchase_order_others_id = $('#purchase_order_others_id').val();
+            
+            $.ajax({
+                url: 'controller/purchase-order-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    purchase_order_others_id : purchase_order_others_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        checkOptionExist('#purchase_request_cart_id', response.purchase_request_cart_id, '');
+                        checkOptionExist('#quantity_unit_id', response.unit_id, '');
+
+                        // Additional fields from table
+                        $('#item').val(response.item);
+                        $('#price_unit').val(response.price_unit);
+                        $('#quantity_unit').val(response.quantity);
+                        $('#others_remarks').val(response.others_remarks);
+
+                    } else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Get Part Details Error', response.message, 'danger');
+                        }
+                    }
+
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get receive details':
+            let purchase_order_cart_id = sessionStorage.getItem('purchase_order_cart_id');
+            let type = sessionStorage.getItem('type');
+            
+            $.ajax({
+                url: 'controller/purchase-order-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    purchase_order_cart_id : purchase_order_cart_id, 
+                    type : type, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#remaining_quantity').val(response.remaining_quantity);
+                        $('#cancel_remaining_quantity').val(response.remaining_quantity);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Part Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+    }
+}
+
+function calculateConvertedAmount() {
+    var price_unit = parseFloat($('#price_unit').val()) || 0;
+    var fx_rate = parseFloat($('#fx_rate').val()) || 0;
+    var total = price_unit * fx_rate;
+
+    $('#converted_amount').val(total.toFixed(2));
+
+    calculateTotalLandedCost();
+}
+
+function calculateTotalLandedCost() {
+    var converted_amount = parseFloat($('#converted_amount').val()) || 0;
+    var package_deal = parseFloat($('#package_deal').val()) || 0;
+    var taxes_duties = parseFloat($('#taxes_duties').val()) || 0;
+    var freight = parseFloat($('#freight').val()) || 0;
+    var lto_registration = parseFloat($('#lto_registration').val()) || 0;
+    var royalties = parseFloat($('#royalties').val()) || 0;
+    var conversion = parseFloat($('#conversion').val()) || 0;
+    var arrastre = parseFloat($('#arrastre').val()) || 0;
+    var wharrfage = parseFloat($('#wharrfage').val()) || 0;
+    var insurance = parseFloat($('#insurance').val()) || 0;
+    var aircon = parseFloat($('#aircon').val()) || 0;
+    var import_permit = parseFloat($('#import_permit').val()) || 0;
+    var others = parseFloat($('#others').val()) || 0;
+
+    var total = converted_amount + package_deal + taxes_duties + freight + lto_registration + royalties + conversion + arrastre + wharrfage + insurance + aircon + import_permit + others;
+
+    $('#total_landed_cost').val(total.toFixed(2));
+}

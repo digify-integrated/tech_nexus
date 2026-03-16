@@ -48,8 +48,24 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $company_id = $_POST['company_id'];
             $return_type = $_POST['return_type'];
 
-            if($return_type != 'Stock to Supplier'){
-                $query = 'SELECT * FROM part_transaction_cart WHERE part_transaction_id IN (SELECT part_transaction_id FROM part_transaction WHERE company_id = :company_id AND part_transaction_status IN ("Checked", "Released") AND part_transaction_id NOT IN (SELECT part_transaction_id FROM part_return_cart WHERE part_return_id = :parts_return_id)) AND return_quantity > 0';
+            if($return_type == 'Issuance to Supplier' || $return_type == 'Issuance to Stock'){
+                $query = 'SELECT ptc.*
+                            FROM part_transaction_cart ptc
+                            WHERE ptc.return_quantity > 0
+                            AND EXISTS (
+                                    SELECT 1
+                                    FROM part_transaction pt
+                                    WHERE pt.part_transaction_id = ptc.part_transaction_id
+                                    AND pt.company_id = :company_id
+                                    AND pt.part_transaction_status IN ("Checked", "Released")
+                                )
+                            AND NOT EXISTS (
+                                    SELECT 1
+                                    FROM part_return_cart prc
+                                    WHERE prc.part_transaction_id = ptc.part_transaction_id
+                                    AND prc.part_return_id = :parts_return_id
+                                );
+';
             }
             else{
                 $query = 'SELECT * FROM part WHERE company_id = :company_id AND part_id NOT IN (SELECT part_id FROM part_return_cart WHERE part_return_id = :parts_return_id) AND quantity > 0 AND part_status = "For Sale"';
@@ -63,7 +79,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                if($return_type != 'Stock to Supplier'){
+                if($return_type == 'Issuance to Supplier' || $return_type == 'Issuance to Stock'){
                     $part_transaction_cart_id = $row['part_transaction_cart_id'];
                     $part_transaction_id = $row['part_transaction_id'];
                     $part_id = $row['part_id'];
@@ -91,7 +107,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </div>',
                         'COST' => number_format($cost, 2) . ' PHP',
                         'AVAILABLE_QUANTITY' => number_format($return_quantity, 2) . ' ' . $short_name,
-                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-part" type="checkbox" value="'. $part_transaction_cart_id.'"></div>'
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input assign-part" type="checkbox" value="'. $part_transaction_id.'-'. $part_transaction_cart_id.'-'. $part_id.'"></div>'
                     ];
                 }
                 else{
@@ -148,9 +164,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $return_quantity = $row['return_quantity'];
                 $remarks = $row['remarks'];
                 $part_id = $row['part_id'];
-
                 
-                if($return_type == 'Issuance'){
+                if($return_type == 'Issuance to Supplier' || $return_type == 'Issuance to Stock'){
                     $getPartsTransaction = $partTransactionModel->getPartsTransaction( $part_transaction_id);
                     $slip_reference_no = $getPartsTransaction['issuance_no'] ?? '';
                     
@@ -164,7 +179,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $unitSale = $partDetails['unit_sale'] ?? null;
                 }
                 else{
-                     $slip_reference_no = 'N/A';
+                    $slip_reference_no = 'N/A';
                     $partDetails = $partsModel->getParts($part_id);
                     $description = $partDetails['description'] ?? null;
                     $bar_code = $partDetails['bar_code'] ?? null;
@@ -172,8 +187,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $available_return_quantity = $partDetails['quantity'] ?? null;
                     $unitSale = $partDetails['unit_sale'] ?? null;
                 }
-
-                
 
                 $action = '';
                 if($part_return_status == 'Draft'){
@@ -210,6 +223,86 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        case 'part return item table 2':
+            $parts_id = $_POST['parts_id'];
+
+            $parts_return_start_date = $systemModel->checkDate('empty', $_POST['parts_return_start_date'], '', 'Y-m-d', '');
+            $parts_return_end_date = $systemModel->checkDate('empty', $_POST['parts_return_end_date'], '', 'Y-m-d', '');
+
+            $partDetails = $partsModel->getParts($parts_id);
+            $unitSale = $partDetails['unit_sale'] ?? null;
+
+            $unitCode = $unitModel->getUnit($unitSale);
+            $short_name = $unitCode['short_name'] ?? null;
+
+            $query = 'SELECT * FROM part_return_cart WHERE part_id = :part_id';
+
+            if(!empty($parts_return_start_date) && !empty($parts_return_end_date)){
+                $query .= ' AND part_return_id IN (SELECT part_return_id FROM part_return WHERE DATE(released_date) BETWEEN :parts_return_start_date AND :parts_return_end_date AND part_return_status IN ("Released"))';
+            }
+
+            $sql = $databaseModel->getConnection()->prepare($query);
+            $sql->bindValue(':part_id', $parts_id, PDO::PARAM_STR);
+
+            if(!empty($parts_return_start_date) && !empty($parts_return_end_date)){
+               $sql->bindValue(':parts_return_start_date', $parts_return_start_date, PDO::PARAM_STR);
+                $sql->bindValue(':parts_return_end_date', $parts_return_end_date, PDO::PARAM_STR);
+            }
+            
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $part_return_id = $row['part_return_id'];                
+                $part_return_cart_id = $row['part_return_cart_id'];                
+                $part_transaction_id = $row['part_transaction_id'];
+                $part_transaction_cart_id = $row['part_transaction_cart_id'];
+                $return_quantity = $row['return_quantity'];
+                $remarks = $row['remarks'];
+                $part_id = $row['part_id'];
+
+                $part_return_details = $partsReturnModel->getPartsReturn($part_return_id);
+                $return_type = $part_retirn_details['return_type'] ?? '';
+                $released_date = $systemModel->checkDate('empty', $part_return_details['released_date'], '', 'm/d/Y', '');
+                
+                if($return_type == 'Issuance to Supplier' || $return_type == 'Issuance to Stock'){
+                    $getPartsTransaction = $partTransactionModel->getPartsTransaction( $part_transaction_id);
+                    $slip_reference_no = $getPartsTransaction['issuance_no'] ?? '';
+                    
+                    $getPartsTransactionCart = $partTransactionModel->getPartsTransactionCart($part_transaction_cart_id);
+                    $available_return_quantity = $getPartsTransactionCart['return_quantity'] ?? 0;
+                    $cost = $getPartsTransactionCart['cost'] ?? 0;
+
+                    $partDetails = $partsModel->getParts($part_id);
+                    $description = $partDetails['description'];
+                    $bar_code = $partDetails['bar_code'];
+                    $unitSale = $partDetails['unit_sale'] ?? null;
+                }
+                else{
+                    $slip_reference_no = 'N/A';
+                    $partDetails = $partsModel->getParts($part_id);
+                    $description = $partDetails['description'] ?? null;
+                    $bar_code = $partDetails['bar_code'] ?? null;
+                    $cost = $partDetails['part_cost'] ?? null;
+                    $available_return_quantity = $partDetails['quantity'] ?? null;
+                    $unitSale = $partDetails['unit_sale'] ?? null;
+                }
+
+                $unitCode = $unitModel->getUnit($unitSale);
+                $short_name = $unitCode['short_name'] ?? null;
+
+                $response[] = [
+                    'ISSUANCE_NO' => $slip_reference_no,
+                    'COST' => number_format($cost, 2),
+                    'RETURN_QUANTITY' => number_format($return_quantity, 2) . ' ' . $short_name,
+                    'RELEASED_DATE' => $released_date,
+                    'REMARKS' => $remarks,
                 ];
             }
 

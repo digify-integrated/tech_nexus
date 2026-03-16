@@ -44,6 +44,7 @@
 
         $partTransactionDetails = $partsTransactionModel->getPartsTransaction($partsTransactionID);
 
+        $customer_type = $partTransactionDetails['customer_type'] ?? '';
         $company_id = $partTransactionDetails['company_id'] ?? '';
         $customer_id = $partTransactionDetails['customer_id'] ?? '';
         $slip_reference_no = $partTransactionDetails['slip_reference_no'] ?? '';
@@ -56,6 +57,7 @@
 
         $customerDetails = $customerModel->getPersonalInformation($customer_ref_id);
         $last_name = $customerDetails['last_name'] ?? '';
+        $customerName = $customerDetails['file_as'] ?? null;
 
         $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
         $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
@@ -67,19 +69,29 @@
         $fileAs = $user['file_as'] ?? null;
 
         if($company_id == '2'){
-            $title = 'NE TRUCKS BUILDERS CORP.';
+            $title = 'CHRISTIAN GENERAL MOTORS INC.';
         }
         else if($company_id == '1'){
             $title = 'CHRISTIAN GENERAL MOTORS INC.';
+        }
+        else if($company_id == '8'){
+            $title = 'NE FUEL';
         }
         else{
             $title = 'FUSO TARLAC';
         }
 
+        if($customer_type == 'Customer'){
+            $title = $customerName;
+        }
+
         $unitNo = '';
-        if($company_id != '1'){
+        if(($company_id == '2' || $company_id == '3') && $customer_type == 'Internal'){
             $unitNo = $fullStockNumber . ' - ' . strtoupper($last_name);
         }
+        else if($company_id != '1' && $customer_type == 'Customer'){
+            $unitNo = 'Parts Stock';
+        }   
     }
 
     $summaryTable = generatePrint($partsTransactionID);

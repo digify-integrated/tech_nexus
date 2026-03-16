@@ -28,7 +28,7 @@
                           </div>
                         </div>
                       </li>
-                      <li class="list-group-item px-0 py-2">
+                      <li class="list-group-item px-0 py-2 d-none">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Status
                         </a>

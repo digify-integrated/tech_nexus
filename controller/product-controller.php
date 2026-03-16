@@ -203,6 +203,7 @@ class ProductController {
         $totalLandedCost = $productDetails['total_landed_cost'];
         $unitCost = $productDetails['unit_cost'];
         $productPrice = $productDetails['product_price'];
+        $product_image = $productDetails['product_image'];
 
         if($preorder == 'Yes'){
             echo json_encode(['success' => false, 'preOrder' =>  true]);
@@ -216,6 +217,11 @@ class ProductController {
 
         if($incomingChecklistTotal == 0){
             echo json_encode(['success' => false, 'incomingChecklist' =>  true]);
+            exit;
+        }
+
+        if(empty($product_image)){
+            echo json_encode(['success' => false, 'message' =>  'Product image is required. Please upload a product image before tagging the product as For Sale.']);
             exit;
         }
 

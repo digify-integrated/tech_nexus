@@ -223,7 +223,7 @@
                 $stockNumber = '';
             }
 
-            if($collection_status == 'Reversed'){
+            if($collection_status == 'Reversed' && $mode_of_payment == 'Check'){
                 $or_number = $row['reversal_reference_number'];
                 $or_date = $systemModel->checkDate('empty', $row['reversal_reference_date'], '', 'm/d/Y', '');
             }

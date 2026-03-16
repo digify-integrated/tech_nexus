@@ -83,13 +83,18 @@
         <form id="parts-incoming-form" method="post" action="#">
           <?php
             $readonly = '';
-            if($company == '2' || $company == '1' || $company == '3'){
+            if($company == '2' || $company == '1' || $company == '3' || $company == '8'){
               $readonly = 'readonly';
             }
 
             $suppliesHidden = '';
             if($company == '1'){
               $suppliesHidden = 'd-none';
+            }
+
+            $fuelHidden = '';
+            if($company == '8'){
+              $fuelHidden = 'd-none';
             }
           ?>
           <div class="form-group row">
@@ -121,7 +126,7 @@
                 <?php echo $supplierModel->generateSupplierOptions(); ?>
               </select>
             </div>
-            <label class="col-lg-2 col-form-label <?php echo $suppliesHidden; ?>">Customer Reference <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label <?php echo $suppliesHidden; ?>">Customer Reference <span class="text-danger <?php echo $fuelHidden; ?>">*</span></label>
             <div class="col-lg-4 <?php echo $suppliesHidden; ?>">
                 <select class="form-control select2" name="customer_ref_id" id="customer_ref_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
@@ -129,7 +134,7 @@
                 </select>
             </div>
           </div>
-          <div class="form-group row <?php echo $suppliesHidden; ?>">
+          <div class="form-group row <?php echo $suppliesHidden; ?> <?php echo $fuelHidden; ?>">
             <label class="col-lg-2 col-form-label ">Product <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="product_id" id="product_id" <?php echo $disabled; ?>>

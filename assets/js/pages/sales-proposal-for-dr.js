@@ -5332,6 +5332,9 @@ function salesProposalReleaseForm(){
                         else if (response.forReturn) {
                             showNotification('Transaction Error', 'The product status is still for return. Cannot be released.', 'danger');
                         } 
+                        else if (response.fuelQuantity) {
+                            showNotification('Transaction Error', 'Insufficient fuel quantity.', 'danger');
+                        } 
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }

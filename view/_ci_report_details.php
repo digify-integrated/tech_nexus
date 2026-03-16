@@ -3,6 +3,10 @@
     $ciReportDetails = $ciReportModel->getCIReport($ciReportID);
     $ci_status = $ciReportDetails['ci_status'] ?? 'Draft';
     $customer_id = $ciReportDetails['contact_id'] ?? null;
+    $sales_proposal_id = $ciReportDetails['sales_proposal_id'] ?? null;
+
+    $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+    $sp_customer_id = $salesProposalDetails['customer_id'] ?? null;
 
     $disabled = '';
     $loanProposal = '';
@@ -112,7 +116,12 @@
         <li class="nav-item" role="presentation"><button class="nav-link" id="collateral" data-bs-toggle="tab" data-bs-target="#collateral-pane" type="button" role="tab" aria-controls="collateral-pane" aria-selected="false" tabindex="-1">Collateral</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="recommendation-tab" data-bs-toggle="tab" data-bs-target="#recommendation-pane" type="button" role="tab" aria-controls="recommendation-pane" aria-selected="false" tabindex="-1">Recommendation</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="ci-files" data-bs-toggle="tab" data-bs-target="#ci-files-pane" type="button" role="tab" aria-controls="ci-files-pane" aria-selected="false" tabindex="-1">CI Files</button></li>
-        <li class="nav-item" role="presentation"><a href="loan-proposal.php?id=<?php echo $ciReportID; ?>" class="nav-link" target="_blank" tabindex="-1">Summary</a></li>
+        <?php
+            if($sp_customer_id == $customer_id){
+                echo '<li class="nav-item" role="presentation"><a href="loan-proposal.php?id='.$ciReportID.'" class="nav-link" target="_blank" tabindex="-1">Summary</a></li>';
+            }
+        ?>
+        
     </ul>
     <div class="tab-content" id="ciTabContent">
 
@@ -1386,7 +1395,7 @@
                                 <table id="ci-trade-reference-table" class="table table-hover nowrap w-100">
                                     <thead>
                                     <tr>
-                                        <th>Supplier</th>
+                                        <th>Supplier/Customer</th>
                                         <th>Contact Person</th>
                                         <th>Years of Transaction</th>
                                         <th>Remarks</th>
@@ -1818,7 +1827,7 @@
                     <input type="hidden" id="ci_report_trade_reference_id" name="ci_report_trade_reference_id">
                     <div class="form-group row">
                         <div class="col-lg-12">
-                            <label class="form-label" for="ci_report_trade_reference_supplier">Supplier <span class="text-danger">*</span></label>
+                            <label class="form-label" for="ci_report_trade_reference_supplier">Supplier/Customer <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="ci_report_trade_reference_supplier" name="ci_report_trade_reference_supplier" maxlength="3000" autocomplete="off" <?php echo $disabled; ?>>
                         </div>
                     </div>

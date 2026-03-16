@@ -1,667 +1,416 @@
-(function($) {
-    'use strict';
+(function ($) {
+  'use strict';
 
-    $(function() {
-        var sales_proposal_status = $('#sales_proposal_status').val();
+  $(function () {
+    // -----------------------------
+    // Cache frequently-used elements
+    // -----------------------------
+    const $doc = $(document);
+    const $salesProposalStatus = $('#sales_proposal_status');
+    const salesProposalStatus = $salesProposalStatus.val();
 
-        $('#v-pills-tab .nav-link').removeAttr('data-bs-toggle');
-        
-        if($('#sales-proposal-table').length){
-            salesProposalTable('#sales-proposal-table');
+    // If this is always required, do it once
+   
+
+    // ---------------------------------------
+    // Helpers (keep small + reusable)
+    // ---------------------------------------
+    const exists = (selector) => $(selector).length > 0;
+
+    const initIfExists = (selector, initFn) => {
+      if (exists(selector)) initFn(selector);
+    };
+
+    const initIfExistsNoArg = (selector, initFn) => {
+      if (exists(selector)) initFn();
+    };
+
+    const setReadonlyIfExists = (selector, readonly) => {
+      const $el = $(selector);
+      if ($el.length) $el.prop('readonly', !!readonly);
+    };
+
+    const withTempDisable = (selector, ms = 500) => {
+      const $btn = $(selector);
+      if (!$btn.length) return;
+      $btn.prop('disabled', true);
+      setTimeout(() => $btn.prop('disabled', false), ms);
+    };
+
+    // ---------------------------------------
+    // Guard displayDetails to reduce races
+    // ---------------------------------------
+    const displayDetailsGuard = (() => {
+      const inFlight = new Map(); // key -> timeout id
+      return (key, delay = 0) => {
+        // de-dupe bursts (especially from change events)
+        if (inFlight.has(key)) clearTimeout(inFlight.get(key));
+        const t = setTimeout(() => {
+          inFlight.delete(key);
+          displayDetails(key);
+        }, delay);
+        inFlight.set(key, t);
+      };
+    })();
+
+    // ---------------------------------------
+    // 1) Table initializers (map-driven)
+    // ---------------------------------------
+    const tableInitializers = [
+      ['#sales-proposal-table', (sel) => salesProposalTable(sel)],
+      ['#all-sales-proposal-table', (sel) => allSalesProposalTable(sel)],
+      ['#sales-proposal-all-approval-condition-table', (sel) => salesProposalAllApprovalConditionTable(sel)],
+      ['#sales-proposal-job-order-table', (sel) => salesProposalJobOrderTable(sel)],
+      ['#sales-proposal-ci-report-table', (sel) => salesProposalCIReportTable(sel)],
+      ['#sales-proposal-deposit-amount-table', (sel) => salesProposalDepositAmountTable(sel)],
+      ['#sales-proposal-additional-job-order-table', (sel) => salesProposalAdditionalJobOrderTable(sel)],
+      ['#sales-proposal-for-ci-table', (sel) => salesProposalForCITable(sel)],
+      ['#sales-proposal-approval-condition-table', (sel) => salesProposalApprovalConditionTable(sel)],
+      ['#sales-proposal-for-ci-evaluation-table', (sel) => salesProposalForCIEvaluationTable(sel)],
+      ['#schedule-of-payments-table', (sel) => scheduleOfPaymentsTable(sel)],
+      ['#installment-sales-approval-table', (sel) => installmentSalesApprovalTable(sel)],
+      ['#sales-proposal-for-bank-financing-table', (sel) => salesProposalForBankFinancingTable(sel)],
+      ['#sales-proposal-change-request-table', (sel) => salesProposalChangeRequestTable(sel)],
+      ['#approved-sales-proposal-table', (sel) => approvedSalesProposalTable(sel)],
+      ['#incoming-sales-proposal-table', (sel) => incomingSalesProposalTable(sel)],
+      ['#sales-proposal-for-dr-table', (sel) => salesProposalForDRTable(sel)],
+      ['#sales-proposal-released-table', (sel) => salesProposalReleasedTable(sel, true)],
+      ['#sales-proposal-pdc-manual-input-table', (sel) => salesProposalPDCManualInputTable(sel)],
+      ['#sales-proposal-parts-issued-table', (sel) => issuedPartsTable(sel)],
+      ['#sales-proposal-draft-file-table', (sel) => setToDraftTable(sel)],
+    ];
+
+    tableInitializers.forEach(([selector, fn]) => initIfExists(selector, fn));
+
+    // Summary tables (no selector arg)
+    initIfExistsNoArg('#summary-job-order-table', salesProposalSummaryJobOrderTable);
+    initIfExistsNoArg('#summary-amount-of-deposit-table', salesProposalSummaryDepositTable);
+    initIfExistsNoArg('#summary-additional-job-order-table', salesProposalSummaryAdditionalJobOrderTable);
+    initIfExistsNoArg('#disclosure-schedule', salesProposalDisclosureScheduleTable);
+
+    // ---------------------------------------
+    // 2) Form initializers by status
+    // ---------------------------------------
+    const draftForms = [
+      ['#sales-proposal-form', salesProposalForm],
+      ['#sales-proposal-unit-details-form', salesProposalUnitForm],
+      ['#sales-proposal-fuel-details-form', salesProposalFuelForm],
+      ['#sales-proposal-refinancing-details-form', salesProposalRefinancingForm],
+      ['#sales-proposal-job-order-form', salesProposalJobOrderForm],
+      ['#sales-proposal-pricing-computation-form', salesProposalPricingComputationForm],
+    ];
+
+    const otherChargesFormsAllowed = ['Draft', 'For DR'];
+    const otherChargesForms = [
+      ['#sales-proposal-other-charges-form', salesProposalOtherChargesForm],
+      ['#sales-proposal-deposit-amount-form', salesProposalDepositAmountForm],
+      ['#sales-proposal-renewal-amount-form', salesProposalRenewalAmountForm],
+    ];
+
+    const initOrDisable = (selector, initFn, enabled) => {
+      if (!exists(selector)) return;
+      if (enabled) initFn();
+      else disableFormAndSelect2(selector.replace('#', ''));
+    };
+
+    // Draft-only forms
+    const isDraft = salesProposalStatus === 'Draft';
+    draftForms.forEach(([selector, fn]) => initOrDisable(selector, fn, isDraft));
+
+    // Draft or For DR forms
+    const allowOtherCharges = otherChargesFormsAllowed.includes(salesProposalStatus);
+    otherChargesForms.forEach(([selector, fn]) => initOrDisable(selector, fn, allowOtherCharges));
+
+    // Other product details form (special rule)
+    if (exists('#sales-proposal-other-product-details-form')) {
+      const enableOtherProductDetails = salesProposalStatus === 'For DR';
+      if (enableOtherProductDetails) salesProposalOtherProductDetailsForm();
+      else disableFormAndSelect2('sales-proposal-other-product-details-form');
+
+      // Always display details, but guarded to reduce races
+      displayDetailsGuard('get sales proposal other product details', 50);
+    }
+
+    // Always-run form initializers (if present)
+    initIfExistsNoArg('#sales-proposal-condition-form', salesProposalConditionForm);
+    initIfExistsNoArg('#sales-proposal-additional-job-order-form', salesProposalAdditionalJobOrderForm);
+    initIfExistsNoArg('#sales-proposal-client-confirmation-form', salesProposalClientConfirmationForm);
+    initIfExistsNoArg('#sales-proposal-no-deposit-form', salesProposalNoDepositForm);
+    initIfExistsNoArg('#sales-proposal-comaker-confirmation-form', salesProposalComakerConfirmationForm);
+    initIfExistsNoArg('#sales-proposal-engine-stencil-form', salesProposalEngineStencilForm);
+    initIfExistsNoArg('#sales-proposal-credit-advice-form', salesProposalCreditAdviceForm);
+    initIfExistsNoArg('#sales-proposal-final-approval-form', salesProposalFinalApprovalForm);
+    initIfExistsNoArg('#sales-proposal-initial-approval-form', salesProposalInitalApprovalForm);
+    initIfExistsNoArg('#sales-proposal-reject-form', salesProposalRejectForm);
+    initIfExistsNoArg('#approve-installment-sales-form', installmentSalesApprovalForm);
+    initIfExistsNoArg('#sales-proposal-cancel-form', salesProposalCancelForm);
+    initIfExistsNoArg('#sales-proposal-ci-recommendation-form', salesProposalCIRecommendationForm);
+    initIfExistsNoArg('#sales-proposal-set-to-draft-form', salesProposalSetToDraftForm);
+    initIfExistsNoArg('#sales-proposal-other-document-form', salesProposalOtherDocumentForm);
+    initIfExistsNoArg('#sales-proposal-quality-control-form', salesProposalQualityControlForm);
+    initIfExistsNoArg('#sales-proposal-outgoing-checklist-form', salesProposalOutgoingChecklistForm);
+    initIfExistsNoArg('#sales-proposal-unit-image-form', salesProposalUnitImageForm);
+    initIfExistsNoArg('#sales-proposal-job-order-confirmation-form', salesProposalAdditionalJobOrderConfirmationImageForm);
+    initIfExistsNoArg('#sales-proposal-pdc-manual-input-form', salesProposalPDCManualInputForm);
+    initIfExistsNoArg('#sales-proposal-tag-as-released-form', salesProposalReleaseForm);
+
+    // Insurance request display
+    if (exists('#v-insurance-request')) {
+      displayDetailsGuard('get sales proposal insurance request details', 50);
+    }
+
+    // ---------------------------------------
+    // 3) Consolidate change handlers (map-driven)
+    // ---------------------------------------
+    const recalcHandlers = {
+      '#start_date': () => calculateFirstDueDate(),
+      '#payment_frequency': () => { calculateFirstDueDate(); calculatePaymentNumber(); },
+      '#number_of_payments': () => calculateFirstDueDate(),
+      '#term_length': () => { calculatePaymentNumber(); calculatePricingComputation(); }, // merged
+      '#interest_rate': () => { calculatePricingComputation(); calculateTotalOtherCharges(); },
+      '#cost_of_accessories': () => { calculatePricingComputation(); calculateTotalOtherCharges(); },
+      '#reconditioning_cost': () => { calculatePricingComputation(); calculateTotalOtherCharges(); },
+      '#downpayment': () => { calculatePricingComputation(); calculateTotalOtherCharges(); },
+
+      '#diesel_fuel_quantity': () => { calculateFuelTotal(); calculateTotalOtherCharges(); },
+      '#diesel_price_per_liter': () => { calculateFuelTotal(); calculateTotalOtherCharges(); },
+      '#regular_fuel_quantity': () => { calculateFuelTotal(); calculateTotalOtherCharges(); },
+      '#regular_price_per_liter': () => { calculateFuelTotal(); calculateTotalOtherCharges(); },
+      '#premium_fuel_quantity': () => { calculateFuelTotal(); calculateTotalOtherCharges(); },
+      '#premium_price_per_liter': () => { calculateFuelTotal(); calculateTotalOtherCharges(); },
+
+      '#delivery_price': () => { calculateTotalDeliveryPrice(); calculateRenewalAmount(); calculateTotalOtherCharges(); },
+      '#add_on_charge': () => { calculateTotalDeliveryPrice(); calculateTotalOtherCharges(); },
+      '#nominal_discount': () => { calculateTotalDeliveryPrice(); calculateTotalOtherCharges(); },
+
+      '#insurance_coverage': () => calculateTotalOtherCharges(),
+      '#insurance_premium': () => calculateTotalOtherCharges(),
+      '#insurance_premium_discount': () => calculateTotalOtherCharges(),
+      '#handling_fee': () => calculateTotalOtherCharges(),
+      '#handling_fee_discount': () => calculateTotalOtherCharges(),
+      '#transfer_fee': () => calculateTotalOtherCharges(),
+      '#transfer_fee_discount': () => calculateTotalOtherCharges(),
+      '#registration_fee': () => calculateTotalOtherCharges(),
+      '#doc_stamp_tax': () => calculateTotalOtherCharges(),
+      '#doc_stamp_tax_discount': () => calculateTotalOtherCharges(),
+      '#transaction_fee': () => calculateTotalOtherCharges(),
+      '#transaction_fee_discount': () => calculateTotalOtherCharges(),
+
+      '#compute_second_year': () => calculateRenewalAmount(),
+      '#compute_third_year': () => calculateRenewalAmount(),
+      '#compute_fourth_year': () => calculateRenewalAmount(),
+    };
+
+    // Bind recalculation handlers once
+    Object.entries(recalcHandlers).forEach(([selector, handler]) => {
+      $doc.on('change', selector, handler);
+    });
+
+    // DisplayDetails handlers (guarded)
+    $doc.on('change', '#comaker_id', () => displayDetailsGuard('get comaker details', 50));
+    $doc.on('change', '#additional_maker_id', () => displayDetailsGuard('get additional maker details', 50));
+    $doc.on('change', '#comaker_id2', () => displayDetailsGuard('get comaker2 details', 50));
+
+    $doc.on('change', '#product_id', function () {
+      if ($(this).val()) displayDetailsGuard('get product details', 50);
+      else {
+        $('#delivery_price, #old_color, #old_body, #old_engine').val('');
+      }
+    });
+
+    // term_type -> payment_frequency options (kept as-is, just cleaned)
+    $doc.on('change', '#term_type', function () {
+      const termType = $(this).val();
+      const $pf = $('#payment_frequency');
+      $pf.empty().append(new Option('--', '', false, false));
+
+      if (termType === 'Days') {
+        $pf.append(new Option('Lumpsum', 'Lumpsum', false, false));
+      } else if (termType === 'Months') {
+        ['Lumpsum', 'Monthly', 'Quarterly', 'Semi-Annual'].forEach(v => {
+          $pf.append(new Option(v, v, false, false));
+        });
+      }
+
+      // Summary term update (merged logic)
+      const termLength = $('#term_length').val();
+      $('#summary-term').text(`${termLength} ${termType}`);
+    });
+
+    // for_change_engine
+    $doc.on('change', '#for_change_engine', function () {
+      const yes = $(this).val() === 'Yes';
+      $('#new_engine').prop('readonly', !yes);
+      if (!yes) $('#new_engine').val('');
+    });
+
+    // ---------------------------------------
+    // 4) product_type handler (Revised)
+    // ---------------------------------------
+    $doc.on('change', '#product_type', function () {
+      const productType = $(this).val();
+
+      // Tab 4 label - Ensured 'Brand New' maps to the correct label
+      const tab4Label = ({
+        'Brand New': 'Brand New Details',
+        'Refinancing': 'Refinancing Details',
+        'Restructure': 'Restructure Details',
+      })[productType];
+      
+      if (tab4Label) $('#sales-proposal-tab-4').text(tab4Label);
+
+      const $tab2 = $('#sales-proposal-tab-2');
+      const $tab3 = $('#sales-proposal-tab-3');
+      const $tab4 = $('#sales-proposal-tab-4');
+
+      if ($tab2.length && $tab3.length && $tab4.length) {
+        $tab2.add($tab3).add($tab4).addClass('d-none');
+
+        const isUnitLike = ['Unit', 'Rental', 'Consignment'].includes(productType);
+        const isFuel = productType === 'Fuel';
+        const isRefiLike = ['Refinancing', 'Restructure', 'Brand New'].includes(productType);
+
+        if (isUnitLike) {
+          $tab2.removeClass('d-none');
+          resetModalForm('sales-proposal-unit-details-form');
+          displayDetailsGuard('get sales proposal unit details', 50);
+        } else if (isFuel) {
+          $tab3.removeClass('d-none');
+          displayDetailsGuard('get sales proposal fuel details', 50);
+        } else if (isRefiLike) {
+          $tab4.removeClass('d-none');
+          // IMPORTANT: Ensure 'Brand New' uses the same form initialization as Refinancing
+          resetModalForm('sales-proposal-refinancing-details-form');
+          displayDetailsGuard('get sales proposal refinancing details', 50);
         }
-
-        if($('#all-sales-proposal-table').length){
-            allSalesProposalTable('#all-sales-proposal-table');
-        }
-
-        if($('#sales-proposal-all-approval-condition-table').length){
-            salesProposalAllApprovalConditionTable('#sales-proposal-all-approval-condition-table');
-        }
-
-        if($('#sales-proposal-job-order-table').length){
-            salesProposalJobOrderTable('#sales-proposal-job-order-table');
-        }
-
-        if($('#sales-proposal-ci-report-table').length){
-            salesProposalCIReportTable('#sales-proposal-ci-report-table');
-        }
-
-        if($('#sales-proposal-deposit-amount-table').length){
-            salesProposalDepositAmountTable('#sales-proposal-deposit-amount-table');
-        }        
-
-        if($('#sales-proposal-additional-job-order-table').length){
-            salesProposalAdditionalJobOrderTable('#sales-proposal-additional-job-order-table');
-        }
-
-        if($('#summary-job-order-table').length){
-            salesProposalSummaryJobOrderTable();
-        }
-
-        if($('#summary-amount-of-deposit-table').length){
-            salesProposalSummaryDepositTable();
-        }
-
-        if($('#summary-additional-job-order-table').length){
-            salesProposalSummaryAdditionalJobOrderTable();
-        }
-
-        if($('#sales-proposal-for-ci-table').length){
-            salesProposalForCITable('#sales-proposal-for-ci-table');
-        }
-
-        if($('#sales-proposal-approval-condition-table').length){
-            salesProposalApprovalConditionTable('#sales-proposal-approval-condition-table');
-        }
-
-        if($('#sales-proposal-for-ci-evaluation-table').length){
-            salesProposalForCIEvaluationTable('#sales-proposal-for-ci-evaluation-table');
-        }
-
-        if($('#schedule-of-payments-table').length){
-            scheduleOfPaymentsTable('#schedule-of-payments-table');
-        }
-
-        if($('#installment-sales-approval-table').length){
-            installmentSalesApprovalTable('#installment-sales-approval-table');
-        }
-
-        if($('#sales-proposal-for-bank-financing-table').length){
-            salesProposalForBankFinancingTable('#sales-proposal-for-bank-financing-table');
-        }
-
-        if($('#disclosure-schedule').length){
-            salesProposalDisclosureScheduleTable()
-        }
-
-        if($('#sales-proposal-change-request-table').length){
-            salesProposalChangeRequestTable('#sales-proposal-change-request-table');
-        }
-
-        if($('#approved-sales-proposal-table').length){
-            approvedSalesProposalTable('#approved-sales-proposal-table');
-        }
-
-        if($('#incoming-sales-proposal-table').length){
-            incomingSalesProposalTable('#incoming-sales-proposal-table');
-        }
-
-        if($('#sales-proposal-for-dr-table').length){
-            salesProposalForDRTable('#sales-proposal-for-dr-table');
-        }
-
-        if($('#sales-proposal-released-table').length){
-            salesProposalReleasedTable('#sales-proposal-released-table', true);
-        }
-
-        if($('#sales-proposal-pdc-manual-input-table').length){
-            salesProposalPDCManualInputTable('#sales-proposal-pdc-manual-input-table');
-        }
-    
-        if($('#sales-proposal-condition-form').length){
-            salesProposalConditionForm();
-        }
-    
-
-        if(sales_proposal_status == 'Draft'){
-            if($('#sales-proposal-form').length){
-                salesProposalForm();
-            }
-    
-            if($('#sales-proposal-unit-details-form').length){
-                salesProposalUnitForm();
-            }
-    
-            if($('#sales-proposal-fuel-details-form').length){
-                salesProposalFuelForm();
-            }
-    
-            if($('#sales-proposal-refinancing-details-form').length){
-                salesProposalRefinancingForm();
-            }
-    
-            if($('#sales-proposal-job-order-form').length){
-                salesProposalJobOrderForm();
-            }
-            if($('#sales-proposal-pricing-computation-form').length){
-                salesProposalPricingComputationForm();
-            }
-        }
-        else{
-            if($('#sales-proposal-form').length){
-                disableFormAndSelect2('sales-proposal-form');
-            }
-    
-            if($('#sales-proposal-unit-details-form').length){
-                disableFormAndSelect2('sales-proposal-unit-details-form');
-            }
-    
-            if($('#sales-proposal-fuel-details-form').length){
-                disableFormAndSelect2('sales-proposal-fuel-details-form');
-            }
-    
-            if($('#sales-proposal-refinancing-details-form').length){
-                disableFormAndSelect2('sales-proposal-refinancing-details-form');
-            }
-    
-            if($('#sales-proposal-job-order-form').length){
-                disableFormAndSelect2('sales-proposal-job-order-form');
-            }
-    
-            if($('#sales-proposal-pricing-computation-form').length){
-                disableFormAndSelect2('sales-proposal-pricing-computation-form');
-            }
-        }
-
-        if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR'){
-            if($('#sales-proposal-other-charges-form').length){
-                salesProposalOtherChargesForm();
-            }
-    
-            if($('#sales-proposal-deposit-amount-form').length){
-                salesProposalDepositAmountForm();
-            }
-    
-            if($('#sales-proposal-renewal-amount-form').length){
-                salesProposalRenewalAmountForm();
-            }
-        }
-        else{
-            if($('#sales-proposal-other-charges-form').length){
-                disableFormAndSelect2('sales-proposal-other-charges-form');
-            }
-    
-            if($('#sales-proposal-deposit-amount-form').length){
-                disableFormAndSelect2('sales-proposal-deposit-amount-form');
-            }
-    
-            if($('#sales-proposal-renewal-amount-form').length){
-                disableFormAndSelect2('sales-proposal-renewal-amount-form');
-            }
-        }
-        
-        if(sales_proposal_status == 'For DR'){
-            if($('#sales-proposal-other-product-details-form').length){
-                salesProposalOtherProductDetailsForm(); 
-                displayDetails('get sales proposal other product details');   
-            }
-        }
-        else{
-            if($('#sales-proposal-other-product-details-form').length){
-                disableFormAndSelect2('sales-proposal-other-product-details-form');
-                displayDetails('get sales proposal other product details');   
-            }
-        }
-
-        if($('#v-insurance-request').length){
-            displayDetails('get sales proposal insurance request details');   
-        }
-
-        if($('#sales-proposal-additional-job-order-form').length){
-            salesProposalAdditionalJobOrderForm();
-        }
-
-        if($('#sales-proposal-client-confirmation-form').length){
-            salesProposalClientConfirmationForm();
-        }
-
-        if($('#sales-proposal-comaker-confirmation-form').length){
-            salesProposalComakerConfirmationForm();
-        }
-
-        if($('#sales-proposal-engine-stencil-form').length){
-            salesProposalEngineStencilForm();
-        }
-
-        if($('#sales-proposal-credit-advice-form').length){
-            salesProposalCreditAdviceForm();
-        }
-
-        if($('#sales-proposal-final-approval-form').length){
-            salesProposalFinalApprovalForm();
-        }
-
-        if($('#sales-proposal-initial-approval-form').length){
-            salesProposalInitalApprovalForm();
-        }
-        
-        if($('#sales-proposal-reject-form').length){
-            salesProposalRejectForm();
-        }
-
-        if($('#approve-installment-sales-form').length){
-            installmentSalesApprovalForm();
-        }
-        
-        if($('#sales-proposal-cancel-form').length){
-            salesProposalCancelForm();
-        }
-        
-        if($('#sales-proposal-ci-recommendation-form').length){
-            salesProposalCIRecommendationForm();
-        }
-        
-        if($('#sales-proposal-set-to-draft-form').length){
-            salesProposalSetToDraftForm();
-        }
-        
-        if($('#sales-proposal-other-document-form').length){
-            salesProposalOtherDocumentForm();
-        }
-
-        if($('#sales-proposal-quality-control-form').length){
-            salesProposalQualityControlForm();
-        }
-        
-        if($('#sales-proposal-outgoing-checklist-form').length){
-            salesProposalOutgoingChecklistForm();
-        }
-        
-        if($('#sales-proposal-unit-image-form').length){
-            salesProposalUnitImageForm();
-        }
-
-        if($('#sales-proposal-job-order-confirmation-form').length){
-            salesProposalAdditionalJobOrderConfirmationImageForm();
-        }
-        
-        if($('#sales-proposal-pdc-manual-input-form').length){
-            salesProposalPDCManualInputForm();
-        }
-
-        if($('#sales-proposal-tag-as-released-form').length){
-            salesProposalReleaseForm();
-        }
-
-        $(document).on('change','#product_type',function() {
-            var productType = $(this).val();
-
-            if(productType == 'Brand New'){
-                $('#sales-proposal-tab-4').text('Brand New Details');
-            }
-            else if(productType == 'Refinancing'){
-                $('#sales-proposal-tab-4').text('Refinancing Details');
-            }
-            else if(productType == 'Restructure'){
-                $('#sales-proposal-tab-4').text('Restructure Details');
-            }
-
-            if($('#sales-proposal-tab-2').length && $('#sales-proposal-tab-3').length && $('#sales-proposal-tab-4').length){
-                $('#sales-proposal-tab-2, #sales-proposal-tab-3, #sales-proposal-tab-4').addClass('d-none');
-
-                if (productType === 'Unit' || productType === 'Rental' || productType === 'Consignment') {
-                    $('#sales-proposal-tab-2').removeClass('d-none');
-                    resetModalForm('sales-proposal-unit-details-form');
-                    displayDetails('get sales proposal unit details');
-                }
-               else if (productType === 'Fuel') {
-                    $('#sales-proposal-tab-3').removeClass('d-none');
-                   // resetModalForm('sales-proposal-fuel-details-form');
-                    displayDetails('get sales proposal fuel details');
-                }
-                else if (productType === 'Refinancing' || productType === 'Restructure' || productType === 'Brand New') {
-                    $('#sales-proposal-tab-4').removeClass('d-none');
-                    resetModalForm('sales-proposal-refinancing-details-form');
-                    displayDetails('get sales proposal refinancing details');
-                }
-            }
-
-            if(productType == 'Unit' || productType === 'Rental' || productType === 'Consignment' || productType == 'Fuel'){
-                if($('#delivery_price').length){
-                    $('#delivery_price').prop('readonly', true);
-                }
-            }
-            else{
-                if($('#delivery_price').length){
-                    $('#delivery_price').prop('readonly', false);
-                }
-            }
-
-            if(productType == 'Refinancing' || productType == 'Restructure'){
-                if($('#insurance_premium').length){
-                    $('#insurance_premium').prop('readonly', false);
-                }
-            }
-            else{
-                if($('#insurance_premium').length){
-                    $('#insurance_premium').prop('readonly', true);
-                }
-            }
-        });
-
-        $(document).on('change','#comaker_id',function() {
-            displayDetails('get comaker details');
-        });
-
-        $(document).on('change','#additional_maker_id',function() {
-            displayDetails('get additional maker details');
-        });
-
-        $(document).on('change','#comaker_id2',function() {
-            displayDetails('get comaker2 details');
-        });
-
-        $(document).on('change','#term_type',function() {
-            $('#payment_frequency').empty().append(new Option('--', '', false, false));
-
-            if($(this).val() == 'Days'){
-                $('#payment_frequency').append(new Option('Lumpsum', 'Lumpsum', false, false));
-            }
-            else if($(this).val() == 'Months'){
-                $('#payment_frequency').append(new Option('Lumpsum', 'Lumpsum', false, false));
-                $('#payment_frequency').append(new Option('Monthly', 'Monthly', false, false));
-                $('#payment_frequency').append(new Option('Quarterly', 'Quarterly', false, false));
-                $('#payment_frequency').append(new Option('Semi-Annual', 'Semi-Annual', false, false));
-            }
-        });
-
-        $(document).on('change','#start_date',function() {
-            calculateFirstDueDate();
-        });
-
-        $(document).on('change','#payment_frequency',function() {
-            calculateFirstDueDate();
-            calculatePaymentNumber();
-        });
-
-        $(document).on('change','#number_of_payments',function() {
-            calculateFirstDueDate();
-        });
-
-        $(document).on('change','#term_length',function() {
-            calculatePaymentNumber();
-        });
-
-        $(document).on('change','#product_id',function() {  
-            if($(this).val() != ''){
-                displayDetails('get product details');
-            }
-            else{
-                $('#delivery_price').val('');
-                $('#old_color').val('');
-                $('#old_body').val('');
-                $('#old_engine').val('');
-            }
-        });
-
-        $(document).on('change','#for_change_engine',function() {
-            if($(this).val() == 'Yes'){
-                $('#new_engine').attr('readonly', false); 
-            }
-            else{
-                $('#new_engine').val('');
-                $('#new_engine').attr('readonly', true); 
-            }
-        });
-
-        $(document).on('change','#diesel_fuel_quantity',function() {
-            calculateFuelTotal();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#diesel_price_per_liter',function() {
-            calculateFuelTotal();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#regular_fuel_quantity',function() {
-            calculateFuelTotal();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#regular_price_per_liter',function() {
-            calculateFuelTotal();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#premium_fuel_quantity',function() {
-            calculateFuelTotal();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#premium_price_per_liter',function() {
-            calculateFuelTotal();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#delivery_price',function() {
-            calculateTotalDeliveryPrice();
-            calculateRenewalAmount();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#add_on_charge',function() {
-            calculateTotalDeliveryPrice();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#nominal_discount',function() {
-            calculateTotalDeliveryPrice();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#term_length',function() {
-            calculatePricingComputation();
-        });
-
-        $(document).on('change','#interest_rate',function() {
-            calculatePricingComputation();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#cost_of_accessories',function() {
-            calculatePricingComputation();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#reconditioning_cost',function() {
-            calculatePricingComputation();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#downpayment',function() {
-            calculatePricingComputation();
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#insurance_coverage',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#insurance_premium',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#insurance_premium_discount',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#handling_fee',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#handling_fee_discount',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#transfer_fee',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#transfer_fee_discount',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#registration_fee',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#doc_stamp_tax',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#doc_stamp_tax_discount',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#transaction_fee',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#transaction_fee_discount',function() {
-            calculateTotalOtherCharges();
-        });
-
-        $(document).on('change','#compute_second_year',function() {
-            calculateRenewalAmount();
-        });
-
-        $(document).on('change','#compute_third_year',function() {
-            calculateRenewalAmount();
-        });
-
-        $(document).on('change','#compute_fourth_year',function() {
-            calculateRenewalAmount();
-        });
-
-        $(document).on('change','#commission_amount',function() {
-            $('#summary-commission').text(encryptCommission($(this).val()));
-        });
-
-        $(document).on('change','#referred_by',function() {
-            $('#summary-referred-by').text($(this).val());
-        });
-
-        $(document).on('change','#product_type',function() {
-            $('#summary-product-type').text($(this).val());
-        });
-
-        $(document).on('change','#transaction_type',function() {
-            $('#summary-transaction-type').text($(this).val());
-
-            if($(this).val() == 'Bank Financing'){
-                $('#term_length').val('45');
-                checkOptionExist('#payment_frequency', 'Lumpsum', '');
-                checkOptionExist('#term_type', 'Days', '');
-            }
-        });
-
-        $(document).on('change','#term_length',function() {
-            var term_type = $('#term_type').val();
-
-            $('#summary-term').text($(this).val() + ' ' + term_type);
-        });
-
-        $(document).on('change','#term_type',function() {
-            var term_length = $('#term_length').val();
-
-            $('#summary-term').text(term_length + ' ' + $(this).val());
-        });
-
-        $(document).on('change','#number_of_payments',function() {
-            $('#summary-no-payments').text($(this).val());
-        });
-
-        $(document).on('change','#remarks',function() {
-            $('#summary-remarks').text($(this).val());
-        });
-
-        $(document).on('change','#new_color',function() {
-            $('#summary-new-color').text($(this).val());
-        });
-
-        $(document).on('change','#new_body',function() {
-            $('#summary-new-body').text($(this).val());
-        });
-
-        $(document).on('change','#new_engine',function() {
-            $('#summary-new-engine').text($(this).val());
-        });
-
-        $(document).on('change','#diesel_fuel_quantity',function() {
-            $('#summary-diesel-fuel-quantity').text($(this).val() + ' lt');
-        });
-
-        $(document).on('change','#regular_fuel_quantity',function() {
-            $('#summary-regular-fuel-quantity').text($(this).val() + ' lt');
-        });
-
-        $(document).on('change','#premium_fuel_quantity',function() {
-            $('#summary-premium-fuel-quantity').text($(this).val() + ' lt');
-        });
-
-        //-----------------------------------------------------------------------
-
-
-
-        $(document).on('click','#sales-proposal-final-approval',function() {
-            resetModalForm("sales-proposal-final-approval-form");
-        });
-
-        $(document).on('click','#sales-proposal-reject',function() {
-            resetModalForm("sales-proposal-reject-form");
-        });
-
-        $(document).on('click','#sales-proposal-cancel',function() {
-            resetModalForm("sales-proposal-cancel-form");
-        });
-
-        $(document).on('click','#sales-proposal-set-to-draft',function() {
-            resetModalForm("sales-proposal-set-to-draft-form");
-        });
-
-        $(document).on('click', '#next-step', function() {
-            var $this = $(this);
-            $this.prop('disabled', true);
-            setTimeout(function() {
-                $this.prop('disabled', false);
-            }, 800);
-            traverseTabs('next');
-        });
-        
-        $(document).on('click', '#previous-step', function() {
-            var $this = $(this);
-            $this.prop('disabled', true);
-            setTimeout(function() {
-                $this.prop('disabled', false);
-            }, 800);
-            traverseTabs('previous');
-        });
-        
-        $(document).on('click', '#first-step', function() {
-            var $this = $(this);
-            $this.prop('disabled', true);
-            setTimeout(function() {
-                $this.prop('disabled', false);
-            }, 800);
-            traverseTabs('first');
-        });
-        
-        $(document).on('click', '#last-step', function() {
-            var $this = $(this);
-            $this.prop('disabled', true);
-            setTimeout(function() {
-                $this.prop('disabled', false);
-            }, 800);
-            traverseTabs('last');
-        });
-        
-        $(document).on('click', '#last-step2', function() {
-            var $this = $(this);
-            $this.prop('disabled', true);
-            setTimeout(function() {
-                $this.prop('disabled', false);
-            }, 800);
-            traverseTabs('last');
-        });
-
-        if(sales_proposal_status != 'Draft'){
-            if($('#last-step').length){
-                $("#last-step")[0].click();
-            }
-        }
-
-        $(document).on('click','#add-sales-proposal-condition',function() {
+      }
+
+      const lockDelivery = ['Unit', 'Rental', 'Consignment', 'Fuel'].includes(productType);
+      setReadonlyIfExists('#delivery_price', lockDelivery);
+
+      // 'Brand New' should likely follow Refinancing rules for insurance premium
+      const unlockInsurance = ['Refinancing', 'Restructure', 'Brand New'].includes(productType);
+      setReadonlyIfExists('#insurance_premium', !unlockInsurance);
+
+      $('#summary-product-type').text(productType);
+    });
+
+    // ---------------------------------------
+    // 5) Summary field bindings (map-driven)
+    // ---------------------------------------
+    const summaryBindings = [
+      ['#commission_amount', '#summary-commission', (v) => encryptCommission(v)],
+      ['#referred_by', '#summary-referred-by', (v) => v],
+      ['#transaction_type', '#summary-transaction-type', (v) => v],
+      ['#term_length', '#summary-term', (v) => `${v} ${$('#term_type').val()}`],
+      ['#number_of_payments', '#summary-no-payments', (v) => v],
+      ['#remarks', '#summary-remarks', (v) => v],
+      ['#new_color', '#summary-new-color', (v) => v],
+      ['#new_body', '#summary-new-body', (v) => v],
+      ['#new_engine', '#summary-new-engine', (v) => v],
+      ['#diesel_fuel_quantity', '#summary-diesel-fuel-quantity', (v) => `${v} lt`],
+      ['#regular_fuel_quantity', '#summary-regular-fuel-quantity', (v) => `${v} lt`],
+      ['#premium_fuel_quantity', '#summary-premium-fuel-quantity', (v) => `${v} lt`],
+    ];
+
+    summaryBindings.forEach(([sourceSel, targetSel, formatter]) => {
+      $doc.on('change', sourceSel, function () {
+        $(targetSel).text(formatter($(this).val()));
+      });
+    });
+
+    // transaction_type special rule (kept)
+    $doc.on('change', '#transaction_type', function () {
+      if ($(this).val() === 'Bank Financing') {
+        $('#term_length').val('45').trigger('change');
+        checkOptionExist('#payment_frequency', 'Lumpsum', '');
+        checkOptionExist('#term_type', 'Days', '');
+      }
+    });
+
+    // ---------------------------------------
+    // 6) Step traversal buttons (DRY)
+    // ---------------------------------------
+    $doc.on('click', '#next-step', async function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      withTempDisable(this);
+      await traverseTabs('next');
+      return false;
+    });
+
+    $doc.on('click', '#previous-step', async function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      withTempDisable(this);
+      await traverseTabs('previous');
+      return false;
+    });
+
+    $doc.on('click', '#first-step', async function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      withTempDisable(this);
+      await traverseTabs('first');
+      return false;
+    });
+
+    $doc.on('click', '#last-step, #last-step2', async function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      withTempDisable(this);
+      await traverseTabs('last');
+      return false;
+    });
+
+    if (salesProposalStatus !== 'Draft' && exists('#last-step')) {
+      $('#last-step')[0].click();
+    }
+
+    // ---------------------------------------
+    // 7) Startup detail loads (guarded)
+    // ---------------------------------------
+    if (exists('#other-charges-rows')) {
+      salesProposalSummaryPDCManualInputTable();
+    }
+
+    if (exists('#sales-proposal-id')) {
+      [
+        'get sales proposal basic details',
+        'get sales proposal pricing computation details',
+        'get sales proposal confirmation details',
+        'get sales proposal renewal amount details',
+        'get sales proposal other charges details',
+      ].forEach((k) => displayDetailsGuard(k, 10));
+    }
+
+    // ---------------------------------------
+    // 8) Filter + Print (kept)
+    // ---------------------------------------
+    $doc.on('click', '#apply-filter', function () {
+      initIfExists('#sales-proposal-table', (sel) => salesProposalTable(sel));
+      initIfExists('#all-sales-proposal-table', (sel) => allSalesProposalTable(sel));
+      initIfExists('#sales-proposal-released-table', (sel) => salesProposalReleasedTable(sel, true));
+      initIfExists('#schedule-of-payments-table', (sel) => scheduleOfPaymentsTable(sel));
+    });
+
+    $('#print').on('click', function () {
+      const outstandingBalance = Number($('#outstanding_balance').val() || 0);
+      if (outstandingBalance > 0) {
+        $('#pricing-computation-block, #amortization-block, #remarks-block').removeClass('dontprint');
+        window.print();
+      }
+    });
+
+    $('#print2').on('click', function () {
+      const outstandingBalance = Number($('#outstanding_balance').val() || 0);
+      if (outstandingBalance > 0) {
+        $('#pricing-computation-block, #amortization-block, #remarks-block').addClass('dontprint');
+        window.print();
+      }
+    });
+
+    $(document).on('click','#add-sales-proposal-condition',function() {
             resetModalForm("sales-proposal-condition-form");
         });
 
@@ -837,7 +586,6 @@
                 }
             });
         });
-
 
         $(document).on('click','#add-sales-proposal-job-order',function() {
             resetModalForm("sales-proposal-job-order-form");
@@ -1082,6 +830,9 @@
                                 else if (response.emptyStencil) {
                                     showNotification('For Initial Approval Error', 'Please upload the new engine stencil first.', 'danger');
                                 } 
+                                else if (response.withApplication) {
+                                    showNotification('For Initial Approval Error', 'The product selected is attached to another sales proposal.', 'danger');
+                                } 
                                 else if (response.comakerRelation) {
                                     showNotification('For Initial Approval Error', 'Please update the comaker relation first.', 'danger');
                                 } 
@@ -1152,11 +903,17 @@
                                 else if (response.clientConfirmation) {
                                     showNotification('For Review Error', 'Please upload the client confirmation first.', 'danger');
                                 } 
+                                else if (response.incorrectCompany) {
+                                    showNotification('For Review Error', 'For bellow 1,000 liters the company should be CGMI and above 1,000 the company should be Ne Fuel.', 'danger');
+                                } 
                                 else if (response.comakerConfirmation) {
                                     showNotification('For Review Error', 'Please upload the comaker confirmation first.', 'danger');
                                 } 
                                 else if (response.comakerRelation) {
                                     showNotification('For Review Error', 'Please update the comaker relation first.', 'danger');
+                                } 
+                                else if (response.depositZero) {
+                                    showNotification('For Review Error', 'Please add a deposit amount or if there is no deposit amount upload the no deposit approval image.', 'danger');
                                 } 
                                 else if (response.notExist) {
                                     window.location = '404.php';
@@ -1565,6463 +1322,3603 @@
             });
         });
 
-        if($('#other-charges-rows').length){
-            salesProposalSummaryPDCManualInputTable();    
-        }
-
-        if($('#sales-proposal-id').length){
-            displayDetails('get sales proposal basic details');
-            displayDetails('get sales proposal pricing computation details');
-            displayDetails('get sales proposal confirmation details');
-            displayDetails('get sales proposal renewal amount details');
-            displayDetails('get sales proposal other charges details');
-        }
-
-        $(document).on('click','#apply-filter',function() {
-            if($('#sales-proposal-table').length){
-                salesProposalTable('#sales-proposal-table');
-            }
-    
-            if($('#all-sales-proposal-table').length){
-                allSalesProposalTable('#all-sales-proposal-table');
-            }
-    
-            if($('#sales-proposal-released-table').length){
-                salesProposalReleasedTable('#sales-proposal-released-table', true);
-            }
-    
-            if($('#schedule-of-payments-table').length){
-                scheduleOfPaymentsTable('#schedule-of-payments-table');
-            }
-        });
-
-        $('#print').on('click', function () {
-            let outstanding_balance = $('#outstanding_balance').val();
-
-            if(outstanding_balance > 0){
-                $('#pricing-computation-block, #amortization-block, #remarks-block').removeClass('dontprint');
-                window.print();
-            }            
-        });
-
-        $('#print2').on('click', function () {
-            let outstanding_balance = $('#outstanding_balance').val();
-
-            if(outstanding_balance > 0){
-                $('#pricing-computation-block, #amortization-block, #remarks-block').addClass('dontprint');
-                window.print();
-            }
-        });
-
-    });
+  });
 })(jQuery);
 
-function salesProposalTable(datatable_name, buttons = false, show_all = false){
-    const type = 'sales proposal table';
-    var customer_id = $('#customer_id').val();
-    var sales_proposal_status_filter = $('.sales-proposal-status-filter:checked').val();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'CREATED_DATE' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT_TYPE' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': 'auto', 'aTargets': 1 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
-        { 'width': 'auto', 'aTargets': 4 },
-        { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'aTargets': 6 },
-        { 'width': '10%','bSortable': false, 'aTargets': 7 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'customer_id' : customer_id, 'sales_proposal_status_filter' : sales_proposal_status_filter},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 2, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    }
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+// -----------------------------
+// Shared Ajax error builder
+// -----------------------------
+function buildXhrErrorMessage(xhr, status, error) {
+  let msg = `XHR status: ${status}, Error: ${error}`;
+  if (xhr && xhr.responseText) msg += `, Response: ${xhr.responseText}`;
+  return msg;
 }
 
-function allSalesProposalTable(datatable_name, buttons = false, show_all = false){
-    const type = 'all sales proposal table';
-
-    var sale_proposal_status_filter = [];
-    var product_type_filter = [];
-    var company_filter = [];
-    var user_filter = [];
-
-    $('.sales-proposal-status-filter:checked').each(function() {
-        sale_proposal_status_filter.push($(this).val());
-    });
-
-    $('.product-type-filter:checked').each(function() {
-        product_type_filter.push($(this).val());
-    });
-
-    $('.company-filter:checked').each(function() {
-        company_filter.push($(this).val());
-    });
-
-    $('.user-filter:checked').each(function() {
-        user_filter.push($(this).val());
-    });
-
-    var filter_sale_proposal_status = sale_proposal_status_filter.join(', ');
-    var filter_product_type = product_type_filter.join(', ');
-    var filter_company = company_filter.join(', ');
-    var filter_user = user_filter.join(', ');
-
-    
-    var filter_created_date_start_date = $('#filter_created_date_start_date').val();
-    var filter_created_date_end_date = $('#filter_created_date_end_date').val();
-    var filter_released_date_start_date = $('#filter_released_date_start_date').val();
-    var filter_released_date_end_date = $('#filter_released_date_end_date').val();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'PRODUCT_TYPE' },
-        { 'data' : 'CREATED_DATE' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '14%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '10%', 'aTargets': 3 },
-        { 'width': '15%', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5},
-        { 'width': '15%', 'type': 'date', 'aTargets': 6 },
-        { 'width': '10%','bSortable': false, 'aTargets': 7 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'filter_sale_proposal_status' : filter_sale_proposal_status,
-                'filter_product_type' : filter_product_type,
-                'filter_company' : filter_company,
-                'filter_user' : filter_user,
-                'filter_created_date_start_date' : filter_created_date_start_date,
-                'filter_created_date_end_date' : filter_created_date_end_date,
-                'filter_released_date_start_date' : filter_released_date_start_date,
-                'filter_released_date_end_date' : filter_released_date_end_date,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 6, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'searching': true, // Enable searching
-        'search': {
-            'search': '',
-            'placeholder': 'Search...', // Placeholder text for the search input
-            'position': 'top', // Position the search bar to the left
-        },
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    }
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+function dtAjaxError(xhr, status, error) {
+  showErrorDialog(buildXhrErrorMessage(xhr, status, error));
 }
 
-function salesProposalApprovalConditionTable(datatable_name, buttons = false, show_all = false){
-    const sales_proposal_id = $('#sales-proposal-id').text();
-    const type = 'sales proposal approval condition table';
-    var settings;
-
-    const column = [ 
-        { 'data' : 'CONDITION' },
-        { 'data' : 'CONDITION_TYPE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '50%', 'aTargets': 0 },
-        { 'width': '20%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%','bSortable': false, 'aTargets': 3 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'sales_proposal_id' : sales_proposal_id},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    }
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+// -----------------------------
+// Filter helpers
+// -----------------------------
+function getText(selector) {
+  const el = document.querySelector(selector);
+  return el ? (el.textContent || '').trim() : '';
 }
 
-function salesProposalJobOrderTable(datatable_name, buttons = false, show_all = false){
-    const sales_proposal_id = $('#sales-proposal-id').text();
-    const type = 'sales proposal job order table';
-    var settings;
-
-    const column = [ 
-        { 'data' : 'JOB_ORDER' },
-        { 'data' : 'COST' },
-        { 'data' : 'PROGRESS' },
-        { 'data' : 'APPROVAL_DOCUMENT' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '42%', 'aTargets': 0 },
-        { 'width': '14%', 'aTargets': 1 },
-        { 'width': '14%', 'aTargets': 2 },
-        { 'width': '14%', 'aTargets': 3 },
-        { 'width': '16%','bSortable': false, 'aTargets': 4 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'sales_proposal_id' : sales_proposal_id},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    }
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+function getSalesProposalId() {
+  return getText('#sales-proposal-id');
 }
 
-function salesProposalCIReportTable(datatable_name, buttons = false, show_all = false){
-    const sales_proposal_id = $('#sales-proposal-id').text();
-    const type = 'sales proposal ci report table';
-    var settings;
+function getVal(selector) {
+  const el = document.querySelector(selector);
+  return el ? el.value : '';
+}
 
-    const column = [ 
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'APPRAISER' },
-        { 'data' : 'INVESTIGATOR' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'DATE_STARTED' },
-        { 'data' : 'RELEASED_DATE' },
-        { 'data' : 'ACTION' }
-    ];
+function getCheckedValues(selector) {
+  return Array.from(document.querySelectorAll(selector))
+    .filter((el) => el.checked)
+    .map((el) => el.value);
+}
 
-    const column_definition = [
-        { 'width': 'auto', 'aTargets': 0 },
-        { 'width': 'auto', 'aTargets': 1 },
-        { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 4 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
-    ];
+// -----------------------------
+// DataTable factory
+// -----------------------------
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+const getReleaseDateFilters = () => ({
+  filter_release_date_start_date: $('#filter_release_date_start_date').val(),
+  filter_release_date_end_date: $('#filter_release_date_end_date').val(),
+});
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_ci_report_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'sales_proposal_id' : sales_proposal_id},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    }
 
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
+function createServerDataTable(datatableName, options) {
+  const {
+    url,
+    type,
+    data = {},
+    columns,
+    columnDefs,
+    order = [],
+    showAll = false,
+    buttons = false,
+    lengthMenu = null,
+    dom = null,
+    buttonsConfig = null,
+    extra = {},
+  } = options;
 
-    destroyDatatable(datatable_name);
+  const computedLengthMenu =
+    lengthMenu ||
+    (showAll
+      ? [[-1], ['All']]
+      : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']]);
 
-    $(datatable_name).dataTable(settings);
+  const settings = {
+    ajax: {
+      url,
+      method: 'POST',
+      dataType: 'json',
+      data: { type, ...data },
+      dataSrc: '',
+      error: dtAjaxError,
+    },
+    columns,
+    columnDefs,
+    order,
+    lengthMenu: computedLengthMenu,
+    language: {
+      emptyTable: 'No data found',
+      searchPlaceholder: 'Search...',
+      search: '',
+      loadingRecords: 'Just a moment while we fetch your data...',
+    },
+    ...extra,
+  };
+
+  if (buttons) {
+    settings.dom =
+      dom ||
+      "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +
+        "<'row'<'col-sm-12'tr>>" +
+        "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+
+    settings.buttons = buttonsConfig || ['csv', 'excel', 'pdf'];
+  }
+
+  destroyDatatable(datatableName);
+  return $(datatableName).DataTable(settings); // use DataTable() not dataTable()
+}
+
+function salesProposalTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal table',
+    data: {
+      customer_id: getVal('#customer_id'),
+      sales_proposal_status_filter: getVal('.sales-proposal-status-filter:checked'),
+    },
+    order: [[2, 'desc']],
+    columns: [
+      { data: 'CHECK_BOX' },
+      { data: 'SALES_PROPOSAL_NUMBER' },
+      { data: 'CREATED_DATE' },
+      { data: 'CUSTOMER' },
+      { data: 'PRODUCT_TYPE' },
+      { data: 'PRODUCT' },
+      { data: 'STATUS' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '1%', orderable: false, targets: 0 },
+      { width: 'auto', targets: 1 },
+      { width: 'auto', type: 'date', targets: 2 },
+      { width: 'auto', targets: 3 },
+      { width: 'auto', targets: 4 },
+      { width: 'auto', targets: 5 },
+      { width: 'auto', targets: 6 },
+      { width: '10%', orderable: false, targets: 7 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+function allSalesProposalTable(datatable_name, buttons = false, show_all = false) {
+  const sale_proposal_status_filter = getCheckedValues('.sales-proposal-status-filter');
+  const product_type_filter = getCheckedValues('.product-type-filter');
+  const company_filter = getCheckedValues('.company-filter');
+  const user_filter = getCheckedValues('.user-filter');
+
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'all sales proposal table',
+    data: {
+      filter_sale_proposal_status: sale_proposal_status_filter.join(','),
+      filter_product_type: product_type_filter.join(','),
+      filter_company: company_filter.join(','),
+      filter_user: user_filter.join(','),
+      filter_created_date_start_date: getVal('#filter_created_date_start_date'),
+      filter_created_date_end_date: getVal('#filter_created_date_end_date'),
+      filter_released_date_start_date: getVal('#filter_released_date_start_date'),
+      filter_released_date_end_date: getVal('#filter_released_date_end_date'),
+    },
+    order: [[6, 'desc']],
+    columns: [
+      { data: 'CHECK_BOX' },
+      { data: 'CUSTOMER' },
+      { data: 'PRODUCT' },
+      { data: 'STATUS' },
+      { data: 'SALES_PROPOSAL_NUMBER' },
+      { data: 'PRODUCT_TYPE' },
+      { data: 'CREATED_DATE' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '1%', orderable: false, targets: 0 },
+      { width: '14%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '10%', targets: 3 },
+      { width: '15%', targets: 4 },
+      { width: '10%', targets: 5 },
+      { width: '15%', type: 'date', targets: 6 },
+      { width: '10%', orderable: false, targets: 7 },
+    ],
+    buttons,
+    showAll: show_all,
+    extra: {
+      searching: true,
+      // DataTables does NOT support your `search: { placeholder, position }` object.
+      // Placeholder should be handled via initComplete (below).
+      initComplete: function () {
+        const api = this.api();
+        $(api.table().container())
+          .find('div.dataTables_filter input')
+          .attr('placeholder', 'Search...');
+      },
+    },
+  });
+}
+
+function salesProposalApprovalConditionTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal approval condition table',
+    data: { sales_proposal_id: getSalesProposalId() },
+    order: [[0, 'asc']],
+    columns: [
+      { data: 'CONDITION' },
+      { data: 'CONDITION_TYPE' },
+      { data: 'STATUS' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '50%', targets: 0 },
+      { width: '20%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '15%', orderable: false, targets: 3 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+function salesProposalJobOrderTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal job order table',
+    data: { sales_proposal_id: getSalesProposalId() },
+    order: [[0, 'asc']],
+    columns: [
+      { data: 'JOB_ORDER' },
+      { data: 'COST' },
+      { data: 'PROGRESS' },
+      { data: 'APPROVAL_DOCUMENT' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '42%', targets: 0 },
+      { width: '14%', targets: 1 },
+      { width: '14%', targets: 2 },
+      { width: '14%', targets: 3 },
+      { width: '16%', orderable: false, targets: 4 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+function salesProposalCIReportTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_ci_report_generation.php',
+    type: 'sales proposal ci report table',
+    data: { sales_proposal_id: getSalesProposalId() },
+    order: [[0, 'asc']],
+    columns: [
+      { data: 'CUSTOMER' },
+      { data: 'APPRAISER' },
+      { data: 'INVESTIGATOR' },
+      { data: 'STATUS' },
+      { data: 'DATE_STARTED' },
+      { data: 'RELEASED_DATE' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: 'auto', targets: 0 },
+      { width: 'auto', targets: 1 },
+      { width: 'auto', targets: 2 },
+      { width: 'auto', targets: 3 },
+      { width: 'auto', type: 'date', targets: 4 },
+      { width: 'auto', type: 'date', targets: 5 },
+      { width: '10%', orderable: false, targets: 6 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
 }
 
 function salesProposalDepositAmountTable(datatable_name, buttons = false, show_all = false){
-    const sales_proposal_id = $('#sales-proposal-id').text();
-    const type = 'sales proposal deposit amount table';
-    var settings;
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal deposit amount table',
+    data: { sales_proposal_id: getSalesProposalId() },
+    order: [[0, 'asc']],
+    columns: [
+      { 'data' : 'DEPOSIT_DATE' },
+      { 'data' : 'REFERENCE_NUMBER' },
+      { 'data' : 'DEPOSIT_AMOUNT' },
+      { 'data' : 'ACTION' }
+    ],
+    columnDefs: [
+      { 'width': '25%', 'type': 'date', 'aTargets': 0 },
+      { 'width': '30%', 'aTargets': 1 },
+      { 'width': '30%', 'aTargets': 2 },
+      { 'width': '15%','bSortable': false, 'aTargets': 3 }
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
 
-    const column = [ 
-        { 'data' : 'DEPOSIT_DATE' },
-        { 'data' : 'REFERENCE_NUMBER' },
-        { 'data' : 'DEPOSIT_AMOUNT' },
-        { 'data' : 'ACTION' }
-    ];
+function salesProposalPDCManualInputTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal pdc manual input table',
+    data: { sales_proposal_id: getSalesProposalId() },
+    order: [[0, 'asc']],
+    columns: [
+      { data: 'ACCOUNT_NUMBER' },
+      { data: 'BANK_BRANCH' },
+      { data: 'CHECK_DATE' },
+      { data: 'CHECK_NUMBER' },
+      { data: 'PAYMENT_FOR' },
+      { data: 'GROSS_AMOUNT' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '14.16%', targets: 0 },
+      { width: '14.16%', targets: 1 },
+      { width: '14.16%', type: 'date', targets: 2 },
+      { width: '14.16%', targets: 3 },
+      { width: '14.16%', targets: 4 },
+      { width: '14.16%', targets: 5 },
+      { width: '15%', orderable: false, targets: 6 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
 
-    const column_definition = [
-        { 'width': '25%', 'type': 'date', 'aTargets': 0 },
-        { 'width': '30%', 'aTargets': 1 },
-        { 'width': '30%', 'aTargets': 2 },
-        { 'width': '15%','bSortable': false, 'aTargets': 3 }
-    ];
+function setToDraftTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal set to draft table',
+    data: { sales_proposal_id: getSalesProposalId() },
+    order: [[0, 'asc']],
+    columns: [
+      { data: 'REASON' },
+      { data: 'FILE' },
+      { data: 'UPLOAD_DATE' }
+    ],
+    columnDefs: [
+      { width: '14.16%', targets: 0 },
+      { width: '14.16%', targets: 1 },
+      { width: '14.16%', type: 'date', targets: 2 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+function issuedPartsTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_parts_transaction_generation.php',
+    type: 'part item table 4',
+    data: { sales_proposal_id: getSalesProposalId() },
+    order: [[0, 'asc']],
+    columns: [
+      { data: 'PART_TRANSACTION_NO' },
+      { data: 'PART' },
+      { data: 'QUANTITY' },
+      { data: 'RETURNED_QUANTITY' },
+      { data: 'REQUESTED_BY' },
+      { data: 'RELEASED_DATE' },
+      { data: 'STATUS' },
+      { data: 'COST' },
+      { data: 'PRICE' },
+      { data: 'TOTAL_COST' },
+      { data: 'TOTAL_PRICE' }
+    ],
+    columnDefs: [
+      { width: 'auto', targets: 0 },
+      { width: 'auto', targets: 1 },
+      { width: 'auto', targets: 2 },
+      { width: 'auto', targets: 3 },
+      { width: 'auto', targets: 4 },
+      { width: 'auto', type: 'date', targets: 5 },
+      { width: 'auto', targets: 6 },
+      { width: 'auto', targets: 7 },
+      { width: 'auto', targets: 8 },
+      { width: 'auto', targets: 9 },
+      { width: 'auto', targets: 10 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'sales_proposal_id' : sales_proposal_id},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
+function fetchSummaryTableHtml({ type, targetId }) {
+  const sales_proposal_id = getSalesProposalId();
+  const el = document.getElementById(targetId);
+  if (!el) return;
+
+  $.ajax({
+    type: 'POST',
+    url: 'view/_sales_proposal_generation.php',
+    dataType: 'json',
+    data: { type, sales_proposal_id },
+    success: function (result) {
+      const tableHtml = result && result[0] && result[0].table ? result[0].table : '';
+      el.innerHTML = tableHtml;
+    },
+    error: dtAjaxError,
+  });
+}
+
+function salesProposalSummaryDepositTable() {
+  fetchSummaryTableHtml({
+    type: 'summary deposit amount table',
+    targetId: 'summary-amount-of-deposit-table',
+  });
+}
+
+function salesProposalDisclosureScheduleTable() {
+  fetchSummaryTableHtml({
+    type: 'summary disclosure schedule table',
+    targetId: 'disclosure-schedule',
+  });
+}
+
+function salesProposalSummaryAdditionalJobOrderTable() {
+  fetchSummaryTableHtml({
+    type: 'summary additional job order table',
+    targetId: 'summary-additional-job-order-table',
+  });
+}
+
+function salesProposalSummaryJobOrderTable() {
+  fetchSummaryTableHtml({
+    type: 'summary job order table',
+    targetId: 'summary-job-order-table',
+  });
+}
+
+function salesProposalSummaryPDCManualInputTable() {
+  fetchSummaryTableHtml({
+    type: 'summary pdc manual input table',
+    targetId: 'other-charges-rows',
+  });
+}
+
+function approvedSalesProposalTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'approved sales proposal table',
+    order: [[4, 'desc']],
+    columns: [
+      { data: 'SALES_PROPOSAL_NUMBER' },
+      { data: 'CUSTOMER' },
+      { data: 'PRODUCT_TYPE' },
+      { data: 'PRODUCT' },
+      { data: 'PROCEED_DATE' },
+      { data: 'PROGRESS' },
+      { data: 'STATUS' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '15%', targets: 0 },
+      { width: '15%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '25%', targets: 3 },
+      { width: '15%', type: 'date', targets: 4 },
+      { width: '10%', targets: 5 },
+      { width: '10%', targets: 6 },
+      { width: '10%', orderable: false, targets: 7 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+function incomingSalesProposalTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'incoming sales proposal table',
+    order: [[4, 'desc']],
+    columns: [
+      { data: 'SALES_PROPOSAL_NUMBER' },
+      { data: 'CUSTOMER' },
+      { data: 'PRODUCT_TYPE' },
+      { data: 'PRODUCT' },
+      { data: 'PROCEED_DATE' },
+      { data: 'STATUS' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '15%', targets: 0 },
+      { width: '15%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '25%', targets: 3 },
+      { width: '25%', type: 'date', targets: 4 },
+      { width: '10%', targets: 5 },
+      { width: '10%', orderable: false, targets: 6 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+function salesProposalForDRTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal for dr table',
+    order: [[4, 'desc']],
+    columns: [
+      { data: 'SALES_PROPOSAL_NUMBER' },
+      { data: 'CUSTOMER' },
+      { data: 'PRODUCT_TYPE' },
+      { data: 'PRODUCT' },
+      { data: 'FOR_DR_DATE' },
+      { data: 'STATUS' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '15%', targets: 0 },
+      { width: '15%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '25%', targets: 3 },
+      { width: '25%', type: 'date', targets: 4 },
+      { width: '10%', targets: 5 },
+      { width: '10%', orderable: false, targets: 6 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+function salesProposalReleasedTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal released table',
+    data: getReleaseDateFilters(),
+    order: [[1, 'desc']], // kept as-is from your original
+    columns: [
+      { data: 'SALES_PROPOSAL_NUMBER' },
+      { data: 'CUSTOMER' },
+      { data: 'PRODUCT_TYPE' },
+      { data: 'PRODUCT' },
+      { data: 'RELEASED_DATE' },
+      { data: 'STATUS' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '15%', targets: 0 },
+      { width: '15%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '25%', targets: 3 },
+      { width: '25%', type: 'date', targets: 4 },
+      { width: '10%', targets: 5 },
+      { width: '10%', orderable: false, targets: 6 },
+    ],
+    buttons,
+    showAll: show_all,
+    searching: true,
+  });
+}
+
+function salesProposalForBankFinancingTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal for bank financing table',
+    order: [[4, 'desc']],
+    columns: [
+      { data: 'SALES_PROPOSAL_NUMBER' },
+      { data: 'CUSTOMER' },
+      { data: 'PRODUCT_TYPE' },
+      { data: 'PRODUCT' },
+      { data: 'FOR_CI_DATE' },
+      { data: 'STATUS' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '15%', targets: 0 },
+      { width: '15%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '25%', targets: 3 },
+      { width: '25%', type: 'date', targets: 4 },
+      { width: '10%', targets: 5 },
+      { width: '10%', orderable: false, targets: 6 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+function installmentSalesApprovalTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'installment sales approval table',
+    order: [[4, 'desc']],
+    columns: [
+      { data: 'SALES_PROPOSAL_NUMBER' },
+      { data: 'CUSTOMER' },
+      { data: 'PRODUCT_TYPE' },
+      { data: 'PRODUCT' },
+      { data: 'FOR_CI_DATE' },
+      { data: 'STATUS' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '15%', targets: 0 },
+      { width: '15%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '25%', targets: 3 },
+      { width: '25%', type: 'date', targets: 4 },
+      { width: '10%', targets: 5 },
+      { width: '10%', orderable: false, targets: 6 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+function salesProposalForCIEvaluationTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal for ci evaluation table',
+    order: [[4, 'desc']],
+    columns: [
+      { data: 'SALES_PROPOSAL_NUMBER' },
+      { data: 'CUSTOMER' },
+      { data: 'PRODUCT_TYPE' },
+      { data: 'PRODUCT' },
+      { data: 'FOR_CI_DATE' },
+      { data: 'STATUS' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '15%', targets: 0 },
+      { width: '15%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '25%', targets: 3 },
+      { width: '25%', type: 'date', targets: 4 },
+      { width: '10%', targets: 5 },
+      { width: '10%', orderable: false, targets: 6 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+function salesProposalForCITable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal for ci table',
+    order: [[4, 'desc']],
+    columns: [
+      { data: 'SALES_PROPOSAL_NUMBER' },
+      { data: 'CUSTOMER' },
+      { data: 'PRODUCT_TYPE' },
+      { data: 'PRODUCT' },
+      { data: 'FOR_CI_DATE' },
+      { data: 'STATUS' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '15%', targets: 0 },
+      { width: '15%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '25%', targets: 3 },
+      { width: '25%', type: 'date', targets: 4 },
+      { width: '10%', targets: 5 },
+      { width: '10%', orderable: false, targets: 6 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+function salesProposalAllApprovalConditionTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal all approval condition table',
+    order: [[4, 'desc']],
+    columns: [
+      { data: 'SALES_PROPOSAL_NUMBER' },
+      { data: 'CUSTOMER' },
+      { data: 'BEFORE_FINAL_APPROVAL' },
+      { data: 'BEFORE_RELEASE' },
+      { data: 'AFTER_RELEASE' },
+      { data: 'TOTAL' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '15%', targets: 0 },
+      { width: '15%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '25%', targets: 3 },
+      { width: '25%', targets: 4 },
+      { width: '10%', targets: 5 },
+      { width: '10%', orderable: false, targets: 6 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+function salesProposalAdditionalJobOrderTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal additional job order table',
+    data: { sales_proposal_id: getSalesProposalId() },
+    order: [[0, 'asc']],
+    columns: [
+      { data: 'JOB_ORDER_NUMBER' },
+      { data: 'JOB_ORDER_DATE' },
+      { data: 'PARTICULARS' },
+      { data: 'COST' },
+      { data: 'PROGRESS' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '25%', targets: 0 },
+      { width: '15%', type: 'date', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '15%', targets: 3 },
+      { width: '15%', targets: 4 },
+      { width: '15%', orderable: false, targets: 5 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
+
+/* ============================================================
+   Shared utilities (drop this ONCE, then reuse everywhere)
+   ============================================================ */
+
+const SALES_CONTROLLER = 'controller/sales-proposal-controller.php';
+
+const ui = {
+  notifySuccess: (title, msg) => (typeof showNotification === 'function'
+    ? showNotification(title, msg, 'success')
+    : setNotification(title, msg, 'success')),
+  notifyError: (title, msg) => (typeof showNotification === 'function'
+    ? showNotification(title, msg, 'danger')
+    : setNotification(title, msg, 'danger')),
+  inactiveLogout: (msg) => {
+    (typeof setNotification === 'function')
+      ? setNotification('User Inactive', msg, 'danger')
+      : ui.notifyError('User Inactive', msg);
+    window.location = 'logout.php?logout';
+  },
+  errorDialog: (msg) => (typeof showErrorDialog === 'function' ? showErrorDialog(msg) : alert(msg)),
+};
+
+const domText = (selector) => ($(selector).text() || '').trim();
+
+const buildErrorMessage = (err, responseText = '') => {
+  const base = err?.message ? err.message : String(err || 'Unknown error');
+  return responseText ? `${base}\n\nResponse:\n${responseText}` : base;
+};
+
+const serializeForm = (form) => new URLSearchParams($(form).serialize());
+
+const postJson = async (url, body, { signal } = {}) => {
+  const res = await fetch(url, {
+    method: 'POST',
+    body,
+    signal,
+    headers: {
+      // When body is URLSearchParams, fetch will set proper Content-Type in modern browsers;
+      // If you want to force it uncomment below:
+      // 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    },
+  });
+
+  // Try JSON first; if it fails, bubble up full text for debugging.
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(buildErrorMessage('Invalid JSON response', text));
+  }
+};
+
+const postFormDataJson = async (url, formData, { signal } = {}) => {
+  const res = await fetch(url, { method: 'POST', body: formData, signal });
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(buildErrorMessage('Invalid JSON response', text));
+  }
+};
+
+// Abort in-flight requests per “key” (prevents overlap/race conditions)
+const requestGate = (() => {
+  const controllers = new Map();
+  return {
+    abort(key) {
+      const c = controllers.get(key);
+      if (c) c.abort();
+      controllers.delete(key);
+    },
+    async run(key, fn) {
+      this.abort(key);
+      const controller = new AbortController();
+      controllers.set(key, controller);
+      try {
+        const result = await fn(controller.signal);
+        return result;
+      } finally {
+        // keep latest controller if still same; otherwise ignore
+        if (controllers.get(key) === controller) controllers.delete(key);
+      }
+    },
+  };
+})();
+
+// jQuery Validate shared behavior
+const validateUi = {
+  errorPlacement(error, element) {
+    if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+      error.insertAfter(element.next('.select2-container'));
+      return;
     }
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
+    if (element.hasClass('form-check-input')) {
+      error.insertAfter(element.closest('.form-check-inline'));
+      return;
     }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
-function salesProposalAdditionalJobOrderTable(datatable_name, buttons = false, show_all = false){
-    const sales_proposal_id = $('#sales-proposal-id').text();
-    const type = 'sales proposal additional job order table';
-    var settings;
-
-    const column = [ 
-        { 'data' : 'JOB_ORDER_NUMBER' },
-        { 'data' : 'JOB_ORDER_DATE' },
-        { 'data' : 'PARTICULARS' },
-        { 'data' : 'COST' },
-        { 'data' : 'PROGRESS' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '25%', 'aTargets': 0 },
-        { 'width': '15%', 'type': 'date', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
-        { 'width': '15%', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'sales_proposal_id' : sales_proposal_id},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
+    if (element.parent('.input-group').length) {
+      error.insertAfter(element.parent());
+      return;
     }
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
+    error.insertAfter(element);
+  },
+  highlight(element) {
+    const $el = $(element);
+    if ($el.hasClass('select2-hidden-accessible')) {
+      $el.next().find('.select2-selection__rendered').addClass('is-invalid');
+      return;
     }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
-function salesProposalSummaryDepositTable(){
-    const sales_proposal_id = $('#sales-proposal-id').text();
-    const type = 'summary deposit amount table';
-
-    $.ajax({
-        type: "POST",
-        url: "view/_sales_proposal_generation.php",
-        dataType: 'json',
-        data: { type: type, sales_proposal_id: sales_proposal_id },
-        success: function (result) {
-            if($('#summary-amount-of-deposit-table').length){
-                document.getElementById('summary-amount-of-deposit-table').innerHTML = result[0].table;
-            }
-        }
-    });
-}
-
-function salesProposalDisclosureScheduleTable(){
-    const sales_proposal_id = $('#sales-proposal-id').text();
-    const type = 'summary disclosure schedule table';
-
-    $.ajax({
-        type: "POST",
-        url: "view/_sales_proposal_generation.php",
-        dataType: 'json',
-        data: { type: type, sales_proposal_id: sales_proposal_id },
-        success: function (result) {
-            if($('#disclosure-schedule').length){
-                document.getElementById('disclosure-schedule').innerHTML = result[0].table;
-            }
-        }
-    });
-}
-
-function salesProposalSummaryAdditionalJobOrderTable(){
-    const sales_proposal_id = $('#sales-proposal-id').text();
-    const type = 'summary additional job order table';
-
-    $.ajax({
-        type: "POST",
-        url: "view/_sales_proposal_generation.php",
-        dataType: 'json',
-        data: { type: type, sales_proposal_id: sales_proposal_id },
-        success: function (result) {
-            if($('#summary-additional-job-order-table').length){
-                document.getElementById('summary-additional-job-order-table').innerHTML = result[0].table;
-            }
-        }
-    });
-}
-
-function salesProposalSummaryJobOrderTable(){
-    const sales_proposal_id = $('#sales-proposal-id').text();
-    const type = 'summary job order table';
-
-    $.ajax({
-        type: "POST",
-        url: "view/_sales_proposal_generation.php",
-        dataType: 'json',
-        data: { type: type, sales_proposal_id: sales_proposal_id },
-        success: function (result) {
-            if($('#summary-job-order-table').length){
-                document.getElementById('summary-job-order-table').innerHTML = result[0].table;
-            }
-        }
-    });
-}
-
-function salesProposalForCITable(datatable_name, buttons = false, show_all = false){
-    const type = 'sales proposal for ci table';
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT_TYPE' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'FOR_CI_DATE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 4, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
+    $el.addClass('is-invalid');
+  },
+  unhighlight(element) {
+    const $el = $(element);
+    if ($el.hasClass('select2-hidden-accessible')) {
+      $el.next().find('.select2-selection__rendered').removeClass('is-invalid');
+      return;
     }
+    $el.removeClass('is-invalid');
+  },
+};
 
-    destroyDatatable(datatable_name);
+const handleControllerResponse = (response, { onSuccess } = {}) => {
+  if (response?.success) return onSuccess?.(response);
 
-    $(datatable_name).dataTable(settings);
+  if (response?.isInactive) return ui.inactiveLogout(response?.message || 'Your session is inactive.');
+
+  // Custom flags from server (keep your behavior)
+  if (response?.negativeAmount) {
+    return ui.notifyError('Transaction Error', 'Kindly check the other charges amount. The subtotal cannot be negative.');
+  }
+
+  ui.notifyError('Transaction Error', response?.message || 'Something went wrong.');
+};
+
+const handleNetworkError = (err) => {
+  // Abort is not an error worth surfacing
+  if (err?.name === 'AbortError') return;
+  ui.errorDialog(buildErrorMessage(err));
+};
+
+// Generic validated form initializer
+const initValidatedForm = ({
+  formSelector,
+  rules = {},
+  messages = {},
+  submit,
+  errorPlacement = validateUi.errorPlacement,
+  highlight = validateUi.highlight,
+  unhighlight = validateUi.unhighlight,
+}) => {
+  const $form = $(formSelector);
+  if (!$form.length) return;
+
+  // Store the submit callback for wizard traversal (prevents reload)
+  $form.data('wizardSubmit', submit);
+
+  // Prevent native submit always (safety net)
+  $form.off('submit.wizardSafety').on('submit.wizardSafety', function (e) {
+    e.preventDefault();
+    return false;
+  });
+
+  $form.validate({
+    // ✅ validate hidden select2 fields, ignore other hidden elements
+    ignore: ':hidden:not(.select2-hidden-accessible)',
+    rules,
+    messages,
+    errorPlacement,
+    highlight,
+    unhighlight,
+
+    // jQuery Validate will intercept submit; we call your async submit here
+    submitHandler: (form, event) => {
+      event?.preventDefault?.();
+      return submit(form);
+    },
+  });
+};
+
+
+/* ============================================================
+   Forms (revised)
+   ============================================================ */
+
+function salesProposalForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-form',
+    rules: {
+      renewal_tag: { required: true },
+      product_type: { required: true },
+      application_source_id: { required: true },
+      transaction_type: { required: true },
+      company_id: { required: true },
+      financing_institution: {
+        required: {
+          depends: () => $("select[name='transaction_type']").val() === 'Bank Financing',
+        },
+      },
+      comaker_id: {
+        required: {
+          depends: () => $("select[name='transaction_type']").val() === 'Installment Sales',
+        },
+      },
+      release_date: { required: true },
+      start_date: { required: true },
+      term_length: { required: true },
+      term_type: { required: true },
+      payment_frequency: { required: true },
+      initial_approving_officer: { required: true },
+      final_approving_officer: { required: true },
+    },
+    messages: {
+      renewal_tag: { required: 'Please choose the renewal tag' },
+      product_type: { required: 'Please choose the product type' },
+      application_source_id: { required: 'Please choose the application source' },
+      company_id: { required: 'Please choose the company' },
+      transaction_type: { required: 'Please choose the transaction type' },
+      financing_institution: { required: 'Please enter the financing institution' },
+      comaker_id: { required: 'Please choose the co-maker' },
+      release_date: { required: 'Please choose the release date' },
+      start_date: { required: 'Please choose the start date' },
+      term_length: { required: 'Please enter the term length' },
+      term_type: { required: 'Please choose the term type' },
+      payment_frequency: { required: 'Please choose the payment frequency' },
+      initial_approving_officer: { required: 'Please choose the initial approving officer' },
+      final_approving_officer: { required: 'Please choose the final approving officer' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const customer_id = domText('#customer-id');
+      const transaction = 'save sales proposal';
+
+      try {
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
+        body.append('customer_id', customer_id);
+
+        const response = await postJson(SALES_CONTROLLER, body);
+
+        handleControllerResponse(response, {
+          onSuccess: (r) => {
+            if (r.insertRecord) {
+              ui.notifySuccess('Insert Sales Proposal Success', 'The sales proposal has been inserted successfully.');
+              window.location = `sales-proposal.php?customer=${r.customerID}&id=${r.salesProposalID}`;
+            }
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      }
+
+      return false;
+    },
+  });
 }
 
-function salesProposalAllApprovalConditionTable(datatable_name, buttons = false, show_all = false){
-    const type = 'sales proposal all approval condition table';
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'BEFORE_FINAL_APPROVAL' },
-        { 'data' : 'BEFORE_RELEASE' },
-        { 'data' : 'AFTER_RELEASE' },
-        { 'data' : 'TOTAL' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
+function salesProposalUnitForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-unit-details-form',
+    rules: {
+      product_id: { required: true },
+      new_color: { required: true },
+      new_body: { required: true },
+      for_change_engine: { required: true },
+      new_engine: {
+        required: {
+          depends: () => $("select[name='for_change_engine']").val() === 'Yes',
         },
-        'order': [[ 4, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
+      },
+      final_orcr_name: {
+        required: {
+          depends: () => String($('#product_category').val()) === '1',
+        },
+      },
+    },
+    messages: {
+      product_id: { required: 'Please choose the stock' },
+      new_color: { required: 'Please enter the new color' },
+      new_body: { required: 'Please enter the new body' },
+      new_engine: { required: 'Please enter the new engine' },
+      final_orcr_name: { required: 'Please enter the final name on or/cr' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const customer_id = domText('#customer-id');
+      const transaction = 'save sales proposal unit';
+
+      try {
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
+        body.append('customer_id', customer_id);
+
+        const response = await postJson(SALES_CONTROLLER, body);
+        handleControllerResponse(response);
+      } catch (err) {
+        handleNetworkError(err);
+      }
+
+      return false;
+    },
+  });
+}
+
+function salesProposalFuelForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-fuel-details-form',
+    rules: {
+      diesel_fuel_quantity: { required: true },
+      diesel_price_per_liter: { required: true },
+      regular_fuel_quantity: { required: true },
+      regular_price_per_liter: { required: true },
+      premium_fuel_quantity: { required: true },
+      premium_price_per_liter: { required: true },
+    },
+    messages: {
+      diesel_fuel_quantity: { required: 'Please enter the fuel quantity' },
+      diesel_price_per_liter: { required: 'Please enter the price per liter' },
+      regular_fuel_quantity: { required: 'Please enter the fuel quantity' },
+      regular_price_per_liter: { required: 'Please enter the price per liter' },
+      premium_fuel_quantity: { required: 'Please enter the fuel quantity' },
+      premium_price_per_liter: { required: 'Please enter the price per liter' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const customer_id = domText('#customer-id');
+      const transaction = 'save sales proposal fuel';
+
+      try {
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
+        body.append('customer_id', customer_id);
+
+        const response = await postJson(SALES_CONTROLLER, body);
+        handleControllerResponse(response);
+      } catch (err) {
+        handleNetworkError(err);
+      }
+
+      return false;
+    },
+  });
+}
+
+function salesProposalRefinancingForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-refinancing-details-form',
+    rules: {
+      ref_engine_no: { required: true },
+      ref_chassis_no: { required: true },
+      ref_plate_no: { required: true },
+    },
+    messages: {
+      ref_engine_no: { required: 'Please enter the engine number' },
+      ref_chassis_no: { required: 'Please enter the chassis number' },
+      ref_plate_no: { required: 'Please enter the plate number' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const customer_id = domText('#customer-id');
+      const transaction = 'save sales proposal refinancing';
+
+      try {
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
+        body.append('customer_id', customer_id);
+
+        const response = await postJson(SALES_CONTROLLER, body);
+        handleControllerResponse(response);
+      } catch (err) {
+        handleNetworkError(err);
+      }
+
+      return false;
+    },
+  });
+}
+
+/* ---------- Offcanvas / FormData forms (Job Order, Condition, Uploads) ---------- */
+
+function salesProposalJobOrderForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-job-order-form',
+    rules: {
+      job_order: { required: true },
+      job_order_cost: { required: true },
+      approval_document: {
+        required: () => $('#job_order_type').val() === 'add',
+      },
+    },
+    messages: {
+      job_order: { required: 'Please enter the job order' },
+      job_order_cost: { required: 'Please enter the cost' },
+      approval_document: { required: 'Please choose the approval document' },
+    },
+    // Uses offcanvas-select2 too
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal job order';
+
+      const formData = new FormData(form);
+      formData.append('sales_proposal_id', sales_proposal_id);
+      formData.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-job-order');
+
+        const response = await postFormDataJson(SALES_CONTROLLER, formData);
+
+        handleControllerResponse(response, {
+          onSuccess: (r) => {
+            const title = r.insertRecord ? 'Insert Job Order Success' : 'Update Job Order Success';
+            const desc = r.insertRecord
+              ? 'The job order has been inserted successfully.'
+              : 'The job order has been updated successfully.';
+            ui.notifySuccess(title, desc);
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-job-order', 'Submit');
+        $('#sales-proposal-job-order-offcanvas').offcanvas('hide');
+        reloadDatatable?.('#sales-proposal-job-order-table');
+        resetModalForm?.('sales-proposal-job-order-form');
+        salesProposalSummaryJobOrderTable?.();
+      }
+
+      return false;
+    },
+  });
+}
+
+function salesProposalConditionForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-condition-form',
+    rules: {
+      condition_type: { required: true },
+      approval_condition: { required: true },
+    },
+    messages: {
+      condition_type: { required: 'Please choose the condition type' },
+      approval_condition: { required: 'Please enter the condition' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal condition';
+
+      const formData = new FormData(form);
+      formData.append('sales_proposal_id', sales_proposal_id);
+      formData.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-condition');
+
+        const response = await postFormDataJson(SALES_CONTROLLER, formData);
+
+        handleControllerResponse(response, {
+          onSuccess: (r) => {
+            const title = r.insertRecord ? 'Insert Condition Success' : 'Update Condition Success';
+            const desc = r.insertRecord
+              ? 'The condition has been inserted successfully.'
+              : 'The condition has been updated successfully.';
+            ui.notifySuccess(title, desc);
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-condition', 'Submit');
+        $('#sales-proposal-condition-offcanvas').offcanvas('hide');
+        reloadDatatable?.('#sales-proposal-approval-condition-table');
+        resetModalForm?.('sales-proposal-condition-form');
+      }
+
+      return false;
+    },
+  });
+}
+
+/* ---------- Pricing / Other Charges ---------- */
+
+function salesProposalPricingComputationForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-pricing-computation-form',
+    rules: {
+      delivery_price: { required: true },
+      add_on_charge: { required: true },
+      nominal_discount: { required: true },
+      interest_rate: { required: true },
+      cost_of_accessories: { required: true },
+      reconditioning_cost: { required: true },
+      downpayment: { required: true },
+    },
+    messages: {
+      delivery_price: { required: 'Please enter the delivery price' },
+      add_on_charge: { required: 'Please enter the add-on' },
+      nominal_discount: { required: 'Please enter the nominal discount' },
+      interest_rate: { required: 'Please enter the interest rate' },
+      cost_of_accessories: { required: 'Please enter the cost of accessories' },
+      reconditioning_cost: { required: 'Please enter the reconditioning cost' },
+      downpayment: { required: 'Please enter the downpayment' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const customer_id = domText('#customer-id');
+      const transaction = 'save sales proposal pricing computation';
+
+      try {
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
+        body.append('customer_id', customer_id);
+
+        const response = await postJson(SALES_CONTROLLER, body);
+        handleControllerResponse(response);
+      } catch (err) {
+        handleNetworkError(err);
+      }
+
+      return false;
+    },
+  });
+}
+
+function salesProposalOtherChargesForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-other-charges-form',
+    rules: {
+      insurance_coverage: { required: true },
+      insurance_premium: { required: true },
+      handling_fee: { required: true },
+      transfer_fee: { required: true },
+      registration_fee: { required: true },
+      doc_stamp_tax: { required: true },
+      transaction_fee: { required: true },
+    },
+    messages: {
+      insurance_coverage: { required: 'Please enter the insurance coverage' },
+      insurance_premium: { required: 'Please enter the insurance premium' },
+      handling_fee: { required: 'Please enter the handling fee' },
+      transfer_fee: { required: 'Please enter the transfer fee' },
+      registration_fee: { required: 'Please enter the registration fee' },
+      doc_stamp_tax: { required: 'Please enter the doc stamp tax' },
+      transaction_fee: { required: 'Please enter the transaction fee' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const customer_id = domText('#customer-id');
+      const transaction = 'save sales proposal other charges';
+
+      try {
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
+        body.append('customer_id', customer_id);
+
+        const response = await postJson(SALES_CONTROLLER, body);
+        handleControllerResponse(response);
+      } catch (err) {
+        handleNetworkError(err);
+      }
+
+      return false;
+    },
+  });
+}
+
+/* ---------- Renewal Amount ---------- */
+
+function salesProposalRenewalAmountForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-renewal-amount-form',
+    // No rules/messages in your original (kept)
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal renewal amount';
+
+      try {
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
+
+        const response = await postJson(SALES_CONTROLLER, body);
+        handleControllerResponse(response);
+      } catch (err) {
+        handleNetworkError(err);
+      }
+
+      return false;
+    },
+  });
+}
+
+/* ---------- Deposit Amount ---------- */
+
+function salesProposalDepositAmountForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-deposit-amount-form',
+    rules: {
+      deposit_date: { required: true },
+      reference_number: { required: true },
+      deposit_amount: { required: true },
+    },
+    messages: {
+      deposit_date: { required: 'Please choose the deposit date' },
+      reference_number: { required: 'Please enter the reference number' },
+      deposit_amount: { required: 'Please enter the deposit amount' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal deposit amount';
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-deposit-amount');
+
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
+
+        const response = await postJson(SALES_CONTROLLER, body);
+
+        handleControllerResponse(response, {
+          onSuccess: (r) => {
+            const title = r.insertRecord ? 'Insert Amount of Deposit Success' : 'Update Amount of Deposit Success';
+            const desc = r.insertRecord
+              ? 'The amount of deposit has been inserted successfully.'
+              : 'The amount of deposit has been updated successfully.';
+            ui.notifySuccess(title, desc);
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-deposit-amount', 'Submit');
+        $('#sales-proposal-deposit-amount-offcanvas').offcanvas('hide');
+        reloadDatatable?.('#sales-proposal-deposit-amount-table');
+        resetModalForm?.('sales-proposal-deposit-amount-form');
+      }
+
+      return false;
+    },
+  });
+}
+
+/* ---------- Additional Job Order ---------- */
+
+function salesProposalAdditionalJobOrderForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-additional-job-order-form',
+    rules: {
+      job_order_number: { required: true },
+      job_order_date: { required: true },
+      particulars: { required: true },
+      additional_job_order_cost: { required: true },
+    },
+    messages: {
+      job_order_number: { required: 'Please enter the job order' },
+      job_order_date: { required: 'Please choose the job order date' },
+      particulars: { required: 'Please enter the particulars' },
+      additional_job_order_cost: { required: 'Please enter the cost' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal additional job order';
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-additional-job-order');
+
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
+
+        const response = await postJson(SALES_CONTROLLER, body);
+
+        handleControllerResponse(response, {
+          onSuccess: (r) => {
+            const title = r.insertRecord ? 'Insert Additional Job Order Success' : 'Update Additional Job Order Success';
+            const desc = r.insertRecord
+              ? 'The additional job order has been inserted successfully.'
+              : 'The additional job order has been updated successfully.';
+            ui.notifySuccess(title, desc);
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-additional-job-order', 'Submit');
+        $('#sales-proposal-additional-job-order-offcanvas').offcanvas('hide');
+        reloadDatatable?.('#sales-proposal-additional-job-order-table');
+        resetModalForm?.('sales-proposal-additional-job-order-form');
+      }
+
+      return false;
+    },
+  });
+}
+
+/* ---------- Upload forms (Client/Comaker/Credit Advice/Engine Stencil/etc.) ---------- */
+
+const initUploadForm = ({
+  formSelector,
+  submitButtonId,
+  transaction,
+  successTitle,
+  successMessage,
+  onSuccess,
+}) => {
+  initValidatedForm({
+    formSelector,
+    rules: { ...(formSelector && { [`${$(formSelector).find('input[type="file"]').attr('name')}`]: { required: true } }) },
+    // Keep messages explicit like your original (less “magic”)
+    messages: {},
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+
+      const formData = new FormData(form);
+      formData.append('sales_proposal_id', sales_proposal_id);
+      formData.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.(submitButtonId);
+
+        const response = await postFormDataJson(SALES_CONTROLLER, formData);
+
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess(successTitle, successMessage);
+            onSuccess?.(response);
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.(submitButtonId, 'Submit');
+      }
+
+      return false;
+    },
+  });
+};
+
+function salesProposalNoDepositForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-no-deposit-form',
+    rules: { client_confirmation_image: { required: true } },
+    messages: { client_confirmation_image: { required: 'Please choose the no deposit approval image' } },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal no deposit';
+
+      const fd = new FormData(form);
+      fd.append('sales_proposal_id', sales_proposal_id);
+      fd.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-no-deposit');
+        const response = await postFormDataJson(SALES_CONTROLLER, fd);
+
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('No Deposit Approval Upload Success', 'The approval has been uploaded successfully');
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-no-deposit', 'Submit');
+      }
+
+      return false;
+    },
+  });
+}
+
+function salesProposalClientConfirmationForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-client-confirmation-form',
+    rules: { client_confirmation_image: { required: true } },
+    messages: { client_confirmation_image: { required: 'Please choose the client confirmation image' } },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal client confirmation';
+
+      const fd = new FormData(form);
+      fd.append('sales_proposal_id', sales_proposal_id);
+      fd.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-client-confirmation');
+        const response = await postFormDataJson(SALES_CONTROLLER, fd);
+
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Client Confirmation Upload Success', 'The client confirmation has been uploaded successfully');
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-client-confirmation', 'Submit');
+      }
+
+      return false;
+    },
+  });
+}
+
+function salesProposalComakerConfirmationForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-comaker-confirmation-form',
+    rules: { comaker_confirmation_image: { required: true } },
+    messages: { comaker_confirmation_image: { required: 'Please choose the comaker confirmation image' } },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal comaker confirmation';
+
+      const fd = new FormData(form);
+      fd.append('sales_proposal_id', sales_proposal_id);
+      fd.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-comaker-confirmation');
+        const response = await postFormDataJson(SALES_CONTROLLER, fd);
+
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Comaker Confirmation Upload Success', 'The comaker confirmation has been uploaded successfully');
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-comaker-confirmation', 'Submit');
+      }
+
+      return false;
+    },
+  });
+}
+
+function salesProposalCreditAdviceForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-credit-advice-form',
+    rules: { credit_advice_image: { required: true } },
+    messages: { credit_advice_image: { required: 'Please choose the credit advice image' } },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal credit advice';
+
+      const fd = new FormData(form);
+      fd.append('sales_proposal_id', sales_proposal_id);
+      fd.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-credit-advice');
+        const response = await postFormDataJson(SALES_CONTROLLER, fd);
+
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Credit Advice Upload Success', 'The credit advice has been uploaded successfully');
+            displayDetails('get sales proposal confirmation details');
+            $('#sales-proposal-credit-advice-offcanvas').offcanvas('hide');
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-credit-advice', 'Submit');
+      }
+
+      return false;
+    },
+  });
+}
+
+function salesProposalEngineStencilForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-engine-stencil-form',
+    rules: { new_engine_stencil_image: { required: true } },
+    messages: { new_engine_stencil_image: { required: 'Please choose the new engine stencil image' } },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal new engine stencil';
+
+      const fd = new FormData(form);
+      fd.append('sales_proposal_id', sales_proposal_id);
+      fd.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.('engine-stencil');
+        const response = await postFormDataJson(SALES_CONTROLLER, fd);
+
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('New Engine Stencil Upload Success', 'The new engine stencil has been uploaded successfully');
+            displayDetails('get sales proposal confirmation details');
+            $('#sales-proposal-new-engine-stencil-offcanvas').offcanvas('hide');
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('engine-stencil', 'Submit');
+      }
+
+      return false;
+    },
+  });
+}
+
+/* ---------- Approvals / Reject / Cancel / CI Recommendation / Set to Draft ---------- */
+
+function salesProposalInitalApprovalForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-initial-approval-form',
+    rules: { initial_approval_remarks: { required: true } },
+    messages: { initial_approval_remarks: { required: 'Please enter the approval remarks' } },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'sales proposal initial approval';
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-initial-approval');
+
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
+
+        const response = await postJson(SALES_CONTROLLER, body);
+
+        if (response?.success) {
+          ui.notifySuccess('For Initial Approval Success', 'The sales proposal has been tagged for final approval successfully.');
+          window.location.reload();
+          return;
         }
-    };
 
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
+        if (response?.isInactive) return ui.inactiveLogout(response.message);
 
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
-function salesProposalForCIEvaluationTable(datatable_name, buttons = false, show_all = false){
-    const type = 'sales proposal for ci evaluation table';
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT_TYPE' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'FOR_CI_DATE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 4, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
+        if (response?.withApplication) {
+          ui.notifyError('For Initial Approval Error', 'The product selected already linked to another sales proposal.');
+          return;
         }
-    };
 
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
+        ui.notifyError('Transaction Error', response?.message || 'Something went wrong.');
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-initial-approval', 'Submit');
+        $('#sales-proposal-initial-approval-offcanvas').offcanvas('hide');
+      }
 
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+      return false;
+    },
+  });
 }
 
-function installmentSalesApprovalTable(datatable_name, buttons = false, show_all = false){
-    const type = 'installment sales approval table';
+function salesProposalFinalApprovalForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-final-approval-form',
+    rules: { final_approval_remarks: { required: true } },
+    messages: { final_approval_remarks: { required: 'Please enter the approval remarks' } },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'sales proposal final approval';
 
-    var settings;
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-final-approval');
 
-    const column = [ 
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT_TYPE' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'FOR_CI_DATE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
 
-    const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
-    ];
+        const response = await postJson(SALES_CONTROLLER, body);
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Proceed Sales Proposal Success', 'The sales proposal has been set to proceed successfully.');
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-final-approval', 'Submit');
+        $('#sales-proposal-final-approval-offcanvas').offcanvas('hide');
+      }
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 4, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+      return false;
+    },
+  });
 }
 
-function scheduleOfPaymentsTable(datatable_name, buttons = false, show_all = false){
-    const type = 'schedule of payments table';
-    var filter_release_date_start_date = $('#filter_release_date_start_date').val();
-    var filter_release_date_end_date = $('#filter_release_date_end_date').val();
+function salesProposalRejectForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-reject-form',
+    rules: { rejection_reason: { required: true } },
+    messages: { rejection_reason: { required: 'Please enter the rejection reason' } },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'sales proposal reject';
 
-    var settings;
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-reject');
 
-    const column = [ 
-        { 'data' : 'NUMBER' },
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'RELEASE_DATE' },
-        { 'data' : 'DUE_DATE' },
-        { 'data' : 'AMOUNT_DUE' }
-    ];
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
 
-    const column_definition = [
-        { 'width': '5%', 'aTargets': 0 },
-        { 'width': 'auto', 'aTargets': 1 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 3 },
-        { 'width': 'auto', 'aTargets': 4 }
-    ];
+        const response = await postJson(SALES_CONTROLLER, body);
 
-    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Reject Sales Proposal Success', 'The sales proposal has been rejected successfully.');
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-reject', 'Submit');
+        $('#sales-proposal-reject-offcanvas').offcanvas('hide');
+      }
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type, 
-                'filter_release_date_start_date' : filter_release_date_start_date,
-                'filter_release_date_end_date' : filter_release_date_end_date
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 1, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-6'l><'col-sm-6'B>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = [
-            {
-                extend: "copyHtml5",
-                exportOptions: {
-                    columns: [0, ":visible"],
-                },
-            },
-            {
-                extend: "excelHtml5",
-                exportOptions: {
-                    columns: ":visible",
-                },
-            },
-            {
-                extend: "pdfHtml5",
-                exportOptions: {
-                    columns: ":visible",
-                },
-            },
-            "colvis",
-        ];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+      return false;
+    },
+  });
 }
 
-function salesProposalForBankFinancingTable(datatable_name, buttons = false, show_all = false){
-    const type = 'sales proposal for bank financing table';
+function installmentSalesApprovalForm() {
+  initValidatedForm({
+    formSelector: '#approve-installment-sales-form',
+    rules: {
+      installment_sales_approval_remarks: { required: true },
+      term_length_2: { required: true },
+      add_on_charge_2: { required: true },
+      nominal_discount_2: { required: true },
+      interest_rate_2: { required: true },
+      downpayment_2: { required: true },
+    },
+    messages: {
+      installment_sales_approval_remarks: { required: 'Please enter the approval remarks' },
+      term_length_2: { required: 'Please enter the term length' },
+      add_on_charge_2: { required: 'Please enter the add-on charge' },
+      nominal_discount_2: { required: 'Please enter the nominal discount' },
+      interest_rate_2: { required: 'Please enter the interest rate' },
+      downpayment_2: { required: 'Please enter the downpayment' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'sales installment approval';
 
-    var settings;
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-reject');
 
-    const column = [ 
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT_TYPE' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'FOR_CI_DATE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
 
-    const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
-    ];
+        const response = await postJson(SALES_CONTROLLER, body);
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Approve Sales Installment Success', 'The sales installment has been approved successfully.');
+            displayDetails('get sales proposal basic details');
+            displayDetails('get sales proposal pricing computation details');
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        // Keep your behavior, but ensure sequence is predictable:
+        $('#sales-proposal-pricing-computation-form').trigger('submit');
+        enableFormSubmitButton?.('submit-sales-proposal-reject', 'Submit');
+        $('#sales-proposal-reject-offcanvas').offcanvas('hide');
+        window.location.reload();
+      }
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 4, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+      return false;
+    },
+  });
 }
 
-function salesProposalChangeRequestTable(datatable_name, buttons = false, show_all = false){
-    const type = 'sales proposal change request table';
+function salesProposalCancelForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-cancel-form',
+    rules: { cancellation_reason: { required: true } },
+    messages: { cancellation_reason: { required: 'Please enter the cancellation reason' } },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'sales proposal cancel';
 
-    var settings;
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-cancel');
 
-    const column = [ 
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT_TYPE' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'PROCEED_DATE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
 
-    const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
-    ];
+        const response = await postJson(SALES_CONTROLLER, body);
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Cancel Sales Proposal Success', 'The sales proposal has been cancelled successfully.');
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-cancel', 'Submit');
+        $('#sales-proposal-cancel-offcanvas').offcanvas('hide');
+      }
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 4, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+      return false;
+    },
+  });
 }
 
-function approvedSalesProposalTable(datatable_name, buttons = false, show_all = false){
-    const type = 'approved sales proposal table';
+function salesProposalCIRecommendationForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-ci-recommendation-form',
+    rules: { ci_recommendation: { required: true } },
+    messages: { ci_recommendation: { required: 'Please enter the CI recommendation' } },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'sales proposal ci recommendation';
 
-    var settings;
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-ci-recommendation');
 
-    const column = [ 
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT_TYPE' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'PROCEED_DATE' },
-        { 'data' : 'PROGRESS' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
 
-    const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '25%', 'aTargets': 3 },
-        { 'width': '15%', 'type': 'date', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%', 'aTargets': 6 },
-        { 'width': '10%','bSortable': false, 'aTargets': 7 }
-    ];
+        const response = await postJson(SALES_CONTROLLER, body);
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+        handleControllerResponse(response, {
+          onSuccess: () => ui.notifySuccess('CI Recommendation Success', 'The CI recommendation has been submitted successfully.'),
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-ci-recommendation', 'Submit');
+        $('#sales-proposal-ci-recommendation-offcanvas').offcanvas('hide');
+      }
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 4, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+      return false;
+    },
+  });
 }
 
-function incomingSalesProposalTable(datatable_name, buttons = false, show_all = false){
-    const type = 'incoming sales proposal table';
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT_TYPE' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'PROCEED_DATE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
+function salesProposalSetToDraftForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-set-to-draft-form',
+    rules: {
+      set_to_draft_reason: { required: true },
+      set_to_draft_file: {
+        required: {
+          depends: () => {
+            const status = $('#sales_proposal_status').val();
+            return status !== 'Draft' &&
+              status !== 'Cancelled' &&
+              status !== 'Rejected' &&
+              status !== 'Released' &&
+              status !== 'For Review' &&
+              status !== 'For Initial Approval';
+          },
         },
-        'order': [[ 4, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
+      },
+    },
+    messages: {
+      set_to_draft_reason: { required: 'Please enter the set to draft reason' },
+      set_to_draft_file: { required: 'Please choose the set to draft file' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'sales proposal set to draft';
 
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
+      const fd = new FormData(form);
+      fd.append('sales_proposal_id', sales_proposal_id);
+      fd.append('transaction', transaction);
 
-    destroyDatatable(datatable_name);
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-set-to-draft');
+        const response = await postFormDataJson(SALES_CONTROLLER, fd);
 
-    $(datatable_name).dataTable(settings);
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Set Sales Proposal To Draft Success', 'The sales proposal has been set to draft successfully.');
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-set-to-draft', 'Submit');
+        $('#sales-proposal-set-to-draft-offcanvas').offcanvas('hide');
+      }
+
+      return false;
+    },
+  });
 }
 
-function salesProposalForDRTable(datatable_name, buttons = false, show_all = false){
-    const type = 'sales proposal for dr table';
+function salesProposalOtherDocumentForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-other-document-form',
+    rules: {
+      other_document_file: { required: true },
+    },
+    messages: {
+      other_document_file: { required: 'Please choose the other document' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'sales proposal other document';
 
-    var settings;
+      const fd = new FormData(form);
+      fd.append('sales_proposal_id', sales_proposal_id);
+      fd.append('transaction', transaction);
 
-    const column = [ 
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT_TYPE' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'FOR_DR_DATE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-set-to-draft');
 
-    const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
-    ];
+        const response = await postFormDataJson(SALES_CONTROLLER, fd);
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Save Other Document', 'The other document has been saved successfully.');
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-set-to-draft', 'Submit');
+        $('#sales-proposal-set-to-draft-offcanvas').offcanvas('hide');
+      }
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 4, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+      return false;
+    },
+  });
 }
 
-function salesProposalReleasedTable(datatable_name, buttons = false, show_all = false){
-    const type = 'sales proposal released table';
-    var filter_release_date_start_date = $('#filter_release_date_start_date').val();
-    var filter_release_date_end_date = $('#filter_release_date_end_date').val();
+function salesProposalQualityControlForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-quality-control-form',
+    rules: {
+      quality_control_image: { required: true },
+    },
+    messages: {
+      quality_control_image: { required: 'Please choose the quality control form image' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal quality control form';
 
-    var settings;
+      const fd = new FormData(form);
+      fd.append('sales_proposal_id', sales_proposal_id);
+      fd.append('transaction', transaction);
 
-    const column = [ 
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT_TYPE' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'RELEASED_DATE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-quality-control');
 
-    const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
-    ];
+        const response = await postFormDataJson(SALES_CONTROLLER, fd);
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Quality Control Form Upload Success', 'The quality control form has been uploaded successfully.');
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-quality-control', 'Submit');
+      }
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type, 
-                'filter_release_date_start_date' : filter_release_date_start_date,
-                'filter_release_date_end_date' : filter_release_date_end_date
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 1, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'searching': true, // Enable searching
-        'search': {
-            'search': '',
-            'placeholder': 'Search...', // Placeholder text for the search input
-            'position': 'top', // Position the search bar to the left
-        },
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    }
-
-    if (buttons) {
-        settings.dom = "Bfrtip";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+      return false;
+    },
+  });
 }
 
-function salesProposalPDCManualInputTable(datatable_name, buttons = false, show_all = false){
-    const sales_proposal_id = $('#sales-proposal-id').text();
-    const type = 'sales proposal pdc manual input table';
-    var settings;
+function salesProposalOutgoingChecklistForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-outgoing-checklist-form',
+    rules: {
+      outgoing_checklist_image: { required: true },
+    },
+    messages: {
+      outgoing_checklist_image: { required: 'Please choose the outgoing checklist image' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal outgoing checklist';
 
-    const column = [ 
-        { 'data' : 'ACCOUNT_NUMBER' },
-        { 'data' : 'BANK_BRANCH' },
-        { 'data' : 'CHECK_DATE' },
-        { 'data' : 'CHECK_NUMBER' },
-        { 'data' : 'PAYMENT_FOR' },
-        { 'data' : 'GROSS_AMOUNT' },
-        { 'data' : 'ACTION' }
-    ];
+      const fd = new FormData(form);
+      fd.append('sales_proposal_id', sales_proposal_id);
+      fd.append('transaction', transaction);
 
-    const column_definition = [
-        { 'width': '14.16%', 'aTargets': 0 },
-        { 'width': '14.16%', 'aTargets': 1 },
-        { 'width': '14.16%', 'type': 'date', 'aTargets': 2 },
-        { 'width': '14.16%', 'aTargets': 3 },
-        { 'width': '14.16%', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
-    ];
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-outgoing-checklist');
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+        const response = await postFormDataJson(SALES_CONTROLLER, fd);
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_sales_proposal_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'sales_proposal_id' : sales_proposal_id},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Outgoing Checklist Upload Success', 'The outgoing checklist has been uploaded successfully.');
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-outgoing-checklist', 'Submit');
+      }
 
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+      return false;
+    },
+  });
 }
 
-function salesProposalSummaryPDCManualInputTable(){
-    const sales_proposal_id = $('#sales-proposal-id').text();
-    const type = 'summary pdc manual input table';
+function salesProposalUnitImageForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-unit-image-form',
+    rules: {
+      unit_image_image: { required: true },
+    },
+    messages: {
+      unit_image_image: { required: 'Please choose the unit image' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal unit image';
 
-    $.ajax({
-        type: "POST",
-        url: "view/_sales_proposal_generation.php",
-        dataType: 'json',
-        data: { type: type, sales_proposal_id: sales_proposal_id },
-        success: function (result) {
-            if($('#other-charges-rows').length){
-                document.getElementById('other-charges-rows').innerHTML = result[0].table;
-            }
-        }
-    });
+      const fd = new FormData(form);
+      fd.append('sales_proposal_id', sales_proposal_id);
+      fd.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-unit-image');
+
+        const response = await postFormDataJson(SALES_CONTROLLER, fd);
+
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess('Unit Image Upload Success', 'The unit image has been uploaded successfully.');
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-unit-image', 'Submit');
+      }
+
+      return false;
+    },
+  });
 }
 
-function salesProposalForm(){
-    $('#sales-proposal-form').validate({
-        rules: {
-            renewal_tag: {
-                required: true
-            },
-            product_type: {
-                required: true
-            },
-            application_source_id: {
-                required: true
-            },
-            transaction_type: {
-                required: true
-            },
-            company_id: {
-                required: true
-            },
-            financing_institution: {
-                required: {
-                    depends: function(element) {
-                        return $("select[name='transaction_type']").val() === 'Bank Financing';
-                    }
-                }
-            },
-            comaker_id: {
-                required: {
-                    depends: function(element) {
-                        return $("select[name='transaction_type']").val() === 'Installment Sales';
-                    }
-                }
-            },
-            release_date: {
-                required: true
-            },
-            start_date: {
-                required: true
-            },
-            term_length: {
-                required: true
-            },
-            term_type: {
-                required: true
-            },
-            payment_frequency: {
-                required: true
-            },
-            initial_approving_officer: {
-                required: true
-            },
-            final_approving_officer: {
-                required: true
-            },
-        },
-        messages: {
-            renewal_tag: {
-                required: 'Please choose the renewal tag'
-            },
-            product_type: {
-                required: 'Please choose the product type'
-            },
-            application_source_id: {
-                required: 'Please choose the application source'
-            },
-            company_id: {
-                required: 'Please choose the company'
-            },
-            transaction_type: {
-                required: 'Please choose the transaction type'
-            },
-            financing_institution: {
-                required: 'Please enter the financing institution'
-            },
-            comaker_id: {
-                required: 'Please choose the co-maker'
-            },
-            release_date: {
-                required: 'Please choose the release date'
-            },
-            start_date: {
-                required: 'Please choose the start date'
-            },
-            term_length: {
-                required: 'Please enter the term length'
-            },
-            term_type: {
-                required: 'Please choose the term type'
-            },
-            payment_frequency: {
-                required: 'Please choose the payment frequency'
-            },
-            initial_approving_officer: {
-                required: 'Please choose the initial approving officer'
-            },
-            final_approving_officer: {
-                required: 'Please choose the final approving officer'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.hasClass('form-check-input')) {
-                error.insertAfter(element.closest('.form-check-inline'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const customer_id = $('#customer-id').text();
-            const transaction = 'save sales proposal';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id + '&customer_id=' + customer_id,
-                dataType: 'json',
-                success: function (response) {
-                    if (response.success) {
-                        if(response.insertRecord){
-                            setNotification('Insert Sales Proposal Success', 'The sales proposal has been inserted successfully.', 'success');
-                            window.location = 'sales-proposal.php?customer='+ response.customerID +'&id=' + response.salesProposalID;
-                        }
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    //displayDetails('get sales proposal basic details');
-                    //displayDetails('get sales proposal unit details');
-                    //displayDetails('get sales proposal fuel details');
-                    //displayDetails('get sales proposal refinancing details');
-                    //displayDetails('get sales proposal pricing computation details');
-                }
-            });
-        
-            return false;
-        }
-    });
+function salesProposalAdditionalJobOrderConfirmationImageForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-job-order-confirmation-form',
+    rules: {
+      additional_job_order_confirmation_image: { required: true },
+    },
+    messages: {
+      additional_job_order_confirmation_image: { required: 'Please choose the additional job order confimation image' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal additional job order confirmation';
+
+      const fd = new FormData(form);
+      fd.append('sales_proposal_id', sales_proposal_id);
+      fd.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-additional-job-order-confirmation');
+
+        const response = await postFormDataJson(SALES_CONTROLLER, fd);
+
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            ui.notifySuccess(
+              'Additional Job Order Confirmation Upload Success',
+              'The additional job order confirmation has been uploaded successfully.'
+            );
+            window.location.reload();
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-additional-job-order-confirmation', 'Submit');
+      }
+
+      return false;
+    },
+  });
 }
 
-function salesProposalUnitForm(){
-    $('#sales-proposal-unit-details-form').validate({
-        rules: {
-            product_id: {
-                required: true
-            },
-            new_color: {
-                required: true
-            },
-            new_body: {
-                required: true
-            },
-            for_change_engine: {
-                required: true
-            },
-            new_engine: {
-                required: {
-                    depends: function(element) {
-                        return $("select[name='for_change_engine']").val() === 'Yes';
-                    }
-                }
-            },
-            final_orcr_name: {
-                required: {
-                    depends: function(element) {
-                        var productType = $("#product_category").val();
-                        return productType === '1';
-                    }
-                }
-            },
-        },
-        messages: {
-            product_id: {
-                required: 'Please choose the stock'
-            },
-            new_color: {
-                required: 'Please enter the new color'
-            },
-            new_body: {
-                required: 'Please enter the new body'
-            },
-            new_engine: {
-                required: 'Please enter the new engine'
-            },
-            final_orcr_name: {
-                required: 'Please enter the final name on or/cr'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.hasClass('form-check-input')) {
-                error.insertAfter(element.closest('.form-check-inline'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const customer_id = $('#customer-id').text();
-            const transaction = 'save sales proposal unit';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id + '&customer_id=' + customer_id,
-                dataType: 'json',
-                success: function (response) {
-                    if (!response.success) {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                   //displayDetails('get sales proposal unit details');
-                }
-            });
-        
-            return false;
-        }
-    });
+function salesProposalPDCManualInputForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-pdc-manual-input-form',
+    rules: {
+      pdc_payment_frequency: { required: true },
+      payment_for: { required: true },
+      no_of_payments: { required: true },
+      first_check_number: { required: true },
+      first_check_date: { required: true },
+      amount_due: { required: true },
+    },
+    messages: {
+      pdc_payment_frequency: { required: 'Please choose the payment frequency' },
+      payment_for: { required: 'Please choose the payment for' },
+      no_of_payments: { required: 'Please enter the number of payments' },
+      first_check_number: { required: 'Please enter the first check number' },
+      first_check_date: { required: 'Please choose the first check date' },
+      amount_due: { required: 'Please enter the gross amount' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal pdc manual input';
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-pdc-manual-input');
+
+        const payload = new URLSearchParams($(form).serialize());
+        payload.set('transaction', transaction);
+        payload.set('sales_proposal_id', sales_proposal_id);
+
+        const response = await postJson(SALES_CONTROLLER, payload);
+
+        handleControllerResponse(response, {
+          onSuccess: () => {
+            reloadDatatable?.('#sales-proposal-pdc-manual-input-table');
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-pdc-manual-input', 'Submit');
+        $('#sales-proposal-pdc-manual-input-offcanvas').offcanvas('hide');
+        salesProposalSummaryPDCManualInputTable?.();
+      }
+
+      return false;
+    },
+  });
 }
 
-function salesProposalFuelForm(){
-    $('#sales-proposal-fuel-details-form').validate({
-        rules: {
-            diesel_fuel_quantity: {
-                required: true
-            },
-            diesel_price_per_liter: {
-                required: true
-            },
-            regular_fuel_quantity: {
-                required: true
-            },
-            regular_price_per_liter: {
-                required: true
-            },
-            premium_fuel_quantity: {
-                required: true
-            },
-            premium_price_per_liter: {
-                required: true
-            },
-        },
-        messages: {
-            diesel_fuel_quantity: {
-                required: 'Please enter the fuel quantity'
-            },
-            diesel_price_per_liter: {
-                required: 'Please enter the price per liter'
-            },
-            regular_fuel_quantity: {
-                required: 'Please enter the fuel quantity'
-            },
-            regular_price_per_liter: {
-                required: 'Please enter the price per liter'
-            },
-            premium_fuel_quantity: {
-                required: 'Please enter the fuel quantity'
-            },
-            premium_price_per_liter: {
-                required: 'Please enter the price per liter'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.hasClass('form-check-input')) {
-                error.insertAfter(element.closest('.form-check-inline'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const customer_id = $('#customer-id').text();
-            const transaction = 'save sales proposal fuel';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id + '&customer_id=' + customer_id,
-                dataType: 'json',
-                success: function (response) {
-                    if (!response.success) {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-        
-            return false;
-        }
-    });
+function salesProposalOtherProductDetailsForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-other-product-details-form',
+    rules: {
+      dr_number: { required: true },
+      actual_start_date: { required: true },
+      product_description: { required: true },
+    },
+    messages: {
+      dr_number: { required: 'Please enter the DR number' },
+      actual_start_date: { required: 'Please choose the actual start date' },
+      product_description: { required: 'Please enter the product description' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal other product details';
+
+      try {
+        const payload = new URLSearchParams($(form).serialize());
+        payload.set('transaction', transaction);
+        payload.set('sales_proposal_id', sales_proposal_id);
+
+        const response = await postJson(SALES_CONTROLLER, payload);
+
+        handleControllerResponse(response, {
+          // original had no success UI; keep it quiet
+          onSuccess: () => {},
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        displayDetails?.('get sales proposal other product details');
+        salesProposalDisclosureScheduleTable?.();
+      }
+
+      return false;
+    },
+  });
 }
 
-function salesProposalRefinancingForm(){
-    $('#sales-proposal-refinancing-details-form').validate({
-        rules: {
-            ref_engine_no: {
-                required: true
-            },
-            ref_chassis_no: {
-                required: true
-            },
-            ref_plate_no: {
-                required: true
-            },
-        },
-        messages: {
-            ref_engine_no: {
-                required: 'Please enter the engine number'
-            },
-            ref_chassis_no: {
-                required: 'Please enter the chassis number'
-            },
-            ref_plate_no: {
-                required: 'Please enter the plate number'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.hasClass('form-check-input')) {
-                error.insertAfter(element.closest('.form-check-inline'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const customer_id = $('#customer-id').text();
-            const transaction = 'save sales proposal refinancing';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id + '&customer_id=' + customer_id,
-                dataType: 'json',
-                success: function (response) {
-                    if (!response.success) {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    //displayDetails('get sales proposal refinancing details');
-                }
-            });
-        
-            return false;
-        }
-    });
+function salesProposalReleaseForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-tag-as-released-form',
+    rules: {
+      release_remarks: { required: true },
+    },
+    messages: {
+      release_remarks: { required: 'Please eneter the release remarks' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'tag for release';
+
+      try {
+        disableFormSubmitButton?.('submit-other-product-details-data');
+
+        const payload = new URLSearchParams($(form).serialize());
+        payload.set('transaction', transaction);
+        payload.set('sales_proposal_id', sales_proposal_id);
+
+        const response = await postJson(SALES_CONTROLLER, payload);
+
+        handleControllerResponse(response, {
+          onSuccess: () => window.location.reload(),
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-other-product-details-data', 'Submit');
+        displayDetails?.('get sales proposal other product details');
+      }
+
+      return false;
+    },
+  });
 }
 
-function salesProposalJobOrderForm(){
-    $('#sales-proposal-job-order-form').validate({
-        rules: {
-            job_order: {
-                required: true
-            },
-            job_order_cost: {
-                required: true
-            },
-            approval_document: {
-                required: function(element) {
-                    return $('#job_order_type').val() === 'add';
-                }
-            },
-        },
-        messages: {
-            job_order: {
-                required: 'Please enter the job order'
-            },
-            job_order_cost: {
-                required: 'Please enter the cost'
-            },
-            approval_document: {
-                required: 'Please choose the approval document'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal job order';
 
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
+/* ============================================================
+   displayDetails (revised to prevent overlapping/race conditions)
+   - Uses requestGate.run(key, ...) so repeated calls do not collide
+   ============================================================ */
 
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-job-order');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Job Order Success' : 'Update Job Order Success';
-                        const notificationDescription = response.insertRecord ? 'The job order has been inserted successfully.' : 'The job order has been updated successfully.';
-                        
-                        showNotification(notificationMessage, notificationDescription, 'success');
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-job-order', 'Submit');
-                    $('#sales-proposal-job-order-offcanvas').offcanvas('hide');
-                    reloadDatatable('#sales-proposal-job-order-table');
-                    resetModalForm('sales-proposal-job-order-form');
-                    salesProposalSummaryJobOrderTable();
-                }
-            });
-        
-            return false;
-        }
-    });
-}
+async function displayDetails(transaction) {
+  const sales_proposal_id = domText('#sales-proposal-id');
 
-function salesProposalConditionForm(){
-    $('#sales-proposal-condition-form').validate({
-        rules: {
-            condition_type: {
-                required: true
-            },
-            approval_condition: {
-                required: true
-            },
-        },
-        messages: {
-            condition_type: {
-                required: 'Please choose the condition type'
-            },
-            approval_condition: {
-                required: 'Please enter the condition'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal condition';
+  // Key by transaction so rapid calls cancel previous in-flight for same transaction
+  const key = `display:${transaction}`;
 
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
+  // Allow different endpoints per case
+  const runTo = async (url, payload) => requestGate.run(key, async (signal) => {
+    const body = new URLSearchParams(payload);
+    return postJson(url, body, { signal });
+  });
 
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-condition');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Condition Success' : 'Update Condition Success';
-                        const notificationDescription = response.insertRecord ? 'The condition has been inserted successfully.' : 'The condition has been updated successfully.';
+  const fail = (title, response, fallbackMsg) => {
+    if (response?.isInactive) return ui.inactiveLogout(response.message);
+    ui.notifyError(title, response?.message || fallbackMsg);
+  };
 
-                        showNotification(notificationMessage, notificationDescription, 'success');
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-condition', 'Submit');
-                    $('#sales-proposal-condition-offcanvas').offcanvas('hide');
-                    reloadDatatable('#sales-proposal-approval-condition-table');
-                    resetModalForm('sales-proposal-condition-form');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalPricingComputationForm(){
-    $('#sales-proposal-pricing-computation-form').validate({
-        rules: {
-            delivery_price: {
-                required: true
-            },
-            add_on_charge: {
-                required: true
-            },
-            nominal_discount: {
-                required: true
-            },
-            interest_rate: {
-                required: true
-            },
-            cost_of_accessories: {
-                required: true
-            },
-            reconditioning_cost: {
-                required: true
-            },
-            downpayment: {
-                required: true
-            },
-        },
-        messages: {
-            delivery_price: {
-                required: 'Please enter the delivery price'
-            },
-            add_on_charge: {
-                required: 'Please enter the add-on'
-            },
-            nominal_discount: {
-                required: 'Please enter the nominal discount'
-            },
-            interest_rate: {
-                required: 'Please enter the interest rate'
-            },
-            cost_of_accessories: {
-                required: 'Please enter the cost of accessories'
-            },
-            reconditioning_cost: {
-                required: 'Please enter the reconditioning cost'
-            },
-            downpayment: {
-                required: 'Please enter the downpayment'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.hasClass('form-check-input')) {
-                error.insertAfter(element.closest('.form-check-inline'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const customer_id = $('#customer-id').text();
-            const transaction = 'save sales proposal pricing computation';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id + '&customer_id=' + customer_id,
-                dataType: 'json',
-                success: function (response) {
-                    if (!response.success) {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalOtherChargesForm(){
-    $('#sales-proposal-other-charges-form').validate({
-        rules: {
-            insurance_coverage: {
-                required: true
-            },
-            insurance_premium: {
-                required: true
-            },
-            handling_fee: {
-                required: true
-            },
-            transfer_fee: {
-                required: true
-            },
-            registration_fee: {
-                required: true
-            },
-            doc_stamp_tax: {
-                required: true
-            },
-            transaction_fee: {
-                required: true
-            },
-        },
-        messages: {
-            insurance_coverage: {
-                required: 'Please enter the insurance coverage'
-            },
-            insurance_premium: {
-                required: 'Please enter the insurance premium'
-            },
-            handling_fee: {
-                required: 'Please enter the handling fee'
-            },
-            transfer_fee: {
-                required: 'Please enter the transfer fee'
-            },
-            registration_fee: {
-                required: 'Please enter the registration fee'
-            },
-            doc_stamp_tax: {
-                required: 'Please enter the doc stamp tax'
-            },
-            transaction_fee: {
-                required: 'Please enter the transaction fee'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.hasClass('form-check-input')) {
-                error.insertAfter(element.closest('.form-check-inline'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const customer_id = $('#customer-id').text();
-            const transaction = 'save sales proposal other charges';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id + '&customer_id=' + customer_id,
-                dataType: 'json',
-                success: function (response) {
-                    if (!response.success) {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else if (response.negativeAmount) {
-                            showNotification('Transaction Error', 'Kindly check the other charges amount. The subtotal cannot be negative.', 'danger');
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    //displayDetails('get sales proposal other charges details');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalRenewalAmountForm(){
-    $('#sales-proposal-renewal-amount-form').validate({
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal renewal amount';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                success: function (response) {
-                    if (!response.success) {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    //displayDetails('get sales proposal renewal amount details');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalDepositAmountForm(){
-    $('#sales-proposal-deposit-amount-form').validate({
-        rules: {
-            deposit_date: {
-                required: true
-            },
-            reference_number: {
-                required: true
-            },
-            deposit_amount: {
-                required: true
-            },
-        },
-        messages: {
-            deposit_date: {
-                required: 'Please choose the deposit date'
-            },
-            reference_number: {
-                required: 'Please enter the reference number'
-            },
-            deposit_amount: {
-                required: 'Please enter the deposit amount'
-            }
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal deposit amount';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-deposit-amount');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Amount of Deposit Success' : 'Update Amount of Deposit Success';
-                        const notificationDescription = response.insertRecord ? 'The amount of deposit has been inserted successfully.' : 'The amount of deposit has been updated successfully.';
-                        
-                        showNotification(notificationMessage, notificationDescription, 'success');
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-deposit-amount', 'Submit');
-                    $('#sales-proposal-deposit-amount-offcanvas').offcanvas('hide');
-                    reloadDatatable('#sales-proposal-deposit-amount-table');
-                    resetModalForm('sales-proposal-deposit-amount-form');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalAdditionalJobOrderForm(){
-    $('#sales-proposal-additional-job-order-form').validate({
-        rules: {
-            job_order_number: {
-                required: true
-            },
-            job_order_date: {
-                required: true
-            },
-            particulars: {
-                required: true
-            },
-            additional_job_order_cost: {
-                required: true
-            }
-        },
-        messages: {
-            job_order_number: {
-                required: 'Please enter the job order'
-            },
-            job_order_date: {
-                required: 'Please choose the job order date'
-            },
-            particulars: {
-                required: 'Please enter the particulars'
-            },
-            additional_job_order_cost: {
-                required: 'Please enter the cost'
-            }
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal additional job order';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-additional-job-order');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Additional Job Order Success' : 'Update Additional Job Order Success';
-                        const notificationDescription = response.insertRecord ? 'The additional job order has been inserted successfully.' : 'The additional job order has been updated successfully.';
-                        
-                        showNotification(notificationMessage, notificationDescription, 'success');
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-additional-job-order', 'Submit');
-                    $('#sales-proposal-additional-job-order-offcanvas').offcanvas('hide');
-                    reloadDatatable('#sales-proposal-additional-job-order-table');
-                    resetModalForm('sales-proposal-additional-job-order-form');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalClientConfirmationForm(){
-    $('#sales-proposal-client-confirmation-form').validate({
-        rules: {
-            client_confirmation_image: {
-                required: true
-            },
-        },
-        messages: {
-            client_confirmation_image: {
-                required: 'Please choose the client confirmation image'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal client confirmation';
-    
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-client-confirmation');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification('Client Confirmation Upload Success', 'The client confirmation has been uploaded successfully', 'success');
-                        window.location.reload();
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-client-confirmation', 'Submit');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalComakerConfirmationForm(){
-    $('#sales-proposal-comaker-confirmation-form').validate({
-        rules: {
-            comaker_confirmation_image: {
-                required: true
-            },
-        },
-        messages: {
-            comaker_confirmation_image: {
-                required: 'Please choose the comaker confirmation image'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal comaker confirmation';
-    
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-comaker-confirmation');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification('Comaker Confirmation Upload Success', 'The comaker confirmation has been uploaded successfully', 'success');
-                        window.location.reload();
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-comaker-confirmation', 'Submit');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalCreditAdviceForm(){
-    $('#sales-proposal-credit-advice-form').validate({
-        rules: {
-            credit_advice_image: {
-                required: true
-            },
-        },
-        messages: {
-            credit_advice_image: {
-                required: 'Please choose the credit advice image'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal credit advice';
-    
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-credit-advice');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Credit Advice Upload Success', 'The credit advice has been uploaded successfully', 'success');
-                        displayDetails('get sales proposal confirmation details');
-                        $('#sales-proposal-credit-advice-offcanvas').offcanvas('hide');
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-credit-advice', 'Submit');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalEngineStencilForm(){
-    $('#sales-proposal-engine-stencil-form').validate({
-        rules: {
-            new_engine_stencil_image: {
-                required: true
-            },
-        },
-        messages: {
-            new_engine_stencil_image: {
-                required: 'Please choose the new engine stencil image'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal new engine stencil';
-    
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('engine-stencil');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('New Engine Stencil Upload Success', 'The new engine stencil has been uploaded successfully', 'success');
-                        displayDetails('get sales proposal confirmation details');
-                        
-                        $('#sales-proposal-new-engine-stencil-offcanvas').offcanvas('hide');
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('engine-stencil', 'Submit');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalInitalApprovalForm(){
-    $('#sales-proposal-initial-approval-form').validate({
-        rules: {
-            initial_approval_remarks: {
-                required: true
-            }
-        },
-        messages: {
-            initial_approval_remarks: {
-                required: 'Please enter the approval remarks'
-            }
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'sales proposal initial approval';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-initial-approval');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('For Initial Approval Success', 'The sales proposal has been tagged for final approval successfully.', 'success');
-                        window.location.reload();
-                    }
-                    else{
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } 
-                        else if (response.withApplication) {
-                            showNotification('For Initial Approval Error', 'The product selected already linked to another sales proposal.', 'danger');
-                        } 
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-initial-approval', 'Submit');
-                    $('#sales-proposal-initial-approval-offcanvas').offcanvas('hide');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalFinalApprovalForm(){
-    $('#sales-proposal-final-approval-form').validate({
-        rules: {
-            final_approval_remarks: {
-                required: true
-            }
-        },
-        messages: {
-            final_approval_remarks: {
-                required: 'Please enter the approval remarks'
-            }
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'sales proposal final approval';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-final-approval');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Proceed Sales Proposal Success', 'The sales proposal has been set to proceed successfully.', 'success');
-                        window.location.reload();
-                    }
-                    else{
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-final-approval', 'Submit');
-                    $('#sales-proposal-final-approval-offcanvas').offcanvas('hide');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalRejectForm(){
-    $('#sales-proposal-reject-form').validate({
-        rules: {
-            rejection_reason: {
-                required: true
-            }
-        },
-        messages: {
-            rejection_reason: {
-                required: 'Please enter the rejection reason'
-            }
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'sales proposal reject';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-reject');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Reject Sales Proposal Success', 'The sales proposal has been rejected successfully.', 'success');
-                        window.location.reload();
-                    }
-                    else{
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-reject', 'Submit');
-                    $('#sales-proposal-reject-offcanvas').offcanvas('hide');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function installmentSalesApprovalForm(){
-    $('#approve-installment-sales-form').validate({
-        rules: {
-            installment_sales_approval_remarks: {
-                required: true
-            },
-            term_length_2: {
-                required: true
-            },
-            add_on_charge_2: {
-                required: true
-            },
-            nominal_discount_2: {
-                required: true
-            },
-            nominal_discount_2: {
-                required: true
-            },
-            interest_rate_2: {
-                required: true
-            },
-            downpayment_2: {
-                required: true
-            },
-        },
-        messages: {
-            installment_sales_approval_remarks: {
-                required: 'Please enter the approval remarks'
-            },
-            term_length_2: {
-                required: 'Please enter the term length'
-            },
-            add_on_charge_2: {
-                required: 'Please enter the add-on charge'
-            },
-            nominal_discount_2: {
-                required: 'Please enter the nominal discount'
-            },
-            interest_rate_2: {
-                required: 'Please enter the interest rate'
-            },
-            downpayment_2: {
-                required: 'Please enter the downpayment'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'sales installment approval';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-reject');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification('Approve Sales Installment Success', 'The sales installment has been approved successfully.', 'success');
-
-                        displayDetails('get sales proposal basic details');                                
-                        displayDetails('get sales proposal pricing computation details');
-                    }
-                    else{
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    $('#sales-proposal-pricing-computation-form').submit();
-                    enableFormSubmitButton('submit-sales-proposal-reject', 'Submit');
-                    $('#sales-proposal-reject-offcanvas').offcanvas('hide');
-                    window.location.reload();
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalCancelForm(){
-    $('#sales-proposal-cancel-form').validate({
-        rules: {
-            cancellation_reason: {
-                required: true
-            }
-        },
-        messages: {
-            cancellation_reason: {
-                required: 'Please enter the cancellation reason'
-            }
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'sales proposal cancel';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-cancel');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Cancel Sales Proposal Success', 'The sales proposal has been cancelled successfully.', 'success');
-                        window.location.reload();
-                    }
-                    else{
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-cancel', 'Submit');
-                    $('#sales-proposal-cancel-offcanvas').offcanvas('hide');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalCIRecommendationForm(){
-    $('#sales-proposal-ci-recommendation-form').validate({
-        rules: {
-            ci_recommendation: {
-                required: true
-            }
-        },
-        messages: {
-            ci_recommendation: {
-                required: 'Please enter the CI recommendation'
-            }
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'sales proposal ci recommendation';
-
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-ci-recommendation');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('CI Recommendation Success', 'The CI recommendation has been submitted successfully.', 'success');
-                    }
-                    else{
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-ci-recommendation', 'Submit');
-                    $('#sales-proposal-ci-recommendation-offcanvas').offcanvas('hide');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalSetToDraftForm(){
-    $('#sales-proposal-set-to-draft-form').validate({
-        rules: {
-            set_to_draft_reason: {
-                required: true
-            },
-            set_to_draft_file: {
-                required: {
-                    depends: function(element) {
-                        var status = $('#sales_proposal_status').val();
-                        return status !== 'Draft' &&
-                            status !== 'Cancelled' &&
-                            status !== 'Rejected' &&
-                            status !== 'Released' &&
-                            status !== 'For Review' &&
-                            status !== 'For Initial Approval';
-                    }
-                }
-            },
-        },
-        messages: {
-            set_to_draft_reason: {
-                required: 'Please enter the set to draft reason'
-            },
-            set_to_draft_file: {
-                required: 'Please choose the set to draft file'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'sales proposal set to draft';
-
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-set-to-draft');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification('Set Sales Proposal To Draft Success', 'The sales proposal has been set to draft successfully.', 'success');
-                        window.location.reload();
-                    }
-                    else{
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-set-to-draft', 'Submit');
-                    $('#sales-proposal-set-to-draft-offcanvas').offcanvas('hide');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalOtherDocumentForm(){
-    $('#sales-proposal-other-document-form').validate({
-        rules: {
-            other_document_file: {
-                required: true
-            },
-        },
-        messages: {
-            other_document_file: {
-                required: 'Please choose the other document'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'sales proposal other document';
-
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-set-to-draft');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification('Save Other Document', 'The other document has been saved successfully.', 'success');
-                        window.location.reload();
-                    }
-                    else{
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-set-to-draft', 'Submit');
-                    $('#sales-proposal-set-to-draft-offcanvas').offcanvas('hide');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalQualityControlForm(){
-    $('#sales-proposal-quality-control-form').validate({
-        rules: {
-            quality_control_image: {
-                required: true
-            },
-        },
-        messages: {
-            quality_control_image: {
-                required: 'Please choose the quality control form image'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal quality control form';
-    
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-quality-control');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification('Quality Control Form Upload Success', 'The quality control form has been uploaded successfully', 'success');
-                        window.location.reload();
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-quality-control', 'Submit');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalOutgoingChecklistForm(){
-    $('#sales-proposal-outgoing-checklist-form').validate({
-        rules: {
-            outgoing_checklist_image: {
-                required: true
-            },
-        },
-        messages: {
-            outgoing_checklist_image: {
-                required: 'Please choose the outgoing checklist image'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal outgoing checklist';
-    
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-outgoing-checklist');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification('Outgoing Checklist Upload Success', 'The outgoing checklist has been uploaded successfully', 'success');
-                        window.location.reload();
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-outgoing-checklist', 'Submit');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalUnitImageForm(){
-    $('#sales-proposal-unit-image-form').validate({
-        rules: {
-            unit_image_image: {
-                required: true
-            },
-        },
-        messages: {
-            unit_image_image: {
-                required: 'Please choose the unit image'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal unit image';
-    
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-unit-image');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification('Unit Image Upload Success', 'The unit image has been uploaded successfully', 'success');
-                        window.location.reload();
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-unit-image', 'Submit');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalAdditionalJobOrderConfirmationImageForm(){
-    $('#sales-proposal-job-order-confirmation-form').validate({
-        rules: {
-            additional_job_order_confirmation_image: {
-                required: true
-            },
-        },
-        messages: {
-            additional_job_order_confirmation_image: {
-                required: 'Please choose the additional job order confimation image'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal additional job order confirmation';
-    
-            var formData = new FormData(form);
-            formData.append('sales_proposal_id', sales_proposal_id);
-            formData.append('transaction', transaction);
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-additional-job-order-confirmation');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification('Additional Job Order Confirmation Upload Success', 'The additional job order confirmation has been uploaded successfully', 'success');
-                        window.location.reload();
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-additional-job-order-confirmation', 'Submit');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalPDCManualInputForm(){
-    $('#sales-proposal-pdc-manual-input-form').validate({
-        rules: {
-            pdc_payment_frequency: {
-                required: true
-            },
-            payment_for: {
-                required: true
-            },
-            no_of_payments: {
-                required: true
-            },
-            first_check_number: {
-                required: true
-            },
-            first_check_date: {
-                required: true
-            },
-            amount_due: {
-                required: true
-            },
-        },
-        messages: {
-            pdc_payment_frequency: {
-                required: 'Please choose the payment frequency'
-            },
-            payment_for: {
-                required: 'Please choose the payment for'
-            },
-            no_of_payments: {
-                required: 'Please enter the number of payments'
-            },
-            first_check_number: {
-                required: 'Please enter the first check number'
-            },
-            first_check_date: {
-                required: 'Please choose the first check date'
-            },
-            amount_due: {
-                required: 'Please enter the gross amount'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal pdc manual input';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-sales-proposal-pdc-manual-input');
-                },
-                success: function (response) {
-                    if (!response.success) {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                    else{
-                        reloadDatatable('#sales-proposal-pdc-manual-input-table');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-sales-proposal-pdc-manual-input', 'Submit');
-                    $('#sales-proposal-pdc-manual-input-offcanvas').offcanvas('hide');
-                    salesProposalSummaryPDCManualInputTable();
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalOtherProductDetailsForm(){
-    $('#sales-proposal-other-product-details-form').validate({
-        rules: {
-            dr_number: {
-                required: true
-            },
-            actual_start_date: {
-                required: true
-            },
-            product_description: {
-                required: true
-            },
-        },
-        messages: {
-            dr_number: {
-                required: 'Please enter the DR number'
-            },
-            actual_start_date: {
-                required: 'Please choose the actual start date'
-            },
-            product_description: {
-                required: 'Please enter the product description'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal other product details';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                success: function (response) {
-                    if (!response.success) {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    displayDetails('get sales proposal other product details');
-                    salesProposalDisclosureScheduleTable();
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function salesProposalReleaseForm(){
-    $('#sales-proposal-tag-as-released-form').validate({
-        rules: {
-            release_remarks: {
-                required: true
-            },
-        },
-        messages: {
-            release_remarks: {
-                required: 'Please eneter the release remarks'
-            },
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'tag for release';
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-other-product-details-data');
-                },
-                success: function (response) {
-                    if (!response.success) {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                    else{
-                        window.location.reload();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-other-product-details-data', 'Submit');
-                    displayDetails('get sales proposal other product details');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function displayDetails(transaction){
+  try {
     switch (transaction) {
-        case 'get sales proposal basic details':
-            var sales_proposal_id = $('#sales-proposal-id').text();
-            
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_id : sales_proposal_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#sales_proposal_number').text(response.salesProposalNumber);
-                        $('#summary-sales-proposal-number').text(response.salesProposalNumber);
 
-                        if(response.productType != 'Unit' && response.productType != 'Rental' && response.productType != 'Consignment' && response.productType != 'Refinancing' && response.productType != 'Brand New' && response.productType != 'Restructure'){
-                            $('#summary-stock-no').text(response.salesProposalNumber);
-                        }
+      case 'get sales proposal basic details': {
+        const sales_proposal_id = domText('#sales-proposal-id');
 
-                        $('#financing_institution').val(response.financingInstitution);
-                        $('#referred_by').val(response.referredBy);
-                        $('#commission_amount').val(response.commissionAmount);
-                        $('#release_date').val(response.releaseDate);
-                        $('#start_date').val(response.startDate);
-                        $('#term_length').val(response.termLength);
-                        $('#number_of_payments').val(response.numberOfPayments);
-                        $('#first_due_date').val(response.firstDueDate);
-                        $('#remarks').val(response.remarks);                        
-                        $('#dr_number').val(response.drNumber);
-                        $('#release_to').val(response.releaseTo);
-                        $('#actual_start_date').val(response.actualStartDate);
-                        
-                        if($('#term_length_2').length){
-                            $('#term_length_2').val(response.termLength);
-                        }
+        const response = await runTo(SALES_CONTROLLER, { sales_proposal_id, transaction });
 
-                        if($('#draft-file').length){
-                            document.getElementById('draft-file').src = response.setToDraftFile;
-                        }
+        if (!response?.success) {
+          return fail('Get Sales Proposal Details Error', response, 'Unable to load basic details.');
+        }
 
-                        if($('#other-document-file').length){
-                            document.getElementById('other-document-file').src = response.otherDocumentFile;
-                        }
+        $('#sales_proposal_number').text(response.salesProposalNumber);
+        $('#summary-sales-proposal-number').text(response.salesProposalNumber);
 
-                        $('#summary-commission').text(encryptCommission(response.commissionAmount));
-                       
-                        checkOptionExist('#renewal_tag', response.renewalTag, '');
-                        checkOptionExist('#application_source_id', response.applicationSourceID, '');
-                        checkOptionExist('#product_type', response.productType, '');
-                        checkOptionExist('#transaction_type', response.transactionType, '');
-                        checkOptionExist('#comaker_id', response.comakerID, '');
-                        checkOptionExist('#additional_maker_id', response.additionalMakerID, '');
-                        checkOptionExist('#comaker_id2', response.comakerID2, '');
-                        checkOptionExist('#term_type', response.termType, '');
-                        checkOptionExist('#payment_frequency', response.paymentFrequency, '');
-                        checkOptionExist('#initial_approving_officer', response.initialApprovingOfficer, '');
-                        checkOptionExist('#final_approving_officer', response.finalApprovingOfficer, '');
-                        checkOptionExist('#company_id', response.companyID, '');
+        if (!['Unit', 'Rental', 'Consignment', 'Refinancing', 'Brand New', 'Restructure'].includes(response.productType)) {
+          $('#summary-stock-no').text(response.salesProposalNumber);
+        }
 
-                        $('#summary-referred-by').text(response.referredBy);
-                        $('#summary-release-date').text(response.releaseDate);
-                        $('#summary-product-type').text(response.productType);
-                        $('#summary-transaction-type').text(response.transactionType);
-                        $('#summary-term').text(response.termLength + ' ' + response.termType);
-                        $('#insurance_term').text(response.termLength + ' ' + response.termType);
-                        $('#insurance_maturity').text(response.maturityDate);
-                        $('#summary-no-payments').text(response.numberOfPayments);
-                        $('#summary-remarks').text(response.remarks);
-                        $('#summary-initial-approval-by').text(response.initialApprovingOfficerName);
-                        $('#summary-final-approval-by').text(response.finalApprovingOfficerName);
-                        $('#summary-created-by').text(response.createdByName);
-                        $('#created-date-summary').val(response.createdDate);
+        $('#financing_institution').val(response.financingInstitution);
+        $('#referred_by').val(response.referredBy);
+        $('#commission_amount').val(response.commissionAmount);
+        $('#release_date').val(response.releaseDate);
+        $('#start_date').val(response.startDate);
+        $('#term_length').val(response.termLength);
+        $('#number_of_payments').val(response.numberOfPayments);
+        $('#first_due_date').val(response.firstDueDate);
+        $('#remarks').val(response.remarks);
+        $('#dr_number').val(response.drNumber);
+        $('#release_to').val(response.releaseTo);
+        $('#actual_start_date').val(response.actualStartDate);
 
-                        $('#initial_approval_remarks_label').text(response.initialApprovalRemarks);
-                        $('#initial_approval_remarks').val(response.initialApprovalRemarks);
-                        $('#final_approval_remarks_label').text(response.finalApprovalRemarks);
-                        $('#final_approval_remarks').val(response.finalApprovalRemarks);
-                        $('#installment_sales_approval_remarks_label').text(response.installmentSalesApprovalRemarks);
-                        $('#ci_recommendation_label').html(response.ci_recommendation.replace(/\n/g, "<br>"));
-                        $('#rejection_reason_label').text(response.rejectionReason);
-                        $('#cancellation_reason_label').text(response.cancellationReason);
-                        $('#set_to_draft_reason_label').text(response.setToDraftReason);
-                        $('#release_remarks_label').text(response.releaseRemarks);
+        if ($('#term_length_2').length) $('#term_length_2').val(response.termLength);
 
-                        $('#summary-total-job-order-progress').text(response.jobOrderProgress);
+        if ($('#draft-file').length) document.getElementById('draft-file').src = response.setToDraftFile;
+        if ($('#other-document-file').length) document.getElementById('other-document-file').src = response.otherDocumentFile;
 
-                        document.getElementById('summary-total-additional-job-order').innerHTML = response.totalAdditionalJobOrder;
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function(){
-                    var productType = $('#product_type').val();
+        $('#summary-commission').text(encryptCommission(response.commissionAmount));
 
-                    if(productType == 'Unit' || productType == 'Rental' || productType == 'Consignment'){
-                        displayDetails('get sales proposal unit details');
-                    }
-                    else if(productType == 'Fuel'){
-                        displayDetails('get sales proposal fuel details');
-                    }
-                    else{
-                        displayDetails('get sales proposal refinancing details');
-                    }
+        checkOptionExist('#renewal_tag', response.renewalTag, '');
+        checkOptionExist('#application_source_id', response.applicationSourceID, '');
+        checkOptionExist('#product_type', response.productType, '');
+        checkOptionExist('#transaction_type', response.transactionType, '');
+        checkOptionExist('#comaker_id', response.comakerID, '');
+        checkOptionExist('#additional_maker_id', response.additionalMakerID, '');
+        checkOptionExist('#comaker_id2', response.comakerID2, '');
+        checkOptionExist('#term_type', response.termType, '');
+        checkOptionExist('#payment_frequency', response.paymentFrequency, '');
+        checkOptionExist('#initial_approving_officer', response.initialApprovingOfficer, '');
+        checkOptionExist('#final_approving_officer', response.finalApprovingOfficer, '');
+        checkOptionExist('#company_id', response.companyID, '');
 
-                    calculateTotalOtherCharges();
-                }
+        $('#summary-referred-by').text(response.referredBy);
+        $('#summary-release-date').text(response.releaseDate);
+        $('#summary-product-type').text(response.productType);
+        $('#summary-transaction-type').text(response.transactionType);
+        $('#summary-term').text(`${response.termLength} ${response.termType}`);
+        $('#insurance_term').text(`${response.termLength} ${response.termType}`);
+        $('#insurance_maturity').text(response.maturityDate);
+        $('#summary-no-payments').text(response.numberOfPayments);
+        $('#summary-remarks').text(response.remarks);
+        $('#summary-initial-approval-by').text(response.initialApprovingOfficerName);
+        $('#summary-final-approval-by').text(response.finalApprovingOfficerName);
+        $('#summary-created-by').text(response.createdByName);
+        $('#created-date-summary').val(response.createdDate);
+
+        $('#initial_approval_remarks_label').text(response.initialApprovalRemarks);
+        $('#initial_approval_remarks').val(response.initialApprovalRemarks);
+        $('#final_approval_remarks_label').text(response.finalApprovalRemarks);
+        $('#final_approval_remarks').val(response.finalApprovalRemarks);
+        $('#installment_sales_approval_remarks_label').text(response.installmentSalesApprovalRemarks);
+        $('#ci_recommendation_label').html(String(response.ci_recommendation || '').replace(/\n/g, '<br>'));
+        $('#rejection_reason_label').text(response.rejectionReason);
+        $('#cancellation_reason_label').text(response.cancellationReason);
+        $('#set_to_draft_reason_label').text(response.setToDraftReason);
+        $('#release_remarks_label').text(response.releaseRemarks);
+
+        $('#summary-total-job-order-progress').text(response.jobOrderProgress);
+        document.getElementById('summary-total-additional-job-order').innerHTML = response.totalAdditionalJobOrder;
+
+        // complete() logic → explicit follow-ups
+        const productType = $('#product_type').val();
+
+        if (['Unit', 'Rental', 'Consignment'].includes(productType)) {
+          displayDetails('get sales proposal unit details');
+        } else if (productType === 'Fuel') {
+          displayDetails('get sales proposal fuel details');
+        } else {
+          displayDetails('get sales proposal refinancing details');
+        }
+
+        calculateTotalOtherCharges();
+        break;
+      }
+
+      case 'get sales proposal unit details': {
+        const sales_proposal_id = domText('#sales-proposal-id');
+
+        const response = await runTo(SALES_CONTROLLER, { sales_proposal_id, transaction });
+
+        if (!response?.success) {
+          return fail('Get Sales Proposal Details Error', response, 'Unable to load unit details.');
+        }
+
+        $('#old_color').val(response.oldColor);
+        $('#new_color').val(response.newColor);
+        $('#old_body').val(response.oldBody);
+        $('#new_body').val(response.newBody);
+        $('#old_engine').val(response.oldEngine);
+        $('#new_engine').val(response.newEngine);
+        $('#final_orcr_name').val(response.finalOrcrName);
+        $('#summary-final-name-on-orcr').text(response.finalOrcrName);
+
+        checkOptionExist('#product_id', response.productID, '');
+        checkOptionExist('#for_registration', response.forRegistration, '');
+        checkOptionExist('#with_cr', response.withCR, '');
+        checkOptionExist('#for_transfer', response.forTransfer, '');
+        checkOptionExist('#for_change_color', response.forChangeColor, '');
+        checkOptionExist('#for_change_body', response.forChangeBody, '');
+        checkOptionExist('#for_change_engine', response.forChangeEngine, '');
+
+        $('#summary-new-color').text(response.newColor);
+        $('#summary-new-body').text(response.newBody);
+        $('#summary-new-engine').text(response.newEngine);
+
+        // complete() logic
+        displayDetails('get sales proposal pricing computation details');
+        break;
+      }
+
+      case 'get sales proposal fuel details': {
+        const sales_proposal_id = domText('#sales-proposal-id');
+
+        const response = await runTo(SALES_CONTROLLER, { sales_proposal_id, transaction });
+
+        if (!response?.success) {
+          return fail('Get Sales Proposal Details Error', response, 'Unable to load fuel details.');
+        }
+
+        $('#diesel_fuel_quantity').val(response.dieselFuelQuantity);
+        $('#diesel_price_per_liter').val(response.dieselPricePerLiter);
+        $('#regular_fuel_quantity').val(response.regularFuelQuantity);
+        $('#regular_price_per_liter').val(response.regularPricePerLiter);
+        $('#premium_fuel_quantity').val(response.premiumFuelQuantity);
+        $('#premium_price_per_liter').val(response.premiumPricePerLiter);
+
+        $('#summary-diesel-fuel-quantity').text(`${response.dieselFuelQuantity} lt`);
+        $('#summary-regular-fuel-quantity').text(`${response.regularFuelQuantity} lt`);
+        $('#summary-premium-fuel-quantity').text(`${response.premiumFuelQuantity} lt`);
+
+        // complete() logic
+        calculateFuelTotal();
+        displayDetails('get sales proposal pricing computation details');
+        break;
+      }
+
+      case 'get sales proposal refinancing details': {
+        const sales_proposal_id = domText('#sales-proposal-id');
+
+        const response = await runTo(SALES_CONTROLLER, { sales_proposal_id, transaction });
+
+        if (!response?.success) {
+          return fail('Get Sales Proposal Details Error', response, 'Unable to load refinancing details.');
+        }
+
+        $('#ref_stock_no').text(response.refStockNo);
+        $('#ref_engine_no').val(response.refEngineNo);
+        $('#ref_chassis_no').val(response.refChassisNo);
+        $('#ref_plate_no').val(response.refPlateNo);
+
+        $('#orcr_no').val(response.orcrNo);
+        $('#orcr_date').val(response.orcrDate);
+        $('#orcr_expiry_date').val(response.orcrExpiryDate);
+        $('#received_from').val(response.receivedFrom);
+        $('#received_from_address').val(response.receivedFromAddress);
+        $('#received_from_id_number').val(response.receivedFromIDNumber);
+        $('#unit_description').val(response.unitDescription);
+
+        // prevent duplication in summary remarks
+        const existingText = $('#summary-remarks').text().trim();
+        const newText = String(response.unitDescription || '').trim();
+
+        if (newText && !existingText.includes(newText)) {
+          $('#summary-remarks').text(existingText ? `${existingText}\n\n${newText}` : newText);
+        }
+
+        checkOptionExist('#received_from_id_type', response.receivedFromIDType, '');
+
+        $('#summary-stock-no').text(response.refStockNo);
+        $('#summary-engine-no').text(response.refEngineNo);
+        $('#summary-chassis-no').text(response.refChassisNo);
+        $('#summary-plate-no').text(response.refPlateNo);
+
+        $('#insurance_unit_no').text(response.refStockNo);
+        $('#insurance_engine_no').text(response.refEngineNo);
+        $('#insurance_chassis_no').text(response.refChassisNo);
+        $('#insurance_plate_no').text(response.refPlateNo);
+
+        // complete() logic
+        displayDetails('get sales proposal pricing computation details');
+        break;
+      }
+
+
+      case 'get sales proposal job order details': {
+        const sales_proposal_job_order_id = sessionStorage.getItem('sales_proposal_job_order_id');
+
+        const response = await runTo(SALES_CONTROLLER, {
+          sales_proposal_job_order_id,
+          transaction,
+        });
+
+        if (!response?.success) {
+          return fail('Get Sales Proposal Job Order Details Error', response, 'Unable to load job order details.');
+        }
+
+        $('#sales_proposal_job_order_id').val(sales_proposal_job_order_id);
+        $('#job_order').val(response.jobOrder);
+        $('#job_order_cost').val(response.cost);
+
+        break;
+      }
+
+      case 'get sales proposal condition details': {
+        const sales_proposal_condition_id = sessionStorage.getItem('sales_proposal_condition_id');
+
+        const response = await runTo(SALES_CONTROLLER, {
+          sales_proposal_condition_id,
+          transaction,
+        });
+
+        if (!response?.success) {
+          return fail('Get Sales Proposal Condition Details Error', response, 'Unable to load condition details.');
+        }
+
+        $('#sales_proposal_condition_id').val(sales_proposal_condition_id);
+        $('#approval_condition').val(response.approvalCondition);
+
+        checkOptionExist('#condition_type', response.conditionType, '');
+        break;
+      }
+
+      case 'get sales proposal pricing computation details': {
+        let response;
+
+        try {
+          response = await runTo(SALES_CONTROLLER, { sales_proposal_id, transaction });
+
+          if (!response?.success) {
+            return fail(
+              'Get Sales Proposal Pricing Computation Details Error',
+              response,
+              'Unable to load pricing computation details.'
+            );
+          }
+
+          const productType = $('#product_type').val();
+
+          if (!['Unit', 'Rental', 'Consignment'].includes(productType)) {
+            $('#delivery_price').val(response.deliveryPrice);
+          }
+
+          $('#nominal_discount').val(response.nominalDiscount);
+          $('#add_on_charge').val(response.addOnCharge);
+          $('#cost_of_accessories').val(response.costOfAccessories);
+          $('#reconditioning_cost').val(response.reconditioningCost);
+          $('#downpayment').val(response.downpayment);
+          $('#interest_rate').val(response.interestRate);
+
+          if ($('#add_on_charge_2').length) $('#add_on_charge_2').val(response.addOnCharge);
+          if ($('#nominal_discount_2').length) $('#nominal_discount_2').val(response.nominalDiscount);
+          if ($('#interest_rate_2').length) $('#interest_rate_2').val(response.interestRate);
+          if ($('#downpayment_2').length) $('#downpayment_2').val(response.downpayment);
+
+        } finally {
+          // original $.ajax complete:
+          calculateTotalDeliveryPrice();
+        }
+
+        break;
+      }
+
+      case 'get sales proposal other charges details': {
+        let response;
+
+        try {
+          response = await runTo(SALES_CONTROLLER, { sales_proposal_id, transaction });
+
+          if (!response?.success) {
+            return fail(
+              'Get Sales Proposal Other Charges Details Error',
+              response,
+              'Unable to load other charges details.'
+            );
+          }
+
+          $('#insurance_coverage').val(response.insuranceCoverage);
+          $('#insurance_request_coverage_1').text(response.insuranceCoverage);
+
+          $('#insurance_premium').val(response.insurancePremium);
+          $('#insurance_request_premium_1').text(response.insurancePremium);
+
+          $('#handling_fee').val(response.handlingFee);
+          $('#transfer_fee').val(response.transferFee);
+          $('#registration_fee').val(response.registrationFee);
+          $('#doc_stamp_tax').val(response.docStampTax);
+          $('#transaction_fee').val(response.transactionFee);
+
+          $('#insurance_premium_discount').val(response.insurancePremiumDiscount);
+          $('#handling_fee_discount').val(response.handlingFeeDiscount);
+          $('#doc_stamp_tax_discount').val(response.docStampTaxDiscount);
+          $('#transaction_fee_discount').val(response.transactionFeeDiscount);
+          $('#transfer_fee_discount').val(response.transferFeeDiscount);
+
+          $('#insurance_premium_subtotal').val(response.insurancePremiumSubtotal);
+          $('#handling_fee_subtotal').val(response.handlingFeeSubtotal);
+          $('#doc_stamp_tax_subtotal').val(response.docStampTaxSubtotal);
+          $('#transaction_fee_subtotal').val(response.transactionFeeSubtotal);
+          $('#transfer_fee_subtotal').val(response.transferFeeSubtotal);
+
+          $('#summary-insurance-coverage').text(parseFloat(response.insuranceCoverage).toLocaleString('en-US'));
+          $('#summary-insurance-premium').text(parseFloat(response.insurancePremiumSubtotal).toLocaleString('en-US'));
+          $('#summary-handing-fee').text(parseFloat(response.handlingFeeSubtotal).toLocaleString('en-US'));
+          $('#summary-transfer-fee').text(parseFloat(response.transferFeeSubtotal).toLocaleString('en-US'));
+          $('#summary-registration-fee').text(parseFloat(response.registrationFee).toLocaleString('en-US'));
+          $('#summary-doc-stamp-tax').text(parseFloat(response.docStampTaxSubtotal).toLocaleString('en-US'));
+          $('#summary-transaction-fee').text(parseFloat(response.transactionFeeSubtotal).toLocaleString('en-US'));
+          $('#summary-other-charges-total').text(parseFloat(response.totalOtherCharges).toLocaleString('en-US'));
+
+        } finally {
+          // original $.ajax complete:
+          calculateTotalOtherCharges();
+        }
+
+        break;
+      }
+
+      case 'get sales proposal renewal amount details': {
+        const response = await runTo(SALES_CONTROLLER, { sales_proposal_id, transaction });
+
+        if (!response?.success) {
+          return fail(
+            'Get Sales Proposal Renewal Amount Details Error',
+            response,
+            'Unable to load renewal amount details.'
+          );
+        }
+
+        $('#registration_second_year').val(response.registrationSecondYear);
+        $('#registration_third_year').val(response.registrationThirdYear);
+        $('#registration_fourth_year').val(response.registrationFourthYear);
+
+        $('#insurance_coverage_second_year').val(response.insuranceCoverageSecondYear);
+        $('#insurance_coverage_third_year').val(response.insuranceCoverageThirdYear);
+        $('#insurance_coverage_fourth_year').val(response.insuranceCoverageFourthYear);
+
+        $('#insurance_premium_second_year').val(response.insurancePremiumSecondYear);
+        $('#insurance_premium_third_year').val(response.insurancePremiumThirdYear);
+        $('#insurance_premium_fourth_year').val(response.insurancePremiumFourthYear);
+
+        // summaries
+        $('#summary-registration-second-year').text(response.registrationSecondYearSummary);
+        $('#summary-registration-third-year').text(response.registrationThirdYearSummary);
+        $('#summary-registration-fourth-year').text(response.registrationFourthYearSummary);
+
+        $('#summary-insurance-coverage-second-year').text(response.insuranceCoverageSecondYearSummary);
+        $('#2nd_year_coverage').text(response.insuranceCoverageSecondYearSummary);
+
+        $('#summary-insurance-coverage-third-year').text(response.insuranceCoverageThirdYearSummary);
+        $('#3rd_year_coverage').text(response.insuranceCoverageThirdYearSummary);
+
+        $('#summary-insurance-coverage-fourth-year').text(response.insuranceCoverageFourthYearSummary);
+        $('#4th_year_coverage').text(response.insuranceCoverageFourthYearSummary);
+
+        $('#summary-insurance-premium-second-year').text(response.insurancePremiumSecondYearSummary);
+        $('#summary-insurance-premium-third-year').text(response.insurancePremiumThirdYearSummary);
+        $('#summary-insurance-premium-fourth-year').text(response.insurancePremiumFourthYearSummary);
+
+        $('#2nd_year_date').text(response.secondYearInsuranceDate);
+        $('#3rd_year_date').text(response.thirdYearInsuranceDate);
+        $('#4th_year_date').text(response.fourthYearInsuranceDate);
+
+        const product_category = $('#product_category').val();
+        const product_type = $('#product_type').val();
+
+        const setYearReadonly = (year, coverageReadonly, premiumReadonly) => {
+          $(`#insurance_coverage_${year}`).attr('readonly', coverageReadonly);
+          $(`#insurance_premium_${year}`).attr('readonly', premiumReadonly);
+        };
+
+        const computeReadonlyRules = ({ productType, productCategory, computeChecked, premiumIsComputed }) => {
+          // Mode: Refinancing -> auto compute, always readonly
+          if (productType === 'Refinancing') {
+            return { coverage: true, premium: true };
+          }
+
+          // Mode: Restructure -> manual input allowed ONLY if checkbox is checked
+          // (matches: attr('readonly', !checked))
+          if (productType === 'Restructure') {
+            const editable = !!computeChecked;
+            return { coverage: !editable, premium: !editable };
+          }
+
+          // Mode: Default
+          // - When checkbox is NOT checked => fields get reset and forced readonly
+          //   (matches: setYear(... readonly: true) when unchecked)
+          if (!computeChecked) {
+            return { coverage: true, premium: true };
+          }
+
+          // Mode: Default + checkbox checked:
+          // - If premium is computed (category 1/2/3) => readonly
+          // - Else (premiumIsComputed false) => editable
+          if (premiumIsComputed) {
+            return { coverage: true, premium: true };
+          }
+
+          return { coverage: false, premium: false };
+        };
+
+        const isPremiumComputed = ['1', '2', '3'].includes(product_category);
+
+        // 2nd year
+        if (response.insuranceCoverageSecondYear > 0) {
+            $('#compute_second_year').prop('checked', true);
+            // PASS THE DATA HERE:
+            const r = computeReadonlyRules({ 
+                productType: product_type, 
+                productCategory: product_category, 
+                computeChecked: true, 
+                premiumIsComputed: isPremiumComputed 
             });
-            break;
-        case 'get sales proposal unit details':
-            var sales_proposal_id = $('#sales-proposal-id').text();
-            
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_id : sales_proposal_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#old_color').val(response.oldColor);
-                        $('#new_color').val(response.newColor);
-                        $('#old_body').val(response.oldBody);
-                        $('#new_body').val(response.newBody);
-                        $('#old_engine').val(response.oldEngine);
-                        $('#new_engine').val(response.newEngine);
-                        $('#final_orcr_name').val(response.finalOrcrName);
-                        $('#summary-final-name-on-orcr').text(response.finalOrcrName);
+            setYearReadonly('second_year', r.coverage, r.premium);
+        } else {
+            $('#compute_second_year').prop('checked', false);
+        }
 
-                        checkOptionExist('#product_id', response.productID, '');
-                        checkOptionExist('#for_registration', response.forRegistration, '');
-                        checkOptionExist('#with_cr', response.withCR, '');
-                        checkOptionExist('#for_transfer', response.forTransfer, '');
-                        checkOptionExist('#for_change_color', response.forChangeColor, '');
-                        checkOptionExist('#for_change_body', response.forChangeBody, '');
-                        checkOptionExist('#for_change_engine', response.forChangeEngine, '');
-                        
-                        $('#summary-new-color').text(response.newColor);
-                        $('#summary-new-body').text(response.newBody);
-                        $('#summary-new-engine').text(response.newEngine);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function(){
-                    displayDetails('get sales proposal pricing computation details');
-                }
+        // 3rd year
+        if (response.insuranceCoverageThirdYear > 0) {
+            $('#compute_third_year').prop('checked', true);
+            // PASS THE DATA HERE:
+            const r = computeReadonlyRules({ 
+                productType: product_type, 
+                productCategory: product_category, 
+                computeChecked: true, 
+                premiumIsComputed: isPremiumComputed 
             });
-            break;
-        case 'get sales proposal fuel details':
-            var sales_proposal_id = $('#sales-proposal-id').text();
-            
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_id : sales_proposal_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#diesel_fuel_quantity').val(response.dieselFuelQuantity);
-                        $('#diesel_price_per_liter').val(response.dieselPricePerLiter);
-                        $('#regular_fuel_quantity').val(response.regularFuelQuantity);
-                        $('#regular_price_per_liter').val(response.regularPricePerLiter);
-                        $('#premium_fuel_quantity').val(response.premiumFuelQuantity);
-                        $('#premium_price_per_liter').val(response.premiumPricePerLiter);
+            setYearReadonly('third_year', r.coverage, r.premium);
+        } else {
+            $('#compute_third_year').prop('checked', false);
+        }
 
-                        $('#summary-diesel-fuel-quantity').text(response.dieselFuelQuantity + ' lt');
-                        $('#summary-regular-fuel-quantity').text(response.regularFuelQuantity + ' lt');
-                        $('#summary-premium-fuel-quantity').text(response.premiumFuelQuantity + ' lt');
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function(){
-                    calculateFuelTotal();
-                    displayDetails('get sales proposal pricing computation details');
-                }
+        // 4th year
+        if (response.insuranceCoverageFourthYear > 0) {
+            $('#compute_fourth_year').prop('checked', true);
+            // PASS THE DATA HERE:
+            const r = computeReadonlyRules({ 
+                productType: product_type, 
+                productCategory: product_category, 
+                computeChecked: true, 
+                premiumIsComputed: isPremiumComputed 
             });
-            break;
-        case 'get sales proposal refinancing details':
-            var sales_proposal_id = $('#sales-proposal-id').text();
-            
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_id : sales_proposal_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#ref_stock_no').text(response.refStockNo);
-                        $('#ref_engine_no').val(response.refEngineNo);
-                        $('#ref_chassis_no').val(response.refChassisNo);
-                        $('#ref_plate_no').val(response.refPlateNo);
+            setYearReadonly('fourth_year', r.coverage, r.premium);
+        } else {
+            $('#compute_fourth_year').prop('checked', false);
+        }
+        break;
+      }
 
-                        $('#orcr_no').val(response.orcrNo);
-                        $('#orcr_date').val(response.orcrDate);
-                        $('#orcr_expiry_date').val(response.orcrExpiryDate);
-                        $('#received_from').val(response.receivedFrom);
-                        $('#received_from_address').val(response.receivedFromAddress);
-                        $('#received_from_id_number').val(response.receivedFromIDNumber);
-                        $('#unit_description').val(response.unitDescription);
+      case 'get sales proposal deposit amount details': {
+        const sales_proposal_deposit_amount_id = sessionStorage.getItem('sales_proposal_deposit_amount_id');
 
-                        var existingText = $('#summary-remarks').text().trim();
-                        var newText = response.unitDescription.trim();
-                        
-                        // Check if the new text is already present
-                        if (!existingText.includes(newText)) {
-                            if (existingText) {
-                                $('#summary-remarks').text(existingText + "\n\n" + newText);
-                            } else {
-                                $('#summary-remarks').text(newText);
-                            }
-                        }
-                        
-                        
-                        checkOptionExist('#received_from_id_type', response.receivedFromIDType, '');
+        const response = await runTo(SALES_CONTROLLER, {
+          sales_proposal_deposit_amount_id,
+          transaction,
+        });
 
-                        $('#summary-stock-no').text(response.refStockNo);
-                        $('#summary-engine-no').text(response.refEngineNo);
-                        $('#summary-chassis-no').text(response.refChassisNo);
-                        $('#summary-plate-no').text(response.refPlateNo);
+        if (!response?.success) {
+          return fail(
+            'Get Sales Proposal Deposit Amount Details Error',
+            response,
+            'Unable to load deposit amount details.'
+          );
+        }
 
-                        $('#insurance_unit_no').text(response.refStockNo);
-                        $('#insurance_engine_no').text(response.refEngineNo);
-                        $('#insurance_chassis_no').text(response.refChassisNo);
-                        $('#insurance_plate_no').text(response.refPlateNo);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function(){
-                    displayDetails('get sales proposal pricing computation details');
-                }
-            });
-            break;
-        case 'get sales proposal job order details':
-            var sales_proposal_job_order_id = sessionStorage.getItem('sales_proposal_job_order_id');
-                
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_job_order_id : sales_proposal_job_order_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#sales_proposal_job_order_id').val(sales_proposal_job_order_id);
-                        $('#job_order').val(response.jobOrder);
-                        $('#job_order_cost').val(response.cost);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Job Order Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get sales proposal condition details':
-            var sales_proposal_condition_id = sessionStorage.getItem('sales_proposal_condition_id');
+        $('#sales_proposal_deposit_amount_id').val(sales_proposal_deposit_amount_id);
+        $('#deposit_date').val(response.depositDate);
+        $('#reference_number').val(response.referenceNumber);
+        $('#deposit_amount').val(response.depositAmount);
 
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_condition_id : sales_proposal_condition_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#sales_proposal_condition_id').val(sales_proposal_condition_id);
-                        $('#approval_condition').val(response.approvalCondition);
-                        
-                        checkOptionExist('#condition_type', response.conditionType, '');
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Job Order Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get sales proposal pricing computation details':
-            var sales_proposal_id = $('#sales-proposal-id').text();
-            
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_id : sales_proposal_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        var productType = $('#product_type').val();
+        break;
+      }
 
-                        if(productType != 'Unit' && productType != 'Rental' && productType != 'Consignment'){
-                            $('#delivery_price').val(response.deliveryPrice);
-                        }
+      case 'get sales proposal additional job order details': {
+        const sales_proposal_additional_job_order_id = sessionStorage.getItem('sales_proposal_additional_job_order_id');
 
-                        $('#nominal_discount').val(response.nominalDiscount);
-                        $('#add_on_charge').val(response.addOnCharge);
-                        $('#cost_of_accessories').val(response.costOfAccessories);
-                        $('#reconditioning_cost').val(response.reconditioningCost);
-                        $('#downpayment').val(response.downpayment);
-                        $('#interest_rate').val(response.interestRate);
-                        
-                        if($('#add_on_charge_2').length){
-                            $('#add_on_charge_2').val(response.addOnCharge);
-                        }
-                        
-                        if($('#nominal_discount_2').length){
-                            $('#nominal_discount_2').val(response.nominalDiscount);
-                        }
-                        
-                        if($('#interest_rate_2').length){
-                            $('#interest_rate_2').val(response.interestRate);
-                        }
-                        
-                        if($('#downpayment_2').length){
-                            $('#downpayment_2').val(response.downpayment);
-                        }
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Pricing Computation Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function(){
-                    calculateTotalDeliveryPrice();
-                }
-            });
-            break;
-        case 'get sales proposal other charges details':
-            var sales_proposal_id = $('#sales-proposal-id').text();
-                
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_id : sales_proposal_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#insurance_coverage').val(response.insuranceCoverage);
-                        $('#insurance_request_coverage_1').text(response.insuranceCoverage);
-                        $('#insurance_premium').val(response.insurancePremium);
-                        $('#insurance_request_premium_1').text(response.insurancePremium);
-                        $('#handling_fee').val(response.handlingFee);
-                        $('#transfer_fee').val(response.transferFee);
-                        $('#registration_fee').val(response.registrationFee);
-                        $('#doc_stamp_tax').val(response.docStampTax);
-                        $('#transaction_fee').val(response.transactionFee);
+        const response = await runTo(SALES_CONTROLLER, {
+          sales_proposal_additional_job_order_id,
+          transaction,
+        });
 
-                        $('#insurance_premium_discount').val(response.insurancePremiumDiscount);
-                        $('#handling_fee_discount').val(response.handlingFeeDiscount);
-                        $('#doc_stamp_tax_discount').val(response.docStampTaxDiscount);
-                        $('#transaction_fee_discount').val(response.transactionFeeDiscount);
-                        $('#transfer_fee_discount').val(response.transferFeeDiscount);
-                        $('#insurance_premium_subtotal').val(response.insurancePremiumSubtotal);
-                        $('#handling_fee_subtotal').val(response.handlingFeeSubtotal);
-                        $('#doc_stamp_tax_subtotal').val(response.docStampTaxSubtotal);
-                        $('#transaction_fee_subtotal').val(response.transactionFeeSubtotal);
-                        $('#transfer_fee_subtotal').val(response.transferFeeSubtotal);
+        if (!response?.success) {
+          return fail(
+            'Get Sales Proposal Additional Job Order Details Error',
+            response,
+            'Unable to load additional job order details.'
+          );
+        }
 
-                        $('#summary-insurance-coverage').text(parseFloat(response.insuranceCoverage).toLocaleString("en-US"));
-                        $('#summary-insurance-premium').text(parseFloat(response.insurancePremiumSubtotal).toLocaleString("en-US"));
-                        $('#summary-handing-fee').text(parseFloat(response.handlingFeeSubtotal).toLocaleString("en-US"));
-                        $('#summary-transfer-fee').text(parseFloat(response.transferFeeSubtotal).toLocaleString("en-US"));
-                        $('#summary-registration-fee').text(parseFloat(response.registrationFee).toLocaleString("en-US"));
-                        $('#summary-doc-stamp-tax').text(parseFloat(response.docStampTaxSubtotal).toLocaleString("en-US"));
-                        $('#summary-transaction-fee').text(parseFloat(response.transactionFeeSubtotal).toLocaleString("en-US"));
-                        $('#summary-other-charges-total').text(parseFloat(response.totalOtherCharges).toLocaleString("en-US"));
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Other Charges Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function(){
-                    calculateTotalOtherCharges();
-                }
-            });
-            break;
-        case 'get sales proposal renewal amount details':
-            var sales_proposal_id = $('#sales-proposal-id').text();
-            
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_id : sales_proposal_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#registration_second_year').val(response.registrationSecondYear);
-                        $('#registration_third_year').val(response.registrationThirdYear);
-                        $('#registration_fourth_year').val(response.registrationFourthYear);
-                        $('#insurance_coverage_second_year').val(response.insuranceCoverageSecondYear);
-                        $('#insurance_coverage_third_year').val(response.insuranceCoverageThirdYear);
-                        $('#insurance_coverage_fourth_year').val(response.insuranceCoverageFourthYear);
-                        $('#insurance_premium_second_year').val(response.insurancePremiumSecondYear);
-                        $('#insurance_premium_third_year').val(response.insurancePremiumThirdYear);
-                        $('#insurance_premium_fourth_year').val(response.insurancePremiumFourthYear);
+        $('#sales_proposal_additional_job_order_id').val(sales_proposal_additional_job_order_id);
+        $('#job_order_number').val(response.jobOrderNumber);
+        $('#job_order_date').val(response.jobOrderDate);
+        $('#particulars').val(response.particulars);
+        $('#additional_job_order_cost').val(response.cost);
 
-                        $('#summary-registration-second-year').text(response.registrationSecondYearSummary);
-                        $('#summary-registration-second-year').text(response.registrationSecondYearSummary);
-                        $('#summary-registration-third-year').text(response.registrationThirdYearSummary);
-                        $('#summary-registration-fourth-year').text(response.registrationFourthYearSummary);
-                        $('#summary-insurance-coverage-second-year').text(response.insuranceCoverageSecondYearSummary);
-                        $('#2nd_year_coverage').text(response.insuranceCoverageSecondYearSummary);
-                        $('#summary-insurance-coverage-third-year').text(response.insuranceCoverageThirdYearSummary);
-                        $('#3rd_year_coverage').text(response.insuranceCoverageThirdYearSummary);
-                        $('#summary-insurance-coverage-fourth-year').text(response.insuranceCoverageFourthYearSummary);
-                        $('#4th_year_coverage').text(response.insuranceCoverageFourthYearSummary);
-                        $('#summary-insurance-premium-second-year').text(response.insurancePremiumSecondYearSummary);
-                        $('#summary-insurance-premium-third-year').text(response.insurancePremiumThirdYearSummary);
-                        $('#summary-insurance-premium-fourth-year').text(response.insurancePremiumFourthYearSummary);
+        break;
+      }
 
-                        $('#2nd_year_date').text(response.secondYearInsuranceDate);
-                        $('#3rd_year_date').text(response.thirdYearInsuranceDate);
-                        $('#4th_year_date').text(response.fourthYearInsuranceDate);
+      case 'get sales proposal confirmation details': {
+        const response = await runTo(SALES_CONTROLLER, { sales_proposal_id, transaction });
 
-                        var product_category = $('#product_category').val();
-                        var product_type = $('#product_type').val();
+        if (!response?.success) {
+          return fail(
+            'Get Sales Proposal Confirmation Details Error',
+            response,
+            'Unable to load confirmation details.'
+          );
+        }
 
-                        if(response.insuranceCoverageSecondYear > 0){
-                            $('#compute_second_year').prop('checked', true);
+        // small helper (no jQuery lookup duplication)
+        const setImg = (selector, src) => {
+          const el = document.querySelector(selector);
+          if (el) el.src = src;
+        };
 
-                            if(product_type == 'Refinancing' || product_type == 'Restructure'){
-                                $('#insurance_coverage_second_year').attr('readonly', true);
-                                $('#insurance_premium_second_year').attr('readonly', true);
-                            }
-                            else{
-                                if(product_category != '1' && product_category != '2'){
-                                    $('#insurance_coverage_second_year').attr('readonly', false);
-                                    $('#insurance_premium_second_year').attr('readonly', false);
-                                }
-                                else{
-                                    $('#insurance_coverage_second_year').attr('readonly', true);
-                                    $('#insurance_premium_second_year').attr('readonly', true);
-                                }
-                            }                            
-                        }
-                        else{
-                            $('#compute_second_year').prop('checked', false);
-                        }
+        setImg('#client-confirmation-image', response.clientConfirmation);
+        setImg('#no-deposit-image', response.noDepositApproval);
+        setImg('#comaker-confirmation-image', response.comakerConfirmation);
+        setImg('#credit-advice-image', response.creditAdvice);
+        setImg('#new-engine-stencil-image', response.newEngineStencil);
+        setImg('#additional-job-order-confirmation-image', response.additionalJobOrderConfirmationImage);
+        setImg('#quality-control-form-image', response.qualityControlForm);
+        setImg('#outgoing-checklist-image', response.outgoingChecklist);
 
-                        if(response.insuranceCoverageThirdYear > 0){
-                            $('#compute_third_year').prop('checked', true);
+        setImg('#unit-image', response.unitImage);
+        setImg('#unit-back', response.unitBack);
+        setImg('#unit-left', response.unitLeft);
+        setImg('#unit-right', response.unitRight);
+        setImg('#unit-interior', response.unitInterior);
 
-                            if(product_type == 'Refinancing' || product_type == 'Restructure'){
-                                $('#insurance_coverage_third_year').attr('readonly', true);
-                                $('#insurance_premium_third_year').attr('readonly', true);
-                            }
-                            else{
-                                if(product_category != '1' && product_category != '2'){
-                                    $('#insurance_coverage_third_year').attr('readonly', false); 
-                                    $('#insurance_premium_third_year').attr('readonly', false); 
-                                }
-                                else{
-                                    $('#insurance_coverage_third_year').attr('readonly', true); 
-                                    $('#insurance_premium_third_year').attr('readonly', true); 
-                                }
-                            }
-                        }
-                        else{
-                            $('#compute_third_year').prop('checked', false);
-                        }
+        break;
+      }
 
-                        if(response.insuranceCoverageFourthYear > 0){
-                            $('#compute_fourth_year').prop('checked', true);
+      case 'get comaker details': {
+        const comaker_id = $('#comaker_id').val();
 
-                            if(product_type == 'Refinancing' || product_type == 'Restructure'){
-                                $('#insurance_premium_fourth_year').attr('readonly', true);
-                                $('#insurance_premium_fourth_year').attr('readonly', true);
-                            }
-                            else{
-                                if(product_category != '1' && product_category != '2'){
-                                    $('#insurance_premium_fourth_year').attr('readonly', false); 
-                                    $('#insurance_premium_fourth_year').attr('readonly', false); 
-                                }
-                                else{
-                                    $('#insurance_premium_fourth_year').attr('readonly', true); 
-                                    $('#insurance_premium_fourth_year').attr('readonly', true); 
-                                }
-                            }                            
-                        }
-                        else{
-                            $('#compute_fourth_year').prop('checked', false);
-                        }
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Renewal Amount Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                        showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get sales proposal deposit amount details':
-            var sales_proposal_deposit_amount_id = sessionStorage.getItem('sales_proposal_deposit_amount_id');
-        
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_deposit_amount_id : sales_proposal_deposit_amount_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#sales_proposal_deposit_amount_id').val(sales_proposal_deposit_amount_id);
-                        $('#deposit_date').val(response.depositDate);
-                        $('#reference_number').val(response.referenceNumber);
-                        $('#deposit_amount').val(response.depositAmount);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Deposit Amount Total Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get sales proposal additional job order details':
-            var sales_proposal_additional_job_order_id = sessionStorage.getItem('sales_proposal_additional_job_order_id');
-                
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_additional_job_order_id : sales_proposal_additional_job_order_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#sales_proposal_additional_job_order_id').val(sales_proposal_additional_job_order_id);
-                        $('#job_order_number').val(response.jobOrderNumber);
-                        $('#job_order_date').val(response.jobOrderDate);
-                        $('#particulars').val(response.particulars);
-                        $('#additional_job_order_cost').val(response.cost);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Additional Job Order Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get sales proposal confirmation details':
-            var sales_proposal_id = $('#sales-proposal-id').text();
+        const response = await runTo('controller/customer-controller.php', {
+          comaker_id,
+          transaction,
+        });
 
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                   sales_proposal_id : sales_proposal_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        if($('#client-confirmation-image').length){
-                            document.getElementById('client-confirmation-image').src = response.clientConfirmation;
-                        }
+        if (!response?.success) {
+          return fail('Get Co-Maker Details Error', response, 'Unable to load co-maker details.');
+        }
 
-                        if($('#comaker-confirmation-image').length){
-                            document.getElementById('comaker-confirmation-image').src = response.comakerConfirmation;
-                        }
+        $('#summary-comaker-name').text(response.comakerName);
+        $('#summary-comaker-address').text(response.comakerAddress);
+        $('#summary-comaker-mobile').text(response.comakerMobile);
 
-                        if($('#credit-advice-image').length){
-                            document.getElementById('credit-advice-image').src = response.creditAdvice;
-                        }
+        break;
+      }
 
-                        if($('#new-engine-stencil-image').length){
-                            document.getElementById('new-engine-stencil-image').src = response.newEngineStencil;
-                        }
+      case 'get additional maker details': {
+        const comaker_id = $('#additional_maker_id').val();
 
-                        if($('#additional-job-order-confirmation-image').length){
-                            document.getElementById('additional-job-order-confirmation-image').src = response.additionalJobOrderConfirmationImage;
-                        }
+        const response = await runTo('controller/customer-controller.php', {
+          comaker_id,
+          transaction,
+        });
 
-                        if($('#quality-control-form-image').length){
-                            document.getElementById('quality-control-form-image').src = response.qualityControlForm;
-                        }
+        if (!response?.success) {
+          return fail('Get Co-Maker Details Error', response, 'Unable to load additional maker details.');
+        }
 
-                        if($('#outgoing-checklist-image').length){
-                            document.getElementById('outgoing-checklist-image').src = response.outgoingChecklist;
-                        }
+        $('#summary-additional-maker-name').text(response.comakerName);
+        $('#summary-additional-maker-address').text(response.comakerAddress);
+        $('#summary-additional-maker-mobile').text(response.comakerMobile);
 
-                        if($('#unit-image').length){
-                            document.getElementById('unit-image').src = response.unitImage;
-                        }
+        break;
+      }
 
-                        if($('#unit-back').length){
-                            document.getElementById('unit-back').src = response.unitBack;
-                        }
+      case 'get comaker2 details': {
+        const comaker_id = $('#comaker_id2').val();
 
-                        if($('#unit-left').length){
-                            document.getElementById('unit-left').src = response.unitLeft;
-                        }
+        const response = await runTo('controller/customer-controller.php', {
+          comaker_id,
+          transaction,
+        });
 
-                        if($('#unit-right').length){
-                            document.getElementById('unit-right').src = response.unitRight;
-                        }
+        if (!response?.success) {
+          return fail('Get Co-Maker Details Error', response, 'Unable to load additional co-maker details.');
+        }
 
-                        if($('#unit-interior').length){
-                            document.getElementById('unit-interior').src = response.unitInterior;
-                        }
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Sales Proposal Additional Job Order Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get comaker details':
-            var comaker_id = $('#comaker_id').val();
-                
-            $.ajax({
-                url: 'controller/customer-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    comaker_id : comaker_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {    
-                        $('#summary-comaker-name').text(response.comakerName);
-                        $('#summary-comaker-address').text(response.comakerAddress);
-                        $('#summary-comaker-mobile').text(response.comakerMobile);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Co-Maker Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get additional maker details':
-            var comaker_id = $('#additional_maker_id').val();
-                
-            $.ajax({
-                url: 'controller/customer-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    comaker_id : comaker_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {    
-                        $('#summary-additional-maker-name').text(response.comakerName);
-                        $('#summary-additional-maker-address').text(response.comakerAddress);
-                        $('#summary-additional-maker-mobile').text(response.comakerMobile);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Co-Maker Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get comaker2 details':
-            var comaker_id = $('#comaker_id2').val();
-                
-            $.ajax({
-                url: 'controller/customer-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    comaker_id : comaker_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {    
-                        $('#summary-additional-comaker-name').text(response.comakerName);
-                        $('#summary-additional-comaker-address').text(response.comakerAddress);
-                        $('#summary-additional-comaker-mobile').text(response.comakerMobile);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Co-Maker Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get product details':
-            var product_id;
-    
-            if($('#product_id_details').length){
-                product_id = $('#product_id_details').text();
-            }
-            else{
-                product_id = $('#product_id').val();
-            }
-    
-            if(product_id != '' && product_id != 0){
-                $.ajax({
-                    url: 'controller/product-controller.php',
-                    method: 'POST',
-                    dataType: 'json',
-                    data: {
-                        product_id : product_id, 
-                        transaction : transaction
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            $('#delivery_price').val(response.productPrice);
-                            $('#old_color').val(response.colorName);
-                            $('#old_body').val(response.bodyTypeName);
-                            $('#old_engine').val(response.engineNumber);
+        $('#summary-additional-comaker-name').text(response.comakerName);
+        $('#summary-additional-comaker-address').text(response.comakerAddress);
+        $('#summary-additional-comaker-mobile').text(response.comakerMobile);
 
-                            $('#product_engine_number').text(response.engineNumber);
-                            $('#product_chassis_number').text(response.chassisNumber);
-                            $('#product_plate_number').text(response.plateNumber);
-                            $('#product_category').val(response.productCategoryID);
+        break;
+      }
 
-                            $('#summary-stock-no').text(response.summaryStockNumber);
-                            $('#summary-engine-no').text(response.engineNumber);
-                            $('#summary-chassis-no').text(response.chassisNumber);
-                            $('#summary-plate-no').text(response.plateNumber);
+      case 'get product details': {
+        const product_id = $('#product_id_details').length
+          ? $('#product_id_details').text()
+          : $('#product_id').val();
 
-                            $('#insurance_unit_no').text(response.summaryStockNumber);
-                            $('#insurance_engine_no').text(response.engineNumber);
-                            $('#insurance_chassis_no').text(response.chassisNumber);
-                            $('#insurance_plate_no').text(response.plateNumber);
-                            $('#insurance_color').text(response.colorName);
+        if (!product_id || product_id === '0') break;
 
-                            if($('#product_cost_label').length){
-                                $('#product_cost_label').text(parseFloat(response.productCost).toLocaleString("en-US"));
-                            }
+        try {
+          const response = await runTo('controller/product-controller.php', {
+            product_id,
+            transaction,
+          });
 
-                            if($('#product_best_price_label').length){
-                                $('#product_best_price_label').text(parseFloat(response.bestPrice).toLocaleString("en-US"));
-                            }
-                        } 
-                        else {
-                            if(response.isInactive){
-                                window.location = 'logout.php?logout';
-                            }
-                            else{
-                                showNotification('Get Product Details Error', response.message, 'danger');
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                        if (xhr.responseText) {
-                            fullErrorMessage += ', Response: ${xhr.responseText}';
-                        }
-                        showErrorDialog(fullErrorMessage);
-                    },
-                    complete: function(){
-                        calculateTotalDeliveryPrice();
-                        calculateTotalOtherCharges();
-                    }
-                });
-            }
-            break;
-        case 'get sales proposal other product details':
-            var sales_proposal_id = $('#sales-proposal-id').text();
-    
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_id : sales_proposal_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#year_model').val(response.yearModel);
-                        $('#insurance_year_model').text(response.yearModel);
-                        $('#cr_no').val(response.crNo);
-                        $('#cr_no_label').text(response.crNo);
-                        $('#mv_file_no').val(response.mvFileNo);
-                        $('#insurance_mv_file_no').text(response.mvFileNo);
-                        $('#make').val(response.make);
-                        $('#insurance_make').text(response.make);
-                        $('#product_description').val(response.productDescription);
-                        $('#other-details-gatepass1').text(response.productDescription);
-                        $('#other-details-gatepass2').text(response.productDescription);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Other Product Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
-        case 'get sales proposal insurance request details':
-            var sales_proposal_id = $('#sales-proposal-id').text();
-    
-            $.ajax({
-                url: 'controller/sales-proposal-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    sales_proposal_id : sales_proposal_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#od_theft').text(response.odTheft);
-                        $('#od_rate').text(response.odRate);
-                        $('#od_theft_premium').text(response.odTheftPremium);
-                        $('#total_premium').text(response.odTheftPremium);
-                        $('#vat_premium').text(response.vatPremium);
-                        $('#doc_stamps').text(response.docStamps);
-                        $('#local_govt_tax').text(response.localGovtTax);
-                        $('#gross').text(response.gross);
-                        $('#1st_year_coverage').text(response.odTheft);
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
-                        }
-                        else{
-                            showNotification('Get Other Product Details Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
-            break;
+          if (!response?.success) {
+            return fail('Get Product Details Error', response, 'Unable to load product details.');
+          }
+
+          $('#delivery_price').val(response.productPrice);
+          $('#old_color').val(response.colorName);
+          $('#old_body').val(response.bodyTypeName);
+          $('#old_engine').val(response.engineNumber);
+
+          $('#product_engine_number').text(response.engineNumber);
+          $('#product_chassis_number').text(response.chassisNumber);
+          $('#product_plate_number').text(response.plateNumber);
+          $('#product_category').val(response.productCategoryID);
+
+          $('#summary-stock-no').text(response.summaryStockNumber);
+          $('#summary-engine-no').text(response.engineNumber);
+          $('#summary-chassis-no').text(response.chassisNumber);
+          $('#summary-plate-no').text(response.plateNumber);
+
+          $('#insurance_unit_no').text(response.summaryStockNumber);
+          $('#insurance_engine_no').text(response.engineNumber);
+          $('#insurance_chassis_no').text(response.chassisNumber);
+          $('#insurance_plate_no').text(response.plateNumber);
+          $('#insurance_color').text(response.colorName);
+
+          if ($('#product_cost_label').length) {
+            $('#product_cost_label').text(parseFloat(response.productCost).toLocaleString('en-US'));
+          }
+
+          if ($('#product_best_price_label').length) {
+            $('#product_best_price_label').text(parseFloat(response.bestPrice).toLocaleString('en-US'));
+          }
+        } finally {
+          // original $.ajax complete:
+          calculateTotalDeliveryPrice();
+          calculateTotalOtherCharges();
+        }
+
+        break;
+      }
+
+      case 'get sales proposal other product details': {
+        const response = await runTo(SALES_CONTROLLER, { sales_proposal_id, transaction });
+
+        if (!response?.success) {
+          return fail('Get Other Product Details Error', response, 'Unable to load other product details.');
+        }
+
+        $('#year_model').val(response.yearModel);
+        $('#insurance_year_model').text(response.yearModel);
+
+        $('#cr_no').val(response.crNo);
+        $('#cr_no_label').text(response.crNo);
+
+        $('#mv_file_no').val(response.mvFileNo);
+        $('#insurance_mv_file_no').text(response.mvFileNo);
+
+        $('#make').val(response.make);
+        $('#insurance_make').text(response.make);
+
+        $('#product_description').val(response.productDescription);
+        $('#other-details-gatepass1').text(response.productDescription);
+        $('#other-details-gatepass2').text(response.productDescription);
+
+        break;
+      }
+
+      case 'get sales proposal insurance request details': {
+        const response = await runTo(SALES_CONTROLLER, { sales_proposal_id, transaction });
+
+        if (!response?.success) {
+          return fail('Get Insurance Request Details Error', response, 'Unable to load insurance request details.');
+        }
+
+        $('#od_theft').text(response.odTheft);
+        $('#od_rate').text(response.odRate);
+        $('#od_theft_premium').text(response.odTheftPremium);
+        $('#total_premium').text(response.odTheftPremium);
+        $('#vat_premium').text(response.vatPremium);
+        $('#doc_stamps').text(response.docStamps);
+        $('#local_govt_tax').text(response.localGovtTax);
+        $('#gross').text(response.gross);
+        $('#1st_year_coverage').text(response.odTheft);
+
+        break;
+      }
+
+      default:
+        break;
     }
+  } catch (err) {
+    handleNetworkError(err);
+  }
 }
+
+
+/* ============================================================
+   Existing helpers (kept, but fixed where needed)
+   ============================================================ */
 
 function checkIntegerDivision(dividend, divisor) {
-    let result = dividend / divisor;
-    return Number.isInteger(result) ? result : 0;
+  const result = dividend / divisor;
+  return Number.isInteger(result) ? result : 0;
 }
 
-function calculateFirstDueDate(){
-    var start_date = $('#start_date').val();
-    var payment_frequency = $('#payment_frequency').val();
-    var term_length = $('#term_length').val();
-    var number_of_payments = $('#number_of_payments').val();
+function calculateFirstDueDate() {
+  const start_date = $('#start_date').val();
+  const payment_frequency = $('#payment_frequency').val();
+  const term_length = $('#term_length').val();
+  const number_of_payments = $('#number_of_payments').val();
 
-    $.ajax({
-        type: 'POST',
-        url: './config/calculate_first_due_date.php',
-        data: { start_date: start_date, term_length : term_length, payment_frequency: payment_frequency, number_of_payments: number_of_payments },
-        success: function (result) {
-            $('#first_due_date').val(result);
-        }
-    });
+  // If you keep this PHP endpoint, at least fix string interpolation and keep it simple
+  $.ajax({
+    type: 'POST',
+    url: './config/calculate_first_due_date.php',
+    data: { start_date, term_length, payment_frequency, number_of_payments },
+    success: (result) => $('#first_due_date').val(result),
+  });
 }
 
 function calculatePaymentNumber() {
-    var payment_frequency = $('#payment_frequency').val();
-    var term_length = $('#term_length').val();
+  const payment_frequency = $('#payment_frequency').val();
+  const term_length = Number($('#term_length').val() || 0);
 
-    let number_of_payments = 0;
+  let number_of_payments = 0;
 
-    switch (payment_frequency) {
-        case 'Lumpsum':
-            number_of_payments = 1;
-            break;
-        case 'Monthly':
-            number_of_payments = term_length;
-            break;
-        case 'Quarterly':
-            number_of_payments = checkIntegerDivision(term_length, 3);
-            break;
-        case 'Semi-Annual':
-            number_of_payments = checkIntegerDivision(term_length, 6);
-            break;
-        default:
-            number_of_payments = 0;
-    }
+  switch (payment_frequency) {
+    case 'Lumpsum':
+      number_of_payments = 1;
+      break;
+    case 'Monthly':
+      number_of_payments = term_length;
+      break;
+    case 'Quarterly':
+      number_of_payments = checkIntegerDivision(term_length, 3);
+      break;
+    case 'Semi-Annual':
+      number_of_payments = checkIntegerDivision(term_length, 6);
+      break;
+    default:
+      number_of_payments = 0;
+  }
 
-    $('#number_of_payments').val(number_of_payments);
-
-    calculateFirstDueDate();
+  $('#number_of_payments').val(number_of_payments);
+  calculateFirstDueDate();
 }
 
 function calculateFuelTotal() {
-    var diesel_fuel_quantity = parseCurrency($('#diesel_fuel_quantity').val());
-    var diesel_price_per_liter = parseCurrency($('#diesel_price_per_liter').val());
-    var regular_fuel_quantity = parseCurrency($('#regular_fuel_quantity').val());
-    var regular_price_per_liter = parseCurrency($('#regular_price_per_liter').val());
-    var premium_fuel_quantity = parseCurrency($('#premium_fuel_quantity').val());
-    var premium_price_per_liter = parseCurrency($('#premium_price_per_liter').val());
+  const diesel_fuel_quantity = parseCurrency($('#diesel_fuel_quantity').val());
+  const diesel_price_per_liter = parseCurrency($('#diesel_price_per_liter').val());
+  const regular_fuel_quantity = parseCurrency($('#regular_fuel_quantity').val());
+  const regular_price_per_liter = parseCurrency($('#regular_price_per_liter').val());
+  const premium_fuel_quantity = parseCurrency($('#premium_fuel_quantity').val());
+  const premium_price_per_liter = parseCurrency($('#premium_price_per_liter').val());
 
-    var total_diesel = diesel_fuel_quantity * diesel_price_per_liter;
-    var total_regular = regular_fuel_quantity * regular_price_per_liter;
-    var total_premium = premium_fuel_quantity * premium_price_per_liter;
-    var total_delivery_price = total_diesel + total_regular + total_premium;
+  const total_diesel = diesel_fuel_quantity * diesel_price_per_liter;
+  const total_regular = regular_fuel_quantity * regular_price_per_liter;
+  const total_premium = premium_fuel_quantity * premium_price_per_liter;
+  const total_delivery_price = total_diesel + total_regular + total_premium;
 
-    $('#diesel_total').text(parseCurrency(total_diesel.toFixed(2)).toLocaleString("en-US"));
-    $('#regular_total').text(parseCurrency(total_regular.toFixed(2)).toLocaleString("en-US"));
-    $('#premium_total').text(parseCurrency(total_premium.toFixed(2)).toLocaleString("en-US"));
-    $('#fuel_total').text(parseCurrency(total_delivery_price.toFixed(2)).toLocaleString("en-US"));
-    $('#delivery_price').val(parseCurrency(total_delivery_price.toFixed(2)).toLocaleString("en-US"));
+  $('#diesel_total').text(parseCurrency(total_diesel.toFixed(2)).toLocaleString('en-US'));
+  $('#regular_total').text(parseCurrency(total_regular.toFixed(2)).toLocaleString('en-US'));
+  $('#premium_total').text(parseCurrency(total_premium.toFixed(2)).toLocaleString('en-US'));
+  $('#fuel_total').text(parseCurrency(total_delivery_price.toFixed(2)).toLocaleString('en-US'));
+  $('#delivery_price').val(parseCurrency(total_delivery_price.toFixed(2)).toLocaleString('en-US'));
 
-    calculateTotalDeliveryPrice();
+  calculateTotalDeliveryPrice();
 }
 
-function calculateTotalDeliveryPrice(){
-    var delivery_price = parseCurrency($("#delivery_price").val());
-    var add_on_charge = parseCurrency($("#add_on_charge").val());
-    var nominal_discount = parseCurrency($("#nominal_discount").val());
+function calculateTotalDeliveryPrice() {
+  const delivery_price = parseCurrency($('#delivery_price').val());
+  const add_on_charge = parseCurrency($('#add_on_charge').val());
+  const nominal_discount = parseCurrency($('#nominal_discount').val());
 
-    var total = (delivery_price + add_on_charge) - nominal_discount;
+  let total = (delivery_price + add_on_charge) - nominal_discount;
+  if (total <= 0) total = 0;
 
-    if(total <= 0){
-        total = 0;
-    }
+  const formatted = parseFloat(total.toFixed(2)).toLocaleString('en-US');
 
-    $('#total_delivery_price').val(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-deliver-price').text(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
-    $('#total_delivery_price_label').val(total);
-    
-    $('#summary-deliver-price').text(parseFloat(total.toFixed(2)).toLocaleString("en-US"));
+  $('#total_delivery_price').val(formatted);
+  $('#summary-deliver-price').text(formatted);
+  $('#total_delivery_price_label').val(total);
 
-    calculatePricingComputation();
+  calculatePricingComputation();
 }
 
-function calculatePricingComputation(){
-    var term_length = parseCurrency($('#term_length').val());
-    var interest_rate = parseCurrency($('#interest_rate').val());
-    var delivery_price = parseCurrency($('#total_delivery_price').val());
-    var cost_of_accessories = parseCurrency($('#cost_of_accessories').val());
-    var reconditioning_cost = parseCurrency($('#reconditioning_cost').val());
-    var downpayment = parseCurrency($('#downpayment').val());
-    var number_of_payments = parseCurrency($('#number_of_payments').val());
+function calculatePricingComputation() {
+  let term_length = parseCurrency($('#term_length').val());
+  const interest_rate = parseCurrency($('#interest_rate').val());
+  const delivery_price = parseCurrency($('#total_delivery_price').val());
+  const cost_of_accessories = parseCurrency($('#cost_of_accessories').val());
+  const reconditioning_cost = parseCurrency($('#reconditioning_cost').val());
+  const downpayment = parseCurrency($('#downpayment').val());
+  const number_of_payments = parseCurrency($('#number_of_payments').val());
 
-    var payment_frequency = $('#payment_frequency').val();
+  const payment_frequency = $('#payment_frequency').val();
 
-    if(payment_frequency == 'Lumpsum'){
-        term_length = 1;
-    }
-    else if(payment_frequency == 'Semi-Annual' || payment_frequency == 'Quarterly'){
-        term_length = (number_of_payments);
-    }
+  if (payment_frequency === 'Lumpsum') term_length = 1;
+  if (payment_frequency === 'Semi-Annual' || payment_frequency === 'Quarterly') term_length = number_of_payments;
 
-    var subtotal = delivery_price + cost_of_accessories + reconditioning_cost;
-    var outstanding_balance = subtotal - downpayment;
-    var pn_amount = outstanding_balance * (1 + (interest_rate/100));
-    var repayment_amount = Math.ceil(pn_amount / term_length);
-    var downpayment_percent = (downpayment / delivery_price) * 100;
+  const subtotal = delivery_price + cost_of_accessories + reconditioning_cost;
+  const outstanding_balance = subtotal - downpayment;
+  const pn_amount = outstanding_balance * (1 + (interest_rate / 100));
+  const repayment_amount = Math.ceil(pn_amount / (term_length || 1));
+  const downpayment_percent = delivery_price ? (downpayment / delivery_price) * 100 : 0;
 
-    $('#subtotal').val(parseCurrency(subtotal.toFixed(2)).toLocaleString("en-US"));
-    $('#outstanding_balance').val(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
+  $('#subtotal').val(parseCurrency(subtotal.toFixed(2)).toLocaleString('en-US'));
+  $('#outstanding_balance').val(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString('en-US'));
 
-    $('#amount_financed').val(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
-    $('#pn_amount').val(parseCurrency(pn_amount.toFixed(2)).toLocaleString("en-US"));
-    $('#repayment_amount').val(parseCurrency(repayment_amount.toFixed(2)).toLocaleString("en-US"));
+  $('#amount_financed').val(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString('en-US'));
+  $('#pn_amount').val(parseCurrency(pn_amount.toFixed(2)).toLocaleString('en-US'));
+  $('#repayment_amount').val(parseCurrency(repayment_amount.toFixed(2)).toLocaleString('en-US'));
 
-    $('#summary-repayment-amount').text(parseCurrency(repayment_amount.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-outstanding-balance').text(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-sub-total').text(parseCurrency(subtotal.toFixed(2)).toLocaleString("en-US"));
-
-    $('#summary-cost-of-accessories').text(parseFloat(cost_of_accessories.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-reconditioning-cost').text(parseFloat(reconditioning_cost.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-downpayment').text(parseFloat(downpayment.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-repayment-amount').text(parseFloat(repayment_amount.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-interest-rate').text(parseFloat(interest_rate.toFixed(2)).toLocaleString("en-US") + '%');
-    $('#summary-outstanding-balance').text(parseFloat(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-sub-total').text(parseFloat(subtotal.toFixed(2)).toLocaleString("en-US"));
-    $('#downpayment-percent').text(parseFloat(downpayment_percent.toFixed(2)).toLocaleString("en-US"));
+  $('#summary-cost-of-accessories').text(parseFloat(cost_of_accessories.toFixed(2)).toLocaleString('en-US'));
+  $('#summary-reconditioning-cost').text(parseFloat(reconditioning_cost.toFixed(2)).toLocaleString('en-US'));
+  $('#summary-downpayment').text(parseFloat(downpayment.toFixed(2)).toLocaleString('en-US'));
+  $('#summary-repayment-amount').text(parseFloat(repayment_amount.toFixed(2)).toLocaleString('en-US'));
+  $('#summary-interest-rate').text(`${parseFloat(interest_rate.toFixed(2)).toLocaleString('en-US')}%`);
+  $('#summary-outstanding-balance').text(parseFloat(outstanding_balance.toFixed(2)).toLocaleString('en-US'));
+  $('#summary-sub-total').text(parseFloat(subtotal.toFixed(2)).toLocaleString('en-US'));
+  $('#downpayment-percent').text(parseFloat(downpayment_percent.toFixed(2)).toLocaleString('en-US'));
 }
 
-function calculateRenewalAmount(){
-    var product_type = $('#product_type').val();
-    var product_category = $('#product_category').val();
-   
-    if(product_type == 'Refinancing'){
-        var delivery_price = parseCurrency($('#insurance_coverage').val()) || 0;
+function calculateRenewalAmount() {
+  const productType = $('#product_type').val();
+  const productCategory = $('#product_category').val();
 
-        if(delivery_price > 0){
-            var second_year_coverage = delivery_price * 0.9;
-            var third_year_coverage = second_year_coverage * 0.9;
-            var fourth_year_coverage = third_year_coverage * 0.9;
-            
-            if($('#compute_second_year').is(':checked')) {
-                $('#insurance_coverage_second_year').val(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-second-year').text(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                var premium = Math.ceil((((second_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
-        
-                $('#insurance_premium_second_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-premium-second-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+  const fmt = (n) => (parseCurrency(Number(n).toFixed(2)) || 0).toLocaleString('en-US');
+  const money = (selector) => parseCurrency($(selector).val()) || 0;
 
-                $('#insurance_premium_second_year').attr('readonly', true); 
-                $('#insurance_coverage_second_year').attr('readonly', true); 
-            }
-            else{
-                $('#insurance_coverage_second_year').val(0);
-                $('#insurance_premium_second_year').val(0);
-                
-                $('#insurance_premium_second_year').attr('readonly', true); 
-                $('#insurance_coverage_second_year').attr('readonly', true); 
-            }
-        
-            if($('#compute_third_year').is(':checked')) {
-                $('#insurance_coverage_third_year').val(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-third-year').text(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                var premium = Math.ceil((((third_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
-        
-                    $('#insurance_premium_third_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-third-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
+  const setYear = (year, { coverage = 0, premium = 0, readonly = true, updateSummary = true } = {}) => {
+    $(`#insurance_coverage_${year}_year`).val(coverage ? fmt(coverage) : 0);
+    $(`#insurance_premium_${year}_year`).val(premium ? fmt(premium) : 0);
 
-                    $('#insurance_coverage_third_year').attr('readonly', true); 
-                    $('#insurance_premium_third_year').attr('readonly', true);
-            }
-            else{
-                $('#insurance_coverage_third_year').val(0);
-                $('#insurance_premium_third_year').val(0);
-
-                $('#insurance_coverage_third_year').attr('readonly', true); 
-                $('#insurance_premium_third_year').attr('readonly', true);
-            }
-        
-            if($('#compute_fourth_year').is(':checked')) {
-                $('#insurance_coverage_fourth_year').val(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-fourth-year').text(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                var premium = Math.ceil((((fourth_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
-        
-                    $('#insurance_premium_fourth_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-fourth-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-
-                    $('#insurance_coverage_fourth_year').attr('readonly', true); 
-                    $('#insurance_premium_fourth_year').attr('readonly', true);
-            }
-            else{
-                $('#insurance_coverage_fourth_year').val(0);
-                $('#insurance_premium_fourth_year').val(0);
-
-                $('#insurance_coverage_fourth_year').attr('readonly', true); 
-                $('#insurance_premium_fourth_year').attr('readonly', true);
-            }
-        }
-        else{
-            $('#insurance_coverage_second_year').val(0);
-            $('#insurance_premium_second_year').val(0);
-            $('#insurance_coverage_third_year').val(0);
-            $('#insurance_premium_third_year').val(0);
-            $('#insurance_coverage_fourth_year').val(0);
-            $('#insurance_premium_fourth_year').val(0);
-    
-            $('#summary-insurance-coverage-second-year').text(0);
-            $('#summary-insurance-premium-second-year').text(0);
-            
-            $('#summary-insurance-coverage-third-year').text(0);
-            $('#summary-insurance-premium-third-year').text(0);
-            
-            $('#summary-insurance-coverage-fourth-year').text(0);
-            $('#summary-insurance-premium-fourth-year').text(0);
-        }
-    }
-    else if(product_type == 'Restructure'){
-        if($('#compute_second_year').is(':checked')) {
-            $('#insurance_premium_second_year').attr('readonly', false);
-            $('#insurance_coverage_second_year').attr('readonly', false);
-        }
-        else{            
-            $('#insurance_coverage_second_year').attr('readonly', true); 
-            $('#insurance_premium_second_year').attr('readonly', true);
-        }
-    
-        if($('#compute_third_year').is(':checked')) {
-            $('#insurance_premium_third_year').attr('readonly', false); 
-            $('#insurance_coverage_third_year').attr('readonly', false); 
-        }
-        else{
-            $('#insurance_coverage_third_year').attr('readonly', true); 
-            $('#insurance_premium_third_year').attr('readonly', true);
-        }
-    
-        if($('#compute_fourth_year').is(':checked')) {
-            $('#insurance_premium_fourth_year').attr('readonly', false); 
-            $('#insurance_coverage_fourth_year').attr('readonly', false); 
-        }
-        else{            
-            $('#insurance_coverage_fourth_year').attr('readonly', true); 
-            $('#insurance_premium_fourth_year').attr('readonly', true);
-        }
-    }
-    else{
-        var delivery_price = parseCurrency($('#insurance_coverage').val()) || 0;
-        var created_date_str = $('#created-date-summary').val();
-        var multiplier = 0.030;
-         // --- Added logic to set default date if input is empty ---
-        if (!created_date_str) {
-            // Get the current date object
-            var now = new Date();
-            
-            // Format the current date as "MM/DD/YYYY" for consistency
-            // Get month (0-11), day (1-31), and year
-            var month = now.getMonth() + 1; // getMonth() is 0-indexed
-            var day = now.getDate();
-            var year = now.getFullYear();
-            
-            // Pad month/day with leading zero if necessary and format
-            created_date_str = (month < 10 ? '0' : '') + month + '/' +
-                            (day < 10 ? '0' : '') + day + '/' +
-                            year;
-        }
-
-        // Convert the string "MM/DD/YYYY" to a JavaScript Date object
-        var created_date = new Date(created_date_str).getTime();
-
-        // Create the comparison date: midnight at the start of Oct 21, 2025
-        var cutoff_date = new Date('10/22/2025').getTime(); 
-
-        // Check if the created date is strictly BEFORE the cutoff date
-        if(created_date < cutoff_date){
-            multiplier = 0.025;
-        }
-
-        if(delivery_price > 0){
-            var second_year_coverage = delivery_price * 0.8;
-            var third_year_coverage = second_year_coverage * 0.9;
-            var fourth_year_coverage = third_year_coverage * 0.9;
-            
-            if($('#compute_second_year').is(':checked')) {
-                $('#insurance_coverage_second_year').val(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-second-year').text(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                if(product_category == '1' || product_category == '3'){
-                    var premium = Math.ceil((((second_year_coverage * multiplier) + 2700) * 1.2526) + 1300);
-        
-                    $('#insurance_premium_second_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-second-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else if(product_category == '2'){
-                    var premium = Math.ceil((second_year_coverage * 0.025) * 1.2526);
-        
-                    $('#insurance_premium_second_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-second-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else{
-                    $('#insurance_premium_second_year').val(0);
-                    $('#insurance_premium_second_year').attr('readonly', false);
-                    $('#insurance_coverage_second_year').attr('readonly', false);
-                }
-            }
-            else{
-                $('#insurance_coverage_second_year').val(0);
-                $('#insurance_premium_second_year').val(0);
-                
-                $('#insurance_coverage_second_year').attr('readonly', true); 
-                $('#insurance_premium_second_year').attr('readonly', true);
-            }
-        
-            if($('#compute_third_year').is(':checked')) {
-                $('#insurance_coverage_third_year').val(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-third-year').text(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                if(product_category == '1' || product_category == '3'){
-                    var premium = Math.ceil((((third_year_coverage * multiplier) + 2700) * 1.2526) + 1300);
-        
-                    $('#insurance_premium_third_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-third-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else if(product_category == '2'){
-                    var premium = Math.ceil((third_year_coverage * 0.025) * 1.2526);
-        
-                    $('#insurance_premium_third_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-third-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else{
-                    $('#insurance_premium_third_year').val(0);
-                    $('#insurance_premium_third_year').attr('readonly', false); 
-                    $('#insurance_coverage_third_year').attr('readonly', false); 
-                }
-            }
-            else{
-                $('#insurance_coverage_third_year').val(0);
-                $('#insurance_premium_third_year').val(0);
-
-                $('#insurance_coverage_third_year').attr('readonly', true); 
-                $('#insurance_premium_third_year').attr('readonly', true);
-            }
-        
-            if($('#compute_fourth_year').is(':checked')) {
-                $('#insurance_coverage_fourth_year').val(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-fourth-year').text(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                if(product_category == '1' || product_category == '3'){
-                    var premium = Math.ceil((((fourth_year_coverage * multiplier) + 2700) * 1.2526) + 1300);
-        
-                    $('#insurance_premium_fourth_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-fourth-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else if(product_category == '2'){
-                    var premium = Math.ceil((fourth_year_coverage * 0.025) * 1.2526);
-        
-                    $('#insurance_premium_fourth_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-fourth-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else{
-                    $('#insurance_premium_fourth_year').val(0);
-                    $('#insurance_premium_fourth_year').attr('readonly', false); 
-                    $('#insurance_coverage_fourth_year').attr('readonly', false); 
-                }
-            }
-            else{
-                $('#insurance_coverage_fourth_year').val(0);
-                $('#insurance_premium_fourth_year').val(0);
-                
-                $('#insurance_coverage_fourth_year').attr('readonly', true); 
-                $('#insurance_premium_fourth_year').attr('readonly', true);
-            }
-        }
-        else{
-            $('#insurance_coverage_second_year').val(0);
-            $('#insurance_premium_second_year').val(0);
-            $('#insurance_coverage_third_year').val(0);
-            $('#insurance_premium_third_year').val(0);
-            $('#insurance_coverage_fourth_year').val(0);
-            $('#insurance_premium_fourth_year').val(0);
-    
-            $('#summary-insurance-coverage-second-year').text(0);
-            $('#summary-insurance-premium-second-year').text(0);
-            
-            $('#summary-insurance-coverage-third-year').text(0);
-            $('#summary-insurance-premium-third-year').text(0);
-            
-            $('#summary-insurance-coverage-fourth-year').text(0);
-            $('#summary-insurance-premium-fourth-year').text(0);
-        }
-    }
-}
-
-function calculateRenewalAmount(){
-    var product_type = $('#product_type').val();
-    var product_category = $('#product_category').val();
-   
-    if(product_type == 'Refinancing'){
-        var delivery_price = parseCurrency($('#insurance_coverage').val()) || 0;
-
-        if(delivery_price > 0){
-            var second_year_coverage = delivery_price * 0.9;
-            var third_year_coverage = second_year_coverage * 0.9;
-            var fourth_year_coverage = third_year_coverage * 0.9;
-            
-            if($('#compute_second_year').is(':checked')) {
-                $('#insurance_coverage_second_year').val(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-second-year').text(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                var premium = Math.ceil((((second_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
-        
-                $('#insurance_premium_second_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-premium-second-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-
-                $('#insurance_premium_second_year').attr('readonly', true); 
-                $('#insurance_coverage_second_year').attr('readonly', true); 
-            }
-            else{
-                $('#insurance_coverage_second_year').val(0);
-                $('#insurance_premium_second_year').val(0);
-                
-                $('#insurance_premium_second_year').attr('readonly', true); 
-                $('#insurance_coverage_second_year').attr('readonly', true); 
-            }
-        
-            if($('#compute_third_year').is(':checked')) {
-                $('#insurance_coverage_third_year').val(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-third-year').text(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                var premium = Math.ceil((((third_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
-        
-                    $('#insurance_premium_third_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-third-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-
-                    $('#insurance_coverage_third_year').attr('readonly', true); 
-                    $('#insurance_premium_third_year').attr('readonly', true);
-            }
-            else{
-                $('#insurance_coverage_third_year').val(0);
-                $('#insurance_premium_third_year').val(0);
-
-                $('#insurance_coverage_third_year').attr('readonly', true); 
-                $('#insurance_premium_third_year').attr('readonly', true);
-            }
-        
-            if($('#compute_fourth_year').is(':checked')) {
-                $('#insurance_coverage_fourth_year').val(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-fourth-year').text(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                var premium = Math.ceil((((fourth_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
-        
-                    $('#insurance_premium_fourth_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-fourth-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-
-                    $('#insurance_coverage_fourth_year').attr('readonly', true); 
-                    $('#insurance_premium_fourth_year').attr('readonly', true);
-            }
-            else{
-                $('#insurance_coverage_fourth_year').val(0);
-                $('#insurance_premium_fourth_year').val(0);
-
-                $('#insurance_coverage_fourth_year').attr('readonly', true); 
-                $('#insurance_premium_fourth_year').attr('readonly', true);
-            }
-        }
-        else{
-            $('#insurance_coverage_second_year').val(0);
-            $('#insurance_premium_second_year').val(0);
-            $('#insurance_coverage_third_year').val(0);
-            $('#insurance_premium_third_year').val(0);
-            $('#insurance_coverage_fourth_year').val(0);
-            $('#insurance_premium_fourth_year').val(0);
-    
-            $('#summary-insurance-coverage-second-year').text(0);
-            $('#summary-insurance-premium-second-year').text(0);
-            
-            $('#summary-insurance-coverage-third-year').text(0);
-            $('#summary-insurance-premium-third-year').text(0);
-            
-            $('#summary-insurance-coverage-fourth-year').text(0);
-            $('#summary-insurance-premium-fourth-year').text(0);
-        }
-    }
-    else if(product_type == 'Restructure'){
-        if($('#compute_second_year').is(':checked')) {
-            $('#insurance_premium_second_year').attr('readonly', false);
-            $('#insurance_coverage_second_year').attr('readonly', false);
-        }
-        else{            
-            $('#insurance_coverage_second_year').attr('readonly', true); 
-            $('#insurance_premium_second_year').attr('readonly', true);
-        }
-    
-        if($('#compute_third_year').is(':checked')) {
-            $('#insurance_premium_third_year').attr('readonly', false); 
-            $('#insurance_coverage_third_year').attr('readonly', false); 
-        }
-        else{
-            $('#insurance_coverage_third_year').attr('readonly', true); 
-            $('#insurance_premium_third_year').attr('readonly', true);
-        }
-    
-        if($('#compute_fourth_year').is(':checked')) {
-            $('#insurance_premium_fourth_year').attr('readonly', false); 
-            $('#insurance_coverage_fourth_year').attr('readonly', false); 
-        }
-        else{            
-            $('#insurance_coverage_fourth_year').attr('readonly', true); 
-            $('#insurance_premium_fourth_year').attr('readonly', true);
-        }
-    }
-    else{
-        var delivery_price = parseCurrency($('#insurance_coverage').val()) || 0;
-        var created_date_str = $('#created-date-summary').val();
-        var multiplier = 0.030;
-         // --- Added logic to set default date if input is empty ---
-        if (!created_date_str) {
-            // Get the current date object
-            var now = new Date();
-            
-            // Format the current date as "MM/DD/YYYY" for consistency
-            // Get month (0-11), day (1-31), and year
-            var month = now.getMonth() + 1; // getMonth() is 0-indexed
-            var day = now.getDate();
-            var year = now.getFullYear();
-            
-            // Pad month/day with leading zero if necessary and format
-            created_date_str = (month < 10 ? '0' : '') + month + '/' +
-                            (day < 10 ? '0' : '') + day + '/' +
-                            year;
-        }
-
-        // Convert the string "MM/DD/YYYY" to a JavaScript Date object
-        var created_date = new Date(created_date_str).getTime();
-
-        // Create the comparison date: midnight at the start of Oct 21, 2025
-        var cutoff_date = new Date('10/22/2025').getTime(); 
-
-        // Check if the created date is strictly BEFORE the cutoff date
-        if(created_date < cutoff_date){
-            multiplier = 0.025;
-        }
-
-        if(delivery_price > 0){
-            var second_year_coverage = delivery_price * 0.8;
-            var third_year_coverage = second_year_coverage * 0.9;
-            var fourth_year_coverage = third_year_coverage * 0.9;
-            
-            if($('#compute_second_year').is(':checked')) {
-                $('#insurance_coverage_second_year').val(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-second-year').text(parseCurrency(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                if(product_category == '1' || product_category == '3'){
-                    var premium = Math.ceil((((second_year_coverage * multiplier) + 2700) * 1.2526) + 1300);
-        
-                    $('#insurance_premium_second_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-second-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else if(product_category == '2'){
-                    var premium = Math.ceil((second_year_coverage * 0.025) * 1.2526);
-        
-                    $('#insurance_premium_second_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-second-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else{
-                    $('#insurance_premium_second_year').val(0);
-                    $('#insurance_premium_second_year').attr('readonly', false);
-                    $('#insurance_coverage_second_year').attr('readonly', false);
-                }
-            }
-            else{
-                $('#insurance_coverage_second_year').val(0);
-                $('#insurance_premium_second_year').val(0);
-                
-                $('#insurance_coverage_second_year').attr('readonly', true); 
-                $('#insurance_premium_second_year').attr('readonly', true);
-            }
-        
-            if($('#compute_third_year').is(':checked')) {
-                $('#insurance_coverage_third_year').val(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-third-year').text(parseCurrency(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                if(product_category == '1' || product_category == '3'){
-                    var premium = Math.ceil((((third_year_coverage * multiplier) + 2700) * 1.2526) + 1300);
-        
-                    $('#insurance_premium_third_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-third-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else if(product_category == '2'){
-                    var premium = Math.ceil((third_year_coverage * 0.025) * 1.2526);
-        
-                    $('#insurance_premium_third_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-third-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else{
-                    $('#insurance_premium_third_year').val(0);
-                    $('#insurance_premium_third_year').attr('readonly', false); 
-                    $('#insurance_coverage_third_year').attr('readonly', false); 
-                }
-            }
-            else{
-                $('#insurance_coverage_third_year').val(0);
-                $('#insurance_premium_third_year').val(0);
-
-                $('#insurance_coverage_third_year').attr('readonly', true); 
-                $('#insurance_premium_third_year').attr('readonly', true);
-            }
-        
-            if($('#compute_fourth_year').is(':checked')) {
-                $('#insurance_coverage_fourth_year').val(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
-                $('#summary-insurance-coverage-fourth-year').text(parseCurrency(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
-        
-                if(product_category == '1' || product_category == '3'){
-                    var premium = Math.ceil((((fourth_year_coverage * multiplier) + 2700) * 1.2526) + 1300);
-        
-                    $('#insurance_premium_fourth_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-fourth-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else if(product_category == '2'){
-                    var premium = Math.ceil((fourth_year_coverage * 0.025) * 1.2526);
-        
-                    $('#insurance_premium_fourth_year').val(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                    $('#summary-insurance-premium-fourth-year').text(parseCurrency(premium.toFixed(2)).toLocaleString("en-US"));
-                }
-                else{
-                    $('#insurance_premium_fourth_year').val(0);
-                    $('#insurance_premium_fourth_year').attr('readonly', false); 
-                    $('#insurance_coverage_fourth_year').attr('readonly', false); 
-                }
-            }
-            else{
-                $('#insurance_coverage_fourth_year').val(0);
-                $('#insurance_premium_fourth_year').val(0);
-                
-                $('#insurance_coverage_fourth_year').attr('readonly', true); 
-                $('#insurance_premium_fourth_year').attr('readonly', true);
-            }
-        }
-        else{
-            $('#insurance_coverage_second_year').val(0);
-            $('#insurance_premium_second_year').val(0);
-            $('#insurance_coverage_third_year').val(0);
-            $('#insurance_premium_third_year').val(0);
-            $('#insurance_coverage_fourth_year').val(0);
-            $('#insurance_premium_fourth_year').val(0);
-    
-            $('#summary-insurance-coverage-second-year').text(0);
-            $('#summary-insurance-premium-second-year').text(0);
-            
-            $('#summary-insurance-coverage-third-year').text(0);
-            $('#summary-insurance-premium-third-year').text(0);
-            
-            $('#summary-insurance-coverage-fourth-year').text(0);
-            $('#summary-insurance-premium-fourth-year').text(0);
-        }
-    }
-}
-
-function calculateTotalOtherCharges(){
-    var productType = $('#product_type').val();
-
-    if(productType != 'Fuel' && productType != 'Parts' && productType != 'Repair' && productType != 'Rental'){
-        var amount_financed = parseCurrency($("#amount_financed").val());
-        var pn_amount = parseCurrency($("#pn_amount").val());
-        var product_category = $('#product_category').val();
-        var created_date_str = $('#created-date-summary').val();
-        var multiplier = 0.030;
-
-         // --- Added logic to set default date if input is empty ---
-        if (!created_date_str) {
-            // Get the current date object
-            var now = new Date();
-            
-            // Format the current date as "MM/DD/YYYY" for consistency
-            // Get month (0-11), day (1-31), and year
-            var month = now.getMonth() + 1; // getMonth() is 0-indexed
-            var day = now.getDate();
-            var year = now.getFullYear();
-            
-            // Pad month/day with leading zero if necessary and format
-            created_date_str = (month < 10 ? '0' : '') + month + '/' +
-                            (day < 10 ? '0' : '') + day + '/' +
-                            year;
-        }
-
-        // Convert the string "MM/DD/YYYY" to a JavaScript Date object
-        var created_date = new Date(created_date_str).getTime();
-
-        // Create the comparison date: midnight at the start of Oct 21, 2025
-        var cutoff_date = new Date('10/22/2025').getTime(); 
-
-        // Check if the created date is strictly BEFORE the cutoff date
-        if(created_date < cutoff_date){
-            multiplier = 0.025;
-        }
-    
-        var insurance_coverage = parseCurrency($("#insurance_coverage").val());
-        
-        if(product_category == '1' || product_category == '3' || productType == 'Brand New'){
-            var insurance_premium = Math.ceil((((insurance_coverage * multiplier) + 2700) * 1.2526) + 1300);
-        }
-        else if(product_category == '2'){
-            var insurance_premium = Math.ceil((insurance_coverage * 0.025) * 1.2526);
-        }
-        else{
-           var insurance_premium = 0;
-        }
-
-        if(productType == 'Refinancing' || productType == 'Restructure'){
-            var insurance_premium = parseCurrency($("#insurance_premium").val());
-        }
-
-        var handling_fee = (amount_financed * 0.035) + 6000;
-        var transaction_fee = (amount_financed * 0.01) + 7000;
-        var doc_stamp_tax = Math.ceil(((((amount_financed-5000)/5000)*20)+40)+(pn_amount/200*1.5));
-    
-        $("#insurance_premium").val(parseCurrency(insurance_premium.toFixed(2)).toLocaleString("en-US"));
-        $("#handling_fee").val(parseCurrency(handling_fee.toFixed(2)).toLocaleString("en-US"));
-        $("#transaction_fee").val(parseCurrency(transaction_fee.toFixed(2)).toLocaleString("en-US"));
-        $("#doc_stamp_tax").val(parseCurrency(doc_stamp_tax.toFixed(2)).toLocaleString("en-US"));    
-    
-        var transfer_fee = parseCurrency($("#transfer_fee").val());
-        var insurance_premium_discount = parseCurrency($("#insurance_premium_discount").val());
-        var handling_fee_discount = parseCurrency($("#handling_fee_discount").val());
-        var registration_fee = parseCurrency($("#registration_fee").val());
-        var doc_stamp_tax_discount = parseCurrency($("#doc_stamp_tax_discount").val());
-        var transaction_fee_discount = parseCurrency($("#transaction_fee_discount").val());
-        var transfer_fee_discount = parseCurrency($("#transfer_fee_discount").val());
-    
-        var insurance_premium_subtotal = insurance_premium - insurance_premium_discount;
-        var handling_fee_subtotal = handling_fee - handling_fee_discount;
-        var doc_stamp_tax_subtotal = doc_stamp_tax - doc_stamp_tax_discount;
-        var transaction_fee_subtotal = transaction_fee - transaction_fee_discount;
-        var transfer_fee_subtotal = transfer_fee - transfer_fee_discount;
-    
-        $('#insurance_premium_subtotal').val(parseCurrency(insurance_premium_subtotal.toFixed(2)).toLocaleString("en-US"));
-        $('#handling_fee_subtotal').val(handling_fee_subtotal.toFixed(2));
-        $('#doc_stamp_tax_subtotal').val(doc_stamp_tax_subtotal.toFixed(2));
-        $('#transaction_fee_subtotal').val(parseCurrency(transaction_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
-        $('#transfer_fee_subtotal').val(transfer_fee_subtotal.toFixed(2));
-    
-        var total = insurance_premium_subtotal + handling_fee_subtotal + transfer_fee_subtotal + registration_fee + doc_stamp_tax_subtotal + transaction_fee_subtotal;
-    
-        $('#total_other_charges').val(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
-    
-        $('#summary-insurance-coverage').text(parseCurrency($("#insurance_coverage").val()).toLocaleString("en-US"));
-        $('#summary-insurance-premium').text(parseCurrency(insurance_premium_subtotal.toFixed(2)).toLocaleString("en-US"));
-        $('#summary-handing-fee').text(parseCurrency(handling_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
-        $('#summary-transfer-fee').text(parseCurrency(transfer_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
-        $('#summary-registration-fee').text(parseCurrency(registration_fee.toFixed(2)).toLocaleString("en-US"));
-        $('#summary-doc-stamp-tax').text(parseCurrency(doc_stamp_tax_subtotal.toFixed(2)).toLocaleString("en-US"));
-        $('#summary-transaction-fee').text(parseCurrency(transaction_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
-        $('#summary-other-charges-total').text(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
-    }
-    else{
-        $("#insurance_premium").val('0.00');
-        $("#handling_fee").val('0.00');
-        $("#transfer_fee").val('0.00');
-        $("#transaction_fee").val('0.00');
-        $("#doc_stamp_tax").val('0.00');
-
-        $('#insurance_premium_subtotal').val('0.00');
-        $('#handling_fee_subtotal').val('0.00');
-        $('#doc_stamp_tax_subtotal').val('0.00');
-        $('#transaction_fee_subtotal').val('0.00');
-        $('#transfer_fee_subtotal').val('0.00');
-
-        $('#summary-insurance-coverage').text('0.00');
-        $('#summary-insurance-premium').text('0.00');
-        $('#summary-handing-fee').text('0.00');
-        $('#summary-transfer-fee').text('0.00');
-        $('#summary-registration-fee').text('0.00');
-        $('#summary-doc-stamp-tax').text('0.00');
-        $('#summary-transaction-fee').text('0.00');
-        $('#summary-other-charges-total').text('0.00');
-    }    
-}
-
-function traverseTabs(direction) {
-    const $tabs = $('.nav-link');
-    const $active = $tabs.filter('.active');
-    const currentStep = $active.data('step');
-
-    const totalTabs = $tabs.length;
-    const sales_proposal_status = $('#sales_proposal_status').val();
-    const sales_proposal_type   = $('#sales_proposal_type').val();
-    const product_type          = $('#product_type').val();
-
-    // --- Helpers ---
-    const toggleButton = (selector, show) => {
-        const $el = $(selector);
-        if ($el.length) $el.toggleClass('d-none', !show);
-    };
-
-    const validateAndSubmit = (formSelector) => {
-        const $form = $(formSelector);
-        if (!$form.length) return true;
-
-        const hasEnabledInputs = $form.find(':input:disabled').length > 0;
-        if (hasEnabledInputs) return true;
-
-        if (typeof $form.valid === 'function') {
-            if (!$form.valid()) {
-                return false; // stop navigation
-            }
-        }
-
-        // Submit only AFTER validation passes
-        $form.trigger('submit');
-        return true;
-    };
-
-    const findNextVisibleIndex = (startIndex, dir) => {
-        let index = startIndex;
-        const increment = dir === 'next' ? 1 : -1;
-        while (true) {
-            index = (index + increment + totalTabs) % totalTabs;
-            if (!$tabs.eq(index).hasClass('d-none')) return index;
-            if (index === startIndex) break;
-        }
-        return startIndex;
-    };
-
-    // --- Step Configuration (examples) ---
-    const stepConfig = {
-        proposal: { form: '#sales-proposal-form' },
-        unit: { form: '#sales-proposal-unit-details-form' },
-        fuel: { form: '#sales-proposal-fuel-details-form' },
-        refinancing: {
-            form: '#sales-proposal-refinancing-details-form',
-            onEnter: () => {
-                const type = product_type;
-                $('#sales-proposal-tab-4').text(
-                    type === 'Brand New' ? 'Brand New Details' :
-                    type === 'Restructure' ? 'Restructure Details' :
-                    'Refinancing Details'
-                );
-            }
-        },
-        pricing: { form: '#sales-proposal-pricing-computation-form' },
-        otherCharges: { form: '#sales-proposal-other-charges-form' },
-        renewal: { form: '#sales-proposal-renewal-amount-form' },
-        otherProduct: { form: '#sales-proposal-other-product-details-form' },
-        summary: {
-            onEnter: () => {
-                [
-                    '#tag-for-initial-approval-button',
-                    '#tag-for-review-button',
-                    '#sales-proposal-initial-approval-button',
-                    '#sales-proposal-final-approval-button',
-                    '#sales-proposal-reject-button',
-                    '#sales-proposal-cancel-button',
-                    '#for-ci-sales-proposal-button',
-                    '#sales-proposal-set-to-draft-button',
-                    '#for-dr-sales-proposal-button',
-                    '#approve-installment-sales-button',
-                    '#print-button'
-                ].forEach(sel => toggleButton(sel, true));
-            },
-            onLeave: () => {
-                [
-                    '#tag-for-initial-approval-button',
-                    '#tag-for-review-button',
-                    '#sales-proposal-initial-approval-button',
-                    '#sales-proposal-final-approval-button',
-                    '#sales-proposal-reject-button',
-                    '#sales-proposal-cancel-button',
-                    '#for-ci-sales-proposal-button',
-                    '#sales-proposal-set-to-draft-button',
-                    '#for-dr-sales-proposal-button',
-                    '#approve-installment-sales-button',
-                    '#summary-print-button',
-                    '#summary-print-button',
-                    '#print-button'
-                ].forEach(sel => toggleButton(sel, false));
-            }
-        },
-        jobOrder: {
-            onEnter: () => toggleButton('#add-sales-proposal-job-order-button', true),
-            onLeave: () => toggleButton('#add-sales-proposal-job-order-button', false)
-        },
-        approvalCondition: {
-            onEnter: () => toggleButton('#add-sales-proposal-condition-button', true),
-            onLeave: () => toggleButton('#add-sales-proposal-condition-button', false)
-        },
-        additionalJobOrder: {
-            onEnter: () => toggleButton('#add-sales-proposal-additional-job-order-button', true),
-            onLeave: () => toggleButton('#add-sales-proposal-additional-job-order-button', false)
-        },
-        deposit: {
-            onEnter: () => toggleButton('#add-sales-proposal-deposit-amount-button', true),
-            onLeave: () => toggleButton('#add-sales-proposal-deposit-amount-button', false)
-        },
-        gatepass: {
-            onEnter: () => toggleButton('#gatepass-print-button', true),
-            onLeave: () => toggleButton('#gatepass-print-button', false)
-        },
-        ciReport: {
-            onEnter: () => toggleButton('#complete-ci-button', true),
-            onLeave: () => toggleButton('#complete-ci-button', false)
-        },
-        online: {
-            onEnter: () => toggleButton('#online-print-button', true),
-            onLeave: () => toggleButton('#online-print-button', false)
-        },
-        authorization: {
-            onEnter: () => toggleButton('#authorization-print-button', true),
-            onLeave: () => toggleButton('#authorization-print-button', false)
-        },
-        promissory: {
-            onEnter: () => toggleButton('#pn-print-button', true),
-            onLeave: () => toggleButton('#pn-print-button', false)
-        },
-        disclosure: {
-            onEnter: () => toggleButton('#disclosure-print-button', true),
-            onLeave: () => toggleButton('#disclosure-print-button', false)
-        },
-        insurance: {
-            onEnter: () => toggleButton('#insurance-request-print-button', true),
-            onLeave: () => toggleButton('#insurance-request-print-button', false)
-        }
-    };
-
-    // --- Figure out next tab ---
-    const currentIndex = $tabs.index($active);
-    const nextIndex = (direction === 'next' || direction === 'previous')
-        ? findNextVisibleIndex(currentIndex, direction)
-        : (direction === 'first' ? 0 : totalTabs - 1);
-
-    const $nextTab = $tabs.eq(nextIndex);
-    const nextStep = $nextTab.data('step');
-
-    // --- Validate current form if moving forward ---
-    if (direction === 'next' && stepConfig[currentStep]?.form) {
-        if (!validateAndSubmit(stepConfig[currentStep].form)) return;
+    if (updateSummary) {
+      $(`#summary-insurance-coverage-${year}-year`).text(coverage ? fmt(coverage) : 0);
+      $(`#summary-insurance-premium-${year}-year`).text(premium ? fmt(premium) : 0);
     }
 
-    // --- Run leave hooks ---
-    if (stepConfig[currentStep]?.onLeave) {
-        stepConfig[currentStep].onLeave();
+    $(`#insurance_coverage_${year}_year`).attr('readonly', !!readonly);
+    $(`#insurance_premium_${year}_year`).attr('readonly', !!readonly);
+  };
+
+  const resetAllYears = () => {
+    setYear('second', { coverage: 0, premium: 0, readonly: true });
+    setYear('third', { coverage: 0, premium: 0, readonly: true });
+    setYear('fourth', { coverage: 0, premium: 0, readonly: true });
+  };
+
+  const computeChecked = (selector) => $(selector).is(':checked');
+
+  const createdDateMillis = () => {
+    let s = $('#created-date-summary').val();
+
+    if (!s) {
+      const now = new Date();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const yyyy = now.getFullYear();
+      s = `${mm}/${dd}/${yyyy}`;
     }
 
-    // --- Switch tab ---
-    $nextTab.tab('show');
+    return new Date(s).getTime();
+  };
 
-    // --- Run enter hooks ---
-    if (stepConfig[nextStep]?.onEnter) {
-        stepConfig[nextStep].onEnter();
+  const cutoffMillis = new Date('10/22/2025').getTime();
+  const multiplier = createdDateMillis() < cutoffMillis ? 0.025 : 0.03;
+
+  // --- Mode: Refinancing (auto compute, all readonly) ---
+  if (productType === 'Refinancing') {
+    const deliveryPrice = money('#insurance_coverage');
+
+    if (deliveryPrice <= 0) {
+      resetAllYears();
+      return;
     }
 
-    // --- Update progress ---
-    const visibleTabs = $tabs.not('.d-none').length;
-    const progress = ((nextIndex + 1) / visibleTabs) * 100;
-    $('#bar .progress-bar').css('width', progress + '%');
+    const secondCoverage = deliveryPrice * 0.9;
+    const thirdCoverage = secondCoverage * 0.9;
+    const fourthCoverage = thirdCoverage * 0.9;
 
-   // --- Update nav buttons (first/prev/next/last) ---
-    const $visibleTabs = $tabs.not('.d-none');
-    const firstVisibleIndex = $visibleTabs.first().index();
-    const lastVisibleIndex  = $visibleTabs.last().index();
+    const premiumRefi = (coverage) => Math.ceil((((coverage * 0.025) + 2700) * 1.2526) + 1300);
 
-    if ($visibleTabs.length === 1) {
-        // only one tab visible → disable everything
-        $('#first-step, #previous-step, #last-step, #next-step').addClass('disabled');
+    if (computeChecked('#compute_second_year')) {
+      setYear('second', { coverage: secondCoverage, premium: premiumRefi(secondCoverage), readonly: true });
     } else {
-        if (nextIndex === firstVisibleIndex) {
-            $('#first-step, #previous-step').addClass('disabled');
-            $('#last-step, #next-step').removeClass('disabled');
-        } else if (nextIndex === lastVisibleIndex) {
-            $('#last-step, #next-step').addClass('disabled');
-            $('#first-step, #previous-step').removeClass('disabled');
-        } else {
-            $('#first-step, #previous-step, #last-step, #next-step').removeClass('disabled');
-        }
+      setYear('second', { coverage: 0, premium: 0, readonly: true });
     }
 
+    if (computeChecked('#compute_third_year')) {
+      setYear('third', { coverage: thirdCoverage, premium: premiumRefi(thirdCoverage), readonly: true });
+    } else {
+      setYear('third', { coverage: 0, premium: 0, readonly: true });
+    }
+
+    if (computeChecked('#compute_fourth_year')) {
+      setYear('fourth', { coverage: fourthCoverage, premium: premiumRefi(fourthCoverage), readonly: true });
+    } else {
+      setYear('fourth', { coverage: 0, premium: 0, readonly: true });
+    }
+
+    return;
+  }
+
+  // --- Mode: Restructure (manual input toggled by checkbox) ---
+  if (productType === 'Restructure') {
+    const toggleManual = (year, checked) => {
+      $(`#insurance_premium_${year}_year`).attr('readonly', !checked);
+      $(`#insurance_coverage_${year}_year`).attr('readonly', !checked);
+    };
+
+    toggleManual('second', computeChecked('#compute_second_year'));
+    toggleManual('third', computeChecked('#compute_third_year'));
+    toggleManual('fourth', computeChecked('#compute_fourth_year'));
+    return;
+  }
+
+  // --- Mode: Default (auto coverage, premium depends on category, may become editable) ---
+  const deliveryPrice = money('#insurance_coverage');
+
+  if (deliveryPrice <= 0) {
+    resetAllYears();
+    return;
+  }
+
+  const secondCoverage = deliveryPrice * 0.8;
+  const thirdCoverage = secondCoverage * 0.9;
+  const fourthCoverage = thirdCoverage * 0.9;
+
+  const premiumDefault = (coverage) => {
+    if (productCategory === '1' || productCategory === '3') {
+      return Math.ceil((((coverage * multiplier) + 2700) * 1.2526) + 1300);
+    }
+
+    if (productCategory === '2') {
+      return Math.ceil((coverage * 0.025) * 1.2526);
+    }
+
+    return null; // signals manual input
+  };
+
+  const applyDefaultYear = (year, coverage, computeSelector) => {
+    if (!computeChecked(computeSelector)) {
+      setYear(year, { coverage: 0, premium: 0, readonly: true });
+      return;
+    }
+
+    const premium = premiumDefault(coverage);
+
+    if (premium == null) {
+      // coverage/premium become editable, premium starts at 0
+      setYear(year, { coverage, premium: 0, readonly: false });
+      return;
+    }
+
+    setYear(year, { coverage, premium, readonly: true });
+  };
+
+  applyDefaultYear('second', secondCoverage, '#compute_second_year');
+  applyDefaultYear('third', thirdCoverage, '#compute_third_year');
+  applyDefaultYear('fourth', fourthCoverage, '#compute_fourth_year');
 }
+
+function calculateTotalOtherCharges() {
+  const productType = $('#product_type').val();
+  const productCategory = $('#product_category').val();
+
+  const fmt = (n) => (parseCurrency(Number(n).toFixed(2)) || 0).toLocaleString('en-US');
+  const money = (selector) => parseCurrency($(selector).val()) || 0;
+
+  const setAllZero = () => {
+    const zeros = ['#insurance_premium', '#handling_fee', '#transfer_fee', '#transaction_fee', '#doc_stamp_tax'];
+    zeros.forEach((s) => $(s).val('0.00'));
+
+    const zeros2 = [
+      '#insurance_premium_subtotal',
+      '#handling_fee_subtotal',
+      '#doc_stamp_tax_subtotal',
+      '#transaction_fee_subtotal',
+      '#transfer_fee_subtotal',
+    ];
+    zeros2.forEach((s) => $(s).val('0.00'));
+
+    $('#summary-insurance-coverage').text('0.00');
+    $('#summary-insurance-premium').text('0.00');
+    $('#summary-handing-fee').text('0.00');
+    $('#summary-transfer-fee').text('0.00');
+    $('#summary-registration-fee').text('0.00');
+    $('#summary-doc-stamp-tax').text('0.00');
+    $('#summary-transaction-fee').text('0.00');
+    $('#summary-other-charges-total').text('0.00');
+  };
+
+  if (['Fuel', 'Parts', 'Repair', 'Rental'].includes(productType)) {
+    setAllZero();
+    return;
+  }
+
+  const createdDateMillis = () => {
+    let s = $('#created-date-summary').val();
+
+    if (!s) {
+      const now = new Date();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const yyyy = now.getFullYear();
+      s = `${mm}/${dd}/${yyyy}`;
+    }
+
+    return new Date(s).getTime();
+  };
+
+  const cutoffMillis = new Date('10/22/2025').getTime();
+  const multiplier = createdDateMillis() < cutoffMillis ? 0.025 : 0.03;
+
+  const amountFinanced = money('#amount_financed');
+  const pnAmount = money('#pn_amount');
+
+  const insuranceCoverage = money('#insurance_coverage');
+
+  let insurancePremium = 0;
+
+  if (productType === 'Refinancing' || productType === 'Restructure') {
+    insurancePremium = money('#insurance_premium');
+  } else if (productCategory === '1' || productCategory === '3' || productType === 'Brand New') {
+    insurancePremium = Math.ceil((((insuranceCoverage * multiplier) + 2700) * 1.2526) + 1300);
+  } else if (productCategory === '2') {
+    insurancePremium = Math.ceil((insuranceCoverage * 0.025) * 1.2526);
+  }
+
+  const handlingFee = (amountFinanced * 0.035) + 6000;
+  const transactionFee = (amountFinanced * 0.01) + 7000;
+  const docStampTax = Math.ceil(((((amountFinanced - 5000) / 5000) * 20) + 40) + ((pnAmount / 200) * 1.5));
+
+  $('#insurance_premium').val(fmt(insurancePremium));
+  $('#handling_fee').val(fmt(handlingFee));
+  $('#transaction_fee').val(fmt(transactionFee));
+  $('#doc_stamp_tax').val(fmt(docStampTax));
+
+  const transferFee = money('#transfer_fee');
+  const insurancePremiumDiscount = money('#insurance_premium_discount');
+  const handlingFeeDiscount = money('#handling_fee_discount');
+  const registrationFee = money('#registration_fee');
+  const docStampTaxDiscount = money('#doc_stamp_tax_discount');
+  const transactionFeeDiscount = money('#transaction_fee_discount');
+  const transferFeeDiscount = money('#transfer_fee_discount');
+
+  const insurancePremiumSubtotal = insurancePremium - insurancePremiumDiscount;
+  const handlingFeeSubtotal = handlingFee - handlingFeeDiscount;
+  const docStampTaxSubtotal = docStampTax - docStampTaxDiscount;
+  const transactionFeeSubtotal = transactionFee - transactionFeeDiscount;
+  const transferFeeSubtotal = transferFee - transferFeeDiscount;
+
+  $('#insurance_premium_subtotal').val(fmt(insurancePremiumSubtotal));
+  $('#handling_fee_subtotal').val(Number(handlingFeeSubtotal).toFixed(2));
+  $('#doc_stamp_tax_subtotal').val(Number(docStampTaxSubtotal).toFixed(2));
+  $('#transaction_fee_subtotal').val(fmt(transactionFeeSubtotal));
+  $('#transfer_fee_subtotal').val(Number(transferFeeSubtotal).toFixed(2));
+
+  const total =
+    insurancePremiumSubtotal +
+    handlingFeeSubtotal +
+    transferFeeSubtotal +
+    registrationFee +
+    docStampTaxSubtotal +
+    transactionFeeSubtotal;
+
+  $('#total_other_charges').val(fmt(total));
+
+  $('#summary-insurance-coverage').text(fmt(insuranceCoverage));
+  $('#summary-insurance-premium').text(fmt(insurancePremiumSubtotal));
+  $('#summary-handing-fee').text(fmt(handlingFeeSubtotal));
+  $('#summary-transfer-fee').text(fmt(transferFeeSubtotal));
+  $('#summary-registration-fee').text(fmt(registrationFee));
+  $('#summary-doc-stamp-tax').text(fmt(docStampTaxSubtotal));
+  $('#summary-transaction-fee').text(fmt(transactionFeeSubtotal));
+  $('#summary-other-charges-total').text(fmt(total));
+}
+
+
+/* ============================================================
+   traverseTabs (keep yours, but fix a logic bug)
+   - You had: const hasEnabledInputs = $form.find(':input:disabled').length > 0;
+     That variable name & logic were inverted.
+   ============================================================ */
+async function traverseTabs(direction) {
+  const $tabs = $('#v-pills-tab .nav-link'); // ✅ scoped
+  const $active = $tabs.filter('.active');
+
+  if (!$tabs.length || !$active.length) return;
+
+  const currentStep = $active.data('step');
+
+  const stepConfig = {
+    proposal: { form: '#sales-proposal-form' },
+    unit: { form: '#sales-proposal-unit-details-form' },
+    fuel: { form: '#sales-proposal-fuel-details-form' },
+    refinancing: { form: '#sales-proposal-refinancing-details-form', },
+    pricing: { form: '#sales-proposal-pricing-computation-form' },
+    otherCharges: { form: '#sales-proposal-other-charges-form' },
+    renewal: { form: '#sales-proposal-renewal-amount-form' },
+    otherProduct: { form: '#sales-proposal-other-product-details-form' },
+
+    // ✅ YOUR MISSING ONES (revised)
+    jobOrder: {
+      onEnter: () => $('#add-sales-proposal-job-order-button').removeClass('d-none'),
+      onLeave: () => $('#add-sales-proposal-job-order-button').addClass('d-none'),
+    },
+    approvalCondition: {
+      onEnter: () => $('#add-sales-proposal-condition-button').removeClass('d-none'),
+      onLeave: () => $('#add-sales-proposal-condition-button').addClass('d-none'),
+    },
+    additionalJobOrder: {
+      onEnter: () => $('#add-sales-proposal-additional-job-order-button').removeClass('d-none'),
+      onLeave: () => $('#add-sales-proposal-additional-job-order-button').addClass('d-none'),
+    },
+    deposit: {
+      onEnter: () => $('#add-sales-proposal-deposit-amount-button').removeClass('d-none'),
+      onLeave: () => $('#add-sales-proposal-deposit-amount-button').addClass('d-none'),
+    },
+    gatepass: {
+      onEnter: () => $('#gatepass-print-button').removeClass('d-none'),
+      onLeave: () => $('#gatepass-print-button').addClass('d-none'),
+    },
+    ciReport: {
+      onEnter: () => $('#complete-ci-button').removeClass('d-none'),
+      onLeave: () => $('#complete-ci-button').addClass('d-none'),
+    },
+    online: {
+      onEnter: () => $('#online-print-button').removeClass('d-none'),
+      onLeave: () => $('#online-print-button').addClass('d-none'),
+    },
+    authorization: {
+      onEnter: () => $('#authorization-print-button').removeClass('d-none'),
+      onLeave: () => $('#authorization-print-button').addClass('d-none'),
+    },
+    promissory: {
+      onEnter: () => $('#pn-print-button').removeClass('d-none'),
+      onLeave: () => $('#pn-print-button').addClass('d-none'),
+    },
+    disclosure: {
+      onEnter: () => $('#disclosure-print-button').removeClass('d-none'),
+      onLeave: () => $('#disclosure-print-button').addClass('d-none'),
+    },
+    insurance: {
+      onEnter: () => $('#insurance-request-print-button').removeClass('d-none'),
+      onLeave: () => $('#insurance-request-print-button').addClass('d-none'),
+    },
+
+    // ✅ Summary step stays as your “action hub”
+    summary: {
+      onEnter: () => {
+        [
+          '#tag-for-initial-approval-button',
+          '#tag-for-review-button',
+          '#sales-proposal-initial-approval-button',
+          '#sales-proposal-final-approval-button',
+          '#sales-proposal-reject-button',
+          '#sales-proposal-cancel-button',
+          '#for-ci-sales-proposal-button',
+          '#sales-proposal-set-to-draft-button',
+          '#for-dr-sales-proposal-button',
+          '#approve-installment-sales-button',
+          '#print-button',
+        ].forEach((sel) => $(sel).removeClass('d-none'));
+      },
+      onLeave: () => {
+        [
+          '#tag-for-initial-approval-button',
+          '#tag-for-review-button',
+          '#sales-proposal-initial-approval-button',
+          '#sales-proposal-final-approval-button',
+          '#sales-proposal-reject-button',
+          '#sales-proposal-cancel-button',
+          '#for-ci-sales-proposal-button',
+          '#sales-proposal-set-to-draft-button',
+          '#for-dr-sales-proposal-button',
+          '#approve-installment-sales-button',
+          '#summary-print-button',
+          '#print-button',
+        ].forEach((sel) => $(sel).addClass('d-none'));
+      },
+    },
+  };
+
+  const $visibleTabs = $tabs.not('.d-none');
+  if (!$visibleTabs.length) return;
+
+  const currentVisibleIndex = $visibleTabs.index($active);
+
+  const getNextVisibleIndex = (dir) => {
+    if (dir === 'first') return 0;
+    if (dir === 'last') return $visibleTabs.length - 1;
+    if (dir === 'previous') return Math.max(0, currentVisibleIndex - 1);
+    // next
+    return Math.min($visibleTabs.length - 1, currentVisibleIndex + 1);
+  };
+
+  const nextVisibleIndex = getNextVisibleIndex(direction);
+  const $nextTab = $visibleTabs.eq(nextVisibleIndex);
+  const nextStep = $nextTab.data('step');
+
+  // ---------- Validate + Submit on forward movement ----------
+  const isForward = direction === 'next' || direction === 'last';
+
+  const focusFirstInvalid = ($form) => {
+    const $first = $form.find('.is-invalid:visible:first');
+    if ($first.length) {
+      $first.trigger('focus');
+      const top = $first.offset()?.top;
+      if (top) window.scrollTo({ top: top - 120, behavior: 'smooth' });
+    }
+  };
+
+  const validateAndSubmit = async (formSelector) => {
+    const $form = $(formSelector);
+    if (!$form.length) return true;
+
+    const hasEnabledUserInputs =
+      $form.find(':input:not(:disabled):not([readonly])').filter(':visible').length > 0;
+
+    if (!hasEnabledUserInputs) return true;
+
+    // Ensure validator exists
+    const validator = $form.data('validator');
+    if (validator && typeof $form.valid === 'function') {
+      if (!$form.valid()) {
+        focusFirstInvalid($form);
+        return false;
+      }
+    }
+
+    // Call the stored submit callback directly (no native submit)
+    const submitFn = $form.data('wizardSubmit');
+    if (typeof submitFn === 'function') {
+      await submitFn($form[0]);
+    }
+
+    return true;
+  };
+
+  if (isForward && stepConfig[currentStep]?.form) {
+    const ok = await validateAndSubmit(stepConfig[currentStep].form);
+    if (!ok) return;
+  }
+
+  // ---------- Leave current step ----------
+  stepConfig[currentStep]?.onLeave?.();
+
+  // ---------- Switch tab (Bootstrap 5 safe) ----------
+  if (window.bootstrap?.Tab) {
+    bootstrap.Tab.getOrCreateInstance($nextTab[0]).show();
+  } else if (typeof $nextTab.tab === 'function') {
+    $nextTab.tab('show');
+  } else {
+    // fallback
+    $tabs.removeClass('active');
+    $nextTab.addClass('active');
+  }
+
+  // ---------- Enter next step ----------
+  stepConfig[nextStep]?.onEnter?.();
+
+  // ---------- Progress ----------
+  const progress = ((nextVisibleIndex + 1) / ($visibleTabs.length || 1)) * 100;
+  $('#bar .progress-bar').css('width', `${progress}%`);
+
+  // ---------- Button states ----------
+  const isFirst = nextVisibleIndex === 0;
+  const isLast = nextVisibleIndex === $visibleTabs.length - 1;
+
+  $('#first-step, #previous-step').toggleClass('disabled', isFirst);
+  $('#last-step, #next-step').toggleClass('disabled', isLast);
+}
+
+
 
 function disableFormAndSelect2(formId) {
-    // Disable all form elements EXCEPT readonly ones
-    var form = document.getElementById(formId);
-    var elements = form.elements;
+  const form = document.getElementById(formId);
+  if (!form) return;
 
-    for (var i = 0; i < elements.length; i++) {
-        // Skip elements that have readonly
-        if (elements[i].hasAttribute('readonly')) {
-            continue;
-        }
+  const elements = form.elements;
 
-        elements[i].disabled = true;
-    }
+  for (let i = 0; i < elements.length; i++) {
+    if (elements[i].hasAttribute('readonly')) continue;
+    elements[i].disabled = true;
+  }
 
-    // Disable Select2 dropdowns (unchanged)
-    var select2Dropdowns = form.getElementsByClassName('select2');
-    for (var j = 0; j < select2Dropdowns.length; j++) {
-        var select2Instance = $(select2Dropdowns[j]);
-        select2Instance.select2('destroy');
-        select2Instance.prop('disabled', true);
-    }
+  const select2Dropdowns = form.getElementsByClassName('select2');
+  for (let j = 0; j < select2Dropdowns.length; j++) {
+    const $select = $(select2Dropdowns[j]);
+    $select.select2('destroy');
+    $select.prop('disabled', true);
+  }
 }
 

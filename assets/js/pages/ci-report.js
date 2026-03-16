@@ -3649,7 +3649,7 @@ function ciReportTradeReferenceForm(){
         },
         messages: {
             ci_report_trade_reference_supplier: {
-                required: 'Please enter the supplier'
+                required: 'Please enter the supplier/customer'
             },
         },
         errorPlacement: function (error, element) {

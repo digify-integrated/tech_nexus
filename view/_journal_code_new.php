@@ -24,7 +24,7 @@
               <select class="form-control select2" name="company_id" id="company_id">
                 <option value="">--</option>
                 <option value="1">CGMI</option>
-                <option value="2">NE TRUCK</option>
+                <!--<option value="2">NE Truck Builders</option>-->
                 <option value="3">FUSO</option>
               </select>
             </div>

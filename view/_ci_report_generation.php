@@ -162,6 +162,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $ci_report_id_encrypted = $securityModel->encryptData($ci_report_id);
 
+                    $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                    $customer_id = $salesProposalDetails['customer_id'] ?? null;
+
                     $customerDetails = $customerModel->getPersonalInformation($contact_id);
                     $customerName = $customerDetails['file_as'] ?? null;
                     $corporateName = $customerDetails['corporate_name'] ?? null;
@@ -189,6 +192,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         </a>';
                     }
 
+                    $button = '';
+
+                    if($contact_id == $customer_id){
+                        $button = '<a href="ci-report.php?id='. $ci_report_id_encrypted .'" class="btn btn-icon btn-primary" target="_blank" title="View Details">
+                                            <i class="ti ti-eye"></i>
+                                        </a>
+                                        '. $loan_proposal;
+                    }
+
                     $response[] = [
                         'CUSTOMER' => '<a href="ci-report.php?id='. $ci_report_id_encrypted .'" target="_blank"><div class="col">
                                                     <h6 class="mb-0">'. $customerName .'</h6>
@@ -201,10 +213,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'DATE_STARTED' => $created_date,
                         'RELEASED_DATE' => $completed_date,
                         'ACTION' => '<div class="d-flex gap-2">
-                                        <a href="ci-report.php?id='. $ci_report_id_encrypted .'" class="btn btn-icon btn-primary" target="_blank" title="View Details">
-                                            <i class="ti ti-eye"></i>
-                                        </a>
-                                        '. $loan_proposal .'
+                                        '. $button .'
                                     </div>'
                         ];
                 }

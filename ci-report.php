@@ -21,6 +21,7 @@
   require('model/ci-report-model.php');
   require('model/bank-adb-model.php');
   require('model/ci-file-type-model.php');
+  require('model/sales-proposal-model.php');
 
   $pageTitle = 'CI Report';
 
@@ -44,6 +45,7 @@
   $colorModel = new ColorModel($databaseModel);
   $incomeLevelModel = new IncomeLevelModel($databaseModel);
   $ciFileTypeModel = new CIFileTypeModel($databaseModel);
+  $salesProposalModel = new SalesProposalModel($databaseModel);
   $bankADBModel = new BankADBModel($databaseModel);
       
   $ciReportReadAccess = $userModel->checkMenuItemAccessRights($user_id, 159, 'read');

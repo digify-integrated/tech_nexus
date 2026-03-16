@@ -102,8 +102,8 @@ class BackJobMonitoringModel {
         $stmt->execute();
     }
     
-    public function updateBackJobMonitoringJobOrder($p_backjob_monitoring_id, $p_backjob_monitoring_job_order_id, $p_progress, $p_contractor_id, $p_work_center_id, $p_completion_date, $p_cost, $p_job_order, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringJobOrder(:p_backjob_monitoring_id, :p_backjob_monitoring_job_order_id, :p_progress, :p_contractor_id, :p_work_center_id, :p_completion_date, :p_cost, :p_job_order, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_remarks, :p_last_log_by)');
+    public function updateBackJobMonitoringJobOrder($p_backjob_monitoring_id, $p_backjob_monitoring_job_order_id, $p_progress, $p_contractor_id, $p_work_center_id, $p_completion_date, $p_cost, $p_job_order, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_remarks, $p_company_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringJobOrder(:p_backjob_monitoring_id, :p_backjob_monitoring_job_order_id, :p_progress, :p_contractor_id, :p_work_center_id, :p_completion_date, :p_cost, :p_job_order, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_remarks, :p_company_id, :p_last_log_by)');
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_backjob_monitoring_job_order_id', $p_backjob_monitoring_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_progress', $p_progress, PDO::PARAM_STR);
@@ -116,12 +116,13 @@ class BackJobMonitoringModel {
         $stmt->bindValue(':p_planned_finish_date', $p_planned_finish_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_date_started', $p_date_started, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
 
-    public function updateBackJobMonitoringAdditionalJobOrder($p_backjob_monitoring_id, $p_backjob_monitoring_additional_job_order_id, $p_progress, $p_contractor_id, $p_work_center_id, $p_completion_date, $p_cost, $p_job_order_number, $p_job_order_date, $p_particulars, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringAdditionalJobOrder(:p_backjob_monitoring_id, :p_backjob_monitoring_additional_job_order_id, :p_progress, :p_contractor_id, :p_work_center_id, :p_completion_date, :p_cost, :p_job_order_number, :p_job_order_date, :p_particulars, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_remarks, :p_last_log_by)');
+    public function updateBackJobMonitoringAdditionalJobOrder($p_backjob_monitoring_id, $p_backjob_monitoring_additional_job_order_id, $p_progress, $p_contractor_id, $p_work_center_id, $p_completion_date, $p_cost, $p_job_order_number, $p_job_order_date, $p_particulars, $p_planned_start_date, $p_planned_finish_date, $p_date_started, $p_remarks, $p_company_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringAdditionalJobOrder(:p_backjob_monitoring_id, :p_backjob_monitoring_additional_job_order_id, :p_progress, :p_contractor_id, :p_work_center_id, :p_completion_date, :p_cost, :p_job_order_number, :p_job_order_date, :p_particulars, :p_planned_start_date, :p_planned_finish_date, :p_date_started, :p_remarks, :p_company_id, :p_last_log_by)');
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_backjob_monitoring_additional_job_order_id', $p_backjob_monitoring_additional_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_progress', $p_progress, PDO::PARAM_STR);
@@ -136,6 +137,7 @@ class BackJobMonitoringModel {
         $stmt->bindValue(':p_planned_finish_date', $p_planned_finish_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_date_started', $p_date_started, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -213,11 +215,12 @@ class BackJobMonitoringModel {
         $stmt->execute();
     }
 
-     public function createBackjobJobOrderEntry($p_backjob_monitoring_id, $p_job_order_id, $p_entry_type, $p_company_id, $p_cost, $p_markup, $p_sold_status, $p_last_log_by): void {
-        $stmt = $this->db->getConnection()->prepare('CALL createBackjobJobOrderEntry(:p_backjob_monitoring_id, :p_job_order_id, :p_entry_type, :p_company_id, :p_cost, :p_markup, :p_sold_status, :p_last_log_by)');
+     public function createBackjobJobOrderEntry($p_backjob_monitoring_id, $p_job_order_id, $p_entry_type, $debit_company_id, $p_company_id, $p_cost, $p_markup, $p_sold_status, $p_last_log_by): void {
+        $stmt = $this->db->getConnection()->prepare('CALL createBackjobJobOrderEntry(:p_backjob_monitoring_id, :p_job_order_id, :p_entry_type, :debit_company_id, :p_company_id, :p_cost, :p_markup, :p_sold_status, :p_last_log_by)');
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_job_order_id', $p_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_entry_type', $p_entry_type, PDO::PARAM_STR);
+        $stmt->bindValue(':debit_company_id', $debit_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_markup', $p_markup, PDO::PARAM_STR);

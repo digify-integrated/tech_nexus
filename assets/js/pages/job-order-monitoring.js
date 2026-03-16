@@ -377,6 +377,9 @@ function salesProposalJobOrderProgressForm(){
             job_order_progress: {
                 required: true
             },
+            job_order_company_id: {
+                required: true
+            },
             job_order_cost: {
                 required: true
             },
@@ -398,6 +401,9 @@ function salesProposalJobOrderProgressForm(){
             },
             job_cost: {
                 required: 'Please enter the charge to customer'
+            },
+            job_order_company_id: {
+                required: 'Please choose the company provider'
             },
             job_order_cost: {
                 required: 'Please enter the job order cost'
@@ -499,6 +505,9 @@ function salesProposalAdditionalJobOrderProgressForm(){
             additional_job_order_progress: {
                 required: true
             },
+            additional_job_order_company_id: {
+                required: true
+            },
             additional_job_order_cost: {
                 required: true
             },
@@ -517,6 +526,9 @@ function salesProposalAdditionalJobOrderProgressForm(){
         messages: {
             additional_job_order_progress: {
                 required: 'Please enter the progress'
+            },
+            additional_job_order_company_id: {
+                required: 'Please choose the company provider'
             },
             additional_job_order_cost: {
                 required: 'Please enter the charge to customer'
@@ -645,7 +657,15 @@ function displayDetails(transaction){
                         $('#job_order_date_started').val(response.dateStarted);
                         $('#job_order_remarks').val(response.remarks);
 
+                        if(response.paymentDate == '' || response.paymentDate == null){
+                            $('#job_cost').prop('readonly', false);
+                        }
+                        else{
+                            $('#job_cost').prop('readonly', true);
+                        }
+
                         checkOptionExist('#job_order_contractor_id', response.contractorID, '');
+                        checkOptionExist('#job_order_company_id', response.companyID, '');
                         checkOptionExist('#job_order_work_center_id', response.workCenterID, '');
                     } 
                     else {
@@ -690,7 +710,15 @@ function displayDetails(transaction){
                         $('#additional_job_order_planned_finish_date').val(response.plannedFinishDate);
                         $('#additional_job_order_date_started').val(response.dateStarted);
 
+                        if(response.paymentDate == '' || response.paymentDate == null){
+                            $('#additional_job_cost').prop('readonly', false);
+                        }
+                        else{
+                            $('#additional_job_cost').prop('readonly', true);
+                        }
+
                         checkOptionExist('#additional_job_order_contractor_id', response.contractorID, '');
+                        checkOptionExist('#additional_job_order_company_id', response.companyID, '');
                         checkOptionExist('#additional_job_order_work_center_id', response.workCenterID, '');
                     } 
                     else {

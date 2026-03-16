@@ -12,6 +12,8 @@
 
   try {
     $salesProposalModel->cronSalesProposalCancelDraft(1);
+    $salesProposalModel->cronSalesProposalCancelProceed(1);
+    $salesProposalModel->cronSalesProposalCancelFuelProceed(1);
     file_put_contents($log_file, "Cancel draft sales proposal successfully at " . date("Y-m-d H:i:s") . "\n", FILE_APPEND);
 } catch (Exception $e) {
     file_put_contents($log_file, "Exception occurred: " . $e->getMessage() . " at " . date("Y-m-d H:i:s") . "\n", FILE_APPEND);

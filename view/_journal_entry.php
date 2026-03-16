@@ -60,6 +60,10 @@
                                 <label class="form-check-label" for="journal-id-6">Parts Issuance</label>
                               </div>
                               <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-14" value="Fuel Issuance" checked/>
+                                <label class="form-check-label" for="journal-id-14">Fuel Issuance</label>
+                              </div>
+                              <div class="form-check my-2">
                                 <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-7" value="Parts Return" checked/>
                                 <label class="form-check-label" for="journal-id-7">Parts Return</label>
                               </div>
@@ -84,8 +88,8 @@
                                 <label class="form-check-label" for="journal-id-12">Stock Transfer Advice</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-12" value="Purchase Order" checked/>
-                                <label class="form-check-label" for="journal-id-12">Purchase Order</label>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-13" value="Purchase Order" checked/>
+                                <label class="form-check-label" for="journal-id-13">Purchase Order</label>
                               </div>
                             </div>
                           </div>

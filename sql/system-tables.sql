@@ -5092,6 +5092,22 @@ CREATE INDEX sales_proposal_index_final_approving_officer ON sales_proposal(fina
 
 /* Sales Proposal Accessories Table */
 
+CREATE TABLE sales_proposal_set_to_draft_file(
+	sales_proposal_set_to_draft_file_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	reason VARCHAR(500) NOT NULL,
+	file VARCHAR(500) NOT NULL,
+	upload_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX sales_proposal_set_to_draft_file_index_sales_proposal_id ON sales_proposal_set_to_draft_file(sales_proposal_id);
+
+
+/* Sales Proposal Accessories Table */
+
 CREATE TABLE sales_proposal_accessories(
 	sales_proposal_accessories_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	sales_proposal_id INT UNSIGNED,

@@ -2,6 +2,7 @@
     $hidden = '';
 
     $generatePDC = $userModel->checkSystemActionAccessRights($user_id, 153);
+    $uploadCreditAdvice = $userModel->checkSystemActionAccessRights($user_id, 236);
 ?>
 <div class="row">
     <div class="col-md-3">
@@ -152,7 +153,7 @@
                                 <select class="form-control select2" name="company_id" id="company_id">
                                     <option value="">--</option>
                                     <option value="1">Christian General Motors Inc.</option>
-                                    <option value="2">NE Truck Builders</option>
+                                    <!--<option value="2">NE Truck Builders</option>-->
                                     <option value="3">FUSO Tarlac</option>
                                 </select>
                                 </div>
@@ -939,7 +940,7 @@
                                                 <h5 class="mb-0">Credit Advice / Purchase Order</h5>
                                                 <?php
                                                 if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
-                                                    if(!empty($clientConfirmation) && $transactionType == 'Bank Financing'){
+                                                    if(!empty($clientConfirmation) && $transactionType == 'Bank Financing' && $uploadCreditAdvice['total'] > 0){
                                                     echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-credit-advice-offcanvas" aria-controls="sales-proposal-credit-advice-offcanvas" id="sales-proposal-credit-advice">Credit Advice</button>';
                                                     }
                                                 }
@@ -1363,6 +1364,26 @@
                                         <div class="price-head">
                                             <div class="price-price">Voluntary Surrender</div>
                                             <div class="d-grid"><a href="./document/printable/Voluntary_Surrender.pdf" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Credit Memo</div>
+                                            <div class="d-grid"><a href="credit-memo.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Debit Memo</div>
+                                            <div class="d-grid"><a href="debit-memo.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
                                         </div>
                                     </div>
                                 </div>

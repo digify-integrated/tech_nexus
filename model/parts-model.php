@@ -103,6 +103,15 @@ class PartsModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function updateFuelQuantity($p_part_id, $fuel_quantity) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE part
+        SET quantity = quantity - :fuel_quantity
+        WHERE part_id = :p_part_id
+        AND quantity >= :fuel_quantity;');
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
+        $stmt->bindValue(':fuel_quantity', $fuel_quantity, PDO::PARAM_STR);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
     
     # -------------------------------------------------------------
