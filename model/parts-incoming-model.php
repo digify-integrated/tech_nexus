@@ -121,6 +121,13 @@ class PartsIncomingModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    public function updatePartsFuelReceivedQuantity($p_part_incoming_cart_id, $p_part_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE part_incoming_cart SET received_quantity = quantity WHERE part_id = :p_part_id AND part_incoming_cart_id = :p_part_incoming_cart_id');
+        $stmt->bindValue(':p_part_incoming_cart_id', $p_part_incoming_cart_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_STR);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

@@ -163,6 +163,7 @@
                     <th>Check No.</th>
                     <th>Check Date</th>
                     <th>Loan No.</th>
+                    <th>Client Name</th>
                     <th class="w-20">Payment Details</th>
                     <th>Bank/Branch</th>
                     <th>Collection Method</th>

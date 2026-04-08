@@ -204,6 +204,15 @@ class StockTransferAdviceModel {
         $stmt->execute();
     }
 
+     public function insertStockTransferAdviceDocument($p_stock_transfer_advice_id, $p_document_name, $p_document_file_path, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('INSERT INTO stock_transfer_advice_document (stock_transfer_advice_id, document_name, document_file_path, last_log_by) VALUES(:p_stock_transfer_advice_id, :p_document_name, :p_document_file_path, :p_last_log_by)');
+        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_document_name', $p_document_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_document_file_path', $p_document_file_path, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function insertStockTransferAdviceReplacement($stock_transfer_advice_cart_id, $stock_transfer_advice_id, $part_replace, $part_id, $replacement_remarks, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('INSERT INTO stock_transfer_advice_replacement (
             stock_transfer_advice_cart_id,
@@ -296,15 +305,6 @@ class StockTransferAdviceModel {
         $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_additional_job_order_id', $p_additional_job_order_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-
-    public function insertStockTransferAdviceDocument($p_stock_transfer_advice_id, $p_document_name, $p_document_file_path, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertStockTransferAdviceDocument(:p_stock_transfer_advice_id, :p_document_name, :p_document_file_path, :p_last_log_by)');
-        $stmt->bindValue(':p_stock_transfer_advice_id', $p_stock_transfer_advice_id, PDO::PARAM_STR);
-        $stmt->bindValue(':p_document_name', $p_document_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_document_file_path', $p_document_file_path, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

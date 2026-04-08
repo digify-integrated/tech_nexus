@@ -6,6 +6,7 @@
   require('model/sales-proposal-model.php');
   require('model/contractor-model.php');
   require('model/work-center-model.php');
+  require('model/company-model.php');
   
   $backJobMonitoringModel = new BackJobMonitoringModel($databaseModel);
 
@@ -15,6 +16,7 @@
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $contractorModel = new ContractorModel($databaseModel);
   $workCenterModel = new WorkCenterModel($databaseModel);
+  $companyModel = new CompanyModel($databaseModel);
     
   $backJobMonitoringReadAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'read');
   $backJobMonitoringCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 133, 'create');

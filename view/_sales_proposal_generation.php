@@ -2453,6 +2453,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $response[] = [
                         'REASON' => $reason,
                         'FILE' => '<a href="'. $file .'" target="_blank">View File</a>',
+                        'UPLOAD_DATE' => $upload_date,
                         'CHECK_DATE' => $upload_date,
                     ];
                 }

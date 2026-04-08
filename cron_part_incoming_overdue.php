@@ -145,6 +145,7 @@ $mailer->addAddress('m.siapo.fuso@christianmotors.ph');
 $mailer->addAddress('cj.agudo@christianmotors.ph');
 $mailer->addAddress('l.samaniego@christianmotors.ph');
 $mailer->addAddress('sc.lapuz@christianmotors.ph');
+$mailer->addAddress('a.bayno.fuso@christianmotors.ph');
 $mailer->Subject = $emailSubject;
 $mailer->Body = $message;
 

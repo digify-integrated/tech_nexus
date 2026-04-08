@@ -504,7 +504,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 else if($part_incoming_status === 'Cancelled'){
                     $part_incoming_status = '<span class="badge bg-warning">' . $part_incoming_status . '</span>';
                 }
-                else if($part_incoming_status === 'On-Process'){
+                else if($part_incoming_status == 'For Approval' && $company == '8'){
+                    $part_incoming_status = '<span class="badge bg-secondary">For Payment</span>';
+                }
+                else if($part_incoming_status == 'On-Process' && $company == '8'){
+                    $part_incoming_status = '<span class="badge bg-secondary">Paid</span>';
+                }
+                else if($part_incoming_status === 'On-Process' && $company != '8'){
                     $part_incoming_status = '<span class="badge bg-info">' . $part_incoming_status . '</span>';
                 }
                 else{
@@ -618,7 +624,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 else if($part_incoming_status === 'Cancelled'){
                     $part_incoming_status = '<span class="badge bg-warning">' . $part_incoming_status . '</span>';
                 }
-                else if($part_incoming_status === 'On-Process'){
+                else if($part_incoming_status == 'For Approval' && $company == '8'){
+                    $part_incoming_status = '<span class="badge bg-secondary">For Payment</span>';
+                }
+                else if($part_incoming_status == 'On-Process' && $company == '8'){
+                    $part_incoming_status = '<span class="badge bg-secondary">Paid</span>';
+                }
+                else if($part_incoming_status === 'On-Process' && $company != '8'){
                     $part_incoming_status = '<span class="badge bg-info">' . $part_incoming_status . '</span>';
                 }
                 else{

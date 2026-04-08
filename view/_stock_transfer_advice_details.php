@@ -353,6 +353,72 @@
   </div>
 </div>
 
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-header">
+       <div class="row align-items-center">
+        <div class="col-sm-6">
+          <h5>STA Document</h5>
+        </div>
+        <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+          <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#sta-document-offcanvas" aria-controls="sta-document-offcanvas" id="sta-document">Add Document</button>
+        </div>
+      </div>
+      </div>
+    <div class="card-body p-0">
+      <div class="dt-responsive table-responsive">
+         <table class="table mb-0 w-100" id="sta-document-table">
+            <thead>
+              <tr>
+                <th>Document</th>
+                <th>Upload Date</th>
+                <th class="text-center"></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sta-document-offcanvas" aria-labelledby="sta-document-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sta-document-offcanvas-label" style="margin-bottom:-0.5rem">Add Document</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sta-document-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Document Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="document_name" name="document_name" maxlength="200" autocomplete="off">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Document <span class="text-danger">*</span></label>
+                <input type="file" id="sta_document" name="sta_document" class="form-control">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sta-document" form="sta-document-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <?php
   echo '<div class="row">
           <div class="col-lg-12">

@@ -6861,6 +6861,16 @@ CREATE TABLE stock_transfer_advice_additional_job_order(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
+CREATE TABLE stock_transfer_advice_document(
+	stock_transfer_advice_document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    stock_transfer_advice_id VARCHAR(100) NOT NULL,
+	document_name VARCHAR(500),
+	document_file_path VARCHAR(500),
+	created_date DATETIME DEFAULT NOW(),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
 CREATE TABLE purchase_request(
 	purchase_request_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     reference_no VARCHAR(100) NOT NULL,

@@ -169,6 +169,65 @@
             });
         });
 
+        $(document).on('click','#paid',function() {
+            var parts_incoming_id = $('#parts-incoming-id').text();
+            const transaction = 'tag incoming as on-process';
+    
+            Swal.fire({
+                title: 'Confirm Incoming Paid',
+                text: 'Are you sure you want to tag this incoming as paid?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Paid',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/parts-incoming-controller.php',
+                        dataType: 'json',
+                        data: {
+                            parts_incoming_id : parts_incoming_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Incoming Paid Success', 'The incoming has been tagged as paid successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.noItem) {
+                                    showNotification('Incoming Paid Error', 'No parts added. Cannot be tagged as paid.', 'danger');
+                                }
+                                
+                                else if (response.withoutCost) {
+                                    showNotification('Incoming Paid Error', 'There are parts without cost added. Cannot be tagged as paid.', 'danger');
+                                }
+                                else {
+                                    showNotification('Incoming Paid Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('click','#post',function() {
             var parts_incoming_id = $('#parts-incoming-id').text();
             const transaction = 'tag incoming as posted';
@@ -208,6 +267,64 @@
                                 }
                                 else {
                                     showNotification('Incoming Post Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#for-payment',function() {
+            var parts_incoming_id = $('#parts-incoming-id').text();
+            const transaction = 'tag incoming as for approval';
+    
+            Swal.fire({
+                title: 'Confirm Incoming For Payment',
+                text: 'Are you sure you want to tag this incoming as for payment?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'For Payment',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/parts-incoming-controller.php',
+                        dataType: 'json',
+                        data: {
+                            parts_incoming_id : parts_incoming_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Incoming For Payment Success', 'The incoming has been tagged for payment successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.noItem) {
+                                    showNotification('Incoming For Payment Error', 'No parts added. Cannot be for payment.', 'danger');
+                                }
+                                else if (response.withoutCost) {
+                                    showNotification('Incoming For Payment Error', 'There are parts without cost added. Cannot be for payment.', 'danger');
+                                }
+                                else {
+                                    showNotification('Incoming For Payment Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -581,70 +698,138 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
     var settings;
 
     if(view_cost > 0){
-         var order = [[ 9, 'desc' ]];
-        var column = [
-            { 'data' : 'TRANSACTION_ID' },
-            { 'data' : 'PRODUCT' },
-            { 'data' : 'LINES' },
-            { 'data' : 'QUANTITY' },
-            { 'data' : 'RECEIVED' },
-            { 'data' : 'REMAINING' },
-            { 'data' : 'COST' },
-            { 'data' : 'COMPLETION_DATE' },
-            { 'data' : 'PURCHASE_DATE' },
-            { 'data' : 'TRANSACTION_DATE' },
-            { 'data' : 'POSTED_DATE' },
-            { 'data' : 'STATUS' },
-            { 'data' : 'ACTION' }
-        ];
 
-        var column_definition = [
-            { 'width': 'auto', 'aTargets': 0 },
-            { 'width': 'auto', 'aTargets': 1 },
-            { 'width': 'auto', 'aTargets': 2 },
-            { 'width': 'auto', 'aTargets': 3 },
-            { 'width': 'auto', 'aTargets': 4 },
-            { 'width': 'auto', 'aTargets': 5 },
-            { 'width': 'auto', 'aTargets': 6 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
-            { 'width': 'auto', 'aTargets': 11 },
-            { 'width': '15%','bSortable': false, 'aTargets': 12 }
-        ];
+        if(company == '8'){
+        var order = [[ 8, 'desc' ]];
+            var column = [
+                { 'data' : 'TRANSACTION_ID' },
+                { 'data' : 'LINES' },
+                { 'data' : 'QUANTITY' },
+                { 'data' : 'RECEIVED' },
+                { 'data' : 'REMAINING' },
+                { 'data' : 'COST' },
+                { 'data' : 'COMPLETION_DATE' },
+                { 'data' : 'PURCHASE_DATE' },
+                { 'data' : 'TRANSACTION_DATE' },
+                { 'data' : 'POSTED_DATE' },
+                { 'data' : 'STATUS' },
+                { 'data' : 'ACTION' }
+            ];
+
+            var column_definition = [
+                { 'width': 'auto', 'aTargets': 0 },
+                { 'width': 'auto', 'aTargets': 1 },
+                { 'width': 'auto', 'aTargets': 2 },
+                { 'width': 'auto', 'aTargets': 3 },
+                { 'width': 'auto', 'aTargets': 4 },
+                { 'width': 'auto', 'aTargets': 5 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 8},
+                { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+                { 'width': 'auto', 'aTargets': 10 },
+                { 'width': '15%','bSortable': false, 'aTargets': 11 }
+            ];
+        }
+        else{
+            var order = [[ 9, 'desc' ]];
+            var column = [
+                { 'data' : 'TRANSACTION_ID' },
+                { 'data' : 'PRODUCT' },
+                { 'data' : 'LINES' },
+                { 'data' : 'QUANTITY' },
+                { 'data' : 'RECEIVED' },
+                { 'data' : 'REMAINING' },
+                { 'data' : 'COST' },
+                { 'data' : 'COMPLETION_DATE' },
+                { 'data' : 'PURCHASE_DATE' },
+                { 'data' : 'TRANSACTION_DATE' },
+                { 'data' : 'POSTED_DATE' },
+                { 'data' : 'STATUS' },
+                { 'data' : 'ACTION' }
+            ];
+
+            var column_definition = [
+                { 'width': 'auto', 'aTargets': 0 },
+                { 'width': 'auto', 'aTargets': 1 },
+                { 'width': 'auto', 'aTargets': 2 },
+                { 'width': 'auto', 'aTargets': 3 },
+                { 'width': 'auto', 'aTargets': 4 },
+                { 'width': 'auto', 'aTargets': 5 },
+                { 'width': 'auto', 'aTargets': 6 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
+                { 'width': 'auto', 'aTargets': 11 },
+                { 'width': '15%','bSortable': false, 'aTargets': 12 }
+            ];
+        }
+        
     }
     else{
-        var order = [[ 8, 'desc' ]];
-        var column = [
-            { 'data' : 'TRANSACTION_ID' },
-            { 'data' : 'PRODUCT' },
-            { 'data' : 'LINES' },
-            { 'data' : 'QUANTITY' },
-            { 'data' : 'RECEIVED' },
-            { 'data' : 'REMAINING' },
-            { 'data' : 'COMPLETION_DATE' },
-            { 'data' : 'PURCHASE_DATE' },
-            { 'data' : 'TRANSACTION_DATE' },
-            { 'data' : 'POSTED_DATE' },
-            { 'data' : 'STATUS' },
-            { 'data' : 'ACTION' }
-        ];
+        if(company == '8'){
+            var order = [[ 7, 'desc' ]];
+            var column = [
+                { 'data' : 'TRANSACTION_ID' },
+                { 'data' : 'LINES' },
+                { 'data' : 'QUANTITY' },
+                { 'data' : 'RECEIVED' },
+                { 'data' : 'REMAINING' },
+                { 'data' : 'COMPLETION_DATE' },
+                { 'data' : 'PURCHASE_DATE' },
+                { 'data' : 'TRANSACTION_DATE' },
+                { 'data' : 'POSTED_DATE' },
+                { 'data' : 'STATUS' },
+                { 'data' : 'ACTION' }
+            ];
 
-        var column_definition = [
-            { 'width': 'auto', 'aTargets': 0 },
-            { 'width': 'auto', 'aTargets': 1 },
-            { 'width': 'auto', 'aTargets': 2 },
-            { 'width': 'auto', 'aTargets': 3 },
-            { 'width': 'auto', 'aTargets': 4 },
-            { 'width': 'auto', 'aTargets': 5 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
-            { 'width': 'auto', 'aTargets': 10 },
-            { 'width': '15%','bSortable': false, 'aTargets': 11 }
-        ];
+            var column_definition = [
+                { 'width': 'auto', 'aTargets': 0 },
+                { 'width': 'auto', 'aTargets': 1 },
+                { 'width': 'auto', 'aTargets': 2 },
+                { 'width': 'auto', 'aTargets': 3 },
+                { 'width': 'auto', 'aTargets': 4 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 5 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+                { 'width': 'auto', 'aTargets': 9 },
+                { 'width': '15%','bSortable': false, 'aTargets': 10 }
+            ];
+        }
+        else{
+            var order = [[ 8, 'desc' ]];
+            var column = [
+                { 'data' : 'TRANSACTION_ID' },
+                { 'data' : 'PRODUCT' },
+                { 'data' : 'LINES' },
+                { 'data' : 'QUANTITY' },
+                { 'data' : 'RECEIVED' },
+                { 'data' : 'REMAINING' },
+                { 'data' : 'COMPLETION_DATE' },
+                { 'data' : 'PURCHASE_DATE' },
+                { 'data' : 'TRANSACTION_DATE' },
+                { 'data' : 'POSTED_DATE' },
+                { 'data' : 'STATUS' },
+                { 'data' : 'ACTION' }
+            ];
+
+            var column_definition = [
+                { 'width': 'auto', 'aTargets': 0 },
+                { 'width': 'auto', 'aTargets': 1 },
+                { 'width': 'auto', 'aTargets': 2 },
+                { 'width': 'auto', 'aTargets': 3 },
+                { 'width': 'auto', 'aTargets': 4 },
+                { 'width': 'auto', 'aTargets': 5 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+                { 'width': 'auto', 'aTargets': 10 },
+                { 'width': '15%','bSortable': false, 'aTargets': 11 }
+            ];
+        }
     }
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

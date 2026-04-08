@@ -1371,7 +1371,10 @@
                                 if (response.isInactive) {
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
-                                }
+                                }                         
+                                else if (response.fuelQuantity) {
+                                    showNotification('Transaction Error', 'Insufficient fuel quantity.', 'danger');
+                                } 
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }

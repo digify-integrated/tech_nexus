@@ -250,7 +250,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $checkDate = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
 
                 if(empty($loanNumber)){
-                    $loanNumber = '1000000808';
                     $customerDetails = $customerModel->getPersonalInformation($customerID);
                     $customerName = $customerDetails['file_as'] ?? null;
 
@@ -260,6 +259,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $paymentDetails = $customerName . ' - ' . $paymentDetails . ' - ' . $remarks;                   
+                }
+                else{
+                    $customerDetails = $customerModel->getPersonalInformation($customerID);
+                    $customerName = $customerDetails['file_as'] ?? '';
                 }
 
                 $getCreatedByLog = $pdcManagementModel->getCreatedByLog('loan_collections', $loanCollectionID);
@@ -295,6 +298,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CHECK_NUMBER' => $checkNumber,
                     'CHECK_DATE' => $checkDate,
                     'LOAN_NUMBER' => $loanNumber,
+                    'CLIENT' => $customerName,
                     'PAYMENT_DETAILS' => '<p class="text-wrap">'.$paymentDetails.'</p>',
                     'BANK_BRANCH' => '<p class="text-wrap">'.$bankBranch.'</p>',
                     'MODE_OF_PAYMENT' => $modeOfPayment,

@@ -258,7 +258,7 @@
             <a class="nav-link"
               id="sales-proposal-tab-17"
               data-bs-toggle="pill"
-              href="#v-remarks"
+              href="#v-set-to-draft-files"
               role="tab"
               aria-controls="v-set-to-draft-files"
               aria-selected="false"
@@ -512,6 +512,7 @@
                         <option value="1">Christian General Motors Inc.</option>
                         <!--<option value="2">NE Truck Builders</option>-->
                         <option value="3">FUSO Tarlac</option>
+                        <option value="8">NE Fuel</option>
                       </select>
                     </div>
                   </div>
@@ -1708,13 +1709,9 @@
                     <th>Issuance No.</th>
                     <th>Part</th>
                     <th>QTY.</th>
-                    <th>Returned QTY.</th>
                     <th>Requested By</th>
                     <th>Released Date</th>
                     <th>Status</th>
-                    <th>Cost</th>
-                    <th>Price</th>
-                    <th>Total Cost</th>
                     <th>Total Price</th>
                   </tr>
                 </thead>

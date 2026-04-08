@@ -151,6 +151,7 @@ function collectionReportTable2(datatable_name, buttons = false, show_all = fals
         { 'data' : 'CHECK_NUMBER' },
         { 'data' : 'CHECK_DATE' },
         { 'data' : 'LOAN_NUMBER' },
+        { 'data' : 'CLIENT' },
         { 'data' : 'PAYMENT_DETAILS' },
         { 'data' : 'BANK_BRANCH' },
         { 'data' : 'MODE_OF_PAYMENT' },

@@ -185,7 +185,7 @@ class BackJobMonitoringController {
         $cost_markup = $backjobOrderMonitoringJobOrderDetails['cost_markup'];
         $job_cost = $backjobOrderMonitoringJobOrderDetails['cost'];
         $job_order = $backjobOrderMonitoringJobOrderDetails['job_order'];
-        $debit_company_id = $backjobOrderMonitoringJobOrderDetails['company_id'];
+        $debit_company_id = $backjobOrderMonitoringJobOrderDetails['company_id'] ?? 1;
         $work_center_id = $backjobOrderMonitoringJobOrderDetails['work_center_id'];
 
         $workCenterDetails = $this->workCenterModel->getWorkCenter($work_center_id);
@@ -200,6 +200,11 @@ class BackJobMonitoringController {
         $productDetails = $this->productModel->getProduct($product_id);
         $company_id = $productDetails['company_id'] ?? null;
         $product_status = $productDetails['product_status'] ?? 'Draft';
+        $stock_number = $productDetails['stock_number'] ?? '';
+
+        if(empty($sales_proposal_id)){
+            $sales_proposal_id = $stock_number;
+        }
 
         $this->backJobMonitoringModel->createBackjobJobOrderEntry($sales_proposal_id, $backjobMonitoringJobOrderID, $entry_type, $debit_company_id, $company_id, $job_cost, $cost_markup, $product_status, $userID);
 
@@ -240,7 +245,7 @@ class BackJobMonitoringController {
         $cost_markup = $backjobOrderMonitoringJobOrderDetails['cost_markup'];
         $job_cost = $backjobOrderMonitoringJobOrderDetails['cost']; 
         $work_center_id = $backjobOrderMonitoringJobOrderDetails['work_center_id'];
-        $debit_company_id = $backjobOrderMonitoringJobOrderDetails['company_id'];
+        $debit_company_id = $backjobOrderMonitoringJobOrderDetails['company_id'] ?? 1;
         $particulars = $backjobOrderMonitoringJobOrderDetails['particulars'];
 
         $workCenterDetails = $this->workCenterModel->getWorkCenter($work_center_id);
@@ -253,6 +258,11 @@ class BackJobMonitoringController {
         $productDetails = $this->productModel->getProduct($product_id);
         $company_id = $productDetails['company_id'] ?? null;
         $product_status = $productDetails['product_status'] ?? 'Draft';
+        $stock_number = $productDetails['stock_number'] ?? '';
+
+        if(empty($sales_proposal_id)){
+            $sales_proposal_id = $stock_number;
+        }
 
         $this->backJobMonitoringModel->createBackjobJobOrderEntry($sales_proposal_id, $salesAdditionalProposalJobOrderID, $entry_type, $debit_company_id, $company_id, $job_cost, $cost_markup, $product_status, $userID);
 
@@ -1760,7 +1770,7 @@ class BackJobMonitoringController {
                 'cost' => $backJobMonitoringDetails['cost'],
                 'jobOrder' => $backJobMonitoringDetails['job_order'],
                 'progress' => $backJobMonitoringDetails['progress'],
-                'companyId' => $backJobMonitoringDetails['company_id'],
+                'companyId' => $backJobMonitoringDetails['company_id'] ?? 1,
                 'remarks' => $backJobMonitoringDetails['remarks'],
                 'contractorID' => $backJobMonitoringDetails['contractor_id'],
                 'completionDate' =>  $this->systemModel->checkDate('empty', $backJobMonitoringDetails['completion_date'], '', 'm/d/Y', ''),

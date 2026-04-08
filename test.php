@@ -35,57 +35,8 @@
     $securityModel = new SecurityModel();
 
 
-    $sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction WHERE company_id IN ("1", "2") AND part_transaction_status IN ("Released", "Checked") AND DATE(released_date) = "2025-09-10"');
-    $sql->execute();
-    $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-    $sql->closeCursor();
 
-    foreach ($options as $row) {
-        $parts_transaction_id = $row['part_transaction_id'];
-        $company_id = $row['company_id'];
-        $customer_id = $row['customer_id'];
-        $remarks = $row['remarks'];
-        $customer_type = $row['customer_type'] ?? '';
-        $released_date = $systemModel->checkDate('empty', $row['released_date'], '', 'Y-m-d', '');
+    $unitCategoryID = $securityModel->decryptData('eQlTa4WPejqsH68Us1Sn5y7NQRNRmtOSmyHSp8JuOXg%3D');
 
-        if($company_id == '2' || $company_id == '1'){
-            $p_reference_number = $row['issuance_no'] ?? '';
-        }
-        else{
-            $p_reference_number = $row['reference_number'] ?? '';
-        }
-
-        $cost = $partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'cost')['total'] ?? 0;
-
-
-        if($customer_type == 'Internal'){
-            $productDetails = $productModel->getProduct($customer_id);
-            $is_service = $productDetails['is_service'] ?? 'No';
-            $product_status = $productDetails['product_status'] ?? 'Draft';
-
-            if($is_service == 'Yes'){
-                $overallTotal = $partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'gasoline cost')['total'] ?? 0;
-
-                $partsTransactionModel->createPartsTransactionProductExpense($customer_id, 'Issuance Slip', $parts_transaction_id, $overallTotal, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, 1); 
-            }
-            else{
-                $overallTotal = $partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'overall total')['total'] ?? 0;
-
-                $partsTransactionModel->createPartsTransactionProductExpense($customer_id, 'Issuance Slip', $parts_transaction_id, $overallTotal, 'Parts & ACC', 'Issuance No.: ' . $p_reference_number . ' - '.  $remarks, 1); 
-            }
-        }
-        else{
-            $overallTotal = $partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'overall total')['total'] ?? 0;
-            $is_service = 'No';
-            $product_status = 'Draft';
-        }
-
-        $partsTransactionModel->createPartsTransactionEntry2($parts_transaction_id, $company_id, $p_reference_number, $cost, $overallTotal, $customer_type, $is_service, $product_status, '2025-09-10', 1);
-
-        echo ';';
-    }
-
-    //$unitCategoryID = $securityModel->decryptData('Zr7qYtwr7bsnv3l4A1aZ0DkInAs4p9cy9Trinrgfc9w%3D');
-
-    //echo $unitCategoryID;
+    echo $unitCategoryID;
 ?>

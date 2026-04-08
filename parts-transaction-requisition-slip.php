@@ -48,6 +48,7 @@
         $company_id = $partTransactionDetails['company_id'] ?? '';
         $customer_id = $partTransactionDetails['customer_id'] ?? '';
         $slip_reference_no = $partTransactionDetails['slip_reference_no'] ?? '';
+        $issuance_no = $partTransactionDetails['issuance_no'] ?? '';
         $request_by = $partTransactionDetails['request_by'] ?? '';
         $customer_ref_id = $partTransactionDetails['customer_ref_id'] ?? '';
         $part_transaction_status = $partTransactionDetails['part_transaction_status'] ?? '';
@@ -55,9 +56,17 @@
         $productDetails = $productModel->getProduct($customer_id);
         $productSubategoryID = $productDetails['product_subcategory_id'] ?? '';
 
-        $customerDetails = $customerModel->getPersonalInformation($customer_ref_id);
-        $last_name = $customerDetails['last_name'] ?? '';
-        $customerName = $customerDetails['file_as'] ?? null;
+        if($customer_type == 'Customer'){
+            $customerDetails = $customerModel->getPersonalInformation($customer_id);
+            $last_name = $customerDetails['last_name'] ?? '';
+            $customerName = $customerDetails['file_as'] ?? null;
+            $slip_reference_no = $issuance_no;
+        }
+        else{
+            $customerDetails = $customerModel->getPersonalInformation($customer_ref_id);
+            $last_name = $customerDetails['last_name'] ?? '';
+            $customerName = $customerDetails['file_as'] ?? null;
+        }
 
         $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
         $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
@@ -68,21 +77,24 @@
         $user = $userModel->getUserByID($user_id);
         $fileAs = $user['file_as'] ?? null;
 
-        if($company_id == '2'){
-            $title = 'CHRISTIAN GENERAL MOTORS INC.';
-        }
-        else if($company_id == '1'){
-            $title = 'CHRISTIAN GENERAL MOTORS INC.';
-        }
-        else if($company_id == '8'){
-            $title = 'NE FUEL';
-        }
-        else{
-            $title = 'FUSO TARLAC';
-        }
+        
 
         if($customer_type == 'Customer'){
             $title = $customerName;
+        }
+        else{
+            if($company_id == '2'){
+                $title = 'CHRISTIAN GENERAL MOTORS INC.';
+            }
+            else if($company_id == '1'){
+                $title = 'CHRISTIAN GENERAL MOTORS INC.';
+            }
+            else if($company_id == '8'){
+                $title = 'NE FUEL';
+            }
+            else{
+                $title = 'FUSO TARLAC';
+            }
         }
 
         $unitNo = '';
@@ -214,6 +226,7 @@
 
             $partDetails = $partsModel->getParts($part_id);
             $unitSale = $partDetails['unit_sale'] ?? null;
+            $part_number = $partDetails['part_number'];
             $description = $partDetails['description'];
             $remarks = $partDetails['remarks'];
 
@@ -222,6 +235,7 @@
 
             $list .= '<tr>
                         <td style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
+                        <td style="text-align:center">'. strtoupper($part_number) .'</td>
                         <td style="text-align:center">'. strtoupper($description) .'</td>
                     </tr>';
         }
@@ -230,6 +244,7 @@
                         <thead>
                             <tr style="text-align:center">
                                 <td><b>Quantity</b></td>
+                                <td><b>Part Number</b></td>
                                 <td><b>Particulars</b></td>
                             </tr>
                         </thead>

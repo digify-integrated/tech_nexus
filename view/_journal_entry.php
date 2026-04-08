@@ -64,6 +64,10 @@
                                 <label class="form-check-label" for="journal-id-14">Fuel Issuance</label>
                               </div>
                               <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-15" value="Fuel Purchase" checked/>
+                                <label class="form-check-label" for="journal-id-15">Fuel Purchase</label>
+                              </div>
+                              <div class="form-check my-2">
                                 <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-7" value="Parts Return" checked/>
                                 <label class="form-check-label" for="journal-id-7">Parts Return</label>
                               </div>

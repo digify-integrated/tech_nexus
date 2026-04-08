@@ -442,9 +442,10 @@
                 <label class="form-label">With Withholding? <span class="text-danger">*</span></label>
                 <select class="form-control" name="with_withholding" id="with_withholding">
                   <option value="No" selected>--</option>
+                  <option value="0.5">WI860 (0.5%)</option>
                   <option value="1">Goods (1%)</option>
                   <option value="2">Services (2%)</option>
-                  <option value="5">5%</option>
+                  <option value="5">Rental (5%)</option>
                 </select>
               </div>
               <div class="col-lg-4 mt-3 mt-lg-0">

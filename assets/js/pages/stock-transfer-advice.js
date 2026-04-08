@@ -17,6 +17,10 @@
         if($('#parts-replacement-table').length){
            partReplacementTable('#parts-replacement-table');
         }
+
+        if($('#sta-document-table').length){
+           staDocumentTable('#sta-document-table');
+        }
         
         if($('#add-part-form').length){
             addPartsForm();
@@ -538,6 +542,10 @@
                 addAdditionalJobOrderTable('#add-additional-job-order-table');
             }
         });
+
+        if($('#sta-document-form').length){
+            staDocumentForm();
+        }
 
         if($('#job-order-table').length){
             jobOrderTable('#job-order-table');
@@ -1555,6 +1563,163 @@ function partReplacementTable(datatable_name, buttons = false, show_all = false)
     destroyDatatable(datatable_name);
 
     $(datatable_name).dataTable(settings);
+}
+
+function staDocumentTable(datatable_name, buttons = false, show_all = false){
+    var stock_transfer_advice_id = $('#stock-transfer-advice-id').text();
+    const type = 'sta document table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'DOCUMENT' },
+        { 'data' : 'UPLOAD_DATE' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': '5%', 'bSortable': false, 'aTargets': 2 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_stock_transfer_advice_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'stock_transfer_advice_id' : stock_transfer_advice_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function staDocumentForm(){
+    $('#sta-document-form').validate({
+        rules: {
+            document_name: {
+                required: true
+            },
+            sta_document: {
+                required: true
+            },
+        },
+        messages: {
+            document_name: {
+                required: 'Please enter the document name'
+            },
+            sta_document: {
+                required: 'Please choose the document'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            var stock_transfer_advice_id = $('#stock-transfer-advice-id').text();
+            const transaction = 'add stock transfer advice document';
+            var formData = new FormData(form);
+            formData.append('transaction', transaction);
+            formData.append('stock_transfer_advice_id', stock_transfer_advice_id);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/stock-transfer-advice-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sta-document');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Insert Document Success';
+                        const notificationDescription = 'The document has been inserted successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('STA Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sta-document', 'Submit');
+                    reloadDatatable('#sta-document-table');
+                    $('#sta-document-offcanvas').offcanvas('hide');
+                    resetModalForm('sta-document-form');
+                }
+            });
+        
+            return false;
+        }
+    });
 }
 
 $.validator.addMethod("notEqualTo", function (value, element, param) {

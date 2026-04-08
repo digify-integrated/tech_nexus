@@ -891,6 +891,35 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        case 'sta document table':
+            $stock_transfer_advice_id  = $_POST['stock_transfer_advice_id'];
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM stock_transfer_advice_document WHERE stock_transfer_advice_id = :stock_transfer_advice_id ORDER BY document_name');
+            $sql->bindValue(':stock_transfer_advice_id', $stock_transfer_advice_id , PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $stock_transfer_advice_document_id = $row['stock_transfer_advice_document_id'];
+                $document_name = $row['document_name'];
+                $document_file_path = $row['document_file_path'];
+                $incoming_date = $systemModel->checkDate('empty', $row['created_date'], '', 'm/d/Y', '');
+
+                $documentType = '<a href="'. $document_file_path .'" target="_blank">' . $document_name . "</a>";
+
+                $response[] = [
+                    'DOCUMENT' => $documentType,
+                    'UPLOAD_DATE' => $incoming_date,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-icon btn-danger delete-parts-document" data-stock-transfer-advice-document-id="'. $stock_transfer_advice_document_id .'" title="Delete Document">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
         case 'stock transfer advice dashboard table':
 
             $sql = $databaseModel->getConnection()->prepare('CALL generateStockTransferAdviceDashboardTable()');

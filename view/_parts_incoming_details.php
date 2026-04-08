@@ -32,11 +32,21 @@
                 }
 
                 if($part_incoming_status == 'Draft'){
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="for-approval">For Approval</button></li>';
+                  if($company == '8'){
+                    $dropdown .= '<li><button class="dropdown-item" type="button" id="for-payment">For Payment</button></li>';
+                  }
+                  else{
+                    $dropdown .= '<li><button class="dropdown-item" type="button" id="for-approval">For Approval</button></li>';
+                  }
                 }
 
                 if($part_incoming_status == 'For Approval'){
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="on-process">Approve</button></li>';
+                  if($company == '8'){
+                    $dropdown .= '<li><button class="dropdown-item" type="button" id="paid">Paid</button></li>';
+                  }
+                  else{
+                    $dropdown .= '<li><button class="dropdown-item" type="button" id="on-process">Approve</button></li>';
+                  }
                 }
 
                 if($part_incoming_status == 'Completed' && $postPartsIncoming['total'] > 0){
@@ -51,7 +61,7 @@
                   $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-incoming-offcanvas" aria-controls="cancel-incoming-offcanvas" id="cancelled">Cancel</button></li>';
                 }
 
-                if($part_incoming_status == 'For Approval' || $part_incoming_status == 'On-Process'){
+                if($part_incoming_status == 'For Approval' || ($part_incoming_status == 'On-Process' && $company != '8' )){
                   $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-incoming-offcanvas" aria-controls="draft-incoming-offcanvas" id="draft">Set to Draft</button></li>';
                 }
 
@@ -73,7 +83,20 @@
                 }
 
                 if ($partsIncomingCreateAccess['total'] > 0) {
-                    echo '<a class="btn btn-success m-r-5 form-details" href="parts-incoming.php?new">Create</a>';
+
+                  if($company == '1'){
+                    $link = 'supplies-incoming.php?new';
+                  }
+                        else if($company == '2'){
+                            $link = 'netruck-parts-incoming.php?new';
+                        }
+                        else if($company == '8'){
+                            $link = 'fuel-incoming.php?new';
+                        }
+                        else{
+                            $link = 'parts-incoming.php?new';
+                        }
+                    echo '<a class="btn btn-success m-r-5 form-details" href="' . $link . '">Create</a>';
                 }
             ?>
           </div>

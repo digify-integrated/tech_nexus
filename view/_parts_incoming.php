@@ -52,7 +52,11 @@
             <thead>
               <tr>
                 <th>Reference Number</th>
-                <th>Product</th>
+                <?php
+                    if($company != '8'){
+                      echo '<th>Product</th>';
+                    }
+                ?>
                 <th>Item Lines</th>
                 <th>Item Quantity</th>
                 <th>Received Items</th>

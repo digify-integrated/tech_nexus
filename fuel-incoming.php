@@ -111,7 +111,7 @@
           if($newRecord && $partsIncomingCreateAccess['total'] > 0){
             require_once('view/_parts_incoming_new.php');
           }
-          else if(!empty($partsIncomingID) && $partsIncomingWriteAccess['total'] > 0){
+          else if(!empty($partsIncomingID)){
             require_once('view/_parts_incoming_details.php');
           }
           else{

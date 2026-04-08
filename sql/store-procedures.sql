@@ -14409,7 +14409,7 @@ CREATE PROCEDURE checkBackJobMonitoringExist (IN p_backjob_monitoring_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
     FROM backjob_monitoring
-    WHERE backjob_monitoring_id = p_backjob_monitoring_id;
+    WHERE backjob_monitoring_id = p_backjob_monitoring_id AND backjob_monitoring_id != 0 AND backjob_monitoring_id IS NOT NULL;
 END //
 
 CREATE PROCEDURE insertBackJobMonitoring(IN p_type VARCHAR(50), IN p_product_id INT, IN p_sales_proposal_id INT, IN p_last_log_by INT, OUT p_backjob_monitoring_id INT)
@@ -19801,6 +19801,7 @@ BEGIN
     DECLARE v_analytic_distribution VARCHAR(500);
     DECLARE v_chart_item VARCHAR(100);
     DECLARE v_credit VARCHAR(100);
+    DECLARE v_je_type VARCHAR(100);
 
     CASE p_company_id
         WHEN 1 THEN
@@ -19850,8 +19851,16 @@ BEGIN
             SET v_analytic_distribution = '{"0": 0.0}';
     END CASE;
 
+    -- 
     SET v_chart_item = '10501020 Inventory Parts';
     SET v_credit = '20101020 Accounts Payable Parts';
+    SET v_je_type = 'Parts Purchase';
+
+    IF p_company_id = '8' THEN 
+        SET v_chart_item = '10501060 Inventory Fuel';
+        SET v_credit = '20101021 Accounts Payable Fuel';
+        SET v_je_type = 'Fuel Purchase';
+    END IF;
     
     -- Insert debit entry
     INSERT INTO journal_entry (
@@ -19871,7 +19880,7 @@ BEGIN
         p_part_incoming_id, 
         NOW(), 
         p_reference_number, 
-        'Parts Purchase', 
+        v_je_type, 
         v_chart_item, 
         p_cost, 
         0, 
@@ -19900,7 +19909,7 @@ BEGIN
         p_part_incoming_id, 
         NOW(), 
         p_reference_number, 
-        'Parts Purchase', 
+        v_je_type, 
         v_credit, 
         0, 
         p_cost, 

@@ -302,7 +302,7 @@ class PartsIncomingController {
             $this->systemSettingModel->updateSystemSettingValue(36, $rr_no, $userID);
         }
 
-        if($company_id == '3' || $company_id == '2'){
+        if($company_id == '3' || $company_id == '2' || $company_id == '8'){
             $this->partsIncomingModel->createPartsIncomingEntry($parts_incoming_id, $company_id, $reference_number, $cost, $userID);
         }
         echo json_encode(['success' => true]);
@@ -336,6 +336,45 @@ class PartsIncomingController {
         if($lines > 0){
             echo json_encode(['success' => false, 'withoutCost' => true]);
             exit;
+        }
+
+        $partsIncomingDetails = $this->partsIncomingModel->getPartsIncoming($parts_incoming_id);
+        $product_id = $partsIncomingDetails['product_id'] ?? '';
+        $company_id = $partsIncomingDetails['company_id'] ?? '';
+        $supplier_id = $partsIncomingDetails['supplier_id'] ?? '';
+
+        if($company_id == 8){
+            $getPartsIncomingCartByID = $this->partsIncomingModel->getPartsIncomingCartByID($parts_incoming_id);
+
+            foreach ($getPartsIncomingCartByID as $row) {
+                $part_incoming_cart_id = $row['part_incoming_cart_id'];
+                $part_id = $row['part_id'];
+                $received_quantity = $row['quantity'];
+
+                $this->partsIncomingModel->updatePartsReceivedIncomingCart($part_incoming_cart_id, $part_id, $received_quantity, $userID);                
+            }
+
+            $getPartsIncomingCartByID2 = $this->partsIncomingModel->getPartsIncomingCartByID($parts_incoming_id);
+
+            foreach ($getPartsIncomingCartByID2 as $row) {
+                $part_incoming_cart_id = $row['part_incoming_cart_id'];
+                $part_id = $row['part_id'];
+                $received_quantity = $row['received_quantity'];
+                $cost_per_item = $row['cost'];
+
+                $this->partsIncomingModel->updatePartsAverageCostAndSRP(
+                    $part_id,
+                    $company_id,
+                    $supplier_id,
+                    $received_quantity,
+                    $cost_per_item,
+                    $userID
+                );                
+            }
+
+            if(!empty($product_id) && $product_id != '958'){
+                $this->partsIncomingModel->generatePartsIssuanceMonitoring($parts_incoming_id, $userID);
+            }
         }
 
         $this->partsIncomingModel->updatePartsIncomingStatus($parts_incoming_id, 'On-Process', '', $userID);
@@ -418,25 +457,27 @@ class PartsIncomingController {
         $company_id = $partsIncomingDetails['company_id'] ?? '';
         $supplier_id = $partsIncomingDetails['supplier_id'] ?? '';
 
-        $getPartsIncomingCartByID = $this->partsIncomingModel->getPartsIncomingCartByID($parts_incoming_id);
+        if($company_id != 8){
+            $getPartsIncomingCartByID = $this->partsIncomingModel->getPartsIncomingCartByID($parts_incoming_id);
 
-        foreach ($getPartsIncomingCartByID as $row) {
-            $part_id = $row['part_id'];
-            $received_quantity = $row['received_quantity'];
-            $cost_per_item = $row['cost'];
+            foreach ($getPartsIncomingCartByID as $row) {
+                $part_id = $row['part_id'];
+                $received_quantity = $row['received_quantity'];
+                $cost_per_item = $row['cost'];
 
-            $this->partsIncomingModel->updatePartsAverageCostAndSRP(
-                $part_id,
-                $company_id,
-                $supplier_id,
-                $received_quantity,
-                $cost_per_item,
-                $userID
-            );
-        }
+                $this->partsIncomingModel->updatePartsAverageCostAndSRP(
+                    $part_id,
+                    $company_id,
+                    $supplier_id,
+                    $received_quantity,
+                    $cost_per_item,
+                    $userID
+                );
+            }
 
-        if(!empty($product_id) && $product_id != '958'){
-            $this->partsIncomingModel->generatePartsIssuanceMonitoring($parts_incoming_id, $userID);
+            if(!empty($product_id) && $product_id != '958'){
+                $this->partsIncomingModel->generatePartsIssuanceMonitoring($parts_incoming_id, $userID);
+            }
         }
 
         $this->partsIncomingModel->updatePartsIncomingReleased($parts_incoming_id, 'Completed', $invoice_number, $invoice_price, $invoice_date, $delivery_date, $userID);
@@ -614,7 +655,7 @@ class PartsIncomingController {
         $uploadSetting = $this->uploadSettingModel->getUploadSetting(6);
         $maxFileSize = $uploadSetting['max_file_size'];
 
-        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(6);
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(18);
         $allowedFileExtensions = [];
 
         foreach ($uploadSettingFileExtension as $row) {

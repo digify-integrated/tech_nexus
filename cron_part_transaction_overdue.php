@@ -39,7 +39,7 @@ $table = '<table border="1" cellspacing="0" cellpadding="5">
             <thead>
             <tbody>';
 
-$sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction WHERE part_transaction_status = "Released" AND company_id != 1 ORDER BY company_id');
+$sql = $databaseModel->getConnection()->prepare('SELECT * FROM part_transaction WHERE part_transaction_status = "Released" AND company_id NOT IN (1, 8)ORDER BY company_id');
 $sql->execute();
 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
 $sql->closeCursor();
@@ -152,6 +152,7 @@ $mailer->addAddress('m.siapo.fuso@christianmotors.ph');
 $mailer->addAddress('cj.agudo@christianmotors.ph');
 $mailer->addAddress('l.samaniego@christianmotors.ph');
 $mailer->addAddress('sc.lapuz@christianmotors.ph');
+$mailer->addAddress('a.bayno.fuso@christianmotors.ph');
 $mailer->Subject = $emailSubject;
 $mailer->Body = $message;
 

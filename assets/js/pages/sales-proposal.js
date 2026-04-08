@@ -1244,7 +1244,10 @@
                                 if (response.isInactive) {
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
-                                }
+                                }                            
+                                else if (response.fuelQuantity) {
+                                    showNotification('Transaction Error', 'Insufficient fuel quantity.', 'danger');
+                                } 
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }
@@ -1679,13 +1682,9 @@ function issuedPartsTable(datatable_name, buttons = false, show_all = false) {
       { data: 'PART_TRANSACTION_NO' },
       { data: 'PART' },
       { data: 'QUANTITY' },
-      { data: 'RETURNED_QUANTITY' },
       { data: 'REQUESTED_BY' },
       { data: 'RELEASED_DATE' },
       { data: 'STATUS' },
-      { data: 'COST' },
-      { data: 'PRICE' },
-      { data: 'TOTAL_COST' },
       { data: 'TOTAL_PRICE' }
     ],
     columnDefs: [
@@ -1693,13 +1692,9 @@ function issuedPartsTable(datatable_name, buttons = false, show_all = false) {
       { width: 'auto', targets: 1 },
       { width: 'auto', targets: 2 },
       { width: 'auto', targets: 3 },
-      { width: 'auto', targets: 4 },
-      { width: 'auto', type: 'date', targets: 5 },
+      { width: 'auto', type: 'date', targets: 4 },
+      { width: 'auto', targets: 5 },
       { width: 'auto', targets: 6 },
-      { width: 'auto', targets: 7 },
-      { width: 'auto', targets: 8 },
-      { width: 'auto', targets: 9 },
-      { width: 'auto', targets: 10 },
     ],
     buttons,
     showAll: show_all,

@@ -779,20 +779,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/client_confirmation/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
             $fileNew = $fileName . '.' . $confirmationImageActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/client_confirmation/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/client_confirmation/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/client_confirmation/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -885,29 +879,22 @@ class SalesProposalController {
                 exit;
             }
 
-           // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/no_deposit_approval/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
             $fileNew = $fileName . '.' . $confirmationImageActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/no_deposit_approval/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/no_deposit_approval/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/no_deposit_approval/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
-            // 5. IMPORTANT: Check if the response is strictly TRUE
-            if($directoryChecker !== true){
+            if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
                 exit;
             }
 
-            // 6. Perform the move
             if(!move_uploaded_file($confirmationImageTempName, $fileDestination)){
-                echo json_encode(['success' => false, 'message' => 'There was an error moving the file to ' . $fileDestination]);
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
                 exit;
             }
 
@@ -992,20 +979,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/comaker_confirmation/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
             $fileNew = $fileName . '.' . $confirmationImageActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/comaker_confirmation/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/comaker_confirmation/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/comaker_confirmation/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -1110,20 +1091,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/quality_control_form/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $qualityControlImageFileExtension;
+            $fileNew = $fileName . '.' . $qualityControlImageActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/quality_control_form/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/quality_control_form/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/quality_control_form/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -1228,19 +1203,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/outgoing_checklist/';
+             $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
 
-            // 2. Generate the filename
-            $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $outgoingChecklistImageFileExtension;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/outgoing_checklist/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/outgoing_checklist/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/outgoing_checklist/' . $fileNew;
-
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -1345,20 +1315,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_image/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $outgoingChecklistImageFileExtension;
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/unit_image/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/unit_image/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_image/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -1451,20 +1415,14 @@ class SalesProposalController {
                 exit;
             }
 
-           // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_back/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $outgoingChecklistImageFileExtension;
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/unit_back/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/unit_back/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_back/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -1557,20 +1515,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_left/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $outgoingChecklistImageFileExtension;
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/unit_left/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/unit_left/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_left/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -1663,20 +1615,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_right/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $outgoingChecklistImageFileExtension;
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/unit_right/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/unit_right/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_right/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -1769,20 +1715,14 @@ class SalesProposalController {
                 exit;
             }
 
-             // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_interior/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $outgoingChecklistImageFileExtension;
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/unit_interior/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/unit_interior/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_interior/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -1887,20 +1827,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/additional_job_order_confirmation/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $outgoingChecklistImageFileExtension;
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/additional_job_order_confirmation/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/additional_job_order_confirmation/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/additional_job_order_confirmation/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -2005,20 +1939,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/new_engine_stencil/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $stencilImageFileExtension;
+            $fileNew = $fileName . '.' . $stencilImageActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/new_engine_stencil/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/new_engine_stencil/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/new_engine_stencil/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -2123,20 +2051,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/credit_advice/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $creditAdviceFileExtension;
+            $fileNew = $fileName . '.' . $creditAdviceActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/credit_advice/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/credit_advice/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/credit_advice/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -2257,6 +2179,7 @@ class SalesProposalController {
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
 
         $productDetails = $this->productModel->getProduct($productID);
+        $productStatus = $productDetails['product_status'] ?? 'Draft';
         
         
         $approverDetails = $this->userModel->getContactByContactID($inititialApprovingOfficer);
@@ -2271,8 +2194,8 @@ class SalesProposalController {
             exit;
         }*/
 
-        if($productDetails['product_status'] === 'With Application'){
-            echo json_encode(['success' => false, 'withApplication' => true]);
+        if($productStatus == 'With Application'){
+            echo json_encode(['success' => false, 'withApplication' => true, 'productStatus' => $productDetails['product_status']]);
             exit;
         }
 
@@ -2615,14 +2538,15 @@ class SalesProposalController {
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
 
         $productDetails = $this->productModel->getProduct($productID);
-        $productStatus = $productDetails['product_status'] ?? null;
+        $productStatus = $productDetails['product_status'] ?? 'Draft';
 
         $allowedStatuses = ['For Sale', 'For Return', 'Rented'];
 
         if (!empty($productStatus) && !in_array($productStatus, $allowedStatuses, true) && $productType == 'Unit') {
             echo json_encode([
                 'success' => false,
-                'withApplication' => true
+                'withApplication' => true,
+                'productStatus' => $productStatus,
             ]);
             exit;
         }
@@ -2823,20 +2747,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/set_to_draft_file/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $setToDraftFileFileExtension;
+            $fileNew = $fileName . '.' . $setToDraftFileActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/set_to_draft_file/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/set_to_draft_file/' . $salesProposalID . '/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/set_to_draft_file/' . $salesProposalID . '/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -2940,20 +2858,14 @@ class SalesProposalController {
             exit;
         }
 
-        // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/other_document_file/';
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $setToDraftFileActualFileExtension;
 
-            // 2. Generate the filename
-            $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $setToDraftFileFileExtension;
+        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/other_document_file/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/other_document_file/' . $fileNew;
+        $filePath = $directory . $fileNew;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/other_document_file/' . $fileNew;
-
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
         if(!$directoryChecker){
             echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -3206,28 +3118,28 @@ class SalesProposalController {
 
         if($productType == 'Fuel'){
             if($diesel_fuel_quantity > 0){
-                $dieselQuantity = $this->partsModel->getParts(10611)['quantity'] ?? 0;
+                $dieselQuantity = (float) $this->partsModel->getParts(10611)['quantity'] ?? 0;
 
-                if($diesel_fuel_quantity < $dieselQuantity){
-                    echo json_encode(['success' => false, 'fuelQuantity' =>  true]);
+                if($diesel_fuel_quantity > $dieselQuantity){
+                    echo json_encode(['success' => false, 'fuelQuantity' =>  true, 'dieselQuantity' => $dieselQuantity, 'requestedDieselQuantity' => $diesel_fuel_quantity]);
                     exit;
                 }
             }
 
             if($premium_fuel_quantity > 0){
-                $premiumQuantity = $this->partsModel->getParts(10612)['quantity'] ?? 0;
+                $premiumQuantity = (float) $this->partsModel->getParts(10612)['quantity'] ?? 0;
 
-                if($premium_fuel_quantity < $premiumQuantity){
-                    echo json_encode(['success' => false, 'fuelQuantity' =>  true]);
+                if($premium_fuel_quantity > $premiumQuantity){
+                    echo json_encode(['success' => false, 'fuelQuantity' =>  true, 'premiumQuantity' => $premiumQuantity, 'requestedPremiumQuantity' => $premium_fuel_quantity]);
                     exit;
                 }
             }
             
             if($regular_fuel_quantity > 0){
-                $regularQuantity = $this->partsModel->getParts(10613)['quantity'] ?? 0;
+                $regularQuantity = (float) $this->partsModel->getParts(10613)['quantity'] ?? 0;
 
-                if($regular_fuel_quantity < $regularQuantity){
-                    echo json_encode(['success' => false, 'fuelQuantity' =>  true]);
+                if($regular_fuel_quantity > $regularQuantity){
+                    echo json_encode(['success' => false, 'fuelQuantity' =>  true, 'regularQuantity' => $regularQuantity, 'requestedRegularQuantity' => $regular_fuel_quantity]);
                     exit;
                 }
             }
@@ -3582,20 +3494,14 @@ class SalesProposalController {
                     exit;
                 }
 
-                 // 1. Define the absolute path to the target folder first
-                $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/job_order_approval_document/';
-
-                // 2. Generate the filename
                 $fileName = $this->securityModel->generateFileName();
-                $fileNew = $fileName . '.' . $approvalDocumentFileExtension;
+                $fileNew = $fileName . '.' . $approvalDocumentActualFileExtension;
 
-                // 3. Set the full destination and the relative path for the database
-                $fileDestination = $targetFolder . $fileNew;
-                $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/job_order_approval_document/' . $fileNew;
+                $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/job_order_approval_document/';
+                $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/job_order_approval_document/' . $fileNew;
+                $filePath = $directory . $fileNew;
 
-                // 4. Pass the ABSOLUTE path to the checker
-                $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+                $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
                 if(!$directoryChecker){
                     echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -3657,20 +3563,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/job_order_approval_document/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $approvalDocumentFileExtension;
+            $fileNew = $fileName . '.' . $approvalDocumentActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/job_order_approval_document/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/job_order_approval_document/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/job_order_approval_document/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -4522,20 +4422,14 @@ class SalesProposalController {
                 exit;
             }
 
-            // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/additional_job_order_approval_document/';
-
-            // 2. Generate the filename
             $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $approvalDocumentFileExtension;
+            $fileNew = $fileName . '.' . $approvalDocumentActualFileExtension;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/additional_job_order_approval_document/' . $fileNew;
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/additional_job_order_approval_document/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/additional_job_order_approval_document/' . $fileNew;
+            $filePath = $directory . $fileNew;
 
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
             if(!$directoryChecker){
                 echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -4739,20 +4633,14 @@ class SalesProposalController {
             exit;
         }
 
-        // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/client_confirmation/';
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $jobOrderCancellationConfimationImageActualFileExtension;
 
-            // 2. Generate the filename
-            $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $jobOrderCancellationConfimationImageFileExtension;
+        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/client_confirmation/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/client_confirmation/' . $fileNew;
+        $filePath = $directory . $fileNew;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/client_confirmation/' . $fileNew;
-
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
         if(!$directoryChecker){
             echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -4819,20 +4707,14 @@ class SalesProposalController {
             exit;
         }
 
-        // 1. Define the absolute path to the target folder first
-            $targetFolder = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/client_confirmation/';
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $additionalJobOrderCancellationConfimationImageActualFileExtension;
 
-            // 2. Generate the filename
-            $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $additionalJobOrderCancellationConfimationImageFileExtension;
+        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/client_confirmation/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/client_confirmation/' . $fileNew;
+        $filePath = $directory . $fileNew;
 
-            // 3. Set the full destination and the relative path for the database
-            $fileDestination = $targetFolder . $fileNew;
-            $filePath = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE . '/client_confirmation/' . $fileNew;
-
-            // 4. Pass the ABSOLUTE path to the checker
-            $directoryChecker = $this->securityModel->directoryChecker($targetFolder);
-
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
         if(!$directoryChecker){
             echo json_encode(['success' => false, 'message' => $directoryChecker]);
