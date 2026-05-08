@@ -109,7 +109,7 @@ class PartsModel {
         WHERE part_id = :p_part_id
         AND quantity >= :fuel_quantity;');
         $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
-        $stmt->bindValue(':fuel_quantity', $fuel_quantity, PDO::PARAM_STR);
+        $stmt->bindValue(':fuel_quantity', (float) $fuel_quantity);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -437,7 +437,7 @@ class PartsModel {
         return $htmlOptions;
     }
     public function generateAllSupplyOptions() {
-        $stmt = $this->db->getConnection()->prepare('SELECT * FROM part WHERE company_id NOT IN (3, 4) ORDER BY description');
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM part WHERE company_id IN (1) ORDER BY description');
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

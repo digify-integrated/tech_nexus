@@ -39,7 +39,7 @@
                 <div class="tab-content">
                     <div class="d-flex wizard justify-content-between mb-3">
                         <div class="first">
-                            <a href="javascript:void(0);" id="first-step" class="btn btn-secondary disabled">First</a>
+                            <a href="javascript:void(0);" id="first-step" class="btn btn-secondary disabled d-none">First</a>
                         </div>
                         <div class="d-flex">
                             <?php
@@ -81,18 +81,18 @@
                                 }
                             ?>
                             <div class="previous me-2">
-                                <a href="javascript:void(0);" id="previous-step" class="btn btn-secondary disabled">Back To Previous</a>
+                                <a href="javascript:void(0);" id="previous-step" class="btn btn-secondary disabled d-none">Back To Previous</a>
                             </div>
                             <div class="next">
-                                <a href="javascript:void(0);" id="next-step" class="btn btn-secondary mt-3 mt-md-0">Next Step</a>
+                                <a href="javascript:void(0);" id="next-step" class="btn btn-secondary mt-3 mt-md-0 d-none">Next Step</a>
                             </div>
                         </div>
                         <?php
-                        if($salesProposalStatus == 'Released'){
-                            echo '<div class="last">
-                                    <a href="javascript:void(0);" id="last-step2" class="btn btn-secondary mt-3 mt-md-0">Last</a>
-                                </div>';
-                        }
+                            if($salesProposalStatus == 'Released'){
+                                echo '<div class="last">
+                                        <a href="javascript:void(0);" id="last-step2" class="btn btn-secondary mt-3 mt-md-0 d-none">Last</a>
+                                    </div>';
+                            }
                         ?>
                     </div>
                     <div id="bar" class="progress mb-3" style="height: 7px;">
@@ -160,6 +160,7 @@
                                     <option value="1">Christian General Motors Inc.</option>
                                     <!--<option value="2">NE Truck Builders</option>-->
                                     <option value="3">FUSO Tarlac</option>
+                                    <option value="8">NE Fuel</option>
                                 </select>
                                 </div>
                             </div>

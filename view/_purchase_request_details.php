@@ -31,14 +31,10 @@
                 echo '<button class="btn btn-success ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-purchase-request-offcanvas" aria-controls="approve-purchase-request-offcanvas" id="approved">Approve</button>';
               }
 
-              if($purchase_request_status == 'For Approval'){
+              if($purchase_request_status == 'For Approval' || $purchase_request_status == 'For Approval' || $purchase_request_status == 'Approved'){
                 echo  '<a href="print-purchase-request.php?id='. $purchaseRequestID .'" class="btn btn-info" target="_blank">Print Purchase Request</a>';
               }
-
-              if($purchase_request_status == 'For Approval'){
-                echo  '<a href="print-purchase-request.php?id='. $purchaseRequestID .'" class="btn btn-info" target="_blank">Print Purchase Request</a>';
-              }
-
+              
               if($purchase_request_status == 'Draft' || $purchase_request_status == 'For Approval'){
                 echo '<button class="btn btn-warning ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-purchase-request-offcanvas" aria-controls="cancel-purchase-request-offcanvas" id="cancelled">Cancel</button>';
               }
@@ -96,14 +92,14 @@
                 <?php echo $systemModel->generateMonthOptions(); ?>
               </select>
             </div>
-            <label class="col-lg-2 col-form-label">Coverage <span class="text-danger">*</span></label>
+            <!--<label class="col-lg-2 col-form-label">Coverage <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="coverage_period" id="coverage_period" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <option value="1st Half">1st Half</option>
                 <option value="2nd Half">2nd Half</option>
               </select>
-            </div>
+            </div>-->
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Remarks</label>
@@ -128,7 +124,7 @@
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <?php
               if($purchase_request_status == 'Draft'){
-                echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-item-offcanvas" aria-controls="add-item-offcanvas" id="add-item">Add Item</button>';
+                echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-item-supplies-offcanvas" aria-controls="add-item-supplies-offcanvas" id="add-item">Add Item</button>';
               }
             ?>
           </div>
@@ -175,9 +171,9 @@
 ?>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="add-item-offcanvas" aria-labelledby="add-item-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="add-item-supplies-offcanvas" aria-labelledby="add-item-supplies-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="add-item-offcanvas-label" style="margin-bottom:-0.5rem">Purchase Request Item</h2>
+      <h2 id="add-item-supplies-offcanvas-label" style="margin-bottom:-0.5rem">Purchase Request Item</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -185,7 +181,16 @@
         <div class="col-lg-12">
           <form id="add-item-form" method="post" action="#">
             <input type="hidden" id="purchase_request_cart_id" name="purchase_request_cart_id">
-            <div class="form-group row">
+            <div class="form-group row d-none supplies_options">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Supplies <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="part_id" id="part_id">
+                  <option value="">--</option>
+                  <?php echo $partsModel->generateAllSupplyOptions(); ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row d-none others_option">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Item <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="description" name="description" maxlength="200" autocomplete="off">

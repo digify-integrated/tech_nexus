@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: application/json');
 session_start();
 
 # -------------------------------------------------------------
@@ -361,7 +362,7 @@ class SalesProposalController {
             exit;
         }
 
-        if(!empty($_POST['renewal_tag']) && !empty($_POST['application_source_id']) && !empty($_POST['company_id']) && !empty($_POST['product_type']) && !empty($_POST['transaction_type']) && !empty($_POST['number_of_payments'])){
+        if(!empty($_POST['renewal_tag']) && !empty($_POST['application_source_id']) && !empty($_POST['company_id']) && !empty($_POST['product_type'] && !empty($_POST['first_due_date'])) && !empty($_POST['transaction_type']) && !empty($_POST['number_of_payments'])){
             $userID = $_SESSION['user_id'];
             $contactID = $_SESSION['contact_id'] ?? 1;
             $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
@@ -3046,8 +3047,23 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
+        $customerID = $salesProposalDetails['customer_id'];
+        $productType = $salesProposalDetails['product_type'];
+        $productID = $salesProposalDetails['product_id'];
+
+        $customerDetails = $this->customerModel->getPersonalInformation($customerID);
+        $customerName = strtoupper($customerDetails['file_as'] ?? null);
+
+        $productDetails = $this->productModel->getProduct($productID);
+
+        $customerDetails = $this->customerModel->getPersonalInformation($customerID);
+        $customerName = strtoupper($customerDetails['file_as'] ?? null);
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For DR', '', $userID);
+         $this->sendForDR($salesProposalNumber, $customerName, $productType, $productDetails['stock_number'] ?? null);
             
         echo json_encode(['success' => true]);
         exit;
@@ -3104,9 +3120,9 @@ class SalesProposalController {
         $companyID = $salesProposalDetails['company_id'] ?? null;
         $transactionType = $salesProposalDetails['transaction_type'] ?? null;
         $sales_proposal_number = $salesProposalDetails['sales_proposal_number'] ?? null;
-        $diesel_fuel_quantity = $salesProposalDetails['diesel_fuel_quantity'] ?? null;
-        $regular_fuel_quantity = $salesProposalDetails['regular_fuel_quantity'] ?? null;
-        $premium_fuel_quantity = $salesProposalDetails['premium_fuel_quantity'] ?? null;
+        $diesel_fuel_quantity = $salesProposalDetails['diesel_fuel_quantity'] ?? 0;
+        $regular_fuel_quantity = $salesProposalDetails['regular_fuel_quantity'] ?? 0;
+        $premium_fuel_quantity = $salesProposalDetails['premium_fuel_quantity'] ?? 0;
 
         $productDetails = $this->productModel->getProduct($productID);
         $product_status = $productDetails['product_status'] ?? null;
@@ -3222,7 +3238,7 @@ class SalesProposalController {
             $this->productModel->updateProductStatus($productID, $status, '', '', '', $userID);
         }
 
-        if($productType == 'Fuel' && $companyID == '8'){
+        if($productType == 'Fuel'){
             if($diesel_fuel_quantity > 0){
                 $this->partsModel->updateFuelQuantity(10611, $diesel_fuel_quantity);
             }
@@ -4496,7 +4512,7 @@ class SalesProposalController {
         $job_cost = $salesProposalJobOrderDetails['job_cost'];
         $job_order = $salesProposalJobOrderDetails['job_order'];
         $work_center_id = $salesProposalJobOrderDetails['work_center_id'];
-        $debit_company_id = $salesProposalJobOrderDetails['work_center_id'];
+        $debit_company_id = $salesProposalJobOrderDetails['debit_company_id'] ?? 1;
 
         $workCenterDetails = $this->workCenterModel->getWorkCenter($work_center_id);
         $work_center_name = $workCenterDetails['work_center_name'] ?? null;
@@ -4548,7 +4564,7 @@ class SalesProposalController {
         $job_cost = $salesProposalJobOrderDetails['job_cost'];
         $particulars = $salesProposalJobOrderDetails['particulars'];
         $work_center_id = $salesProposalJobOrderDetails['work_center_id'];
-        $debit_company_id = $salesProposalJobOrderDetails['debit_company_id'];
+        $debit_company_id = $salesProposalJobOrderDetails['debit_company_id'] ?? 1;
 
         $workCenterDetails = $this->workCenterModel->getWorkCenter($work_center_id);
         $work_center_name = $workCenterDetails['work_center_name'] ?? null;
@@ -4968,6 +4984,9 @@ class SalesProposalController {
             $salesProposalAdditionalJobOrderTotalDetails = $this->salesProposalModel->getSalesProposalAdditionalJobOrderTotal($salesProposalID);
             $progress = $this->salesProposalModel->getJobOrderMonitoringTotalProgress($salesProposalID)['total_progress_percentage'] ?? 0;
 
+            $salesProposalPricingComputationDetails = $this->salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
+            $outstanding_balance = $salesProposalPricingComputationDetails['outstanding_balance'] ?? 0;
+
             $response = [
                 'success' => true,
                 'salesProposalNumber' => $salesProposalDetails['sales_proposal_number'],
@@ -4997,7 +5016,7 @@ class SalesProposalController {
                 'productName' => $stockNumber . ' - ' . $productDescription,
                 'drNumber' => $salesProposalDetails['dr_number'],
                 'releaseTo' => $salesProposalDetails['release_to'],
-                'totalAdditionalJobOrder' => '<b class="text-sm">Total Additional Job Order : &nbsp; &nbsp; &nbsp; &nbsp;' . number_format($salesProposalAdditionalJobOrderTotalDetails['total'] ?? 0, 2) . '</b>',
+                'totalAdditionalJobOrder' => number_format($salesProposalAdditionalJobOrderTotalDetails['total'] ?? 0, 2),
                 'actualStartDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['actual_start_date'], '', 'm/d/Y', ''),
                 'referredBy' => $salesProposalDetails['referred_by'],
                 'releaseDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', ''),
@@ -5015,6 +5034,7 @@ class SalesProposalController {
                 'otherDocumentFile' => $salesProposalDetails['other_document_file'] ?? null,
                 'initialApprovingOfficer' => $initialApprovingOfficer,
                 'finalApprovingOfficer' => $finalApprovingOfficer,
+                'summaryTotal' => number_format((($salesProposalAdditionalJobOrderTotalDetails['total'] ?? 0) + $outstanding_balance), 2),
                 'createdByName' => $createdByName,
             ];
 
@@ -5973,6 +5993,43 @@ class SalesProposalController {
         $mailer->setFrom($mailFromEmail, $mailFromName);
         $mailer->addAddress('christianbaguisa@christianmotors.ph');
         $mailer->addAddress('ma.garsula@christianmotors.ph');
+        $mailer->addAddress('glenbonita@christianmotors.ph');
+        $mailer->addAddress('j.pineda@christianmotors.ph');
+        $mailer->addAddress('l.cabarles@christianmotors.ph');
+
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+
+    public function sendForDR($sales_proposal_number, $client_name, $product_type, $stock_number) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(23);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{SALES_PROPOSAL_NUMBER}', $sales_proposal_number, $emailBody);
+        $emailBody = str_replace('{CLIENT_NAME}', $client_name, $emailBody);
+        $emailBody = str_replace('{PRODUCT_TYPE}', $product_type, $emailBody);
+        $emailBody = str_replace('{STOCK_NUMBER}', $stock_number, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        $mailer->addAddress('christianbaguisa@christianmotors.ph');
         $mailer->addAddress('glenbonita@christianmotors.ph');
         $mailer->addAddress('j.pineda@christianmotors.ph');
         $mailer->addAddress('l.cabarles@christianmotors.ph');

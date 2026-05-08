@@ -168,7 +168,7 @@
                                                         <th>Job Order</th>
                                                         <th>Contactor</th>
                                                         <th>Work Center</th>
-                                                        <th>Cost</th>
+                                                        <th>Amount Charge</th>
                                                         <th>Planned Start Date</th>
                                                         <th>Planned Finished Date</th>
                                                         <th>Date Started</th>
@@ -197,7 +197,7 @@
                                                     <th>Job Order Number</th>
                                                     <th>Job Order Date</th>
                                                     <th>Particulars</th>
-                                                    <th>Cost</th>
+                                                    <th>Amount Charge</th>
                                                     <th>Contactor</th>
                                                     <th>Work Center</th>
                                                     <th>Progress</th>
@@ -766,7 +766,7 @@
                 </select>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label" for="job_order_cost">Cost <span class="text-danger">*</span></label>
+                <label class="form-label" for="job_order_cost">Amount Charge <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01">
               </div>
             </div>
@@ -893,7 +893,7 @@
                 </select>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label" for="additional_job_order_cost">Cost <span class="text-danger">*</span></label>
+                <label class="form-label" for="additional_job_order_cost">Amount Charge <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="additional_job_order_cost" name="additional_job_order_cost" min="0" step="0.01">
               </div>
             </div>

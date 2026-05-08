@@ -345,19 +345,30 @@ class LeaveApplicationController {
             exit;
         }
 
-        if($leaveTypeID == '1'){
+        if ($leaveTypeID == '1') {
+            // 1. Date Validation: Check if leave date is in the past
+            $currentDate = date('Y-m-d'); 
+            
+            if ($leaveDate < $currentDate) {
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'You cannot apply for this leave type on a past date.'
+                ]);
+                exit;
+            }
+
+            // 2. Entitlement Validation
             $entitlement = $this->leaveApplicationModel->getEmployeeLeaveEntitlement($contactID, $leaveDate)['entitlement_amount'] ?? 0;
 
-            if($application_type === 'Whole Day'){
+            if ($application_type === 'Whole Day') {
                 $application_amount = 8;
-            }
-            else{
+            } else {
                 $application_amount = 4;
             }
 
             $entitlement_total = $entitlement - $application_amount;
 
-            if($entitlement == 0 || $entitlement_total < 0){
+            if ($entitlement == 0 || $entitlement_total < 0) {
                 echo json_encode(['success' => false, 'entitlementZero' => true]);
                 exit;
             }

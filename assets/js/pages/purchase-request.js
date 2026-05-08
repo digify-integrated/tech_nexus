@@ -38,6 +38,25 @@
             approvePurchaseRequestForm();
         }
 
+        $(document).on('click','#add-item',function() {
+             let purchase_request_type = $('#purchase_request_type').val();
+
+            if(purchase_request_type == 'Supplies'){
+                $('.supplies_options').removeClass('d-none')
+                $('.others-option').addClass('d-none')
+                $('#unit_id').select2("enable", false)
+            }
+            else{
+                $('.supplies_options').addClass('d-none')
+                $('.others-option').removeClass('d-none')
+                $('#unit_id').select2("enable", true)
+            }
+        });
+
+        $(document).on('change','#part_id',function() {
+            displayDetails('get parts details');
+        });
+
         $(document).on('click','#for-approval',function() {
             var purchase_request_id = $('#purchase-request-id').text();
             const transaction = 'tag request as for approval';
@@ -308,6 +327,8 @@ function purchaseRequestTable(datatable_name, buttons = false, show_all = false)
         { 'data' : 'REFERENCE_NO' },
         { 'data' : 'PURCHASE_REQUEST_TYPE' },
         { 'data' : 'COMPANY' },
+        { 'data' : 'DEPARTMENT' },
+        { 'data' : 'MONTH' },
         { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
@@ -318,7 +339,9 @@ function purchaseRequestTable(datatable_name, buttons = false, show_all = false)
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': '15%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -441,11 +464,6 @@ function purchaseRequestForm(){
                     return $('#purchase_request_type').val() === 'Supplies';
                 }
             },
-            coverage_period: {
-                required: function () {
-                    return $('#purchase_request_type').val() === 'Supplies';
-                }
-            }
         },
         messages: {
             purchase_request_type: {
@@ -460,9 +478,6 @@ function purchaseRequestForm(){
             month_coverage: {
                 required: 'Please specify the month coverage'
             },
-            coverage_period: {
-                required: 'Please specify the coverage period'
-            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -597,6 +612,8 @@ function addItemForm(){
         submitHandler: function(form) {
             const purchase_request_id = $('#purchase-request-id').text();
             const transaction = 'save purchase request item';
+            
+           $(form).find('select:disabled').prop('disabled', false);
         
             $.ajax({
                 type: 'POST',
@@ -955,6 +972,42 @@ function displayDetails(transaction){
                 }
             });
             break;
+        case 'get parts details':
+            const parts_id = $('#part_id').val();
+            
+            $.ajax({
+                url: 'controller/parts-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    parts_id : parts_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetForm('parts-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        checkOptionExist('#unit_id', response.unit_sale, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Part Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
         case 'get purchase request cart details':
             const purchase_request_cart_id = $('#purchase_request_cart_id').val();
             
@@ -974,6 +1027,7 @@ function displayDetails(transaction){
                         $('#item_remarks').val(response.remarks);
                         
                         checkOptionExist('#unit_id', response.unit_id, '');
+                        checkOptionExist('#part_id', response.part_id, '');
                     } 
                     else {
                         if(response.isInactive){

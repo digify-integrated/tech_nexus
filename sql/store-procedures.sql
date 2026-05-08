@@ -8063,7 +8063,7 @@ BEGIN
 
         UPDATE product SET product_status = 'With Application',
         last_log_by = p_last_log_by
-        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id) AND product_status NOT IN ('For Return', 'Sold');
+        WHERE product_id = (SELECT product_id FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id AND product_id NOT IN (955)) AND product_status NOT IN ('For Return', 'Sold');
     ELSEIF p_sales_proposal_status = 'For CI' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -12311,12 +12311,12 @@ BEGIN
         CURRENT_DATE,
         p_last_log_by
     FROM employment_information ei
-    WHERE ei.employment_status = 1 AND employee_id NOT IN (43,44,45);
+    WHERE ei.employment_status = 1 AND contact_id NOT IN (43,44,45);
 
     -- Update status to 'Official Business' where leave_type_id = 3 and leave is approved for today
     UPDATE employee_daily_status eds
     INNER JOIN leave_application la ON la.contact_id = eds.contact_id
-    SET eds.is_on_official_business = 'Yes'
+    SET eds.is_on_unpaid_leave = 'Yes'
     WHERE la.leave_date = CURRENT_DATE
       AND la.leave_type_id = 2
       AND la.status = 'Approved'
@@ -12325,7 +12325,7 @@ BEGIN
     -- Update status to 'Official Business' where leave_type_id = 3 and leave is approved for today
     UPDATE employee_daily_status eds
     INNER JOIN leave_application la ON la.contact_id = eds.contact_id
-    SET eds.is_on_unpaid_leave = 'Yes'
+    SET eds.is_on_official_business = 'Yes'
     WHERE la.leave_date = CURRENT_DATE
       AND la.leave_type_id = 3
       AND la.status = 'Approved'
@@ -14971,7 +14971,7 @@ BEGIN
     -- Filter by attendance status (expects properly quoted values from PHP)
     IF p_filter_attendance_status IS NOT NULL AND p_filter_attendance_status <> '' THEN
         IF p_filter_attendance_status = 'late' THEN
-            SET baseQuery = CONCAT(baseQuery, ' AND is_late = "Yes"');
+            SET baseQuery = CONCAT(baseQuery, ' AND is_late = "Yes" AND contact_id NOT IN ("13", "23", "21", "92", "28")');
         ELSEIF p_filter_attendance_status = 'undertime' THEN
             SET baseQuery = CONCAT(baseQuery, ' AND is_undertime = "Yes"');
         ELSEIF p_filter_attendance_status = 'on paid leave' THEN
@@ -15423,7 +15423,7 @@ BEGIN
     END IF;
 END //
 
-CREATE PROCEDURE updateParts(IN p_part_id INT, IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_part_number VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_stock_alert INT, IN p_part_price DOUBLE, IN p_quantity DOUBLE, INz p_brand_id INT, IN p_warehouse_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+CREATE PROCEDURE updateParts(IN p_part_id INT, IN p_part_category_id VARCHAR(500), IN p_part_class_id VARCHAR(500), IN p_part_subclass_id VARCHAR(500), IN p_description VARCHAR(2000), IN p_bar_code VARCHAR(100), IN p_part_number VARCHAR(100), IN p_company_id INT, IN p_unit_sale INT, IN p_stock_alert INT, IN p_part_price DOUBLE, IN p_quantity DOUBLE, IN p_brand_id INT, IN p_warehouse_id INT, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     UPDATE part
     SET part_category_id = p_part_category_id,
@@ -15432,6 +15432,7 @@ BEGIN
     description = p_description,
     bar_code = p_bar_code,
     part_number = p_part_number,
+    part_price = p_part_price,
     company_id = p_company_id,
     unit_sale = p_unit_sale,
     stock_alert = p_stock_alert,
@@ -16885,6 +16886,15 @@ BEGIN
         SET onprocess_date = NOW(),
             approval_date = NOW(),
             part_incoming_status = p_part_incoming_status,
+            approved_by = p_last_log_by,
+            last_log_by = p_last_log_by
+        WHERE part_incoming_id = p_parts_incoming_id;
+    ELSEIF p_part_incoming_status = 'Paid' THEN
+       UPDATE part_incoming
+        SET onprocess_date = NOW(),
+            approval_date = NOW(),
+            cv_number = p_remarks,
+            part_incoming_status = 'On-Process',
             approved_by = p_last_log_by,
             last_log_by = p_last_log_by
         WHERE part_incoming_id = p_parts_incoming_id;
@@ -20883,6 +20893,10 @@ BEGIN
     DECLARE v_debit_2_amount DECIMAL(15,2);
     DECLARE v_credit_2_amount DECIMAL(15,2);
 
+    IF p_debit_company_id IS NULL OR p_debit_company_id = 0 THEN
+        SET p_debit_company_id = 1;
+    END IF;
+
     CASE p_credit_company_id
         WHEN 1 THEN
             SET v_analytic_lines = 'CGMI';
@@ -21119,6 +21133,10 @@ BEGIN
     DECLARE v_credit_amount DECIMAL(15,2);
     DECLARE v_debit_2_amount DECIMAL(15,2);
     DECLARE v_credit_2_amount DECIMAL(15,2);
+
+    IF p_debit_company_id IS NULL OR p_debit_company_id = 0 THEN
+        SET p_debit_company_id = 1;
+    END IF;
 
     CASE p_credit_company_id
         WHEN 1 THEN

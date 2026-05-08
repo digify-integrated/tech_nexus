@@ -4726,7 +4726,7 @@ function salesProposalOutgoingChecklistForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/sales-proposal-controller.php',
+                url: '/controller/sales-proposal-controller.php',
                 data: formData,
                 processData: false,
                 contentType: false,

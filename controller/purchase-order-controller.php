@@ -623,168 +623,168 @@ class PurchaseOrderController {
         if($purchase_order_type == 'Product'){
             $cartID = $this->purchaseOrderModel->getPurchaseOrderCartUnit($purchase_order_id);
 
-             foreach ($cartID as $row) {
-            if($purchase_order_type == 'Product'){
-                $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrderUnit($row['purchase_order_unit_id']);
-                $purchase_request_cart_id = $purchaseOrderDetails['purchase_request_cart_id'];
-                $brand_id = $purchaseOrderDetails['brand_id'];
-                $model_id = $purchaseOrderDetails['model_id'];
-                $body_type_id = $purchaseOrderDetails['body_type_id'];
-                $class_id = $purchaseOrderDetails['class_id'];
-                $color_id = $purchaseOrderDetails['color_id'];
-                $make_id = $purchaseOrderDetails['make_id'];
-                $year_model = $purchaseOrderDetails['year_model'];
-                $product_category_id = $purchaseOrderDetails['product_category_id'];
-                $length = $purchaseOrderDetails['length'];
-                $length_unit = $purchaseOrderDetails['length_unit'];
-                $cabin_id = $purchaseOrderDetails['cabin_id'];
-                $quantity = $purchaseOrderDetails['quantity'];
-                $unit_id = $purchaseOrderDetails['unit_id'];
-                $price_unit = $purchaseOrderDetails['price']; // Note: mapping 'price' to $price_unit
-                $remarks = $purchaseOrderDetails['remarks'];
-                $preorder = $purchaseOrderDetails['preorder'] ?? '';
-                $fx_rate = $purchaseOrderDetails['fx_rate'] ?? 0;
-                $converted_amount = $purchaseOrderDetails['converted_amount'] ?? 0;
-                $package_deal = $purchaseOrderDetails['package_deal'] ?? 0;
-                $taxes_duties = $purchaseOrderDetails['taxes_duties'] ?? 0;
-                $freight = $purchaseOrderDetails['freight'] ?? 0;
-                $lto_registration = $purchaseOrderDetails['lto_registration'] ?? 0;
-                $royalties = $purchaseOrderDetails['royalties'] ?? 0;
-                $conversion = $purchaseOrderDetails['conversion'] ?? 0;
-                $arrastre = $purchaseOrderDetails['arrastre'] ?? 0;
-                $wharrfage = $purchaseOrderDetails['wharrfage'] ?? 0;
-                $insurance = $purchaseOrderDetails['insurance'] ?? 0;
-                $aircon = $purchaseOrderDetails['aircon'] ?? 0;
-                $import_permit = $purchaseOrderDetails['import_permit'] ?? 0;
-                $others = $purchaseOrderDetails['others'] ?? 0;
-                $total_landed_cost = $purchaseOrderDetails['total_landed_cost'] ?? 0;
+            foreach ($cartID as $row) {
+                if($purchase_order_type == 'Product'){
+                    $purchaseOrderDetails = $this->purchaseOrderModel->getPurchaseOrderUnit($row['purchase_order_unit_id']);
+                    $purchase_request_cart_id = $purchaseOrderDetails['purchase_request_cart_id'];
+                    $brand_id = $purchaseOrderDetails['brand_id'];
+                    $model_id = $purchaseOrderDetails['model_id'];
+                    $body_type_id = $purchaseOrderDetails['body_type_id'];
+                    $class_id = $purchaseOrderDetails['class_id'];
+                    $color_id = $purchaseOrderDetails['color_id'];
+                    $make_id = $purchaseOrderDetails['make_id'];
+                    $year_model = $purchaseOrderDetails['year_model'];
+                    $product_category_id = $purchaseOrderDetails['product_category_id'];
+                    $length = $purchaseOrderDetails['length'];
+                    $length_unit = $purchaseOrderDetails['length_unit'];
+                    $cabin_id = $purchaseOrderDetails['cabin_id'];
+                    $quantity = $purchaseOrderDetails['quantity'];
+                    $unit_id = $purchaseOrderDetails['unit_id'];
+                    $price_unit = $purchaseOrderDetails['price']; // Note: mapping 'price' to $price_unit
+                    $remarks = $purchaseOrderDetails['remarks'];
+                    $preorder = $purchaseOrderDetails['preorder'] ?? '';
+                    $fx_rate = $purchaseOrderDetails['fx_rate'] ?? 0;
+                    $converted_amount = $purchaseOrderDetails['converted_amount'] ?? 0;
+                    $package_deal = $purchaseOrderDetails['package_deal'] ?? 0;
+                    $taxes_duties = $purchaseOrderDetails['taxes_duties'] ?? 0;
+                    $freight = $purchaseOrderDetails['freight'] ?? 0;
+                    $lto_registration = $purchaseOrderDetails['lto_registration'] ?? 0;
+                    $royalties = $purchaseOrderDetails['royalties'] ?? 0;
+                    $conversion = $purchaseOrderDetails['conversion'] ?? 0;
+                    $arrastre = $purchaseOrderDetails['arrastre'] ?? 0;
+                    $wharrfage = $purchaseOrderDetails['wharrfage'] ?? 0;
+                    $insurance = $purchaseOrderDetails['insurance'] ?? 0;
+                    $aircon = $purchaseOrderDetails['aircon'] ?? 0;
+                    $import_permit = $purchaseOrderDetails['import_permit'] ?? 0;
+                    $others = $purchaseOrderDetails['others'] ?? 0;
+                    $total_landed_cost = $purchaseOrderDetails['total_landed_cost'] ?? 0;
 
-                $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($product_category_id);
-                $productCategoryID = $productSubcategoryDetails['product_category_id'];
-                $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'];
+                    $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($product_category_id);
+                    $productCategoryID = $productSubcategoryDetails['product_category_id'];
+                    $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'];
 
-                $stockNumberLatest = $this->systemSettingModel->getSystemSetting(17)['value'] + 1;
-                
-                if($preorder == 'No'){
-                    $stockNumber = $productSubcategoryCode . date('my') . $stockNumberLatest;
-                    $this->systemSettingModel->updateSystemSettingValue(17, $stockNumberLatest, $userID);
-                }
-                else{
-                    $stockNumber = '';
-                }
+                    $stockNumberLatest = $this->systemSettingModel->getSystemSetting(17)['value'] + 1;
+                    
+                    if($preorder == 'No'){
+                        $stockNumber = $productSubcategoryCode . date('my') . $stockNumberLatest;
+                        $this->systemSettingModel->updateSystemSettingValue(17, $stockNumberLatest, $userID);
+                    }
+                    else{
+                        $stockNumber = '';
+                    }
 
-                $brandName = $this->brandModel->getBrand($brand_id)['brand_name'] ?? '';
-                $makeName = $this->makeModel->getMake($make_id)['make_name'] ?? '';
-                $cabinName = $this->cabinModel->getCabin($cabin_id)['cabin_name'] ?? '';
-                $modelName = $this->modelModel->getModel($model_id)['model_name'] ?? '';
-                $bodyTypeName = $this->bodyTypeModel->getBodyType($body_type_id)['body_type_name'] ?? '';
+                    $brandName = $this->brandModel->getBrand($brand_id)['brand_name'] ?? '';
+                    $makeName = $this->makeModel->getMake($make_id)['make_name'] ?? '';
+                    $cabinName = $this->cabinModel->getCabin($cabin_id)['cabin_name'] ?? '';
+                    $modelName = $this->modelModel->getModel($model_id)['model_name'] ?? '';
+                    $bodyTypeName = $this->bodyTypeModel->getBodyType($body_type_id)['body_type_name'] ?? '';
 
-                $descriptionParts = [];
+                    $descriptionParts = [];
 
-                if (!empty($brandName)) {
-                    $descriptionParts[] = $brandName;
-                }
-                if (!empty($makeName)) {
-                    $descriptionParts[] = $makeName;
-                }
-                if (!empty($cabinName)) {
-                    $descriptionParts[] = $cabinName;
-                }
-                if (!empty($modelName)) {
-                    $descriptionParts[] = $modelName;
-                }
-                if (!empty($bodyTypeName)) {
-                    $descriptionParts[] = $bodyTypeName;
-                }
-                if (!empty($length)) {
-                    $descriptionParts[] = $length;
-                }
-                if (!empty($unitShortName)) {
-                    $descriptionParts[] = $unitShortName;
-                }
-                if (!empty($yearModel)) {
-                    $descriptionParts[] = $yearModel;
-                }
+                    if (!empty($brandName)) {
+                        $descriptionParts[] = $brandName;
+                    }
+                    if (!empty($makeName)) {
+                        $descriptionParts[] = $makeName;
+                    }
+                    if (!empty($cabinName)) {
+                        $descriptionParts[] = $cabinName;
+                    }
+                    if (!empty($modelName)) {
+                        $descriptionParts[] = $modelName;
+                    }
+                    if (!empty($bodyTypeName)) {
+                        $descriptionParts[] = $bodyTypeName;
+                    }
+                    if (!empty($length)) {
+                        $descriptionParts[] = $length;
+                    }
+                    if (!empty($unitShortName)) {
+                        $descriptionParts[] = $unitShortName;
+                    }
+                    if (!empty($yearModel)) {
+                        $descriptionParts[] = $yearModel;
+                    }
 
-                $description = implode(' ', $descriptionParts);
+                    $description = implode(' ', $descriptionParts);
 
-                $productID = $this->productModel->insertProduct(
-                    $productCategoryID,
-                    $product_category_id,
-                    $company_id,
-                    $stockNumber,
-                    '',
-                    '',
-                    '',
-                    $description,
-                    '',
-                    $body_type_id,
-                    $length,
-                    $length_unit,
-                    '',
-                    '',
-                    $color_id,
-                    $remarks,
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                    $supplierID,
-                    '',
-                    $brand_id,
-                    $cabin_id,
-                    $model_id,
-                    $make_id,
-                    $class_id,
-                    '',
-                    '',
-                    '',
-                    '',
-                    $year_model,
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                    $quantity,
-                    $preorder,
-                    'No',
-                    $userID
-                );
+                    $productID = $this->productModel->insertProduct(
+                        $productCategoryID,
+                        $product_category_id,
+                        $company_id,
+                        $stockNumber,
+                        '',
+                        '',
+                        '',
+                        $description,
+                        '',
+                        $body_type_id,
+                        $length,
+                        $length_unit,
+                        '',
+                        '',
+                        $color_id,
+                        $remarks,
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        $supplierID,
+                        '',
+                        $brand_id,
+                        $cabin_id,
+                        $model_id,
+                        $make_id,
+                        $class_id,
+                        '',
+                        '',
+                        '',
+                        '',
+                        $year_model,
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        $quantity,
+                        $preorder,
+                        'No',
+                        $userID
+                    );
 
-                $this->productModel->updateProductLandedCost(
-                    $productID,
-                    $price_unit,
-                    0,
-                    $fx_rate,
-                    $converted_amount,
-                    $price_unit,
-                    $package_deal,
-                    $taxes_duties,
-                    $freight,
-                    $lto_registration,
-                    $royalties,
-                    $conversion,
-                    $arrastre,
-                    $wharrfage,
-                    $insurance,
-                    $aircon,
-                    $import_permit,
-                    $others,
-                    $total_landed_cost,
-                    '',
-                    '',
-                    '',
-                    $userID
-                );
+                    $this->productModel->updateProductLandedCost(
+                        $productID,
+                        $price_unit,
+                        0,
+                        $fx_rate,
+                        $converted_amount,
+                        $price_unit,
+                        $package_deal,
+                        $taxes_duties,
+                        $freight,
+                        $lto_registration,
+                        $royalties,
+                        $conversion,
+                        $arrastre,
+                        $wharrfage,
+                        $insurance,
+                        $aircon,
+                        $import_permit,
+                        $others,
+                        $total_landed_cost,
+                        '',
+                        '',
+                        '',
+                        $userID
+                    );
 
-                $this->purchaseOrderModel->createPurchaseOrderUnitEntry($purchase_order_id, $company_id, $reference_no, $total_landed_cost, $userID);
+                    $this->purchaseOrderModel->createPurchaseOrderUnitEntry($purchase_order_id, $company_id, $reference_no, $total_landed_cost, $userID);
+                }
             }
-        }
         }
 
        

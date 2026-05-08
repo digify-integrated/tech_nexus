@@ -155,6 +155,7 @@
                                     <option value="1">Christian General Motors Inc.</option>
                                     <!--<option value="2">NE Truck Builders</option>-->
                                     <option value="3">FUSO Tarlac</option>
+                                    <option value="8">NE Fuel</option>
                                 </select>
                                 </div>
                             </div>

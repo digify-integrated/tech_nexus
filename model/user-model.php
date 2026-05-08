@@ -954,6 +954,22 @@ class UserModel {
 
         return $htmlOptions;
     }
+
+    public function generateUserOptions() {
+        $stmt = $this->db->getConnection()->prepare('SELECT user_id, file_as FROM users WHERE is_active = 1');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $contactID = $row['user_id'];
+            $fileAs = ucwords(strtolower($row['file_as']));
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . htmlspecialchars($fileAs, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -984,7 +1000,7 @@ class UserModel {
         
             foreach ($options as $row) {
                 $log = $row['log'];
-                $timeElapsed = $this->systemModel->timeElapsedString($row['changed_at']);
+                $timeElapsed = date('M j, Y \a\t h:i A', strtotime($row['changed_at']));
         
                 $getUserByID = $this->getUserByID($row['changed_by']);
                 $fileAs = $getUserByID['file_as'] ?? 'Nexus Bot';

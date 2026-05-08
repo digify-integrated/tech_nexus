@@ -23,27 +23,6 @@ class UserController {
     private $systemModel;
     private $securityModel;
 
-    # -------------------------------------------------------------
-    #
-    # Function: __construct
-    # Description: 
-    # The constructor initializes the object with the provided SystemActionModel, UserModel and SecurityModel instances.
-    # These instances are used for user related operations and security related operations, respectively.
-    #
-    # Parameters:
-    # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
-    # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
-    # - @param SystemSettingModel $systemSettingModel     The SystemSettingModel instance for system setting related operations.
-    # - @param EmailSettingModel $emailSettingModel     The EmailSettingModel instance for email setting related operations.
-    # - @param NotificationSettingModel $notificationSettingModel     The NotificationSettingModel instance for notification setting related operations.
-    # - @param EmployeeModel $employeeModel     The EmployeeModel instance for employee related operations.
-    # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
-    # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
     public function __construct(UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, EmployeeModel $employeeModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->userModel = $userModel;
         $this->uploadSettingModel = $uploadSettingModel;
@@ -55,21 +34,7 @@ class UserController {
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
-    # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    #
-    # Function: handleRequest
-    # Description: 
-    # This method checks the request method and dispatches the corresponding transaction based on the provided transaction parameter.
-    # The transaction determines which action should be performed.
-    #
-    # Parameters:
-    # - $transaction (string): The type of transaction.
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
     public function handleRequest(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
@@ -159,23 +124,7 @@ class UserController {
             }
         }
     }
-    # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    #   Save methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: saveUserAccount
-    # Description: 
-    # Updates the existing user account if it exists; otherwise, inserts a new user account.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
     public function saveUserAccount() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -219,19 +168,7 @@ class UserController {
             exit;
         }
     }
-    # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    #
-    # Function: saveUICustomization
-    # Description: 
-    # Updates the existing customization setting if it exists; otherwise, inserts a new setting.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
     public function saveUICustomization() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -261,23 +198,7 @@ class UserController {
         echo json_encode(['success' => true]);
         exit;
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Delete methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: deleteUserAccount
-    # Description:
-    # Delete the user account if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
+    
     public function deleteUserAccount() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;

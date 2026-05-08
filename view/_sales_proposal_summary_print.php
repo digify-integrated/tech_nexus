@@ -117,13 +117,21 @@
                                                             <td><b>OUTSTANDING BALANCE</b></td>
                                                             <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-outstanding-balance"></td>
                                                         </tr>
+                                                        <tr>
+                                                            <td style="padding-top: 30px;"><b>ADDITIONAL JOB ORDER</b></td>
+                                                            <td style="padding-top: 30px; border-bottom: 1px solid black !important; text-align: right!important;" id="summary-total-additional-job-order"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding-top: 30px;"><b>TOTAL</b></td>
+                                                            <td style="padding-top: 30px; border-bottom: 1px solid black !important; text-align: right!important;" id="summary-total"></td>
+                                                        </tr>
                                                     </tbody>
                                                 </table>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row pb-0 mt-5">
-                                        <div class="col-lg-12" id="summary-total-additional-job-order">
+                                        <div class="col-lg-12" id="">
                                             
                                         </div>
                                     </div>

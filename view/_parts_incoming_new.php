@@ -41,7 +41,7 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Requested By <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label"><?php echo ($company == '3') ? 'Recommended By' : 'Requested By'; ?> <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off">
             </div>

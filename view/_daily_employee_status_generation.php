@@ -208,7 +208,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $branch_id = $employeeDetails['branch_id'] ?? null;
 
                 $departmentName = $departmentModel->getDepartment($departmentID)['department_name'] ?? null;
-
+                
                 $list .= '<div class="align-middle m-b-25"><img src="'. $employeeImage .'" alt="user image" class="img-radius align-top m-r-15">
                     <div class="d-inline-block">
                      <h6>'. $fileAs .'</h6>

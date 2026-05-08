@@ -139,6 +139,7 @@
         require_once 'model/make-model.php';
         require_once 'model/class-model.php';
         require_once 'model/product-subcategory-model.php';
+        require_once 'model/purchase-request-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -157,8 +158,12 @@
         $classModel = new ClassModel($databaseModel);
         $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
         $partsIncomingModel = new PartsIncomingModel($databaseModel);
+        $purchaseRequestModel = new PurchaseRequestModel($databaseModel);
 
          $partsIncomingDetails = $partsIncomingModel->getPartsIncoming($purchase_request_id);
+
+          $purchaseRequestDetails = $purchaseRequestModel->getPurchaseRequest($purchase_request_id);
+          $purchase_request_type = $purchaseRequestDetails['purchase_request_type'];
 
         $company_id = $partsIncomingDetails['company_id'] ?? '';
     
@@ -171,10 +176,20 @@
         $list = '';
         $averageTotal = 0;
         foreach ($options as $row) {
+            $part_id = $row['part_id'];
             $description = $row['description'];
             $quantity = $row['quantity'];
             $short_name = $row['short_name'];
             $remarks = $row['remarks'];
+
+            if($purchase_request_type == 'Supplies'){
+                    $partsDetails = $partsModel->getParts($part_id);
+                    $description = $partsDetails['description'] ?? null;
+
+                    if(empty($description)){
+                        $description = $row['description'];
+                    }
+                }
 
             $list .= '<tr>
                         <td width="35%" style="text-align:left">'. strtoupper($description) .'</td>

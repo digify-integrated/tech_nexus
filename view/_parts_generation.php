@@ -132,6 +132,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     else if($company_id == '2'){
                         $link = 'netruck-parts';
                     }
+                    else if($company_id == '8'){
+                        $link = 'fuel-parts';
+                    }
                     else{
                         $link = 'parts';
                     }

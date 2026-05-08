@@ -313,6 +313,39 @@ if($addPartExpense['total'] > 0){
 </div>
 
 <div class="row">
+  <?php if ($company == 8): ?>
+  <div class="col-lg-6">
+      <div class="card table-card">
+        <div class="card-header">
+          <div class="row align-items-center">
+            <div class="col-sm-6">
+              <h5><?php echo $cardLabel; ?> Sales Proposal</h5>
+            </div>
+            <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+              <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-filter-offcanvas">
+                Filter
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive w-100">
+            <table class="table mb-0 w-100" id="sales-proposal-table">
+              <thead>
+                <tr>
+                  <th class="w-100">Sales Proposal No.</th>
+                  <th class="w-100">Customer</th>
+                  <th class="w-100">Released Date</th>
+                  <th class="w-100">Total</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+  </div>
+  <?php endif; ?>
   <div class="col-lg-6">
     <div class="card table-card">
       <div class="card-header">
@@ -360,7 +393,7 @@ if($addPartExpense['total'] > 0){
       <div class="card-body">
         <div class="table-responsive w-100">
           <table id="parts-document-table" class="table table-hover nowrap w-100 dataTable">
-            <thead>
+            <thead class="w-100">
               <tr>
                 <th class="w-100">Document Type</th>
                 <th class="w-100">Actions</th>
@@ -372,6 +405,8 @@ if($addPartExpense['total'] > 0){
       </div>
     </div>
   </div>
+</div>
+<div class="row">
 </div>
 
 <div>
@@ -394,6 +429,44 @@ if($addPartExpense['total'] > 0){
                 </div>
                 <div class="input-group date mt-3">
                   <input type="text" class="form-control regular-datepicker" id="parts_transaction_end_date" name="parts_transaction_end_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-parts-transaction-filter">Apply</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-filter-offcanvas" aria-labelledby="sales-proposal-filter-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-filter-offcanvas-label" style="margin-bottom:-0.5rem">Filter</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Transaction Date</label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="sales_proposal_start_date" name="sales_proposal_start_date" autocomplete="off">
+                  <span class="input-group-text">
+                    <i class="feather icon-calendar"></i>
+                  </span>
+                </div>
+                <div class="input-group date mt-3">
+                  <input type="text" class="form-control regular-datepicker" id="sales_proposal_end_date" name="sales_proposal_end_date" autocomplete="off">
                   <span class="input-group-text">
                     <i class="feather icon-calendar"></i>
                   </span>

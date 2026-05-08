@@ -8166,4 +8166,139 @@ BEGIN
 END;
 //
 
-DELIMITER ;
+
+CREATE TRIGGER lead_trigger_insert
+AFTER INSERT ON leads
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Lead created. <br/>';
+
+    IF NEW.lead_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, '<br/>Lead Name: ', NEW.lead_name);
+    END IF;
+
+    IF NEW.email <> '' THEN
+        SET audit_log = CONCAT(audit_log, '<br/>Email: ', NEW.email);
+    END IF;
+
+    IF NEW.phone <> '' THEN
+        SET audit_log = CONCAT(audit_log, '<br/>Phone: ', NEW.phone);
+    END IF;
+
+    IF NEW.lead_status_id IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, '<br/>Lead Status ID: ', NEW.lead_status_id);
+    END IF;
+
+    IF NEW.assigned_to IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, '<br/>Assigned To: ', NEW.assigned_to);
+    END IF;
+
+    IF NEW.remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, '<br/>Remarks: ', NEW.remarks);
+    END IF;
+
+    INSERT INTO audit_log (
+        table_name,
+        reference_id,
+        log,
+        changed_by,
+        changed_at
+    ) 
+    VALUES (
+        'leads',
+        NEW.lead_id,
+        audit_log,
+        NEW.last_log_by,
+        NOW()
+    );
+END //
+
+CREATE TRIGGER lead_trigger_update
+AFTER UPDATE ON leads
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.lead_name <> OLD.lead_name THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Lead Name: ',
+            OLD.lead_name,
+            ' -> ',
+            NEW.lead_name,
+            '<br/>'
+        );
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Email: ',
+            OLD.email,
+            ' -> ',
+            NEW.email,
+            '<br/>'
+        );
+    END IF;
+
+    IF NEW.phone <> OLD.phone THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Phone: ',
+            OLD.phone,
+            ' -> ',
+            NEW.phone,
+            '<br/>'
+        );
+    END IF;
+
+    IF NEW.lead_status_id <> OLD.lead_status_id THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Lead Status ID: ',
+            OLD.lead_status_id,
+            ' -> ',
+            NEW.lead_status_id,
+            '<br/>'
+        );
+    END IF;
+
+    IF NEW.assigned_to <> OLD.assigned_to THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Assigned To: ',
+            OLD.assigned_to,
+            ' -> ',
+            NEW.assigned_to,
+            '<br/>'
+        );
+    END IF;
+
+    IF NEW.remarks <> OLD.remarks THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Remarks: ',
+            OLD.remarks,
+            ' -> ',
+            NEW.remarks,
+            '<br/>'
+        );
+    END IF;
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (
+            table_name,
+            reference_id,
+            log,
+            changed_by,
+            changed_at
+        ) 
+        VALUES (
+            'leads',
+            NEW.lead_id,
+            audit_log,
+            NEW.last_log_by,
+            NOW()
+        );
+    END IF;
+END //

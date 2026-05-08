@@ -1,57 +1,17 @@
 <?php
 session_start();
 
-# -------------------------------------------------------------
-#
-# Function: CivilStatusController
-# Description: 
-# The CivilStatusController class handles civil status related operations and interactions.
-#
-# Parameters: None
-#
-# Returns: None
-#
-# -------------------------------------------------------------
 class CivilStatusController {
     private $civilStatusModel;
     private $userModel;
     private $securityModel;
 
-    # -------------------------------------------------------------
-    #
-    # Function: __construct
-    # Description: 
-    # The constructor initializes the object with the provided CivilStatusModel, UserModel and SecurityModel instances.
-    # These instances are used for civil status related, user related operations and security related operations, respectively.
-    #
-    # Parameters:
-    # - @param CivilStatusModel $civilStatusModel     The CivilStatusModel instance for civil status related operations.
-    # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
     public function __construct(CivilStatusModel $civilStatusModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->civilStatusModel = $civilStatusModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
     }
-    # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    #
-    # Function: handleRequest
-    # Description: 
-    # This method checks the request method and dispatches the corresponding transaction based on the provided transaction parameter.
-    # The transaction determines which action should be performed.
-    #
-    # Parameters:
-    # - $transaction (string): The type of transaction.
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
     public function handleRequest(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
@@ -78,23 +38,7 @@ class CivilStatusController {
             }
         }
     }
-    # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    #   Save methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: saveCivilStatus
-    # Description: 
-    # Updates the existing civil status if it exists; otherwise, inserts a new civil status.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
     public function saveCivilStatus() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -127,23 +71,7 @@ class CivilStatusController {
             exit;
         }
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Delete methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: deleteCivilStatus
-    # Description: 
-    # Delete the civil status if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
+    
     public function deleteCivilStatus() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -172,19 +100,7 @@ class CivilStatusController {
         echo json_encode(['success' => true]);
         exit;
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: deleteMultipleCivilStatus
-    # Description: 
-    # Delete the selected civil statuss if it exists; otherwise, skip it.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
+    
     public function deleteMultipleCivilStatus() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -207,23 +123,7 @@ class CivilStatusController {
         echo json_encode(['success' => true]);
         exit;
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Duplicate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: duplicateCivilStatus
-    # Description: 
-    # Duplicates the civil status if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
+    
     public function duplicateCivilStatus() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;

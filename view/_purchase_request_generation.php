@@ -20,6 +20,7 @@ require_once '../model/work-center-model.php';
 require_once '../model/department-model.php';
 require_once '../model/customer-model.php';
 require_once '../model/company-model.php';
+require_once '../model/parts-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -39,6 +40,7 @@ $contractorModel = new ContractorModel($databaseModel);
 $workCenterModel = new WorkCenterModel($databaseModel);
 $departmentModel = new DepartmentModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
+$partsModel = new PartsModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -85,6 +87,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $purchase_request_status = $row['purchase_request_status'];
                 $purchase_request_type = $row['purchase_request_type'];
                 $company_id = $row['company_id'];
+                $department_id = $row['department_id'];
+                
+                $month_coverage = '--';
+                if(!empty($row['month_coverage'])){
+                    $month_coverage =  $systemModel->getMonthNameFromNumber($row['month_coverage']);
+                }
+
+                $departmentDetails = $departmentModel->getDepartment($department_id);
+                $departmentName = $departmentDetails['department_name'] ?? null;
 
                 $companyName = $companyModel->getCompany($company_id)['company_name'] ?? null;
 
@@ -111,6 +122,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'REFERENCE_NO' => $reference_no,
                     'PURCHASE_REQUEST_TYPE' => $purchase_request_type,
                     'COMPANY' => $companyName,
+                    'DEPARTMENT' => $departmentName,
+                    'MONTH' => $month_coverage,
                     'STATUS' => $purchase_request_status,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="purchase-request.php?id='. $purchase_request_id_encrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">
@@ -127,6 +140,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             $purchaseRequestDetails = $purchaseRequestModel->getPurchaseRequest($purchase_request_id);
             $purchase_request_status = $purchaseRequestDetails['purchase_request_status'] ?? 'Draft';
+            $purchase_request_type = $purchaseRequestDetails['purchase_request_type'] ?? 'Draft';
 
             $sql = $databaseModel->getConnection()->prepare('SELECT * FROM purchase_request_cart WHERE purchase_request_id = :purchase_request_id');
             $sql->bindValue(':purchase_request_id', $purchase_request_id, PDO::PARAM_INT);
@@ -136,11 +150,21 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             foreach ($options as $row) {
                 $purchase_request_cart_id = $row['purchase_request_cart_id'];
+                $part_id = $row['part_id'];
                 $description = $row['description'];
                 $quantity = $row['quantity'];
                 $unit_id = $row['unit_id'];
                 $short_name = $row['short_name'];
                 $remarks = $row['remarks'];
+
+                if($purchase_request_type == 'Supplies'){
+                    $partsDetails = $partsModel->getParts($part_id);
+                    $description = $partsDetails['description'] ?? null;
+
+                    if(empty($description)){
+                        $description = $row['description'];
+                    }
+                }
 
                 $action = '';
                 if($purchase_request_status == 'Draft'){

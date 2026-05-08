@@ -607,12 +607,12 @@
             $('#parts-return-filter-offcanvas').offcanvas('hide');
         });
 
-        $(document).on('click','#submit-parts-transaction-filter',function() {
-            if($('#parts-transaction-table').length){
-                partTransactionTable('#parts-transaction-table');
+        $(document).on('click','#submit-sales-proposal-filter',function() {
+           if($('#sales-proposal-table').length){
+                salesProposalTable('#sales-proposal-table');
             }
 
-            $('#parts-transaction-filter-offcanvas').offcanvas('hide');
+            $('#sales-proposal-filter-offcanvas').offcanvas('hide');
         });
 
         if($('#parts-incoming-table').length){
@@ -621,6 +621,10 @@
 
         if($('#parts-transaction-table').length){
             partTransactionTable('#parts-transaction-table');
+        }
+
+        if($('#sales-proposal-table').length){
+            salesProposalTable('#sales-proposal-table');
         }
 
         if($('#parts-return-table').length){
@@ -1665,6 +1669,73 @@ function partTransactionTable(datatable_name, buttons = false, show_all = false)
                 'parts_id' : parts_id,
                 'parts_transaction_start_date' : parts_transaction_start_date,
                 'parts_transaction_end_date' : parts_transaction_end_date,
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function salesProposalTable(datatable_name, buttons = false, show_all = false){
+    const parts_id = $('#part-id').text();
+    const type = 'sales proposal fuel table';
+    
+    var sales_proposal_start_date = $('#sales_proposal_start_date').val();
+    var sales_proposal_end_date = $('#sales_proposal_end_date').val();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SALES_PROPOSAL_NO' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'RELEASED_DATE' },
+        { 'data' : 'TOTAL' }
+    ];
+
+     var column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'type' : 'date', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'parts_id' : parts_id,
+                'sales_proposal_start_date' : sales_proposal_start_date,
+                'sales_proposal_end_date' : sales_proposal_end_date,
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {

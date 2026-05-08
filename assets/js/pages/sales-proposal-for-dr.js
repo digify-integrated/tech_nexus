@@ -5475,7 +5475,7 @@ function displayDetails(transaction){
         case 'get sales proposal basic details':
             var sales_proposal_id = $('#sales-proposal-id').text();
             
-            $.ajax({
+            return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -5581,7 +5581,7 @@ function displayDetails(transaction){
         case 'get sales proposal unit details':
             var sales_proposal_id = $('#sales-proposal-id').text();
             
-            $.ajax({
+           return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -5628,15 +5628,12 @@ function displayDetails(transaction){
                     }
                     showErrorDialog(fullErrorMessage);
                 },
-                complete: function(){                    
-                    calculateRenewalAmount();
-                }
             });
             break;
         case 'get sales proposal fuel details':
             var sales_proposal_id = $('#sales-proposal-id').text();
             
-            $.ajax({
+            return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -5672,16 +5669,13 @@ function displayDetails(transaction){
                         fullErrorMessage += ', Response: ${xhr.responseText}';
                     }
                     showErrorDialog(fullErrorMessage);
-                },
-                complete: function(){
-                    calculateFuelTotal();
                 }
             });
             break;
         case 'get sales proposal refinancing details':
             var sales_proposal_id = $('#sales-proposal-id').text();
             
-            $.ajax({
+            return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -5745,15 +5739,12 @@ function displayDetails(transaction){
                     }
                     showErrorDialog(fullErrorMessage);
                 },
-                complete: function(){
-                    displayDetails('get sales proposal pricing computation details');
-                }
             });
             break;
         case 'get sales proposal job order details':
             var sales_proposal_job_order_id = sessionStorage.getItem('sales_proposal_job_order_id');
                 
-            $.ajax({
+            return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -5788,7 +5779,7 @@ function displayDetails(transaction){
         case 'get sales proposal pricing computation details':
             var sales_proposal_id = $('#sales-proposal-id').text();
             
-            $.ajax({
+            return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -5852,15 +5843,12 @@ function displayDetails(transaction){
                     }
                     showErrorDialog(fullErrorMessage);
                 },
-                complete: function(){
-                    calculateTotalDeliveryPrice();
-                }
             });
             break;
         case 'get sales proposal other charges details':
             var sales_proposal_id = $('#sales-proposal-id').text();
                 
-            $.ajax({
+            return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -5916,15 +5904,12 @@ function displayDetails(transaction){
                     }
                     showErrorDialog(fullErrorMessage);
                 },
-                complete: function(){
-                    calculateTotalOtherCharges();
-                }
             });
             break;
         case 'get sales proposal renewal amount details':
             var sales_proposal_id = $('#sales-proposal-id').text();
             
-            $.ajax({
+            return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -6052,7 +6037,7 @@ function displayDetails(transaction){
         case 'get sales proposal deposit amount details':
             var sales_proposal_deposit_amount_id = sessionStorage.getItem('sales_proposal_deposit_amount_id');
         
-            $.ajax({
+            return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -6088,7 +6073,7 @@ function displayDetails(transaction){
         case 'get sales proposal additional job order details':
             var sales_proposal_additional_job_order_id = sessionStorage.getItem('sales_proposal_additional_job_order_id');
                 
-            $.ajax({
+            return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -6125,7 +6110,7 @@ function displayDetails(transaction){
         case 'get sales proposal confirmation details':
             var sales_proposal_id = $('#sales-proposal-id').text();
 
-            $.ajax({
+            return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -6200,7 +6185,7 @@ function displayDetails(transaction){
             case 'get comaker details':
                 var comaker_id = $('#comaker_id').val();
                     
-                $.ajax({
+                return $.ajax({
                     url: 'controller/customer-controller.php',
                     method: 'POST',
                     dataType: 'json',
@@ -6235,7 +6220,7 @@ function displayDetails(transaction){
             case 'get additional maker details':
                 var comaker_id = $('#additional_maker_id').val();
                     
-                $.ajax({
+                return $.ajax({
                     url: 'controller/customer-controller.php',
                     method: 'POST',
                     dataType: 'json',
@@ -6270,7 +6255,7 @@ function displayDetails(transaction){
             case 'get comaker2 details':
                 var comaker_id = $('#comaker_id2').val();
                     
-                $.ajax({
+                return $.ajax({
                     url: 'controller/customer-controller.php',
                     method: 'POST',
                     dataType: 'json',
@@ -6313,7 +6298,7 @@ function displayDetails(transaction){
             }
     
             if(product_id != '' && product_id != 0){
-                $.ajax({
+                return $.ajax({
                     url: 'controller/product-controller.php',
                     method: 'POST',
                     dataType: 'json',
@@ -6368,17 +6353,13 @@ function displayDetails(transaction){
                         }
                         showErrorDialog(fullErrorMessage);
                     },
-                    complete: function(){
-                        calculateTotalDeliveryPrice();
-                        calculateTotalOtherCharges();
-                    }
                 });
             }
             break;
         case 'get sales proposal other product details':
             var sales_proposal_id = $('#sales-proposal-id').text();
     
-            $.ajax({
+           return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -6423,7 +6404,7 @@ function displayDetails(transaction){
         case 'get sales proposal insurance request details':
             var sales_proposal_id = $('#sales-proposal-id').text();
     
-            $.ajax({
+           return $.ajax({
                 url: 'controller/sales-proposal-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -6514,90 +6495,97 @@ function calculatePaymentNumber() {
 }
 
 function calculateFuelTotal() {
-    var diesel_fuel_quantity = parseCurrency($('#diesel_fuel_quantity').val());
-    var diesel_price_per_liter = parseCurrency($('#diesel_price_per_liter').val());
-    var regular_fuel_quantity = parseCurrency($('#regular_fuel_quantity').val());
-    var regular_price_per_liter = parseCurrency($('#regular_price_per_liter').val());
-    var premium_fuel_quantity = parseCurrency($('#premium_fuel_quantity').val());
-    var premium_price_per_liter = parseCurrency($('#premium_price_per_liter').val());
+    // Ensure we have numbers. Fallback to 0 if empty.
+    var diesel_qty = parseCurrency($('#diesel_fuel_quantity').val()) || 0;
+    var diesel_price = parseCurrency($('#diesel_price_per_liter').val()) || 0;
+    var regular_qty = parseCurrency($('#regular_fuel_quantity').val()) || 0;
+    var regular_price = parseCurrency($('#regular_price_per_liter').val()) || 0;
+    var premium_qty = parseCurrency($('#premium_fuel_quantity').val()) || 0;
+    var premium_price = parseCurrency($('#premium_price_per_liter').val()) || 0;
 
-    var total_diesel = diesel_fuel_quantity * diesel_price_per_liter;
-    var total_regular = regular_fuel_quantity * regular_price_per_liter;
-    var total_premium = premium_fuel_quantity * premium_price_per_liter;
-    var total_delivery_price = total_diesel + total_regular + total_premium;
+    var total_diesel = diesel_qty * diesel_price;
+    var total_regular = regular_qty * regular_price;
+    var total_premium = premium_qty * premium_price;
+    var grand_fuel_total = total_diesel + total_regular + total_premium;
 
-    $('#diesel_total').text(parseCurrency(total_diesel.toFixed(2)).toLocaleString("en-US"));
-    $('#regular_total').text(parseCurrency(total_regular.toFixed(2)).toLocaleString("en-US"));
-    $('#premium_total').text(parseCurrency(total_premium.toFixed(2)).toLocaleString("en-US"));
-    $('#fuel_total').text(parseCurrency(total_delivery_price.toFixed(2)).toLocaleString("en-US"));
-    $('#delivery_price').val(parseCurrency(total_delivery_price.toFixed(2)).toLocaleString("en-US"));
+    // Display formatted values
+    $('#diesel_total').text(total_diesel.toLocaleString("en-US", {minimumFractionDigits: 2}));
+    $('#regular_total').text(total_regular.toLocaleString("en-US", {minimumFractionDigits: 2}));
+    $('#premium_total').text(total_premium.toLocaleString("en-US", {minimumFractionDigits: 2}));
+    $('#fuel_total').text(grand_fuel_total.toLocaleString("en-US", {minimumFractionDigits: 2}));
+    
+    // Update delivery price input for the next function
+    $('#delivery_price').val(grand_fuel_total.toFixed(2));
 
     calculateTotalDeliveryPrice();
 }
 
 function calculateTotalDeliveryPrice(){
-    var delivery_price = parseCurrency($("#delivery_price").val());
-    var add_on_charge = parseCurrency($("#add_on_charge").val());
-    var nominal_discount = parseCurrency($("#nominal_discount").val());
+    // 1. Get raw numbers (use || 0 as a safety net)
+    var rawValue = $("#delivery_price").val();
+
+    var delivery_price = parseCurrency(rawValue) || 0;
+    var add_on_charge = parseCurrency($("#add_on_charge").val()) || 0;
+    var nominal_discount = parseCurrency($("#nominal_discount").val()) || 0;
 
     var total = (delivery_price + add_on_charge) - nominal_discount;
 
-    if(total <= 0){
-        total = 0;
-    }
-
-    $('#total_delivery_price').val(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-deliver-price').text(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
-    $('#total_delivery_price_label').val(total);
+    // 2. Update hidden or raw input for further math (NO COMMAS)
+    $('#total_delivery_price').val(total.toFixed(2));
     
-    $('#summary-deliver-price').text(parseFloat(total.toFixed(2)).toLocaleString("en-US"));
+    // 3. Update the UI for the human user (WITH COMMAS)
+    $('#summary-deliver-price').text(total.toLocaleString("en-US", {minimumFractionDigits: 2}));
 
+    // 4. Continue the waterfall
     calculatePricingComputation();
 }
 
 function calculatePricingComputation(){
-    var term_length = parseCurrency($('#term_length').val());
-    var interest_rate = parseCurrency($('#interest_rate').val());
-    var delivery_price = parseCurrency($('#total_delivery_price').val());
-    var cost_of_accessories = parseCurrency($('#cost_of_accessories').val());
-    var reconditioning_cost = parseCurrency($('#reconditioning_cost').val());
-    var downpayment = parseCurrency($('#downpayment').val());
-    var number_of_payments = parseCurrency($('#number_of_payments').val());
-
+    var term_length = parseCurrency($('#term_length').val()) || 0;
+    var interest_rate = parseCurrency($('#interest_rate').val()) || 0;
+    var delivery_price = parseCurrency($('#total_delivery_price').val()) || 0;
+    var cost_of_acc = parseCurrency($('#cost_of_accessories').val()) || 0;
+    var recon_cost = parseCurrency($('#reconditioning_cost').val()) || 0;
+    var downpayment = parseCurrency($('#downpayment').val()) || 0;
+    var num_payments = parseCurrency($('#number_of_payments').val()) || 0;
     var payment_frequency = $('#payment_frequency').val();
 
-    if(payment_frequency == 'Lumpsum'){
+    // Logic for terms
+    if(payment_frequency === 'Lumpsum'){
         term_length = 1;
-    }
-    else if(payment_frequency == 'Semi-Annual' || payment_frequency == 'Quarterly'){
-        term_length = (number_of_payments);
+    } else if(['Semi-Annual', 'Quarterly'].includes(payment_frequency)){
+        term_length = num_payments || 1; // Prevent division by zero
     }
 
-    var subtotal = delivery_price + cost_of_accessories + reconditioning_cost;
+    // Calculations
+    var subtotal = delivery_price + cost_of_acc + recon_cost;
     var outstanding_balance = subtotal - downpayment;
-    var pn_amount = outstanding_balance * (1 + (interest_rate/100));
-    var repayment_amount = Math.ceil(pn_amount / term_length);
-    var downpayment_percent = (downpayment / delivery_price) * 100;
+    var pn_amount = outstanding_balance * (1 + (interest_rate / 100));
+    
+    // Prevent division by zero for repayment
+    var repayment_amount = term_length > 0 ? Math.ceil(pn_amount / term_length) : 0;
+    
+    // Prevent NaN if delivery_price is 0
+    var downpayment_percent = delivery_price > 0 ? (downpayment / delivery_price) * 100 : 0;
 
-    $('#subtotal').val(parseCurrency(subtotal.toFixed(2)).toLocaleString("en-US"));
-    $('#outstanding_balance').val(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
+    // Batch update DOM
+    const format = (num) => parseFloat(num || 0).toLocaleString("en-US", {minimumFractionDigits: 2});
 
-    $('#amount_financed').val(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
-    $('#pn_amount').val(parseCurrency(pn_amount.toFixed(2)).toLocaleString("en-US"));
-    $('#repayment_amount').val(parseCurrency(repayment_amount.toFixed(2)).toLocaleString("en-US"));
+    $('#subtotal').val(subtotal.toFixed(2));
+    $('#outstanding_balance').val(outstanding_balance.toFixed(2));
+    $('#amount_financed').val(outstanding_balance.toFixed(2));
+    $('#pn_amount').val(pn_amount.toFixed(2));
+    $('#repayment_amount').val(repayment_amount);
 
-    $('#summary-repayment-amount').text(parseCurrency(repayment_amount.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-outstanding-balance').text(parseCurrency(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-sub-total').text(parseCurrency(subtotal.toFixed(2)).toLocaleString("en-US"));
-
-    $('#summary-cost-of-accessories').text(parseFloat(cost_of_accessories.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-reconditioning-cost').text(parseFloat(reconditioning_cost.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-downpayment').text(parseFloat(downpayment.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-repayment-amount').text(parseFloat(repayment_amount.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-interest-rate').text(parseFloat(interest_rate.toFixed(2)).toLocaleString("en-US") + '%');
-    $('#summary-outstanding-balance').text(parseFloat(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-sub-total').text(parseFloat(subtotal.toFixed(2)).toLocaleString("en-US"));
-    $('#downpayment-percent').text(parseFloat(downpayment_percent.toFixed(2)).toLocaleString("en-US"));
+    // Summary Labels
+    $('#summary-repayment-amount').text(format(repayment_amount));
+    $('#summary-outstanding-balance').text(format(outstanding_balance));
+    $('#summary-sub-total').text(format(subtotal));
+    $('#summary-cost-of-accessories').text(format(cost_of_acc));
+    $('#summary-reconditioning-cost').text(format(recon_cost));
+    $('#summary-downpayment').text(format(downpayment));
+    $('#summary-interest-rate').text(interest_rate.toFixed(2) + '%');
+    $('#downpayment-percent').text(downpayment_percent.toFixed(2) + '%');
 }
 
 function calculateRenewalAmount(){
@@ -7344,54 +7332,53 @@ function disableFormAndSelect2(formId) {
     }
 }
 
+async function loadSalesProposalSequentially() {
+    const actionButtons = $('#first-step, #previous-step, #next-step, #last-step2, button[type="submit"], .btn-save');
+    
+    try {
+        actionButtons.addClass('d-none');
 
-function loadSalesProposalSequentially() {
+        // 1. Load data sequentially
+        await displayDetails('get sales proposal basic details');
+        
+        if (productType === 'Fuel') {
+            await displayDetails('get sales proposal fuel details');
+        }
+        else if(productType === 'Unit' || productType === 'Repair'){
+            await displayDetails('get sales proposal unit details');
+        }
+        else if(productType === 'Refinancing'){
+            await displayDetails('get sales proposal refinancing details');
+        }
+            
+        await displayDetails('get sales proposal pricing computation details');
+        await displayDetails('get sales proposal other charges details');
+        await displayDetails('get sales proposal renewal amount details');
 
-    var queue = $.Deferred().resolve();
+        // 2. Logic Fork: Check the product type
+        var productType = $('#product_type').val();
 
-    queue = queue.then(function () {
-        return displayDetails('get sales proposal basic details');
-    });
+        if (productType === 'Fuel') {
+            // Start the chain from Fuel
+            calculateFuelTotal(); 
+        } else {
+            // Skip Fuel and start the chain from Total Delivery Price
+            calculateTotalDeliveryPrice(); 
+        }
 
-    queue = queue.then(function () {
-        return displayDetails('get sales proposal unit details');
-    });
-
-    queue = queue.then(function () {
-        return displayDetails('get sales proposal fuel details');
-    });
-
-    queue = queue.then(function () {
-        return displayDetails('get sales proposal refinancing details');
-    });
-
-    queue = queue.then(function () {
-        return displayDetails('get sales proposal pricing computation details');
-    });
-
-    queue = queue.then(function () {
-        return displayDetails('get sales proposal other charges details');
-    });
-
-    queue = queue.then(function () {
-        return displayDetails('get sales proposal renewal amount details');
-    });
-
-    queue = queue.then(function () {
-        return displayDetails('get sales proposal confirmation details');
-    });
-
-    if ($('#sales-proposal-tab-12').length) {
-        queue = queue.then(function () {
-            return displayDetails('get comaker details');
-        });
-    }
-
-    queue.then(function () {
-        // FINAL computations only once
-        calculateFuelTotal();
-        calculateTotalDeliveryPrice();
+        // 3. Run remaining independent calculations
         calculateTotalOtherCharges();
         calculateRenewalAmount();
-    });
+
+        // 4. Secondary data
+        await displayDetails('get sales proposal confirmation details');
+        if ($('#sales-proposal-tab-12').length) {
+            await displayDetails('get comaker details');
+        }
+
+        actionButtons.removeClass('d-none');
+
+    } catch (error) {
+        console.error("Sequence failed:", error);
+    }
 }

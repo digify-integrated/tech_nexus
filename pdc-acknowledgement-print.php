@@ -199,7 +199,7 @@
                                 <td style="text-align:left;">POSTED BY:</td>
                                 <td style="text-align:left;"></td>
                             </tr>
-                            <tr>
+                            <!--<tr>
                                 <td colspan="6" style="text-align:left"><p style="text-align:center"><b>AUTHORIZATION AND UNDERTAKING</b></p>
                                 
                                     <p style="text-align:justify">This is to authorize the company to deposit any of the following checks upon due date of my monthly installment. In case the check is dishonored by the drawee bank for whatever reason or I requested to "HOLD" the check for deposit, I agreed to pay additional 3% per month late payment penalty or returned check charges.</p>
@@ -210,7 +210,7 @@
 
                                      <p style="text-align:center">______________________________________________<br/> Signature over printed name/Date</p>
                                 </td>
-                            </tr>
+                            </tr>-->
                             <tr>
                                 <td style="text-align:center;background-color: #131920;color: #fff;" width="150">BANK/BRANCH</td>
                                 <td style="text-align:center;background-color: #131920;color: #fff;" width="80">CHECK DATE</td>

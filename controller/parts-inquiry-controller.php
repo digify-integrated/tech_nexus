@@ -76,12 +76,6 @@ class PartsInquiryController {
                 case 'delete multiple parts inquiry':
                     $this->deleteMultiplePartsInquiry();
                     break;
-                case 'add parts inquiry file extension':
-                    $this->addPartsInquiryFileExtension();
-                    break;
-                case 'delete parts inquiry file extension':
-                    $this->deletePartsInquiryFileExtension();
-                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;

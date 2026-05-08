@@ -5,12 +5,12 @@ require_once '../model/database-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
-require_once '../model/civil-status-model.php';
+require_once '../model/lead-status-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
-$civilStatusModel = new CivilStatusModel($databaseModel);
+$leadStatusModel = new LeadStatusModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -18,32 +18,32 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = [];
     
     switch ($type) {
-        case 'civil status table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateCivilStatusTable()');
+        case 'lead status table':
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM lead_status');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $civilStatusDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'delete');
+            $leadStatusDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 192, 'delete');
 
             foreach ($options as $row) {
-                $civilStatusID = $row['civil_status_id'];
-                $civilStatusName = $row['civil_status_name'];
+                $leadStatusID = $row['lead_status_id'];
+                $leadStatusName = $row['lead_status_name'];
 
-                $civilStatusIDEncrypted = $securityModel->encryptData($civilStatusID);
+                $leadStatusIDEncrypted = $securityModel->encryptData($leadStatusID);
 
                 $delete = '';
-                if($civilStatusDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-civil-status" data-civil-status-id="'. $civilStatusID .'" title="Delete Civil Status">
+                if($leadStatusDeleteAccess['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-lead-status" data-lead-status-id="'. $leadStatusID .'" title="Delete Lead Status">
                                     <i class="ti ti-trash"></i>
                                 </button>';
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $civilStatusID .'">',
-                    'CIVIL_STATUS_NAME' => $civilStatusName,
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $leadStatusID .'">',
+                    'LEAD_STATUS_NAME' => $leadStatusName,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="civil-status.php?id='. $civilStatusIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="lead-status.php?id='. $leadStatusIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'

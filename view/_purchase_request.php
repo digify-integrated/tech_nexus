@@ -47,6 +47,8 @@
                 <th>Reference No.</th>
                 <th>Purchase Request Type</th>
                 <th>Company</th>
+                <th>Department</th>
+                <th>Month</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>

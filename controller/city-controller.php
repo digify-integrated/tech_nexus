@@ -1,17 +1,6 @@
 <?php
 session_start();
 
-# -------------------------------------------------------------
-#
-# Function: CityController
-# Description: 
-# The CityController class handles city related operations and interactions.
-#
-# Parameters: None
-#
-# Returns: None
-#
-# -------------------------------------------------------------
 class CityController {
     private $cityModel;
     private $stateModel;
@@ -19,23 +8,6 @@ class CityController {
     private $userModel;
     private $securityModel;
 
-    # -------------------------------------------------------------
-    #
-    # Function: __construct
-    # Description: 
-    # The constructor initializes the object with the provided CityModel, UserModel and SecurityModel instances.
-    # These instances are used for city related, user related operations and security related operations, respectively.
-    #
-    # Parameters:
-    # - @param CityModel $cityModel     The CityModel instance for city related operations.
-    # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param StateModel $stateModel     The StateModel instance for state related operations.
-    # - @param CountryModel $countryModel     The CountryModel instance for country related operations.
-    # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
     public function __construct(CityModel $cityModel, UserModel $userModel,  StateModel $stateModel, CountryModel $countryModel, SecurityModel $securityModel) {
         $this->cityModel = $cityModel;
         $this->userModel = $userModel;
@@ -43,21 +15,7 @@ class CityController {
         $this->countryModel = $countryModel;
         $this->securityModel = $securityModel;
     }
-    # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    #
-    # Function: handleRequest
-    # Description: 
-    # This method checks the request method and dispatches the corresponding transaction based on the provided transaction parameter.
-    # The transaction determines which action should be performed.
-    #
-    # Parameters:
-    # - $transaction (string): The type of transaction.
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
     public function handleRequest(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
@@ -84,23 +42,7 @@ class CityController {
             }
         }
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Save methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: saveCity
-    # Description: 
-    # Updates the existing city if it exists; otherwise, inserts a new city.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
+    
     public function saveCity() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -134,23 +76,7 @@ class CityController {
             exit;
         }
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Delete methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: deleteCity
-    # Description: 
-    # Delete the city if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
+    
     public function deleteCity() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -179,19 +105,7 @@ class CityController {
         echo json_encode(['success' => true]);
         exit;
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: deleteMultipleCity
-    # Description: 
-    # Delete the selected citys if it exists; otherwise, skip it.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
+    
     public function deleteMultipleCity() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -214,23 +128,7 @@ class CityController {
         echo json_encode(['success' => true]);
         exit;
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Duplicate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: duplicateCity
-    # Description: 
-    # Duplicates the city if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
+    
     public function duplicateCity() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -259,23 +157,7 @@ class CityController {
         echo json_encode(['success' => true, 'cityID' =>  $this->securityModel->encryptData($cityID)]);
         exit;
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Get details methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: getCityDetails
-    # Description: 
-    # Handles the retrieval of city details such as city name, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
+    
     public function getCityDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -313,9 +195,7 @@ class CityController {
             exit;
         }
     }
-    # -------------------------------------------------------------
 }
-# -------------------------------------------------------------
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';

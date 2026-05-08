@@ -4,11 +4,13 @@
   require('model/purchase-request-model.php');
   require('model/company-model.php');
   require('model/unit-model.php');
+  require('model/parts-model.php');
   
   $purchaseRequestModel = new PurchaseRequestModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
   $unitModel = new UnitModel($databaseModel);
   $departmentModel = new DepartmentModel($databaseModel);
+  $partsModel = new PartsModel($databaseModel);
 
   $pageTitle = 'Purchase Request';
     

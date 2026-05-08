@@ -55,6 +55,10 @@
   $ciStatus = $salesProposalDetails['ci_status'];
   $outgoingChecklist = $salesProposalDetails['outgoing_checklist'];
   $unitImage = $salesProposalDetails['unit_image'];
+  $unitBack = $salesProposalDetails['unit_back'];
+  $unitLeft = $salesProposalDetails['unit_left'];
+  $unitRight = $salesProposalDetails['unit_right'];
+  $unitInterior = $salesProposalDetails['unit_interior'];
   $productType = $salesProposalDetails['product_type'];
   $forRegistration = $salesProposalDetails['for_registration'];
   $forTransfer = $salesProposalDetails['for_transfer'];
@@ -394,12 +398,58 @@
                                 </li>';
                 }
 
-                if($salesProposalStatus == 'Ready For Release' || (($salesProposalStatus == 'Proceed' || $salesProposalStatus == 'On-Process') && ($productType == 'Refinancing' || $productType == 'Restructure' || $productType == 'Brand New' || $productType == 'Fuel' || $productType == 'Parts'))){
-                  if($tagSalesProposalForDR['total'] > 0){
-                    $action .= '<li class="d-none" id="for-dr-sales-proposal-button">
-                                  <button class="dropdown-item" type="button" id="for-dr-sales-proposal">Tag For DR</button>
-                                </li>';
-                  }
+                $isReadyForRelease = $salesProposalStatus === 'Ready For Release';
+
+                $isProcessStatus = in_array($salesProposalStatus, ['Proceed', 'On-Process']);
+
+                $isUnitType = in_array($productType, ['Unit', 'Repair']);
+
+                $isOtherType = in_array($productType, [
+                    'Refinancing',
+                    'Restructure',
+                    'Brand New',
+                    'Fuel',
+                    'Parts'
+                ]);
+
+                $hasTag = ($tagSalesProposalForDR['total'] ?? 0) > 0;
+
+                $hasCompleteMedia =
+                    !empty($outgoingChecklist) &&
+                    !empty($unitImage) &&
+                    !empty($unitBack) &&
+                    !empty($unitLeft) &&
+                    !empty($unitRight) &&
+                    !empty($unitInterior);
+
+                // =============================
+                // Final Condition
+                // =============================
+
+                $canShowButton =
+                    $hasTag &&
+                    (
+                        // Case 1: Ready For Release + Unit/Repair + Complete Media
+                        ($isReadyForRelease && $isUnitType && $hasCompleteMedia)
+
+                        ||
+
+                        // Case 2: Proceed/On-Process + Other Types
+                        ($isProcessStatus && $isOtherType)
+                    );
+
+                // =============================
+                // Render Button
+                // =============================
+
+                if ($canShowButton) {
+                    $action .= '
+                        <li class="d-none" id="for-dr-sales-proposal-button">
+                            <button class="dropdown-item" type="button" id="for-dr-sales-proposal">
+                                Tag For DR
+                            </button>
+                        </li>
+                    ';
                 }
                 
                 if($tagChangeRequestAsComplete['total'] > 0 && ($salesProposalStatus == 'Proceed' || $salesProposalStatus == 'On-Process' || $salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR' || $salesProposalStatus == 'Released') && ($forRegistration == 'Yes' || $forTransfer == 'Yes' || $forChangeColor == 'Yes' || $forChangeBody == 'Yes' || $forChangeEngine == 'Yes') && $changeRequestStatus != 'Completed'){ 
@@ -985,7 +1035,7 @@
                 <thead>
                   <tr>
                     <th>Job Order</th>
-                    <th>Cost</th>
+                    <th>Amount Charge</th>
                     <th>Progress</th>
                     <th>Approval Document</th>
                     <th>Actions</th>
@@ -1301,7 +1351,7 @@
                     <th>Job Order Number</th>
                     <th>Job Order Date</th>
                     <th>Particulars</th>
-                    <th>Cost</th>
+                    <th>Amount Charge</th>
                     <th>Progress</th>
                     <th>Actions</th>
                   </tr>
@@ -1785,7 +1835,7 @@
             </div>
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label" for="job_order_cost">Cost <span class="text-danger">*</span></label>
+                <label class="form-label" for="job_order_cost">Amount Charge <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01">
               </div>
             </div>
@@ -1890,7 +1940,7 @@
             </div>
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label" for="additional_job_order_cost">Cost <span class="text-danger">*</span></label>
+                <label class="form-label" for="additional_job_order_cost">Amount Charge <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="additional_job_order_cost" name="additional_job_order_cost" min="0" step="0.01">
               </div>
             </div>

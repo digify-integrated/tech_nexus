@@ -589,6 +589,7 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'COMPLETION_DATE' },
             { 'data' : 'PURCHASE_DATE' },
             { 'data' : 'TRANSACTION_DATE' },
+            { 'data' : 'POSTED_DATE' },
             { 'data' : 'STATUS' },
             { 'data' : 'ACTION' }
         ];
@@ -604,8 +605,9 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
-            { 'width': 'auto', 'aTargets': 10 },
-            { 'width': '15%','bSortable': false, 'aTargets': 11 }
+            { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
+            { 'width': 'auto', 'aTargets': 11 },
+            { 'width': '15%','bSortable': false, 'aTargets': 12 }
         ];
     }
     else{
@@ -619,6 +621,7 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'COMPLETION_DATE' },
             { 'data' : 'PURCHASE_DATE' },
             { 'data' : 'TRANSACTION_DATE' },
+            { 'data' : 'POSTED_DATE' },
             { 'data' : 'STATUS' },
             { 'data' : 'ACTION' }
         ];
@@ -633,8 +636,9 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
             { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
             { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
-            { 'width': 'auto', 'aTargets': 9 },
-            { 'width': '15%','bSortable': false, 'aTargets': 10 }
+            { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+            { 'width': 'auto', 'aTargets': 10 },
+            { 'width': '15%','bSortable': false, 'aTargets': 11 }
         ];
     }
 

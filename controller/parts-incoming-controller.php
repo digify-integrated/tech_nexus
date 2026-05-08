@@ -109,6 +109,9 @@ class PartsIncomingController {
                 case 'tag incoming as on-process':
                     $this->tagAsOnProcess();
                     break;
+                case 'tag incoming as paid':
+                    $this->tagAsPaid();
+                    break;
                 case 'tag incoming as posted':
                     $this->tagAsPosted();
                     break;
@@ -303,6 +306,11 @@ class PartsIncomingController {
         }
 
         if($company_id == '3' || $company_id == '2' || $company_id == '8'){
+            if($company_id == '8'){
+                $cost = $cost / 1.12;
+                $cost = number_format($cost, 2, '.', '');
+            }
+
             $this->partsIncomingModel->createPartsIncomingEntry($parts_incoming_id, $company_id, $reference_number, $cost, $userID);
         }
         echo json_encode(['success' => true]);
@@ -378,6 +386,81 @@ class PartsIncomingController {
         }
 
         $this->partsIncomingModel->updatePartsIncomingStatus($parts_incoming_id, 'On-Process', '', $userID);
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function tagAsPaid() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $parts_incoming_id = htmlspecialchars($_POST['parts_incoming_id'], ENT_QUOTES, 'UTF-8');
+        $cv_number = htmlspecialchars($_POST['cv_number'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $lines = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'lines')['total'];
+
+        if($lines == 0){
+            echo json_encode(['success' => false, 'noItem' => true]);
+            exit;
+        }
+
+        $lines = $this->partsIncomingModel->getPartsIncomingCartTotal($parts_incoming_id, 'without total cost')['total'];
+
+        if($lines > 0){
+            echo json_encode(['success' => false, 'withoutCost' => true]);
+            exit;
+        }
+
+        $partsIncomingDetails = $this->partsIncomingModel->getPartsIncoming($parts_incoming_id);
+        $product_id = $partsIncomingDetails['product_id'] ?? '';
+        $company_id = $partsIncomingDetails['company_id'] ?? '';
+        $supplier_id = $partsIncomingDetails['supplier_id'] ?? '';
+
+        if($company_id == 8){
+            $getPartsIncomingCartByID = $this->partsIncomingModel->getPartsIncomingCartByID($parts_incoming_id);
+
+            foreach ($getPartsIncomingCartByID as $row) {
+                $part_incoming_cart_id = $row['part_incoming_cart_id'];
+                $part_id = $row['part_id'];
+                $received_quantity = $row['quantity'];
+
+                $this->partsIncomingModel->updatePartsReceivedIncomingCart($part_incoming_cart_id, $part_id, $received_quantity, $userID);                
+            }
+
+            $getPartsIncomingCartByID2 = $this->partsIncomingModel->getPartsIncomingCartByID($parts_incoming_id);
+
+            foreach ($getPartsIncomingCartByID2 as $row) {
+                $part_incoming_cart_id = $row['part_incoming_cart_id'];
+                $part_id = $row['part_id'];
+                $received_quantity = $row['received_quantity'];
+                $cost_per_item = $row['cost'];
+
+                $this->partsIncomingModel->updatePartsAverageCostAndSRP(
+                    $part_id,
+                    $company_id,
+                    $supplier_id,
+                    $received_quantity,
+                    $cost_per_item,
+                    $userID
+                );                
+            }
+
+            if(!empty($product_id) && $product_id != '958'){
+                $this->partsIncomingModel->generatePartsIssuanceMonitoring($parts_incoming_id, $userID);
+            }
+        }
+
+        $this->partsIncomingModel->updatePartsIncomingStatus($parts_incoming_id, 'Paid', $cv_number, $userID);
         
         echo json_encode(['success' => true]);
         exit;

@@ -188,6 +188,10 @@ class BackJobMonitoringController {
         $debit_company_id = $backjobOrderMonitoringJobOrderDetails['company_id'] ?? 1;
         $work_center_id = $backjobOrderMonitoringJobOrderDetails['work_center_id'];
 
+        if(empty($debit_company_id)){
+            $debit_company_id = 1;
+        }
+
         $workCenterDetails = $this->workCenterModel->getWorkCenter($work_center_id);
         $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
@@ -198,7 +202,7 @@ class BackJobMonitoringController {
         $product_id = $backJobMonitoringDetails['product_id'] ?? null;
 
         $productDetails = $this->productModel->getProduct($product_id);
-        $company_id = $productDetails['company_id'] ?? null;
+        $company_id = $productDetails['company_id'] ?? 1;
         $product_status = $productDetails['product_status'] ?? 'Draft';
         $stock_number = $productDetails['stock_number'] ?? '';
 
@@ -208,7 +212,9 @@ class BackJobMonitoringController {
 
         $this->backJobMonitoringModel->createBackjobJobOrderEntry($sales_proposal_id, $backjobMonitoringJobOrderID, $entry_type, $debit_company_id, $company_id, $job_cost, $cost_markup, $product_status, $userID);
 
-        $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_id, $cost_markup, $work_center_name, $job_order, date('Y-m-d'), $userID);
+        if(!empty($product_id)){
+            $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_id, $cost_markup, $work_center_name, $job_order, date('Y-m-d'), $userID);
+        }        
 
         $this->backJobMonitoringModel->updateBackjobMonitoringJobOrderPaid($backjobMonitoringJobOrderID, $reference_number, $payment_date, $userID);
 
@@ -241,6 +247,7 @@ class BackJobMonitoringController {
         $payment_date = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
 
         $backjobOrderMonitoringJobOrderDetails = $this->backJobMonitoringModel->getBackJobMonitoringAdditionalJobOrder($salesAdditionalProposalJobOrderID);
+        $backjob_monitoring_id = $backjobOrderMonitoringJobOrderDetails['backjob_monitoring_id'];
         $sales_proposal_id = $backjobOrderMonitoringJobOrderDetails['sales_proposal_id'];
         $cost_markup = $backjobOrderMonitoringJobOrderDetails['cost_markup'];
         $job_cost = $backjobOrderMonitoringJobOrderDetails['cost']; 
@@ -248,15 +255,19 @@ class BackJobMonitoringController {
         $debit_company_id = $backjobOrderMonitoringJobOrderDetails['company_id'] ?? 1;
         $particulars = $backjobOrderMonitoringJobOrderDetails['particulars'];
 
+        if(empty($debit_company_id)){
+            $debit_company_id = 1;
+        }
+
         $workCenterDetails = $this->workCenterModel->getWorkCenter($work_center_id);
         $work_center_name = $workCenterDetails['work_center_name'] ?? null;
         $entry_type = 'Internal Additional Job Order';
 
-        $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($sales_proposal_id);
+        $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjob_monitoring_id);
         $product_id = $backJobMonitoringDetails['product_id'] ?? null;
 
         $productDetails = $this->productModel->getProduct($product_id);
-        $company_id = $productDetails['company_id'] ?? null;
+        $company_id = $productDetails['company_id'] ?? 1;
         $product_status = $productDetails['product_status'] ?? 'Draft';
         $stock_number = $productDetails['stock_number'] ?? '';
 
@@ -266,11 +277,14 @@ class BackJobMonitoringController {
 
         $this->backJobMonitoringModel->createBackjobJobOrderEntry($sales_proposal_id, $salesAdditionalProposalJobOrderID, $entry_type, $debit_company_id, $company_id, $job_cost, $cost_markup, $product_status, $userID);
 
-        $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_id, $cost_markup, $work_center_name, $particulars, date('Y-m-d'), $userID);
+        if(!empty($product_id)){
+            $this->productModel->insertProductExpense($product_id, 'Contractor Report', $sales_proposal_id, $cost_markup, $work_center_name, $particulars, date('Y-m-d'), $userID);
+        }  
+        
     
         $this->backJobMonitoringModel->updateBackjobMonitoringAdditionalJobOrderPaid($salesAdditionalProposalJobOrderID, $reference_number, $payment_date, $userID);
             
-        echo json_encode(['success' => true]);
+        echo json_encode(['success' => true, 'product_id' => $product_id]);
         exit;
     }
     

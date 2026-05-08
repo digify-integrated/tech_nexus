@@ -170,14 +170,22 @@
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
     
     
-    if($company_id == '3'){
+    if($company_id != '3'){
        $pdf->Cell(55, 4, '', 'B', 0, 'C', 0, '', 1);
     }
     else{
-       $pdf->Cell(55, 4, strtoupper($request_by), 'B', 0, 'C', 0, '', 1);
+       $pdf->Cell(55, 4, 'PAOLO EDUARDO BAGUISA', 'B', 0, 'C', 0, '', 1);
     }
+
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
-    $pdf->Cell(55, 4, '', 'B', 0, 'L', 0, '', 1);
+    
+    if($company_id == '3'){
+        $pdf->Cell(55, 4, 'KRISTINE GRACE BAGUISA', 'B', 0, 'C', 0, '', 1);
+    }
+    else{
+        $pdf->Cell(55, 4, '', 'B', 0, 'L', 0, '', 1);
+    }
+
     $pdf->Ln(5);
     $pdf->Cell(55, 8, 'PREPARED BY', 0, 0, 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
@@ -187,6 +195,7 @@
     }
     else{
         $pdf->Cell(55, 8, 'REQUESTED BY', 0, 0, 'C');
+        $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
     }
 
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);

@@ -100,7 +100,7 @@
                      <input type="hidden" id="view-cost" value="<?php echo $viewPartCost['total'] ?>">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="netruck-parts.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="fuel-parts.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($partID)){
                             echo '<li class="breadcrumb-item" id="part-id">'. $partID .'</li>';

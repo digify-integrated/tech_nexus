@@ -138,7 +138,7 @@ class PurchaseRequestController {
         $department_id = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
         $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $month_coverage = htmlspecialchars($_POST['month_coverage'], ENT_QUOTES, 'UTF-8');
-        $coverage_period = htmlspecialchars($_POST['coverage_period'], ENT_QUOTES, 'UTF-8');
+        $coverage_period = '';
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
 
         $checkPurchaseRequestExist = $this->purchaseRequestModel->checkPurchaseRequestExist($purchase_request_id);
@@ -171,9 +171,20 @@ class PurchaseRequestController {
         $purchase_request_id = htmlspecialchars($_POST['purchase_request_id'], ENT_QUOTES, 'UTF-8');
         $purchase_request_cart_id = htmlspecialchars($_POST['purchase_request_cart_id'], ENT_QUOTES, 'UTF-8');
         $description = htmlspecialchars($_POST['description'], ENT_QUOTES, 'UTF-8');
+        $part_id = htmlspecialchars($_POST['part_id'], ENT_QUOTES, 'UTF-8');
         $quantity = htmlspecialchars($_POST['quantity'], ENT_QUOTES, 'UTF-8');
         $unit_id = htmlspecialchars($_POST['unit_id'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['item_remarks'], ENT_QUOTES, 'UTF-8');
+
+        $purchaseRequestDetails = $this->purchaseRequestModel->getPurchaseRequest($purchase_request_id);
+        $purchase_request_type = $purchaseRequestDetails['purchase_request_type'];
+
+        if($purchase_request_type == 'Supplies'){
+            $description = '';
+        }
+        else{
+            $part_id = '';
+        }
 
         $checkPurchaseRequestItemExist = $this->purchaseRequestModel->checkPurchaseRequestItemExist($purchase_request_cart_id);
         $total = $checkPurchaseRequestItemExist['total'] ?? 0;
@@ -182,13 +193,13 @@ class PurchaseRequestController {
         $short_name = $unitCode['short_name'] ?? null;
     
         if ($total > 0) {
-            $this->purchaseRequestModel->updatePurchaseRequestItem($purchase_request_cart_id, $description, $quantity, $unit_id, $short_name, $remarks, $userID);
+            $this->purchaseRequestModel->updatePurchaseRequestItem($purchase_request_cart_id, $part_id, $description, $quantity, $unit_id, $short_name, $remarks, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->purchaseRequestModel->insertPurchaseRequestItem($purchase_request_id, $description, $quantity, $unit_id, $short_name, $remarks, $userID);
+            $this->purchaseRequestModel->insertPurchaseRequestItem($purchase_request_id, $part_id, $description, $quantity, $unit_id, $short_name, $remarks, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => true]);
             exit;
@@ -459,6 +470,7 @@ class PurchaseRequestController {
 
             $response = [
                 'success' => true,
+                'part_id' => $purchaseRequestDetails['part_id'],
                 'description' => $purchaseRequestDetails['description'],
                 'quantity' => $purchaseRequestDetails['quantity'],
                 'unit_id' => $purchaseRequestDetails['unit_id'],

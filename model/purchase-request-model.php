@@ -142,9 +142,10 @@ class PurchaseRequestModel {
         $stmt->execute();
     }
 
-    public function updatePurchaseRequestItem($purchase_request_cart_id, $description, $quantity, $unit_id, $short_name, $remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('UPDATE purchase_request_cart SET description = :description, quantity = :quantity, available_order = :available_order, unit_id = :unit_id, short_name = :short_name, remarks = :remarks, last_log_by = :p_last_log_by WHERE purchase_request_cart_id = :purchase_request_cart_id');
+    public function updatePurchaseRequestItem($purchase_request_cart_id, $part_id, $description, $quantity, $unit_id, $short_name, $remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE purchase_request_cart SET part_id = :part_id description = :description, quantity = :quantity, available_order = :available_order, unit_id = :unit_id, short_name = :short_name, remarks = :remarks, last_log_by = :p_last_log_by WHERE purchase_request_cart_id = :purchase_request_cart_id');
         $stmt->bindValue(':purchase_request_cart_id', $purchase_request_cart_id, PDO::PARAM_STR);
+        $stmt->bindValue(':part_id', $part_id, PDO::PARAM_STR);
         $stmt->bindValue(':description', $description, PDO::PARAM_STR);
         $stmt->bindValue(':quantity', $quantity, PDO::PARAM_STR);
         $stmt->bindValue(':available_order', $quantity, PDO::PARAM_STR);
@@ -186,9 +187,10 @@ class PurchaseRequestModel {
         $stmt->execute();
     }
 
-    public function insertPurchaseRequestItem($purchase_request_id, $description, $quantity, $unit_id, $short_name, $remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('INSERT INTO purchase_request_cart (purchase_request_id, description, quantity, available_order, unit_id, short_name, remarks, last_log_by) VALUES (:purchase_request_id, :description, :quantity, :available_order, :unit_id, :short_name, :remarks, :p_last_log_by)');
+    public function insertPurchaseRequestItem($purchase_request_id, $part_id, $description, $quantity, $unit_id, $short_name, $remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('INSERT INTO purchase_request_cart (purchase_request_id, part_id, description, quantity, available_order, unit_id, short_name, remarks, last_log_by) VALUES (:purchase_request_id, :part_id, :description, :quantity, :available_order, :unit_id, :short_name, :remarks, :p_last_log_by)');
         $stmt->bindValue(':purchase_request_id', $purchase_request_id, PDO::PARAM_STR);
+        $stmt->bindValue(':part_id', $part_id, PDO::PARAM_STR);
         $stmt->bindValue(':description', $description, PDO::PARAM_STR);
         $stmt->bindValue(':quantity', $quantity, PDO::PARAM_STR);
         $stmt->bindValue(':available_order', $quantity, PDO::PARAM_STR);

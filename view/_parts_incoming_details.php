@@ -42,7 +42,7 @@
 
                 if($part_incoming_status == 'For Approval'){
                   if($company == '8'){
-                    $dropdown .= '<li><button class="dropdown-item" type="button" id="paid">Paid</button></li>';
+                    $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#paid-offcanvas" aria-controls="paid-offcanvas" id="paid">Paid</button></li>';
                   }
                   else{
                     $dropdown .= '<li><button class="dropdown-item" type="button" id="on-process">Approve</button></li>';
@@ -127,7 +127,7 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Request By <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label"><?php echo ($company == '3') ? 'Recommended By' : 'Requested By'; ?> <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off" <?php echo $disabled; ?>>
             </div>
@@ -458,6 +458,34 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-release-incoming" form="release-incoming-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="paid-offcanvas" aria-labelledby="paid-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="paid-offcanvas-label" style="margin-bottom:-0.5rem">Mark as Paid</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="paid-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0"> 
+                <label class="form-label">CV Number <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="cv_number" name="cv_number" maxlength="200" autocomplete="off">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-paid" form="paid-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

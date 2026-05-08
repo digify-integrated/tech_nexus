@@ -46,16 +46,14 @@
                 <?php echo $systemModel->generateMonthOptions(); ?>
               </select>
             </div>
-            <label class="col-lg-2 col-form-label">Coverage <span class="text-danger">*</span></label>
+              <!--<label class="col-lg-2 col-form-label">Coverage <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="coverage_period" id="coverage_period" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <option value="1st Half">1st Half</option>
                 <option value="2nd Half">2nd Half</option>
               </select>
-            </div>
-          </div>
-          <div class="form-group row">
+            </div>-->
             <label class="col-lg-2 col-form-label">Department <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="department_id" id="department_id">

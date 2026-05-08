@@ -1198,7 +1198,12 @@ function colorReferenceTable(datatable_name, buttons = false, show_all = false){
 }
 
 function parseCurrency(value) {
-    return parseFloat(value.replace(/,/g, '')) || 0;
+    if (value === null || value === undefined || value === '') {
+        return 0;
+    }
+
+    const num = parseFloat(String(value).replace(/,/g, ''));
+    return isNaN(num) ? 0 : num;
 }
 
 function encryptCommission(number) {

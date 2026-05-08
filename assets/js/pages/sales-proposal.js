@@ -393,6 +393,24 @@
       initIfExists('#sales-proposal-released-table', (sel) => salesProposalReleasedTable(sel, true));
       initIfExists('#schedule-of-payments-table', (sel) => scheduleOfPaymentsTable(sel));
     });
+    
+    $doc.on('click', '#reset-filter', function () {
+      document
+        .querySelectorAll('#filter-canvas input[type="checkbox"]')
+        .forEach(cb => cb.checked = false);
+
+      // 2. Reset all text inputs (including datepickers)
+      document
+        .querySelectorAll('#filter-canvas input[type="text"]')
+        .forEach(input => input.value = '');
+
+      // 3. Optional: reset select dropdowns (if any exist later)
+      document
+        .querySelectorAll('#filter-canvas select')
+        .forEach(select => select.selectedIndex = 0);
+        
+      initIfExists('#all-sales-proposal-table', (sel) => allSalesProposalTable(sel)); 
+    });
 
     $('#print').on('click', function () {
       const outstandingBalance = Number($('#outstanding_balance').val() || 0);
@@ -2433,7 +2451,7 @@ function salesProposalJobOrderForm() {
     },
     messages: {
       job_order: { required: 'Please enter the job order' },
-      job_order_cost: { required: 'Please enter the cost' },
+      job_order_cost: { required: 'Please enter the amount charge' },
       approval_document: { required: 'Please choose the approval document' },
     },
     // Uses offcanvas-select2 too
@@ -2701,7 +2719,7 @@ function salesProposalAdditionalJobOrderForm() {
       job_order_number: { required: 'Please enter the job order' },
       job_order_date: { required: 'Please choose the job order date' },
       particulars: { required: 'Please enter the particulars' },
-      additional_job_order_cost: { required: 'Please enter the cost' },
+      additional_job_order_cost: { required: 'Please enter the amount charge' },
     },
     submit: async (form) => {
       const sales_proposal_id = domText('#sales-proposal-id');

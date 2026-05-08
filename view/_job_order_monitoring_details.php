@@ -27,7 +27,7 @@
                   <tr>
                     <th class="all"></th>
                     <th>Job Order</th>
-                    <th>Cost</th>
+                    <th>Amount Charge</th>
                     <th>Job Order Cost</th>
                     <th>Contactor</th>
                     <th>Work Center</th>
@@ -78,7 +78,7 @@
                     <th>Job Order Number</th>
                     <th>Job Order Date</th>
                     <th>Particulars</th>
-                    <th>Cost</th>
+                    <th>Amount Charge</th>
                     <th>Job Order Cost</th>
                     <th>Contactor</th>
                     <th>Work Center</th>
@@ -124,7 +124,7 @@
              <input type="hidden" id="sales_proposal_job_order_id" name="sales_proposal_job_order_id">
              <input type="hidden" id="sp_status" name="sp_status" value="<?php echo $salesProposalStatus; ?>">
               <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label" for="job_order_cost">Charge to Customer <span class="text-danger">*</span></label>
+                <label class="form-label" for="job_order_cost">Amount Charge <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01" <?php echo $readonly; ?>>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">
@@ -241,7 +241,7 @@
             <input type="hidden" id="sales_proposal_additional_job_order_id" name="sales_proposal_additional_job_order_id">
             <div class="form-group row">
               <div class="col-lg-6 mt-3 mt-lg-0">
-                <label class="form-label" for="additional_job_order_cost">Charge to Customer <span class="text-danger">*</span></label>
+                <label class="form-label" for="additional_job_order_cost">Amount Charge <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="additional_job_order_cost" name="additional_job_order_cost" min="0" step="0.01" <?php echo $readonly; ?>>
               </div>
               <div class="col-lg-6 mt-3 mt-lg-0">

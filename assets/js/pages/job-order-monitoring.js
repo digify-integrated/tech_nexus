@@ -400,7 +400,7 @@ function salesProposalJobOrderProgressForm(){
                 required: 'Please enter the progress'
             },
             job_cost: {
-                required: 'Please enter the charge to customer'
+                required: 'Please enter the amount charge'
             },
             job_order_company_id: {
                 required: 'Please choose the company provider'
@@ -531,7 +531,7 @@ function salesProposalAdditionalJobOrderProgressForm(){
                 required: 'Please choose the company provider'
             },
             additional_job_order_cost: {
-                required: 'Please enter the charge to customer'
+                required: 'Please enter the amount charge'
             },
             additional_job_cost: {
                 required: 'Please enter the additional job order cost'

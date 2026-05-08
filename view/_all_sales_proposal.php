@@ -23,39 +23,39 @@
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-draft" value="Draft"/>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-draft" value="Draft" checked/>
                                 <label class="form-check-label" for="sales-proposal-status-draft">Draft</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-review" value="For Review"/>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-review" value="For Review" checked/>
                                 <label class="form-check-label" for="sales-proposal-status-for-review">For Review</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-initial-approval" value="For Initial Approval"/>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-initial-approval" value="For Initial Approval" checked/>
                                 <label class="form-check-label" for="sales-proposal-status-for-initial-approval">For Initial Approval</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-final-approval" value="For Final Approval"/>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-final-approval" value="For Final Approval" checked/>
                                 <label class="form-check-label" for="sales-proposal-status-for-final-approval">For Final Approval</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-ci" value="For CI"/>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-ci" value="For CI" checked/>
                                 <label class="form-check-label" for="sales-proposal-status-for-ci">For CI</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-proceed" value="Proceed"/>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-proceed" value="Proceed" checked/>
                                 <label class="form-check-label" for="sales-proposal-status-proceed">Proceed</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-on-process" value="On-Process"/>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-on-process" value="On-Process" checked/>
                                 <label class="form-check-label" for="sales-proposal-status-on-process">On-Process</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-ready-for-release" value="Ready For Release"/>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-ready-for-release" value="Ready For Release" checked/>
                                 <label class="form-check-label" for="sales-proposal-status-ready-for-release">Ready For Release</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-dr" value="For DR"/>
+                                <input class="form-check-input sales-proposal-status-filter" type="checkbox" id="sales-proposal-status-for-dr" value="For DR" checked/>
                                 <label class="form-check-label" for="sales-proposal-status-for-dr">For DR</label>
                               </div>
                               <div class="form-check my-2">
@@ -210,6 +210,10 @@
                     echo $action;
                   }
                 ?>
+                <button type="button" class="btn btn-info" id="reset-filter">
+                  View All
+                </button>
+
                 <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                   Filter
                 </button>

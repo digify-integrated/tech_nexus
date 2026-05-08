@@ -43,6 +43,10 @@
             releaseIncomingForm();
         }
 
+        if($('#paid-form').length){
+            paidForm();
+        }
+
         if($('#approve-incoming-form').length){
             approveIncomingForm();
         }
@@ -153,65 +157,6 @@
                                 }
                                 else {
                                     showNotification('Incoming Approve Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
-
-        $(document).on('click','#paid',function() {
-            var parts_incoming_id = $('#parts-incoming-id').text();
-            const transaction = 'tag incoming as on-process';
-    
-            Swal.fire({
-                title: 'Confirm Incoming Paid',
-                text: 'Are you sure you want to tag this incoming as paid?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Paid',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-success mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/parts-incoming-controller.php',
-                        dataType: 'json',
-                        data: {
-                            parts_incoming_id : parts_incoming_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                setNotification('Incoming Paid Success', 'The incoming has been tagged as paid successfully.', 'success');
-                                window.location.reload();
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.noItem) {
-                                    showNotification('Incoming Paid Error', 'No parts added. Cannot be tagged as paid.', 'danger');
-                                }
-                                
-                                else if (response.withoutCost) {
-                                    showNotification('Incoming Paid Error', 'There are parts without cost added. Cannot be tagged as paid.', 'danger');
-                                }
-                                else {
-                                    showNotification('Incoming Paid Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -1670,6 +1615,94 @@ function releaseIncomingForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-cancel-incoming', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function paidForm(){
+    $('#paid-form').validate({
+        rules: {
+            cv_number: {
+                required: true
+            },
+        },
+        messages: {
+            cv_number: {
+                required: 'Please enter the CV number'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            var parts_incoming_id = $('#parts-incoming-id').text();
+            const transaction = 'tag incoming as paid';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/parts-incoming-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&parts_incoming_id=' + parts_incoming_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-paid');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Mark as Paid Success';
+                        const notificationDescription = 'The incoming has been marked as paid successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Mark as Paid Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-paid', 'Submit');
                 }
             });
         

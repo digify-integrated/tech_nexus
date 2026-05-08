@@ -1,4 +1,6 @@
 <?php
+header('Content-Type: application/json');
+
 require_once '../session.php';
 require_once '../config/config.php';
 require_once '../model/database-model.php';
@@ -243,26 +245,20 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $response[] = [
-                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
-                        'SALES_PROPOSAL_NUMBER' => '<a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
-                                                        '. $salesProposalNumber .'
-                                                    </a>',
-                        'CUSTOMER' => '<div class="col">
-                                                    <h6 class="mb-0">'. $customerName .'</h6>
-                                                    <p class="f-12 mb-0">'. $corporateName .'</p>
-                                                </div>',
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'.$salesProposalID.'">',
+
+                        'SALES_PROPOSAL_NUMBER' => $salesProposalNumber,
+
+                        'CUSTOMER' => '<strong>'.$customerName.'</strong><br><small>'.$corporateName.'</small>',
+
                         'PRODUCT_TYPE' => $productType,
                         'PRODUCT' => $stockNumber,
                         'CREATED_DATE' => $createdDate,
                         'RELEASED_DATE' => $releasedDate,
                         'STATUS' => $salesProposalStatus,
-                        'ACTION' => '<div class="d-flex gap-2">
-                                        <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
-                                            <i class="ti ti-eye"></i>
-                                        </a>
-                                        '. $delete .'
-                                    </div>'
-                        ];
+
+                        'ACTION' => '<a href="all-sales-proposal.php?customer='.$securityModel->encryptData($customerID).'&id='.$salesProposalIDEncrypted.'" class="btn btn-sm btn-primary" title="View"><i class="ti ti-eye"></i></a>'.$delete
+                    ];
                 }
 
                 echo json_encode($response);
@@ -521,6 +517,87 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         </a>
                                     </div>'
                         ];
+                }
+
+                echo json_encode($response);
+        break;
+        case 'sales proposal fuel table':
+                $parts_id = $_POST['parts_id'];
+                $sales_proposal_start_date = $systemModel->checkDate('empty', $_POST['sales_proposal_start_date'], '', 'Y-m-d', '');
+                $sales_proposal_end_date = $systemModel->checkDate('empty', $_POST['sales_proposal_end_date'], '', 'Y-m-d', '');
+
+                $query = 'SELECT * FROM sales_proposal WHERE product_type = "Fuel" AND sales_proposal_status = "Released" AND DATE(created_date) >= "2026-04-01"';
+
+                if($parts_id == 10611){
+                    $query .= 'AND diesel_fuel_quantity > 0 ';
+                }
+                else if($parts_id == 10612){
+                    $query .= 'AND premium_fuel_quantity > 0 ';
+                }
+                else if($parts_id == 10613){
+                    $query .= 'AND regular_fuel_quantity > 0 ';
+                }
+
+                if(!empty($sales_proposal_start_date) && !empty($sales_proposal_end_date)){
+                    $query .= 'AND released_date BETWEEN :sales_proposal_start_date AND :sales_proposal_end_date ';
+                }
+
+                $sql = $databaseModel->getConnection()->prepare($query);
+
+                if(!empty($sales_proposal_start_date) && !empty($sales_proposal_end_date)){
+                    $sql->bindValue(':sales_proposal_start_date', $sales_proposal_start_date, PDO::PARAM_STR);
+                    $sql->bindValue(':sales_proposal_end_date', $sales_proposal_end_date, PDO::PARAM_STR);
+                }
+
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $salesProposalID = $row['sales_proposal_id'];
+                    $customerID = $row['customer_id'];
+                    $salesProposalNumber = $row['sales_proposal_number'];
+                    $productType = $row['product_type'];
+                    $productID = $row['product_id'];
+                    $diesel_fuel_quantity = $row['diesel_fuel_quantity'];
+                    $premium_fuel_quantity = $row['premium_fuel_quantity'];
+                    $regular_fuel_quantity = $row['regular_fuel_quantity'];
+                    $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                    $releasedDate = $systemModel->checkDate('summary', $row['released_date'], '', 'm/d/Y', '');
+                    $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+
+                    $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                    $productDetails = $productModel->getProduct($productID);
+                    $productName = $productDetails['description'] ?? null;
+                    $stockNumber = $productDetails['stock_number'] ?? null;
+
+                    $customerDetails = $customerModel->getPersonalInformation($customerID);
+                    $customerName = $customerDetails['file_as'] ?? null;
+                    $corporateName = $customerDetails['corporate_name'] ?? null;
+
+                    if($parts_id == 10611){
+                        $qty = $diesel_fuel_quantity;
+                    }
+                    else if($parts_id == 10612){
+                        $qty = $premium_fuel_quantity;
+                    }
+                    else if($parts_id == 10613){
+                        $qty = $regular_fuel_quantity;
+                    }
+                    else{
+                        $qty = 0;
+                    }
+
+                    $response[] = [
+                        'SALES_PROPOSAL_NO' => $salesProposalNumber,
+                        'RELEASED_DATE' => $releasedDate,
+                        'CUSTOMER' => '<div class="col">
+                                                    <h6 class="mb-0">'. $customerName .'</h6>
+                                                    <p class="f-12 mb-0">'. $corporateName .'</p>
+                                                </div>',
+                        'TOTAL' => number_format($qty),
+                    ];
                 }
 
                 echo json_encode($response);
