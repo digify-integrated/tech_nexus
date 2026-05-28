@@ -167,18 +167,18 @@
                 $suppliesHidden = 'd-none';
               }
             ?>
-            <div class="col-lg-6 mt-3  customer-reference-details d-none">
+            <div class="col-lg-6 mt-3  mt-lg-0 customer-reference-details d-none">
               <label class="form-label">Customer Reference <span class="text-danger">*</span></label>
               <select class="form-control select2" name="customer_ref_id" id="customer_ref_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
             </div>
-            <div class="col-lg-6 mt-3 <?php if($company != '3') echo 'd-none'; ?>">
+            <div class="col-lg-6 mt-3 mt-lg-0 <?php if($company != '3') echo 'd-none'; ?>">
               <label class="form-label" id="issuance_no_label">Issuance Number</label>
               <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="10" autocomplete="off" <?php echo $disabled; ?>>
             </div>
-            <div class="col-lg-6 mt-3 mt-lg-0 <?php if($company == '3') echo 'd-none'; ?>">
+            <div class="col-lg-6 mt-3 <?php if($company == '3') echo 'd-none'; ?>">
               <label class="form-label">Issuance Date</label>
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off" <?php echo $disabled; ?>>
@@ -187,7 +187,7 @@
                 </span>
               </div>
             </div>
-            <div class="col-lg-6 mt-3 d-none issuance-for-details">
+            <div class="col-lg-6 mt-3 mt-lg-0 d-none issuance-for-details">
               <label class="form-label d-none ">Issuance For? <span class="text-danger">*</span></label>
               <select class="form-control select2" name="issuance_for" id="issuance_for" <?php echo $disabled; ?>>
                 <option value="">--</option>

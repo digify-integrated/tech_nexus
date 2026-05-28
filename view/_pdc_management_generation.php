@@ -211,14 +211,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $loanCollectionID .'">',
-                    'LOAN_NUMBER' => ' <a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details">
-                                        '. $loanNumber .'
-                                    </a>',
-                    'CUSTOMER' => '<a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details"><div class="col">
+                    'LOAN_NUMBER' => $loanNumber,
+                    'CUSTOMER' => '<div class="col">
                                                     <h6 class="mb-0">'. $customerName .'</h6>
                                                     <p class="f-12 mb-0">'. $corporateName .'</p>
-                                                </div></a>',
-                    'PRODUCT' => '<a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details">' . $stockNumber . '<br/>' . $productName . '</a>',
+                                                </div>',
+                    'PRODUCT' => $stockNumber . '<br/>' . $productName,
                     'PAYMENT_DETAILS' => $paymentDetails,
                     'CHECK_NUMBER' => $checkNumber,
                     'CHECK_DATE' => $checkDate,
@@ -228,11 +226,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'BANK_BRANCH' => $bankBranch,
                     'REVERSAL_DATE' => $reversalDate,
                     'STATUS' => $badge,
-                    'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                    'ACTION' => '<a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
-                                    </a>
-                                </div>'
+                                    </a>'
                     ];
             }
 

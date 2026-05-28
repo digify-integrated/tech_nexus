@@ -577,69 +577,140 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
 
     var settings;
 
+    
     if(view_cost > 0){
-        var column = [
-            { 'data' : 'TRANSACTION_ID' },
-            { 'data' : 'PRODUCT' },
-            { 'data' : 'LINES' },
-            { 'data' : 'QUANTITY' },
-            { 'data' : 'RECEIVED' },
-            { 'data' : 'REMAINING' },
-            { 'data' : 'COST' },
-            { 'data' : 'COMPLETION_DATE' },
-            { 'data' : 'PURCHASE_DATE' },
-            { 'data' : 'TRANSACTION_DATE' },
-            { 'data' : 'POSTED_DATE' },
-            { 'data' : 'STATUS' },
-            { 'data' : 'ACTION' }
-        ];
 
-        var column_definition = [
-            { 'width': 'auto', 'aTargets': 0 },
-            { 'width': 'auto', 'aTargets': 1 },
-            { 'width': 'auto', 'aTargets': 2 },
-            { 'width': 'auto', 'aTargets': 3 },
-            { 'width': 'auto', 'aTargets': 4 },
-            { 'width': 'auto', 'aTargets': 5 },
-            { 'width': 'auto', 'aTargets': 6 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
-            { 'width': 'auto', 'aTargets': 11 },
-            { 'width': '15%','bSortable': false, 'aTargets': 12 }
-        ];
+        if(company == '8' || company == '1'){
+            var order = [[ 8, 'desc' ]];
+            var column = [
+                { 'data' : 'TRANSACTION_ID' },
+                { 'data' : 'LINES' },
+                { 'data' : 'QUANTITY' },
+                { 'data' : 'RECEIVED' },
+                { 'data' : 'REMAINING' },
+                { 'data' : 'COST' },
+                { 'data' : 'COMPLETION_DATE' },
+                { 'data' : 'PURCHASE_DATE' },
+                { 'data' : 'TRANSACTION_DATE' },
+                { 'data' : 'POSTED_DATE' },
+                { 'data' : 'STATUS' },
+                { 'data' : 'ACTION' }
+            ];
+
+            var column_definition = [
+                { 'width': 'auto', 'aTargets': 0 },
+                { 'width': 'auto', 'aTargets': 1 },
+                { 'width': 'auto', 'aTargets': 2 },
+                { 'width': 'auto', 'aTargets': 3 },
+                { 'width': 'auto', 'aTargets': 4 },
+                { 'width': 'auto', 'aTargets': 5 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 8},
+                { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+                { 'width': 'auto', 'aTargets': 10 },
+                { 'width': '15%','bSortable': false, 'aTargets': 11 }
+            ];
+        }
+        else{
+            var order = [[ 9, 'desc' ]];
+            var column = [
+                { 'data' : 'TRANSACTION_ID' },
+                { 'data' : 'PRODUCT' },
+                { 'data' : 'LINES' },
+                { 'data' : 'QUANTITY' },
+                { 'data' : 'RECEIVED' },
+                { 'data' : 'REMAINING' },
+                { 'data' : 'COST' },
+                { 'data' : 'COMPLETION_DATE' },
+                { 'data' : 'PURCHASE_DATE' },
+                { 'data' : 'TRANSACTION_DATE' },
+                { 'data' : 'POSTED_DATE' },
+                { 'data' : 'STATUS' },
+                { 'data' : 'ACTION' }
+            ];
+
+            var column_definition = [
+                { 'width': 'auto', 'aTargets': 0 },
+                { 'width': 'auto', 'aTargets': 1 },
+                { 'width': 'auto', 'aTargets': 2 },
+                { 'width': 'auto', 'aTargets': 3 },
+                { 'width': 'auto', 'aTargets': 4 },
+                { 'width': 'auto', 'aTargets': 5 },
+                { 'width': 'auto', 'aTargets': 6 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 10 },
+                { 'width': 'auto', 'aTargets': 11 },
+                { 'width': '15%','bSortable': false, 'aTargets': 12 }
+            ];
+        }
+        
     }
     else{
-        var column = [
-            { 'data' : 'TRANSACTION_ID' },
-            { 'data' : 'PRODUCT' },
-            { 'data' : 'LINES' },
-            { 'data' : 'QUANTITY' },
-            { 'data' : 'RECEIVED' },
-            { 'data' : 'REMAINING' },
-            { 'data' : 'COMPLETION_DATE' },
-            { 'data' : 'PURCHASE_DATE' },
-            { 'data' : 'TRANSACTION_DATE' },
-            { 'data' : 'POSTED_DATE' },
-            { 'data' : 'STATUS' },
-            { 'data' : 'ACTION' }
-        ];
+       if(company == '8' || company == '1'){
+            var order = [[ 7, 'desc' ]];
+            var column = [
+                { 'data' : 'TRANSACTION_ID' },
+                { 'data' : 'LINES' },
+                { 'data' : 'QUANTITY' },
+                { 'data' : 'RECEIVED' },
+                { 'data' : 'REMAINING' },
+                { 'data' : 'COMPLETION_DATE' },
+                { 'data' : 'PURCHASE_DATE' },
+                { 'data' : 'TRANSACTION_DATE' },
+                { 'data' : 'POSTED_DATE' },
+                { 'data' : 'STATUS' },
+                { 'data' : 'ACTION' }
+            ];
 
-        var column_definition = [
-            { 'width': 'auto', 'aTargets': 0 },
-            { 'width': 'auto', 'aTargets': 1 },
-            { 'width': 'auto', 'aTargets': 2 },
-            { 'width': 'auto', 'aTargets': 3 },
-            { 'width': 'auto', 'aTargets': 4 },
-            { 'width': 'auto', 'aTargets': 5 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
-            { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
-            { 'width': 'auto', 'aTargets': 10 },
-            { 'width': '15%','bSortable': false, 'aTargets': 11 }
-        ];
+            var column_definition = [
+                { 'width': 'auto', 'aTargets': 0 },
+                { 'width': 'auto', 'aTargets': 1 },
+                { 'width': 'auto', 'aTargets': 2 },
+                { 'width': 'auto', 'aTargets': 3 },
+                { 'width': 'auto', 'aTargets': 4 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 5 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+                { 'width': 'auto', 'aTargets': 9 },
+                { 'width': '15%','bSortable': false, 'aTargets': 10 }
+            ];
+        }
+        else{
+            var order = [[ 8, 'desc' ]];
+            var column = [
+                { 'data' : 'TRANSACTION_ID' },
+                { 'data' : 'PRODUCT' },
+                { 'data' : 'LINES' },
+                { 'data' : 'QUANTITY' },
+                { 'data' : 'RECEIVED' },
+                { 'data' : 'REMAINING' },
+                { 'data' : 'COMPLETION_DATE' },
+                { 'data' : 'PURCHASE_DATE' },
+                { 'data' : 'TRANSACTION_DATE' },
+                { 'data' : 'POSTED_DATE' },
+                { 'data' : 'STATUS' },
+                { 'data' : 'ACTION' }
+            ];
+
+            var column_definition = [
+                { 'width': 'auto', 'aTargets': 0 },
+                { 'width': 'auto', 'aTargets': 1 },
+                { 'width': 'auto', 'aTargets': 2 },
+                { 'width': 'auto', 'aTargets': 3 },
+                { 'width': 'auto', 'aTargets': 4 },
+                { 'width': 'auto', 'aTargets': 5 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 8 },
+                { 'width': 'auto', 'type': 'date', 'aTargets': 9 },
+                { 'width': 'auto', 'aTargets': 10 },
+                { 'width': '15%','bSortable': false, 'aTargets': 11 }
+            ];
+        }
     }
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -668,7 +739,7 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 0, 'desc' ]],
+        'order': order,
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

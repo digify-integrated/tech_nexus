@@ -190,18 +190,16 @@
                 </select>
               </div>
             </div>
-            <div class="form-group row d-none others_option">
-              <div class="col-lg-12 mt-3 mt-lg-0">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-3 d-none others_option">
                 <label class="form-label">Item <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="description" name="description" maxlength="200" autocomplete="off">
               </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-lg-6 mt-3 mt-lg-0">
+              <div class="col-lg-6 mt-3 mt-lg-3">
                 <label class="form-label">Quantity <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="quantity" name="quantity" value="0" min="0.01" step="0.01">
               </div>
-              <div class="col-lg-6 mt-3 mt-lg-0">
+              <div class="col-lg-6 mt-3 mt-lg-3">
                 <label class="form-label">Unit <span class="text-danger">*</span></label>
                 <select class="form-control offcanvas-select2" name="unit_id" id="unit_id">
                   <option value="">--</option>

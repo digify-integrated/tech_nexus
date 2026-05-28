@@ -642,10 +642,11 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
 
     var settings;
 
+    
     if(view_cost > 0){
 
-        if(company == '8'){
-        var order = [[ 8, 'desc' ]];
+        if(company == '8' || company == '1'){
+            var order = [[ 8, 'desc' ]];
             var column = [
                 { 'data' : 'TRANSACTION_ID' },
                 { 'data' : 'LINES' },
@@ -713,7 +714,7 @@ function partsIncomingTable(datatable_name, buttons = false, show_all = false){
         
     }
     else{
-        if(company == '8'){
+       if(company == '8' || company == '1'){
             var order = [[ 7, 'desc' ]];
             var column = [
                 { 'data' : 'TRANSACTION_ID' },

@@ -6969,3 +6969,71 @@ CREATE TABLE purchase_order_unit(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+DROP TABLE IF EXISTS `leads`;
+CREATE TABLE `leads` (
+  `lead_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `file_as` varchar(1000) NOT NULL,
+  `first_name` varchar(300) NOT NULL,
+  `middle_name` varchar(300),
+  `last_name` varchar(300) NOT NULL,
+  `corporate_name` varchar(300) NOT NULL,
+  `stock_number` VARCHAR(100) NULL,
+  `address` TEXT NULL,
+  `city_id` INT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `phone` varchar(50) DEFAULT NULL,
+  `gender_id` int(10) UNSIGNED DEFAULT NULL,
+  `lead_status_id` int(10) UNSIGNED DEFAULT NULL,
+  `inquiry_type_id` int(10) UNSIGNED DEFAULT NULL,
+  `inquiry_date` DATE NOT NULL,
+  `assigned_to` int(10) UNSIGNED DEFAULT NULL,
+  `remarks` text DEFAULT NULL,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `lead`;
+CREATE TABLE `inquiry_type` (
+  `inquiry_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KE NOT NULL,
+  `inquiry_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `lead_status`;
+CREATE TABLE `lead_status` (
+  `lead_status_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `lead_status_name` varchar(100) NOT NULL,
+  `description` varchar(500) NOT NULL,
+  `lead_status_type` ENUM ('Lead', 'Hiring') NOT NULL,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `inquiry_type`;
+CREATE TABLE `inquiry_type` (
+  `inquiry_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KE NOT NULL,
+  `inquiry_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `lead_notes`;
+
+CREATE TABLE `lead_notes` (
+  `lead_note_id` INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `lead_id` INT(10) UNSIGNED NOT NULL,
+  `note` TEXT NOT NULL,
+  `created_by` INT(10) UNSIGNED NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `deleted_by` INT(10) UNSIGNED DEFAULT NULL,
+  `deleted_at` DATETIME DEFAULT NULL,
+
+  INDEX `idx_lead_id` (`lead_id`),
+  INDEX `idx_created_by` (`created_by`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

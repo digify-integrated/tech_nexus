@@ -24,8 +24,25 @@
               <input type="text" class="form-control" id="lead_status_name" name="lead_status_name" maxlength="100" autocomplete="off">
             </div>
           </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Description <span class="text-danger">*</span></label>
+            <div class="col-lg-10">
+              <input type="text" class="form-control" id="description" name="description" maxlength="500" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Type <span class="text-danger">*</span></label>
+            <div class="col-lg-10">
+              <select class="form-control select2" id="lead_status_type" name="lead_status_type">
+                <option value="">--</option>
+                <option value="Lead">Lead</option>
+                <option value="Hiring">Hiring</option>
+              </select>
+            </div>
+          </div>
         </form>
       </div>
     </div>
   </div>
 </div>
+

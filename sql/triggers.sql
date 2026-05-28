@@ -8302,3 +8302,430 @@ BEGIN
         );
     END IF;
 END //
+
+CREATE TRIGGER lead_status_trigger_update
+AFTER UPDATE ON lead_status
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.lead_status_name <> OLD.lead_status_name THEN
+        SET audit_log = CONCAT(audit_log, "Lead Status Name: ", OLD.lead_status_name, " -> ", NEW.lead_status_name, "<br/>");
+    END IF;
+
+    IF NEW.description <> OLD.description THEN
+        SET audit_log = CONCAT(audit_log, "Description: ", OLD.description, " -> ", NEW.description, "<br/>");
+    END IF;
+
+    IF NEW.leat_status_type <> OLD.leat_status_type THEN
+        SET audit_log = CONCAT(audit_log, "Lead Status Type: ", OLD.leat_status_type, " -> ", NEW.leat_status_type, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('lead_status', NEW.lead_status_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER lead_status_trigger_insert
+AFTER INSERT ON lead_status
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Lead status created. <br/>';
+
+    IF NEW.lead_status_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Lead Status Name: ", NEW.lead_status_name);
+    END IF;
+
+    IF NEW.description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Description: ", NEW.description);
+    END IF;
+
+    IF NEW.leat_status_type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Lead Status Type: ", NEW.leat_status_type);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('lead_status', NEW.lead_status_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER inquiry_type_trigger_update
+AFTER UPDATE ON inquiry_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.inquiry_type_name <> OLD.inquiry_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Inquiry Type Name: ", OLD.inquiry_type_name, " -> ", NEW.inquiry_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('inquiry_type', NEW.inquiry_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER inquiry_type_trigger_insert
+AFTER INSERT ON inquiry_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Inquiry type created. <br/>';
+
+    IF NEW.inquiry_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Inquiry Type Name: ", NEW.inquiry_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('inquiry_type', NEW.inquiry_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+DELIMITER //
+
+/* =========================================================
+   TRIGGER: UPDATE LEAD
+========================================================= */
+CREATE TRIGGER lead_trigger_update
+AFTER UPDATE ON leads
+FOR EACH ROW
+BEGIN
+
+    DECLARE audit_log TEXT;
+
+    SET audit_log = '';
+
+    /* =========================
+        FILE AS
+    ========================== */
+    IF IFNULL(NEW.file_as, '') <> IFNULL(OLD.file_as, '') THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'File As: ',
+            IFNULL(OLD.file_as, 'NULL'),
+            ' -> ',
+            IFNULL(NEW.file_as, 'NULL'),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        FIRST NAME
+    ========================== */
+    IF IFNULL(NEW.first_name, '') <> IFNULL(OLD.first_name, '') THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'First Name: ',
+            IFNULL(OLD.first_name, 'NULL'),
+            ' -> ',
+            IFNULL(NEW.first_name, 'NULL'),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        MIDDLE NAME
+    ========================== */
+    IF IFNULL(NEW.middle_name, '') <> IFNULL(OLD.middle_name, '') THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Middle Name: ',
+            IFNULL(OLD.middle_name, 'NULL'),
+            ' -> ',
+            IFNULL(NEW.middle_name, 'NULL'),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        LAST NAME
+    ========================== */
+    IF IFNULL(NEW.last_name, '') <> IFNULL(OLD.last_name, '') THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Last Name: ',
+            IFNULL(OLD.last_name, 'NULL'),
+            ' -> ',
+            IFNULL(NEW.last_name, 'NULL'),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        CORPORATE NAME
+    ========================== */
+    IF IFNULL(NEW.corporate_name, '') <> IFNULL(OLD.corporate_name, '') THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Corporate Name: ',
+            IFNULL(OLD.corporate_name, 'NULL'),
+            ' -> ',
+            IFNULL(NEW.corporate_name, 'NULL'),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        STOCK NUMBER
+    ========================== */
+    IF IFNULL(NEW.stock_number, '') <> IFNULL(OLD.stock_number, '') THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Stock Number: ',
+            IFNULL(OLD.stock_number, 'NULL'),
+            ' -> ',
+            IFNULL(NEW.stock_number, 'NULL'),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        ADDRESS
+    ========================== */
+    IF IFNULL(NEW.address, '') <> IFNULL(OLD.address, '') THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Address updated.<br/>'
+        );
+    END IF;
+
+    /* =========================
+        CITY
+    ========================== */
+    IF IFNULL(NEW.city_id, 0) <> IFNULL(OLD.city_id, 0) THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'City ID: ',
+            IFNULL(OLD.city_id, 0),
+            ' -> ',
+            IFNULL(NEW.city_id, 0),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        EMAIL
+    ========================== */
+    IF IFNULL(NEW.email, '') <> IFNULL(OLD.email, '') THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Email: ',
+            IFNULL(OLD.email, 'NULL'),
+            ' -> ',
+            IFNULL(NEW.email, 'NULL'),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        PHONE
+    ========================== */
+    IF IFNULL(NEW.phone, '') <> IFNULL(OLD.phone, '') THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Phone: ',
+            IFNULL(OLD.phone, 'NULL'),
+            ' -> ',
+            IFNULL(NEW.phone, 'NULL'),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        GENDER
+    ========================== */
+    IF IFNULL(NEW.gender_id, 0) <> IFNULL(OLD.gender_id, 0) THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Gender ID: ',
+            IFNULL(OLD.gender_id, 0),
+            ' -> ',
+            IFNULL(NEW.gender_id, 0),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        LEAD STATUS
+    ========================== */
+    IF IFNULL(NEW.lead_status_id, 0) <> IFNULL(OLD.lead_status_id, 0) THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Lead Status ID: ',
+            IFNULL(OLD.lead_status_id, 0),
+            ' -> ',
+            IFNULL(NEW.lead_status_id, 0),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        INQUIRY TYPE
+    ========================== */
+    IF IFNULL(NEW.inquiry_type_id, 0) <> IFNULL(OLD.inquiry_type_id, 0) THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Inquiry Type ID: ',
+            IFNULL(OLD.inquiry_type_id, 0),
+            ' -> ',
+            IFNULL(NEW.inquiry_type_id, 0),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        ASSIGNED TO
+    ========================== */
+    IF IFNULL(NEW.assigned_to, 0) <> IFNULL(OLD.assigned_to, 0) THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Assigned To: ',
+            IFNULL(OLD.assigned_to, 0),
+            ' -> ',
+            IFNULL(NEW.assigned_to, 0),
+            '<br/>'
+        );
+    END IF;
+
+    /* =========================
+        REMARKS
+    ========================== */
+    IF IFNULL(NEW.remarks, '') <> IFNULL(OLD.remarks, '') THEN
+        SET audit_log = CONCAT(
+            audit_log,
+            'Remarks updated.<br/>'
+        );
+    END IF;
+
+    /* =========================
+        INSERT AUDIT LOG
+    ========================== */
+    IF CHAR_LENGTH(audit_log) > 0 THEN
+
+        INSERT INTO audit_log (
+            table_name,
+            reference_id,
+            log,
+            changed_by,
+            changed_at
+        )
+        VALUES (
+            'leads',
+            NEW.lead_id,
+            audit_log,
+            NEW.last_log_by,
+            NOW()
+        );
+
+    END IF;
+
+END //
+
+/* =========================================================
+   TRIGGER: INSERT LEAD
+========================================================= */
+CREATE TRIGGER lead_trigger_insert
+AFTER INSERT ON leads
+FOR EACH ROW
+BEGIN
+
+    DECLARE audit_log TEXT;
+
+    SET audit_log = 'Lead created.<br/>';
+
+    IF IFNULL(NEW.file_as, '') <> '' THEN
+        SET audit_log = CONCAT(audit_log, '<br/>File As: ', NEW.file_as);
+    END IF;
+
+    IF IFNULL(NEW.corporate_name, '') <> '' THEN
+        SET audit_log = CONCAT(audit_log, '<br/>Corporate Name: ', NEW.corporate_name);
+    END IF;
+
+    IF IFNULL(NEW.stock_number, '') <> '' THEN
+        SET audit_log = CONCAT(audit_log, '<br/>Stock Number: ', NEW.stock_number);
+    END IF;
+
+    IF IFNULL(NEW.email, '') <> '' THEN
+        SET audit_log = CONCAT(audit_log, '<br/>Email: ', NEW.email);
+    END IF;
+
+    IF IFNULL(NEW.phone, '') <> '' THEN
+        SET audit_log = CONCAT(audit_log, '<br/>Phone: ', NEW.phone);
+    END IF;
+
+    INSERT INTO audit_log (
+        table_name,
+        reference_id,
+        log,
+        changed_by,
+        changed_at
+    )
+    VALUES (
+        'leads',
+        NEW.lead_id,
+        audit_log,
+        NEW.last_log_by,
+        NOW()
+    );
+
+END //
+
+DELIMITER ;
+
+/* =========================================
+   INSERT NOTE
+========================================= */
+CREATE TRIGGER lead_notes_trigger_insert
+AFTER INSERT ON lead_notes 
+FOR EACH ROW
+BEGIN
+
+    INSERT INTO audit_log (
+        table_name,
+        reference_id,
+        log,
+        changed_by,
+        changed_at
+    )
+    VALUES (
+        'lead_notes',
+        NEW.lead_note_id,
+        CONCAT(
+            'Internal note added.<br/><br/>',
+            NEW.note
+        ),
+        NEW.created_by,
+        NOW()
+    );
+
+END //
+
+/* =========================================
+   DELETE NOTE
+========================================= */
+CREATE TRIGGER lead_notes_trigger_delete
+AFTER UPDATE ON lead_notes
+FOR EACH ROW
+BEGIN
+
+    IF NEW.deleted_at IS NOT NULL AND OLD.deleted_at IS NULL THEN
+
+        INSERT INTO audit_log (
+            table_name,
+            reference_id,
+            log,
+            changed_by,
+            changed_at
+        )
+        VALUES (
+            'lead_notes',
+            NEW.lead_note_id,
+            CONCAT(
+                'Internal note deleted.<br/><br/>',
+                NEW.note
+            ),
+            NEW.deleted_by,
+            NOW()
+        );
+
+    END IF;
+
+END //

@@ -197,13 +197,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $loanCollectionID .'">',
-                    'LOAN_NUMBER' => ' <a href="collections.php?id='. $loanCollectionIDEncrypted .'" title="View Details">
-                                        '. $loanNumber .'
-                                    </a>',
-                    'CUSTOMER' => '<a href="collections.php?id='. $loanCollectionIDEncrypted .'" title="View Details"><div class="col">
+                    'LOAN_NUMBER' => $loanNumber,
+                    'CUSTOMER' => '<div class="col">
                                                     <h6 class="mb-0">'. $customerName .'</h6>
                                                     <p class="f-12 mb-0">'. $corporateName .'</p>
-                                                </div></a>',
+                                                </div>',
                     'PAYMENT_DETAILS' => $paymentDetails,
                     'MODE_OF_PAYMENT' => $modeOfPayment,
                     'PAYMENT_DATE' => $paymentDate,
@@ -329,13 +327,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $loanCollectionID .'">',
-                    'LOAN_NUMBER' => ' <a href="collections.php?id='. $loanCollectionIDEncrypted .'" title="View Details">
-                                        '. $loanNumber .'
-                                    </a>',
-                    'CUSTOMER' => '<a href="collections.php?id='. $loanCollectionIDEncrypted .'" title="View Details"><div class="col">
+                    'LOAN_NUMBER' => $loanNumber,
+                    'CUSTOMER' => '<div class="col">
                                                     <h6 class="mb-0">'. $customerName .'</h6>
                                                     <p class="f-12 mb-0">'. $corporateName .'</p>
-                                                </div></a>',
+                                                </div>',
                     'PAYMENT_DETAILS' => $paymentDetails,
                     'MODE_OF_PAYMENT' => $modeOfPayment,
                     'PAYMENT_DATE' => $paymentDate,

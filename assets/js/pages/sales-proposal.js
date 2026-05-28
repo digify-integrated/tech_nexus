@@ -2108,9 +2108,19 @@ const postJson = async (url, body, { signal } = {}) => {
   }
 };
 
+
 const postFormDataJson = async (url, formData, { signal } = {}) => {
-  const res = await fetch(url, { method: 'POST', body: formData, signal });
+  const res = await fetch(url, {
+    method: 'POST',
+    body: formData,
+    signal,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  });
+
   const text = await res.text();
+
   try {
     return JSON.parse(text);
   } catch {

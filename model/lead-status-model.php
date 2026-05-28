@@ -26,19 +26,25 @@ class LeadStatusModel {
     /* -----------------------------------------------
     | INSERT LEAD STATUS
     |----------------------------------------------- */
-    public function insertLeadStatus($leadStatusName, $lastLogBy) {
+    public function insertLeadStatus($leadStatusName, $description, $leadStatusType, $lastLogBy) {
         $stmt = $this->db->getConnection()->prepare('
             INSERT INTO lead_status (
                 lead_status_name,
+                description,
+                lead_status_type,
                 last_log_by
             )
             VALUES (
                 :lead_status_name,
+                :description,
+                :lead_status_type,
                 :last_log_by
             )
         ');
 
         $stmt->bindValue(':lead_status_name', $leadStatusName, PDO::PARAM_STR);
+        $stmt->bindValue(':description', $description, PDO::PARAM_STR);
+        $stmt->bindValue(':lead_status_type', $leadStatusType, PDO::PARAM_STR);
         $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -48,17 +54,21 @@ class LeadStatusModel {
     /* -----------------------------------------------
     | UPDATE LEAD STATUS
     |----------------------------------------------- */
-    public function updateLeadStatus($leadStatusID, $leadStatusName, $lastLogBy) {
+    public function updateLeadStatus($leadStatusID, $leadStatusName, $description, $leadStatusType, $lastLogBy) {
         $stmt = $this->db->getConnection()->prepare('
             UPDATE lead_status
             SET 
                 lead_status_name = :lead_status_name,
+                description = :description,
+                lead_status_type = :lead_status_type,
                 last_log_by = :last_log_by
             WHERE lead_status_id = :lead_status_id
         ');
 
         $stmt->bindValue(':lead_status_id', $leadStatusID, PDO::PARAM_INT);
         $stmt->bindValue(':lead_status_name', $leadStatusName, PDO::PARAM_STR);
+        $stmt->bindValue(':description', $description, PDO::PARAM_STR);
+        $stmt->bindValue(':lead_status_type', $leadStatusType, PDO::PARAM_STR);
         $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
 
         $stmt->execute();
@@ -83,8 +93,7 @@ class LeadStatusModel {
     public function getLeadStatus($leadStatusID) {
         $stmt = $this->db->getConnection()->prepare('
             SELECT 
-                lead_status_id,
-                lead_status_name
+                *
             FROM lead_status
             WHERE lead_status_id = :lead_status_id
         ');
@@ -98,15 +107,18 @@ class LeadStatusModel {
     /* -----------------------------------------------
     | GET ALL LEAD STATUSES (FOR DROPDOWN)
     |----------------------------------------------- */
-    public function getLeadStatuses() {
+    public function getLeadStatuses($lead_status_type) {
         $stmt = $this->db->getConnection()->prepare('
             SELECT 
                 lead_status_id,
-                lead_status_name
+                lead_status_name,
+                description
             FROM lead_status
+            WHERE lead_status_type = :lead_status_type
             ORDER BY lead_status_name ASC
         ');
 
+        $stmt->bindValue(':lead_status_type', $lead_status_type, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -114,15 +126,15 @@ class LeadStatusModel {
     /* -----------------------------------------------
     | GENERATE OPTIONS (SELECT DROPDOWN)
     |----------------------------------------------- */
-    public function generateLeadStatusOptions() {
-        $options = $this->getLeadStatuses();
+    public function generateLeadStatusOptions($lead_status_type) {
+        $options = $this->getLeadStatuses($lead_status_type);
 
         $html = '';
 
         foreach ($options as $row) {
             $html .= '
                 <option value="' . htmlspecialchars($row['lead_status_id'], ENT_QUOTES) . '">
-                    ' . htmlspecialchars($row['lead_status_name'], ENT_QUOTES) . '
+                    ' . htmlspecialchars($row['lead_status_name'], ENT_QUOTES) . ' - ' . $row['description'] . '
                 </option>
             ';
         }
@@ -133,8 +145,8 @@ class LeadStatusModel {
     /* -----------------------------------------------
     | GENERATE CHECKBOX FILTER
     |----------------------------------------------- */
-    public function generateLeadStatusCheckBox() {
-        $options = $this->getLeadStatuses();
+    public function generateLeadStatusCheckBox($lead_status_type) {
+        $options = $this->getLeadStatuses($lead_status_type);
 
         $html = '';
 

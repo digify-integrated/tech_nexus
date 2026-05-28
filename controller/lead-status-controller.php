@@ -44,6 +44,8 @@ class LeadStatusController {
         $userID = $_SESSION['user_id'];
         $leadStatusID = isset($_POST['lead_status_id']) ? htmlspecialchars($_POST['lead_status_id'], ENT_QUOTES, 'UTF-8') : null;
         $leadStatusName = htmlspecialchars($_POST['lead_status_name'], ENT_QUOTES, 'UTF-8');
+        $description = htmlspecialchars($_POST['description'], ENT_QUOTES, 'UTF-8');
+        $leadStatusType = htmlspecialchars($_POST['lead_status_type'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -56,13 +58,13 @@ class LeadStatusController {
         $total = $checkLeadStatusExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->leadStatusModel->updateLeadStatus($leadStatusID, $leadStatusName, $userID);
+            $this->leadStatusModel->updateLeadStatus($leadStatusID, $leadStatusName, $description, $leadStatusType, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'leadStatusID' => $this->securityModel->encryptData($leadStatusID)]);
             exit;
         } 
         else {
-            $leadStatusID = $this->leadStatusModel->insertLeadStatus($leadStatusName, $userID);
+            $leadStatusID = $this->leadStatusModel->insertLeadStatus($leadStatusName, $description, $leadStatusType, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'leadStatusID' => $this->securityModel->encryptData($leadStatusID)]);
             exit;
@@ -141,7 +143,9 @@ class LeadStatusController {
 
             $response = [
                 'success' => true,
-                'leadStatusName' => $leadStatusDetails['lead_status_name']
+                'leadStatusName' => $leadStatusDetails['lead_status_name'],
+                'description' => $leadStatusDetails['description'],
+                'leadStatusType' => $leadStatusDetails['lead_status_type'],
             ];
 
             echo json_encode($response);

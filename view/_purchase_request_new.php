@@ -38,9 +38,9 @@
               </select>
             </div>
           </div>
-          <div class="form-group row d-none" id="supply_coverage">
-            <label class="col-lg-2 col-form-label">Month <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label d-none supply_coverage">Month <span class="text-danger">*</span></label>
+            <div class="col-lg-4 d-none supply_coverage">
               <select class="form-control select2" name="month_coverage" id="month_coverage" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <?php echo $systemModel->generateMonthOptions(); ?>

@@ -39,17 +39,17 @@
         }
 
         $(document).on('click','#add-item',function() {
-             let purchase_request_type = $('#purchase_request_type').val();
+            let purchase_request_type = $('#purchase_request_type').val();
 
             if(purchase_request_type == 'Supplies'){
                 $('.supplies_options').removeClass('d-none')
-                $('.others-option').addClass('d-none')
-                $('#unit_id').select2("enable", false)
+                $('.others_option').addClass('d-none')
+                $('.product_option').removeClass('d-none')
             }
             else{
                 $('.supplies_options').addClass('d-none')
-                $('.others-option').removeClass('d-none')
-                $('#unit_id').select2("enable", true)
+                $('.product_option').addClass('d-none')
+                $('.others_option').removeClass('d-none')
             }
         });
 
@@ -289,14 +289,13 @@
 
         $(document).on('change', '#purchase_request_type', function () {
             if ($(this).val() == 'Supplies') {
-                $('#supply_coverage').removeClass('d-none');
+                $('.supply_coverage').removeClass('d-none');
             } else {
-                $('#supply_coverage').addClass('d-none');
+                $('.supply_coverage').addClass('d-none');
                 checkOptionExist('#coverage_period', '', '');
                 checkOptionExist('#month_coverage', '', '');
             }
         });
-
 
         $(document).on('click','#discard-create',function() {
             discardCreate('purchase-request.php');
@@ -626,6 +625,7 @@ function addItemForm(){
                 success: function (response) {
                     if (response.success) {
                         showNotification('Save Item Success', 'The purchase request has been saved successfully', 'success');
+                        $('#add-item-supplies-offcanvas').offcanvas('hide');
                     }
                     else {
                         if (response.isInactive) {

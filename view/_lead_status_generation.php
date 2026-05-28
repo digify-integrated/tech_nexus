@@ -29,6 +29,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             foreach ($options as $row) {
                 $leadStatusID = $row['lead_status_id'];
                 $leadStatusName = $row['lead_status_name'];
+                $description = $row['description'];
+                $lead_status_type = $row['lead_status_type'];
 
                 $leadStatusIDEncrypted = $securityModel->encryptData($leadStatusID);
 
@@ -42,6 +44,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $leadStatusID .'">',
                     'LEAD_STATUS_NAME' => $leadStatusName,
+                    'DESCRIPTION' => $description,
+                    'LEAD_STATUS_TYPE' => $lead_status_type,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="lead-status.php?id='. $leadStatusIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>

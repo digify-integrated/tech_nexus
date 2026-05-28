@@ -464,7 +464,13 @@
 })(jQuery);
 
 function collectionsTable(datatable_name, buttons = false, show_all = false){
+
     const type = 'collections table';
+
+    // =========================
+    // FILTERS
+    // =========================
+
     var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
 
@@ -480,106 +486,220 @@ function collectionsTable(datatable_name, buttons = false, show_all = false){
     var filter_cancellation_date_start_date = $('#filter_cancellation_date_start_date').val();
     var filter_cancellation_date_end_date = $('#filter_cancellation_date_end_date').val();
 
-    var filter_collections_status = $('.collections-status-filter:checked').val();
-    var filter_payment_advice = $('.payment-advice-filter:checked').val();
+    // =========================
+    // CHECKBOX FILTERS
+    // =========================
+
     var collection_report_filter_values_collection = [];
 
-    $('.collection-checkbox:checked').each(function() {
-        collection_report_filter_values_collection.push($(this).val());
+    $('.collection-checkbox:checked').each(function () {
+        collection_report_filter_values_collection.push(this.value);
     });
 
-    var filter_collection_report_collection = collection_report_filter_values_collection.join(', ');
-    var settings;
+    var filter_collections_status =
+        $('.collections-status-filter:checked').val();
 
-    const column = [ 
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'ACTION' },
-        { 'data' : 'PAYMENT_DATE' },
-        { 'data' : 'TRANSACTION_DATE' },
-        { 'data' : 'MODE_OF_PAYMENT' },
-        { 'data' : 'PAYMENT_AMOUNT' },
-        { 'data' : 'OR_NUMBER' },
-        { 'data' : 'OR_DATE' },
-        { 'data' : 'PAYMENT_DETAILS' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'PAYMENT_ADVICE_BADGE' },
-        { 'data' : 'LOAN_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'COLLECTED_FROM' },
+    var filter_payment_advice =
+        $('.payment-advice-filter:checked').val();
+
+    var filter_collection_report_collection =
+        collection_report_filter_values_collection.join(', ');
+
+    // =========================
+    // COLUMNS
+    // =========================
+
+    const column = [
+        { data: 'CHECK_BOX' },
+        { data: 'ACTION' },
+        { data: 'PAYMENT_DATE' },
+        { data: 'TRANSACTION_DATE' },
+        { data: 'MODE_OF_PAYMENT' },
+        { data: 'PAYMENT_AMOUNT' },
+        { data: 'OR_NUMBER' },
+        { data: 'OR_DATE' },
+        { data: 'PAYMENT_DETAILS' },
+        { data: 'STATUS' },
+        { data: 'PAYMENT_ADVICE_BADGE' },
+        { data: 'LOAN_NUMBER' },
+        { data: 'CUSTOMER' },
+        { data: 'COLLECTED_FROM' }
     ];
 
     const column_definition = [
-        { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '15%','bSortable': false, 'aTargets': 1 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 3 },
-        { 'width': 'auto', 'aTargets': 4 },
-        { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'aTargets': 6 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
-        { 'width': 'auto', 'aTargets': 8 },
-        { 'width': 'auto', 'aTargets': 9 },
-        { 'width': 'auto', 'aTargets': 10 },
-        { 'width': 'auto', 'aTargets': 11 },
-        { 'width': 'auto', 'aTargets': 12 },
-        { 'width': 'auto', 'aTargets': 13 },
+        { width: '1%', orderable: false, targets: 0 },
+        { width: '15%', orderable: false, targets: 1 },
+        { width: 'auto', type: 'date', targets: 2 },
+        { width: 'auto', type: 'date', targets: 3 },
+        { width: 'auto', targets: 4 },
+        { width: 'auto', targets: 5 },
+        { width: 'auto', targets: 6 },
+        { width: 'auto', type: 'date', targets: 7 },
+        { width: 'auto', targets: 8 },
+        { width: 'auto', targets: 9 },
+        { width: 'auto', targets: 10 },
+        { width: 'auto', targets: 11 },
+        { width: 'auto', targets: 12 },
+        { width: 'auto', targets: 13 }
     ];
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+    const length_menu = show_all
+        ? [[-1], ['All']]
+        : [[-1, 10, 25, 50, 100], ['All', 10, 25, 50, 100]];
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_collections_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 
-                'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
-                'filter_transaction_date_end_date' : filter_transaction_date_end_date, 
-                'filter_or_date_start_date' : filter_or_date_start_date, 
-                'filter_or_date_end_date' : filter_or_date_end_date, 
-                'filter_payment_date_start_date' : filter_payment_date_start_date, 
-                'filter_payment_date_end_date' : filter_payment_date_end_date, 
-                'filter_reversed_date_start_date' : filter_reversed_date_start_date, 
-                'filter_reversed_date_end_date' : filter_reversed_date_end_date, 
-                'filter_cancellation_date_start_date' : filter_cancellation_date_start_date, 
-                'filter_cancellation_date_end_date' : filter_cancellation_date_end_date, 
-                'filter_collections_status' : filter_collections_status,
-                'filter_payment_advice' : filter_payment_advice,
-                'filter_collection_report_collection' : filter_collection_report_collection,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 3, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
+    // =========================
+    // DESTROY OLD TABLE
+    // =========================
 
     destroyDatatable(datatable_name);
 
-    $(datatable_name).dataTable(settings);
+    // =========================
+    // SETTINGS
+    // =========================
+
+    var settings = {
+
+        destroy: true,
+        processing: true,
+        deferRender: true,
+        responsive: true,
+
+        ajax: {
+
+            url: 'view/_collections_generation.php',
+
+            method: 'POST',
+
+            dataType: 'json',
+
+            timeout: 30000,
+
+            data: {
+
+                type: type,
+
+                filter_transaction_date_start_date:
+                    filter_transaction_date_start_date,
+
+                filter_transaction_date_end_date:
+                    filter_transaction_date_end_date,
+
+                filter_or_date_start_date:
+                    filter_or_date_start_date,
+
+                filter_or_date_end_date:
+                    filter_or_date_end_date,
+
+                filter_payment_date_start_date:
+                    filter_payment_date_start_date,
+
+                filter_payment_date_end_date:
+                    filter_payment_date_end_date,
+
+                filter_reversed_date_start_date:
+                    filter_reversed_date_start_date,
+
+                filter_reversed_date_end_date:
+                    filter_reversed_date_end_date,
+
+                filter_cancellation_date_start_date:
+                    filter_cancellation_date_start_date,
+
+                filter_cancellation_date_end_date:
+                    filter_cancellation_date_end_date,
+
+                filter_collections_status:
+                    filter_collections_status,
+
+                filter_payment_advice:
+                    filter_payment_advice,
+
+                filter_collection_report_collection:
+                    filter_collection_report_collection
+            },
+
+            dataSrc: '',
+
+            beforeSend: function(jqXHR, settings){
+
+                const table =
+                    $.fn.DataTable.isDataTable(datatable_name)
+                    ? $(datatable_name).DataTable()
+                    : null;
+
+                if (table) {
+                    table.settings()[0].jqXHR = jqXHR;
+                }
+            },
+
+            error: function(xhr, status, error){
+
+                // Ignore aborted requests
+                if (status === 'abort') {
+                    return;
+                }
+
+                var fullErrorMessage =
+                    `XHR status: ${status}, Error: ${error}`;
+
+                if (xhr.responseText) {
+
+                    fullErrorMessage +=
+                        `, Response: ${xhr.responseText}`;
+                }
+
+                console.error(fullErrorMessage);
+
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+
+        order: [[3, 'desc']],
+
+        columns: column,
+
+        columnDefs: column_definition,
+
+        lengthMenu: length_menu,
+
+        language: {
+            emptyTable: 'No data found',
+            searchPlaceholder: 'Search...',
+            search: '',
+            loadingRecords:
+                'Just a moment while we fetch your data...'
+        }
+    };
+
+    // =========================
+    // BUTTONS
+    // =========================
+
+    if (buttons) {
+
+        settings.dom =
+            "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    // =========================
+    // INIT
+    // =========================
+
+    $(datatable_name).DataTable(settings);
 }
 
 function paymentAdviceTable(datatable_name, buttons = false, show_all = false){
+
     const type = 'payment advice table';
+
+    // =========================
+    // FILTERS
+    // =========================
+
     var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
 
@@ -595,98 +715,202 @@ function paymentAdviceTable(datatable_name, buttons = false, show_all = false){
     var filter_cancellation_date_start_date = $('#filter_cancellation_date_start_date').val();
     var filter_cancellation_date_end_date = $('#filter_cancellation_date_end_date').val();
 
-    var filter_collections_status = $('.collections-status-filter:checked').val();
+    // =========================
+    // CHECKBOX FILTERS
+    // =========================
+
     var collection_report_filter_values_collection = [];
 
-    $('.collection-checkbox:checked').each(function() {
-        collection_report_filter_values_collection.push($(this).val());
+    $('.collection-checkbox:checked').each(function () {
+        collection_report_filter_values_collection.push(this.value);
     });
-    
-    var filter_collection_report_collection = collection_report_filter_values_collection.join(', ');
-    var settings;
 
-    const column = [ 
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'ACTION' },
-        { 'data' : 'PAYMENT_DATE' },
-        { 'data' : 'TRANSACTION_DATE' },
-        { 'data' : 'MODE_OF_PAYMENT' },
-        { 'data' : 'PAYMENT_AMOUNT' },
-        { 'data' : 'OR_NUMBER' },
-        { 'data' : 'OR_DATE' },
-        { 'data' : 'PAYMENT_DETAILS' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'LOAN_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'COLLECTED_FROM' },
+    var filter_collections_status =
+        $('.collections-status-filter:checked').val();
+
+    var filter_collection_report_collection =
+        collection_report_filter_values_collection.join(', ');
+
+    // =========================
+    // COLUMNS
+    // =========================
+
+    const column = [
+        { data: 'CHECK_BOX' },
+        { data: 'ACTION' },
+        { data: 'PAYMENT_DATE' },
+        { data: 'TRANSACTION_DATE' },
+        { data: 'MODE_OF_PAYMENT' },
+        { data: 'PAYMENT_AMOUNT' },
+        { data: 'OR_NUMBER' },
+        { data: 'OR_DATE' },
+        { data: 'PAYMENT_DETAILS' },
+        { data: 'STATUS' },
+        { data: 'LOAN_NUMBER' },
+        { data: 'CUSTOMER' },
+        { data: 'COLLECTED_FROM' }
     ];
 
     const column_definition = [
-        { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '15%','bSortable': false, 'aTargets': 1 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 3 },
-        { 'width': 'auto', 'aTargets': 4 },
-        { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'aTargets': 6 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
-        { 'width': 'auto', 'aTargets': 8 },
-        { 'width': 'auto', 'aTargets': 9 },
-        { 'width': 'auto', 'aTargets': 10 },
-        { 'width': 'auto', 'aTargets': 11 },
-        { 'width': 'auto', 'aTargets': 12 },
+        { width: '1%', orderable: false, targets: 0 },
+        { width: '15%', orderable: false, targets: 1 },
+        { width: 'auto', type: 'date', targets: 2 },
+        { width: 'auto', type: 'date', targets: 3 },
+        { width: 'auto', targets: 4 },
+        { width: 'auto', targets: 5 },
+        { width: 'auto', targets: 6 },
+        { width: 'auto', type: 'date', targets: 7 },
+        { width: 'auto', targets: 8 },
+        { width: 'auto', targets: 9 },
+        { width: 'auto', targets: 10 },
+        { width: 'auto', targets: 11 },
+        { width: 'auto', targets: 12 }
     ];
 
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+    const length_menu = show_all
+        ? [[-1], ['All']]
+        : [[-1, 10, 25, 50, 100], ['All', 10, 25, 50, 100]];
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_collections_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 
-                'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
-                'filter_transaction_date_end_date' : filter_transaction_date_end_date, 
-                'filter_or_date_start_date' : filter_or_date_start_date, 
-                'filter_or_date_end_date' : filter_or_date_end_date, 
-                'filter_payment_date_start_date' : filter_payment_date_start_date, 
-                'filter_payment_date_end_date' : filter_payment_date_end_date, 
-                'filter_reversed_date_start_date' : filter_reversed_date_start_date, 
-                'filter_reversed_date_end_date' : filter_reversed_date_end_date, 
-                'filter_cancellation_date_start_date' : filter_cancellation_date_start_date, 
-                'filter_cancellation_date_end_date' : filter_cancellation_date_end_date, 
-                'filter_collections_status' : filter_collections_status,
-                'filter_collection_report_collection' : filter_collection_report_collection,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 3, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
+    // =========================
+    // DESTROY OLD TABLE
+    // =========================
 
     destroyDatatable(datatable_name);
 
-    $(datatable_name).dataTable(settings);
+    // =========================
+    // SETTINGS
+    // =========================
+
+    var settings = {
+
+        destroy: true,
+        processing: true,
+        deferRender: true,
+        responsive: true,
+
+        ajax: {
+
+            url: 'view/_collections_generation.php',
+
+            method: 'POST',
+
+            dataType: 'json',
+
+            timeout: 30000,
+
+            data: {
+
+                type: type,
+
+                filter_transaction_date_start_date:
+                    filter_transaction_date_start_date,
+
+                filter_transaction_date_end_date:
+                    filter_transaction_date_end_date,
+
+                filter_or_date_start_date:
+                    filter_or_date_start_date,
+
+                filter_or_date_end_date:
+                    filter_or_date_end_date,
+
+                filter_payment_date_start_date:
+                    filter_payment_date_start_date,
+
+                filter_payment_date_end_date:
+                    filter_payment_date_end_date,
+
+                filter_reversed_date_start_date:
+                    filter_reversed_date_start_date,
+
+                filter_reversed_date_end_date:
+                    filter_reversed_date_end_date,
+
+                filter_cancellation_date_start_date:
+                    filter_cancellation_date_start_date,
+
+                filter_cancellation_date_end_date:
+                    filter_cancellation_date_end_date,
+
+                filter_collections_status:
+                    filter_collections_status,
+
+                filter_collection_report_collection:
+                    filter_collection_report_collection
+            },
+
+            dataSrc: '',
+
+            beforeSend: function(jqXHR, settings){
+
+                const table =
+                    $.fn.DataTable.isDataTable(datatable_name)
+                    ? $(datatable_name).DataTable()
+                    : null;
+
+                if (table) {
+                    table.settings()[0].jqXHR = jqXHR;
+                }
+            },
+
+            error: function(xhr, status, error){
+
+                // Ignore aborted requests
+                if (status === 'abort') {
+                    return;
+                }
+
+                var fullErrorMessage =
+                    `XHR status: ${status}, Error: ${error}`;
+
+                if (xhr.responseText) {
+
+                    fullErrorMessage +=
+                        `, Response: ${xhr.responseText}`;
+                }
+
+                console.error(fullErrorMessage);
+
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+
+        order: [[3, 'desc']],
+
+        columns: column,
+
+        columnDefs: column_definition,
+
+        lengthMenu: length_menu,
+
+        language: {
+            emptyTable: 'No data found',
+            searchPlaceholder: 'Search...',
+            search: '',
+            loadingRecords:
+                'Just a moment while we fetch your data...'
+        }
+    };
+
+    // =========================
+    // BUTTONS
+    // =========================
+
+    if (buttons) {
+
+        settings.dom =
+            "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    // =========================
+    // INIT
+    // =========================
+
+    $(datatable_name).DataTable(settings);
 }
 
 function transactionHistoryTable(datatable_name, buttons = false, show_all = false){

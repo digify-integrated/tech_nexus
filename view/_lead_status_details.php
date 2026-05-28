@@ -45,10 +45,37 @@
           <?php
             if($leadStatusWriteAccess['total'] > 0){
               echo '<div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">
+                        Name <span class="text-danger d-none form-edit">*</span>
+                      </label>
                       <div class="col-lg-10">
                         <label class="col-form-label form-details fw-normal" id="lead_status_name_label"></label>
                         <input type="text" class="form-control d-none form-edit" id="lead_status_name" name="lead_status_name" maxlength="100" autocomplete="off">
+                      </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                      <label class="col-lg-2 col-form-label">
+                        Description <span class="text-danger d-none form-edit">*</span>
+                      </label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="description_label"></label>
+                        <input type="text" class="form-control d-none form-edit" id="description" name="description" maxlength="500" autocomplete="off">
+                      </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                      <label class="col-lg-2 col-form-label">
+                        Type <span class="text-danger d-none form-edit">*</span>
+                      </label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="lead_status_type_label"></label>
+
+                        <select class="form-control select2 d-none form-edit" id="lead_status_type" name="lead_status_type">
+                          <option value="">--</option>
+                          <option value="Lead">Lead</option>
+                          <option value="Hiring">Hiring</option>
+                        </select>
                       </div>
                     </div>';
             }
@@ -58,9 +85,23 @@
                       <div class="col-lg-10">
                         <label class="col-form-label form-details fw-normal" id="lead_status_name_label"></label>
                       </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                      <label class="col-lg-2 col-form-label">Description</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="description_label"></label>
+                      </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                      <label class="col-lg-2 col-form-label">Type</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="lead_status_type_label"></label>
+                      </div>
                     </div>';
             }
-          ?>
+            ?>
         </form>
       </div>
     </div>

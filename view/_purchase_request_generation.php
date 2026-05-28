@@ -162,7 +162,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $description = $partsDetails['description'] ?? null;
 
                     if(empty($description)){
-                        $description = $row['description'];
+                        $description = $row['description'] ?? null;
                     }
                 }
 

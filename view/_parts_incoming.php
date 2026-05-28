@@ -53,7 +53,7 @@
               <tr>
                 <th>Reference Number</th>
                 <?php
-                    if($company != '8'){
+                    if($company != '8' && $company != '1'){
                       echo '<th>Product</th>';
                     }
                 ?>

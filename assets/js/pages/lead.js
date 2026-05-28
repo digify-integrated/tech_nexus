@@ -11,9 +11,22 @@
             leadForm();
         }
 
+        if($('#lead-note-form').length){
+            leadNoteForm();
+        }
+
+        if($('#lead-status-form').length){
+            leadStatusForm();
+        }
+
         if($('#lead-id').length){
             displayDetails('get lead details');
+            loadLeadNotes();
         }
+
+        $(document).on('click','#apply-filter',function() {
+            leadTable('#lead-table');
+        });
 
         /* -----------------------------
         DELETE SINGLE
@@ -181,6 +194,66 @@
             });
         });
 
+        $(document).on('click', '.delete-lead-note', function(){
+
+                const lead_note_id = $(this).data('lead-note-id');
+
+                Swal.fire({
+                    title: 'Delete Internal Note',
+                    text: 'Are you sure you want to delete this internal note?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#dc3545'
+                }).then((result) => {
+
+                    if(result.isConfirmed){
+
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/lead-controller.php',
+                            data: {
+                                transaction: 'delete lead note',
+                                lead_note_id: lead_note_id
+                            },
+                            dataType: 'json',
+
+                            success: function(response){
+
+                                if(response.success){
+
+                                    setNotification(
+                                        'Deleted',
+                                        'Lead note deleted successfully.',
+                                        'success'
+                                    );
+
+                                    loadLeadNotes();
+                                }
+                                else{
+
+                                    showNotification(
+                                        'Error',
+                                        response.message,
+                                        'danger'
+                                    );
+                                }
+                            },
+
+                            error: function(){
+
+                                showNotification(
+                                    'Error',
+                                    'Unable to delete note.',
+                                    'danger'
+                                );
+                            }
+                        });
+                    }
+                });
+            });
+
         /* -----------------------------
         DUPLICATE
         ----------------------------- */
@@ -243,48 +316,113 @@
 /* -----------------------------
 DATATABLE
 ----------------------------- */
-function leadTable(datatable_name){
+function leadTable(datatable_name) {
 
     const type = 'lead table';
 
+    const filter_created_date_start_date = $('#filter_created_date_start_date').val();
+    const filter_created_date_end_date = $('#filter_created_date_end_date').val();
+    const filter_inquiry_date_start_date = $('#filter_inquiry_date_start_date').val();
+    const filter_inquiry_date_end_date = $('#filter_inquiry_date_end_date').val();
+
+    let lead_status_filter = [];
+    let inquiry_type_filter = [];
+
+    $('.lead-status-filter:checked').each(function () {
+        lead_status_filter.push($(this).val());
+    });
+
+    $('.inquiry-type-filter:checked').each(function () {
+        inquiry_type_filter.push($(this).val());
+    });
+
+    const filter_lead_status = lead_status_filter.join(', ');
+    const filter_inquiry_type = inquiry_type_filter.join(', ');
+
     const column = [
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'LEAD_NAME' },
-        { 'data' : 'EMAIL' },
-        { 'data' : 'PHONE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ASSIGNED_TO' },
-        { 'data' : 'ACTION' }
+        { data: 'CHECK_BOX' },
+        { data: 'LEAD_NAME' },
+        { data: 'PHONE' },
+        { data: 'INQUIRY_TYPE' },
+        { data: 'INQUIRY_DATE' },
+        { data: 'PRODUCT' },
+        { data: 'STATUS' },
+        { data: 'ASSIGNED_TO' },
+        { data: 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '1%', 'bSortable': false, 'aTargets': 0 },
-        { 'width': '20%', 'aTargets': 1 },
-        { 'width': '20%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
-        { 'width': '15%', 'aTargets': 4 },
-        { 'width': '15%', 'aTargets': 5 },
-        { 'width': '14%', 'bSortable': false, 'aTargets': 6 }
+        { width: '1%', bSortable: false, targets: 0 },
+        { width: 'auto', targets: 1 },
+        { width: 'auto', targets: 2 },
+        { width: 'auto', targets: 3 },
+        { width: 'auto', targets: 4 },
+        { width: 'auto', targets: 5 },
+        { width: 'auto', targets: 6 },
+        { width: 'auto', targets: 7 },
+        { width: '14%', bSortable: false, targets: 8 }
     ];
 
     destroyDatatable(datatable_name);
 
-    $(datatable_name).dataTable({
-        'ajax': {
-            'url' : 'view/_lead_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type},
-            'dataSrc' : ''
+    const table = $(datatable_name).DataTable({
+        ajax: {
+            url: 'view/_lead_generation.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                type: type,
+                filter_created_date_start_date: filter_created_date_start_date,
+                filter_created_date_end_date: filter_created_date_end_date,
+                filter_inquiry_date_start_date: filter_inquiry_date_start_date,
+                filter_inquiry_date_end_date: filter_inquiry_date_end_date,
+                filter_lead_status: filter_lead_status,
+                filter_inquiry_type: filter_inquiry_type,
+            },
+            dataSrc: ''
         },
-        'order': [[1, 'asc']],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'language': {
-            'emptyTable': 'No lead found',
-            'searchPlaceholder': 'Search...',
-            'search': ''
-        }
+
+        order: [[1, 'asc']],
+        columns: column,
+        columnDefs: column_definition,
+
+        // Hide DataTables default buttons UI
+        dom: 'rtip',
+
+        language: {
+            emptyTable: 'No lead found',
+            searchPlaceholder: 'Search...',
+            search: ''
+        },
+
+        // Keep buttons functionality internally
+        buttons: [
+            {
+                extend: 'csvHtml5',
+                title: 'Lead List'
+            },
+            {
+                extend: 'excelHtml5',
+                title: 'Lead List'
+            },
+            {
+                extend: 'pdfHtml5',
+                title: 'Lead List'
+            }
+        ]
+    });
+
+    // Custom Export Buttons
+    $('#export-csv').off('click').on('click', function () {
+        table.button(0).trigger();
+    });
+
+    $('#export-excel').off('click').on('click', function () {
+        table.button(1).trigger();
+    });
+
+    $('#export-pdf').off('click').on('click', function () {
+        table.button(2).trigger();
     });
 }
 
@@ -294,10 +432,32 @@ FORM
 function leadForm(){
     $('#lead-form').validate({
         rules: {
-            lead_name: { required: true }
+            first_name: {
+                required: true
+            },
+            last_name: {
+                required: true
+            },
+            inquiry_type_id: {
+                required: true
+            },
+            lead_status_id: {
+                required: true
+            },
         },
         messages: {
-            lead_name: { required: 'Please enter the lead name' }
+            first_name: {
+                required: 'Please enter the first name'
+            },
+            last_name: {
+                required: 'Please enter the last name'
+            },
+            inquiry_type_id: {
+                required: 'Please choose the inquiry type'
+            },
+            lead_status_id: {
+                required: 'Please choose the lead status'
+            },
         },
         submitHandler: function(form) {
 
@@ -331,6 +491,193 @@ function leadForm(){
     });
 }
 
+function leadNoteForm(){
+
+    $('#lead-note-form').validate({
+        rules: {
+            lead_note: {
+                required: true
+            }
+        },
+        messages: {
+            lead_note: {
+                required: 'Please enter the note'
+            }
+        },
+        submitHandler: function(form) {
+
+            const lead_id = $('#lead-id').text();
+            const transaction = 'save lead note';
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/lead-controller.php',
+                data: $(form).serialize() +
+                      '&transaction=' + transaction +
+                      '&lead_id=' + lead_id,
+                dataType: 'json',
+
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-lead-note');
+                },
+
+                success: function (response) {
+
+                    if (response.success) {
+
+                        setNotification(
+                            'Success',
+                            'Lead note saved successfully.',
+                            'success'
+                        );
+
+                        $('#add-internal-note-modal').modal('hide');
+
+                        $('#lead-note-form')[0].reset();
+
+                        loadLeadNotes();
+
+                    }
+                    else {
+                        showNotification(
+                            'Error',
+                            response.message,
+                            'danger'
+                        );
+                    }
+                },
+
+                complete: function() {
+                    enableFormSubmitButton(
+                        'submit-lead-note',
+                        'Save Note'
+                    );
+                }
+            });
+
+            return false;
+        }
+    });
+}
+
+function leadStatusForm(){
+
+    $('#lead-status-form').validate({
+        rules: {
+            lead_status_id2: {
+                required: true
+            }
+        },
+        messages: {
+            lead_status_id2: {
+                required: 'Choose the lead status'
+            }
+        },
+        submitHandler: function(form) {
+
+            const lead_id = $('#lead-id').text();
+            const transaction = 'save lead status';
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/lead-controller.php',
+                data: $(form).serialize() +
+                      '&transaction=' + transaction +
+                      '&lead_id=' + lead_id,
+                dataType: 'json',
+
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-lead-status');
+                },
+
+                success: function (response) {
+
+                    if (response.success) {
+
+                        setNotification(
+                            'Success',
+                            'Lead status saved successfully.',
+                            'success'
+                        );
+
+                        $('#update-lead-status-modal').modal('hide');
+                        $('#add-internal-note-modal').modal('show');
+
+                        $('#lead-status-form')[0].reset();
+
+                        displayDetails('get lead details');
+
+                    }
+                    else {
+                        showNotification(
+                            'Error',
+                            response.message,
+                            'danger'
+                        );
+                    }
+                },
+
+                complete: function() {
+                    enableFormSubmitButton(
+                        'submit-lead-status',
+                        'Save'
+                    );
+                }
+            });
+
+            return false;
+        }
+    });
+}
+
+function loadLeadNotes(){
+
+    const lead_id = $('#lead-id').text();
+
+    $.ajax({
+        url: 'view/_lead_generation.php',
+        type: 'POST',
+        data: {
+            type: 'lead note table',
+            lead_id: lead_id
+        },
+
+        beforeSend: function(){
+
+            $('#lead-notes-container').html(`
+                <div class="text-center py-4 text-muted">
+                    Loading notes...
+                </div>
+            `);
+        },
+
+        success: function(response){
+
+            if($.trim(response) === ''){
+
+                $('#lead-notes-container').html('');
+
+                $('#no-lead-notes').removeClass('d-none');
+            }
+            else{
+
+                $('#lead-notes-container').html(response);
+
+                $('#no-lead-notes').addClass('d-none');
+            }
+        },
+
+        error: function(){
+
+            $('#lead-notes-container').html(`
+                <div class="alert alert-danger mb-0">
+                    Unable to load notes.
+                </div>
+            `);
+        }
+    });
+}
+
 /* -----------------------------
 DISPLAY DETAILS
 ----------------------------- */
@@ -349,20 +696,25 @@ function displayDetails(transaction){
         success: function(response) {
             if (response.success) {
 
-                $('#lead_name').val(response.leadName);
+                $('#first_name').val(response.firstName);
+                $('#middle_name').val(response.middleName);
+                $('#last_name').val(response.lastName);
+
+                $('#corporate_name').val(response.corporateName);
+
                 $('#email').val(response.email);
                 $('#phone').val(response.phone);
+
+                $('#address').val(response.address);
                 $('#remarks').val(response.remarks);
+                $('#inquiry_date').val(response.inquiryDate);
 
+                checkOptionExist('#gender_id', response.genderId, '');
+                checkOptionExist('#city_id', response.cityId, '');
+                checkOptionExist('#stock_number', response.stockNumber, '');
                 checkOptionExist('#lead_status_id', response.leadStatusId, '');
-                checkOptionExist('#assigned_to', response.assignedTo, '');
-
-                $('#lead_name_label').text(response.leadName);
-                $('#email_label').text(response.email);
-                $('#phone_label').text(response.phone);
-                $('#lead_status_label').text(response.leadStatusName);
-                $('#assigned_to_label').text(response.assignedToName);
-                $('#remarks_label').text(response.remarks);
+                checkOptionExist('#lead_status_id2', response.leadStatusId, '');
+                checkOptionExist('#inquiry_type_id', response.inquiryTypeId, '');
             }
         },
         error: function(xhr, status, error) {

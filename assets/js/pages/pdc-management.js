@@ -782,7 +782,13 @@
 })(jQuery);
 
 function pdcManagementTable(datatable_name, buttons = false, show_all = false){
+
     const type = 'pdc management table';
+
+    // =========================
+    // FILTERS
+    // =========================
+
     var loan_number = $('#loan_number').val();
 
     var filter_check_date_start_date = $('#filter_check_date_start_date').val();
@@ -812,151 +818,210 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
     var filter_clear_date_start_date = $('#filter_clear_date_start_date').val();
     var filter_clear_date_end_date = $('#filter_clear_date_end_date').val();
 
+    // =========================
+    // CHECKBOX FILTERS
+    // =========================
+
     var pdc_filter_values = [];
     var pdc_filter_values_company = [];
     var payment_details = [];
 
-    $('.pdc-management-status-filter:checked').each(function() {
-        pdc_filter_values.push($(this).val());
+    $('.pdc-management-status-filter:checked').each(function () {
+        pdc_filter_values.push(this.value);
     });
 
-    $('.payment-details-filter:checked').each(function() {
-        payment_details.push($(this).val());
+    $('.payment-details-filter:checked').each(function () {
+        payment_details.push(this.value);
     });
 
-    $('.company-checkbox:checked').each(function() {
-        pdc_filter_values_company.push($(this).val());
+    $('.company-checkbox:checked').each(function () {
+        pdc_filter_values_company.push(this.value);
     });
 
     var filter_pdc_management_status = pdc_filter_values.join(', ');
     var filter_pdc_management_company = pdc_filter_values_company.join(', ');
     var filter_pdc_management_payment_details = payment_details.join(', ');
-    var settings;
 
-    const column = [ 
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'ACTION' },
-        { 'data' : 'CHECK_DATE' },
-        { 'data' : 'REDEPOSIT_DATE' },
-        { 'data' : 'CHECK_NUMBER' },
-        { 'data' : 'PAYMENT_AMOUNT' },
-        { 'data' : 'BANK_BRANCH' },
-        { 'data' : 'PAYMENT_DETAILS' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'REPAYMENT_AMOUNT' },
-        { 'data' : 'LOAN_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'REVERSAL_DATE' },
+    // =========================
+    // COLUMNS
+    // =========================
+
+    const column = [
+        { data: 'CHECK_BOX' },
+        { data: 'ACTION' },
+        { data: 'CHECK_DATE' },
+        { data: 'REDEPOSIT_DATE' },
+        { data: 'CHECK_NUMBER' },
+        { data: 'PAYMENT_AMOUNT' },
+        { data: 'BANK_BRANCH' },
+        { data: 'PAYMENT_DETAILS' },
+        { data: 'STATUS' },
+        { data: 'REPAYMENT_AMOUNT' },
+        { data: 'LOAN_NUMBER' },
+        { data: 'CUSTOMER' },
+        { data: 'PRODUCT' },
+        { data: 'REVERSAL_DATE' }
     ];
 
     const column_definition = [
-        { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '15%','bSortable': false, 'aTargets': 1 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
-        { 'width': 'auto', 'type': 'date', 'aTargets': 3 },
-        { 'width': 'auto', 'aTargets': 4 },
-        { 'width': '5%', 'aTargets': 5 },
-        { 'width': 'auto', 'aTargets': 6 },
-        { 'width': 'auto', 'aTargets': 7 },
-        { 'width': 'auto', 'aTargets': 8 },
-        { 'width': 'auto', 'aTargets': 9 },
-        { 'width': 'auto', 'aTargets': 10 },
-        { 'width': 'auto', 'aTargets': 11 },
-        { 'width': 'auto', 'aTargets': 12 },
-        { 'width': 'auto', 'aTargets': 13 },
+        { width: '1%', orderable: false, targets: 0 },
+        { width: '15%', orderable: false, targets: 1 },
+        { width: 'auto', type: 'date', targets: 2 },
+        { width: 'auto', type: 'date', targets: 3 },
+        { width: 'auto', targets: 4 },
+        { width: '5%', targets: 5 },
+        { width: 'auto', targets: 6 },
+        { width: 'auto', targets: 7 },
+        { width: 'auto', targets: 8 },
+        { width: 'auto', targets: 9 },
+        { width: 'auto', targets: 10 },
+        { width: 'auto', targets: 11 },
+        { width: 'auto', targets: 12 },
+        { width: 'auto', targets: 13 }
     ];
 
-    const length_menu = show_all ? [[-1], ['All']] : [[-1, 10, 25, 50, 100], ['All', 10, 25, 50, 100]];
+    const length_menu = show_all
+        ? [[-1], ['All']]
+        : [[-1, 10, 25, 50, 100], ['All', 10, 25, 50, 100]];
 
-    settings = {
-        'ajax': { 
-            'url' : 'view/_pdc_management_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 
-                'loan_number' : loan_number, 
-                'filter_check_date_start_date' : filter_check_date_start_date, 
-                'filter_check_date_end_date' : filter_check_date_end_date, 
-                'filter_redeposit_date_start_date' : filter_redeposit_date_start_date, 
-                'filter_redeposit_date_end_date' : filter_redeposit_date_end_date, 
-                'filter_onhold_date_start_date' : filter_onhold_date_start_date, 
-                'filter_onhold_date_end_date' : filter_onhold_date_end_date, 
-                'filter_for_deposit_date_start_date' : filter_for_deposit_date_start_date, 
-                'filter_for_deposit_date_end_date' : filter_for_deposit_date_end_date, 
-                'filter_deposit_date_start_date' : filter_deposit_date_start_date, 
-                'filter_deposit_date_end_date' : filter_deposit_date_end_date, 
-                'filter_reversed_date_start_date' : filter_reversed_date_start_date, 
-                'filter_reversed_date_end_date' : filter_reversed_date_end_date, 
-                'filter_pulled_out_date_start_date' : filter_pulled_out_date_start_date, 
-                'filter_pulled_out_date_end_date' : filter_pulled_out_date_end_date, 
-                'filter_cancellation_date_start_date' : filter_cancellation_date_start_date, 
-                'filter_cancellation_date_end_date' : filter_cancellation_date_end_date, 
-                'filter_clear_date_start_date' : filter_clear_date_start_date, 
-                'filter_clear_date_end_date' : filter_clear_date_end_date, 
-                'filter_pdc_management_company' : filter_pdc_management_company, 
-                'filter_pdc_management_status' : filter_pdc_management_status,
-                'filter_pdc_management_payment_details' : filter_pdc_management_payment_details,
+    // =========================
+    // HELPER
+    // =========================
+
+    const toNumber = function(val){
+        if (val === null || val === undefined) {
+            return 0;
+        }
+
+        return parseFloat(
+            String(val).replace(/[^0-9.-]/g, '')
+        ) || 0;
+    };
+
+    // =========================
+    // SETTINGS
+    // =========================
+
+    var settings = {
+
+        processing: true,
+        deferRender: true,
+        responsive: true,
+
+        ajax: {
+            url: 'view/_pdc_management_generation.php',
+            method: 'POST',
+            dataType: 'json',
+
+            data: {
+                type: type,
+
+                loan_number: loan_number,
+
+                filter_check_date_start_date: filter_check_date_start_date,
+                filter_check_date_end_date: filter_check_date_end_date,
+
+                filter_redeposit_date_start_date: filter_redeposit_date_start_date,
+                filter_redeposit_date_end_date: filter_redeposit_date_end_date,
+
+                filter_onhold_date_start_date: filter_onhold_date_start_date,
+                filter_onhold_date_end_date: filter_onhold_date_end_date,
+
+                filter_for_deposit_date_start_date: filter_for_deposit_date_start_date,
+                filter_for_deposit_date_end_date: filter_for_deposit_date_end_date,
+
+                filter_deposit_date_start_date: filter_deposit_date_start_date,
+                filter_deposit_date_end_date: filter_deposit_date_end_date,
+
+                filter_reversed_date_start_date: filter_reversed_date_start_date,
+                filter_reversed_date_end_date: filter_reversed_date_end_date,
+
+                filter_pulled_out_date_start_date: filter_pulled_out_date_start_date,
+                filter_pulled_out_date_end_date: filter_pulled_out_date_end_date,
+
+                filter_cancellation_date_start_date: filter_cancellation_date_start_date,
+                filter_cancellation_date_end_date: filter_cancellation_date_end_date,
+
+                filter_clear_date_start_date: filter_clear_date_start_date,
+                filter_clear_date_end_date: filter_clear_date_end_date,
+
+                filter_pdc_management_company: filter_pdc_management_company,
+                filter_pdc_management_status: filter_pdc_management_status,
+                filter_pdc_management_payment_details: filter_pdc_management_payment_details
             },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+
+            dataSrc: '',
+
+            error: function(xhr, status, error){
+
+                var fullErrorMessage =
+                    `XHR status: ${status}, Error: ${error}`;
+
                 if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    fullErrorMessage +=
+                        `, Response: ${xhr.responseText}`;
                 }
+
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 2, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
+
+        order: [[2, 'asc']],
+
+        columns: column,
+
+        columnDefs: column_definition,
+
+        lengthMenu: length_menu,
+
+        language: {
+            emptyTable: 'No data found',
+            searchPlaceholder: 'Search...',
+            search: '',
+            loadingRecords: 'Just a moment while we fetch your data...'
         },
-         createdRow: function (row, data, dataIndex) {
-        // NOTE: data.PAYMENT_AMOUNT and data.REPAYMENT_AMOUNT might be formatted strings (e.g. "1,000.00")
-        const toNumber = (val) => {
-            if (val === null || val === undefined) return 0;
-            return parseFloat(String(val).replace(/[^0-9.-]/g, "")) || 0;
-        };
 
-        const paymentAmount = toNumber(data.PAYMENT_AMOUNT);
-        const repaymentAmount = toNumber(data.REPAYMENT_AMOUNT);
+        createdRow: function(row, data){
 
-        const paymentDetails = (data.PAYMENT_DETAILS || "").toString().trim();
+            const paymentAmount = toNumber(data.PAYMENT_AMOUNT);
+            const repaymentAmount = toNumber(data.REPAYMENT_AMOUNT);
 
-        const shouldHighlight =
-            paymentAmount !== repaymentAmount ||
-            paymentDetails.toLowerCase() === "collateral check";
+            const paymentDetails =
+                (data.PAYMENT_DETAILS || '')
+                .toString()
+                .trim()
+                .toLowerCase();
 
-        if (shouldHighlight) {
-            // Add a red underline to each cell (each column) in the row
-            $(row)
-            .find("td")
-            .css({
-                "text-decoration": "underline",
-                "text-decoration-color": "red",
-                "text-decoration-thickness": "2px",
-                "text-underline-offset": "3px",
-            });
-        }
-        
-
+            if (
+                paymentAmount !== repaymentAmount ||
+                paymentDetails === 'collateral check'
+            ) {
+                row.classList.add('pdc-highlight-row');
+            }
         }
     };
 
+    // =========================
+    // BUTTONS
+    // =========================
+
     if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+
+        settings.dom =
+            "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+
         settings.buttons = ['csv', 'excel', 'pdf'];
     }
 
+    // =========================
+    // INIT
+    // =========================
+
     destroyDatatable(datatable_name);
 
-    $(datatable_name).dataTable(settings);
+    $(datatable_name).DataTable(settings);
 }
 
 function pdcManagementTable2(datatable_name, buttons = false, show_all = false){

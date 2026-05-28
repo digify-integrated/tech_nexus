@@ -82,6 +82,9 @@
         if($customer_type == 'Customer'){
             $title = $customerName;
         }
+        else if($customer_type == 'Internal'){
+            $title = $customerName;
+        }
         else{
             if($company_id == '2'){
                 $title = 'CHRISTIAN GENERAL MOTORS INC.';
@@ -173,14 +176,14 @@
     $pdf->Ln(10);
     $pdf->SetFont('times', '', 10);
     $pdf->Cell(30, 8, 'CLIENT NAME:', 0, 0, 'L');
-    $pdf->Cell(70, 8, $title, 'B', 0, 'L');
-    $pdf->Cell(25, 8,'', 0, 0, 'L');
+    $pdf->Cell(90, 8, $title, 'B', 0, 'L');
+    $pdf->Cell(5, 8,'', 0, 0, 'L');
     $pdf->Cell(18, 8, 'OS NO:', 0, 0, 'L');
     $pdf->Cell(40, 8, '', 'B', 0, 'C');
     $pdf->Ln(10);
     $pdf->Cell(30, 8, 'UNIT NO.:', 0, 0, 'L');
-    $pdf->Cell(70, 8, $unitNo, 'B', 0, 'L');
-    $pdf->Cell(25, 8, '', 0, 0, 'L');
+    $pdf->Cell(90, 8, $unitNo, 'B', 0, 'L');
+    $pdf->Cell(5, 8, '', 0, 0, 'L');
     $pdf->Cell(18, 8, 'AJO NO:', 0, 0, 'L');
     $pdf->Cell(40, 8, '', 'B', 0, 'C');
     $pdf->Ln(15);

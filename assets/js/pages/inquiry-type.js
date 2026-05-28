@@ -2,25 +2,25 @@
     'use strict';
 
     $(function() {
-        if($('#lead-status-table').length){
-            leadStatusTable('#lead-status-table');
+        if($('#inquiry-type-table').length){
+            inquiryTypeTable('#inquiry-type-table');
         }
 
-        if($('#lead-status-form').length){
-            leadStatusForm();
+        if($('#inquiry-type-form').length){
+            inquiryTypeForm();
         }
 
-        if($('#lead-status-id').length){
-            displayDetails('get lead status details');
+        if($('#inquiry-type-id').length){
+            displayDetails('get inquiry type details');
         }
 
-        $(document).on('click','.delete-lead-status',function() {
-            const lead_status_id = $(this).data('lead-status-id');
-            const transaction = 'delete lead status';
+        $(document).on('click','.delete-inquiry-type',function() {
+            const inquiry_type_id = $(this).data('inquiry-type-id');
+            const transaction = 'delete inquiry type';
     
             Swal.fire({
-                title: 'Confirm Lead Status Deletion',
-                text: 'Are you sure you want to delete this lead status?',
+                title: 'Confirm Inquiry Type Deletion',
+                text: 'Are you sure you want to delete this inquiry type?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -32,16 +32,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/lead-status-controller.php',
+                        url: 'controller/inquiry-type-controller.php',
                         dataType: 'json',
                         data: {
-                            lead_status_id : lead_status_id, 
+                            inquiry_type_id : inquiry_type_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Lead Status Success', 'The lead status has been deleted successfully.', 'success');
-                                reloadDatatable('#lead-status-table');
+                                showNotification('Delete Inquiry Type Success', 'The inquiry type has been deleted successfully.', 'success');
+                                reloadDatatable('#inquiry-type-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -49,11 +49,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Lead Status Error', 'The lead status does not exist.', 'danger');
-                                    reloadDatatable('#lead-status-table');
+                                    showNotification('Delete Inquiry Type Error', 'The inquiry type does not exist.', 'danger');
+                                    reloadDatatable('#inquiry-type-table');
                                 }
                                 else {
-                                    showNotification('Delete Lead Status Error', response.message, 'danger');
+                                    showNotification('Delete Inquiry Type Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -70,20 +70,20 @@
             });
         });
 
-        $(document).on('click','#delete-lead-status',function() {
-            let lead_status_id = [];
-            const transaction = 'delete multiple lead status';
+        $(document).on('click','#delete-inquiry-type',function() {
+            let inquiry_type_id = [];
+            const transaction = 'delete multiple inquiry type';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
-                    lead_status_id.push(element.value);
+                    inquiry_type_id.push(element.value);
                 }
             });
     
-            if(lead_status_id.length > 0){
+            if(inquiry_type_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Lead Status Deletion',
-                    text: 'Are you sure you want to delete these lead status?',
+                    title: 'Confirm Multiple Inquiry Type Deletion',
+                    text: 'Are you sure you want to delete these inquiry type?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -95,16 +95,16 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller/lead-status-controller.php',
+                            url: 'controller/inquiry-type-controller.php',
                             dataType: 'json',
                             data: {
-                                lead_status_id: lead_status_id,
+                                inquiry_type_id: inquiry_type_id,
                                 transaction : transaction
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Lead Status Success', 'The selected lead status have been deleted successfully.', 'success');
-                                        reloadDatatable('#lead-status-table');
+                                    showNotification('Delete Inquiry Type Success', 'The selected inquiry type have been deleted successfully.', 'success');
+                                        reloadDatatable('#inquiry-type-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -112,7 +112,7 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else {
-                                        showNotification('Delete Lead Status Error', response.message, 'danger');
+                                        showNotification('Delete Inquiry Type Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -133,17 +133,17 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Lead Status Error', 'Please select the lead status you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Inquiry Type Error', 'Please select the inquiry type you wish to delete.', 'danger');
             }
         });
 
-        $(document).on('click','#delete-lead-status-details',function() {
-            const lead_status_id = $('#lead-status-id').text();
-            const transaction = 'delete lead status';
+        $(document).on('click','#delete-inquiry-type-details',function() {
+            const inquiry_type_id = $('#inquiry-type-id').text();
+            const transaction = 'delete inquiry type';
     
             Swal.fire({
-                title: 'Confirm Lead Status Deletion',
-                text: 'Are you sure you want to delete this lead status?',
+                title: 'Confirm Inquiry Type Deletion',
+                text: 'Are you sure you want to delete this inquiry type?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -155,16 +155,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/lead-status-controller.php',
+                        url: 'controller/inquiry-type-controller.php',
                         dataType: 'json',
                         data: {
-                            lead_status_id : lead_status_id, 
+                            inquiry_type_id : inquiry_type_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Deleted Lead Status Success', 'The lead status has been deleted successfully.', 'success');
-                                window.location = 'lead-status.php';
+                                setNotification('Deleted Inquiry Type Success', 'The inquiry type has been deleted successfully.', 'success');
+                                window.location = 'inquiry-type.php';
                             }
                             else {
                                 if (response.isInactive) {
@@ -175,7 +175,7 @@
                                     window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Delete Lead Status Error', response.message, 'danger');
+                                    showNotification('Delete Inquiry Type Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -193,22 +193,22 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('lead-status.php');
+            discardCreate('inquiry-type.php');
         });
 
         $(document).on('click','#edit-form',function() {
-            displayDetails('get lead status details');
+            displayDetails('get inquiry type details');
 
             enableForm();
         });
 
-        $(document).on('click','#duplicate-lead-status',function() {
-            const lead_status_id = $('#lead-status-id').text();
-            const transaction = 'duplicate lead status';
+        $(document).on('click','#duplicate-inquiry-type',function() {
+            const inquiry_type_id = $('#inquiry-type-id').text();
+            const transaction = 'duplicate inquiry type';
     
             Swal.fire({
-                title: 'Confirm Lead Status Duplication',
-                text: 'Are you sure you want to duplicate this lead status?',
+                title: 'Confirm Inquiry Type Duplication',
+                text: 'Are you sure you want to duplicate this inquiry type?',
                 icon: 'info',
                 showCancelButton: !0,
                 confirmButtonText: 'Duplicate',
@@ -220,16 +220,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/lead-status-controller.php',
+                        url: 'controller/inquiry-type-controller.php',
                         dataType: 'json',
                         data: {
-                            lead_status_id : lead_status_id, 
+                            inquiry_type_id : inquiry_type_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Duplicate Lead Status Success', 'The lead status has been duplicated successfully.', 'success');
-                                window.location = 'lead-status.php?id=' + response.leadStatusID;
+                                setNotification('Duplicate Inquiry Type Success', 'The inquiry type has been duplicated successfully.', 'success');
+                                window.location = 'inquiry-type.php?id=' + response.inquiryTypeID;
                             }
                             else {
                                 if (response.isInactive) {
@@ -237,11 +237,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Duplicate Lead Status Error', 'The lead status does not exist.', 'danger');
-                                    reloadDatatable('#lead-status-table');
+                                    showNotification('Duplicate Inquiry Type Error', 'The inquiry type does not exist.', 'danger');
+                                    reloadDatatable('#inquiry-type-table');
                                 }
                                 else {
-                                    showNotification('Duplicate Lead Status Error', response.message, 'danger');
+                                    showNotification('Duplicate Inquiry Type Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -260,31 +260,27 @@
     });
 })(jQuery);
 
-function leadStatusTable(datatable_name, buttons = false, show_all = false){
-    const type = 'lead status table';
+function inquiryTypeTable(datatable_name, buttons = false, show_all = false){
+    const type = 'inquiry type table';
     var settings;
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'LEAD_STATUS_NAME' },
-        { 'data' : 'DESCRIPTION' },
-        { 'data' : 'LEAD_STATUS_TYPE' },
+        { 'data' : 'INQUIRY_TYPE_NAME' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': 'auto', 'aTargets': 1 },
-        { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+        { 'width': '84%', 'aTargets': 1 },
+        { 'width': '15%','bSortable': false, 'aTargets': 2 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_lead_status_generation.php',
+            'url' : 'view/_inquiry_type_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type},
@@ -319,28 +315,16 @@ function leadStatusTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function leadStatusForm(){
-    $('#lead-status-form').validate({
+function inquiryTypeForm(){
+    $('#inquiry-type-form').validate({
         rules: {
-            lead_status_name: {
-                required: true
-            },
-            description: {
-                required: true
-            },
-            lead_status_type: {
+            inquiry_type_name: {
                 required: true
             },
         },
         messages: {
-            lead_status_name: {
-                required: 'Please enter the lead status name'
-            },
-            description: {
-                required: 'Please enter the description'
-            },
-            lead_status_type: {
-                required: 'Please enter the type'
+            inquiry_type_name: {
+                required: 'Please enter the inquiry type name'
             },
         },
         errorPlacement: function (error, element) {
@@ -373,24 +357,24 @@ function leadStatusForm(){
             }
         },
         submitHandler: function(form) {
-            const lead_status_id = $('#lead-status-id').text();
-            const transaction = 'save lead status';
+            const inquiry_type_id = $('#inquiry-type-id').text();
+            const transaction = 'save inquiry type';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/lead-status-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&lead_status_id=' + lead_status_id,
+                url: 'controller/inquiry-type-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&inquiry_type_id=' + inquiry_type_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Lead Status Success' : 'Update Lead Status Success';
-                        const notificationDescription = response.insertRecord ? 'The lead status has been inserted successfully.' : 'The lead status has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Inquiry Type Success' : 'Update Inquiry Type Success';
+                        const notificationDescription = response.insertRecord ? 'The inquiry type has been inserted successfully.' : 'The inquiry type has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'lead-status.php?id=' + response.leadStatusID;
+                        window.location = 'inquiry-type.php?id=' + response.inquiryTypeID;
                     }
                     else {
                         if (response.isInactive) {
@@ -421,38 +405,33 @@ function leadStatusForm(){
 
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get lead status details':
-            const lead_status_id = $('#lead-status-id').text();
+        case 'get inquiry type details':
+            const inquiry_type_id = $('#inquiry-type-id').text();
             
             $.ajax({
-                url: 'controller/lead-status-controller.php',
+                url: 'controller/inquiry-type-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    lead_status_id : lead_status_id, 
+                    inquiry_type_id : inquiry_type_id, 
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetForm('lead-status-form');
+                    resetForm('inquiry-type-form');
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#lead_status_id').val(lead_status_id);
-                        $('#lead_status_name').val(response.leadStatusName);
-                        $('#description').val(response.description);
+                        $('#inquiry_type_id').val(inquiry_type_id);
+                        $('#inquiry_type_name').val(response.inquiryTypeName);
 
-                        checkOptionExist('#lead_status_type', response.leadStatusType, '');
-
-                        $('#lead_status_name_label').text(response.leadStatusName);
-                        $('#description_label').text(response.description);
-                        $('#lead_status_type_label').text(response.leadStatusType);
+                        $('#inquiry_type_name_label').text(response.inquiryTypeName);
                     } 
                     else {
                         if(response.isInactive){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Lead Status Details Error', response.message, 'danger');
+                            showNotification('Get Inquiry Type Details Error', response.message, 'danger');
                         }
                     }
                 },

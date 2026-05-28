@@ -4,24 +4,24 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h5>Lead Status List</h5>
+            <h5>Inquiry Type List</h5>
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <?php
-              if($leadStatusCreateAccess['total'] > 0 || $leadStatusDeleteAccess['total'] > 0){
+              if($inquiryTypeCreateAccess['total'] > 0 || $inquiryTypeDeleteAccess['total'] > 0){
                 $action = '';
                               
-                if($leadStatusDeleteAccess['total'] > 0){
+                if($inquiryTypeDeleteAccess['total'] > 0){
                   $action .= '<div class="btn-group m-r-10">
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                  <li><button class="dropdown-item" type="button" id="delete-lead-status">Delete Lead Status</button></li>
+                                  <li><button class="dropdown-item" type="button" id="delete-inquiry-type">Delete Inquiry Type</button></li>
                                 </ul>
                               </div>';
                 }
 
-                if($leadStatusCreateAccess['total'] > 0){
-                  $action .= '<a href="lead-status.php?new" class="btn btn-success">Create</a>';
+                if($inquiryTypeCreateAccess['total'] > 0){
+                  $action .= '<a href="inquiry-type.php?new" class="btn btn-success">Create</a>';
                 }
                               
                 echo $action;
@@ -32,7 +32,7 @@
       </div>
       <div class="card-body">
         <div class="table-responsive dt-responsive">
-          <table id="lead-status-table" class="table table-hover nowrap w-100">
+          <table id="inquiry-type-table" class="table table-hover nowrap w-100">
             <thead>
               <tr>
                 <th class="all">
@@ -40,9 +40,7 @@
                     <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                   </div>
                 </th>
-                <th>Lead Status</th>
-                <th>Description</th>
-                <th>Lead Status Type</th>
+                <th>Inquiry Type</th>
                 <th>Actions</th>
               </tr>
             </thead>

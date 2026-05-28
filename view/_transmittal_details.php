@@ -18,7 +18,7 @@
                   $dropdown .= '<li><button class="dropdown-item" type="button" id="transmit-transmittal-details">Transmit Transmittal</button></li>';
                 }
                                               
-                if ($retransmitTransmittal['total'] > 0 && $transmittalStatus == 'Received' && ($transmitterID == $contact_id)){
+                if ($retransmitTransmittal['total'] > 0 && $transmittalStatus == 'Received'){
                   $dropdown .= '<li><button class="dropdown-item" type="button" id="retransmit-transmittal-details">Re-Transmit Transmittal</button></li>';
                 }
                                               

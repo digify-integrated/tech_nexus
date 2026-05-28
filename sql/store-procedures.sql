@@ -16640,7 +16640,7 @@ BEGIN
     ELSEIF p_company_id = 8 AND p_supplier_id != 9 THEN
         SET new_part_price = new_part_cost;
     ELSE
-        SET new_part_price = current_part_price;
+        SET new_part_price = new_part_cost;
     END IF;
 
     -- Prepare new quantity and status

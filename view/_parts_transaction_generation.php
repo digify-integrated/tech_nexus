@@ -308,7 +308,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $sql->closeCursor();
 
             foreach ($options as $row) {
-                $part_transaction_additional_job_order_id   = $row['part_transaction_additional_job_order_id '];
+                $part_transaction_additional_job_order_id  = $row['part_transaction_additional_job_order_id'];
                 $job_order = $row['additional_job_order_id'];
                 
                 $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringAdditionalJobOrder($job_order);
