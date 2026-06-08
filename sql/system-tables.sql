@@ -7037,3 +7037,57 @@ CREATE TABLE `lead_notes` (
   INDEX `idx_lead_id` (`lead_id`),
   INDEX `idx_created_by` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `lead_source`;
+CREATE TABLE `lead_source` (
+  `lead_source_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `lead_source_name` varchar(100) NOT NULL,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE insurance_provider(
+	provider_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	provider_name VARCHAR(100) NOT NULL,
+	address VARCHAR(1000) NOT NULL,
+	city_id INT NOT NULL,
+	tax_id VARCHAR(500),
+	currency_id INT,
+	mobile VARCHAR(20),
+	telephone VARCHAR(20),
+	email VARCHAR(100),
+	website VARCHAR(500),
+	contact_person_name VARCHAR(500),
+	contact_person_mobile VARCHAR(20),
+	contact_person_telephone VARCHAR(20),
+	contact_person_email VARCHAR(100),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+DROP TABLE IF EXISTS `insurance_type`;
+CREATE TABLE `insurance_type` (
+  `insurance_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KE NOT NULL,
+  `insurance_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `insurance_request`;
+CREATE TABLE `insurance_request` (
+  `insurance_request_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KE NOT NULL,
+  `request_number` varchar(100) NOT NULL,
+  `status` ENUM('Draft', 'Submitted', 'Approved') DEFAULT 'Draft',
+  `request_type` ENUM('New Policy', 'Renewal', 'Amendment', 'Cancellation') NOT NULL,
+  `insurance_policy_id` int(10),
+  `insurance_type_id` int(10),
+  `effective_date` DATE,
+  `request_number` varchar(100) NOT NULL,
+  `submitted_date` DATETIME,
+  `approval_date` DATETIME,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

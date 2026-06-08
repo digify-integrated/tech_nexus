@@ -40,6 +40,8 @@ class LeadModel {
         $genderID,
         $leadStatusID,
         $inquiryTypeID,
+        $leadSourceID,
+        $leadPriority,
         $remarks,
         $inquiry_date,
         $lastLogBy
@@ -59,6 +61,8 @@ class LeadModel {
                 phone,
                 gender_id,
                 lead_status_id,
+                lead_source_id,
+                lead_priority,
                 inquiry_type_id,
                 assigned_to,
                 remarks,
@@ -78,6 +82,8 @@ class LeadModel {
                 :phone,
                 :gender_id,
                 :lead_status_id,
+                :lead_source_id,
+                :lead_priority,
                 :inquiry_type_id,
                 :assigned_to,
                 :remarks,
@@ -99,7 +105,8 @@ class LeadModel {
         $stmt->bindValue(':gender_id', $genderID, PDO::PARAM_INT);
         $stmt->bindValue(':lead_status_id', $leadStatusID, PDO::PARAM_INT);
         $stmt->bindValue(':inquiry_type_id', $inquiryTypeID, PDO::PARAM_INT);
-
+        $stmt->bindValue(':lead_source_id', $leadSourceID, PDO::PARAM_INT);
+        $stmt->bindValue(':lead_priority', $leadPriority, PDO::PARAM_STR);
         // assigned_to = creator during insert
         $stmt->bindValue(':assigned_to', $lastLogBy, PDO::PARAM_INT);
 
@@ -130,6 +137,8 @@ class LeadModel {
         $genderID,
         $leadStatusID,
         $inquiryTypeID,
+        $leadSourceID,
+        $leadPriority,
         $remarks,
         $inquiry_date,
         $lastLogBy
@@ -150,6 +159,8 @@ class LeadModel {
                 phone = :phone,
                 gender_id = :gender_id,
                 lead_status_id = :lead_status_id,
+                lead_source_id = :lead_source_id,
+                lead_priority = :lead_priority,
                 inquiry_type_id = :inquiry_type_id,
                 remarks = :remarks,
                 inquiry_date = :inquiry_date,
@@ -171,6 +182,8 @@ class LeadModel {
         $stmt->bindValue(':gender_id', $genderID, PDO::PARAM_INT);
         $stmt->bindValue(':lead_status_id', $leadStatusID, PDO::PARAM_INT);
         $stmt->bindValue(':inquiry_type_id', $inquiryTypeID, PDO::PARAM_INT);
+        $stmt->bindValue(':lead_source_id', $leadSourceID, PDO::PARAM_INT);
+        $stmt->bindValue(':lead_priority', $leadPriority, PDO::PARAM_STR);
         $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
         $stmt->bindValue(':inquiry_date', $inquiry_date, PDO::PARAM_STR);
         $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
@@ -298,6 +311,21 @@ class LeadModel {
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function getLastNote($leadID) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT 
+                *
+            FROM lead_notes
+            WHERE lead_id = :lead_id
+            ORDER BY created_at DESC
+            LIMIT 1
+        ');
+
+        $stmt->bindValue(':lead_id', $leadID, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     public function generateAllLeadTable(
         $filter_created_date_start_date,
@@ -305,7 +333,9 @@ class LeadModel {
         $filter_inquiry_date_start_date,
         $filter_inquiry_date_end_date,
         $filter_lead_status,
-        $filter_inquiry_type
+        $filter_inquiry_type,
+        $filter_lead_source,
+        $filter_lead_priority
     ) {
 
         $query = '
@@ -355,6 +385,22 @@ class LeadModel {
         }
 
         /* =========================
+            LEAD SOURCE FILTER
+        ========================== */
+        if (!empty($filter_lead_source)) {
+
+            $query .= " AND lead_source_id IN ($filter_lead_source)";
+        }
+
+        /* =========================
+            LEAD PRIORITY FILTER
+        ========================== */
+        if (!empty($filter_lead_priority)) {
+
+            $query .= " AND lead_priority IN ($filter_lead_priority)";
+        }
+
+        /* =========================
             ORDER
         ========================== */
         $query .= ' ORDER BY created_at DESC';
@@ -373,6 +419,8 @@ class LeadModel {
         $filter_inquiry_date_end_date,
         $filter_lead_status,
         $filter_inquiry_type,
+        $filter_lead_source,
+        $filter_lead_priority,
         $assigned_to
     ) {
 
@@ -420,6 +468,22 @@ class LeadModel {
         if (!empty($filter_inquiry_type)) {
 
             $query .= " AND inquiry_type_id IN ($filter_inquiry_type)";
+        }
+
+        /* =========================
+            LEAD SOURCE FILTER
+        ========================== */
+        if (!empty($filter_lead_source)) {
+
+            $query .= " AND lead_source_id IN ($filter_lead_source)";
+        }
+
+        /* =========================
+            LEAD PRIORITY FILTER
+        ========================== */
+        if (!empty($filter_lead_priority)) {
+
+            $query .= " AND lead_priority IN ($filter_lead_priority)";
         }
 
         /* =========================

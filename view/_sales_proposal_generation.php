@@ -1651,8 +1651,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                     '. $salesProposalNumber .'
                                                 </a>',
                     'CUSTOMER' => '<div class="col">
-                                                <h6 class="mb-0">'. $customerName .'</h6>
-                                                <p class="f-12 mb-0">'. $corporateName .'</p>
+                                                <h6 class="mb-0 text-wrap">'. $customerName .'</h6>
+                                                <p class="f-12 mb-0 text-wrap">'. $corporateName .'</p>
                                             </div>',
                     'PRODUCT_TYPE' => $productType,
                     'PRODUCT' => $stockNumber,

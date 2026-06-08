@@ -1333,7 +1333,7 @@
                                 <div class="card price-card">
                                     <div class="card-body">
                                         <div class="price-head">
-                                            <div class="price-price">Sales Invoice (FUSO Only)</div>
+                                            <div class="price-price">Sales Invoice Full Print (FUSO Only)</div>
                                             <div class="d-grid"><a href="sales-invoice-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
                                         </div>
                                     </div>
@@ -1343,8 +1343,28 @@
                                 <div class="card price-card">
                                     <div class="card-body">
                                         <div class="price-head">
-                                            <div class="price-price">Service Invoice (FUSO Only)</div>
+                                            <div class="price-price">Service Invoice Full Print (FUSO Only)</div>
                                             <div class="d-grid"><a href="service-invoice-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Sales Invoice Pre-Printed (FUSO Only)</div>
+                                            <div class="d-grid"><a href="sales-invoice-dr-print2.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Service Invoice Pre-Printed (FUSO Only)</div>
+                                            <div class="d-grid"><a href="service-invoice-dr-print2.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
                                         </div>
                                     </div>
                                 </div>

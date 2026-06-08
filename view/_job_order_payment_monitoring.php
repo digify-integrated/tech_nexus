@@ -26,10 +26,11 @@
                           <th>OS Number</th>
                           <th>Product</th>
                           <th>Job Order</th>
-                        <th>Cost</th>
+                          <th>Cost</th>
                           <th>Contractor</th>
                           <th>Work Center</th>
                           <th>Status</th>
+                          <th>Transaction Date</th>
                           <th class="text-end"></th>
                         </tr>
                       </thead>
@@ -48,6 +49,7 @@
                           <th>Contractor</th>
                           <th>Work Center</th>
                           <th>Status</th>
+                          <th>Transaction Date</th>
                           <th class="text-end"></th>
                         </tr>
                       </thead>
@@ -85,6 +87,7 @@
                       <th>Contractor</th>
                       <th>Work Center</th>
                           <th>Status</th>
+                          <th>Transaction Date</th>
                       <th class="text-end"></th>
                     </tr>
                   </thead>
@@ -105,6 +108,7 @@
                       <th>Contractor</th>
                       <th>Work Center</th>
                       <th>Status</th>
+                          <th>Transaction Date</th>
                       <th class="text-end"></th>
                     </tr>
                   </thead>

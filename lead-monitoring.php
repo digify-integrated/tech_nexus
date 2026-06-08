@@ -3,6 +3,7 @@
   require('config/_check_user_active.php');
   require('model/lead-model.php');
   require('model/lead-status-model.php');
+  require('model/lead-source-model.php');
   require('model/inquiry-type-model.php');
   require('model/city-model.php');
   require('model/gender-model.php');
@@ -10,6 +11,7 @@
   
   $leadModel = new LeadModel($databaseModel);
   $leadStatusModel = new LeadStatusModel($databaseModel);
+  $leadSourceModel = new LeadSourceModel($databaseModel);
   $inquiryTypeModel = new InquiryTypeModel($databaseModel);
   $cityModel = new CityModel($databaseModel);
   $genderModel = new GenderModel($databaseModel);

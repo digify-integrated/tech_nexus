@@ -3134,7 +3134,7 @@ class SalesProposalController {
 
         if($productType == 'Fuel'){
             if($diesel_fuel_quantity > 0){
-                $dieselQuantity = (float) $this->partsModel->getParts(10611)['quantity'] ?? 0;
+                $dieselQuantity = $this->partsModel->getParts(10611)['quantity'] ?? 0;
 
                 if($diesel_fuel_quantity > $dieselQuantity){
                     echo json_encode(['success' => false, 'fuelQuantity' =>  true, 'dieselQuantity' => $dieselQuantity, 'requestedDieselQuantity' => $diesel_fuel_quantity]);
@@ -3143,7 +3143,7 @@ class SalesProposalController {
             }
 
             if($premium_fuel_quantity > 0){
-                $premiumQuantity = (float) $this->partsModel->getParts(10612)['quantity'] ?? 0;
+                $premiumQuantity = $this->partsModel->getParts(10612)['quantity'] ?? 0;
 
                 if($premium_fuel_quantity > $premiumQuantity){
                     echo json_encode(['success' => false, 'fuelQuantity' =>  true, 'premiumQuantity' => $premiumQuantity, 'requestedPremiumQuantity' => $premium_fuel_quantity]);
@@ -3152,7 +3152,7 @@ class SalesProposalController {
             }
             
             if($regular_fuel_quantity > 0){
-                $regularQuantity = (float) $this->partsModel->getParts(10613)['quantity'] ?? 0;
+                $regularQuantity = $this->partsModel->getParts(10613)['quantity'] ?? 0;
 
                 if($regular_fuel_quantity > $regularQuantity){
                     echo json_encode(['success' => false, 'fuelQuantity' =>  true, 'regularQuantity' => $regularQuantity, 'requestedRegularQuantity' => $regular_fuel_quantity]);
@@ -6081,7 +6081,7 @@ class SalesProposalController {
         
         $mailer->setFrom($mailFromEmail, $mailFromName);
         #$mailer->addAddress('l.agulto@christianmotors.ph');
-        $mailer->addAddress('p.saulo@christianmotors.ph');
+        $mailer->addAddress('l.cabarles@christianmotors.ph');
         $mailer->addAddress('j.pineda@christianmotors.ph');
         $mailer->Subject = $emailSubject;
         $mailer->Body = $message;

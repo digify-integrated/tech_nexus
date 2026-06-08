@@ -95,6 +95,8 @@ class LeadController {
         $phone          = trim(htmlspecialchars($_POST['phone'], ENT_QUOTES, 'UTF-8'));
         $genderID       = !empty($_POST['gender_id']) ? (int) $_POST['gender_id'] : null;
         $leadStatusID   = !empty($_POST['lead_status_id']) ? (int) $_POST['lead_status_id'] : null;
+        $leadSourceID   = !empty($_POST['lead_source_id']) ? (int) $_POST['lead_source_id'] : null;
+        $leadPriority = !empty($_POST['lead_priority']) ?  $_POST['lead_priority'] : null;
         $inquiryTypeID  = !empty($_POST['inquiry_type_id']) ? (int) $_POST['inquiry_type_id'] : null;
         $remarks        = trim(htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8'));
         $inquiry_date = $this->systemModel->checkDate('empty', $_POST['inquiry_date'], '', 'Y-m-d', '');
@@ -152,6 +154,8 @@ class LeadController {
                 $genderID,
                 $leadStatusID,
                 $inquiryTypeID,
+                $leadSourceID,
+                $leadPriority,
                 $remarks,
                 $inquiry_date,
                 $userID
@@ -186,6 +190,8 @@ class LeadController {
                 $genderID,
                 $leadStatusID,
                 $inquiryTypeID,
+                $leadSourceID,
+                $leadPriority,
                 $remarks,
                 $inquiry_date,
                 $userID
@@ -324,6 +330,8 @@ public function deleteLeadNote() {
                 'genderId' => $leadDetails['gender_id'],
 
                 'leadStatusId' => $leadDetails['lead_status_id'],
+                'leadPriority' => $leadDetails['lead_priority'],
+                'leadSourceId' => $leadDetails['lead_source_id'],
 
                 'inquiryTypeId' => $leadDetails['inquiry_type_id'],
                 'inquiryDate' =>  $this->systemModel->checkDate('empty', $leadDetails['inquiry_date'], '', 'm/d/Y', ''),

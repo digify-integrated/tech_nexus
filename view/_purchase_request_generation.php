@@ -168,7 +168,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $action = '';
                 if($purchase_request_status == 'Draft'){
-                    $action = ' <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#add-item-offcanvas" aria-controls="add-item-offcanvas" data-purchase-request-cart-id="'. $purchase_request_cart_id .'" title="Update Part Item">
+                    $action = ' <button type="button" class="btn btn-icon btn-success update-part-cart" data-bs-toggle="offcanvas" data-bs-target="#add-item-supplies-offcanvas" aria-controls="add-item-supplies-offcanvas" data-purchase-request-cart-id="'. $purchase_request_cart_id .'" title="Update Part Item">
                                         <i class="ti ti-edit"></i>
                                     </button>
                                     <button type="button" class="btn btn-icon btn-danger delete-part-cart" data-purchase-request-cart-id="'. $purchase_request_cart_id .'" title="Delete Item">

@@ -1741,7 +1741,7 @@ BEGIN
 	ORDER BY city_name;
 END //
 
-CREATE PROCEDURE generateCityCheckbox(IN p_generation_type VARCHAR(50))
+CREATE PROCEDURE generateCityCheckbox(IN p_generation_type VARCHAR(100))
 BEGIN
     IF p_generation_type = 'branch' THEN
         SELECT 
@@ -1775,6 +1775,17 @@ BEGIN
         INNER JOIN state s ON s.state_id = ct.state_id
         INNER JOIN country cy ON cy.country_id = s.country_id
         WHERE city_id IN (SELECT city_id FROM company)
+        ORDER BY city_name;
+    ELSEIF p_generation_type = 'insurance-provider' THEN
+        SELECT 
+        ct.city_id AS city_id, 
+        ct.city_name AS city_name,
+        cy.country_name AS country_name,
+        s.state_name AS state_name
+        FROM city ct
+        INNER JOIN state s ON s.state_id = ct.state_id
+        INNER JOIN country cy ON cy.country_id = s.country_id
+        WHERE city_id IN (SELECT city_id FROM insurance_provider)
         ORDER BY city_name;
     ELSE
         SELECT 
@@ -8069,7 +8080,6 @@ BEGIN
         SET sales_proposal_status = p_sales_proposal_status,
         for_ci_date = NOW(),
         ci_status = null,
-        ci_completion_date = null,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
     ELSEIF p_sales_proposal_status = 'Rejected' THEN
@@ -10424,14 +10434,14 @@ CREATE PROCEDURE updateLeaveEntitlementAmount(IN p_contact_id INT, IN p_leave_ty
 BEGIN
     IF p_type = 'increase' THEN
         UPDATE leave_entitlement
-        SET entitlement_amount = entitlement_amount + p_application_amount,        
+        SET remaining_entitlement = remaining_entitlement + p_application_amount,        
         last_log_by = p_last_log_by
         WHERE leave_type_id = p_leave_type_id 
         AND contact_id = p_contact_id
         AND p_leave_date BETWEEN leave_period_start AND leave_period_end;
     ELSE
         UPDATE leave_entitlement
-        SET entitlement_amount = entitlement_amount - p_application_amount, 
+        SET remaining_entitlement = remaining_entitlement - p_application_amount, 
         last_log_by = p_last_log_by
         WHERE leave_type_id = p_leave_type_id 
         AND contact_id = p_contact_id

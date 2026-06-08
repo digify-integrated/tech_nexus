@@ -358,7 +358,7 @@ class LeaveApplicationController {
             }
 
             // 2. Entitlement Validation
-            $entitlement = $this->leaveApplicationModel->getEmployeeLeaveEntitlement($contactID, $leaveDate)['entitlement_amount'] ?? 0;
+            $entitlement = $this->leaveApplicationModel->getEmployeeLeaveEntitlement($contactID, $leaveDate)['remaining_entitlement'] ?? 0;
 
             if ($application_type === 'Whole Day') {
                 $application_amount = 8;

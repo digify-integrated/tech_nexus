@@ -143,7 +143,7 @@ class PurchaseRequestModel {
     }
 
     public function updatePurchaseRequestItem($purchase_request_cart_id, $part_id, $description, $quantity, $unit_id, $short_name, $remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('UPDATE purchase_request_cart SET part_id = :part_id description = :description, quantity = :quantity, available_order = :available_order, unit_id = :unit_id, short_name = :short_name, remarks = :remarks, last_log_by = :p_last_log_by WHERE purchase_request_cart_id = :purchase_request_cart_id');
+        $stmt = $this->db->getConnection()->prepare('UPDATE purchase_request_cart SET part_id = :part_id, description = :description, quantity = :quantity, available_order = :available_order, unit_id = :unit_id, short_name = :short_name, remarks = :remarks, last_log_by = :p_last_log_by WHERE purchase_request_cart_id = :purchase_request_cart_id');
         $stmt->bindValue(':purchase_request_cart_id', $purchase_request_cart_id, PDO::PARAM_STR);
         $stmt->bindValue(':part_id', $part_id, PDO::PARAM_STR);
         $stmt->bindValue(':description', $description, PDO::PARAM_STR);

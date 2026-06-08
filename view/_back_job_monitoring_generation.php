@@ -156,9 +156,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TYPE' => $type,
                     'SALES_PROPOSAL' => ' <div class="col">
                                         <h6 class="mb-0">'. $sales_proposal_number .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $customerName .'</p>
+                                        <p class="text-muted f-12 mb-0 text-wrap">'. $customerName .'</p>
                                         </div>',
-                    'PRODUCT' =>$product,
+                    'PRODUCT' => $product,
                     'STATUS' => $status,
                     'CREATED_DATE' => $created_date,
                     'ACTION' => '<div class="d-flex gap-2">
@@ -373,7 +373,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TYPE' => $type,
                     'SALES_PROPOSAL' => ' <div class="col">
                                         <h6 class="mb-0">'. $sales_proposal_number .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $customerName .'</p>
+                                        <p class="text-muted f-12 mb-0 text-wrap">'. $customerName .'</p>
                                         </div>',
                     'PRODUCT' =>$product,
                     'STATUS' => $status,

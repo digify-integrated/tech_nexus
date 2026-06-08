@@ -8349,6 +8349,36 @@ BEGIN
     VALUES ('lead_status', NEW.lead_status_id, audit_log, NEW.last_log_by, NOW());
 END //
 
+CREATE TRIGGER lead_source_trigger_update
+AFTER UPDATE ON lead_source
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.lead_source_name <> OLD.lead_source_name THEN
+        SET audit_log = CONCAT(audit_log, "Lead Source Name: ", OLD.lead_source_name, " -> ", NEW.lead_source_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('lead_source', NEW.lead_source_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER lead_source_trigger_insert
+AFTER INSERT ON lead_source
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Lead source created. <br/>';
+
+    IF NEW.lead_source_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Lead Source Name: ", NEW.lead_source_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('lead_source', NEW.lead_source_id, audit_log, NEW.last_log_by, NOW());
+END //
+
 CREATE TRIGGER inquiry_type_trigger_update
 AFTER UPDATE ON inquiry_type
 FOR EACH ROW
@@ -8377,6 +8407,36 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('inquiry_type', NEW.inquiry_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER insurance_type_trigger_update
+AFTER UPDATE ON insurance_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.insurance_type_name <> OLD.insurance_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Insurance Type Name: ", OLD.insurance_type_name, " -> ", NEW.insurance_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('insurance_type', NEW.insurance_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER insurance_type_trigger_insert
+AFTER INSERT ON insurance_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Insurance type created. <br/>';
+
+    IF NEW.insurance_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Insurance Type Name: ", NEW.insurance_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('insurance_type', NEW.insurance_type_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 DELIMITER //

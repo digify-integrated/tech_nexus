@@ -414,6 +414,7 @@ function jobOrderTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CONTRACTOR' },
         { 'data' : 'WORK_CENTER' },
         { 'data' : 'STATUS' },
+        { 'data' : 'DATE_STARTED' },
         { 'data' : 'ACTION' }
     ];
 
@@ -425,7 +426,8 @@ function jobOrderTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 7 }
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -487,6 +489,7 @@ function internalJobOrderTable(datatable_name, buttons = false, show_all = false
         { 'data' : 'CONTRACTOR' },
         { 'data' : 'WORK_CENTER' },
         { 'data' : 'STATUS' },
+        { 'data' : 'DATE_STARTED' },
         { 'data' : 'ACTION' }
     ];
 
@@ -499,7 +502,8 @@ function internalJobOrderTable(datatable_name, buttons = false, show_all = false
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 8 }
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 9 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -560,6 +564,7 @@ function additionalJobOrderTable(datatable_name, buttons = false, show_all = fal
         { 'data' : 'CONTRACTOR' },
         { 'data' : 'WORK_CENTER' },
         { 'data' : 'STATUS' },
+        { 'data' : 'DATE_STARTED' },
         { 'data' : 'ACTION' }
     ];
 
@@ -571,7 +576,8 @@ function additionalJobOrderTable(datatable_name, buttons = false, show_all = fal
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 7 }
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -634,6 +640,7 @@ function internalAdditionalJobOrderTable(datatable_name, buttons = false, show_a
         { 'data' : 'CONTRACTOR' },
         { 'data' : 'WORK_CENTER' },
         { 'data' : 'STATUS' },
+        { 'data' : 'DATE_STARTED' },
         { 'data' : 'ACTION' }
     ];
 
@@ -645,7 +652,8 @@ function internalAdditionalJobOrderTable(datatable_name, buttons = false, show_a
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 8 }
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 9 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

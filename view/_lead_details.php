@@ -23,7 +23,7 @@
               <?php
                 if ($leadWriteAccess['total'] > 0) {
                   echo '
-                  <button type="submit" form="lead-form" class="btn btn-success">
+                  <button type="submit" form="lead-form" class="btn btn-success id="submit-data">
                     Save
                   </button>
                   <button type="button" id="discard-update" class="btn btn-light border">
@@ -83,6 +83,22 @@
                 <select class="form-select select2" name="lead_status_id" id="lead_status_id" <?= $isReadOnly ?>>
                   <option value="">Status</option>
                   <?= $leadStatusModel->generateLeadStatusOptions('Lead'); ?>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <select class="form-select select2" name="lead_source_id" id="lead_source_id" <?= $isReadOnly ?>>
+                  <option value="">Lead Source</option>
+                  <?= $leadSourceModel->generateLeadSourceOptions(); ?>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <select class="form-select select2" name="lead_priority" id="lead_priority" <?= $isReadOnly ?>>
+                  <option value="">Lead Priority</option>
+                  <option value="Hot">Hot</option>
+                  <option value="Warm">Warm</option>
+                  <option value="Cold">Cold</option>
                 </select>
               </div>
 

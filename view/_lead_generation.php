@@ -9,6 +9,7 @@ require_once '../model/lead-model.php';
 require_once '../model/product-model.php';
 require_once '../model/inquiry-type-model.php';
 require_once '../model/lead-status-model.php';
+require_once '../model/lead-source-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -16,6 +17,7 @@ $userModel = new UserModel($databaseModel, $systemModel);
 $leadModel = new LeadModel($databaseModel);
 $inquiryTypeModel = new InquiryTypeModel($databaseModel);
 $leadStatusModel = new LeadStatusModel($databaseModel);
+$leadSourceModel = new LeadSourceModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -33,6 +35,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $filter_inquiry_date_end_date = $systemModel->checkDate('empty', $_POST['filter_inquiry_date_end_date'], '', 'Y-m-d', '');
             $filter_lead_status = $_POST['filter_lead_status'];
             $filter_inquiry_type = $_POST['filter_inquiry_type'];
+            $filter_lead_source = $_POST['filter_lead_source'];
+            $filter_lead_priority = $_POST['filter_lead_priority'];
 
             if (!empty($filter_lead_status)) {
                 // Convert string to array and trim each value
@@ -64,13 +68,43 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filter_inquiry_type = null;
             }
 
+            if (!empty($filter_lead_source)) {
+                // Convert string to array and trim each value
+                $values_array = array_filter(array_map('trim', explode(',', $filter_lead_source)));
+
+                // Quote each value safely
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . addslashes($value) . "'";
+                }, $values_array);
+
+                // Implode into comma-separated string
+                $filter_lead_source = implode(', ', $quoted_values_array);
+            } else {
+                $filter_lead_source = null;
+            }
+
+            if (!empty($filter_lead_priority)) {
+                // Convert string to array and trim each value
+                $values_array = array_filter(array_map('trim', explode(',', $filter_lead_priority)));
+
+                // Quote each value safely
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . addslashes($value) . "'";
+                }, $values_array);
+
+                // Implode into comma-separated string
+                $filter_lead_priority = implode(', ', $quoted_values_array);
+            } else {
+                $filter_lead_priority = null;
+            }
+
             $viewAll = $userModel->checkSystemActionAccessRights($user_id, 238);
 
             if($viewAll['total'] > 0){
-                $leads = $leadModel->generateAllLeadTable($filter_created_date_start_date, $filter_created_date_end_date, $filter_inquiry_date_start_date, $filter_inquiry_date_end_date, $filter_lead_status, $filter_inquiry_type);
+                $leads = $leadModel->generateAllLeadTable($filter_created_date_start_date, $filter_created_date_end_date, $filter_inquiry_date_start_date, $filter_inquiry_date_end_date, $filter_lead_status, $filter_inquiry_type, $filter_lead_source, $filter_lead_priority);
             }
             else{
-                $leads = $leadModel->generateLeadTable($filter_created_date_start_date, $filter_created_date_end_date, $filter_inquiry_date_start_date, $filter_inquiry_date_end_date, $filter_lead_status, $filter_inquiry_type, $user_id);
+                $leads = $leadModel->generateLeadTable($filter_created_date_start_date, $filter_created_date_end_date, $filter_inquiry_date_start_date, $filter_inquiry_date_end_date, $filter_lead_status, $filter_inquiry_type, $filter_lead_source, $filter_lead_priority, $user_id);
             }
             
 
@@ -81,12 +115,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $inquiry_type_id = $row['inquiry_type_id'];
                 $lead_status_id = $row['lead_status_id'];
                 $stock_number = $row['stock_number'];
+                $lead_priority = $row['lead_priority'];
 
                 $user = $userModel->getUserByID($row['assigned_to']);
                 $fileAs = $user['file_as'] ?? null;
 
                 $inquiry_type_name = $inquiryTypeModel->getInquiryType($inquiry_type_id)['inquiry_type_name'] ?? null;
-                $lead_status_name = $leadStatusModel->getLeadStatus($lead_status_id)['lead_status_name'] ?? null;
+                $lead_status_name = $leadStatusModel->getLeadStatus($lead_status_id)['lead_status_name'] ?? '--';
+                $lead_source_name = $leadSourceModel->getLeadSource($row['lead_source_id'])['lead_source_name'] ?? '--';
+                $lead_note = $leadModel->getLastNote($leadID)['note'] ?? '--';
                 $transaction_date = $systemModel->checkDate('empty', $row['created_at'], '', 'm/d/Y', '');
                 $inquiry_date = $systemModel->checkDate('empty', $row['inquiry_date'], '', 'm/d/Y', '');
 
@@ -106,10 +143,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $leadID .'">',
                     'LEAD_NAME' => $row['file_as'],
                     'PHONE' => $row['phone'],
+                    'LEAD_SOURCE' => $lead_source_name,
+                    'LEAD_PRIORITY' => $lead_priority,
                     'INQUIRY_TYPE' => $inquiry_type_name,
                     'INQUIRY_DATE' => $inquiry_date,
                     'PRODUCT' => $stock_number,
                     'STATUS' => $lead_status_name,
+                    'LEAD_NOTE' => $lead_note,
                     'ASSIGNED_TO' => $fileAs,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="lead-monitoring.php?id='. $leadIDEncrypted .'" class="btn btn-icon btn-primary">

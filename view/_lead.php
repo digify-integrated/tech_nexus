@@ -73,11 +73,14 @@
                   </div>
                 </th>
                 <th>Lead Name</th>
+                <th>Lead Source</th>
+                <th>Lead Priority</th>
                 <th>Phone</th>
                 <th>Inquiry Type</th>
                 <th>Inquiry Date</th>
                 <th>Product</th>
                 <th>Status</th>
+                <th>Last Note</th>
                 <th>Created By</th>
                 <th>Actions</th>
               </tr>
@@ -140,6 +143,39 @@
                         <?php
                           echo $leadStatusModel->generateLeadStatusCheckBox('Lead');
                         ?>
+                      </div>
+                    </div>
+                </li>
+                 <li class="list-group-item px-0 py-2">
+                    <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#lead-source-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                      Lead Source
+                    </a>
+                    <div class="collapse" id="lead-source-filter-collapse">
+                      <div class="py-3">
+                        <?php
+                          echo $leadSourceModel->generateLeadSourceCheckBox();
+                        ?>
+                      </div>
+                    </div>
+                </li>
+                 <li class="list-group-item px-0 py-2">
+                    <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#lead-priority-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                      Lead Priority
+                    </a>
+                    <div class="collapse" id="lead-priority-filter-collapse">
+                      <div class="py-3">
+                        <div class="form-check my-2">
+                          <input class="form-check-input lead-priority-filter" type="checkbox" id="lead-priority-hot" value="Hot"/>
+                          <label class="form-check-label" for="lead-priority-hot">Hot</label>
+                        </div>
+                        <div class="form-check my-2">
+                          <input class="form-check-input lead-priority-filter" type="checkbox" id="lead-priority-warm" value="Warm"/>
+                          <label class="form-check-label" for="lead-priority-warm">Warm</label>
+                        </div>
+                        <div class="form-check my-2">
+                          <input class="form-check-input lead-priority-filter" type="checkbox" id="lead-priority-cold" value="Cold"/>
+                          <label class="form-check-label" for="lead-priority-cold">Cold</label>
+                        </div>
                       </div>
                     </div>
                 </li>

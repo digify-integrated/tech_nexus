@@ -326,10 +326,20 @@ function leadTable(datatable_name) {
     const filter_inquiry_date_end_date = $('#filter_inquiry_date_end_date').val();
 
     let lead_status_filter = [];
+    let lead_source_filter = [];
+    let lead_priority_filter = [];
     let inquiry_type_filter = [];
 
     $('.lead-status-filter:checked').each(function () {
         lead_status_filter.push($(this).val());
+    });
+
+    $('.lead-source-filter:checked').each(function () {
+        lead_source_filter.push($(this).val());
+    });
+
+    $('.lead-priority-filter:checked').each(function () {
+        lead_priority_filter.push($(this).val());
     });
 
     $('.inquiry-type-filter:checked').each(function () {
@@ -337,16 +347,21 @@ function leadTable(datatable_name) {
     });
 
     const filter_lead_status = lead_status_filter.join(', ');
+    const filter_lead_source = lead_source_filter.join(', ');
+    const filter_lead_priority = lead_priority_filter.join(', ');
     const filter_inquiry_type = inquiry_type_filter.join(', ');
 
     const column = [
         { data: 'CHECK_BOX' },
         { data: 'LEAD_NAME' },
+        { data: 'LEAD_SOURCE' },
+        { data: 'LEAD_PRIORITY' },
         { data: 'PHONE' },
         { data: 'INQUIRY_TYPE' },
         { data: 'INQUIRY_DATE' },
         { data: 'PRODUCT' },
         { data: 'STATUS' },
+        { data: 'LEAD_NOTE' },
         { data: 'ASSIGNED_TO' },
         { data: 'ACTION' }
     ];
@@ -360,7 +375,10 @@ function leadTable(datatable_name) {
         { width: 'auto', targets: 5 },
         { width: 'auto', targets: 6 },
         { width: 'auto', targets: 7 },
-        { width: '14%', bSortable: false, targets: 8 }
+        { width: 'auto', targets: 8 },
+        { width: 'auto', targets: 9 },
+        { width: 'auto', targets: 10 },
+        { width: '14%', bSortable: false, targets: 11 }
     ];
 
     destroyDatatable(datatable_name);
@@ -377,6 +395,8 @@ function leadTable(datatable_name) {
                 filter_inquiry_date_start_date: filter_inquiry_date_start_date,
                 filter_inquiry_date_end_date: filter_inquiry_date_end_date,
                 filter_lead_status: filter_lead_status,
+                filter_lead_source: filter_lead_source,
+                filter_lead_priority: filter_lead_priority,
                 filter_inquiry_type: filter_inquiry_type,
             },
             dataSrc: ''
@@ -444,6 +464,9 @@ function leadForm(){
             lead_status_id: {
                 required: true
             },
+            lead_source_id: {
+                required: true
+            },
         },
         messages: {
             first_name: {
@@ -457,6 +480,9 @@ function leadForm(){
             },
             lead_status_id: {
                 required: 'Please choose the lead status'
+            },
+            lead_source_id: {
+                required: 'Please choose the lead source'
             },
         },
         submitHandler: function(form) {
@@ -715,6 +741,8 @@ function displayDetails(transaction){
                 checkOptionExist('#lead_status_id', response.leadStatusId, '');
                 checkOptionExist('#lead_status_id2', response.leadStatusId, '');
                 checkOptionExist('#inquiry_type_id', response.inquiryTypeId, '');
+                checkOptionExist('#lead_source_id', response.leadSourceId, '');
+                checkOptionExist('#lead_priority', response.leadPriority, '');
             }
         },
         error: function(xhr, status, error) {

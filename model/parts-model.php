@@ -103,13 +103,26 @@ class PartsModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
-    public function updateFuelQuantity($p_part_id, $fuel_quantity) {
-        $stmt = $this->db->getConnection()->prepare('UPDATE part
-        SET quantity = quantity - :fuel_quantity
-        WHERE part_id = :p_part_id
-        AND quantity >= :fuel_quantity;');
-        $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
-        $stmt->bindValue(':fuel_quantity', (float) $fuel_quantity);
+    public function updateFuelQuantity(int $p_part_id, $fuel_quantity) {
+        // 1. Ensure the fuel quantity is a positive number before querying
+        if ($fuel_quantity <= 0) {
+            return false;
+        }
+
+        // Using positional placeholders (?) avoids the "duplicate named placeholder" issue in PDO
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE part
+            SET quantity = quantity - ?
+            WHERE part_id = ?
+            AND quantity >= ?
+        ');
+
+        // 2. Bind parameters by position index (1-based)
+        // If fuel_quantity is always a whole number, change PARAM_STR to PARAM_INT
+        $stmt->bindValue(1, $fuel_quantity, is_int($fuel_quantity) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        $stmt->bindValue(2, $p_part_id, PDO::PARAM_INT);
+        $stmt->bindValue(3, $fuel_quantity, is_int($fuel_quantity) ? PDO::PARAM_INT : PDO::PARAM_STR);
+
         $stmt->execute();
     }
     # -------------------------------------------------------------

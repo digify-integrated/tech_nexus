@@ -31,7 +31,7 @@
 
     <div class="row mb-4">
 
-      <div class="col-lg-3">
+      <div class="col-lg-4">
         <label class="form-label small text-muted">Inquiry Type <span class="text-danger">*</span></label>
           <select class="form-control select2"
                   id="inquiry_type_id" name="inquiry_type_id">
@@ -41,7 +41,7 @@
         </div>
 
 
-      <div class="col-lg-3">
+      <div class="col-lg-4">
         <label class="form-label small text-muted">Inquiry Date <span class="text-danger">*</span></label>
           <div class="input-group date">
             <input type="text" class="form-control future-date-restricted-datepicker" id="inquiry_date" name="inquiry_date" autocomplete="off">
@@ -51,7 +51,7 @@
           </div>
         </div>
 
-        <div class="col-lg-3">
+        <div class="col-lg-4">
           <label class="form-label small text-muted">Stock Number</label>
           <select class="form-control select2"
                   id="stock_number" name="stock_number">
@@ -59,13 +59,32 @@
             <?php echo $productModel->generateForSaleProductOptions(); ?>
           </select>
         </div>
+      </div>
 
-        <div class="col-lg-3">
+    <div class="row mb-4">
+        <div class="col-lg-4">
           <label class="form-label small text-muted">Lead Status <span class="text-danger">*</span></label>
           <select class="form-control select2"
                   id="lead_status_id" name="lead_status_id">
             <option value="">Select</option>
             <?php echo $leadStatusModel->generateLeadStatusOptions('Lead'); ?>
+          </select>
+        </div>
+        <div class="col-lg-4">
+          <label class="form-label small text-muted">Lead Source <span class="text-danger">*</span></label>
+          <select class="form-control select2"
+                  id="lead_source_id" name="lead_source_id">
+            <option value="">Select</option>
+            <?php echo $leadSourceModel->generateLeadSourceOptions(); ?>
+          </select>
+        </div>
+        <div class="col-lg-4">
+          <label class="form-label small text-muted">Lead Priority </label>
+          <select class="form-control select2" id="lead_priority" name="lead_priority">
+            <option value="">Select</option>
+            <option value="Hot">Hot</option>
+            <option value="Warm">Warm</option>
+            <option value="Cold">Cold</option>
           </select>
         </div>
       </div>

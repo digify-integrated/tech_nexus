@@ -402,6 +402,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
                 $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
+                
+                $date_started = $systemModel->checkDate('empty', $row['date_started'], '', 'm/d/Y', '');
+
                 $action = '';
                 if($updatePaidStatus['total'] > 0 && empty($payment_date) && empty($payment_cancellation_date)){
                     $action = '<button type="button" class="btn btn-icon btn-success paid-sp-job-order" data-bs-toggle="offcanvas" data-bs-target="#paid-offcanvas" aria-controls="paid-offcanvas" data-sales-proposal-job-order-id="'. $sales_proposal_job_order_id  .'" title="Tag Paid">
@@ -424,12 +427,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'OS_NUMBER' => $sales_proposal_number,
-                    'JOB_ORDER' => $job_order,
+                    'JOB_ORDER' => '<span class="text-wrap">' . $job_order . '</span>',
                     'PRODUCT' => $stock_number,
                     'JOB_COST' => number_format($job_cost, 2) . ' PHP',
-                    'CONTRACTOR' => $contractor_name,
+                    'CONTRACTOR' => '<span class="text-wrap">' . $contractor_name . '</span>',
                     'WORK_CENTER' => $work_center_name,
                     'STATUS' => $status,
+                    'DATE_STARTED' => $date_started,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -492,6 +496,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
                 $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+                $date_started = $systemModel->checkDate('empty', $row['date_started'], '', 'm/d/Y', '');
 
                 $action = '';
                 if($updatePaidStatus['total'] > 0 && empty($payment_date) && empty($payment_cancellation_date)){
@@ -518,12 +523,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'TYPE' => $backJobMonitoringType,
                     'OS_NUMBER' => $sales_proposal_number,
-                    'JOB_ORDER' => $job_order,
+                    'JOB_ORDER' => '<span class="text-wrap">' . $job_order . '</span>',
                     'PRODUCT' => $stock_number,
                     'JOB_COST' => number_format($cost, 2) . ' PHP',
-                    'CONTRACTOR' => $contractor_name,
+                    'CONTRACTOR' => '<span class="text-wrap">' . $contractor_name . '</span>',
                     'WORK_CENTER' => $work_center_name,
                     'STATUS' => $status,
+                    'DATE_STARTED' => $date_started,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -583,6 +589,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
                 $work_center_name = $workCenterDetails['work_center_name'] ?? null;
 
+                $date_started = $systemModel->checkDate('empty', $row['date_started'], '', 'm/d/Y', '');
                 $action = '';
                 if($updatePaidStatus['total'] > 0 && empty($payment_date) && empty($payment_cancellation_date)){
                     $action = '<button type="button" class="btn btn-icon btn-success paid-sp-additional-job-order" data-bs-toggle="offcanvas" data-bs-target="#paid-offcanvas" aria-controls="paid-offcanvas" data-sales-proposal-additional-job-order-id="'. $sales_proposal_additional_job_order_id  .'" title="Tag Paid">
@@ -607,11 +614,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'OS_NUMBER' => $sales_proposal_number,
                     'PRODUCT' => $stock_number,
-                    'JOB_ORDER' => $job_order,
+                    'JOB_ORDER' => '<span class="text-wrap">' . $job_order . '</span>',
                     'JOB_COST' => number_format($job_cost, 2) . ' PHP',
-                    'CONTRACTOR' => $contractor_name,
+                   'CONTRACTOR' => '<span class="text-wrap">' . $contractor_name . '</span>',
                     'WORK_CENTER' => $work_center_name,
                     'STATUS' => $status,
+                    'DATE_STARTED' => $date_started,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -674,6 +682,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $workCenterDetails = $workCenterModel->getWorkCenter($work_center_id);
                 $work_center_name = $workCenterDetails['work_center_name'] ?? null;
+                $date_started = $systemModel->checkDate('empty', $row['date_started'], '', 'm/d/Y', '');
 
                 $action = '';
                 if($updatePaidStatus['total'] > 0 && empty($payment_date) && empty($payment_cancellation_date)){
@@ -699,11 +708,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'TYPE' => $backJobMonitoringType,
                     'OS_NUMBER' => $sales_proposal_number,
                     'PRODUCT' => $stock_number,
-                    'JOB_ORDER' => $job_order,
+                    'JOB_ORDER' => '<span class="text-wrap">' . $job_order . '</span>',
                     'JOB_COST' => number_format($cost, 2) . ' PHP',
-                    'CONTRACTOR' => $contractor_name,
+                    'CONTRACTOR' => '<span class="text-wrap">' . $contractor_name . '</span>',
                     'WORK_CENTER' => $work_center_name,
                     'STATUS' => $status,
+                    'DATE_STARTED' => $date_started,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
