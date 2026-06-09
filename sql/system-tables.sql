@@ -6996,7 +6996,7 @@ CREATE TABLE `leads` (
 
 DROP TABLE IF EXISTS `lead`;
 CREATE TABLE `inquiry_type` (
-  `inquiry_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KE NOT NULL,
+  `inquiry_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   `inquiry_type_name` varchar(100) NOT NULL,
   `last_log_by` int(10) UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
@@ -7016,7 +7016,7 @@ CREATE TABLE `lead_status` (
 
 DROP TABLE IF EXISTS `inquiry_type`;
 CREATE TABLE `inquiry_type` (
-  `inquiry_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KE NOT NULL,
+  `inquiry_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   `inquiry_type_name` varchar(100) NOT NULL,
   `last_log_by` int(10) UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
@@ -7068,7 +7068,7 @@ CREATE TABLE insurance_provider(
 
 DROP TABLE IF EXISTS `insurance_type`;
 CREATE TABLE `insurance_type` (
-  `insurance_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KE NOT NULL,
+  `insurance_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   `insurance_type_name` varchar(100) NOT NULL,
   `last_log_by` int(10) UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
@@ -7077,16 +7077,44 @@ CREATE TABLE `insurance_type` (
 
 DROP TABLE IF EXISTS `insurance_request`;
 CREATE TABLE `insurance_request` (
-  `insurance_request_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KE NOT NULL,
-  `request_number` varchar(100) NOT NULL,
-  `status` ENUM('Draft', 'Submitted', 'Approved') DEFAULT 'Draft',
-  `request_type` ENUM('New Policy', 'Renewal', 'Amendment', 'Cancellation') NOT NULL,
-  `insurance_policy_id` int(10),
-  `insurance_type_id` int(10),
-  `effective_date` DATE,
-  `request_number` varchar(100) NOT NULL,
-  `submitted_date` DATETIME,
-  `approval_date` DATETIME,
+  `insurance_request_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `request_number` varchar(100) NOT NULL, // fillable
+  `status` ENUM('Draft', 'For Submission', 'Submitted', 'Received') DEFAULT 'Draft', // fillable
+  `request_type` ENUM('New Policy', 'Renewal') NOT NULL, // fillable
+  `insurance_policy_id` int(10), // fillable
+  `insurance_type_id` int(10), // fillable
+  `inception_date` DATE, // fillable
+  `for_submission_date` datetime, // fillable
+  `submitted_date` datetime, // fillable
+  `received_date` datetime, // fillable
+  `customer_id` int(10), // fillable
+  `sales_proposal_id` int(10), // fillable
+  `ctpl_coverage` DOUBLE DEFAULT 0, // fillable
+  `od_theft_coverage` DOUBLE DEFAULT 0, // fillable
+  `aon_coverage` DOUBLE DEFAULT 0, // fillable
+  `tpbi_coverage` DOUBLE DEFAULT 0, // fillable
+  `tppd_coverage` DOUBLE DEFAULT 0, // fillable
+  `par_coverage` DOUBLE DEFAULT 0, // fillable
+  `ctpl_premium` DOUBLE DEFAULT 0,
+  `od_theft_premium` DOUBLE DEFAULT 0,
+  `aon_premium` DOUBLE DEFAULT 0,
+  `tpbi_premium` DOUBLE DEFAULT 0,
+  `tppd_premium` DOUBLE DEFAULT 0,
+  `par_premium` DOUBLE DEFAULT 0,
+  `total_premium` DOUBLE DEFAULT 0,
+  `vat_premium_tax` DOUBLE DEFAULT 0,
+  `docstamp` DOUBLE DEFAULT 0,
+  `local_tax` DOUBLE DEFAULT 0,
+  `gross` DOUBLE DEFAULT 0,
+  `premium_comission` DOUBLE DEFAULT 0,
+  `aon_comission` DOUBLE DEFAULT 0,
+  `tpbi_comission` DOUBLE DEFAULT 0,
+  `tppd_comission` DOUBLE DEFAULT 0,
+  `par_comission` DOUBLE DEFAULT 0,
+  `comission_subtotal` DOUBLE DEFAULT 0,
+  `commission_discount` DOUBLE DEFAULT 0,
+  `net_commission` DOUBLE DEFAULT 0,
+  `net_premium` DOUBLE DEFAULT 0,
   `last_log_by` int(10) UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
