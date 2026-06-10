@@ -97,7 +97,7 @@ if(isset($_GET['id'])){
         $tin = strtoupper($customerDetails['tin'] ?? '');
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
-        $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
+        $comakerName = strtoupper($comakerDetails['file_as']?? null) ;    
     
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
         $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
@@ -153,12 +153,12 @@ $pdf = new Fpdi();
 $pdf->AddPage('P', 'letter'); // Set to 8.5 x 13 inches
 
 // Load the official BIR Form 2307 PDF
-$pdfPath = 'assets/libs/service-invoice.pdf';
+/*$pdfPath = 'assets/libs/service-invoice.pdf';
 $pdf->setSourceFile($pdfPath);
 
 // Import Page 1
 $tplIdx = $pdf->importPage(1);
-$pdf->useTemplate($tplIdx, 0, 0, 216);
+$pdf->useTemplate($tplIdx, 0, 0, 216);*/
 
 $pdf->SetFont('times', '', 10.5);
 

@@ -10422,7 +10422,7 @@ END //
 
 CREATE PROCEDURE getEmployeeLeaveEntitlement(IN p_contact_id INT, IN p_leave_date DATE)
 BEGIN
-    SELECT entitlement_amount
+    SELECT remaining_entitlement
     FROM leave_entitlement
     WHERE leave_type_id = 1
     AND contact_id = p_contact_id

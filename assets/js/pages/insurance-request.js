@@ -15,7 +15,7 @@
         }
 
         $(document).on('click','.delete-insurance-request',function() {
-            const insurance_type_id = $(this).data('insurance-request-id');
+            const insurance_request_id = $(this).data('insurance-request-id');
             const transaction = 'delete insurance request';
     
             Swal.fire({
@@ -31,11 +31,11 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        request: 'POST',
+                        type: 'POST',
                         url: 'controller/insurance-request-controller.php',
-                        dataRequest: 'json',
+                        dataType: 'json',
                         data: {
-                            insurance_type_id : insurance_type_id, 
+                            insurance_request_id : insurance_request_id, 
                             transaction : transaction
                         },
                         success: function (response) {
@@ -71,16 +71,16 @@
         });
 
         $(document).on('click','#delete-insurance-request',function() {
-            let insurance_type_id = [];
+            let insurance_request_id = [];
             const transaction = 'delete multiple insurance request';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
-                    insurance_type_id.push(element.value);
+                    insurance_request_id.push(element.value);
                 }
             });
     
-            if(insurance_type_id.length > 0){
+            if(insurance_request_id.length > 0){
                 Swal.fire({
                     title: 'Confirm Multiple Insurance Request Deletion',
                     text: 'Are you sure you want to delete these insurance request?',
@@ -94,11 +94,11 @@
                 }).then(function(result) {
                     if (result.value) {
                         $.ajax({
-                            request: 'POST',
+                            type: 'POST',
                             url: 'controller/insurance-request-controller.php',
-                            dataRequest: 'json',
+                            dataType: 'json',
                             data: {
-                                insurance_type_id: insurance_type_id,
+                                insurance_request_id: insurance_request_id,
                                 transaction : transaction
                             },
                             success: function (response) {
@@ -138,7 +138,7 @@
         });
 
         $(document).on('click','#delete-insurance-request-details',function() {
-            const insurance_type_id = $('#insurance-request-id').text();
+            const insurance_request_id = $('#insurance-request-id').text();
             const transaction = 'delete insurance request';
     
             Swal.fire({
@@ -154,11 +154,11 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        request: 'POST',
+                        type: 'POST',
                         url: 'controller/insurance-request-controller.php',
-                        dataRequest: 'json',
+                        dataType: 'json',
                         data: {
-                            insurance_type_id : insurance_type_id, 
+                            insurance_request_id : insurance_request_id, 
                             transaction : transaction
                         },
                         success: function (response) {
@@ -195,15 +195,9 @@
         $(document).on('click','#discard-create',function() {
             discardCreate('insurance-request.php');
         });
-
-        $(document).on('click','#edit-form',function() {
-            displayDetails('get insurance request details');
-
-            enableForm();
-        });
-
+        
         $(document).on('click','#duplicate-insurance-request',function() {
-            const insurance_type_id = $('#insurance-request-id').text();
+            const insurance_request_id = $('#insurance-request-id').text();
             const transaction = 'duplicate insurance request';
     
             Swal.fire({
@@ -219,11 +213,11 @@
             }).then(function(result) {
                 if (result.value) {
                     $.ajax({
-                        request: 'POST',
+                        type: 'POST',
                         url: 'controller/insurance-request-controller.php',
-                        dataRequest: 'json',
+                        dataType: 'json',
                         data: {
-                            insurance_type_id : insurance_type_id, 
+                            insurance_request_id : insurance_request_id, 
                             transaction : transaction
                         },
                         success: function (response) {
@@ -257,6 +251,22 @@
                 }
             });
         });
+
+        $(document).on('change', '#customer_type', function () {
+            let customerType = $(this).val();
+
+            $('.customer-field, .misc-field, .sales-proposal-field').addClass('d-none');
+
+            if (customerType === 'Customer') {
+                $('.customer-field').removeClass('d-none');
+            }
+            else if (customerType === 'Miscellaneous') {
+                $('.misc-field').removeClass('d-none');
+            }
+            else if (customerType === 'Sales Proposal') {
+                $('.sales-proposal-field').removeClass('d-none');
+            }
+        });
     });
 })(jQuery);
 
@@ -280,9 +290,9 @@ function insuranceRequestTable(datatable_name, buttons = false, show_all = false
 
     settings = {
         'ajax': { 
-            'url' : 'view/_insurance_type_generation.php',
+            'url' : 'view/_insurance_request_generation.php',
             'method' : 'POST',
-            'dataRequest': 'json',
+            'dataType': 'json',
             'data': {'type' : request},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
@@ -324,12 +334,27 @@ function insuranceRequestForm(){
             inception_date: {
                 required: true
             },
+            customer_type: {
+                required: true
+            },
+            insurance_request_id: {
+                required: true
+            },
             customer_id: {
-                required: true
+                required: function () {
+                    return $('#customer_type').val() === 'Customer';
+                }
             },
-            insurance_type_id: {
-                required: true
+            misc_id: {
+                required: function () {
+                    return $('#customer_type').val() === 'Miscellaneous';
+                }
             },
+            sales_proposal_id: {
+                required: function () {
+                    return $('#customer_type').val() === 'Sales Proposal';
+                }
+            }
         },
         messages: {
             request_type: {
@@ -338,11 +363,20 @@ function insuranceRequestForm(){
             inception_date: {
                 required: 'Please choose the inception date'
             },
+            customer_type: {
+                required: 'Please choose the customer type'
+            },
             customer_id: {
                 required: 'Please choose the customer'
             },
-            insurance_type_id: {
+            misc_id: {
+                required: 'Please choose the customer'
+            },
+            insurance_request_id: {
                 required: 'Please choose the insurance type'
+            },
+            sales_proposal_id: {
+                required: 'Please choose the sales proposal'
             },
         },
         errorPlacement: function (error, element) {
@@ -375,14 +409,14 @@ function insuranceRequestForm(){
             }
         },
         submitHandler: function(form) {
-            const insurance_type_id = $('#insurance-request-id').text();
+            const insurance_request_id = $('#insurance-request-id').text();
             const transaction = 'save insurance request';
-        
+
             $.ajax({
-                request: 'POST',
+                type: 'POST',
                 url: 'controller/insurance-request-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&insurance_type_id=' + insurance_type_id,
-                dataRequest: 'json',
+                data: $(form).serialize() + '&transaction=' + transaction + '&insurance_request_id=' + insurance_request_id,
+                dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
@@ -424,14 +458,14 @@ function insuranceRequestForm(){
 function displayDetails(transaction){
     switch (transaction) {
         case 'get insurance request details':
-            const insurance_type_id = $('#insurance-request-id').text();
+            const insurance_request_id = $('#insurance-request-id').text();
             
             $.ajax({
                 url: 'controller/insurance-request-controller.php',
                 method: 'POST',
-                dataRequest: 'json',
+                dataType: 'json',
                 data: {
-                    insurance_type_id : insurance_type_id, 
+                    insurance_request_id : insurance_request_id, 
                     transaction : transaction
                 },
                 beforeSend: function() {
@@ -439,10 +473,25 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#insurance_type_id').val(insurance_type_id);
-                        $('#insurance_type_name').val(response.insuranceRequestName);
+                        $('#insurance_request_id').val(insurance_request_id);
+                        $('#inception_date').val(response.inceptionDate);
 
-                        $('#insurance_type_name_label').text(response.insuranceRequestName);
+                        checkOptionExist('#customer_type', response.customerType, '');
+
+                        if(response.customerType == 'Customer'){
+                            checkOptionExist('#customer_id', response.customerId, '');
+                        }
+                        else if(response.customerType == 'Miscellaneous'){
+                            checkOptionExist('##misc_id', response.customerId, '');
+                        }
+                        else{
+                            checkOptionExist('#salesProposalId', response.salesProposalId, '');
+                        }
+
+                        checkOptionExist('#request_type', response.requestType, '');
+                        checkOptionExist('#insurance_provider_id', response.insuranceProvider, '');
+                        checkOptionExist('#insurance_type_id', response.insuranceTypeId, '');
+                        
                     } 
                     else {
                         if(response.isInactive){

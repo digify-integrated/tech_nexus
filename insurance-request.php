@@ -4,6 +4,9 @@
   require('model/insurance-request-model.php');
   require('model/customer-model.php');
   require('model/insurance-type-model.php');
+  require('model/insurance-provider-model.php');
+  require('model/miscellaneous-client-model.php');
+  require('model/sales-proposal-model.php');
   
   $databaseModel = new DatabaseModel();
   $systemModel = new SystemModel();
@@ -11,9 +14,12 @@
   $menuGroupModel = new MenuGroupModel($databaseModel);
   $menuItemModel = new MenuItemModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
+  $insuranceProviderModel = new InsuranceProviderModel($databaseModel);
   $insuranceRequestModel = new InsuranceRequestModel($databaseModel);
   $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
   $insuranceTypeModel = new InsuranceTypeModel($databaseModel);
+  $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
+  $salesProposalModel = new SalesProposalModel($databaseModel);
   $securityModel = new SecurityModel();
 
   $pageTitle = 'Insurance Request';

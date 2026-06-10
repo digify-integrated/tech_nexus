@@ -3213,6 +3213,10 @@ class SalesProposalController {
             else{
                 $productTypeCode = '';
             }
+
+            if($companyID == 8) {
+                $companyID = 1;
+            }
             
             $this->salesProposalModel->create_journal_entry($loanNumber, $companyID, $transactionTypeCode, $productType, $productTypeCode, $salesProposalID, $productID, date('Y-m-d'), $userID);
         }

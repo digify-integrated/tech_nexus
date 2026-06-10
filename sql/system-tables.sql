@@ -7078,23 +7078,26 @@ CREATE TABLE `insurance_type` (
 DROP TABLE IF EXISTS `insurance_request`;
 CREATE TABLE `insurance_request` (
   `insurance_request_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  `request_number` varchar(100) NOT NULL, // fillable
-  `status` ENUM('Draft', 'For Submission', 'Submitted', 'Received') DEFAULT 'Draft', // fillable
-  `request_type` ENUM('New Policy', 'Renewal') NOT NULL, // fillable
-  `insurance_policy_id` int(10), // fillable
-  `insurance_type_id` int(10), // fillable
-  `inception_date` DATE, // fillable
-  `for_submission_date` datetime, // fillable
-  `submitted_date` datetime, // fillable
-  `received_date` datetime, // fillable
-  `customer_id` int(10), // fillable
-  `sales_proposal_id` int(10), // fillable
-  `ctpl_coverage` DOUBLE DEFAULT 0, // fillable
-  `od_theft_coverage` DOUBLE DEFAULT 0, // fillable
-  `aon_coverage` DOUBLE DEFAULT 0, // fillable
-  `tpbi_coverage` DOUBLE DEFAULT 0, // fillable
-  `tppd_coverage` DOUBLE DEFAULT 0, // fillable
-  `par_coverage` DOUBLE DEFAULT 0, // fillable
+  `request_number` varchar(100) NOT NULL,
+  `status` ENUM('Draft', 'For Submission', 'Submitted', 'Received') DEFAULT 'Draft',
+  `request_type` ENUM('New Policy', 'Renewal') NOT NULL,
+  `customer_type` ENUM('Customer', 'Miscellaneous', 'Sales Proposal') NOT NULL,
+  `insurance_provider` int(10),
+  `insurance_policy_id` int(10),
+  `insurance_type_id` int(10),
+  `inception_date` DATE,
+  `for_submission_date` datetime,
+  `submitted_date` datetime,
+  `received_date` datetime,
+  `customer_id` int(10),
+  `sales_proposal_id` int(10),
+  `insurance_category` ENUM('Trucks', 'Equipment', 'Equipment with AON') NOT NULL,
+  `ctpl_coverage` DOUBLE DEFAULT 0,
+  `od_theft_coverage` DOUBLE DEFAULT 0,
+  `aon_coverage` DOUBLE DEFAULT 0,
+  `tpbi_coverage` DOUBLE DEFAULT 0,
+  `tppd_coverage` DOUBLE DEFAULT 0,
+  `par_coverage` DOUBLE DEFAULT 0,
   `ctpl_premium` DOUBLE DEFAULT 0,
   `od_theft_premium` DOUBLE DEFAULT 0,
   `aon_premium` DOUBLE DEFAULT 0,

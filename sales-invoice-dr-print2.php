@@ -97,7 +97,7 @@ if(isset($_GET['id'])){
         $tin = strtoupper($customerDetails['tin'] ?? '');
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
-        $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
+        $comakerName = strtoupper($comakerDetails['file_as'] ?? null) ;    
     
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
         $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];

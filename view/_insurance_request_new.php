@@ -19,13 +19,13 @@
       <div class="card-body">
         <form id="insurance-request-form" method="post" action="#">
           
-          <div class="row">            
+          <div class="row">
             <div class="col-md-6">
               <div class="form-group row mb-3">
                 <label class="col-lg-4 col-form-label">Request Type <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
                   <select class="form-select select2" id="request_type" name="request_type" required>
-                    <option value="">-- Select Type --</option>
+                    <option value="">--</option>
                     <option value="New Policy">New Policy</option>
                     <option value="Renewal">Renewal</option>
                   </select>
@@ -45,37 +45,19 @@
                 </div>
               </div>
             </div>
-          </div>
 
-          <hr class="my-4">
-          <h5 class="mb-3 text-muted">Related References</h5>
-          
-          <div class="row">
             <div class="col-md-6">
               <div class="form-group row mb-3">
-                <label class="col-lg-4 col-form-label">Customer <span class="text-danger">*</span></label>
+                <label class="col-lg-4 col-form-label">Insurance Provider <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
-                  <select class="form-control select2" name="customer_id" id="customer_id">
+                  <select class="form-control select2" name="insurance_provider_id" id="insurance_provider_id">
                     <option value="">--</option>
-                    <?php echo $customerModel->generateCustomerOptions('active customer'); ?>
+                    <?php echo $insuranceProviderModel->generateInsuranceProviderOptions(); ?>
                   </select>
                 </div>
               </div>
             </div>
 
-            <div class="col-md-6">
-              <div class="form-group row mb-3">
-                <label class="col-lg-4 col-form-label">Sales Proposal</label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="sales_proposal_id" id="insurance_type_id">
-                    <option value="">--</option>                    
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
             <div class="col-md-6">
               <div class="form-group row mb-3">
                 <label class="col-lg-4 col-form-label">Insurance Type <span class="text-danger">*</span></label>
@@ -87,13 +69,57 @@
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="col-md-6 d-none">
+          <hr class="my-4">
+          <h5 class="mb-3 text-muted">Related References</h5>
+          
+          <div class="row">
+            <div class="col-md-6">
               <div class="form-group row mb-3">
-                <label class="col-lg-4 col-form-label">Insurance Policy</label>
+                <label class="col-lg-4 col-form-label">Customer Type <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
-                  <select class="form-control select2" name="insurance_policy_id" id="insurance_policy_id">
+                  <select class="form-control select2" name="customer_type" id="customer_type">
                     <option value="">--</option>
+                    <option value="Customer">Customer</option>
+                    <option value="Miscellaneous">Miscellaneous</option>
+                    <option value="Sales Proposal">Sales Proposal</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 misc-field d-none">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Customer <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="misc_id" id="misc_id">
+                    <option value="">--</option>
+                    <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 customer-field d-none">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Customer <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="customer_id" id="customer_id">
+                    <option value="">--</option>
+                    <?php echo $customerModel->generateCustomerOptions('active customer'); ?>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 sales-proposal-field d-none">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Sales Proposal</label>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="sales_proposal_id" id="sales_proposal_id">
+                    <option value="">--</option>        
+                    <?php echo $salesProposalModel->generateReleasedSalesProposalOptions(); ?>            
                   </select>
                 </div>
               </div>

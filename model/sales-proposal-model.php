@@ -2340,6 +2340,27 @@ class SalesProposalModel {
 
         return $htmlOptions;
     }
+    
+    public function generateReleasedSalesProposalOptions() {
+        $stmt = $this->db->getConnection()->prepare('SELECT sales_proposal_id, sales_proposal_number, file_as
+            FROM sales_proposal
+            LEFT OUTER JOIN personal_information ON personal_information.contact_id = sales_proposal.customer_id
+            WHERE sales_proposal_status = "Released"
+            ORDER BY sales_proposal_number ASC;');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $salesProposalID = $row['sales_proposal_id'];
+            $salesProposalNumber = $row['sales_proposal_number'];
+            $fileAs = strtoupper($row['file_as']);
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($salesProposalID, ENT_QUOTES) . '">' . htmlspecialchars($salesProposalNumber, ENT_QUOTES) . ' - '. htmlspecialchars($fileAs, ENT_QUOTES)  .'</option>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 
      # -------------------------------------------------------------
