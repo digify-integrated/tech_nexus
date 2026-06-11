@@ -2345,7 +2345,7 @@ class SalesProposalModel {
         $stmt = $this->db->getConnection()->prepare('SELECT sales_proposal_id, sales_proposal_number, file_as
             FROM sales_proposal
             LEFT OUTER JOIN personal_information ON personal_information.contact_id = sales_proposal.customer_id
-            WHERE sales_proposal_status = "Released"
+            WHERE sales_proposal_status = "Released" AND product_type = "Unit"
             ORDER BY sales_proposal_number ASC;');
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);

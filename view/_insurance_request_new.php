@@ -125,6 +125,68 @@
               </div>
             </div>
           </div>
+          <hr class="my-4 vehicle-field d-none">
+          <h5 class="mb-3 text-muted vehicle-field d-none">Vehicle Information</h5>
+
+           <div class="row vehicle-field d-none">
+            <div class="col-md-6 ">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Year Model <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="year_model" name="year_model" maxlength="100" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Color</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="color" name="color" maxlength="100" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Make <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="make" name="make" maxlength="100" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Plate Number <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="plate_number" name="plate_number" maxlength="100" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Chassis Number</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="chassis_number" name="chassis_number" maxlength="100" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Engine Number</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="engine_number" name="engine_number" maxlength="100" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">MV File Number</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="mv_file_number" name="mv_file_number" maxlength="100" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            
+          </div>
         </form>
       </div>
     </div>

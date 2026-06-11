@@ -50,9 +50,18 @@
       header('location: 404.php');
       exit;
     }
+
+    $insuranceRequestDetails = $insuranceRequestModel->getInsuranceRequest($insuranceRequestID);
+    $status = $insuranceRequestDetails['status'] ?? 'Draft';
+    
+    $disabled = '';
+    if($insuranceRequestWriteAccess['total'] > 0 && $status != 'Draft'){
+      $disabled = 'disabled';
+    }
   }
   else{
     $insuranceRequestID = null;
+    $disabled = null;
   }
 
   $newRecord = isset($_GET['new']);

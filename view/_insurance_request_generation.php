@@ -10,7 +10,7 @@ require_once '../model/insurance-request-model.php';
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
-$insuranceRequestModel = new InquiryTypeModel($databaseModel);
+$insuranceRequestModel = new InsuranceRequestModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -18,7 +18,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = [];
     
     switch ($type) {
-        case 'inquiry type table':
+        case 'insurance request table':
             $sql = $databaseModel->getConnection()->prepare('SELECT * FROM inquiry_type');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);

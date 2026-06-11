@@ -40,7 +40,7 @@
                     <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                   </div>
                 </th>
-                <th>Insurance Request</th>
+                <th>Customer</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>

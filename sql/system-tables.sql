@@ -7118,6 +7118,13 @@ CREATE TABLE `insurance_request` (
   `commission_discount` DOUBLE DEFAULT 0,
   `net_commission` DOUBLE DEFAULT 0,
   `net_premium` DOUBLE DEFAULT 0,
+  `year_model` varchar(100),
+  `color` varchar(100),
+  `make` varchar(100),
+  `plate_number` varchar(100),
+  `chassis_number` varchar(100),
+  `engine_number` varchar(100),
+  `mv_file_number` varchar(100),
   `last_log_by` int(10) UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()

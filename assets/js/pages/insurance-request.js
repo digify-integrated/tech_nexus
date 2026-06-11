@@ -255,20 +255,262 @@
         $(document).on('change', '#customer_type', function () {
             let customerType = $(this).val();
 
-            $('.customer-field, .misc-field, .sales-proposal-field').addClass('d-none');
+            resetField();
+            $('.customer-field, .misc-field, .sales-proposal-field, .vehicle-field').addClass('d-none');
 
             if (customerType === 'Customer') {
                 $('.customer-field').removeClass('d-none');
+                $('.vehicle-field').removeClass('d-none');
             }
             else if (customerType === 'Miscellaneous') {
                 $('.misc-field').removeClass('d-none');
+                $('.vehicle-field').removeClass('d-none');
             }
             else if (customerType === 'Sales Proposal') {
                 $('.sales-proposal-field').removeClass('d-none');
+                $('.vehicle-field').addClass('d-none');
             }
+        });
+
+        $(document).on('click','#for-submission',function() {
+            const insurance_request_id = $('#insurance-request-id').text();
+            const transaction = 'tag request for submission';
+    
+            Swal.fire({
+                title: 'Confirm Insurance Request For Submission',
+                text: 'Are you sure you want to tag this insurance request for submission?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'For Submission',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/insurance-request-controller.php',
+                        dataType: 'json',
+                        data: {
+                            insurance_request_id : insurance_request_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Insurance Request For Submission Success', 'The insurance request has been tagged for submission successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else {
+                                    showNotification('Insurance Request For Submission Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#submitted',function() {
+            const insurance_request_id = $('#insurance-request-id').text();
+            const transaction = 'tag request submitted';
+    
+            Swal.fire({
+                title: 'Confirm Insurance Request Submitted',
+                text: 'Are you sure you want to tag this insurance request as submitted?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Submitted',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/insurance-request-controller.php',
+                        dataType: 'json',
+                        data: {
+                            insurance_request_id : insurance_request_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Insurance Request Submitted Success', 'The insurance request has been tagged as submitted successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else {
+                                    showNotification('Insurance Request Submitted Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#received',function() {
+            const insurance_request_id = $('#insurance-request-id').text();
+            const transaction = 'tag request received';
+    
+            Swal.fire({
+                title: 'Confirm Insurance Request Received',
+                text: 'Are you sure you want to tag this insurance request as received?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Received',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/insurance-request-controller.php',
+                        dataType: 'json',
+                        data: {
+                            insurance_request_id : insurance_request_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Insurance Request Received Success', 'The insurance request has been tagged as received successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else {
+                                    showNotification('Insurance Request Received Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#draft',function() {
+            const insurance_request_id = $('#insurance-request-id').text();
+            const transaction = 'tag request draft';
+    
+            Swal.fire({
+                title: 'Confirm Insurance Request Draft',
+                text: 'Are you sure you want to tag this insurance request draft?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Draft',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/insurance-request-controller.php',
+                        dataType: 'json',
+                        data: {
+                            insurance_request_id : insurance_request_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Insurance Request Draft Success', 'The insurance request has been tagged as draft successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else {
+                                    showNotification('Insurance Request Draft Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('change', '#insurance_category', function () {
+            calculateInsurance();
+        });
+        
+        $(document).on('change', '#od_theft_coverage', function () {
+            calculateInsurance();
+        });
+
+        $(document).on('change', '#aon_coverage', function () {
+            calculateInsurance();
+        });
+
+        $(document).on('change', '#tpbi_coverage', function () {
+            calculateInsurance();
+        });
+
+        $(document).on('change', '#tppd_coverage', function () {
+            calculateInsurance();
         });
     });
 })(jQuery);
+
+function resetField(){
+    $('#year_model').val('');
+    $('#color').val('');
+    $('#make').val('');
+    $('#plate_number').val('');
+    $('#chassis_number').val('');
+    $('#engine_number').val('');
+    $('#mv_file_number').val('');
+}
 
 function insuranceRequestTable(datatable_name, buttons = false, show_all = false){
     const request = 'insurance request table';
@@ -354,7 +596,22 @@ function insuranceRequestForm(){
                 required: function () {
                     return $('#customer_type').val() === 'Sales Proposal';
                 }
-            }
+            },
+            year_model: {
+                required: function () {
+                    return $('#customer_type').val() != 'Sales Proposal';
+                }
+            },
+            make: {
+                required: function () {
+                    return $('#customer_type').val() != 'Sales Proposal';
+                }
+            },
+            plate_number: {
+                required: function () {
+                    return $('#customer_type').val() != 'Sales Proposal';
+                }
+            },
         },
         messages: {
             request_type: {
@@ -377,6 +634,15 @@ function insuranceRequestForm(){
             },
             sales_proposal_id: {
                 required: 'Please choose the sales proposal'
+            },
+            year_model: {
+                required: 'Please enter the year model'
+            },
+            make: {
+                required: 'Please enter the make'
+            },
+            plate_number: {
+                required: 'Please enter the plate number'
             },
         },
         errorPlacement: function (error, element) {
@@ -475,6 +741,16 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#insurance_request_id').val(insurance_request_id);
                         $('#inception_date').val(response.inceptionDate);
+                        $('#od_theft_coverage').val(response.odTheftCoverage);
+                        $('#aon_coverage').val(response.aonCoverage);
+
+                        $('#year_model').val(response.yearModel);
+                        $('#color').val(response.color);
+                        $('#make').val(response.make);
+                        $('#plate_number').val(response.plateNumber);
+                        $('#chassis_number').val(response.chassisNumber);
+                        $('#engine_number').val(response.engineNumber);
+                        $('#mv_file_number').val(response.mvFileNumber);
 
                         checkOptionExist('#customer_type', response.customerType, '');
 
@@ -482,7 +758,7 @@ function displayDetails(transaction){
                             checkOptionExist('#customer_id', response.customerId, '');
                         }
                         else if(response.customerType == 'Miscellaneous'){
-                            checkOptionExist('##misc_id', response.customerId, '');
+                            checkOptionExist('#misc_id', response.customerId, '');
                         }
                         else{
                             checkOptionExist('#salesProposalId', response.salesProposalId, '');
@@ -491,6 +767,9 @@ function displayDetails(transaction){
                         checkOptionExist('#request_type', response.requestType, '');
                         checkOptionExist('#insurance_provider_id', response.insuranceProvider, '');
                         checkOptionExist('#insurance_type_id', response.insuranceTypeId, '');
+                        checkOptionExist('#insurance_category', response.insuranceCategory, '');
+                        checkOptionExist('#tpbi_coverage', response.tpbiCoverage, '');
+                        checkOptionExist('#tppd_coverage', response.tppdCoverage, '');
                         
                     } 
                     else {
@@ -512,4 +791,140 @@ function displayDetails(transaction){
             });
             break;
     }
+}
+
+// 1. Centralized Business Logic Configuration (Easy to update later)
+const RATES_CONFIG = {
+    categories: {
+        'Trucks':               { rate1: 0.024,  rate2: 0.26 },
+        'Equipment':            { rate1: 0.015,  rate2: 0.20 },
+        'Equipment with AON':   { rate1: 0.0185, rate2: 0.20 }
+    },
+    defaultCategory:            { rate1: 0.01,   rate2: 0 },
+    aonRate: 0.005,
+    coverageTables: {
+        100000: { bi: 465,  pd: 1290 },
+        200000: { bi: 660,  pd: 1395 },
+        300000: { bi: 855,  pd: 1515 },
+        400000: { bi: 975,  pd: 1590 },
+        500000: { bi: 1095, pd: 1680 }
+    }
+};
+
+function calculateInsurance() {
+    // 2. Fetch Input Values safely (with fallbacks to prevent NaN errors)
+    const category = $('#insurance_category').val();
+    const odTheftCoverage = parseFloat($('#od_theft_coverage').val()) || 0;
+    const aonCoverage = parseFloat($('#aon_coverage').val()) || 0;
+    const tpbiCoverage = $('#tpbi_coverage').val();
+
+    // 3. Resolve rates using config lookup map
+    const catData = RATES_CONFIG.categories[category] || RATES_CONFIG.defaultCategory;
+    const tableData = RATES_CONFIG.coverageTables[tpbiCoverage] || { bi: 0, pd: 0 };
+
+    // 4. Perform Premium Calculations
+    const odTheftPremium = odTheftCoverage * catData.rate1;
+    const aonPremium = aonCoverage * RATES_CONFIG.aonRate;
+    const tpbiPremium = tableData.bi;
+    const tppdPremium = tableData.pd;
+
+    const totalPremium = odTheftPremium + aonPremium + tpbiPremium + tppdPremium;
+    
+    // Tax Breakdowns
+    const vatPremiumTax = totalPremium * 0.12;
+    const docstamp = totalPremium * 0.125;
+    const localTax = totalPremium * 0.005;
+    const gross = totalPremium + vatPremiumTax + docstamp + localTax;
+
+    // 5. Commission Calculations
+    const premiumCommission = odTheftPremium * catData.rate2;
+    const aonCommission = aonPremium * 0.05;
+    const tpbiCommission = tpbiPremium * 0.15;
+    const tppdCommission = tppdPremium * 0.15;
+    const parCommission = 0;
+    
+    const commissionSubtotal = premiumCommission + aonCommission + tpbiCommission + tppdCommission + parCommission;
+    const commissionDiscount = 0; // Keeping as placeholder if needed later
+    const netCommission = commissionSubtotal - commissionDiscount;
+
+    // Net Premium Calculation
+    const netPremium = gross - netCommission;
+
+    // 6. Helper function to format currency consistently
+    const toPHP = num => '₱' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // 7. Update Inputs fields (using .val)
+    $('#od_theft_premium').val(odTheftPremium.toFixed(2));
+    $('#aon_premium').val(aonPremium.toFixed(2));
+    $('#tpbi_premium').val(tpbiPremium.toFixed(2));
+    $('#tppd_premium').val(tppdPremium.toFixed(2));
+
+    // 8. Update text layouts and fixed bug on KPI displays (using .text)
+    $('#gross_display, #gross').text(toPHP(gross));
+    $('#net_premium_display, #net_premium').text(toPHP(netPremium));
+    $('#net_commission_display, #net_commission').text(toPHP(netCommission));
+
+    $('#total_premium').text(toPHP(totalPremium));
+    $('#vat_premium_tax').text(toPHP(vatPremiumTax));
+    $('#docstamp').text(toPHP(docstamp));
+    $('#local_tax').text(toPHP(localTax));
+
+    $('#premium_comission').text(toPHP(premiumCommission));
+    $('#aon_comission').text(toPHP(aonCommission));
+    $('#tpbi_comission').text(toPHP(tpbiCommission));
+    $('#tppd_comission').text(toPHP(tppdCommission));
+    $('#par_comission').text(toPHP(parCommission));
+    $('#comission_subtotal').text(toPHP(commissionSubtotal));
+    $('#commission_discount').text(toPHP(commissionDiscount));
+
+    const computationData = {
+        insurance_request_id : $('#insurance-request-id').text(),
+        transaction : 'save insurance request computation',
+        insurance_category: category,
+        od_theft_coverage: odTheftCoverage,
+        aon_coverage: aonCoverage,
+        tpbi_coverage: tpbiCoverage,
+        tppd_coverage: $('#tppd_coverage').val(), // Added these if you need them sent
+        ctpl_coverage: $('#ctpl_coverage').val() || 0,
+        par_coverage: $('#par_coverage').val() || 0,
+        
+        od_theft_premium: odTheftPremium,
+        aon_premium: aonPremium,
+        tpbi_premium: tpbiPremium,
+        tppd_premium: tppdPremium,
+        ctpl_premium: 0, // placeholder based on your HTML
+        par_premium: 0,
+        
+        total_premium: totalPremium,
+        vat_premium_tax: vatPremiumTax,
+        docstamp: docstamp,
+        local_tax: localTax,
+        gross: gross,
+        net_premium: netPremium,
+        
+        premium_comission: premiumCommission,
+        aon_comission: aonCommission,
+        tpbi_comission: tpbiCommission,
+        tppd_comission: tppdCommission,
+        par_comission: parCommission,
+        comission_subtotal: commissionSubtotal,
+        commission_discount: commissionDiscount,
+        net_commission: netCommission
+    };
+
+    saveComputation(computationData);
+}
+
+function saveComputation(payload) {
+    $.ajax({
+        type: 'POST',
+        url: 'controller/insurance-request-controller.php',
+        data: payload,
+        success: function(response) {
+            console.log('Saved successfully:', response);
+        },
+        error: function(xhr, status, error) {
+            console.error('Save failed:', error);
+        }
+    });
 }

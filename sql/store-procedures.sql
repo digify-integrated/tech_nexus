@@ -11056,7 +11056,7 @@ BEGIN
     DECLARE conditionList VARCHAR(1000);
 
     SET query = 'SELECT * FROM loan_collections';
-    SET conditionList = ' WHERE mode_of_payment != "Check" AND payment_advice = "No"';
+    SET conditionList = ' WHERE mode_of_payment != "Check" AND payment_advice = "No" AND collection_status != "Reversed"';
     
     IF p_or_date IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND (or_date = ');
@@ -13522,6 +13522,9 @@ BEGIN
             WHEN 14 THEN
                 SET v_analytic_lines = 'NE HAULING';
                 SET v_analytic_distribution = '{"7": 100.0}';
+            WHEN 15 THEN
+                SET v_analytic_lines = 'OMODAJAECOO';
+                SET v_analytic_distribution = '{"21": 100.0}';
             ELSE
                 SET v_analytic_lines = 'DEFAULT';
                 SET v_analytic_distribution = '{"0": 0.0}';
@@ -19866,6 +19869,9 @@ BEGIN
         WHEN 14 THEN
             SET v_analytic_lines = 'NE HAULING';
             SET v_analytic_distribution = '{"7": 100.0}';
+         WHEN 15 THEN
+            SET v_analytic_lines = 'OMODAJAECOO';
+            SET v_analytic_distribution = '{"21": 100.0}';
         ELSE
             SET v_analytic_lines = 'DEFAULT';
             SET v_analytic_distribution = '{"0": 0.0}';
@@ -19973,6 +19979,9 @@ BEGIN
         WHEN 12 THEN SET v_analytic_lines = 'Sta Rosa'; SET v_analytic_distribution = '{"18": 100.0}';
         WHEN 13 THEN SET v_analytic_lines = 'KPC VENTURE INC'; SET v_analytic_distribution = '{"16": 100.0}';
         WHEN 14 THEN SET v_analytic_lines = 'NE HAULING'; SET v_analytic_distribution = '{"7": 100.0}';
+            WHEN 15 THEN
+                SET v_analytic_lines = 'OMODAJAECOO';
+                SET v_analytic_distribution = '{"21": 100.0}';
         ELSE SET v_analytic_lines = 'DEFAULT'; SET v_analytic_distribution = '{"0": 0.0}';
     END CASE;
 
@@ -20112,6 +20121,9 @@ BEGIN
         WHEN 14 THEN
             SET v_analytic_lines = 'NE HAULING';
             SET v_analytic_distribution = '{"7": 100.0}';
+            WHEN 15 THEN
+                SET v_analytic_lines = 'OMODAJAECOO';
+                SET v_analytic_distribution = '{"21": 100.0}';
         ELSE
             SET v_analytic_lines = 'DEFAULT';
             SET v_analytic_distribution = '{"0": 0.0}';
@@ -20465,6 +20477,9 @@ BEGIN
         WHEN 14 THEN
             SET v_analytic_lines = 'NE HAULING';
             SET v_analytic_distribution = '{"7": 100.0}';
+            WHEN 15 THEN
+                SET v_analytic_lines = 'OMODAJAECOO';
+                SET v_analytic_distribution = '{"21": 100.0}';
         ELSE
             SET v_analytic_lines = 'DEFAULT';
             SET v_analytic_distribution = '{"0": 0.0}';
@@ -20950,6 +20965,9 @@ BEGIN
         WHEN 14 THEN
             SET v_analytic_lines = 'NE HAULING';
             SET v_analytic_distribution = '{"7": 100.0}';
+            WHEN 15 THEN
+                SET v_analytic_lines = 'OMODAJAECOO';
+                SET v_analytic_distribution = '{"21": 100.0}';
         ELSE
             SET v_analytic_lines = 'DEFAULT';
             SET v_analytic_distribution = '{"0": 0.0}';
@@ -21191,6 +21209,9 @@ BEGIN
         WHEN 14 THEN
             SET v_analytic_lines = 'NE HAULING';
             SET v_analytic_distribution = '{"7": 100.0}';
+            WHEN 15 THEN
+                SET v_analytic_lines = 'OMODAJAECOO';
+                SET v_analytic_distribution = '{"21": 100.0}';
         ELSE
             SET v_analytic_lines = 'DEFAULT';
             SET v_analytic_distribution = '{"0": 0.0}';
@@ -21760,6 +21781,9 @@ BEGIN
         WHEN 12 THEN SET v_analytic_lines = 'Sta Rosa'; SET v_analytic_distribution = '{"18":100.0}';
         WHEN 13 THEN SET v_analytic_lines = 'KPC VENTURE INC'; SET v_analytic_distribution = '{"16":100.0}';
         WHEN 14 THEN SET v_analytic_lines = 'NE HAULING'; SET v_analytic_distribution = '{"7":100.0}';
+            WHEN 15 THEN
+                SET v_analytic_lines = 'OMODAJAECOO';
+                SET v_analytic_distribution = '{"21": 100.0}';
         ELSE SET v_analytic_lines = 'DEFAULT'; SET v_analytic_distribution = '{"0":0.0}';
     END CASE;
 
@@ -22051,6 +22075,9 @@ BEGIN
         WHEN 14 THEN
             SET v_analytic_lines = 'NE HAULING';
             SET v_analytic_distribution = '{"7": 100.0}';
+            WHEN 15 THEN
+                SET v_analytic_lines = 'OMODAJAECOO';
+                SET v_analytic_distribution = '{"21": 100.0}';
         ELSE
             SET v_analytic_lines = 'DEFAULT';
             SET v_analytic_distribution = '{"0": 0.0}';
@@ -22388,6 +22415,9 @@ BEGIN
         WHEN 14 THEN
             SET v_analytic_lines = 'NE HAULING';
             SET v_analytic_distribution = '{"7": 100.0}';
+            WHEN 15 THEN
+                SET v_analytic_lines = 'OMODAJAECOO';
+                SET v_analytic_distribution = '{"21": 100.0}';
         ELSE
             SET v_analytic_lines = 'DEFAULT';
             SET v_analytic_distribution = '{"0": 0.0}';
