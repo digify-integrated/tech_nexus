@@ -7079,7 +7079,7 @@ DROP TABLE IF EXISTS `insurance_request`;
 CREATE TABLE `insurance_request` (
   `insurance_request_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   `request_number` varchar(100) NOT NULL,
-  `status` ENUM('Draft', 'For Submission', 'Submitted', 'Received') DEFAULT 'Draft',
+  `status` ENUM('Draft', 'For Submission', 'Submitted', 'Received', 'Cancelled') DEFAULT 'Draft',
   `request_type` ENUM('New Policy', 'Renewal') NOT NULL,
   `customer_type` ENUM('Customer', 'Miscellaneous', 'Sales Proposal') NOT NULL,
   `insurance_provider` int(10),
@@ -7089,6 +7089,8 @@ CREATE TABLE `insurance_request` (
   `for_submission_date` datetime,
   `submitted_date` datetime,
   `received_date` datetime,
+	`cancellation_reason` VARCHAR(500),
+	`cancellation_date` DATETIME,
   `customer_id` int(10),
   `sales_proposal_id` int(10),
   `insurance_category` ENUM('Trucks', 'Equipment', 'Equipment with AON') NOT NULL,
@@ -7140,7 +7142,38 @@ CREATE TABLE `insurance_policy` (
   `expiry_date` DATE,
   `premium_amount` DOUBLE,
   `coverage_amount` DOUBLE,
-  `remarks` VARCHAR(500),
+  `remarks` VARCHAR(500),  
+	`cancellation_reason` VARCHAR(500),
+	`cancellation_date` DATETIME,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `insurance_claim_type`;
+CREATE TABLE `insurance_claim_type` (
+  `insurance_claim_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `insurance_claim_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `insurance_claim`;
+CREATE TABLE `insurance_claim` (
+  `insurance_claim_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `insurance_policy_id` int(10),
+  `insurance_claim_type_id` int(10),
+  `claim_number` varchar(100) NOT NULL,
+  `status` ENUM('Draft', 'Under Review', 'Approved', 'Cancelled') DEFAULT 'Draft',
+  `date_filed` DATE,
+  `incident_date` DATE,
+  `incident_location` VARCHAR(500),  
+  `incident_description` TEXT,  
+	`cancellation_reason` VARCHAR(500),
+	`under_review_date` DATETIME,
+	`approved_date` DATETIME,
+	`cancellation_date` DATETIME,
   `last_log_by` int(10) UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()

@@ -83,6 +83,7 @@ class InsuranceRequestController {
         $chassisNumber = htmlspecialchars($_POST['chassis_number'], ENT_QUOTES, 'UTF-8');
         $engineNumber = htmlspecialchars($_POST['engine_number'], ENT_QUOTES, 'UTF-8');
         $mvFileNumber = htmlspecialchars($_POST['mv_file_number'], ENT_QUOTES, 'UTF-8');
+        $insurance_policy_id = $_POST['insurance_policy_id'];
 
         if($customerType == 'Customer'){
             $salesProposalId = '';
@@ -123,7 +124,7 @@ class InsuranceRequestController {
             $this->insuranceRequestModel->updateInsuranceRequest(
                 $insuranceRequestID, $requestType, $inceptionDate, $insuranceProviderId, 
                 $insuranceTypeId, $customerType, $customerId, $salesProposalId, 
-                $yearModel, $color, $make, $plateNumber, $chassisNumber, $engineNumber, $mvFileNumber,
+                $yearModel, $color, $make, $plateNumber, $chassisNumber, $engineNumber, $mvFileNumber, $insurance_policy_id,
                 $userID
             );
             
@@ -135,7 +136,7 @@ class InsuranceRequestController {
             $insuranceRequestID = $this->insuranceRequestModel->insertInsuranceRequest(
                 $requestType, $inceptionDate, $insuranceProviderId, $insuranceTypeId, 
                 $customerType, $customerId, $salesProposalId, 
-                $yearModel, $color, $make, $plateNumber, $chassisNumber, $engineNumber, $mvFileNumber,
+                $yearModel, $color, $make, $plateNumber, $chassisNumber, $engineNumber, $mvFileNumber, $insurance_policy_id,
                 $userID
             );
 

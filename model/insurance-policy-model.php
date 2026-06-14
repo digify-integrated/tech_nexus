@@ -1,6 +1,6 @@
 <?php
 
-class InsuranceRequestModel {
+class InsurancePolicyModel {
     public $db;
 
     public function __construct(DatabaseModel $db) {
@@ -10,111 +10,21 @@ class InsuranceRequestModel {
     /* -----------------------------------------------
     | CHECK LEAD STATUS EXISTENCE
     |----------------------------------------------- */
-    public function checkInsuranceRequestExist($insuranceRequestID) {
+    public function checkInsurancePolicyExist($insurancePolicyID) {
         $stmt = $this->db->getConnection()->prepare('
             SELECT COUNT(*) AS total
-            FROM insurance_request
-            WHERE insurance_request_id = :insurance_request_id
+            FROM insurance_policy
+            WHERE insurance_policy_id = :insurance_policy_id
         ');
 
-        $stmt->bindValue(':insurance_request_id', $insuranceRequestID, PDO::PARAM_INT);
+        $stmt->bindValue(':insurance_policy_id', $insurancePolicyID, PDO::PARAM_INT);
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /* -----------------------------------------------
-    | INSERT LEAD STATUS
-    |----------------------------------------------- */
-    public function insertInsuranceRequest(
-        $requestType,
-        $inceptionDate,
-        $insuranceProviderId,
-        $insuranceTypeId,
-        $customerType,
-        $customerId,
-        $salesProposalId,
-        $yearModel,
-        $color,
-        $make,
-        $plateNumber,
-        $chassisNumber,
-        $engineNumber,
-        $mvFileNumber,
-        $insurance_policy_id,
-        $lastLogBy
-    ) {
-        // Generate a default request number block or temporary draft code if your system requires it
-        $requestNumber = 'REQ-' . time(); 
-
-        $stmt = $this->db->getConnection()->prepare('
-            INSERT INTO insurance_request (
-                request_number,
-                request_type,
-                inception_date,
-                insurance_provider,
-                insurance_type_id,
-                customer_type,
-                customer_id,
-                sales_proposal_id,
-                year_model,
-                color,
-                make,
-                plate_number,
-                chassis_number,
-                engine_number,
-                mv_file_number,
-                insurance_policy_id,
-                last_log_by
-            )
-            VALUES (
-                :request_number,
-                :request_type,
-                :inception_date,
-                :insurance_provider,
-                :insurance_type_id,
-                :customer_type,
-                :customer_id,
-                :sales_proposal_id,
-                :year_model,
-                :color,
-                :make,
-                :plate_number,
-                :chassis_number,
-                :engine_number,
-                :mv_file_number,
-                :insurance_policy_id,
-                :last_log_by
-            )
-        ');
-
-        $stmt->bindValue(':request_number', $requestNumber, PDO::PARAM_STR);
-        $stmt->bindValue(':request_type', $requestType, PDO::PARAM_STR);
-        $stmt->bindValue(':inception_date', $inceptionDate, PDO::PARAM_STR);
-        $stmt->bindValue(':insurance_provider', $insuranceProviderId, PDO::PARAM_INT);
-        $stmt->bindValue(':insurance_type_id', $insuranceTypeId, PDO::PARAM_INT);
-        $stmt->bindValue(':customer_type', $customerType, PDO::PARAM_STR);
-        $stmt->bindValue(':insurance_policy_id', $insurance_policy_id, PDO::PARAM_STR);
-        $stmt->bindValue(':customer_id', !empty($customerId) ? $customerId : null, PDO::PARAM_INT);
-        $stmt->bindValue(':sales_proposal_id', !empty($salesProposalId) ? $salesProposalId : null, PDO::PARAM_INT);
-        
-        // Vehicle parameters binding
-        $stmt->bindValue(':year_model', !empty($yearModel) ? $yearModel : null, PDO::PARAM_STR);
-        $stmt->bindValue(':color', !empty($color) ? $color : null, PDO::PARAM_STR);
-        $stmt->bindValue(':make', !empty($make) ? $make : null, PDO::PARAM_STR);
-        $stmt->bindValue(':plate_number', !empty($plateNumber) ? $plateNumber : null, PDO::PARAM_STR);
-        $stmt->bindValue(':chassis_number', !empty($chassisNumber) ? $chassisNumber : null, PDO::PARAM_STR);
-        $stmt->bindValue(':engine_number', !empty($engineNumber) ? $engineNumber : null, PDO::PARAM_STR);
-        $stmt->bindValue(':mv_file_number', !empty($mvFileNumber) ? $mvFileNumber : null, PDO::PARAM_STR);
-        
-        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
-
-        $stmt->execute();
-
-        return $this->db->getConnection()->lastInsertId();
-    }
     public function insertInsurancePolicy(
-        $insurance_request_id,
+        $insurance_policy_id,
         $policy_number,
         $premium_amount,
         $coverage_amount,
@@ -125,7 +35,7 @@ class InsuranceRequestModel {
     ) {
         $stmt = $this->db->getConnection()->prepare('
             INSERT INTO insurance_policy (
-                insurance_request_id,
+                insurance_policy_id,
                 policy_number,
                 inception_date,
                 expiry_date,
@@ -135,7 +45,7 @@ class InsuranceRequestModel {
                 last_log_by
             )
             VALUES (
-                :insurance_request_id,
+                :insurance_policy_id,
                 :policy_number,
                 :inception_date,
                 :expiry_date,
@@ -146,7 +56,7 @@ class InsuranceRequestModel {
             )
         ');
 
-        $stmt->bindValue(':insurance_request_id', $insurance_request_id);
+        $stmt->bindValue(':insurance_policy_id', $insurance_policy_id);
         $stmt->bindValue(':policy_number', $policy_number);
         $stmt->bindValue(':inception_date', $inception_date);
         $stmt->bindValue(':expiry_date', $expiry_date);
@@ -161,9 +71,9 @@ class InsuranceRequestModel {
     /* -----------------------------------------------
     | UPDATE LEAD STATUS
     |----------------------------------------------- */
-    public function updateInsuranceRequest(
-        $insuranceRequestID,
-        $requestType,
+    public function updateInsurancePolicy(
+        $insurancePolicyID,
+        $policyType,
         $inceptionDate,
         $insuranceProviderId,
         $insuranceTypeId,
@@ -177,13 +87,12 @@ class InsuranceRequestModel {
         $chassisNumber,
         $engineNumber,
         $mvFileNumber,
-        $insurance_policy_id,
         $lastLogBy
     ) {
         $stmt = $this->db->getConnection()->prepare('
-            UPDATE insurance_request
+            UPDATE insurance_policy
             SET
-                request_type = :request_type,
+                policy_type = :policy_type,
                 inception_date = :inception_date,
                 insurance_provider = :insurance_provider_id,
                 insurance_type_id = :insurance_type_id,
@@ -197,17 +106,15 @@ class InsuranceRequestModel {
                 chassis_number = :chassis_number,
                 engine_number = :engine_number,
                 mv_file_number = :mv_file_number,
-                insurance_policy_id = :insurance_policy_id,
                 last_log_by = :last_log_by
-            WHERE insurance_request_id = :insurance_request_id
+            WHERE insurance_policy_id = :insurance_policy_id
         ');
 
-        $stmt->bindValue(':insurance_request_id', $insuranceRequestID, PDO::PARAM_INT);
-        $stmt->bindValue(':request_type', $requestType, PDO::PARAM_STR);
+        $stmt->bindValue(':insurance_policy_id', $insurancePolicyID, PDO::PARAM_INT);
+        $stmt->bindValue(':policy_type', $policyType, PDO::PARAM_STR);
         $stmt->bindValue(':inception_date', $inceptionDate, PDO::PARAM_STR);
         $stmt->bindValue(':insurance_provider_id', $insuranceProviderId, PDO::PARAM_INT);
         $stmt->bindValue(':insurance_type_id', $insuranceTypeId, PDO::PARAM_INT);
-        $stmt->bindValue(':insurance_policy_id', $insurance_policy_id, PDO::PARAM_INT);
         $stmt->bindValue(':customer_type', $customerType, PDO::PARAM_STR);
         $stmt->bindValue(':customer_id', !empty($customerId) ? $customerId : null, PDO::PARAM_INT);
         $stmt->bindValue(':sales_proposal_id', !empty($salesProposalId) ? $salesProposalId : null, PDO::PARAM_INT);
@@ -226,9 +133,9 @@ class InsuranceRequestModel {
         $stmt->execute();
     }
 
-    public function updateInsuranceRequestComputation($insuranceRequestID, array $data) {
+    public function updateInsurancePolicyComputation($insurancePolicyID, array $data) {
         $stmt = $this->db->getConnection()->prepare('
-            UPDATE insurance_request
+            UPDATE insurance_policy
             SET
                 insurance_category  = :insurance_category,
                 ctpl_coverage       = :ctpl_coverage,
@@ -261,11 +168,11 @@ class InsuranceRequestModel {
                 commission_discount = :commission_discount,
                 net_commission      = :net_commission,
                 last_log_by         = :last_log_by
-            WHERE insurance_request_id = :insurance_request_id
+            WHERE insurance_policy_id = :insurance_policy_id
         ');
 
         // Bind the WHERE filter target
-        $stmt->bindValue(':insurance_request_id', (int)$insuranceRequestID, PDO::PARAM_INT);
+        $stmt->bindValue(':insurance_policy_id', (int)$insurancePolicyID, PDO::PARAM_INT);
 
         // Iteratively bind all data attributes parsed out by our controller block
         foreach ($data as $key => $value) {
@@ -282,34 +189,22 @@ class InsuranceRequestModel {
         return $stmt->execute();
     }
 
-    public function updateInsuranceRequestStatus($insuranceRequestID, $status, $userID) {
-        // 1. Map statuses to their respective database timestamp columns
-        $timestampFields = [
-            'Draft'          => null, // Uses default updated_at trigger
-            'For Submission' => 'for_submission_date',
-            'Submitted'      => 'submitted_date',
-            'Received'       => 'received_date'
-        ];
-
-        // 2. Build the dynamic SQL query
-        $timestampColumn = $timestampFields[$status] ?? null;
+    public function updateInsurancePolicyStatus($insurancePolicyID, $cancellationReason, $userID) {
         
-        $sql = 'UPDATE insurance_request 
-                SET status = :status, 
+        $sql = 'UPDATE insurance_policy 
+                SET status = "Cancelled", 
+                cancellation_date = NOW(),
+                cancellation_reason = :cancellation_reason,
                     last_log_by = :last_log_by';
         
-        // If the status has a specific timestamp column, update it to the current time
-        if ($timestampColumn) {
-            $sql .= ", {$timestampColumn} = NOW()";
-        }
-
-        $sql .= ' WHERE insurance_request_id = :insurance_request_id';
+        
+        $sql .= ' WHERE insurance_policy_id = :insurance_policy_id';
 
         // 3. Prepare and bind values safely
         $stmt = $this->db->getConnection()->prepare($sql);
         
-        $stmt->bindValue(':insurance_request_id', (int)$insuranceRequestID, PDO::PARAM_INT);
-        $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+        $stmt->bindValue(':insurance_policy_id', (int)$insurancePolicyID, PDO::PARAM_INT);
+        $stmt->bindValue(':cancellation_reason', $cancellationReason);
         $stmt->bindValue(':last_log_by', (int)$userID, PDO::PARAM_INT);
 
         return $stmt->execute();
@@ -318,27 +213,27 @@ class InsuranceRequestModel {
     /* -----------------------------------------------
     | DELETE LEAD STATUS
     |----------------------------------------------- */
-    public function deleteInsuranceRequest($insuranceRequestID) {
+    public function deleteInsurancePolicy($insurancePolicyID) {
         $stmt = $this->db->getConnection()->prepare('
-            DELETE FROM insurance_request
-            WHERE insurance_request_id = :insurance_request_id
+            DELETE FROM insurance_policy
+            WHERE insurance_policy_id = :insurance_policy_id
         ');
 
-        $stmt->bindValue(':insurance_request_id', $insuranceRequestID, PDO::PARAM_INT);
+        $stmt->bindValue(':insurance_policy_id', $insurancePolicyID, PDO::PARAM_INT);
         $stmt->execute();
     }
 
     /* -----------------------------------------------
     | GET SINGLE LEAD STATUS
     |----------------------------------------------- */
-    public function getInsuranceRequest($insuranceRequestID) {
+    public function getInsurancePolicy($insurancePolicyID) {
         $stmt = $this->db->getConnection()->prepare('
             SELECT *
-            FROM insurance_request
-            WHERE insurance_request_id = :insurance_request_id
+            FROM insurance_policy
+            WHERE insurance_policy_id = :insurance_policy_id
         ');
 
-        $stmt->bindValue(':insurance_request_id', $insuranceRequestID, PDO::PARAM_INT);
+        $stmt->bindValue(':insurance_policy_id', $insurancePolicyID, PDO::PARAM_INT);
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -347,13 +242,13 @@ class InsuranceRequestModel {
     /* -----------------------------------------------
     | GET ALL LEAD STATUSES (FOR DROPDOWN)
     |----------------------------------------------- */
-    public function getInsuranceRequestes() {
+    public function getInsurancePolicyes() {
         $stmt = $this->db->getConnection()->prepare('
             SELECT 
-                insurance_request_id,
-                insurance_request_name
-            FROM insurance_request
-            ORDER BY insurance_request_name ASC
+                *
+            FROM insurance_policy
+            WHERE status = "Active"
+            ORDER BY expiry_date DESC
         ');
 
         $stmt->execute();
@@ -363,15 +258,15 @@ class InsuranceRequestModel {
     /* -----------------------------------------------
     | GENERATE OPTIONS (SELECT DROPDOWN)
     |----------------------------------------------- */
-    public function generateInsuranceRequestOptions() {
-        $options = $this->getInsuranceRequestes();
+    public function generateInsurancePolicyOptions() {
+        $options = $this->getInsurancePolicyes();
 
         $html = '';
 
         foreach ($options as $row) {
             $html .= '
-                <option value="' . htmlspecialchars($row['insurance_request_id'], ENT_QUOTES) . '">
-                    ' . htmlspecialchars($row['insurance_request_name'], ENT_QUOTES) . '
+                <option value="' . htmlspecialchars($row['insurance_policy_id'], ENT_QUOTES) . '">
+                    ' . $row['policy_number'] . ' ('. date('M d, Y', strtotime($row['expiry_date'])) .')
                 </option>
             ';
         }
@@ -382,22 +277,23 @@ class InsuranceRequestModel {
     /* -----------------------------------------------
     | GENERATE CHECKBOX FILTER
     |----------------------------------------------- */
-    public function generateInsuranceRequestCheckBox() {
-        $options = $this->getInsuranceRequestes();
+    public function generateInsurancePolicyCheckBox() {
+        $options = $this->getInsurancePolicyes();
 
         $html = '';
 
         foreach ($options as $row) {
-            $id = htmlspecialchars($row['insurance_request_id'], ENT_QUOTES);
-            $name = htmlspecialchars($row['insurance_request_name'], ENT_QUOTES);
+            $id = htmlspecialchars($row['insurance_policy_id'], ENT_QUOTES);
+            $name = htmlspecialchars($row['policy_number'], ENT_QUOTES);
+            $expiry = $row['expiry_date'];
 
             $html .= '
                 <div class="form-check my-2">
-                    <input class="form-check-input insurance-request-filter" 
-                        request="checkbox" 
-                        id="insurance-request-' . $id . '" 
+                    <input class="form-check-input insurance-policy-filter" 
+                        policy="checkbox" 
+                        id="insurance-policy-' . $id . '" 
                         value="' . $id . '" />
-                    <label class="form-check-label" for="insurance-request-' . $id . '">
+                    <label class="form-check-label" for="insurance-policy-' . $id . '">
                         ' . $name . '
                     </label>
                 </div>

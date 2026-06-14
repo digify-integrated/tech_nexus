@@ -6,6 +6,7 @@ require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require_once '../model/insurance-request-model.php';
+require_once '../model/insurance-policy-model.php';
 require_once '../model/insurance-provider-model.php';
 require_once '../model/insurance-type-model.php';
 require_once '../model/sales-proposal-model.php';
@@ -16,6 +17,7 @@ $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
 $insurancePolicyModel = new InsurancePolicyModel($databaseModel);
+$insuranceRequestModel = new InsuranceRequestModel($databaseModel);
 $insuranceProviderModel = new InsuranceProviderModel($databaseModel);
 $insuranceTypeModel = new InsuranceTypeModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
@@ -28,24 +30,44 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = [];
     
     switch ($type) {
-        case 'insurance request table':
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM insurance_request');
+        case 'insurance policy table':
+            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM insurance_policy');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $insurancePolicyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 199, 'delete');
+            $insurancePolicyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 200, 'delete');
+              $currentDate = date('Y-m-d');
 
             foreach ($options as $row) {
-                $insurancePolicyID = $row['insurance_request_id'];
+                $insurancePolicyID = $row['insurance_policy_id'];
+                $insurance_request_id = $row['insurance_request_id'];
+                $policy_number = $row['policy_number'];
                 $status = $row['status'];
-                $request_type = $row['request_type'];
-                $customer_type = $row['customer_type'];
-                $insurance_provider = $row['insurance_provider'];
-                $insurance_type_id = $row['insurance_type_id'];
-                $customer_id = $row['customer_id'];
-                $sales_proposal_id = $row['sales_proposal_id'];
+                $premium_amount = $row['premium_amount'] ?? 0;
+                $coverage_amount = $row['coverage_amount'] ?? 0;
                 $inception_date = $systemModel->checkDate('summary', $row['inception_date'], '', 'm/d/Y', '');
+                $expiry_date = $systemModel->checkDate('summary', $row['expiry_date'], '', 'm/d/Y', '');
+
+                if ($status === 'Cancelled') {
+                    $displayStatus = 'Cancelled';
+                    $statusBadge = 'danger';
+                }
+                elseif (!empty($expiry_date) && strtotime($expiry_date) < strtotime($currentDate)) {
+                    $displayStatus = 'Expired';
+                    $statusBadge = 'secondary';
+                }
+                else {
+                    $displayStatus = 'Active';
+                    $statusBadge = 'success';
+                }
+
+                $insuranceRequestDetails = $insuranceRequestModel->getInsuranceRequest($insurance_request_id);
+                $customer_type = $insuranceRequestDetails['customer_type'];
+                $customer_id = $insuranceRequestDetails['customer_id'];
+                $sales_proposal_id = $insuranceRequestDetails['sales_proposal_id'];
+                $insurance_type_id = $insuranceRequestDetails['insurance_type_id'];
+                $insurance_provider = $insuranceRequestDetails['insurance_provider'];
 
                 if($customer_type == 'Customer'){
                     $customerDetails = $customerModel->getPersonalInformation($customer_id);
@@ -55,7 +77,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
                     $customerName = $miscellaneousClientDetails['client_name'] ?? null;
                 }
-                else{
+                else{   
                     $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id); 
                     $customer_id = $salesProposalDetails['customer_id'];
                     
@@ -73,21 +95,25 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $delete = '';
                 if($insurancePolicyDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-insurance-request" data-insurance-request-id="'. $insurancePolicyID .'" title="Delete Insurance Policy">
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-insurance-policy" data-insurance-policy-id="'. $insurancePolicyID .'" title="Delete Insurance Policy">
                                     <i class="ti ti-trash"></i>
                                 </button>';
                 }
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $insurancePolicyID .'">',
+                    'POLICY_NUMBER' => $policy_number,
                     'CUSTOMER_NAME' => $customerName,
-                    'PROVIDER_NAME' => $provider_name,
-                    'REQUEST_TYPE' => $request_type,
                     'INSURANCE_TYPE' => $insrance_type_name,
+                    'PROVIDER_NAME' => $provider_name,
+                    'PREMIUM_AMOUNT' => number_format($premium_amount),
                     'INCEPTION_DATE' => $inception_date,
-                    'STATUS' => $status,
+                    'EXPIRY_DATE' => $expiry_date,
+                    'STATUS' => '<span class="badge bg-'. $statusBadge .'">
+                                   '. $displayStatus .'
+                                </span>',
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="insurance-request.php?id='. $insurancePolicyIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="insurance-policy.php?id='. $insurancePolicyIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'

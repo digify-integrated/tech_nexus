@@ -258,8 +258,6 @@
 
         $(document).on('change', '#customer_type', function () {
             let customerType = $(this).val();
-
-            resetField();
             $('.customer-field, .misc-field, .sales-proposal-field, .vehicle-field').addClass('d-none');
 
             if (customerType === 'Customer') {
@@ -273,6 +271,16 @@
             else if (customerType === 'Sales Proposal') {
                 $('.sales-proposal-field').removeClass('d-none');
                 $('.vehicle-field').addClass('d-none');
+            }
+        });
+
+        $(document).on('change', '#request_type', function () {
+            let requestType = $(this).val();
+
+            $('.renewal-field').addClass('d-none');
+
+            if (requestType === 'Renewal') {
+                $('.renewal-field').removeClass('d-none');
             }
         });
 
@@ -453,16 +461,6 @@
         });
     });
 })(jQuery);
-
-function resetField(){
-    $('#year_model').val('');
-    $('#color').val('');
-    $('#make').val('');
-    $('#plate_number').val('');
-    $('#chassis_number').val('');
-    $('#engine_number').val('');
-    $('#mv_file_number').val('');
-}
 
 function insuranceRequestTable(datatable_name, buttons = false, show_all = false){
     const request = 'insurance request table';
@@ -821,6 +819,7 @@ function displayDetails(transaction){
                         $('#mv_file_number').val(response.mvFileNumber);
 
                         checkOptionExist('#customer_type', response.customerType, '');
+                        checkOptionExist('#insurance_policy_id', response.insurancePolicyId, '');
 
                         checkOptionExist('#request_type', response.requestType, '');
                         checkOptionExist('#insurance_provider_id', response.insuranceProvider, '');

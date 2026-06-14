@@ -15,13 +15,13 @@
                   $action .= '<div class="btn-group m-r-10">
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                  <li><button class="dropdown-item" type="button" id="delete-insurance-request">Delete Insurance Policy</button></li>
+                                  <li><button class="dropdown-item" type="button" id="delete-insurance-policy">Delete Insurance Policy</button></li>
                                 </ul>
                               </div>';
                 }
 
                 if($insurancePolicyCreateAccess['total'] > 0){
-                  $action .= '<a href="insurance-request.php?new" class="btn btn-success">Create</a>';
+                  $action .= '<a href="insurance-policy.php?new" class="btn btn-success">Create</a>';
                 }
                               
                 echo $action;
@@ -32,7 +32,7 @@
       </div>
       <div class="card-body">
         <div class="table-responsive dt-responsive">
-          <table id="insurance-request-table" class="table table-hover nowrap w-100">
+          <table id="insurance-policy-table" class="table table-hover nowrap w-100">
             <thead>
               <tr>
                 <th class="all">

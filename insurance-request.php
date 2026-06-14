@@ -2,6 +2,7 @@
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
   require('model/insurance-request-model.php');
+  require('model/insurance-policy-model.php');
   require('model/customer-model.php');
   require('model/insurance-type-model.php');
   require('model/insurance-provider-model.php');
@@ -16,6 +17,7 @@
   $customerModel = new CustomerModel($databaseModel);
   $insuranceProviderModel = new InsuranceProviderModel($databaseModel);
   $insuranceRequestModel = new InsuranceRequestModel($databaseModel);
+  $insurancePolicyModel = new InsurancePolicyModel($databaseModel);
   $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
   $insuranceTypeModel = new InsuranceTypeModel($databaseModel);
   $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);

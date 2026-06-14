@@ -32,6 +32,20 @@
                 </div>
               </div>
             </div>
+
+             <div class="col-md-6 d-none renewal-field">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Insurance Policy <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="insurance_policy_id" id="insurance_policy_id">
+                    <option value="">--</option>
+                    <?php echo $insurancePolicyModel->generateInsurancePolicyOptions(); ?>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            
             <div class="col-md-6">
               <div class="form-group row mb-3">
                 <label class="col-lg-4 col-form-label">Inception Date <span class="text-danger">*</span></label>
