@@ -15,7 +15,7 @@ require_once '../model/miscellaneous-client-model.php';
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
-$insuranceRequestModel = new InsuranceRequestModel($databaseModel);
+$insurancePolicyModel = new InsurancePolicyModel($databaseModel);
 $insuranceProviderModel = new InsuranceProviderModel($databaseModel);
 $insuranceTypeModel = new InsuranceTypeModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
@@ -34,10 +34,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $insuranceRequestDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 199, 'delete');
+            $insurancePolicyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 199, 'delete');
 
             foreach ($options as $row) {
-                $insuranceRequestID = $row['insurance_request_id'];
+                $insurancePolicyID = $row['insurance_request_id'];
                 $status = $row['status'];
                 $request_type = $row['request_type'];
                 $customer_type = $row['customer_type'];
@@ -69,17 +69,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $providerDetails = $insuranceProviderModel->getInsuranceProvider($insurance_provider);
                 $provider_name = $providerDetails['provider_name'] ?? null;
 
-                $insuranceRequestIDEncrypted = $securityModel->encryptData($insuranceRequestID);
+                $insurancePolicyIDEncrypted = $securityModel->encryptData($insurancePolicyID);
 
                 $delete = '';
-                if($insuranceRequestDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-insurance-request" data-insurance-request-id="'. $insuranceRequestID .'" title="Delete Insurance Request">
+                if($insurancePolicyDeleteAccess['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-insurance-request" data-insurance-request-id="'. $insurancePolicyID .'" title="Delete Insurance Policy">
                                     <i class="ti ti-trash"></i>
                                 </button>';
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $insuranceRequestID .'">',
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $insurancePolicyID .'">',
                     'CUSTOMER_NAME' => $customerName,
                     'PROVIDER_NAME' => $provider_name,
                     'REQUEST_TYPE' => $request_type,
@@ -87,7 +87,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'INCEPTION_DATE' => $inception_date,
                     'STATUS' => $status,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="insurance-request.php?id='. $insuranceRequestIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="insurance-request.php?id='. $insurancePolicyIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'

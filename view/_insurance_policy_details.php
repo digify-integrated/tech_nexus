@@ -4,7 +4,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5>Insurance Request</h5>
+            <h5>Insurance Policy</h5>
           </div>
           <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
             <?php                            
@@ -31,8 +31,8 @@
                     $dropdown .= '<li><button class="dropdown-item" type="button" id="draft">Set to Draft</button></li>';
                 }
                             
-                if ($insuranceRequestDeleteAccess['total'] > 0) {
-                    $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-insurance-request-details">Delete Insurance Request</button></li>';
+                if ($insurancePolicyDeleteAccess['total'] > 0) {
+                    $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-insurance-request-details">Delete Insurance Policy</button></li>';
                 }
                         
                 $dropdown .= '</ul>
@@ -40,12 +40,12 @@
                     
                 echo $dropdown;
 
-                if ($insuranceRequestWriteAccess['total'] > 0 && $status == 'Draft') {
+                if ($insurancePolicyWriteAccess['total'] > 0 && $status == 'Draft') {
                     echo '<button type="submit" form="insurance-request-form" class="btn btn-success" id="submit-data">Save</button>
                         <button type="button" id="discard-update" class="btn btn-outline-danger me-1">Discard</button>';
                 }
 
-                if ($insuranceRequestCreateAccess['total'] > 0) {
+                if ($insurancePolicyCreateAccess['total'] > 0) {
                     echo '<a class="btn btn-success m-r-5 form-details" href="insurance-request.php?new">Create</a>';
                 }
             ?>
@@ -58,7 +58,7 @@
           <div class="row">
             <div class="col-md-6">
               <div class="form-group row mb-3">
-                <label class="col-lg-4 col-form-label">Request Type <span class="text-danger">*</span></label>
+                <label class="col-lg-4 col-form-label">Policy Type <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
                   <select class="form-select select2" id="request_type" name="request_type" <?= $disabled ?>>
                     <option value="">--</option>
@@ -670,7 +670,7 @@
             </div>
             <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
               <div class="card-body p-b-0">
-                '. $userModel->generateLogNotes('inquiry_type', $insuranceRequestID) .'
+                '. $userModel->generateLogNotes('inquiry_type', $insurancePolicyID) .'
               </div>
             </div>
           </div>

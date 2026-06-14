@@ -27,88 +27,132 @@ class InsuranceRequestModel {
     | INSERT LEAD STATUS
     |----------------------------------------------- */
     public function insertInsuranceRequest(
-    $requestType,
-    $inceptionDate,
-    $insuranceProviderId,
-    $insuranceTypeId,
-    $customerType,
-    $customerId,
-    $salesProposalId,
-    $yearModel,
-    $color,
-    $make,
-    $plateNumber,
-    $chassisNumber,
-    $engineNumber,
-    $mvFileNumber,
-    $lastLogBy
-) {
-    // Generate a default request number block or temporary draft code if your system requires it
-    $requestNumber = 'REQ-' . time(); 
+        $requestType,
+        $inceptionDate,
+        $insuranceProviderId,
+        $insuranceTypeId,
+        $customerType,
+        $customerId,
+        $salesProposalId,
+        $yearModel,
+        $color,
+        $make,
+        $plateNumber,
+        $chassisNumber,
+        $engineNumber,
+        $mvFileNumber,
+        $lastLogBy
+    ) {
+        // Generate a default request number block or temporary draft code if your system requires it
+        $requestNumber = 'REQ-' . time(); 
 
-    $stmt = $this->db->getConnection()->prepare('
-        INSERT INTO insurance_request (
-            request_number,
-            request_type,
-            inception_date,
-            insurance_provider,
-            insurance_type_id,
-            customer_type,
-            customer_id,
-            sales_proposal_id,
-            year_model,
-            color,
-            make,
-            plate_number,
-            chassis_number,
-            engine_number,
-            mv_file_number,
-            last_log_by
-        )
-        VALUES (
-            :request_number,
-            :request_type,
-            :inception_date,
-            :insurance_provider,
-            :insurance_type_id,
-            :customer_type,
-            :customer_id,
-            :sales_proposal_id,
-            :year_model,
-            :color,
-            :make,
-            :plate_number,
-            :chassis_number,
-            :engine_number,
-            :mv_file_number,
-            :last_log_by
-        )
-    ');
+        $stmt = $this->db->getConnection()->prepare('
+            INSERT INTO insurance_request (
+                request_number,
+                request_type,
+                inception_date,
+                insurance_provider,
+                insurance_type_id,
+                customer_type,
+                customer_id,
+                sales_proposal_id,
+                year_model,
+                color,
+                make,
+                plate_number,
+                chassis_number,
+                engine_number,
+                mv_file_number,
+                last_log_by
+            )
+            VALUES (
+                :request_number,
+                :request_type,
+                :inception_date,
+                :insurance_provider,
+                :insurance_type_id,
+                :customer_type,
+                :customer_id,
+                :sales_proposal_id,
+                :year_model,
+                :color,
+                :make,
+                :plate_number,
+                :chassis_number,
+                :engine_number,
+                :mv_file_number,
+                :last_log_by
+            )
+        ');
 
-    $stmt->bindValue(':request_number', $requestNumber, PDO::PARAM_STR);
-    $stmt->bindValue(':request_type', $requestType, PDO::PARAM_STR);
-    $stmt->bindValue(':inception_date', $inceptionDate, PDO::PARAM_STR);
-    $stmt->bindValue(':insurance_provider', $insuranceProviderId, PDO::PARAM_INT);
-    $stmt->bindValue(':insurance_type_id', $insuranceTypeId, PDO::PARAM_INT);
-    $stmt->bindValue(':customer_type', $customerType, PDO::PARAM_STR);
-    $stmt->bindValue(':customer_id', !empty($customerId) ? $customerId : null, PDO::PARAM_INT);
-    $stmt->bindValue(':sales_proposal_id', !empty($salesProposalId) ? $salesProposalId : null, PDO::PARAM_INT);
-    
-    // Vehicle parameters binding
-    $stmt->bindValue(':year_model', !empty($yearModel) ? $yearModel : null, PDO::PARAM_STR);
-    $stmt->bindValue(':color', !empty($color) ? $color : null, PDO::PARAM_STR);
-    $stmt->bindValue(':make', !empty($make) ? $make : null, PDO::PARAM_STR);
-    $stmt->bindValue(':plate_number', !empty($plateNumber) ? $plateNumber : null, PDO::PARAM_STR);
-    $stmt->bindValue(':chassis_number', !empty($chassisNumber) ? $chassisNumber : null, PDO::PARAM_STR);
-    $stmt->bindValue(':engine_number', !empty($engineNumber) ? $engineNumber : null, PDO::PARAM_STR);
-    $stmt->bindValue(':mv_file_number', !empty($mvFileNumber) ? $mvFileNumber : null, PDO::PARAM_STR);
-    
-    $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+        $stmt->bindValue(':request_number', $requestNumber, PDO::PARAM_STR);
+        $stmt->bindValue(':request_type', $requestType, PDO::PARAM_STR);
+        $stmt->bindValue(':inception_date', $inceptionDate, PDO::PARAM_STR);
+        $stmt->bindValue(':insurance_provider', $insuranceProviderId, PDO::PARAM_INT);
+        $stmt->bindValue(':insurance_type_id', $insuranceTypeId, PDO::PARAM_INT);
+        $stmt->bindValue(':customer_type', $customerType, PDO::PARAM_STR);
+        $stmt->bindValue(':customer_id', !empty($customerId) ? $customerId : null, PDO::PARAM_INT);
+        $stmt->bindValue(':sales_proposal_id', !empty($salesProposalId) ? $salesProposalId : null, PDO::PARAM_INT);
+        
+        // Vehicle parameters binding
+        $stmt->bindValue(':year_model', !empty($yearModel) ? $yearModel : null, PDO::PARAM_STR);
+        $stmt->bindValue(':color', !empty($color) ? $color : null, PDO::PARAM_STR);
+        $stmt->bindValue(':make', !empty($make) ? $make : null, PDO::PARAM_STR);
+        $stmt->bindValue(':plate_number', !empty($plateNumber) ? $plateNumber : null, PDO::PARAM_STR);
+        $stmt->bindValue(':chassis_number', !empty($chassisNumber) ? $chassisNumber : null, PDO::PARAM_STR);
+        $stmt->bindValue(':engine_number', !empty($engineNumber) ? $engineNumber : null, PDO::PARAM_STR);
+        $stmt->bindValue(':mv_file_number', !empty($mvFileNumber) ? $mvFileNumber : null, PDO::PARAM_STR);
+        
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
 
-    $stmt->execute();
+        $stmt->execute();
 
-    return $this->db->getConnection()->lastInsertId();
-}
+        return $this->db->getConnection()->lastInsertId();
+    }
+    public function insertInsurancePolicy(
+        $insurance_request_id,
+        $policy_number,
+        $premium_amount,
+        $coverage_amount,
+        $inception_date,
+        $expiry_date,
+        $remarks,
+        $lastLogBy
+    ) {
+        $stmt = $this->db->getConnection()->prepare('
+            INSERT INTO insurance_policy (
+                insurance_request_id,
+                policy_number,
+                inception_date,
+                expiry_date,
+                premium_amount,
+                coverage_amount,
+                remarks,
+                last_log_by
+            )
+            VALUES (
+                :insurance_request_id,
+                :policy_number,
+                :inception_date,
+                :expiry_date,
+                :premium_amount,
+                :coverage_amount,
+                :remarks,
+                :last_log_by
+            )
+        ');
+
+        $stmt->bindValue(':insurance_request_id', $insurance_request_id);
+        $stmt->bindValue(':policy_number', $policy_number);
+        $stmt->bindValue(':inception_date', $inception_date);
+        $stmt->bindValue(':expiry_date', $expiry_date);
+        $stmt->bindValue(':premium_amount', $premium_amount);
+        $stmt->bindValue(':coverage_amount', $coverage_amount);
+        $stmt->bindValue(':remarks', $remarks);
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
 
     /* -----------------------------------------------
     | UPDATE LEAD STATUS

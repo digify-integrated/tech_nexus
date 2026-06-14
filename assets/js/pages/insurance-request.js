@@ -10,6 +10,10 @@
             insuranceRequestForm();
         }
 
+        if($('#receive-form').length){
+            receiveForm();
+        }
+
         if($('#insurance-request-id').length){
             displayDetails('get insurance request details');
         }
@@ -376,58 +380,6 @@
             });
         });
 
-        $(document).on('click','#received',function() {
-            const insurance_request_id = $('#insurance-request-id').text();
-            const transaction = 'tag request received';
-    
-            Swal.fire({
-                title: 'Confirm Insurance Request Received',
-                text: 'Are you sure you want to tag this insurance request as received?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Received',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-info mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/insurance-request-controller.php',
-                        dataType: 'json',
-                        data: {
-                            insurance_request_id : insurance_request_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                setNotification('Insurance Request Received Success', 'The insurance request has been tagged as received successfully.', 'success');
-                                window.location.reload();
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else {
-                                    showNotification('Insurance Request Received Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
-
         $(document).on('click','#draft',function() {
             const insurance_request_id = $('#insurance-request-id').text();
             const transaction = 'tag request draft';
@@ -518,14 +470,18 @@ function insuranceRequestTable(datatable_name, buttons = false, show_all = false
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'INQUIRY_TYPE_NAME' },
+        { 'data' : 'CUSTOMER_NAME' },
+        { 'data' : 'PROVIDER_NAME' },
+        { 'data' : 'REQUEST_TYPE' },
+        { 'data' : 'INSURANCE_TYPE' },
+        { 'data' : 'INCEPTION_DATE' },
+        { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '84%', 'aTargets': 1 },
-        { 'width': '15%','bSortable': false, 'aTargets': 2 }
+        { 'width': '15%','bSortable': false, 'aTargets': 7 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -721,6 +677,118 @@ function insuranceRequestForm(){
     });
 }
 
+function receiveForm(){
+    $('#receive-form').validate({
+        rules: {
+            policy_number: {
+                required: true
+            },
+            inception_date2: {
+                required: true
+            },
+            expiration_date: {
+                required: true
+            },
+            premium_amount: {
+                required: true
+            },
+            coverage_amount: {
+                required: true
+            },
+        },
+        messages: {
+            policy_number: {
+                required: 'Please enter the policy number'
+            },
+            inception_date2: {
+                required: 'Please choose the expiration date'
+            },
+            expiration_date: {
+                required: 'Please choose the expiration date'
+            },
+            premium_amount: {
+                required: 'Please enter the premium amount'
+            },
+            coverage_amount: {
+                required: 'Please enter the coverage amount'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const insurance_request_id = $('#insurance-request-id').text();
+            const transaction = 'tag request received';
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/insurance-request-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&insurance_request_id=' + insurance_request_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Tag Insurance Request As Received Success';
+                        const notificationDescription = 'The insurance request has been tagged as received successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get insurance request details':
@@ -754,6 +822,13 @@ function displayDetails(transaction){
 
                         checkOptionExist('#customer_type', response.customerType, '');
 
+                        checkOptionExist('#request_type', response.requestType, '');
+                        checkOptionExist('#insurance_provider_id', response.insuranceProvider, '');
+                        checkOptionExist('#insurance_type_id', response.insuranceTypeId, '');
+                        checkOptionExist('#insurance_category', response.insuranceCategory, '');
+                        checkOptionExist('#tpbi_coverage', response.tpbiCoverage, '');
+                        checkOptionExist('#tppd_coverage', response.tppdCoverage, '');
+
                         if(response.customerType == 'Customer'){
                             checkOptionExist('#customer_id', response.customerId, '');
                         }
@@ -761,15 +836,8 @@ function displayDetails(transaction){
                             checkOptionExist('#misc_id', response.customerId, '');
                         }
                         else{
-                            checkOptionExist('#salesProposalId', response.salesProposalId, '');
+                            checkOptionExist('#sales_proposal_id', response.salesProposalId, '');
                         }
-
-                        checkOptionExist('#request_type', response.requestType, '');
-                        checkOptionExist('#insurance_provider_id', response.insuranceProvider, '');
-                        checkOptionExist('#insurance_type_id', response.insuranceTypeId, '');
-                        checkOptionExist('#insurance_category', response.insuranceCategory, '');
-                        checkOptionExist('#tpbi_coverage', response.tpbiCoverage, '');
-                        checkOptionExist('#tppd_coverage', response.tppdCoverage, '');
                         
                     } 
                     else {

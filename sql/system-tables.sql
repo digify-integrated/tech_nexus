@@ -7129,3 +7129,19 @@ CREATE TABLE `insurance_request` (
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `insurance_policy`;
+CREATE TABLE `insurance_policy` (
+  `insurance_policy_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `insurance_request_id` int(10),
+  `policy_number` varchar(100) NOT NULL,
+  `status` ENUM('Active', 'Cancelled') DEFAULT 'Active',
+  `inception_date` DATE,
+  `expiry_date` DATE,
+  `premium_amount` DOUBLE,
+  `coverage_amount` DOUBLE,
+  `remarks` VARCHAR(500),
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

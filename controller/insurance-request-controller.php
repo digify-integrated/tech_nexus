@@ -180,6 +180,12 @@ class InsuranceRequestController {
     
         $userID = $_SESSION['user_id'];
         $insuranceRequestID = $_POST['insurance_request_id'];
+        $policy_number = $_POST['policy_number'];
+        $premium_amount = $_POST['premium_amount'];
+        $coverage_amount = $_POST['coverage_amount'];
+        $remarks = $_POST['remarks'];
+        $inception_date2 = $this->systemModel->checkDate('empty', $_POST['inception_date2'], '', 'Y-m-d', '');
+        $expiration_date = $this->systemModel->checkDate('empty', $_POST['expiration_date'], '', 'Y-m-d', '');
         $user = $this->userModel->getUserByID($userID);
     
         if (!$user || !$user['is_active']) {
@@ -192,6 +198,7 @@ class InsuranceRequestController {
     
         if ($total > 0) {
             $this->insuranceRequestModel->updateInsuranceRequestStatus($insuranceRequestID, 'Received', $userID);
+            $this->insuranceRequestModel->insertInsurancePolicy($insuranceRequestID, $policy_number, $premium_amount, $coverage_amount, $inception_date2, $expiration_date, $remarks, $userID);
             
             echo json_encode(['success' => true]);
             exit;
