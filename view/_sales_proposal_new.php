@@ -96,16 +96,21 @@
                 <div class="col-lg-7">
                   <select class="form-control select2" name="product_type" id="product_type">
                     <option value="">--</option>
-                    <option value="Unit">Unit</option>
-                    <option value="Fuel">Fuel</option>
-                    <option value="Parts">Parts</option>
-                    <option value="Repair">Repair</option>
-                    <option value="Rental">Rental</option>
-                    <option value="Consignment">Consignment</option>
-                    <option value="Brand New">Brand New</option>
-                    <option value="Refinancing">Refinancing</option>
-                    <option value="Restructure">Restructure</option>
-                    <option value="Real Estate">Real Estate</option>
+                    <optgroup label="Sales">
+                      <option value="Unit">Unit</option>
+                      <option value="Fuel">Fuel</option>
+                      <option value="Rental">Rental</option>
+                      <option value="Consignment">Consignment</option>
+                      <option value="Brand New">Brand New</option>
+                      <option value="Refinancing">Refinancing</option>
+                      <option value="Restructure">Restructure</option>
+                      <option value="Real Estate">Real Estate</option>
+                    </optgroup>
+                    <optgroup label="Aftersales">
+                      <option value="PMS">PMS</option>
+                      <option value="Parts">Parts</option>
+                      <option value="Repair">Repair</option>
+                    </optgroup>
                   </select>
                 </div>
               </div>
@@ -153,12 +158,6 @@
                 </select>
                 </div>
             </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Referred By :</label>
-                <div class="col-lg-7">
-                  <input type="text" class="form-control text-uppercase" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">
-                </div>
-              </div>
             </div>
             <div class="col-lg-6">
               <div class="form-group row">
@@ -237,6 +236,13 @@
                   </select>
                 </div>
               </div>
+              
+              <div class="form-group row">
+                <label class="col-lg-6 col-form-label">Referred By :</label>
+                <div class="col-lg-6">
+                  <input type="text" class="form-control text-uppercase" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">
+                </div>
+              </div>
             </div>
           </div>
           <div class="form-group row">
@@ -264,8 +270,8 @@
             <div class="col-lg-6">
               <input type="hidden" id="product_category">
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Stock : <span class="text-danger">*</span></label>
-                <div class="col-lg-7">
+                <label class="col-lg-4 col-form-label">Stock : <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
                   <select class="form-control select2" name="product_id" id="product_id">
                     <option value="">--</option>
                     <?php echo $productModel->generateForSaleProductOptions(); ?>
@@ -273,16 +279,16 @@
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Engine Number :</label>
-                <label class="col-lg-7 col-form-label" id="product_engine_number"></label>
+                <label class="col-lg-4 col-form-label">Engine Number :</label>
+                <label class="col-lg-8 col-form-label" id="product_engine_number"></label>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Chassis Number :</label>
-                <label class="col-lg-7 col-form-label" id="product_chassis_number"></label>
+                <label class="col-lg-4 col-form-label">Chassis Number :</label>
+                <label class="col-lg-8 col-form-label" id="product_chassis_number"></label>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Plate Number :</label>
-                <label class="col-lg-7 col-form-label" id="product_plate_number"></label>
+                <label class="col-lg-4 col-form-label">Plate Number :</label>
+                <label class="col-lg-8 col-form-label" id="product_plate_number"></label>
               </div>
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">For Registration? : <span class="text-danger">*</span></label>
@@ -325,22 +331,22 @@
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Old Color :</label>
-                <div class="col-lg-7">
+                <label class="col-lg-4 col-form-label">Old Color :</label>
+                <div class="col-lg-8">
                   <input type="text" class="form-control text-uppercase" id="old_color" autocomplete="off" readonly>
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">New Color :</label>
-                <div class="col-lg-7">
+                <label class="col-lg-4 col-form-label">New Color :</label>
+                <div class="col-lg-8">
                   <input type="text" class="form-control text-uppercase" id="new_color" name="new_color" maxlength="100" autocomplete="off">
                 </div>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
-                <div class="col-lg-7">
+                <label class="col-lg-4 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
                   <select class="form-control select2" name="for_change_body" id="for_change_body">
                     <option value="">--</option>
                     <option value="Yes" selected>Yes</option>
@@ -349,20 +355,20 @@
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Old Body :</label>
-                <div class="col-lg-7">
+                <label class="col-lg-4 col-form-label">Old Body :</label>
+                <div class="col-lg-8">
                   <input type="text" class="form-control text-uppercase" id="old_body" autocomplete="off" readonly>
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">New Body :</label>
-                <div class="col-lg-7">
+                <label class="col-lg-4 col-form-label">New Body :</label>
+                <div class="col-lg-8">
                   <input type="text" class="form-control text-uppercase" id="new_body" name="new_body" maxlength="100" autocomplete="off">
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">For Change Engine? : <span class="text-danger">*</span></label>
-                <div class="col-lg-7 mt-2">
+                <label class="col-lg-4 col-form-label">For Change Engine? : <span class="text-danger">*</span></label>
+                <div class="col-lg-8 mt-2">
                   <select class="form-control select2" name="for_change_engine" id="for_change_engine">
                     <option value="">--</option>
                     <option value="Yes">Yes</option>
@@ -371,20 +377,20 @@
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Old Engine :</label>
-                <div class="col-lg-7">
+                <label class="col-lg-4 col-form-label">Old Engine :</label>
+                <div class="col-lg-8">
                   <input type="text" class="form-control text-uppercase" id="old_engine" autocomplete="off" readonly>
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">New Engine :</label>
-                <div class="col-lg-7">
+                <label class="col-lg-4 col-form-label">New Engine :</label>
+                <div class="col-lg-8">
                   <input type="text" class="form-control text-uppercase" id="new_engine" name="new_engine" maxlength="100" autocomplete="off" readonly>
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Final Name On OR/CR :</label>
-                <div class="col-lg-7">
+                <label class="col-lg-4 col-form-label">Final Name On OR/CR :</label>
+                <div class="col-lg-8">
                   <input type="text" class="form-control text-uppercase" id="final_orcr_name" name="final_orcr_name" maxlength="500" autocomplete="off">
                 </div>
               </div>
@@ -574,6 +580,151 @@
             <label class="col-lg-2 col-form-label">Unit Description : </label>
             <div class="col-lg-10">
               <textarea class="form-control" id="unit_description" name="unit_description" maxlength="1000" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row d-none" id="pms-card">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body border-bottom">
+          <div class="row align-items-center">
+            <div class="col">
+              <h5 class="mb-0">PMS Details</h5>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6">
+              <input type="hidden" id="product_category">
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Stock : <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="product_id" id="product_id">
+                    <option value="">--</option>
+                    <?php echo $productModel->generateForSaleProductOptions(); ?>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Engine Number :</label>
+                <label class="col-lg-8 col-form-label" id="product_engine_number"></label>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Chassis Number :</label>
+                <label class="col-lg-8 col-form-label" id="product_chassis_number"></label>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Plate Number :</label>
+                <label class="col-lg-8 col-form-label" id="product_plate_number"></label>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">For Registration? : <span class="text-danger">*</span></label>
+                <div class="col-lg-8 mt-2">
+                  <select class="form-control select2" name="for_registration" id="for_registration">
+                    <option value="">--</option>
+                    <option value="Yes" selected>Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">With CR? : <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="with_cr" id="with_cr">
+                    <option value="">--</option>
+                    <option value="Yes" selected>Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">For Transfer? : <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="for_transfer" id="for_transfer">
+                    <option value="">--</option>
+                    <option value="Yes" selected>Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">For Change Color? : <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="for_change_color" id="for_change_color">
+                    <option value="">--</option>
+                    <option value="Yes" selected>Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Old Color :</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control text-uppercase" id="old_color" autocomplete="off" readonly>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">New Color :</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control text-uppercase" id="new_color" name="new_color" maxlength="100" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="for_change_body" id="for_change_body">
+                    <option value="">--</option>
+                    <option value="Yes" selected>Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Old Body :</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control text-uppercase" id="old_body" autocomplete="off" readonly>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">New Body :</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control text-uppercase" id="new_body" name="new_body" maxlength="100" autocomplete="off">
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">For Change Engine? : <span class="text-danger">*</span></label>
+                <div class="col-lg-8 mt-2">
+                  <select class="form-control select2" name="for_change_engine" id="for_change_engine">
+                    <option value="">--</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Old Engine :</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control text-uppercase" id="old_engine" autocomplete="off" readonly>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">New Engine :</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control text-uppercase" id="new_engine" name="new_engine" maxlength="100" autocomplete="off" readonly>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Final Name On OR/CR :</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control text-uppercase" id="final_orcr_name" name="final_orcr_name" maxlength="500" autocomplete="off">
+                </div>
+              </div>
             </div>
           </div>
         </div>

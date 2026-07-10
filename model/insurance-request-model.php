@@ -42,6 +42,10 @@ class InsuranceRequestModel {
         $engineNumber,
         $mvFileNumber,
         $insurance_policy_id,
+        $od_theft_coverage,
+        $aon_coverage,
+        $paid_by,
+        $assured,
         $lastLogBy
     ) {
         // Generate a default request number block or temporary draft code if your system requires it
@@ -65,6 +69,12 @@ class InsuranceRequestModel {
                 engine_number,
                 mv_file_number,
                 insurance_policy_id,
+                od_theft_coverage,
+                aon_coverage,
+                tpbi_coverage,
+                tppd_coverage,
+                paid_by,
+                assured,
                 last_log_by
             )
             VALUES (
@@ -84,6 +94,12 @@ class InsuranceRequestModel {
                 :engine_number,
                 :mv_file_number,
                 :insurance_policy_id,
+                :od_theft_coverage,
+                :aon_coverage,
+                "200000",
+                "200000",
+                :paid_by,
+                :assured,
                 :last_log_by
             )
         ');
@@ -95,6 +111,10 @@ class InsuranceRequestModel {
         $stmt->bindValue(':insurance_type_id', $insuranceTypeId, PDO::PARAM_INT);
         $stmt->bindValue(':customer_type', $customerType, PDO::PARAM_STR);
         $stmt->bindValue(':insurance_policy_id', $insurance_policy_id, PDO::PARAM_STR);
+        $stmt->bindValue(':od_theft_coverage', $od_theft_coverage, PDO::PARAM_STR);
+        $stmt->bindValue(':aon_coverage', $aon_coverage, PDO::PARAM_STR);
+        $stmt->bindValue(':paid_by', $paid_by, PDO::PARAM_STR);
+        $stmt->bindValue(':assured', $assured, PDO::PARAM_STR);
         $stmt->bindValue(':customer_id', !empty($customerId) ? $customerId : null, PDO::PARAM_INT);
         $stmt->bindValue(':sales_proposal_id', !empty($salesProposalId) ? $salesProposalId : null, PDO::PARAM_INT);
         
@@ -116,7 +136,8 @@ class InsuranceRequestModel {
     public function insertInsurancePolicy(
         $insurance_request_id,
         $policy_number,
-        $premium_amount,
+        $gross,
+        $net_premium,
         $coverage_amount,
         $inception_date,
         $expiry_date,
@@ -129,7 +150,8 @@ class InsuranceRequestModel {
                 policy_number,
                 inception_date,
                 expiry_date,
-                premium_amount,
+                gross,
+                net_premium,
                 coverage_amount,
                 remarks,
                 last_log_by
@@ -139,7 +161,8 @@ class InsuranceRequestModel {
                 :policy_number,
                 :inception_date,
                 :expiry_date,
-                :premium_amount,
+                :gross,
+                :net_premium,
                 :coverage_amount,
                 :remarks,
                 :last_log_by
@@ -150,7 +173,8 @@ class InsuranceRequestModel {
         $stmt->bindValue(':policy_number', $policy_number);
         $stmt->bindValue(':inception_date', $inception_date);
         $stmt->bindValue(':expiry_date', $expiry_date);
-        $stmt->bindValue(':premium_amount', $premium_amount);
+        $stmt->bindValue(':gross', $gross);
+        $stmt->bindValue(':net_premium', $net_premium);
         $stmt->bindValue(':coverage_amount', $coverage_amount);
         $stmt->bindValue(':remarks', $remarks);
         $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
@@ -178,6 +202,8 @@ class InsuranceRequestModel {
         $engineNumber,
         $mvFileNumber,
         $insurance_policy_id,
+        $paid_by,
+        $assured,
         $lastLogBy
     ) {
         $stmt = $this->db->getConnection()->prepare('
@@ -198,6 +224,8 @@ class InsuranceRequestModel {
                 engine_number = :engine_number,
                 mv_file_number = :mv_file_number,
                 insurance_policy_id = :insurance_policy_id,
+                paid_by = :paid_by,
+                assured = :assured,
                 last_log_by = :last_log_by
             WHERE insurance_request_id = :insurance_request_id
         ');
@@ -209,6 +237,8 @@ class InsuranceRequestModel {
         $stmt->bindValue(':insurance_type_id', $insuranceTypeId, PDO::PARAM_INT);
         $stmt->bindValue(':insurance_policy_id', $insurance_policy_id, PDO::PARAM_INT);
         $stmt->bindValue(':customer_type', $customerType, PDO::PARAM_STR);
+        $stmt->bindValue(':paid_by', $paid_by, PDO::PARAM_STR);
+        $stmt->bindValue(':assured', $assured, PDO::PARAM_STR);
         $stmt->bindValue(':customer_id', !empty($customerId) ? $customerId : null, PDO::PARAM_INT);
         $stmt->bindValue(':sales_proposal_id', !empty($salesProposalId) ? $salesProposalId : null, PDO::PARAM_INT);
         
@@ -313,6 +343,29 @@ class InsuranceRequestModel {
         $stmt->bindValue(':last_log_by', (int)$userID, PDO::PARAM_INT);
 
         return $stmt->execute();
+    }
+
+    public function updateInsuranceRequestCancelled(
+        $insuranceRequestID,
+        $cancellation_reason,
+        $lastLogBy
+    ) {
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE insurance_request
+            SET
+                status = "Cancelled",
+                cancellation_reason = :cancellation_reason,
+                cancellation_date = NOW(),
+                last_log_by = :last_log_by
+            WHERE insurance_request_id = :insurance_request_id
+        ');
+
+        $stmt->bindValue(':insurance_request_id', $insuranceRequestID, PDO::PARAM_INT);
+        $stmt->bindValue(':cancellation_reason', $cancellation_reason, PDO::PARAM_STR);
+        
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+
+        $stmt->execute();
     }
 
     /* -----------------------------------------------

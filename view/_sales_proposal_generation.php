@@ -257,7 +257,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'RELEASED_DATE' => $releasedDate,
                         'STATUS' => $salesProposalStatus,
 
-                        'ACTION' => '<a href="all-sales-proposal.php?customer='.$securityModel->encryptData($customerID).'&id='.$salesProposalIDEncrypted.'" class="btn btn-sm btn-primary" title="View"><i class="ti ti-eye"></i></a>'.$delete
+                        'ACTION' => '<a href="all-sales-proposal.php?customer='.$securityModel->encryptData($customerID).'&id='.$salesProposalIDEncrypted.'" class="btn btn-icon btn-primary me-2" title="View"><i class="ti ti-eye"></i></a>'.$delete
                     ];
                 }
 

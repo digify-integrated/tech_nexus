@@ -201,7 +201,10 @@ class PartsIncomingController {
                 $reference_number = ((int)($this->systemSettingModel->getSystemSetting(48)['value'] ?? 0)) + 1;
             }
             else if($company_id == '3'){
-                $reference_number = ((int)($this->systemSettingModel->getSystemSetting(p_system_setting_id: 40)['value'] ?? 0)) + 1;
+                $reference_number = ((int)($this->systemSettingModel->getSystemSetting(40)['value'] ?? 0)) + 1;
+            }
+            else if($company_id == '15'){
+                $reference_number = ((int)($this->systemSettingModel->getSystemSetting(51)['value'] ?? 0)) + 1;
             }
 
             $parts_incoming_id = $this->partsIncomingModel->insertPartsIncoming($reference_number, $supplier_id, $rr_no, $rr_date, $delivery_date, $purchase_date, $company_id, $request_by, $product_id, $customer_ref_id, $remarks, $incoming_for, $userID);
@@ -218,7 +221,10 @@ class PartsIncomingController {
             else if($company_id == '3'){
                 $this->systemSettingModel->updateSystemSettingValue(40, $reference_number, $userID);
             }
-            
+            else if($company_id == '15'){
+                $this->systemSettingModel->updateSystemSettingValue(51, $reference_number, $userID);
+            }
+
             echo json_encode(['success' => true, 'insertRecord' => true, 'partsIncomingID' => $this->securityModel->encryptData($parts_incoming_id)]);
             exit;
         }
@@ -305,7 +311,7 @@ class PartsIncomingController {
             $this->systemSettingModel->updateSystemSettingValue(36, $rr_no, $userID);
         }
 
-        if($company_id == '3' || $company_id == '2' || $company_id == '8'){
+        if($company_id == '3' || $company_id == '15' || $company_id == '2' || $company_id == '8'){
             if($company_id == '8'){
                 $cost = $cost / 1.12;
                 $cost = number_format($cost, 2, '.', '');

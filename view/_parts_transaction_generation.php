@@ -19,6 +19,7 @@ require_once '../model/contractor-model.php';
 require_once '../model/work-center-model.php';
 require_once '../model/department-model.php';
 require_once '../model/customer-model.php';
+require_once '../model/company-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -31,12 +32,12 @@ $unitModel = new UnitModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
+$companyModel = new CompanyModel($databaseModel);
 $backjobMonitoringModel = new BackJobMonitoringModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $contractorModel = new ContractorModel($databaseModel);
 $workCenterModel = new WorkCenterModel($databaseModel);
 $departmentModel = new DepartmentModel($databaseModel);
-$customerModel = new CustomerModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -353,21 +354,29 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'job order table 2':
             $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
-            $filter_payment_status = $_POST['filter_payment_status'] ?? ''; // e.g. "Paid", "Cancelled", "Unpaid"
+            $filter_payment_status = $_POST['filter_payment_status'] ?? '';
+
+            $statuses = array_map('trim', explode(',', $filter_payment_status));
 
             $query = 'SELECT * FROM sales_proposal_job_order WHERE job_cost > 0';
             $conditions = [];
 
-            // Build conditions based on filter
-            if ($filter_payment_status === 'Paid') {
+            // Paid
+            if (in_array('Paid', $statuses)) {
                 $conditions[] = 'payment_date IS NOT NULL';
-            } elseif ($filter_payment_status === 'Cancelled') {
+            }
+
+            // Cancelled
+            if (in_array('Cancelled', $statuses)) {
                 $conditions[] = 'payment_cancellation_date IS NOT NULL';
-            } else {
+            }
+
+            // Unpaid
+            if (in_array('Unpaid', $statuses)) {
                 $conditions[] = '(payment_date IS NULL AND payment_cancellation_date IS NULL)';
             }
 
-            // If any conditions were added, append them with OR
+            // Append conditions
             if (!empty($conditions)) {
                 $query .= ' AND (' . implode(' OR ', $conditions) . ')';
             }
@@ -381,6 +390,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sales_proposal_job_order_id = $row['sales_proposal_job_order_id'];
                 $payment_date = $row['payment_date'];
                 $payment_cancellation_date = $row['payment_cancellation_date'];
+                $company_id = $row['company_id'];
+
+                  $companyName = $companyModel->getCompany($company_id)['company_name'] ?? null;
                 
                 $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalJobOrder($sales_proposal_job_order_id);
                 $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
@@ -433,6 +445,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CONTRACTOR' => '<span class="text-wrap">' . $contractor_name . '</span>',
                     'WORK_CENTER' => $work_center_name,
                     'STATUS' => $status,
+                    'COMPANY' => $companyName,
                     'DATE_STARTED' => $date_started,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
@@ -444,21 +457,29 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'internal job order table 2':
             $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
-            $filter_payment_status = $_POST['filter_payment_status'] ?? ''; // e.g. "Paid", "Cancelled", "Unpaid"
+            $filter_payment_status = $_POST['filter_payment_status'] ?? '';
+
+            $statuses = array_map('trim', explode(',', $filter_payment_status));
 
             $query = 'SELECT * FROM backjob_monitoring_job_order WHERE cost > 0';
             $conditions = [];
 
-            // Build conditions based on filter
-            if ($filter_payment_status === 'Paid') {
+            // Paid
+            if (in_array('Paid', $statuses)) {
                 $conditions[] = 'payment_date IS NOT NULL';
-            } elseif ($filter_payment_status === 'Cancelled') {
+            }
+
+            // Cancelled
+            if (in_array('Cancelled', $statuses)) {
                 $conditions[] = 'payment_cancellation_date IS NOT NULL';
-            } else {
+            }
+
+            // Unpaid
+            if (in_array('Unpaid', $statuses)) {
                 $conditions[] = '(payment_date IS NULL AND payment_cancellation_date IS NULL)';
             }
 
-            // If any conditions were added, append them with OR
+            // Append conditions
             if (!empty($conditions)) {
                 $query .= ' AND (' . implode(' OR ', $conditions) . ')';
             }
@@ -472,6 +493,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $backjob_monitoring_job_order_id  = $row['backjob_monitoring_job_order_id'];
                 $payment_date = $row['payment_date'];
                 $payment_cancellation_date = $row['payment_cancellation_date'];
+                $company_id = $row['company_id'];
+
+                  $companyName = $companyModel->getCompany($company_id)['company_name'] ?? null;
 
                 $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringJobOrder($backjob_monitoring_job_order_id);
                 $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
@@ -530,6 +554,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'WORK_CENTER' => $work_center_name,
                     'STATUS' => $status,
                     'DATE_STARTED' => $date_started,
+                    'COMPANY' => $companyName,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -542,19 +567,23 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
             $filter_payment_status = $_POST['filter_payment_status'] ?? ''; // e.g. "Paid", "Cancelled", "Unpaid"
             
+            $statuses = array_map('trim', explode(',', $filter_payment_status));
+
             $query = 'SELECT * FROM sales_proposal_additional_job_order WHERE job_cost > 0';
             $conditions = [];
 
-            // Build conditions based on filter
-            if ($filter_payment_status === 'Paid') {
+            if (in_array('Paid', $statuses)) {
                 $conditions[] = 'payment_date IS NOT NULL';
-            } elseif ($filter_payment_status === 'Cancelled') {
+            }
+
+            if (in_array('Cancelled', $statuses)) {
                 $conditions[] = 'payment_cancellation_date IS NOT NULL';
-            } else {
+            }
+
+            if (in_array('Unpaid', $statuses)) {
                 $conditions[] = '(payment_date IS NULL AND payment_cancellation_date IS NULL)';
             }
 
-            // If any conditions were added, append them with OR
             if (!empty($conditions)) {
                 $query .= ' AND (' . implode(' OR ', $conditions) . ')';
             }
@@ -568,6 +597,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sales_proposal_additional_job_order_id = $row['sales_proposal_additional_job_order_id'];
                 $payment_date = $row['payment_date'];
                 $payment_cancellation_date = $row['payment_cancellation_date'];
+                $company_id = $row['company_id'];
+
+                  $companyName = $companyModel->getCompany($company_id)['company_name'] ?? null;
                 
                 $salesProposalJobOrderDetails = $salesProposalModel->getSalesProposalAdditionalJobOrder($sales_proposal_additional_job_order_id);
                 $sales_proposal_id = $salesProposalJobOrderDetails['sales_proposal_id'] ?? null;
@@ -620,6 +652,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'WORK_CENTER' => $work_center_name,
                     'STATUS' => $status,
                     'DATE_STARTED' => $date_started,
+                    'COMPANY' => $companyName,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
                                 </div>'
@@ -630,21 +663,29 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         case 'internal additional job order table 2':
             $updatePaidStatus = $userModel->checkSystemActionAccessRights($user_id, 223);
-            $filter_payment_status = $_POST['filter_payment_status'] ?? ''; // e.g. "Paid", "Cancelled", "Unpaid"
+            $filter_payment_status = $_POST['filter_payment_status'] ?? '';
+
+            $statuses = array_map('trim', explode(',', $filter_payment_status));
 
             $query = 'SELECT * FROM backjob_monitoring_additional_job_order WHERE cost > 0';
             $conditions = [];
 
-            // Build conditions based on filter
-            if ($filter_payment_status === 'Paid') {
+            // Paid
+            if (in_array('Paid', $statuses)) {
                 $conditions[] = 'payment_date IS NOT NULL';
-            } elseif ($filter_payment_status === 'Cancelled') {
+            }
+
+            // Cancelled
+            if (in_array('Cancelled', $statuses)) {
                 $conditions[] = 'payment_cancellation_date IS NOT NULL';
-            } else {
+            }
+
+            // Unpaid
+            if (in_array('Unpaid', $statuses)) {
                 $conditions[] = '(payment_date IS NULL AND payment_cancellation_date IS NULL)';
             }
 
-            // If any conditions were added, append them with OR
+            // Append conditions
             if (!empty($conditions)) {
                 $query .= ' AND (' . implode(' OR ', $conditions) . ')';
             }
@@ -658,6 +699,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $backjob_monitoring_additional_job_order_id   = $row['backjob_monitoring_additional_job_order_id'];
                 $payment_date = $row['payment_date'];
                 $payment_cancellation_date = $row['payment_cancellation_date'];
+                $company_id = $row['company_id'];
+
+                  $companyName = $companyModel->getCompany($company_id)['company_name'] ?? null;
                 
                 $backJobMonitoringJobOrderDetails = $backjobMonitoringModel->getBackJobMonitoringAdditionalJobOrder($backjob_monitoring_additional_job_order_id);
                 $sales_proposal_id = $backJobMonitoringJobOrderDetails['sales_proposal_id'] ?? null;
@@ -713,6 +757,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CONTRACTOR' => '<span class="text-wrap">' . $contractor_name . '</span>',
                     'WORK_CENTER' => $work_center_name,
                     'STATUS' => $status,
+                    'COMPANY' => $companyName,
                     'DATE_STARTED' => $date_started,
                     'ACTION' => '<div class="d-flex gap-2">
                                    '. $action .'
@@ -882,8 +927,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $add_on = $row['add_on'];
                 $price = $row['price'];
                 
-
-
                 $partTransactionDetails = $partsTransactionModel->getPartsTransaction($part_transaction_id);
                 $company_id = $partTransactionDetails['company_id'];
                  $customer_type = $partTransactionDetails['customer_type'];
@@ -920,6 +963,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
                 else if($company_id == '2'){
                     $link = 'netruck-parts-transaction';
+                }
+                else if($company_id == '8'){
+                    $link = 'fuel-issuance';
                 }
                 else{
                     $link = 'parts-transaction';
@@ -1269,6 +1315,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 else if($company == '8'){
                     $link = 'fuel-issuance';
                     $number = $issuance_no;
+                }
+                else if($company == '15'){
+                    $link = 'jaecoo-parts-transaction';
+                    $number = $reference_number;
                 }
                 else{
                     $link = 'parts-transaction';

@@ -156,7 +156,7 @@
     </div>
   </div>
   
-  <div class="col-lg-12 <?php echo $hiddenEmployee; ?>">
+  <div class="col-lg-12 d-none">
     <div class="card">
       <div class="card-body py-2">
         <ul class="list-group list-group-flush">

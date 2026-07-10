@@ -262,13 +262,15 @@
       const $tab2 = $('#sales-proposal-tab-2');
       const $tab3 = $('#sales-proposal-tab-3');
       const $tab4 = $('#sales-proposal-tab-4');
+      const $tab18 = $('#sales-proposal-tab-18');
 
-      if ($tab2.length && $tab3.length && $tab4.length) {
-        $tab2.add($tab3).add($tab4).addClass('d-none');
+      if ($tab2.length && $tab3.length && $tab4.length && $tab18.length) {
+        $tab2.add($tab3).add($tab4).add($tab18).addClass('d-none');
 
         const isUnitLike = ['Unit', 'Rental', 'Consignment'].includes(productType);
         const isFuel = productType === 'Fuel';
         const isRefiLike = ['Refinancing', 'Restructure', 'Brand New'].includes(productType);
+        const isPMSLike = productType === 'PMS';
 
         if (isUnitLike) {
           $tab2.removeClass('d-none');
@@ -282,6 +284,10 @@
           // IMPORTANT: Ensure 'Brand New' uses the same form initialization as Refinancing
           resetModalForm('sales-proposal-refinancing-details-form');
           displayDetailsGuard('get sales proposal refinancing details', 50);
+        } else if (isPMSLike) {
+          $tab18.removeClass('d-none');
+          //resetModalForm('sales-proposal-pms-details-form');
+          //displayDetailsGuard('get sales proposal pms details', 50);
         }
       }
 
@@ -3035,29 +3041,90 @@ function salesProposalFinalApprovalForm() {
     rules: { final_approval_remarks: { required: true } },
     messages: { final_approval_remarks: { required: 'Please enter the approval remarks' } },
     submit: async (form) => {
-      const sales_proposal_id = domText('#sales-proposal-id');
-      const transaction = 'sales proposal final approval';
+      const transactionType = $('#transaction_type').val();
+      const ciReportCount = $('#ci_report_count').val();
 
-      try {
-        disableFormSubmitButton?.('submit-sales-proposal-final-approval');
+      if(transactionType == 'Installment Sales' && ciReportCount == 0){
+        Swal.fire({
+          title: 'Credit Investigation',
+          text: 'Will this sales proposal undergo a credit investigation?',
+          icon: 'warning',
+          showDenyButton: true,
+          showCancelButton: false,
+          confirmButtonText: 'Yes',
+          denyButtonText: 'No',
+          cancelButtonText: 'Cancel',
+          confirmButtonClass: 'btn btn-warning mt-2',
+          denyButtonClass: 'btn btn-danger ms-2 mt-2',
+          cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+          buttonsStyling: false
+        }).then(async (result) => {
+          // Yes - Do nothing
+          if (result.isConfirmed) {
+            return;
+          }
 
-        const body = serializeForm(form);
-        body.append('transaction', transaction);
-        body.append('sales_proposal_id', sales_proposal_id);
+          // No - Execute your existing code
+          if (result.isDenied) {
+            const sales_proposal_id = domText('#sales-proposal-id');
+            const transaction = 'sales proposal final approval';
 
-        const response = await postJson(SALES_CONTROLLER, body);
+            try {
+              disableFormSubmitButton?.('submit-sales-proposal-final-approval');
 
-        handleControllerResponse(response, {
-          onSuccess: () => {
-            ui.notifySuccess('Proceed Sales Proposal Success', 'The sales proposal has been set to proceed successfully.');
-            window.location.reload();
-          },
+              const body = serializeForm(form);
+              body.append('transaction', transaction);
+              body.append('sales_proposal_id', sales_proposal_id);
+
+              const response = await postJson(SALES_CONTROLLER, body);
+
+              handleControllerResponse(response, {
+                onSuccess: () => {
+                  ui.notifySuccess(
+                    'Proceed Sales Proposal Success',
+                    'The sales proposal has been set to proceed successfully.'
+                  );
+                  window.location.reload();
+                },
+              });
+            } catch (err) {
+              handleNetworkError(err);
+            } finally {
+              enableFormSubmitButton?.('submit-sales-proposal-final-approval', 'Submit');
+              $('#sales-proposal-final-approval-offcanvas').offcanvas('hide');
+            }
+          }
+
         });
-      } catch (err) {
-        handleNetworkError(err);
-      } finally {
-        enableFormSubmitButton?.('submit-sales-proposal-final-approval', 'Submit');
-        $('#sales-proposal-final-approval-offcanvas').offcanvas('hide');
+      }
+      else{
+        const sales_proposal_id = domText('#sales-proposal-id');
+            const transaction = 'sales proposal final approval';
+
+            try {
+              disableFormSubmitButton?.('submit-sales-proposal-final-approval');
+
+              const body = serializeForm(form);
+              body.append('transaction', transaction);
+              body.append('sales_proposal_id', sales_proposal_id);
+
+              const response = await postJson(SALES_CONTROLLER, body);
+
+              handleControllerResponse(response, {
+                onSuccess: () => {
+                  ui.notifySuccess(
+                    'Proceed Sales Proposal Success',
+                    'The sales proposal has been set to proceed successfully.'
+                  );
+                  window.location.reload();
+                },
+              });
+            } catch (err) {
+              handleNetworkError(err);
+            } finally {
+              enableFormSubmitButton?.('submit-sales-proposal-final-approval', 'Submit');
+              $('#sales-proposal-final-approval-offcanvas').offcanvas('hide');
+            }
       }
 
       return false;

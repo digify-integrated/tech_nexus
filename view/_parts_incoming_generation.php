@@ -527,6 +527,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 else if($company == '8'){
                     $link = 'fuel-incoming';
                 }
+                else if($company == '15'){
+                    $link = 'jaecoo-parts-incoming';
+                }
                 else{
                     $link = 'parts-incoming';
                 }
@@ -650,6 +653,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
                 else if($company == '8'){
                     $link = 'fuel-incoming';
+                }
+                else if($company == '15'){
+                    $link = 'jaecoo-parts-incoming';
                 }
                 else{
                     $link = 'parts-incoming';

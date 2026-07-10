@@ -83,6 +83,15 @@
                 </div>
               </div>
             </div>
+
+            <div class="col-md-6 ">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Paid By <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="paid_by" name="paid_by" maxlength="500" autocomplete="off">
+                </div>
+              </div>
+            </div>
           </div>
 
           <hr class="my-4">

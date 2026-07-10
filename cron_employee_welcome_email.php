@@ -38,8 +38,8 @@
     foreach ($options as $row) {
         $employeeID = $row['contact_id'];
         $getEmployeeWorkContactInformation = $employeeModel->getEmployeeWorkContactInformation($employeeID);
-        $email = $getEmployeeWorkContactInformation['email'] ?? '--';
-        $mobile = $getEmployeeWorkContactInformation['mobile'] ?? '--';
+        $email = $getEmployeeWorkContactInformation['email'] ?? null;
+        $mobile = $getEmployeeWorkContactInformation['mobile'] ?? null;
 
         $getPersonalInformation = $employeeModel->getPersonalInformation($employeeID);
         $fileAs = $getPersonalInformation['file_as'] ?? '--';

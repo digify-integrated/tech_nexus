@@ -106,7 +106,7 @@
         <form id="parts-incoming-form" method="post" action="#">
           <?php
             $readonly = '';
-            if($company == '2' || $company == '1' || $company == '3' || $company == '8'){
+            if($company == '2' || $company == '1' || $company == '3' || $company == '8' || $company == '15'){
               $readonly = 'readonly';
             }
 
@@ -127,7 +127,7 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label"><?php echo ($company == '3') ? 'Recommended By' : 'Requested By'; ?> <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label"><?php echo ($company == '3' || $company == '15') ? 'Recommended By' : 'Requested By'; ?> <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="request_by" name="request_by" maxlength="500" autocomplete="off" <?php echo $disabled; ?>>
             </div>

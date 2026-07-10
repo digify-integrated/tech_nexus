@@ -7089,8 +7089,8 @@ CREATE TABLE `insurance_request` (
   `for_submission_date` datetime,
   `submitted_date` datetime,
   `received_date` datetime,
-	`cancellation_reason` VARCHAR(500),
-	`cancellation_date` DATETIME,
+  `cancellation_reason` VARCHAR(500),
+  `cancellation_date` DATETIME,
   `customer_id` int(10),
   `sales_proposal_id` int(10),
   `insurance_category` ENUM('Trucks', 'Equipment', 'Equipment with AON') NOT NULL,
@@ -7140,11 +7140,13 @@ CREATE TABLE `insurance_policy` (
   `status` ENUM('Active', 'Cancelled') DEFAULT 'Active',
   `inception_date` DATE,
   `expiry_date` DATE,
-  `premium_amount` DOUBLE,
+  `gross` DOUBLE,
+  `net_premium` DOUBLE,
   `coverage_amount` DOUBLE,
+  `paid_by` VARCHAR(500),  
   `remarks` VARCHAR(500),  
-	`cancellation_reason` VARCHAR(500),
-	`cancellation_date` DATETIME,
+  `cancellation_reason` VARCHAR(500),
+  `cancellation_date` DATETIME,
   `last_log_by` int(10) UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -7170,11 +7172,80 @@ CREATE TABLE `insurance_claim` (
   `incident_date` DATE,
   `incident_location` VARCHAR(500),  
   `incident_description` TEXT,  
-	`cancellation_reason` VARCHAR(500),
-	`under_review_date` DATETIME,
-	`approved_date` DATETIME,
-	`cancellation_date` DATETIME,
+  `cancellation_reason` VARCHAR(500),
+  `under_review_date` DATETIME,
+  `approved_date` DATETIME,
+  `cancellation_date` DATETIME,
   `last_log_by` int(10) UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `pms_catalog`;
+CREATE TABLE `pms_catalog` (
+  `pms_catalog_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `pms_catalog_name` VARCHAR(100) NOT NULL,
+  `description` VARCHAR(500),
+  `company_id` INT NOT NULL,
+  `status` ENUM('locked', 'open') DEFAULT 'open',
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `pms_matrix_category`;
+CREATE TABLE `pms_matrix_category` (
+  `pms_matrix_category_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `pms_catalog_id` INT NOT NULL,
+  `product_subcategory_id` INT NOT NULL,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `pms_matrix`;
+CREATE TABLE `pms_matrix` (
+  `pms_matrix_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `pms_catalog_id` INT NOT NULL,
+  `odometer` VARCHAR(50) NOT NULL,
+  `months_interval` int(10) DEFAULT 1,
+  `consumables` DOUBLE DEFAULT 500,
+  `consumables_quantity` DOUBLE DEFAULT 1,
+  `consumables_total` DOUBLE DEFAULT 500,
+  `labor_cost` DOUBLE DEFAULT 900,
+  `labor_quantity` DOUBLE DEFAULT 1,
+  `labor_total` DOUBLE DEFAULT 900,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `pms_matrix_part`;
+CREATE TABLE pms_matrix_part (
+    pms_matrix_part_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    pms_matrix_id INT NOT NULL,
+    part_id INT NOT NULL,
+    required_quantity DOUBLE,
+    unit_id INT,
+    last_log_by INT UNSIGNED NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX(pms_matrix_id),
+    INDEX(part_id)
+);
+
+DROP TABLE IF EXISTS `pms_matrix_alternate_part`;
+CREATE TABLE pms_matrix_alternate_part (
+    pms_matrix_alternate_part_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    pms_matrix_id INT NOT NULL,
+    pms_matrix_part_id INT NOT NULL,
+    part_id INT NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX(pms_matrix_id),
+    INDEX(pms_matrix_part_id),
+    INDEX(part_id)
+);

@@ -483,6 +483,38 @@ class PartsModel {
 
         return $htmlOptions;
     }
+
+    public function generateFusoPartsOptions() {
+        $stmt = $this->db->getConnection()->prepare('SELECT part_id, description FROM part WHERE company_id IN (3) ORDER BY description');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $partsID = $row['part_id'];
+            $description = $row['description'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+
+    public function generateGeneratePartByCompanyOptions($company_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT part_id, description FROM part WHERE company_id IN (?) ORDER BY description');
+        $stmt->execute([$company_id]);
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $partsID = $row['part_id'];
+            $description = $row['description'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
     # -------------------------------------------------------------
 }
 ?>

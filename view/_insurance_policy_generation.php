@@ -31,37 +31,159 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
     switch ($type) {
         case 'insurance policy table':
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM insurance_policy');
-            $sql->execute();
+
+            $status_filter = $_POST['status_filter'];
+            $remittance_status_filter = $_POST['remittance_status_filter'];
+            $payment_status_filter = $_POST['payment_status_filter'];
+
+            $filter_inception_start_date = $systemModel->checkDate('empty', $_POST['filter_inception_start_date'], '', 'Y-m-d', '');
+            $filter_inception_end_date = $systemModel->checkDate('empty', $_POST['filter_inception_end_date'], '', 'Y-m-d', '');
+            $filter_expiry_start_date = $systemModel->checkDate('empty', $_POST['filter_expiry_start_date'], '', 'Y-m-d', '');
+            $filter_expiry_end_date = $systemModel->checkDate('empty', $_POST['filter_expiry_end_date'], '', 'Y-m-d', '');
+
+            $query = "SELECT * FROM insurance_policy WHERE 1=1";
+            $params = [];
+
+            // Status
+            if (!empty($status_filter)) {
+                if ($status_filter == 'Expired') {
+                    $query .= " AND status = 'Active' AND expiry_date < CURDATE()";
+                }
+                elseif ($status_filter == 'Active') {
+                    $query .= " AND status = 'Active' AND expiry_date >= CURDATE()";
+                }
+                else {
+                    $query .= " AND status = :status";
+                    $params[':status'] = $status_filter;
+                }
+            }
+
+            // Remittance Status
+            if (!empty($remittance_status_filter)) {
+                $query .= " AND remittance_status = :remittance_status";
+                $params[':remittance_status'] = $remittance_status_filter;
+            }
+
+            // Payment Status
+            if (!empty($payment_status_filter)) {
+                $query .= " AND payment_status = :payment_status";
+                $params[':payment_status'] = $payment_status_filter;
+            }
+
+            // Inception Date Range
+            if (!empty($filter_inception_start_date)) {
+                $query .= " AND inception_date >= :inception_start";
+                $params[':inception_start'] = $filter_inception_start_date;
+            }
+
+            if (!empty($filter_inception_end_date)) {
+                $query .= " AND inception_date <= :inception_end";
+                $params[':inception_end'] = $filter_inception_end_date;
+            }
+
+            // Expiry Date Range
+            if (!empty($filter_expiry_start_date)) {
+                $query .= " AND expiry_date >= :expiry_start";
+                $params[':expiry_start'] = $filter_expiry_start_date;
+            }
+
+            if (!empty($filter_expiry_end_date)) {
+                $query .= " AND expiry_date <= :expiry_end";
+                $params[':expiry_end'] = $filter_expiry_end_date;
+            }
+
+            $query .= " ORDER BY insurance_policy_id DESC";
+
+            $sql = $databaseModel->getConnection()->prepare($query);
+            $sql->execute($params);
+
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
             $insurancePolicyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 200, 'delete');
-              $currentDate = date('Y-m-d');
+
+            $today = new DateTime();
 
             foreach ($options as $row) {
+
                 $insurancePolicyID = $row['insurance_policy_id'];
                 $insurance_request_id = $row['insurance_request_id'];
                 $policy_number = $row['policy_number'];
                 $status = $row['status'];
-                $premium_amount = $row['premium_amount'] ?? 0;
+                $gross = $row['gross'] ?? 0;
+                $net_premium = $row['net_premium'] ?? 0;
                 $coverage_amount = $row['coverage_amount'] ?? 0;
-                $inception_date = $systemModel->checkDate('summary', $row['inception_date'], '', 'm/d/Y', '');
-                $expiry_date = $systemModel->checkDate('summary', $row['expiry_date'], '', 'm/d/Y', '');
 
+                $raw_inception_date = $row['inception_date'];
+                $raw_expiry_date = $row['expiry_date'];
+                $raw_remittance_date = $row['remittance_date'];
+                $raw_payment_date = $row['payment_date'];
+
+                $inception_date = $systemModel->checkDate('summary', $raw_inception_date, '', 'm/d/Y', '');
+                $expiry_date = $systemModel->checkDate('summary', $raw_expiry_date, '', 'm/d/Y', '');
+                $remittance_date = $systemModel->checkDate('summary', $raw_remittance_date, '', 'm/d/Y', '');
+                $payment_date = $systemModel->checkDate('summary', $raw_payment_date, '', 'm/d/Y', '');
+
+                // =========================
+                // EXPIRY CALCULATION
+                // =========================
+                $daysRemaining = null;
+                $expiryLabel = '';
+                $expiryBadgeClass = '';
+
+                if (!empty($raw_expiry_date)) {
+
+                    try {
+                        $expiry = new DateTime($raw_expiry_date);
+                        $daysRemaining = (int)$today->diff($expiry)->format('%r%a');
+
+                        if ($daysRemaining < 0) {
+                            $expiryLabel = abs($daysRemaining) . ' day(s) expired';
+                            $expiryBadgeClass = 'text-danger';
+
+                        } elseif ($daysRemaining == 0) {
+                            $expiryLabel = 'Expires today';
+                            $expiryBadgeClass = 'text-warning fw-bold';
+
+                        } elseif ($daysRemaining <= 3) {
+                            $expiryLabel = 'Expiring in ' . $daysRemaining . ' day(s)';
+                            $expiryBadgeClass = 'text-warning fw-bold';
+
+                        } else {
+                            $expiryLabel = $daysRemaining . ' day(s) remaining';
+                            $expiryBadgeClass = 'text-muted';
+                        }
+
+                    } catch (Exception $e) {
+                        $daysRemaining = null;
+                        $expiryLabel = 'Invalid date';
+                        $expiryBadgeClass = 'text-muted';
+                    }
+                }
+
+                // =========================
+                // STATUS LOGIC
+                // =========================
                 if ($status === 'Cancelled') {
                     $displayStatus = 'Cancelled';
-                    $statusBadge = 'danger';
-                }
-                elseif (!empty($expiry_date) && strtotime($expiry_date) < strtotime($currentDate)) {
+                    $statusBadge = 'warning';
+
+                } elseif ($daysRemaining !== null && $daysRemaining < 0) {
                     $displayStatus = 'Expired';
-                    $statusBadge = 'secondary';
-                }
-                else {
+                    $statusBadge = 'danger';
+
+                } elseif ($daysRemaining !== null && $daysRemaining <= 3) {
+                    $displayStatus = 'Expiring Soon';
+                    $statusBadge = 'warning';
+
+                } else {
                     $displayStatus = 'Active';
                     $statusBadge = 'success';
                 }
 
+                // =========================
+                // CUSTOMER DETAILS
+                // =========================
                 $insuranceRequestDetails = $insuranceRequestModel->getInsuranceRequest($insurance_request_id);
                 $customer_type = $insuranceRequestDetails['customer_type'];
                 $customer_id = $insuranceRequestDetails['customer_id'];
@@ -69,18 +191,18 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $insurance_type_id = $insuranceRequestDetails['insurance_type_id'];
                 $insurance_provider = $insuranceRequestDetails['insurance_provider'];
 
-                if($customer_type == 'Customer'){
+                if ($customer_type == 'Customer') {
                     $customerDetails = $customerModel->getPersonalInformation($customer_id);
                     $customerName = $customerDetails['file_as'] ?? null;
-                }
-                else if($customer_type == 'Miscellaneous'){
+
+                } elseif ($customer_type == 'Miscellaneous') {
                     $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
                     $customerName = $miscellaneousClientDetails['client_name'] ?? null;
-                }
-                else{   
-                    $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id); 
+
+                } else {
+                    $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
                     $customer_id = $salesProposalDetails['customer_id'];
-                    
+
                     $customerDetails = $customerModel->getPersonalInformation($customer_id);
                     $customerName = $customerDetails['file_as'] ?? null;
                 }
@@ -93,35 +215,61 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $insurancePolicyIDEncrypted = $securityModel->encryptData($insurancePolicyID);
 
+                // =========================
+                // DELETE BUTTON
+                // =========================
                 $delete = '';
-                if($insurancePolicyDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-insurance-policy" data-insurance-policy-id="'. $insurancePolicyID .'" title="Delete Insurance Policy">
+                if ($insurancePolicyDeleteAccess['total'] > 0) {
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-insurance-policy"
+                                    data-insurance-policy-id="'. $insurancePolicyID .'"
+                                    title="Delete Insurance Policy">
                                     <i class="ti ti-trash"></i>
-                                </button>';
+                            </button>';
                 }
 
+                // =========================
+                // RESPONSE
+                // =========================
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $insurancePolicyID .'">',
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children"
+                                        type="checkbox"
+                                        value="'. $insurancePolicyID .'">',
+
                     'POLICY_NUMBER' => $policy_number,
                     'CUSTOMER_NAME' => $customerName,
                     'INSURANCE_TYPE' => $insrance_type_name,
                     'PROVIDER_NAME' => $provider_name,
-                    'PREMIUM_AMOUNT' => number_format($premium_amount),
+                    'GROSS' => number_format($gross),
+                    'NET_PREMIUM' => number_format($net_premium),
+
                     'INCEPTION_DATE' => $inception_date,
-                    'EXPIRY_DATE' => $expiry_date,
+                    'REMITTANCE_DATE' => $remittance_date,
+                    'PAYMENT_DATE' => $payment_date,
+
+                    'EXPIRY_DATE' => '
+                        <div>
+                            <h6 class="mb-0">'. $expiry_date .'</h6>
+                            <small class="'. $expiryBadgeClass .'">'. $expiryLabel .'</small>
+                        </div>
+                    ',
+
                     'STATUS' => '<span class="badge bg-'. $statusBadge .'">
-                                   '. $displayStatus .'
+                                    '. $displayStatus .'
                                 </span>',
+
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="insurance-policy.php?id='. $insurancePolicyIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="insurance-policy.php?id='. $insurancePolicyIDEncrypted .'"
+                                    class="btn btn-icon btn-primary"
+                                    title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'
                                 </div>'
-                    ];
+                ];
             }
 
             echo json_encode($response);
+
         break;
     }
 }

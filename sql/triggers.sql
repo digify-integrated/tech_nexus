@@ -6343,7 +6343,7 @@ BEGIN
         VALUES ('loan_collections', NEW.loan_collection_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 
-END;
+END //
 
 
 CREATE TRIGGER loan_collections_trigger_insert
@@ -8099,7 +8099,7 @@ BEGIN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
         VALUES ('backjob_monitoring', NEW.backjob_monitoring_id, audit_log, NEW.last_log_by, NOW());
     END IF;
-END;
+END //
 
 DELIMITER //
 
@@ -8163,7 +8163,7 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at)
     VALUES ('backjob_monitoring', NEW.backjob_monitoring_id, audit_log, NEW.last_log_by, NOW());
-END;
+END //
 //
 
 
@@ -8788,4 +8788,199 @@ BEGIN
 
     END IF;
 
+END //
+
+CREATE TRIGGER insurance_policy_trigger_update
+AFTER UPDATE ON insurance_policy
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.insurance_request_id <> OLD.insurance_request_id THEN
+        SET audit_log = CONCAT(audit_log, 'Insurance Request ID: ', OLD.insurance_request_id, ' -> ', NEW.insurance_request_id, '<br/>');
+    END IF;
+
+    IF NEW.policy_number <> OLD.policy_number THEN
+        SET audit_log = CONCAT(audit_log, 'Policy Number: ', OLD.policy_number, ' -> ', NEW.policy_number, '<br/>');
+    END IF;
+
+    IF NEW.status <> OLD.status THEN
+        SET audit_log = CONCAT(audit_log, 'Status: ', OLD.status, ' -> ', NEW.status, '<br/>');
+    END IF;
+
+    IF NEW.remittance_status <> OLD.remittance_status THEN
+        SET audit_log = CONCAT(audit_log, 'Remittance Status: ', OLD.remittance_status, ' -> ', NEW.remittance_status, '<br/>');
+    END IF;
+
+    IF NEW.payment_status <> OLD.payment_status THEN
+        SET audit_log = CONCAT(audit_log, 'Payment Status: ', OLD.payment_status, ' -> ', NEW.payment_status, '<br/>');
+    END IF;
+
+    IF NEW.inception_date <> OLD.inception_date THEN
+        SET audit_log = CONCAT(audit_log, 'Inception Date: ', OLD.inception_date, ' -> ', NEW.inception_date, '<br/>');
+    END IF;
+
+    IF NEW.expiry_date <> OLD.expiry_date THEN
+        SET audit_log = CONCAT(audit_log, 'Expiry Date: ', OLD.expiry_date, ' -> ', NEW.expiry_date, '<br/>');
+    END IF;
+
+    IF NEW.gross <> OLD.gross THEN
+        SET audit_log = CONCAT(audit_log, 'Gross: ', OLD.gross, ' -> ', NEW.gross, '<br/>');
+    END IF;
+
+    IF NEW.net_premium <> OLD.net_premium THEN
+        SET audit_log = CONCAT(audit_log, 'Net Premium: ', OLD.net_premium, ' -> ', NEW.net_premium, '<br/>');
+    END IF;
+
+    IF NEW.coverage_amount <> OLD.coverage_amount THEN
+        SET audit_log = CONCAT(audit_log, 'Coverage Amount: ', OLD.coverage_amount, ' -> ', NEW.coverage_amount, '<br/>');
+    END IF;
+
+    IF NEW.remarks <> OLD.remarks THEN
+        SET audit_log = CONCAT(audit_log, 'Remarks updated.<br/>');
+    END IF;
+
+    IF NEW.cancellation_reason <> OLD.cancellation_reason THEN
+        SET audit_log = CONCAT(audit_log, 'Cancellation Reason updated.<br/>');
+    END IF;
+
+    IF NEW.cancellation_date <> OLD.cancellation_date THEN
+        SET audit_log = CONCAT(audit_log, 'Cancellation Date: ', OLD.cancellation_date, ' -> ', NEW.cancellation_date, '<br/>');
+    END IF;
+
+    IF NEW.remittance_date <> OLD.remittance_date THEN
+        SET audit_log = CONCAT(audit_log, 'Remittance Date: ', OLD.remittance_date, ' -> ', NEW.remittance_date, '<br/>');
+    END IF;
+
+    IF NEW.payment_date <> OLD.payment_date THEN
+        SET audit_log = CONCAT(audit_log, 'Payment Date: ', OLD.payment_date, ' -> ', NEW.payment_date, '<br/>');
+    END IF;
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log(table_name, reference_id, log, changed_by, changed_at)
+        VALUES('insurance_policy', NEW.insurance_policy_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER insurance_policy_trigger_insert
+AFTER INSERT ON insurance_policy
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Insurance policy created.<br/>';
+
+    SET audit_log = CONCAT(
+        audit_log,
+        'Policy Number: ', NEW.policy_number, '<br/>',
+        'Status: ', NEW.status, '<br/>',
+        'Remittance Status: ', NEW.remittance_status, '<br/>',
+        'Payment Status: ', NEW.payment_status, '<br/>',
+        'Inception Date: ', NEW.inception_date, '<br/>',
+        'Expiry Date: ', NEW.expiry_date, '<br/>',
+        'Gross: ', NEW.gross, '<br/>',
+        'Net Premium: ', NEW.net_premium, '<br/>'
+    );
+
+    INSERT INTO audit_log(table_name, reference_id, log, changed_by, changed_at)
+    VALUES('insurance_policy', NEW.insurance_policy_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER insurance_request_trigger_update
+AFTER UPDATE ON insurance_request
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.request_number <> OLD.request_number THEN
+        SET audit_log = CONCAT(audit_log, 'Request Number: ', OLD.request_number, ' -> ', NEW.request_number, '<br/>');
+    END IF;
+
+    IF NEW.status <> OLD.status THEN
+        SET audit_log = CONCAT(audit_log, 'Status: ', OLD.status, ' -> ', NEW.status, '<br/>');
+    END IF;
+
+    IF NEW.request_type <> OLD.request_type THEN
+        SET audit_log = CONCAT(audit_log, 'Request Type: ', OLD.request_type, ' -> ', NEW.request_type, '<br/>');
+    END IF;
+
+    IF NEW.customer_type <> OLD.customer_type THEN
+        SET audit_log = CONCAT(audit_log, 'Customer Type: ', OLD.customer_type, ' -> ', NEW.customer_type, '<br/>');
+    END IF;
+
+    IF NEW.insurance_provider <> OLD.insurance_provider THEN
+        SET audit_log = CONCAT(audit_log, 'Insurance Provider ID: ', OLD.insurance_provider, ' -> ', NEW.insurance_provider, '<br/>');
+    END IF;
+
+    IF NEW.insurance_type_id <> OLD.insurance_type_id THEN
+        SET audit_log = CONCAT(audit_log, 'Insurance Type ID: ', OLD.insurance_type_id, ' -> ', NEW.insurance_type_id, '<br/>');
+    END IF;
+
+    IF NEW.inception_date <> OLD.inception_date THEN
+        SET audit_log = CONCAT(audit_log, 'Inception Date: ', OLD.inception_date, ' -> ', NEW.inception_date, '<br/>');
+    END IF;
+
+    IF NEW.total_premium <> OLD.total_premium THEN
+        SET audit_log = CONCAT(audit_log, 'Total Premium: ', OLD.total_premium, ' -> ', NEW.total_premium, '<br/>');
+    END IF;
+
+    IF NEW.gross <> OLD.gross THEN
+        SET audit_log = CONCAT(audit_log, 'Gross: ', OLD.gross, ' -> ', NEW.gross, '<br/>');
+    END IF;
+
+    IF NEW.net_premium <> OLD.net_premium THEN
+        SET audit_log = CONCAT(audit_log, 'Net Premium: ', OLD.net_premium, ' -> ', NEW.net_premium, '<br/>');
+    END IF;
+
+    IF NEW.net_commission <> OLD.net_commission THEN
+        SET audit_log = CONCAT(audit_log, 'Net Commission: ', OLD.net_commission, ' -> ', NEW.net_commission, '<br/>');
+    END IF;
+
+    IF NEW.plate_number <> OLD.plate_number THEN
+        SET audit_log = CONCAT(audit_log, 'Plate Number: ', OLD.plate_number, ' -> ', NEW.plate_number, '<br/>');
+    END IF;
+
+    IF NEW.engine_number <> OLD.engine_number THEN
+        SET audit_log = CONCAT(audit_log, 'Engine Number updated.<br/>');
+    END IF;
+
+    IF NEW.chassis_number <> OLD.chassis_number THEN
+        SET audit_log = CONCAT(audit_log, 'Chassis Number updated.<br/>');
+    END IF;
+
+    IF NEW.assured <> OLD.assured THEN
+        SET audit_log = CONCAT(audit_log, 'Assured: ', OLD.assured, ' -> ', NEW.assured, '<br/>');
+    END IF;
+
+    IF NEW.paid_by <> OLD.paid_by THEN
+        SET audit_log = CONCAT(audit_log, 'Paid By: ', OLD.paid_by, ' -> ', NEW.paid_by, '<br/>');
+    END IF;
+
+    IF NEW.remarks <> OLD.remarks THEN
+        SET audit_log = CONCAT(audit_log, 'Remarks updated.<br/>');
+    END IF;
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log(table_name, reference_id, log, changed_by, changed_at)
+        VALUES('insurance_request', NEW.insurance_request_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER insurance_request_trigger_insert
+AFTER INSERT ON insurance_request
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Insurance request created.<br/>';
+
+    SET audit_log = CONCAT(
+        audit_log,
+        'Request Number: ', NEW.request_number, '<br/>',
+        'Status: ', NEW.status, '<br/>',
+        'Request Type: ', NEW.request_type, '<br/>',
+        'Customer Type: ', NEW.customer_type, '<br/>',
+        'Insurance Category: ', NEW.insurance_category, '<br/>',
+        'Gross: ', NEW.gross, '<br/>',
+        'Net Premium: ', NEW.net_premium, '<br/>'
+    );
+
+    INSERT INTO audit_log(table_name, reference_id, log, changed_by, changed_at)
+    VALUES('insurance_request', NEW.insurance_request_id, audit_log, NEW.last_log_by, NOW());
 END //

@@ -179,15 +179,22 @@
                 <label class="col-lg-4 col-form-label">Product Type : <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
                   <select class="form-control select2" name="product_type" id="product_type">
-                    <option value="">--</option>
-                    <option value="Unit">Unit</option>
-                    <option value="Fuel">Fuel</option>
-                    <option value="Parts">Parts</option>
-                    <option value="Repair">Repair</option>
-                    <option value="Rental">Rental</option>
-                    <option value="Financing Brand New">Financing Brand New</option>
-                    <option value="Refinancing">Refinancing</option>
-                    <option value="Real Estate">Real Estate</option>
+                     <option value="">--</option>
+                        <optgroup label="Sales">
+                          <option value="Unit">Unit</option>
+                          <option value="Fuel">Fuel</option>
+                          <option value="Rental">Rental</option>
+                          <option value="Consignment">Consignment</option>
+                          <option value="Brand New">Brand New</option>
+                          <option value="Refinancing">Refinancing</option>
+                          <option value="Restructure">Restructure</option>
+                          <option value="Real Estate">Real Estate</option>
+                        </optgroup>
+                        <optgroup label="Aftersales">
+                          <option value="PMS">PMS</option>
+                          <option value="Parts">Parts</option>
+                          <option value="Repair">Repair</option>
+                        </optgroup>
                   </select>
                 </div>
               </div>

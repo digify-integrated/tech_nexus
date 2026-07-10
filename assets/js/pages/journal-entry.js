@@ -9,6 +9,10 @@
         $(document).on('click','#apply-filter',function() {
             journalEntryTable('#journal-entry-table', true, true);
         });
+
+        $(document).on('click', '#journal-id-all', function () {
+            $('.journal-id-checkbox').not(this).prop('checked', $(this).prop('checked'));
+        });
     });
 })(jQuery);
 
@@ -34,7 +38,8 @@ function journalEntryTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CREDIT' },
         { 'data' : 'JOURNAL_LABEL' },
         { 'data' : 'ANALYTIC_LINES' },
-        { 'data' : 'ANALYTIC_DISTRIBUTION' }
+        { 'data' : 'ANALYTIC_DISTRIBUTION' },
+        { 'data' : 'REMARKS' },
     ];
 
     const column_definition = [
@@ -47,7 +52,8 @@ function journalEntryTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
         { 'width': 'auto', 'aTargets': 8 },
-        { 'width': 'auto', 'aTargets': 9 }
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 10 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

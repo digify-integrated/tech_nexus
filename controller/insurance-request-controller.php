@@ -39,6 +39,9 @@ class InsuranceRequestController {
                 case 'tag request received':
                     $this->saveInsuranceRequestAsReceived();
                     break;
+                case 'tag request cancelled':
+                    $this->saveInsuranceRequestAsCancelled();
+                    break;
                 case 'tag request submitted':
                     $this->saveInsuranceRequestAsSubmitted();
                     break;
@@ -83,17 +86,29 @@ class InsuranceRequestController {
         $chassisNumber = htmlspecialchars($_POST['chassis_number'], ENT_QUOTES, 'UTF-8');
         $engineNumber = htmlspecialchars($_POST['engine_number'], ENT_QUOTES, 'UTF-8');
         $mvFileNumber = htmlspecialchars($_POST['mv_file_number'], ENT_QUOTES, 'UTF-8');
+        $mvFileNumber = htmlspecialchars($_POST['mv_file_number'], ENT_QUOTES, 'UTF-8');
         $insurance_policy_id = $_POST['insurance_policy_id'];
+        $paid_by = $_POST['paid_by'];
 
         if($customerType == 'Customer'){
             $salesProposalId = '';
+            $assured = '';
+            $delivery_price = 0;
         }
         else if($customerType == 'Miscellaneous') {
             $customerId = $miscId;
             $salesProposalId = '';
+            $assured = '';
+            $delivery_price = 0;
         }
         else{
-            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalId);        
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalId);    
+            $pricingComputationDetails = $this->salesProposalModel->getSalesProposalPricingComputation($salesProposalId);
+            $salesProposalOtherChargesDetails = $this->salesProposalModel->getSalesProposalOtherProductDetails($salesProposalId);
+            
+            $assured = $salesProposalOtherChargesDetails['assured'] ?? null;
+
+            $delivery_price = $pricingComputationDetails['total_delivery_price'] ?? 0;    
             $customerId = $salesProposalDetails['customer_id'] ?? null;
             $productID = $salesProposalDetails['product_id'] ?? null;
 
@@ -124,7 +139,7 @@ class InsuranceRequestController {
             $this->insuranceRequestModel->updateInsuranceRequest(
                 $insuranceRequestID, $requestType, $inceptionDate, $insuranceProviderId, 
                 $insuranceTypeId, $customerType, $customerId, $salesProposalId, 
-                $yearModel, $color, $make, $plateNumber, $chassisNumber, $engineNumber, $mvFileNumber, $insurance_policy_id,
+                $yearModel, $color, $make, $plateNumber, $chassisNumber, $engineNumber, $mvFileNumber, $insurance_policy_id, $paid_by, $assured,
                 $userID
             );
             
@@ -136,7 +151,7 @@ class InsuranceRequestController {
             $insuranceRequestID = $this->insuranceRequestModel->insertInsuranceRequest(
                 $requestType, $inceptionDate, $insuranceProviderId, $insuranceTypeId, 
                 $customerType, $customerId, $salesProposalId, 
-                $yearModel, $color, $make, $plateNumber, $chassisNumber, $engineNumber, $mvFileNumber, $insurance_policy_id,
+                $yearModel, $color, $make, $plateNumber, $chassisNumber, $engineNumber, $mvFileNumber, $insurance_policy_id, $delivery_price, $delivery_price, $paid_by, $assured,
                 $userID
             );
 
@@ -182,7 +197,9 @@ class InsuranceRequestController {
         $userID = $_SESSION['user_id'];
         $insuranceRequestID = $_POST['insurance_request_id'];
         $policy_number = $_POST['policy_number'];
-        $premium_amount = $_POST['premium_amount'];
+        $paid_by = $_POST['paid_by'];
+        $gross = $_POST['gross'];
+        $net_premium = $_POST['net_premium'];
         $coverage_amount = $_POST['coverage_amount'];
         $remarks = $_POST['remarks'];
         $inception_date2 = $this->systemModel->checkDate('empty', $_POST['inception_date2'], '', 'Y-m-d', '');
@@ -199,7 +216,37 @@ class InsuranceRequestController {
     
         if ($total > 0) {
             $this->insuranceRequestModel->updateInsuranceRequestStatus($insuranceRequestID, 'Received', $userID);
-            $this->insuranceRequestModel->insertInsurancePolicy($insuranceRequestID, $policy_number, $premium_amount, $coverage_amount, $inception_date2, $expiration_date, $remarks, $userID);
+            $this->insuranceRequestModel->insertInsurancePolicy($insuranceRequestID, $policy_number, $gross, $net_premium, $coverage_amount, $inception_date2, $expiration_date, $remarks, $userID);
+            
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'Record not found.']);
+            exit;
+        }
+    }
+
+    public function saveInsuranceRequestAsCancelled() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $insuranceRequestID = $_POST['insurance_request_id'];
+        $cancellation_reason = $_POST['cancellation_reason'];
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkInsuranceRequestExist = $this->insuranceRequestModel->checkInsuranceRequestExist($insuranceRequestID);
+        $total = $checkInsuranceRequestExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->insuranceRequestModel->updateInsuranceRequestCancelled($insuranceRequestID, $cancellation_reason, $userID);
             
             echo json_encode(['success' => true]);
             exit;
@@ -257,6 +304,15 @@ class InsuranceRequestController {
         $total = $checkInsuranceRequestExist['total'] ?? 0;
     
         if ($total > 0) {
+            $insuranceRequestDetails = $this->insuranceRequestModel->getInsuranceRequest($insuranceRequestID);
+            $request_type = $insuranceRequestDetails['request_type'] ?? 'New Policy';
+            $insurance_policy_id = $insuranceRequestDetails['insurance_policy_id'] ?? null;
+
+            if($request_type == 'Renewal' && empty($insurance_policy_id)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the insurance policy.']);
+                exit;
+            }
+                                
             $this->insuranceRequestModel->updateInsuranceRequestStatus($insuranceRequestID, 'For Submission', $userID);
             
             echo json_encode(['success' => true]);
@@ -425,8 +481,9 @@ class InsuranceRequestController {
                 'aonCoverage' => $insuranceRequestDetails['aon_coverage'] ?? 0,
                 'tpbiCoverage' => $insuranceRequestDetails['tpbi_coverage'],
                 'tppdCoverage' => $insuranceRequestDetails['tppd_coverage'],
+                'paidBy' => $insuranceRequestDetails['paid_by'],
+                'assured' => $insuranceRequestDetails['assured'],
                 'inceptionDate' =>  $this->systemModel->checkDate('empty', $insuranceRequestDetails['inception_date'], '', 'm/d/Y', ''),
-
                 'yearModel'          => $insuranceRequestDetails['year_model'] ?? '',
                 'color'              => $insuranceRequestDetails['color'] ?? '',
                 'make'               => $insuranceRequestDetails['make'] ?? '',

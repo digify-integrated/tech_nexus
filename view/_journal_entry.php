@@ -36,63 +36,67 @@
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-1" value="Miscellaneous Operations" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-all" value="" />
+                                <label class="form-check-label" for="journal-id-all">All</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-1" value="Miscellaneous Operations" />
                                 <label class="form-check-label" for="journal-id-1">Miscellaneous Operations</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-2" value="Check Disbursement Operations" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-2" value="Check Disbursement Operations" />
                                 <label class="form-check-label" for="journal-id-2">Check Disbursement Operations</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-3" value="Disbursement Operations" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-3" value="Disbursement Operations" />
                                 <label class="form-check-label" for="journal-id-3">Disbursement Operations</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-4" value="Liquidation Operations" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-4" value="Liquidation Operations" />
                                 <label class="form-check-label" for="journal-id-4">Liquidation Operations</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-5" value="Parts Purchase" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-5" value="Parts Purchase" />
                                 <label class="form-check-label" for="journal-id-5">Parts Purchase</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-6" value="Parts Issuance" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-6" value="Parts Issuance" />
                                 <label class="form-check-label" for="journal-id-6">Parts Issuance</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-14" value="Fuel Issuance" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-14" value="Fuel Issuance" />
                                 <label class="form-check-label" for="journal-id-14">Fuel Issuance</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-15" value="Fuel Purchase" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-15" value="Fuel Purchase" />
                                 <label class="form-check-label" for="journal-id-15">Fuel Purchase</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-7" value="Parts Return" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-7" value="Parts Return" />
                                 <label class="form-check-label" for="journal-id-7">Parts Return</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-8" value="Job Order" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-8" value="Job Order" />
                                 <label class="form-check-label" for="journal-id-8">Job Order</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-9" value="Additional Job Order" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-9" value="Additional Job Order" />
                                 <label class="form-check-label" for="journal-id-9">Additional Job Order</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-10" value="Internal Job Order" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-10" value="Internal Job Order" />
                                 <label class="form-check-label" for="journal-id-10">Internal Job Order</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-11" value="Internal Additional Job Order" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-11" value="Internal Additional Job Order" />
                                 <label class="form-check-label" for="journal-id-11">Internal Additional Job Order</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-12" value="Stock Transfer Advice" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-12" value="Stock Transfer Advice" />
                                 <label class="form-check-label" for="journal-id-12">Stock Transfer Advice</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-13" value="Purchase Order" checked/>
+                                <input class="form-check-input journal-id-checkbox" type="checkbox" id="journal-id-13" value="Purchase Order" />
                                 <label class="form-check-label" for="journal-id-13">Purchase Order</label>
                               </div>
                             </div>
@@ -139,6 +143,7 @@
                     <th>Journal Items/Label</th>
                     <th>Journal Items/Analytic lines/Name</th>
                     <th>Journal Items/Analytic Distribution</th>
+                    <th>Remarks</th>
                   </tr>
                 </thead>
                 <tbody></tbody>

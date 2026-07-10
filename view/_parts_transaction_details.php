@@ -174,11 +174,15 @@
                   <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
             </div>
-            <div class="col-lg-6 mt-3 mt-lg-0 <?php if($company != '3') echo 'd-none'; ?>">
+            <div class="col-lg-6 mt-3  mt-lg-0 sp-no d-none">
+              <label class="form-label">Sales Proposal Number</label>
+              <input type="text" class="form-control" id="sales_proposal_number" name="sales_proposal_number" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-lg-6 mt-3 mt-lg-0 <?php if($company != '3' && $company != '15') echo 'd-none'; ?>">
               <label class="form-label" id="issuance_no_label">Issuance Number</label>
               <input type="text" class="form-control" id="issuance_no" name="issuance_no" maxlength="10" autocomplete="off" <?php echo $disabled; ?>>
             </div>
-            <div class="col-lg-6 mt-3 <?php if($company == '3') echo 'd-none'; ?>">
+            <div class="col-lg-6 mt-3 <?php if($company == '3' || $company == '15') echo 'd-none'; ?>">
               <label class="form-label">Issuance Date</label>
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="issuance_date" name="issuance_date" autocomplete="off" <?php echo $disabled; ?>>
@@ -188,7 +192,7 @@
               </div>
             </div>
             <div class="col-lg-6 mt-3 mt-lg-0 d-none issuance-for-details">
-              <label class="form-label d-none ">Issuance For? <span class="text-danger">*</span></label>
+              <label class="form-label ">Issuance For? <span class="text-danger">*</span></label>
               <select class="form-control select2" name="issuance_for" id="issuance_for" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <option value="Repairs">Repairs</option>
@@ -682,7 +686,7 @@
     </div>
   </div>
 
- <div>
+<div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="approve-transaction-offcanvas" aria-labelledby="approve-transaction-offcanvas-label">
       <div class="offcanvas-header">
         <h2 id="approve-transaction-offcanvas-label" style="margin-bottom:-0.5rem">Validate Transaction</h2>
@@ -709,6 +713,7 @@
       </div>
     </div>
   </div>
+</div>
 
 <div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="part-cart-offcanvas" aria-labelledby="part-cart-offcanvas-label">

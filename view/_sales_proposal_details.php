@@ -32,6 +32,8 @@
   $customerTelephone = !empty($customerContactInformation['telephone']) ? $customerContactInformation['telephone'] : '--';
   $customerEmail = !empty($customerContactInformation['email']) ? $customerContactInformation['email'] : '--';
 
+  $ciExist = $customerModel->checkCISalesProposalExist($salesProposalID, $customerID)['total'] ?? 0;
+
   if($total == 0){
     header('location: 404.php');
     exit;
@@ -138,6 +140,19 @@
               aria-selected="false"
               data-step="refinancing">
               Refinancing Details
+            </a>
+          </li>
+
+          <li>
+            <a class="nav-link d-none"
+              id="sales-proposal-tab-18"
+              data-bs-toggle="pill"
+              href="#v-pms-details"
+              role="tab"
+              aria-controls="v-pms-details"
+              aria-selected="false"
+              data-step="pms">
+              PMS Details
             </a>
           </li>
 
@@ -495,6 +510,7 @@
             <form id="sales-proposal-form" method="post" action="#">
               <input type="hidden" id="sales_proposal_status" value="<?php echo $salesProposalStatus; ?>">
               <input type="hidden" id="sales_proposal_type" value="details">
+              <input type="hidden" id="ci_report_count" value="<?php echo $ciExist; ?>">
               <div class="row">
                 <div class="col-lg-6">
                   <div class="form-group row">
@@ -571,15 +587,21 @@
                     <div class="col-lg-7">
                       <select class="form-control select2" name="product_type" id="product_type">
                         <option value="">--</option>
-                        <option value="Unit">Unit</option>
-                        <option value="Fuel">Fuel</option>
-                        <option value="Parts">Parts</option>
-                        <option value="Repair">Repair</option>
-                        <option value="Rental">Rental</option>
-                        <option value="Brand New">Brand New</option>
-                        <option value="Refinancing">Refinancing</option>
-                        <option value="Restructure">Restructure</option>
-                        <option value="Real Estate">Real Estate</option>
+                        <optgroup label="Sales">
+                          <option value="Unit">Unit</option>
+                          <option value="Fuel">Fuel</option>
+                          <option value="Rental">Rental</option>
+                          <option value="Consignment">Consignment</option>
+                          <option value="Brand New">Brand New</option>
+                          <option value="Refinancing">Refinancing</option>
+                          <option value="Restructure">Restructure</option>
+                          <option value="Real Estate">Real Estate</option>
+                        </optgroup>
+                        <optgroup label="Aftersales">
+                          <option value="PMS">PMS</option>
+                          <option value="Parts">Parts</option>
+                          <option value="Repair">Repair</option>
+                        </optgroup>
                       </select>
                     </div>
                   </div>
@@ -1024,6 +1046,20 @@
                 <label class="col-lg-2 col-form-label">Unit Description : </label>
                 <div class="col-lg-10">
                   <textarea class="form-control" id="unit_description" name="unit_description" maxlength="1000" rows="3"></textarea>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="tab-pane" id="v-pms-details">
+            <form id="sales-proposal-pms-details-form" method="post" action="#">
+              <div class="form-group row">
+                <label class="col-lg-7 col-form-label">PMS Catalog : </label>
+                <div class="col-lg-5">
+                  <select class="form-control select2" name="pms_catalog_id" id="pms_catalog_id">
+                    <option value="">--</option>
+                    <?php #echo $pmsCatalogModel->generatePMSCatalogOptions(); ?>
+                  </select>
                 </div>
               </div>
             </form>
@@ -2328,7 +2364,7 @@
                         <option value="">--</option>
                         <option value="Before Final Approval">Before Final Approval</option>
                         <option value="Before Release">Before Release</option>
-                        <option value="After Release">After Release</option>
+                        <!--<option value="After Release">After Release</option>-->
                     </select>
                 </div>
             </div>

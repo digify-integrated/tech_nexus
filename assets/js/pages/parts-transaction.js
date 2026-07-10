@@ -414,7 +414,7 @@
             let product_id = $('#product_id').val();
             $('#misc-select, #customer-select, #department-select, #internal-select')
                 .addClass('d-none');
-            $('#customer-label, #department-label, #internal-label')
+            $('#customer-label, #department-label, #internal-label, .sp-no')
                 .addClass('d-none');
             
 
@@ -437,16 +437,10 @@
                     $('#issuance_no_label').text('Issuance Number');
                     break;
                 case 'Customer':
-                    $('#customer-select, #customer-label').removeClass('d-none');
-                    if($('#page-company').val() == '3'){
-                        $('#issuance_no_label').text('Sales Proposal Number');
-                    }
-                    else{
-                        $('#issuance_no_label').text('Issuance Number');
-                    }
+                    $('#customer-select, #customer-label, .sp-no').removeClass('d-none');
                     break;
                 case 'Miscellaneous':
-                    $('#misc-select, #customer-label').removeClass('d-none'); 
+                    $('#misc-select, #customer-label, .sp-no').removeClass('d-none'); 
                     $('#issuance_no_label').text('Issuance Number');
                     break;
                 default: // Internal (or anything else)
@@ -1410,7 +1404,7 @@ function partsTransactionForm(){
                     depends: function () {
                         var companyVal = $('#page-company').val();
                         var customerType = $("#customer_type").val();
-                        return (companyVal === '2' || companyVal === '3' || companyVal === '8') && customerType != 'Customer'
+                        return (companyVal === '2' || companyVal === '3' || companyVal === '15' || companyVal === '8') && customerType != 'Customer'
                     }
                 }
             },
@@ -1422,7 +1416,7 @@ function partsTransactionForm(){
                     depends: function () {
                     var val = $('#page-company').val();
                     return $("select[name='customer_type']").val() === 'Customer' &&
-                            val === '3';
+                            (val === '3' || val === '15');
                     }
                 },
                 minlength: 10,
@@ -1517,6 +1511,9 @@ function partsTransactionForm(){
                         }
                         else if(company_id == '8'){
                              window.location = 'fuel-issuance.php?id=' + response.partsTransactionID;
+                        }
+                        else if(company_id == '15'){
+                             window.location = 'jaecoo-parts-transaction.php?id=' + response.partsTransactionID;
                         }
                         else{
                              window.location = 'parts-transaction.php?id=' + response.partsTransactionID;
@@ -2208,6 +2205,7 @@ function displayDetails(transaction){
                         $('#issuance_no').val(response.issuance_no);
                         $('#issuance_date').val(response.issuance_date);
                         $('#reference_number').val(response.reference_number);
+                        $('#sales_proposal_number').val(response.sales_proposal_number);
                         $('#reference_date').val(response.reference_date);
                         $('#remarks').val(response.remarks);
                         $('#request_by').val(response.request_by);

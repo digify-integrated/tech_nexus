@@ -136,68 +136,117 @@
                 showNotification('Deletion Multiple Insurance Policy Error', 'Please select the insurance policy you wish to delete.', 'danger');
             }
         });
+
+        $(document).on('click','#apply-filter',function() {
+            insurancePolicyTable('#insurance-policy-table');
+        });
     });
 })(jQuery);
 
-function insurancePolicyTable(datatable_name, buttons = false, show_all = false){
-    const policy = 'insurance policy table';
-    var settings;
+function insurancePolicyTable(datatable_name) {
 
-    const column = [ 
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'POLICY_NUMBER' },
-        { 'data' : 'CUSTOMER_NAME' },
-        { 'data' : 'INSURANCE_TYPE' },
-        { 'data' : 'PROVIDER_NAME' },
-        { 'data' : 'PREMIUM_AMOUNT' },
-        { 'data' : 'INCEPTION_DATE' },
-        { 'data' : 'EXPIRY_DATE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
+    const type = 'insurance policy table';
+
+    const status_filter = $('#status_filter').val();
+    const remittance_status_filter = $('#remittance_status_filter').val();
+    const payment_status_filter = $('#payment_status_filter').val();
+    const filter_inception_start_date = $('#filter_inception_start_date').val();
+    const filter_inception_end_date = $('#filter_inception_end_date').val();
+    const filter_expiry_start_date = $('#filter_expiry_start_date').val();
+    const filter_expiry_end_date = $('#filter_expiry_end_date').val();
+
+    const column = [
+        { data: 'CHECK_BOX' },
+        { data: 'POLICY_NUMBER' },
+        { data: 'CUSTOMER_NAME' },
+        { data: 'INSURANCE_TYPE' },
+        { data: 'PROVIDER_NAME' },
+        { data: 'GROSS' },
+        { data: 'NET_PREMIUM' },
+        { data: 'INCEPTION_DATE' },
+        { data: 'EXPIRY_DATE' },
+        { data: 'REMITTANCE_DATE' },
+        { data: 'PAYMENT_DATE' },
+        { data: 'STATUS' },
+        { data: 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '15%','bSortable': false, 'aTargets': 9 }
+        { width: '1%', bSortable: false, targets: 0 },
+        { width: 'auto', type: 'date', targets: 7 },
+        { width: '15%', bSortable: false, targets: 12 }
     ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_insurance_policy_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : policy},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 1, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
 
     destroyDatatable(datatable_name);
 
-    $(datatable_name).dataTable(settings);
+    const table = $(datatable_name).DataTable({
+        ajax: {
+            url: 'view/_insurance_policy_generation.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                type: type,
+                status_filter: status_filter,
+                remittance_status_filter: remittance_status_filter,
+                payment_status_filter: payment_status_filter,
+                filter_inception_start_date: filter_inception_start_date,
+                filter_inception_end_date: filter_inception_end_date,
+                filter_expiry_start_date: filter_expiry_start_date,
+                filter_expiry_end_date: filter_expiry_end_date
+            },
+            dataSrc: '',
+            error: function (xhr, status, error) {
+                let fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+
+        order: [[7, 'asc']],
+        columns: column,
+        columnDefs: column_definition,
+
+        // Hide the default DataTables buttons
+        dom: 'rtip',
+
+        language: {
+            emptyTable: 'No data found',
+            searchPlaceholder: 'Search...',
+            search: '',
+            loadingRecords: 'Just a moment while we fetch your data...'
+        },
+
+        buttons: [
+            {
+                extend: 'csvHtml5',
+                title: 'Insurance Policy List'
+            },
+            {
+                extend: 'excelHtml5',
+                title: 'Insurance Policy List'
+            },
+            {
+                extend: 'pdfHtml5',
+                title: 'Insurance Policy List'
+            }
+        ]
+    });
+
+    $('#export-csv').off('click').on('click', function () {
+        table.button(0).trigger();
+    });
+
+    $('#export-excel').off('click').on('click', function () {
+        table.button(1).trigger();
+    });
+
+    $('#export-pdf').off('click').on('click', function () {
+        table.button(2).trigger();
+    });
 }
 
 function insurancePolicyForm(){
@@ -466,7 +515,8 @@ function displayDetails(transaction){
                         $('#insurance_type_1').text(response.insuranceType);
                         $('#insurance_type_2').text(response.insuranceType);
                         $('#coverage_amount').text(response.coverageAmount);
-                        $('#premium_amount').text(response.premiumAmount);
+                        $('#gross_amount').text(response.grossAmount);
+                        $('#net_premium_amount').text(response.netPremiumAmount);
                         $('#expiry_date_1').text(response.expiryDate);
                         $('#expiry_date_2').text(response.expiryDate);
                         $('#inception_date').text(response.inceptionDate);
@@ -481,6 +531,8 @@ function displayDetails(transaction){
                         $('#engine_number').text(response.engineNumber);
                         $('#chassis_number').text(response.chassisNumber);
                         $('#mv_file_number').text(response.mvFileNumber);
+                        $('#paid_by').text(response.paidBy);
+                        $('#assured').text(response.assured);
                         
                         $('#policy_status_1').html(`
                             <span class="badge bg-${response.statusBadge}">

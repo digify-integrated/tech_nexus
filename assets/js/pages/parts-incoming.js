@@ -482,7 +482,8 @@ function partsIncomingForm(){
             reference_number: {
                 required: {
                     depends: function () {
-                        return $('#page-company').val() === '3';
+                        var val = $('#page-company').val();
+                        return val === '3' || val === '15';
                     }
                 }
             },
@@ -499,7 +500,7 @@ function partsIncomingForm(){
                 required: {
                     depends: function () {
                         var val = $('#page-company').val();
-                        return val === '2' || val === '3';
+                        return val === '2' || val === '3' || val === '15';
                     }
                 }
             },
@@ -507,7 +508,7 @@ function partsIncomingForm(){
                 required: {
                     depends: function () {
                         var val = $('#page-company').val();
-                        return val === '2' || val === '3';
+                        return val === '2' || val === '3' || val === '15';
                     }
                 }
             }
@@ -589,6 +590,9 @@ function partsIncomingForm(){
                         }
                         else if(company_id == '8'){
                             window.location = 'fuel-incoming.php?id=' + response.partsIncomingID;
+                        }
+                        else if(company_id == '15'){
+                            window.location = 'jaecoo-parts-incoming.php?id=' + response.partsIncomingID;
                         }
                         else{
                             window.location = 'parts-incoming.php?id=' + response.partsIncomingID;

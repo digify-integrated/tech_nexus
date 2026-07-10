@@ -176,6 +176,7 @@ class PartsTransactionController {
         $department_id = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
         $company_id = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $reference_number = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
+        $sales_proposal_number = htmlspecialchars($_POST['sales_proposal_number'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
         
         $request_by = htmlspecialchars($_POST['request_by'], ENT_QUOTES, 'UTF-8');
@@ -189,7 +190,7 @@ class PartsTransactionController {
             $issuance_for = '';
         }
     
-        if($customer_type == 'Customer' && $company_id == '3'){
+        if($customer_type == 'Customer' && ($company_id == '3' || $company_id == '15')) {
             $issuance_no = htmlspecialchars($_POST['issuance_for'], ENT_QUOTES, 'UTF-8');
         }
         else{
@@ -223,7 +224,7 @@ class PartsTransactionController {
             $overall_discount_type = htmlspecialchars($_POST['overall_discount_type'], ENT_QUOTES, 'UTF-8');
             $overall_discount_total = htmlspecialchars($_POST['overall_discount_total'], ENT_QUOTES, 'UTF-8');
 
-            if($customer_type == 'Customer' && $company_id == '3'){
+            if($customer_type == 'Customer' && ($company_id == '3' || $company_id == '15')){
                 $issuance_no = htmlspecialchars($_POST['issuance_for'], ENT_QUOTES, 'UTF-8');
             }
             else{
@@ -231,14 +232,14 @@ class PartsTransactionController {
                 $issuance_no = $partsTransactionDetails['issuance_no'];
             }           
 
-            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $issuance_for, $overall_discount, $overall_discount_type, $overall_discount_total, $request_by, $customer_ref_id, $userID);
+            $this->partsTransactionModel->updatePartsTransaction($parts_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $issuance_for, $overall_discount, $overall_discount_type, $overall_discount_total, $request_by, $customer_ref_id, $sales_proposal_number, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => false, 'partsTransactionID' => $this->securityModel->encryptData($parts_transaction_id)]);
             exit;
         } 
         else {
             $partsTransactionID = $this->generateTransactionID();
-            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $issuance_for, $request_by, $customer_ref_id, $userID);
+            $this->partsTransactionModel->insertPartsTransaction($partsTransactionID, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $issuance_for, $request_by, $customer_ref_id, $sales_proposal_number, $userID);
 
             echo json_encode(value: ['success' => true, 'insertRecord' => true, 'partsTransactionID' => $this->securityModel->encryptData($partsTransactionID)]);
             exit;
@@ -474,6 +475,7 @@ class PartsTransactionController {
         $customer_type = $partsTransactionDetails['customer_type'] ?? '';
         $customer_id = $partsTransactionDetails['customer_id'] ?? '';
         $remarks = $partsTransactionDetails['remarks'] ?? '';
+        $sales_proposal_number = $partsTransactionDetails['sales_proposal_number'] ?? '';
        
         if($customer_type == 'Internal' && $customer_id == 958){
             $issuance_for = $partsTransactionDetails['issuance_for'] ?? '';
@@ -515,8 +517,8 @@ class PartsTransactionController {
             $product_status = 'Draft';
         }
 
-        if($company_id == '2' || $company_id == '3' || $company_id == '8'){         
-            $this->partsTransactionModel->createPartsTransactionEntry($parts_transaction_id, $company_id, $p_reference_number, $cost, $overallTotal, $customer_type, $is_service, $product_status, $issuance_for, $userID);
+        if($company_id == '2' || $company_id == '3' || $company_id == '15' || $company_id == '8'){
+            $this->partsTransactionModel->createPartsTransactionEntry($parts_transaction_id, $company_id, $p_reference_number, $cost, $overallTotal, $customer_type, $is_service, $product_status, $issuance_for, $sales_proposal_number, $userID);
         }
 
         echo json_encode(['success' => true]);
@@ -624,7 +626,6 @@ class PartsTransactionController {
         $issuance_no = $partsTransactionDetails['issuance_no'] ?? null;
 
         if($customer_type == 'Internal'){
-
             $check_linked_job_order = $this->partsTransactionModel->check_linked_job_order($parts_transaction_id)['total'] ?? 0;
 
             if($check_linked_job_order == 0){
@@ -656,8 +657,7 @@ class PartsTransactionController {
                 }
             }
         }
-
-        if($customer_type == 'Department'){
+        else if($customer_type == 'Department'){
             if(empty($issuance_no)){
                 if($company_id == '1'){
                     $reference_number = (int)$this->systemSettingModel->getSystemSetting(37)['value'] + 1;
@@ -667,6 +667,31 @@ class PartsTransactionController {
 
                 if($company_id == '1'){
                     $this->systemSettingModel->updateSystemSettingValue(37, $reference_number, $userID);
+                }
+            }
+        }
+        else {
+            if(empty($issuance_no)){
+               if($company_id == '2'){
+                    $reference_number = (int)$this->systemSettingModel->getSystemSetting(32)['value'] + 1;
+                }
+                else if($company_id == '8'){
+                    $reference_number = (int)$this->systemSettingModel->getSystemSetting(50)['value'] + 1;
+                }
+                else{
+                    $reference_number = (int)$this->systemSettingModel->getSystemSetting(34)['value'] + 1;
+                }
+
+                $this->partsTransactionModel->updatePartsTransactionSlipReferenceNumber($parts_transaction_id, $reference_number, $userID);
+
+                if($company_id == '2'){
+                    $this->systemSettingModel->updateSystemSettingValue(32, $reference_number, $userID);
+                }
+                else if($company_id == '8'){
+                    $this->systemSettingModel->updateSystemSettingValue(50, $reference_number, $userID);
+                }
+                else{
+                    $this->systemSettingModel->updateSystemSettingValue(34, $reference_number, $userID);
                 }
             }
         }
@@ -997,6 +1022,7 @@ class PartsTransactionController {
                 'customer_ref_id' => $partsTransactionDetails['customer_ref_id'],
                 'issuance_no' => $partsTransactionDetails['issuance_no'],
                 'reference_number' => $partsTransactionDetails['reference_number'],
+                'sales_proposal_number' => $partsTransactionDetails['sales_proposal_number'],
                 'remarks' => $partsTransactionDetails['remarks'],
                 'issuance_for' => $partsTransactionDetails['issuance_for'],
                 'request_by' => $partsTransactionDetails['request_by'],

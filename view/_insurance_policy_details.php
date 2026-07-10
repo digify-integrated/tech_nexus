@@ -54,7 +54,7 @@
     </div>
 
     <!-- QUICK SUMMARY -->
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
                 <i class="bi bi-shield-check fs-1 text-primary"></i>
@@ -70,23 +70,39 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
                 <i class="bi bi-cash-stack fs-1 text-success"></i>
 
                 <small class="text-muted d-block mt-2">
-                    Premium Amount
+                    Gross Amount
                 </small>
 
-                <h3 class="mb-0 text-success" id="premium_amount">
+                <h3 class="mb-0 text-success" id="gross_amount">
                     ₱ 0.00
                 </h3>
             </div>
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-cash-stack fs-1 text-success"></i>
+
+                <small class="text-muted d-block mt-2">
+                    Net Premium Amount
+                </small>
+
+                <h3 class="mb-0 text-success" id="net_premium_amount">
+                    ₱ 0.00
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
                 <i class="bi bi-calendar-event fs-1 text-danger"></i>
@@ -138,6 +154,16 @@
                 <div class="detail-row">
                     <span>Policy Status</span>
                     <div id="policy_status_2"></div> 
+                </div>
+
+                <div class="detail-row">
+                    <span>Assured</span>
+                    <div id="assured"></div> 
+                </div>
+
+                <div class="detail-row">
+                    <span>Paid By</span>
+                    <div id="paid_by"></div> 
                 </div>
 
             </div>

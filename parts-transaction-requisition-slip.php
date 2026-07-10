@@ -60,7 +60,6 @@
             $customerDetails = $customerModel->getPersonalInformation($customer_id);
             $last_name = $customerDetails['last_name'] ?? '';
             $customerName = $customerDetails['file_as'] ?? null;
-            $slip_reference_no = $issuance_no;
         }
         else{
             $customerDetails = $customerModel->getPersonalInformation($customer_ref_id);
@@ -75,9 +74,7 @@
         $fullStockNumber = $productSubcategoryCode . $stockNumber;
 
         $user = $userModel->getUserByID($user_id);
-        $fileAs = $user['file_as'] ?? null;
-
-        
+        $fileAs = $user['file_as'] ?? null;        
 
         if($customer_type == 'Customer'){
             $title = $customerName;
@@ -109,8 +106,8 @@
         }   
     }
 
-    $summaryTable = generatePrint($partsTransactionID);
-    $summaryTable2 = generatePrint2($fileAs, $request_by);
+    $summaryTable = generatePrint($partsTransactionID, $customer_type);
+    $summaryTable2 = generatePrint2($fileAs, $request_by, $customer_type);
 
     ob_start();
 
@@ -165,28 +162,42 @@
     $pdf->Cell(80, 8, '', 0, 0, 'L');
     $pdf->SetTextColor(255, 0, 0);
     $pdf->Cell(20, 8, 'No. ' . $slip_reference_no, 0, 0, 'L');
-     $pdf->SetTextColor(0, 0, 0);
+    $pdf->SetTextColor(0, 0, 0);
     $pdf->Ln(15);
-    $pdf->SetFont('times', '', 10);
-    $pdf->Cell(45, 8, '', 0, 0, 'L');
-    $pdf->Cell(80, 8, '', 0, 0, 'L');
-    $pdf->Cell(10, 8, 'DATE:', 0, 0, 'L');
-    $pdf->Cell(8, 8, '', 0, 0, 'L');
-    $pdf->Cell(40, 8, strtoupper(date('F d, Y')), 'B', 0, 'C');
-    $pdf->Ln(10);
-    $pdf->SetFont('times', '', 10);
-    $pdf->Cell(30, 8, 'CLIENT NAME:', 0, 0, 'L');
-    $pdf->Cell(90, 8, $title, 'B', 0, 'L');
-    $pdf->Cell(5, 8,'', 0, 0, 'L');
-    $pdf->Cell(18, 8, 'OS NO:', 0, 0, 'L');
-    $pdf->Cell(40, 8, '', 'B', 0, 'C');
-    $pdf->Ln(10);
-    $pdf->Cell(30, 8, 'UNIT NO.:', 0, 0, 'L');
-    $pdf->Cell(90, 8, $unitNo, 'B', 0, 'L');
-    $pdf->Cell(5, 8, '', 0, 0, 'L');
-    $pdf->Cell(18, 8, 'AJO NO:', 0, 0, 'L');
-    $pdf->Cell(40, 8, '', 'B', 0, 'C');
-    $pdf->Ln(15);
+
+    if($customer_type == 'Customer' || $customer_type == 'Miscellaneous'){
+        $pdf->SetFont('times', '', 10);
+        $pdf->Cell(30, 8, 'CLIENT NAME:', 0, 0, 'L');
+        $pdf->Cell(80, 8, $title, 'B', 0, 'L');
+        $pdf->Cell(8, 8, '', 0, 0, 'L');
+        $pdf->Cell(10, 8, 'DATE:', 0, 0, 'L');
+        $pdf->Cell(8, 8, '', 0, 0, 'L');
+        $pdf->Cell(40, 8, strtoupper(date('F d, Y')), 'B', 0, 'C');
+        $pdf->Ln(15);
+    }
+    else{
+        $pdf->SetFont('times', '', 10);
+        $pdf->Cell(45, 8, '', 0, 0, 'L');
+        $pdf->Cell(80, 8, '', 0, 0, 'L');
+        $pdf->Cell(10, 8, 'DATE:', 0, 0, 'L');
+        $pdf->Cell(8, 8, '', 0, 0, 'L');
+        $pdf->Cell(40, 8, strtoupper(date('F d, Y')), 'B', 0, 'C');
+        $pdf->Ln(10);
+        $pdf->SetFont('times', '', 10);
+        $pdf->Cell(30, 8, 'CLIENT NAME:', 0, 0, 'L');
+        $pdf->Cell(90, 8, $title, 'B', 0, 'L');
+        $pdf->Cell(5, 8,'', 0, 0, 'L');
+        $pdf->Cell(18, 8, 'OS NO:', 0, 0, 'L');
+        $pdf->Cell(40, 8, '', 'B', 0, 'C');
+        $pdf->Ln(10);
+        $pdf->Cell(30, 8, 'UNIT NO.:', 0, 0, 'L');
+        $pdf->Cell(90, 8, $unitNo, 'B', 0, 'L');
+        $pdf->Cell(5, 8, '', 0, 0, 'L');
+        $pdf->Cell(18, 8, 'AJO NO:', 0, 0, 'L');
+        $pdf->Cell(40, 8, '', 'B', 0, 'C');
+        $pdf->Ln(15);
+    }
+    
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
     $pdf->Ln(-2);
     $pdf->writeHTML($summaryTable2, true, false, true, false, '');
@@ -195,7 +206,7 @@
     $pdf->Output('job-order-list.pdf', 'I');
     ob_end_flush();
 
-    function generatePrint($part_transaction_id){
+    function generatePrint($part_transaction_id, $customer_type){
         
         require_once 'model/database-model.php';
         require_once 'model/pdc-management-model.php';
@@ -226,6 +237,7 @@
         foreach ($options as $row) {
             $part_id  = $row['part_id'];
             $quantity = $row['quantity'];
+            $price = $row['price'];
 
             $partDetails = $partsModel->getParts($part_id);
             $unitSale = $partDetails['unit_sale'] ?? null;
@@ -236,14 +248,44 @@
             $unitCode = $unitModel->getUnit($unitSale);
             $short_name = $unitCode['short_name'] ?? null;
 
-            $list .= '<tr>
+            if($customer_type == 'Customer' || $customer_type == 'Miscellaneous'){
+                 $list .= '<tr>
+                        <td style="text-align:center">'. strtoupper($part_number) .'</td>
+                        <td style="text-align:center">'. strtoupper($description) .'</td>
+                        <td style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
+                        <td style="text-align:center">'. number_format($price, 2) .'</td>
+                        <td style="text-align:center">'. number_format(($price * $quantity), 2) .'</td>
+                    </tr>';
+            }
+            else{
+                 $list .= '<tr>
                         <td style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
                         <td style="text-align:center">'. strtoupper($part_number) .'</td>
                         <td style="text-align:center">'. strtoupper($description) .'</td>
                     </tr>';
+            }
+
+           
         }
 
-        $response = '<table border="1" width="100%" cellpadding="5" align="left">
+        if($customer_type == 'Customer' || $customer_type == 'Miscellaneous'){
+             $response = '<table border="1" width="100%" cellpadding="5" align="left">
+                        <thead>
+                            <tr style="text-align:center">
+                                <td><b>Part Number</b></td>
+                                <td><b>Particulars</b></td>
+                                <td><b>Quantity</b></td>
+                                <td><b>Price</b></td>
+                                <td><b>Total</b></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            '.$list.'
+                        </tbody>
+                    </table>';
+        }
+        else{
+             $response = '<table border="1" width="100%" cellpadding="5" align="left">
                         <thead>
                             <tr style="text-align:center">
                                 <td><b>Quantity</b></td>
@@ -255,12 +297,31 @@
                             '.$list.'
                         </tbody>
                     </table>';
+        }
+
+       
 
         return $response;
     }
 
-    function generatePrint2($fileAs, $request_by){
-        $response = '<table border="1" width="100%" cellpadding="5" align="left">
+    function generatePrint2($fileAs, $request_by, $customer_type){
+
+        if($customer_type == 'Customer' || $customer_type == 'Miscellaneous'){
+            $response = '<table border="1" width="100%" cellpadding="5" align="left">
+                        <tbody>
+                            <tr>
+                                <td>REQUESTED BY<br/>'. strtoupper($request_by) .'</td>
+                                <td>RECEIVED BY<br/></td>
+                            </tr>
+                            <tr>
+                                <td>PREPARED BY<br/>'. strtoupper($fileAs) .'</td>
+                                <td>RELEASED BY<br/></td>
+                            </tr>
+                        </tbody>
+                    </table>';
+        }
+        else{
+            $response = '<table border="1" width="100%" cellpadding="5" align="left">
                         <tbody>
                             <tr>
                                 <td>REQUESTED BY<br/>'. strtoupper($request_by) .'</td>
@@ -275,6 +336,8 @@
                             </tr>
                         </tbody>
                     </table>';
+        }
+        
 
         return $response;
     }

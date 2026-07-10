@@ -859,8 +859,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_business_style, $p_si, $p_di, $p_invoice_number, $p_series, $p_issued_by, $p_mortgagee, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_business_style, :p_si, :p_di, :p_invoice_number, :p_series, :p_issued_by, :p_mortgagee, :p_last_log_by)');
+    public function updateSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_business_style, $p_si, $p_di, $p_invoice_number, $p_series, $p_issued_by, $p_mortgagee, $p_assured, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_business_style, :p_si, :p_di, :p_invoice_number, :p_series, :p_issued_by, :p_mortgagee, :p_assured, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
         $stmt->bindValue(':p_cr_no', $p_cr_no, PDO::PARAM_STR);
@@ -874,6 +874,7 @@ class SalesProposalModel {
         $stmt->bindValue(':p_series', $p_series, PDO::PARAM_STR);
         $stmt->bindValue(':p_issued_by', $p_issued_by, PDO::PARAM_STR);
         $stmt->bindValue(':p_mortgagee', $p_mortgagee, PDO::PARAM_STR);
+        $stmt->bindValue(':p_assured', $p_assured, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -1313,8 +1314,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_business_style, $p_si, $p_di, $p_invoice_number, $p_series, $p_issued_by, $p_mortgagee, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_business_style, :p_si, :p_di, :p_invoice_number, :p_series, :p_issued_by, :p_mortgagee, :p_last_log_by)');
+    public function insertSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_business_style, $p_si, $p_di, $p_invoice_number, $p_series, $p_issued_by, $p_mortgagee, $p_assured, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_business_style, :p_si, :p_di, :p_invoice_number, :p_series, :p_issued_by, :p_mortgagee, :p_assured, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
         $stmt->bindValue(':p_cr_no', $p_cr_no, PDO::PARAM_STR);
@@ -1328,6 +1329,7 @@ class SalesProposalModel {
         $stmt->bindValue(':p_series', $p_series, PDO::PARAM_STR);
         $stmt->bindValue(':p_issued_by', $p_issued_by, PDO::PARAM_INT);
         $stmt->bindValue(':p_mortgagee', $p_mortgagee, PDO::PARAM_STR);
+        $stmt->bindValue(':p_assured', $p_assured, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -2343,10 +2345,13 @@ class SalesProposalModel {
     
     public function generateReleasedSalesProposalOptions() {
         $stmt = $this->db->getConnection()->prepare('SELECT sales_proposal_id, sales_proposal_number, file_as
-            FROM sales_proposal
-            LEFT OUTER JOIN personal_information ON personal_information.contact_id = sales_proposal.customer_id
-            WHERE sales_proposal_status = "Released" AND product_type = "Unit"
-            ORDER BY sales_proposal_number ASC;');
+        FROM sales_proposal
+        LEFT OUTER JOIN personal_information 
+            ON personal_information.contact_id = sales_proposal.customer_id
+        WHERE sales_proposal_status IN ("Released", "For DR", "Ready For Release")
+        AND product_type = "Unit"
+        AND sales_proposal_number LIKE "5%"
+        ORDER BY sales_proposal_number ASC;');
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

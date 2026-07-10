@@ -229,7 +229,8 @@ class InsurancePolicyController {
                 'mobile' => $mobile,
                 'insuranceType' => $insrance_type_name,
                 'providerName' => $provider_name,
-                'premiumAmount' => number_format($insurancePolicyDetails['premium_amount'], 2),
+                'grossAmount' => number_format($insurancePolicyDetails['gross'], 2),
+                'netPremiumAmount' => number_format($insurancePolicyDetails['net_premium'], 2),
                 'coverageAmount' => number_format($insurancePolicyDetails['coverage_amount'], 2),
                 'inceptionDate' =>  $this->systemModel->checkDate('empty', $insurancePolicyDetails['inception_date'], '', 'm/d/Y', ''),
                 'expiryDate' =>  $this->systemModel->checkDate('empty', $expiryDate, '', 'm/d/Y', ''),
@@ -239,7 +240,9 @@ class InsurancePolicyController {
                 'plateNumber'        => $insuranceRequestDetails['plate_number'] ?? '--',
                 'chassisNumber'      => $insuranceRequestDetails['chassis_number'] ?? '--',
                 'engineNumber'       => $insuranceRequestDetails['engine_number'] ?? '--',
-                'mvFileNumber'       => $insuranceRequestDetails['mv_file_number'] ?? '--'
+                'mvFileNumber'       => $insuranceRequestDetails['mv_file_number'] ?? '--',
+                'paidBy'             => $insurancePolicyDetails['paid_by'] ?? '--',
+                'assured'            => $insurancePolicyDetails['assured'] ?? '--'
             ];
 
             echo json_encode($response);

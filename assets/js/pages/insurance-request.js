@@ -14,6 +14,10 @@
             receiveForm();
         }
 
+        if($('#cancel-form').length){
+            cancelForm();
+        }
+
         if($('#insurance-request-id').length){
             displayDetails('get insurance request details');
         }
@@ -459,6 +463,20 @@
         $(document).on('change', '#tppd_coverage', function () {
             calculateInsurance();
         });
+
+        $('#inception_date2').on('changeDate', function (e) {
+            let date = new Date(e.detail.date);
+
+            date.setFullYear(date.getFullYear() + 1);
+
+            let month = String(date.getMonth() + 1).padStart(2, '0');
+            let day = String(date.getDate()).padStart(2, '0');
+            let year = date.getFullYear();
+
+            let expirationDate = `${month}/${day}/${year}`;
+
+            $('#expiration_date').val(expirationDate);
+        });
     });
 })(jQuery);
 
@@ -533,7 +551,10 @@ function insuranceRequestForm(){
             customer_type: {
                 required: true
             },
-            insurance_request_id: {
+            insurance_type_id: {
+                required: true
+            },
+            paid_by: {
                 required: true
             },
             customer_id: {
@@ -580,10 +601,13 @@ function insuranceRequestForm(){
             customer_id: {
                 required: 'Please choose the customer'
             },
+            paid_by: {
+                required: 'Please enter the name of the person who paid'
+            },
             misc_id: {
                 required: 'Please choose the customer'
             },
-            insurance_request_id: {
+            insurance_type_id: {
                 required: 'Please choose the insurance type'
             },
             sales_proposal_id: {
@@ -687,7 +711,10 @@ function receiveForm(){
             expiration_date: {
                 required: true
             },
-            premium_amount: {
+            gross: {
+                required: true
+            },
+            net_premium: {
                 required: true
             },
             coverage_amount: {
@@ -704,8 +731,11 @@ function receiveForm(){
             expiration_date: {
                 required: 'Please choose the expiration date'
             },
-            premium_amount: {
-                required: 'Please enter the premium amount'
+            gross: {
+                required: 'Please enter the gross amount'
+            },
+            net_premium: {
+                required: 'Please enter the net premium amount'
             },
             coverage_amount: {
                 required: 'Please enter the coverage amount'
@@ -787,6 +817,94 @@ function receiveForm(){
     });
 }
 
+function cancelForm(){
+    $('#cancel-form').validate({
+        rules: {
+            cancellation_reason: {
+                required: true
+            },
+        },
+        messages: {
+            cancellation_reason: {
+                required: 'Please enter the cancellation reason'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const insurance_request_id = $('#insurance-request-id').text();
+            const transaction = 'tag request cancelled';
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/insurance-request-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&insurance_request_id=' + insurance_request_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-cancel');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Tag Insurance Request As Cancelled Success';
+                        const notificationDescription = 'The insurance request has been tagged as cancelled successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-cancel', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get insurance request details':
@@ -817,6 +935,8 @@ function displayDetails(transaction){
                         $('#chassis_number').val(response.chassisNumber);
                         $('#engine_number').val(response.engineNumber);
                         $('#mv_file_number').val(response.mvFileNumber);
+                        $('#paid_by').val(response.paidBy);
+                        $('#assured').val(response.assured);
 
                         checkOptionExist('#customer_type', response.customerType, '');
                         checkOptionExist('#insurance_policy_id', response.insurancePolicyId, '');

@@ -8,9 +8,11 @@
   require('model/id-type-model.php');
   require('model/application-source-model.php');
   require('model/company-model.php');
+  require('model/pms-catalog-model.php');
 
   $pageTitle = 'All Sales Proposal';
-  
+
+  $pmsCatalogModel = new PMSCatalogModel($databaseModel);
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $approvingOfficerModel = new ApprovingOfficerModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);

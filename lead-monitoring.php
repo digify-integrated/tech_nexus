@@ -126,22 +126,22 @@
     <script src="./assets/js/plugins/bootstrap-maxlength.min.js"></script>
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 
-<!-- DataTables Buttons (compatible with DT 1.x) -->
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <!-- DataTables Buttons (compatible with DT 1.x) -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
 
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 
-<!-- Excel Export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-<!-- PDF Export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <!-- PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
-<!-- HTML5 Export -->
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <!-- HTML5 Export -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>

@@ -3944,6 +3944,7 @@ class SalesProposalController {
         $mortgagee = htmlspecialchars($_POST['mortgagee'], ENT_QUOTES, 'UTF-8');
         $businessStyle = $_POST['business_style'];
         $invoice_number = $_POST['invoice_number'];
+        $assured = $_POST['assured'];
         $si = $_POST['si'];
         $di = $_POST['di'];
         $startDate = $this->systemModel->checkDate('empty', $_POST['actual_start_date'], '', 'Y-m-d', '');
@@ -3961,13 +3962,13 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalActualStartDate($salesProposalID, $drNumber, $releaseTo, $startDate, $userID);
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $invoice_number, $series, $issued_by, $mortgagee, $userID);
+            $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $invoice_number, $series, $issued_by, $mortgagee, $assured, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->salesProposalModel->insertSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $invoice_number, $series, $issued_by, $mortgagee, $userID);
+            $this->salesProposalModel->insertSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $si, $di, $invoice_number, $series, $issued_by, $mortgagee, $assured, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -5787,6 +5788,7 @@ class SalesProposalController {
                 'invoiceNumber' => $salesProposalOtherChargesDetails['invoice_number'] ?? null,
                 'si' => $salesProposalOtherChargesDetails['si'] ?? null,
                 'di' => $salesProposalOtherChargesDetails['di'] ?? null,
+                'assured' => $salesProposalOtherChargesDetails['assured'] ?? null,
             ];
 
             echo json_encode($response);

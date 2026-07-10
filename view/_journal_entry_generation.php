@@ -12,6 +12,8 @@ require_once '../model/system-model.php';
 require_once '../model/product-category-model.php';
 require_once '../model/product-subcategory-model.php';
 require_once '../model/miscellaneous-client-model.php';
+require_once '../model/parts-incoming-model.php';
+require_once '../model/parts-transaction-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -23,6 +25,8 @@ $productCategoryModel = new ProductCategoryModel($databaseModel);
 $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
+$partsIncomingModel = new PartsIncomingModel($databaseModel);
+$partsTransactionModel = new PartsTransactionModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -81,17 +85,29 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $analytic_lines = $row['analytic_lines'];
                 $analytic_distribution = $row['analytic_distribution'];
 
+                $remarks = '--';
+
+                if($journal_id == 'Parts Purchase' || $journal_id == 'Fuel Purchase'){
+                    $partsIncomingDetails = $partsIncomingModel->getPartsIncoming($loan_number);
+                    $remarks = $partsIncomingDetails['remarks'] ?? '';
+                }
+                else if($journal_id == 'Parts Issuance' || $journal_id == 'Fuel Issuance'){ 
+                    $partsTransactionDetails = $partsTransactionModel->getPartsTransaction($loan_number);
+                    $remarks = $partsTransactionDetails['remarks'] ?? '';
+                }
+
                 $response[] = [
                     'LOAN_NUMBER' => $loan_number,
                     'JOURNAL_ENTRY_DATE' => $journal_entry_date,
-                    'REFERENCE_CODE' => $reference_code,
+                    'REFERENCE_CODE' => '<p class="text-wrap">'.$reference_code.'</p>',
                     'JOURNAL_ID' => $journal_id,
-                    'JOURNAL_ITEM' => $journal_item,
+                    'JOURNAL_ITEM' => '<p class="text-wrap">'.$journal_item.'</p>',
                     'DEBIT' => $debit,
                     'CREDIT' => $credit,
                     'JOURNAL_LABEL' => $journal_label,
                     'ANALYTIC_LINES' => $analytic_lines,
-                    'ANALYTIC_DISTRIBUTION' => $analytic_distribution
+                    'ANALYTIC_DISTRIBUTION' => $analytic_distribution,
+                    'REMARKS' => '<p class="text-wrap">'.$remarks.'</p>',
                 ];
             }
 

@@ -457,7 +457,7 @@ class PartsReturnController {
         $return_type = $partsReturnDetails['return_type'] ?? '';
         $reference_number = $partsReturnDetails['reference_number'] ?? '';
 
-        if($company_id == '2' || $company_id == '3'){
+        if($company_id == '2' || $company_id == '3' || $company_id == '15'){
             $partReturnCartDetails = $this->partsReturnModel->getPartsReturnCart2($parts_return_id);
 
             foreach ($partReturnCartDetails as $row) {

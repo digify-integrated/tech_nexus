@@ -427,6 +427,9 @@ function partsReturnForm(){
                         else if(company_id == '2'){
                             window.location = 'netruck-parts-return.php?id=' + response.partsReturnID;
                         }
+                        else if(company_id == '15'){
+                            window.location = 'jaecoo-parts-return.php?id=' + response.partsReturnID;
+                        }
                         else{
                             window.location = 'parts-return.php?id=' + response.partsReturnID;
                         }

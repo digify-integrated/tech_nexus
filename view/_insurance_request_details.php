@@ -24,12 +24,16 @@
                 }
 
                 if($status == 'Submitted'){
-                    $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#receive-offcanvas" aria-controls="receive-offcanvas" id="received">Receive</button></li>';
+                    $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#receive-offcanvas" aria-controls="receive-offcanvas" id="received">Receive Insurance Policy</button></li>';
                 }
 
                 if($status == 'For Submission' || $status == 'Submitted'){
                     $dropdown .= '<li><button class="dropdown-item" type="button" id="draft">Set to Draft</button></li>';
-                    $dropdown .= '<li><a href="insurance-request.php?id='. $insuranceRequestID .'" class="dropdown-item" type="button">Print</a></li>';
+                    $dropdown .= '<li><a href="print-insurance-request.php?id='. $insuranceRequestID .'" class="dropdown-item" type="button">Print</a></li>';
+                }
+
+                if($status == 'Draft' || $status == 'For Submission'){
+                  $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#cancel-offcanvas" aria-controls="cancel-offcanvas" id="cancel">Cancel</button></li>';
                 }
                             
                 if ($insuranceRequestDeleteAccess['total'] > 0) {
@@ -116,6 +120,26 @@
                     <option value="">--</option>
                     <?php echo $insuranceTypeModel->generateInsuranceTypeOptions(); ?>
                   </select>
+                </div>
+              </div>
+            </div>
+
+            
+            <div class="col-md-6 ">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Paid By <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="paid_by" name="paid_by" maxlength="500" autocomplete="off" <?= $disabled ?>>
+                </div>
+              </div>
+            </div>
+
+            
+            <div class="col-md-6 ">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Assured</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="assured" name="assured" maxlength="500" autocomplete="off" readonly>
                 </div>
               </div>
             </div>
@@ -645,8 +669,12 @@
                 </div>
               </div>
               <div class="col-lg-12 mt-3"> 
-                <label class="form-label">Premium Amount <span class="text-danger">*</span></label>
-               <input type="number" class="form-control" id="premium_amount" name="premium_amount" min="1">
+                <label class="form-label">Gross <span class="text-danger">*</span></label>
+               <input type="number" class="form-control" id="gross" name="gross" min="1">
+              </div>
+              <div class="col-lg-12 mt-3"> 
+                <label class="form-label">Net Amount <span class="text-danger">*</span></label>
+               <input type="number" class="form-control" id="net_premium" name="net_premium" min="1">
               </div>
               <div class="col-lg-12 mt-3"> 
                 <label class="form-label">Coverage Amount <span class="text-danger">*</span></label>
@@ -667,6 +695,35 @@
         </div>
       </div>
   </div>
+</div>
+
+<div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cancel-offcanvas" aria-labelledby="cancel-offcanvas-label">
+        <div class="offcanvas-header">
+            <h2 id="cancel-offcanvas-label" style="margin-bottom:-0.5rem">Tag As Cancelled </h2>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form id="cancel-form" method="post" action="#">
+                        <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
+                                <label class="form-label" for="cancellation_reason">Cancellation Remarks <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="cancellation_reason" name="cancellation_reason" maxlength="500"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <button type="submit" class="btn btn-primary" id="submit-cancel" form="cancel-form">Submit</button>
+                    <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 

@@ -75,8 +75,8 @@ class PartsTransactionModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertPartsTransaction($p_part_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $issuance_for, $request_by, $customer_ref_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPartsTransaction(:p_part_transaction_id, :customer_type, :customer_id, :company_id, :issuance_date, :issuance_no, :reference_date, :reference_number, :remarks, :issuance_for, :request_by, :customer_ref_id, :p_last_log_by)');
+    public function insertPartsTransaction($p_part_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $issuance_for, $request_by, $customer_ref_id, $sales_proposal_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartsTransaction(:p_part_transaction_id, :customer_type, :customer_id, :company_id, :issuance_date, :issuance_no, :reference_date, :reference_number, :remarks, :issuance_for, :request_by, :customer_ref_id, :sales_proposal_number, :p_last_log_by)');
         $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
         $stmt->bindValue(':customer_id', $customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':company_id', $company_id, PDO::PARAM_INT);
@@ -89,6 +89,7 @@ class PartsTransactionModel {
         $stmt->bindValue(':issuance_for',  $issuance_for, PDO::PARAM_STR);
         $stmt->bindValue(':request_by',  $request_by, PDO::PARAM_STR);
         $stmt->bindValue(':customer_ref_id', $customer_ref_id, PDO::PARAM_INT);
+        $stmt->bindValue(':sales_proposal_number', $sales_proposal_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -118,8 +119,8 @@ class PartsTransactionModel {
         $stmt->execute();
     }
 
-    public function updatePartsTransaction($p_part_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $issuance_for, $discount, $discount_type, $overall_total, $request_by, $customer_ref_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePartsTransaction(:p_part_transaction_id, :customer_type, :customer_id, :company_id, :issuance_date, :issuance_no, :reference_date, :reference_number, :remarks, :issuance_for, :discount, :discount_type, :overall_total, :request_by, :customer_ref_id, :p_last_log_by)');
+    public function updatePartsTransaction($p_part_transaction_id, $customer_type, $customer_id, $company_id, $issuance_date, $issuance_no, $reference_date, $reference_number, $remarks, $issuance_for, $discount, $discount_type, $overall_total, $request_by, $customer_ref_id, $sales_proposal_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsTransaction(:p_part_transaction_id, :customer_type, :customer_id, :company_id, :issuance_date, :issuance_no, :reference_date, :reference_number, :remarks, :issuance_for, :discount, :discount_type, :overall_total, :request_by, :customer_ref_id, :sales_proposal_number, :p_last_log_by)');
         $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
         $stmt->bindValue(':customer_id', $customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':company_id', $company_id, PDO::PARAM_INT);
@@ -135,6 +136,7 @@ class PartsTransactionModel {
         $stmt->bindValue(':overall_total', $overall_total, PDO::PARAM_STR);
         $stmt->bindValue(':request_by', $request_by, PDO::PARAM_STR);
         $stmt->bindValue(':customer_ref_id', $customer_ref_id, PDO::PARAM_INT);
+        $stmt->bindValue(':sales_proposal_number', $sales_proposal_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -182,8 +184,8 @@ class PartsTransactionModel {
         $stmt->execute();
     }
 
-    public function createPartsTransactionEntry($p_part_transaction_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_customer_type, $p_is_service, $p_product_status, $p_issuance_for, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL createPartsTransactionEntry(:p_part_transaction_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_customer_type, :p_is_service, :p_product_status, :p_issuance_for, :p_last_log_by)');
+    public function createPartsTransactionEntry($p_part_transaction_id, $p_company_id, $p_reference_number, $p_cost, $p_price, $p_customer_type, $p_is_service, $p_product_status, $p_issuance_for, $p_sales_proposal_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL createPartsTransactionEntry(:p_part_transaction_id, :p_company_id, :p_reference_number, :p_cost, :p_price, :p_customer_type, :p_is_service, :p_product_status, :p_issuance_for, :p_sales_proposal_number, :p_last_log_by)');
         $stmt->bindValue(':p_part_transaction_id', $p_part_transaction_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
@@ -193,6 +195,7 @@ class PartsTransactionModel {
         $stmt->bindValue(':p_is_service', $p_is_service, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_status', $p_product_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_issuance_for', $p_issuance_for, PDO::PARAM_STR);
+        $stmt->bindValue(':p_sales_proposal_number', $p_sales_proposal_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

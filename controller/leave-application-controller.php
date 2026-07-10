@@ -447,12 +447,14 @@ class LeaveApplicationController {
                 
             }
             else{
-                if(empty($leave_form)){
-                    echo json_encode(['success' => false, 'leaveFormEmpty' => true]);
+                $getLeaveConfirmationDocument = $this->leaveApplicationModel->getLeaveConfirmationDocument($leaveApplicationID)['total'] ?? 0;
+
+                if($getLeaveConfirmationDocument == 0){
+                    echo json_encode(['success' => false, 'leaveConfirmation' => true]);
                     exit;
                 }
 
-                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'Approved', '', $userID);
+                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Recommendation', '', $userID);
             }
 
             if($leaveTypeID == '1'){    
@@ -506,8 +508,32 @@ class LeaveApplicationController {
         $total = $checkLeaveApplicationExist['total'] ?? 0;
      
         if ($total > 0) {
-            $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Approval', '', $userID);
+            $leaveApplicationDetails = $this->leaveApplicationModel->getLeaveApplication($leaveApplicationID);
+            $creation_type = $leaveApplicationDetails['creation_type'] ?? 'own';
+            $leave_form = $leaveApplicationDetails['leave_form'] ?? null;
 
+            if($creation_type === 'own'){
+                $getLeaveConfirmationDocument = $this->leaveApplicationModel->getLeaveConfirmationDocument($leaveApplicationID)['total'] ?? 0;
+
+                if($getLeaveConfirmationDocument == 0){
+                    echo json_encode(['success' => false, 'leaveConfirmation' => true]);
+                    exit;
+                }
+                
+                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Approval', '', $userID);
+                
+            }
+            else{
+                $getLeaveConfirmationDocument = $this->leaveApplicationModel->getLeaveConfirmationDocument($leaveApplicationID)['total'] ?? 0;
+
+                if($getLeaveConfirmationDocument == 0){
+                    echo json_encode(['success' => false, 'leaveConfirmation' => true]);
+                    exit;
+                }
+
+                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'Approved', '', $userID);
+            }        
+            
             echo json_encode(['success' => true]);
         } 
         else {

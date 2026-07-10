@@ -750,6 +750,9 @@ function partsForm(){
                         else if(company_id == '8'){
                             window.location = 'fuel-parts.php?id=' + response.partsID;
                         }
+                        else if(company_id == '15'){
+                            window.location = 'jaecoo-parts.php?id=' + response.partsID;
+                        }
                         else{
                             window.location = 'parts.php?id=' + response.partsID;
                         }
@@ -1606,7 +1609,7 @@ function partIncomingTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 0, 'asc' ]],
+        'order': [[ 8, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -1679,7 +1682,7 @@ function partTransactionTable(datatable_name, buttons = false, show_all = false)
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 0, 'asc' ]],
+        'order': [[ 5, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -1746,7 +1749,7 @@ function salesProposalTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 0, 'asc' ]],
+        'order': [[ 2, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
