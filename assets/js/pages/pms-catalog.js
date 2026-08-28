@@ -855,10 +855,7 @@ function pmsMatrixPartsForm(){
             },
             required_quantity: {
                 required: true
-            },
-            unit_id: {
-                required: true
-            },
+            }
         },
         messages: {
             part_id: {
@@ -866,10 +863,7 @@ function pmsMatrixPartsForm(){
             },
             required_quantity: {
                 required: 'Please enter the required quantity'
-            },
-            unit_id: {
-                required: 'Please select a unit'
-            },
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2')) {
@@ -999,6 +993,16 @@ function generatePMSMatrixCard(matrix) {
     let status = $('#status').val();
     let matrixbuttons = '';
     let tableButtons = '';
+    let totalQuantity = 0;
+
+    // 1. Check if this specific accordion content is currently open in the DOM before we rewrite it
+    const existingCollapseEl = document.getElementById(`collapse_${matrix.pms_matrix_id}`);
+    const wasExpanded = existingCollapseEl ? existingCollapseEl.classList.contains('show') : false;
+
+    // 2. Set up the matching Bootstrap classes based on its active state
+    const buttonCollapsedClass = wasExpanded ? '' : 'collapsed';
+    const ariaExpandedValue = wasExpanded ? 'true' : 'false';
+    const collapseShowClass = wasExpanded ? 'show' : '';
 
     if (status === 'open') {
 
@@ -1030,6 +1034,8 @@ function generatePMSMatrixCard(matrix) {
     if (matrix.parts && matrix.parts.length > 0) {
 
         $.each(matrix.parts, function (i, part) {
+            
+            totalQuantity += Number(part.required_quantity || 0);
 
             let alternateParts = '';
             const alternatePartsList = part.alternate_parts || [];
@@ -1059,9 +1065,9 @@ function generatePMSMatrixCard(matrix) {
                 $.each(alternatePartsList, function (index, alt) {
 
                     alternateParts += `
-                        <span class="badge badge-light-warning fs-8 py-1 px-2 me-1 mb-1">
-                            ${alt.part_name}
-                        </span>
+                        <span class="badge badge-light-warning fs-8 py-1 px-2 me-1 mb-1 text-uppercase">
+                           ${alt.part_number} - ${alt.part_name}
+                        </span><br/>
                     `;
 
                 });
@@ -1074,27 +1080,18 @@ function generatePMSMatrixCard(matrix) {
 
             partsRows += `
                 <tr>
-
                     <td class="fw-semibold">
-                        ${part.part_name}
+                       ${part.part_number} - ${part.part_name}
                     </td>
-
                     <td class="text-center">
                         ${part.required_quantity}
                     </td>
-
-                    <td>
-                        ${part.unit_name}
-                    </td>
-
                     <td>
                         ${alternateParts}
                     </td>
-
                     <td class="text-end">
                         ${tableButtons}
                     </td>
-
                 </tr>
             `;
 
@@ -1104,14 +1101,11 @@ function generatePMSMatrixCard(matrix) {
 
         partsRows = `
             <tr>
-                <td colspan="5" class="text-center py-5">
-
+                <td colspan="4" class="text-center py-5">
                     <i class="ki-outline ki-package fs-2x text-gray-400 d-block mb-2"></i>
-
                     <div class="fw-semibold text-gray-700">
                         No required parts added yet.
                     </div>
-
                 </td>
             </tr>
         `;
@@ -1126,15 +1120,12 @@ function generatePMSMatrixCard(matrix) {
                 <div class="card-header d-flex justify-content-between align-items-center py-3">
 
                     <div>
-
                         <h4 class="fw-bold mb-0">
                             ${Number(matrix.odometer).toLocaleString()} KM
                         </h4>
-
                         <span class="text-muted fs-8">
                             Preventive Maintenance Matrix
                         </span>
-
                     </div>
 
                     <div class="card-toolbar">
@@ -1148,152 +1139,94 @@ function generatePMSMatrixCard(matrix) {
                     <div class="row g-2 mb-4">
 
                         <div class="col-md-2">
-
                             <div class="border rounded p-3 h-100">
-
-                                <div class="text-muted fs-8">
-                                    Odometer
-                                </div>
-
-                                <div class="fw-bold fs-5">
-                                     ${Number(matrix.odometer).toLocaleString()} KM
-                                </div>
-
+                                <div class="text-muted fs-8">Odometer</div>
+                                <div class="fw-bold fs-5">${Number(matrix.odometer).toLocaleString()} KM</div>
                             </div>
-
                         </div>
 
                         <div class="col-md-2">
-
                             <div class="border rounded p-3 h-100">
-
-                                <div class="text-muted fs-8">
-                                    Interval
-                                </div>
-
-                                <div class="fw-bold fs-5">
-                                    ${matrix.months_interval} Month
-                                </div>
-
+                                <div class="text-muted fs-8">Interval</div>
+                                <div class="fw-bold fs-5">${matrix.months_interval} Month</div>
                             </div>
-
                         </div>
 
                         <div class="col-md-2">
-
                             <div class="border rounded p-3 h-100">
-
-                                <div class="text-muted fs-8">
-                                    Consumables Cost
-                                </div>
-
-                                <div class="fw-bold fs-5 text-success">
-                                    ₱ ${Number(matrix.consumables).toLocaleString()}
-                                </div>
-
+                                <div class="text-muted fs-8">Consumables Cost</div>
+                                <div class="fw-bold fs-5 text-success">₱ ${Number(matrix.consumables).toLocaleString()}</div>
                             </div>
-
-                        </div>
-                        <div class="col-md-2">
-
-                            <div class="border rounded p-3 h-100">
-
-                                <div class="text-muted fs-8">
-                                    Consumables Total
-                                </div>
-
-                                <div class="fw-bold fs-5 text-success">
-                                    ₱ ${Number(matrix.consumables_total).toLocaleString()}
-                                </div>
-
-                            </div>
-
                         </div>
 
                         <div class="col-md-2">
-
                             <div class="border rounded p-3 h-100">
-
-                                <div class="text-muted fs-8">
-                                    Labor Cost
-                                </div>
-
-                                <div class="fw-bold fs-5 text-primary">
-                                    ₱ ${Number(matrix.labor_cost).toLocaleString()}
-                                </div>
-
+                                <div class="text-muted fs-8">Consumables Total</div>
+                                <div class="fw-bold fs-5 text-success">₱ ${Number(matrix.consumables_total).toLocaleString()}</div>
                             </div>
-
                         </div>
 
                         <div class="col-md-2">
-
                             <div class="border rounded p-3 h-100">
-
-                                <div class="text-muted fs-8">
-                                    Labor Total
-                                </div>
-
-                                <div class="fw-bold fs-5 text-primary">
-                                    ₱ ${Number(matrix.labor_total).toLocaleString()}
-                                </div>
-
+                                <div class="text-muted fs-8">Labor Cost</div>
+                                <div class="fw-bold fs-5 text-primary">₱ ${Number(matrix.labor_cost).toLocaleString()}</div>
                             </div>
+                        </div>
 
+                        <div class="col-md-2">
+                            <div class="border rounded p-3 h-100">
+                                <div class="text-muted fs-8">Labor Total</div>
+                                <div class="fw-bold fs-5 text-primary">₱ ${Number(matrix.labor_total).toLocaleString()}</div>
+                            </div>
                         </div>
 
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <!-- Accordion container utilizing memory variables -->
+                    <div class="accordion" id="pmsAccordion_${matrix.pms_matrix_id}">
+                        <div class="accordion-item border-0">
+                            
+                            <h2 class="accordion-header" id="heading_${matrix.pms_matrix_id}">
+                                <button class="accordion-button ${buttonCollapsedClass} bg-light rounded px-4 py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_${matrix.pms_matrix_id}" aria-expanded="${ariaExpandedValue}" aria-controls="collapse_${matrix.pms_matrix_id}">
+                                    <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                        <h6 class="fw-bold mb-0 text-gray-800">
+                                            Required Parts
+                                        </h6>
+                                        <div>
+                                            <span class="badge badge-light-primary me-2">
+                                                ${matrix.parts ? matrix.parts.length : 0} Part${(matrix.parts && matrix.parts.length !== 1) ? 's' : ''}
+                                            </span>
+                                            <span class="badge badge-light-info">
+                                                Total Qty: ${totalQuantity}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </button>
+                            </h2>
 
-                        <h6 class="fw-bold mb-0">
-                            Required Parts
-                        </h6>
+                            <div id="collapse_${matrix.pms_matrix_id}" class="accordion-collapse collapse ${collapseShowClass}" aria-labelledby="heading_${matrix.pms_matrix_id}" data-bs-parent="#pmsAccordion_${matrix.pms_matrix_id}">
+                                <div class="accordion-body px-0 pt-4 pb-0">
+                                    
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-row-dashed align-middle mb-0">
+                                            <thead>
+                                                <tr class="fw-bold text-gray-700">
+                                                    <th>Part Name</th>
+                                                    <th width="100" class="text-center">Qty</th>
+                                                    <th width="300">Alternate Parts</th>
+                                                    <th width="90" class="text-end">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${partsRows}
+                                            </tbody>
+                                        </table>
+                                    </div>
 
-                        <span class="badge badge-light-primary">
-                            ${matrix.parts.length} Part${matrix.parts.length !== 1 ? 's' : ''}
-                        </span>
+                                </div>
+                            </div>
 
-                    </div>
-
-                    <div class="table-responsive">
-
-                        <table class="table table-sm table-row-dashed align-middle">
-
-                            <thead>
-
-                                <tr class="fw-bold text-gray-700">
-
-                                    <th>Part Name</th>
-
-                                    <th width="70" class="text-center">
-                                        Qty
-                                    </th>
-
-                                    <th width="110">
-                                        Unit
-                                    </th>
-
-                                    <th width="260">
-                                        Alternate Parts
-                                    </th>
-
-                                    <th width="90" class="text-end">
-                                        Actions
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                ${partsRows}
-
-                            </tbody>
-
-                        </table>
-
+                        </div>
                     </div>
 
                 </div>

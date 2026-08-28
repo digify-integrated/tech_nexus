@@ -362,6 +362,7 @@ function leadTable(datatable_name) {
         { data: 'PRODUCT' },
         { data: 'STATUS' },
         { data: 'LEAD_NOTE' },
+        { data: 'LEAD_NOTE_DATE' },
         { data: 'ASSIGNED_TO' },
         { data: 'ACTION' }
     ];
@@ -373,12 +374,13 @@ function leadTable(datatable_name) {
         { width: 'auto', targets: 3 },
         { width: 'auto', targets: 4 },
         { width: 'auto', targets: 5 },
-        { width: 'auto', targets: 6 },
+        { width: 'auto', type: 'date', targets: 6 },
         { width: 'auto', targets: 7 },
         { width: 'auto', targets: 8 },
         { width: 'auto', targets: 9 },
-        { width: 'auto', targets: 10 },
-        { width: '14%', bSortable: false, targets: 11 }
+        { width: 'auto', type: 'date', targets: 10 },
+        { width: 'auto', targets: 11 },
+        { width: '14%', bSortable: false, targets: 12 }
     ];
 
     destroyDatatable(datatable_name);
@@ -402,7 +404,7 @@ function leadTable(datatable_name) {
             dataSrc: ''
         },
 
-        order: [[1, 'asc']],
+        order: [[10, 'desc']],
         columns: column,
         columnDefs: column_definition,
 
@@ -449,69 +451,84 @@ function leadTable(datatable_name) {
 /* -----------------------------
 FORM
 ----------------------------- */
+function submitLeadForm(form, confirmDuplicate = false) {
+    const lead_id = $('#lead-id').text();
+    const transaction = 'save lead';
+    
+    let formData = $(form).serialize() + '&transaction=' + transaction + '&lead_id=' + lead_id;
+    if (confirmDuplicate) {
+        formData += '&confirm_duplicate=1';
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: 'controller/lead-controller.php',
+        data: formData,
+        dataType: 'json',
+        beforeSend: function() {
+            disableFormSubmitButton('submit-data');
+        },
+        success: function (response) {
+            if (response.success) {
+                setNotification('Success', 'Lead saved successfully.', 'success');
+                window.location = 'lead-monitoring.php?id=' + response.leadID;
+            } 
+            // Handle duplicate warning prompt
+            else if (response.isDuplicate) {
+                // Option A: SweetAlert2
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Duplicate Lead Warning',
+                        text: response.message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, submit form',
+                        cancelButtonText: 'No'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Call helper directly with confirmDuplicate = true
+                            submitLeadForm(form, true);
+                        }
+                    });
+                } 
+                // Option B: Standard Browser Confirmation Fallback
+                else {
+                    if (confirm(response.message)) {
+                        // Call helper directly with confirmDuplicate = true
+                        submitLeadForm(form, true);
+                    }
+                }
+            } 
+            else {
+                showNotification('Error', response.message, 'danger');
+            }
+        },
+        complete: function() {
+            enableFormSubmitButton('submit-data', 'Save');
+        }
+    });
+}
+
 function leadForm(){
     $('#lead-form').validate({
         rules: {
-            first_name: {
-                required: true
-            },
-            last_name: {
-                required: true
-            },
-            inquiry_type_id: {
-                required: true
-            },
-            lead_status_id: {
-                required: true
-            },
-            lead_source_id: {
-                required: true
-            },
+            first_name: { required: true },
+            last_name: { required: true },
+            inquiry_type_id: { required: true },
+            lead_status_id: { required: true },
+            lead_priority: { required: true },
+            lead_source_id: { required: true }
         },
         messages: {
-            first_name: {
-                required: 'Please enter the first name'
-            },
-            last_name: {
-                required: 'Please enter the last name'
-            },
-            inquiry_type_id: {
-                required: 'Please choose the inquiry type'
-            },
-            lead_status_id: {
-                required: 'Please choose the lead status'
-            },
-            lead_source_id: {
-                required: 'Please choose the lead source'
-            },
+            first_name: { required: 'Please enter the first name' },
+            last_name: { required: 'Please enter the last name' },
+            inquiry_type_id: { required: 'Please choose the inquiry type' },
+            lead_status_id: { required: 'Please choose the lead status' },
+            lead_priority: { required: 'Please choose the lead priority' },
+            lead_source_id: { required: 'Please choose the lead source' }
         },
         submitHandler: function(form) {
-
-            const lead_id = $('#lead-id').text();
-            const transaction = 'save lead';
-
-            $.ajax({
-                type: 'POST',
-                url: 'controller/lead-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&lead_id=' + lead_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-data');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification('Success', 'Lead saved successfully.', 'success');
-                        window.location = 'lead-monitoring.php?id=' + response.leadID;
-                    }
-                    else {
-                        showNotification('Error', response.message, 'danger');
-                    }
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-data', 'Save');
-                }
-            });
-
+            submitLeadForm(form, false);
             return false;
         }
     });

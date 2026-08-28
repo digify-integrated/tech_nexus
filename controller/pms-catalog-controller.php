@@ -87,6 +87,12 @@ class PMSCatalogController {
                 case 'get pms matrices':
                     $this->getPMSMatrices();
                     break;
+                case 'get pms matrix total details':
+                    $this->getPMSMatrixTotal();
+                    break;
+                case 'generate pms matrix by catalog':
+                    $this->generatePMSMatrixByCatalog();
+                    break;
                 case 'delete pms catalog':
                     $this->deletePMSCatalog();
                     break;
@@ -277,7 +283,7 @@ class PMSCatalogController {
         $total = $checkPMSMatrixPartExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->pmsCatalogModel->updatePMSMatrixPart($pms_matrix_part_id, $part_id, $required_quantity, $unit_id, $userID);
+            $this->pmsCatalogModel->updatePMSMatrixPart($pms_matrix_part_id, $part_id, $required_quantity, '', $userID);
             echo json_encode(['success' => true, 'insertRecord' => false]);
 
             $this->pmsCatalogModel->deletePMSMatrixAlternateParts($pms_matrix_part_id);
@@ -603,6 +609,33 @@ class PMSCatalogController {
         }
     }
 
+    public function getPMSMatrixTotal() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+
+        $pms_matrix_id = $_POST['pms_matrix_id'] ?? [];
+
+        // Ensure it's passed as an array to the model
+        if (!is_array($pms_matrix_id)) {
+            $pms_matrix_id = explode(',', $pms_matrix_id);
+        }
+
+        $totals = $this->pmsCatalogModel->getPMSMatrixTotal($pms_matrix_id);
+
+        $response = [
+            'success'         => true,
+            'consumableTotal' => $totals['consumableTotal'],
+            'laborCost'       => $totals['laborCost'],
+            'partsCost'       => $totals['partsCost'],
+            'totalCost'       => $totals['totalCost']
+        ];
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        exit;
+    }
+
     public function getPMSMatrices()
     {
         $pmsCatalogID = $_POST['pms_catalog_id'];
@@ -635,6 +668,25 @@ class PMSCatalogController {
                 'labor_quantity'      => $row['labor_quantity'],
                 'labor_total'      => $row['labor_total'],
                 'parts'           => $parts
+            ];
+        }
+
+        echo json_encode($response);
+    }
+
+    public function generatePMSMatrixByCatalog()
+    {
+        $pmsCatalogID = $_POST['pms_catalog_id'];
+
+        $matrices = $this->pmsCatalogModel->getPMSMatrices($pmsCatalogID);
+
+        $response = [];
+
+        foreach ($matrices as $row) {
+            $response[] = [
+                'pms_matrix_id'   => $row['pms_matrix_id'],
+                'odometer'        => $row['odometer'],
+                'months_interval' => $row['months_interval'],
             ];
         }
 

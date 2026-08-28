@@ -70,9 +70,17 @@
             generateOfficialBusinessEmployeeList();
         });
 
+        $(document).on('click','#apply-dashboard-filter-lead-status',function() {
+             generateLeadMonitoringList();
+        });
+
 
         if($('#absent-employee-list').length){
             generateAbsentEmployeeList();
+        }
+
+        if($('#lead-monitoring-list').length){
+            generateLeadMonitoringList();
         }
 
         if($('#late-employee-list').length){
@@ -286,6 +294,29 @@ function generateAbsentEmployeeList(){
         dataType: 'json',
         success: function (response) {
             document.getElementById("absent-employee-list").innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function generateLeadMonitoringList(){
+    const type = 'lead monitoring dashboard list';
+    var filter_lead_date = $('#filter_lead_date').val();
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_lead_generation.php',
+       data: 'type=' + type + 
+        '&filter_lead_date=' + filter_lead_date,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById("lead-monitoring-list").innerHTML = response.LIST;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

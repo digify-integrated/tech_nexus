@@ -417,6 +417,10 @@
         if($('#sales-proposal-pdc-manual-input-form').length){
             salesProposalPDCManualInputForm();
         }
+        
+        if($('#deposit-status-form').length){
+            waiveDepositPayment();
+        }
 
         if($('#sales-proposal-tag-as-released-form').length){
             salesProposalReleaseForm();
@@ -989,6 +993,61 @@
                                 }
                                 else {
                                     showNotification('Delete Additional Job Order Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#confirm-deposit',function() {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'confirm deposit';
+    
+            Swal.fire({
+                title: 'Confirm Deposit Payment',
+                text: 'Are all of the deposits paid?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/sales-proposal-controller.php',
+                        dataType: 'json',
+                        data: {
+                            sales_proposal_id : sales_proposal_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Confirm Deposit Payment Success', 'The deposit payment has been confirmed successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Confirm Deposit Payment Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -5173,6 +5232,86 @@ function salesProposalPDCManualInputForm(){
                     $('#generate-pdc-offcanvas').offcanvas('hide');
                     salesProposalSummaryPDCManualInputTable();
                 }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function waiveDepositPayment(){
+    $('#deposit-status-form').validate({
+        rules: {
+            deposit_waive_reason: {
+                required: true
+            },
+        },
+        messages: {
+            deposit_waive_reason: {
+                required: 'Please enter the waive reason'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'waive deposit';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-pdc-manual-input');
+                },
+                success: function (response) {
+                    if (!response.success) {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                    else{
+                        window.location.reload();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
             });
         
             return false;

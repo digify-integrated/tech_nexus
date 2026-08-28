@@ -598,131 +598,38 @@
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="col-lg-6">
-              <input type="hidden" id="product_category">
+            <div class="col-lg-12">
               <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Stock : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="product_id" id="product_id">
+                <label class="col-lg-2 col-form-label">PMS Catalog : <span class="text-danger">*</span></label>
+                <div class="col-lg-10">
+                  <select class="form-control select2" name="pms_catalog_id" id="pms_catalog_id">
                     <option value="">--</option>
-                    <?php echo $productModel->generateForSaleProductOptions(); ?>
+                    <?php echo $pmsCatalogModel->generatePMSCatalogOptions(); ?>
                   </select>
                 </div>
               </div>
+            </div>
+            <div class="col-lg-12">
               <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Engine Number :</label>
-                <label class="col-lg-8 col-form-label" id="product_engine_number"></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Chassis Number :</label>
-                <label class="col-lg-8 col-form-label" id="product_chassis_number"></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Plate Number :</label>
-                <label class="col-lg-8 col-form-label" id="product_plate_number"></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">For Registration? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8 mt-2">
-                  <select class="form-control select2" name="for_registration" id="for_registration">
-                    <option value="">--</option>
-                    <option value="Yes" selected>Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">With CR? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="with_cr" id="with_cr">
-                    <option value="">--</option>
-                    <option value="Yes" selected>Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">For Transfer? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="for_transfer" id="for_transfer">
-                    <option value="">--</option>
-                    <option value="Yes" selected>Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">For Change Color? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="for_change_color" id="for_change_color">
-                    <option value="">--</option>
-                    <option value="Yes" selected>Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Old Color :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="old_color" autocomplete="off" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">New Color :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="new_color" name="new_color" maxlength="100" autocomplete="off">
+                <label class="col-lg-2 col-form-label">PMS Matrix : <span class="text-danger">*</span></label>
+                <div class="col-lg-10">
+                  <select class="form-control select2" multiple="multiple" name="pms_matrix_id" id="pms_matrix_id"></select>
                 </div>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="form-group row">
-                <label class="col-lg-4 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
+                <label class="col-lg-4 col-form-label">Labor Total :</label>
                 <div class="col-lg-8">
-                  <select class="form-control select2" name="for_change_body" id="for_change_body">
-                    <option value="">--</option>
-                    <option value="Yes" selected>Yes</option>
-                    <option value="No">No</option>
-                  </select>
+                  <input type="text" class="form-control currency" id="labor_cost" name="labor_cost" readonly>
                 </div>
               </div>
+            </div>
+            <div class="col-lg-6">
               <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Old Body :</label>
+                <label class="col-lg-4 col-form-label">Consumable Total :</label>
                 <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="old_body" autocomplete="off" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">New Body :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="new_body" name="new_body" maxlength="100" autocomplete="off">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">For Change Engine? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8 mt-2">
-                  <select class="form-control select2" name="for_change_engine" id="for_change_engine">
-                    <option value="">--</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Old Engine :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="old_engine" autocomplete="off" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">New Engine :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="new_engine" name="new_engine" maxlength="100" autocomplete="off" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Final Name On OR/CR :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="final_orcr_name" name="final_orcr_name" maxlength="500" autocomplete="off">
+                  <input type="text" class="form-control currency" id="consumable_total" name="consumable_total" readonly>
                 </div>
               </div>
             </div>

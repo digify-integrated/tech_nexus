@@ -43,6 +43,13 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
+
+    public function getSalesProposalPMSMatrixIDs($salesProposalID) {
+        $sql = "SELECT pms_matrix_id FROM sales_proposal_pms_matrix WHERE sales_proposal_id = ?";
+        $stmt = $this->db->getConnection()->prepare($sql);
+        $stmt->execute([(int)$salesProposalID]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
     public function updateSalesProposal($p_sales_proposal_id, $p_customer_id, $p_comaker_id, $p_additional_maker_id, $p_comaker_id2, $p_product_type, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_remarks, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_application_source_id, $p_commission_amount, $p_company_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposal(:p_sales_proposal_id, :p_customer_id, :p_comaker_id, :p_additional_maker_id, :p_comaker_id2, :p_product_type, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_remarks, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_application_source_id, :p_commission_amount, :p_company_id, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
@@ -390,6 +397,16 @@ class SalesProposalModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function updateSalesProposalPMSDetails($p_sales_proposal_id, $p_pms_catalog_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal
+        SET pms_catalog_id = :p_pms_catalog_id,
+        last_log_by = :p_last_log_by
+        WHERE sales_proposal_id = :p_sales_proposal_id;');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_pms_catalog_id', $p_pms_catalog_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
 
     public function updateSalesProposalComakerConfirmation($p_sales_proposal_id, $p_comaker_confirmation, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalComakerConfirmation(:p_sales_proposal_id, :p_comaker_confirmation, :p_last_log_by)');
@@ -398,6 +415,76 @@ class SalesProposalModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+
+    /**
+ * Delete previous matrix entries for a sales proposal
+ */
+public function deleteSalesProposalPMSMatrix($salesProposalID) {
+    $stmt = $this->db->getConnection()->prepare(
+        'DELETE FROM sales_proposal_pms_matrix WHERE sales_proposal_id = :sales_proposal_id'
+    );
+    $stmt->bindValue(':sales_proposal_id', $salesProposalID, PDO::PARAM_INT);
+    return $stmt->execute();
+}
+
+/**
+ * Delete only auto-inserted required parts (is_required = 'Yes')
+ */
+public function deleteRequiredSalesProposalParts($salesProposalID) {
+    $stmt = $this->db->getConnection()->prepare(
+        "DELETE FROM sales_proposal_requested_parts 
+         WHERE sales_proposal_id = :sales_proposal_id AND is_required = 'Yes'"
+    );
+    $stmt->bindValue(':sales_proposal_id', $salesProposalID, PDO::PARAM_INT);
+    return $stmt->execute();
+}
+
+
+    public function getSalesProposalPMSTotal($salesProposalID) {
+    $sql = "
+        SELECT 
+            -- 1. Matrix consumables & labor totals
+            COALESCE(matrix_summary.max_consumables_total, 0) AS max_consumables_total,
+            COALESCE(matrix_summary.max_labor_total, 0) AS max_labor_total,
+            
+            -- 2. Total cost of ALL parts (matrix parts + custom requested parts)
+            COALESCE(parts_summary.total_parts_cost, 0) AS total_parts_cost,
+            
+            -- 3. Combined Grand Total
+            (
+                COALESCE(matrix_summary.max_consumables_total, 0) + 
+                COALESCE(matrix_summary.max_labor_total, 0) + 
+                COALESCE(parts_summary.total_parts_cost, 0)
+            ) AS grand_total
+        FROM (SELECT ? AS id) init
+        
+        -- Subquery for PMS Matrix consumables and labor
+        LEFT JOIN (
+            SELECT 
+                MAX(m.consumables_total) AS max_consumables_total,
+                MAX(m.labor_total) AS max_labor_total
+            FROM sales_proposal_pms_matrix sppm
+            INNER JOIN pms_matrix m ON sppm.pms_matrix_id = m.pms_matrix_id
+            WHERE sppm.sales_proposal_id = ?
+        ) matrix_summary ON 1=1
+
+        -- Subquery for ALL requested parts (Both is_required = 'Yes' and 'No')
+        LEFT JOIN (
+            SELECT 
+                SUM(total_price) AS total_parts_cost
+            FROM sales_proposal_requested_parts
+            WHERE sales_proposal_id = ?
+        ) parts_summary ON 1=1
+    ";
+
+    $stmt = $this->db->getConnection()->prepare($sql);
+    
+    // Pass $salesProposalID 3 times to match the 3 ? placeholders
+    $spID = (int)$salesProposalID;
+    $stmt->execute([$spID, $spID, $spID]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -455,6 +542,15 @@ class SalesProposalModel {
         $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOtherDocument(:p_sales_proposal_id, :p_other_document_file, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_other_document_file', $p_other_document_file, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function updateDepositStatus($p_sales_proposal_id, $p_status, $p_reason, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal SET deposit_status = :p_status, deposit_status_update_date = NOW(), deposit_waive_reason = :p_reason, deposit_confirmation_by = :deposit_confirmation_by, last_log_by = :p_last_log_by WHERE sales_proposal_id = :p_sales_proposal_id');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_status', $p_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reason', $p_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':deposit_confirmation_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -1021,8 +1117,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposal($p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_additional_maker_id, $p_comaker_id2, $p_product_type, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_remarks, $p_created_by, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_application_source_id, $p_commission_amount, $p_company_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposal(:p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_additional_maker_id, :p_comaker_id2, :p_product_type, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_remarks, :p_created_by, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_application_source_id, :p_commission_amount, :p_company_id, :p_last_log_by, @p_sales_proposal_id)');
+    public function insertSalesProposal($p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_additional_maker_id, $p_comaker_id2, $p_product_type, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_remarks, $p_created_by, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_application_source_id, $p_commission_amount, $p_company_id, $p_pms_catalog_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposal(:p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_additional_maker_id, :p_comaker_id2, :p_product_type, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_remarks, :p_created_by, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_application_source_id, :p_commission_amount, :p_company_id, :p_pms_catalog_id, :p_last_log_by, @p_sales_proposal_id)');
         $stmt->bindValue(':p_sales_proposal_number', $p_sales_proposal_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_comaker_id', $p_comaker_id, PDO::PARAM_INT);
@@ -1047,6 +1143,7 @@ class SalesProposalModel {
         $stmt->bindValue(':p_application_source_id', $p_application_source_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_commission_amount', $p_commission_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_pms_catalog_id', $p_pms_catalog_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -1079,7 +1176,117 @@ class SalesProposalModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function insertSalesProposalPMSMatrix($p_sales_proposal_id, $p_pms_matrix_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('INSERT INTO sales_proposal_pms_matrix (sales_proposal_id, pms_matrix_id, last_log_by) 
+	    VALUES(:p_sales_proposal_id, :p_pms_matrix_id, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_pms_matrix_id', $p_pms_matrix_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function insertSalesProposalUniquePMSParts(int $salesProposalID, array $pmsMatrixIDs, int $userID) {
+        if (empty($pmsMatrixIDs)) {
+            return false;
+        }
+
+        // Build dynamic placeholders (?, ?, ?) for the IN clause
+        $placeholders = implode(',', array_fill(0, count($pmsMatrixIDs), '?'));
+
+        $sql = "
+            INSERT INTO sales_proposal_requested_parts (
+                sales_proposal_id, 
+                part_id, 
+                required_quantity, 
+                price, 
+                pms_matrix_id,
+                total_price, 
+                is_required, 
+                last_log_by
+            )
+            SELECT 
+                ?,                                                              -- sales_proposal_id
+                pmp.part_id,                                                    -- part_id
+                SUM(COALESCE(pmp.required_quantity, 0)) AS required_quantity,
+                COALESCE(p.part_price, 0) AS price,                             -- price from `part` table
+                CONCAT('[', GROUP_CONCAT(DISTINCT pmp.pms_matrix_id), ']') AS pms_matrix_id, -- Emulates JSON_ARRAYAGG
+                (SUM(COALESCE(pmp.required_quantity, 0)) * COALESCE(p.part_price, 0)) AS total_price,
+                'Yes',                                                          -- is_required
+                ?                                                               -- last_log_by
+            FROM pms_matrix_part pmp
+            INNER JOIN part p ON p.part_id = pmp.part_id
+            WHERE pmp.pms_matrix_id IN ($placeholders)
+            GROUP BY pmp.part_id, p.part_price
+        ";
+
+        $stmt = $this->db->getConnection()->prepare($sql);
+
+        // Merge static bound parameters with matrix IDs
+        $params = array_merge([$salesProposalID, $userID], $pmsMatrixIDs);
+
+        return $stmt->execute($params);
+    }
+
+    /**
+     * Check if a part is already linked to the sales proposal
+     */
+    public function checkSalesProposalPartExists(int $salesProposalID, int $partID): bool {
+        $stmt = $this->db->getConnection()->prepare("
+            SELECT COUNT(*) AS total 
+            FROM sales_proposal_requested_parts 
+            WHERE sales_proposal_id = :sales_proposal_id 
+            AND part_id = :part_id
+        ");
+        $stmt->execute([
+            ':sales_proposal_id' => $salesProposalID,
+            ':part_id'           => $partID
+        ]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return ($result['total'] ?? 0) > 0;
+    }
+
+    /**
+     * Fetch part_price from the `part` table, calculate total_price, and insert record
+     */
+    public function insertSalesProposalCustomPart(int $salesProposalID, int $partID, float $quantity, int $userID): bool {
+        $sql = "
+            INSERT INTO sales_proposal_requested_parts (
+                sales_proposal_id,
+                part_id,
+                required_quantity,
+                price,
+                pms_matrix_id,
+                total_price,
+                is_required,
+                last_log_by
+            )
+            SELECT 
+                ?,                                        -- 1. sales_proposal_id
+                p.part_id,
+                ?,                                        -- 2. required_quantity
+                COALESCE(p.part_price, 0),
+                NULL,                                     -- Custom parts don't belong to a PMS matrix
+                (? * COALESCE(p.part_price, 0)),          -- 3. required_quantity (for total_price calculation)
+                'No',                                     -- Default requirement flag
+                ?                                         -- 4. last_log_by
+            FROM part p
+            WHERE p.part_id = ?                           -- 5. part_id
+        ";
+
+        $stmt = $this->db->getConnection()->prepare($sql);
+
+        // Pass parameters in exact order of the ? placeholders above
+        return $stmt->execute([
+            $salesProposalID,
+            $quantity,
+            $quantity,
+            $userID,
+            $partID
+        ]);
+    }
     # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     public function create_journal_entry($p_loan_number, $p_company_id, $p_transaction_type, $p_product_type, $p_product_type_code, $p_sales_proposal_id, $p_product_id, $p_journal_entry_date, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL create_journal_entry(:p_loan_number, :p_company_id, :p_transaction_type, :p_product_type, :p_product_type_code, :p_sales_proposal_id, :p_product_id, :p_journal_entry_date, :p_last_log_by)');
@@ -1907,6 +2114,11 @@ class SalesProposalModel {
         $stmt->bindValue(':p_sales_proposal_job_order_id', $p_sales_proposal_job_order_id, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function deleteSalesProposalPMSParts($p_sales_proposal_requested_parts_id) {
+        $stmt = $this->db->getConnection()->prepare('DELETE FROM sales_proposal_requested_parts WHERE sales_proposal_requested_parts_id = :p_sales_proposal_requested_parts_id');
+        $stmt->bindValue(':p_sales_proposal_requested_parts_id', $p_sales_proposal_requested_parts_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -2310,6 +2522,20 @@ class SalesProposalModel {
         
         return '<span class="badge bg-' . $class . '">' . $p_sales_proposal_status . '</span>';
     }
+
+    public function getPMSMatrixIds($sales_proposal_id) {
+
+        $stmt = $this->db->getConnection()->prepare("
+            SELECT pms_matrix_id
+            FROM sales_proposal_pms_matrix
+            WHERE sales_proposal_id = :sales_proposal_id
+        ");
+
+        $stmt->bindValue(':sales_proposal_id', $sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -2554,5 +2780,86 @@ class SalesProposalModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
+    public function getPMSAlternatePartsByRequestedPartID(int $salesProposalRequestedPartsID): array {
+        $sql = "
+            SELECT DISTINCT
+                alt.part_id AS alternate_part_id,
+                p.part_number,
+                p.description,
+                p.part_price
+            FROM sales_proposal_requested_parts sprp
+            
+            -- 1. Link requested part to matrix parts (Handles both int and string JSON arrays)
+            INNER JOIN pms_matrix_part pmp 
+                ON pmp.part_id = sprp.part_id
+            AND (
+                JSON_CONTAINS(sprp.pms_matrix_id, CAST(pmp.pms_matrix_id AS CHAR))
+                OR 
+                JSON_CONTAINS(sprp.pms_matrix_id, CONCAT('\"', pmp.pms_matrix_id, '\"'))
+            )
+                
+            -- 2. Link to alternate parts using pms_matrix_part_id
+            INNER JOIN pms_matrix_alternate_part alt 
+                ON alt.pms_matrix_part_id = pmp.pms_matrix_part_id
+                
+            -- 3. Get the details of the alternate part
+            INNER JOIN part p 
+                ON p.part_id = alt.part_id
+                
+            WHERE sprp.sales_proposal_requested_parts_id = ?
+            ORDER BY p.description ASC
+        ";
+
+        $stmt = $this->db->getConnection()->prepare($sql);
+        $stmt->execute([$salesProposalRequestedPartsID]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function updateSalesProposalAlternatePart(int $salesProposalRequestedPartsID, ?int $alternatePartID, int $userID): bool {
+        $sql = "
+            UPDATE sales_proposal_requested_parts sprp
+            -- Get new price: alternate part price if selected, otherwise revert to original part price
+            LEFT JOIN part target_part 
+                ON target_part.part_id = COALESCE(:alternate_part_id_join, sprp.part_id)
+            SET 
+                sprp.alternate_part_id = :alternate_part_id,
+                    sprp.price = COALESCE(target_part.part_price, 0),
+                    sprp.total_price = (sprp.required_quantity * COALESCE(target_part.part_price, 0)),
+                sprp.last_log_by = :last_log_by
+            WHERE sprp.sales_proposal_requested_parts_id = :requested_parts_id
+        ";
+
+        $stmt = $this->db->getConnection()->prepare($sql);
+
+        // Cast alternate_part_id safely to null if empty
+        $altID = (!empty($alternatePartID)) ? (int)$alternatePartID : null;
+
+        $stmt->bindValue(':alternate_part_id_join', $altID, $altID !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
+        $stmt->bindValue(':alternate_part_id', $altID, $altID !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
+        $stmt->bindValue(':last_log_by', $userID, PDO::PARAM_INT);
+        $stmt->bindValue(':requested_parts_id', $salesProposalRequestedPartsID, PDO::PARAM_INT);
+
+        return $stmt->execute();
+    }
+
+    public function resetSalesProposalAlternatePart(int $salesProposalRequestedPartsID, int $userID): bool {
+        $sql = "
+            UPDATE sales_proposal_requested_parts sprp
+            INNER JOIN part p ON p.part_id = sprp.part_id
+            SET 
+                sprp.alternate_part_id = NULL,
+                sprp.price = COALESCE(p.part_price, 0),
+                sprp.total_price = (sprp.required_quantity * COALESCE(p.part_price, 0)),
+                sprp.last_log_by = :last_log_by
+            WHERE sprp.sales_proposal_requested_parts_id = :requested_parts_id
+        ";
+
+        $stmt = $this->db->getConnection()->prepare($sql);
+        $stmt->bindValue(':last_log_by', $userID, PDO::PARAM_INT);
+        $stmt->bindValue(':requested_parts_id', $salesProposalRequestedPartsID, PDO::PARAM_INT);
+
+        return $stmt->execute();
+    }
 }
 ?>

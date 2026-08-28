@@ -357,7 +357,6 @@ class CIReportController {
         $mailer->addAddress('i.bernabe@christianmotors.ph');
         $mailer->addAddress('christianbaguisa@christianmotors.ph');
         $mailer->addAddress('glenbonita@christianmotors.ph');
-        $mailer->addAddress('l.agulto@christianmotors.ph');
 
         $mailer->Subject = $emailSubject;
         $mailer->Body = $message;

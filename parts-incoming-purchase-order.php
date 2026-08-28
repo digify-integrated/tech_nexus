@@ -66,6 +66,9 @@
         else if($company_id == '2'){
             $title = 'CHRISTIAN GENERAL MOTORS INC.';
         }
+        else if($company_id == '15'){
+            $title = 'OMODA JAECOO';
+        }
         else{
             $title = 'FUSO TARLAC';
         }

@@ -71,6 +71,9 @@ foreach ($options as $row) {
     if($company_id == '2'){
         $company_name = 'Christian General Motors Inc.';
     }
+    else if($company_id == '15'){
+        $company_name = 'Omoda Jaecoo';
+    }
     else{
         $company_name = 'FUSO Tarlac';
     }
@@ -142,16 +145,12 @@ $mailer->Port = $port;
 $mailer->setFrom($mailFromEmail, $mailFromName);
 $mailer->addAddress('k.baguisa@christianmotors.ph');
 $mailer->addAddress('christianbaguisa@christianmotors.ph');
-$mailer->addAddress('j.mendoza@christianmotors.ph');
 $mailer->addAddress('k.magiwe@christianmotors.ph');
 $mailer->addAddress('glenbonita@christianmotors.ph');
-$mailer->addAddress('l.agulto@christianmotors.ph');
 $mailer->addAddress('j.delacorte@christianmotors.ph');
 $mailer->addAddress('jl.manzano.fuso@christianmotors.ph');
-$mailer->addAddress('m.siapo.fuso@christianmotors.ph');
 $mailer->addAddress('cj.agudo@christianmotors.ph');
 $mailer->addAddress('l.samaniego@christianmotors.ph');
-$mailer->addAddress('sc.lapuz@christianmotors.ph');
 $mailer->addAddress('a.bayno.fuso@christianmotors.ph');
 $mailer->Subject = $emailSubject;
 $mailer->Body = $message;

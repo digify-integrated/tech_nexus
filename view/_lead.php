@@ -81,6 +81,7 @@
                 <th>Product</th>
                 <th>Status</th>
                 <th>Last Note</th>
+                <th>Last Note Date</th>
                 <th>Created By</th>
                 <th>Actions</th>
               </tr>

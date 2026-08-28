@@ -110,7 +110,6 @@ $mailer->Port = $port;
 $mailer->setFrom($mailFromEmail, $mailFromName);
 $mailer->addAddress('ma.garsula@christianmotors.ph');
 $mailer->addAddress('christianbaguisa@christianmotors.ph');
-$mailer->addAddress('l.agulto@christianmotors.ph');
 $mailer->addAddress('glenbonita@christianmotors.ph');
 $mailer->Subject = $emailSubject;
 $mailer->Body = $message;

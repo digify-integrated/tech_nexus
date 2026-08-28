@@ -7758,12 +7758,12 @@ END //
 
 
 
-CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_additional_maker_id INT, IN p_comaker_id2 INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_application_source_id INT, IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
+CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_additional_maker_id INT, IN p_comaker_id2 INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_application_source_id INT, IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_pms_catalog_id INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, additional_maker_id, comaker_id2, product_type, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, renewal_tag, application_source_id, commission_amount, company_id, last_log_by) 
-	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_additional_maker_id, p_comaker_id2, p_product_type, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_renewal_tag, p_application_source_id, p_commission_amount, p_company_id, p_last_log_by);
+    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, additional_maker_id, comaker_id2, product_type, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, renewal_tag, application_source_id, commission_amount, company_id, pms_catalog_id, last_log_by) 
+	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_additional_maker_id, p_comaker_id2, p_product_type, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_renewal_tag, p_application_source_id, p_commission_amount, p_company_id, p_pms_catalog_id, p_last_log_by);
       	
     SET p_sales_proposal_id = LAST_INSERT_ID();
 
@@ -7919,13 +7919,15 @@ BEGIN
     END //	
 END //
 
-CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_application_source_id INT, IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_additional_maker_id INT, IN p_comaker_id2 INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_application_source_id INT, IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
 	UPDATE sales_proposal
     SET customer_id = p_customer_id,
     comaker_id = p_comaker_id,
+    additional_maker_id = p_additional_maker_id,
+    comaker_id2 = p_comaker_id2,
     product_type = p_product_type,
     commission_amount = p_commission_amount,
     transaction_type = p_transaction_type,
@@ -10455,6 +10457,7 @@ BEGIN
 	UPDATE leave_application
     SET contact_id = contact_id,
     reason = p_reason,
+    leave_type_id = p_leave_type_id,
     leave_date = p_leave_date,
     application_type = p_application_type,
     leave_start_time = p_leave_start_time,
@@ -15383,7 +15386,6 @@ BEGIN
         part_subclass_id,
         description,
         bar_code,
-        part_number,
         company_id,
         unit_sale,
         stock_alert,
@@ -15399,7 +15401,6 @@ BEGIN
         p_part_subclass_id,
         p_description,
         p_bar_code,
-        p_part_number,
         p_company_id,
         p_unit_sale,
         p_stock_alert,
@@ -15412,7 +15413,11 @@ BEGIN
 
     SET p_part_id = LAST_INSERT_ID();
 
-    IF p_part_number IS NULL OR p_part_number = '' THEN
+    IF p_bar_code IS NOT NULL AND TRIM(p_bar_code) <> '' THEN
+        UPDATE part
+        SET part_number = p_bar_code
+        WHERE part_id = p_part_id;
+    ELSE
         UPDATE part
         SET part_number = p_part_id
         WHERE part_id = p_part_id;

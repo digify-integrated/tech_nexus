@@ -7,6 +7,7 @@
   require('model/approving-officer-model.php');
   require('model/id-type-model.php');
   require('model/application-source-model.php');
+  require('model/pms-catalog-model.php');
 
   $pageTitle = 'Approved Sales Proposal';
   
@@ -16,6 +17,7 @@
   $productModel = new ProductModel($databaseModel);
   $idTypeModel = new IDTypeModel($databaseModel);
   $applicationSourceModel = new ApplicationSourceModel($databaseModel);
+  $pmsCatalogModel = new PMSCatalogModel($databaseModel);
     
   $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 76, 'read');
   $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);

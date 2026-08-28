@@ -307,8 +307,11 @@
             </div>
             <div class="row g-3 mt-1">
               <div class="col-sm-12">
-                <button class="btn btn-warning me-2" type="button" id="generate-rental-billing">Rental Billing</button>
-                <button class="btn btn-info me-2" type="button" id="generate-utilities-billing">Utilities Billing</button>
+                <button class="btn btn-dark me-2" type="button" id="generate-rental-billing">Rental Billing</button>
+                <button class="btn btn-danger me-2" type="button" id="generate-utilities-billing">Utilities Billing</button>
+                <button class="btn btn-info me-2" type="button" id="generate-water-billing">Water Billing</button>
+                <button class="btn btn-warning me-2" type="button" id="generate-electricity-billing">Electricity Billing</button>
+                <button class="btn btn-light me-2" type="button" id="generate-others-billing">Other Charges</button>
               </div>
             </div>
             <div class="table-responsive mt-2">

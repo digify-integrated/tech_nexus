@@ -782,7 +782,7 @@ if($viewPartLogNotes['total'] > 0){
       </div>
       <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
         <div class="card-body p-b-0">
-          '. $userModel->generateLogNotes('parts', $partID) .'
+          '. $userModel->generateLogNotes('part', $partID) .'
         </div>
       </div>
     </div>

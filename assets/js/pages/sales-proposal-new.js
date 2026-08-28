@@ -37,10 +37,11 @@
                 $('#pricing-computation-card, #other-charges-card, #renewal-amount-card').removeClass('d-none');
             }
             
-            $('#unit-card, #fuel-card, #refinancing-card').addClass('d-none');
+            $('#unit-card, #fuel-card, #refinancing-card, #pms-card').addClass('d-none');
             resetModalForm('unit-card');
             resetModalForm('refinancing-card');
             resetModalForm('fuel-card');
+            resetModalForm('pms-card');
 
             $('#product_engine_number').text('');
             $('#product_chassis_number').text('');
@@ -65,6 +66,10 @@
                     resetModalForm('unit-card');
                     resetModalForm('refinancing-card');
                     break;
+                case 'PMS':
+                    $('#pms-card').removeClass('d-none');
+                    resetModalForm('pms-card');
+                    break;
                 case 'Brand New':
                 case 'Refinancing':
                 case 'Restructure':
@@ -74,7 +79,7 @@
                     break;
             }
 
-            if(productType == 'Unit' || productType === 'Rental' || productType === 'Consignment' || productType == 'Fuel'){
+            if(productType == 'Unit' || productType === 'Rental' || productType === 'Consignment' || productType == 'Fuel' || productType == 'PMS'){
                 if($('#delivery_price').length){
                     $('#delivery_price').prop('readonly', true);
                 }
@@ -118,6 +123,15 @@
                 $('#new_engine').val('');
                 $('#new_engine').attr('readonly', true); 
             }
+        });
+
+        $(document).on('change','#pms_catalog_id',function() {
+            let pms_catalog_id = $(this).val();
+            generate_pms_matrix(pms_catalog_id);
+        });
+
+        $(document).on('change','#pms_matrix_id',function() {
+           displayDetails('get pms matrix total details');
         });
 
         $(document).on('change','#diesel_fuel_quantity',function() {
@@ -402,6 +416,20 @@ function addSalesProposalForm(){
                     }
                 }
             },
+            pms_catalog_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'PMS';
+                    }
+                }
+            },
+            pms_matrix_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'PMS';
+                    }
+                }
+            },
             ref_engine_no: {
                 required: {
                     depends: function(element) {
@@ -614,6 +642,43 @@ function calculateFirstDueDate(){
         data: { start_date: start_date, term_length : term_length, payment_frequency: payment_frequency, number_of_payments: number_of_payments },
         success: function (result) {
             $('#first_due_date').val(result);
+        }
+    });
+}
+
+function generate_pms_matrix(pms_catalog_id){
+    const transaction = 'generate pms matrix by catalog';
+
+    $.ajax({
+        type: 'POST',
+        url: 'controller/pms-catalog-controller.php',
+        data: {
+            transaction: transaction,
+            pms_catalog_id: pms_catalog_id
+        },
+        dataType: 'json', // Tell jQuery to expect JSON
+        success: function(result) {
+
+            let $select = $('#pms_matrix_id');
+
+            // Remove old options
+            $select.empty();
+
+            // Add new options
+            $.each(result, function(index, item) {
+
+                let text = item.odometer + ' KM - ' + item.months_interval + ' Month';
+
+                $select.append(
+                    $('<option>', {
+                        value: item.pms_matrix_id,
+                        text: text
+                    })
+                );
+            });
+
+            // Refresh Select2
+            $select.trigger('change');
         }
     });
 }
@@ -1172,6 +1237,45 @@ function displayDetails(transaction){
                     }
                 });
             }
+            break;
+        case 'get pms matrix total details':
+            var pms_matrix_id = $('#pms_matrix_id').val(); // Can be an array if using multiple select
+
+            $.ajax({
+                url: 'controller/pms-catalog-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    pms_matrix_id: pms_matrix_id,
+                    transaction: transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Populate inputs formatted as currency
+                        $('#delivery_price').val(Number(response.totalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                        $('#labor_cost').val(Number(response.laborCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                        $('#consumable_total').val(Number(response.consumableTotal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    } else {
+                        if (response.isInactive) {
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Get Product Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Corrected template literals syntax with backticks
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    calculateTotalDeliveryPrice();
+                    calculateTotalOtherCharges();
+                }
+            });
             break;
     }
 }

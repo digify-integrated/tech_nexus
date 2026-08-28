@@ -7,6 +7,7 @@
   require('model/product-model.php');
   require('model/approving-officer-model.php');
   require('model/id-type-model.php');
+  require('model/pms-catalog-model.php');
 
   $pageTitle = 'Sales Proposal For DR';
   
@@ -15,6 +16,7 @@
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
   $idTypeModel = new IDTypeModel($databaseModel);
+  $pmsCatalog = new PMSCatalogModel($databaseModel);
 
   require('model/application-source-model.php');
   $applicationSourceModel = new ApplicationSourceModel($databaseModel);
@@ -35,6 +37,7 @@
   $tagSalesProposalForOnProcess = $userModel->checkSystemActionAccessRights($user_id, 132);
   $tagSalesProposalReadyForRelease = $userModel->checkSystemActionAccessRights($user_id, 133);
   $tagSalesProposalForDR = $userModel->checkSystemActionAccessRights($user_id, 134);
+  $waiveDeposit = $userModel->checkSystemActionAccessRights($user_id, 240);
 
   if ($allSalesProposalReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -96,6 +99,7 @@
     $drNumber = $salesProposalDetails['dr_number'] ?? null;
     $releaseTo = $salesProposalDetails['release_to'] ?? null;
     $termLength = $salesProposalDetails['term_length'] ?? null;
+    $depositStatus = $salesProposalDetails['deposit_status'] ?? 'Pending';
     $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
     $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
     $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);

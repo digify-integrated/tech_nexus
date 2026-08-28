@@ -148,8 +148,8 @@
                 <input class="form-control" name="phone" id="phone" placeholder="Phone" <?= $isReadOnly ?>>
               </div>
 
-              <div class="col-12">
-                <textarea class="form-control" name="address" id="address" rows="3" placeholder="Address" <?= $isReadOnly ?>></textarea>
+              <div class="col-md-6">
+                <input class="form-control" name="social_media_account" id="social_media_account" placeholder="Social Media Account" <?= $isReadOnly ?>>
               </div>
 
               <div class="col-md-6">
@@ -157,6 +157,10 @@
                   <option value="">City</option>
                   <?= $cityModel->generateCityOptions(); ?>
                 </select>
+              </div>
+
+              <div class="col-12">
+                <textarea class="form-control" name="address" id="address" rows="3" placeholder="Address" <?= $isReadOnly ?>></textarea>
               </div>
 
 

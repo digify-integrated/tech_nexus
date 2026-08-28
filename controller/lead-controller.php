@@ -79,27 +79,31 @@ class LeadController {
         $userID = $_SESSION['user_id'];
 
         $leadID = htmlspecialchars($_POST['lead_id'] ?? '', ENT_QUOTES, 'UTF-8');
+        
+        // Check if the user already clicked "Yes" to override the duplicate warning
+        $confirmDuplicate = isset($_POST['confirm_duplicate']) && $_POST['confirm_duplicate'] == '1';
 
         /* =========================
-            SANITIZE INPUTS
+            SANITY & SANITIZE INPUTS
         ========================== */
 
-        $firstName      = trim(htmlspecialchars($_POST['first_name'], ENT_QUOTES, 'UTF-8'));
-        $middleName     = trim(htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8'));
-        $lastName       = trim(htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8'));
-        $corporateName  = trim(htmlspecialchars($_POST['corporate_name'], ENT_QUOTES, 'UTF-8'));
-        $stockNumber    = trim(htmlspecialchars($_POST['stock_number'], ENT_QUOTES, 'UTF-8'));
-        $address        = trim(htmlspecialchars($_POST['address'], ENT_QUOTES, 'UTF-8'));
+        $firstName      = trim(htmlspecialchars($_POST['first_name'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $middleName     = trim(htmlspecialchars($_POST['middle_name'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $lastName       = trim(htmlspecialchars($_POST['last_name'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $corporateName  = trim(htmlspecialchars($_POST['corporate_name'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $stockNumber    = trim(htmlspecialchars($_POST['stock_number'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $address        = trim(htmlspecialchars($_POST['address'] ?? '', ENT_QUOTES, 'UTF-8'));
         $cityID         = !empty($_POST['city_id']) ? (int) $_POST['city_id'] : null;
-        $email          = trim(htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8'));
-        $phone          = trim(htmlspecialchars($_POST['phone'], ENT_QUOTES, 'UTF-8'));
+        $email          = trim(htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $phone          = trim(htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $social_media_account = trim(htmlspecialchars($_POST['social_media_account'] ?? '', ENT_QUOTES, 'UTF-8'));
         $genderID       = !empty($_POST['gender_id']) ? (int) $_POST['gender_id'] : null;
         $leadStatusID   = !empty($_POST['lead_status_id']) ? (int) $_POST['lead_status_id'] : null;
         $leadSourceID   = !empty($_POST['lead_source_id']) ? (int) $_POST['lead_source_id'] : null;
-        $leadPriority = !empty($_POST['lead_priority']) ?  $_POST['lead_priority'] : null;
+        $leadPriority   = !empty($_POST['lead_priority']) ? $_POST['lead_priority'] : null;
         $inquiryTypeID  = !empty($_POST['inquiry_type_id']) ? (int) $_POST['inquiry_type_id'] : null;
-        $remarks        = trim(htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8'));
-        $inquiry_date = $this->systemModel->checkDate('empty', $_POST['inquiry_date'], '', 'Y-m-d', '');
+        $remarks        = trim(htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $inquiry_date   = $this->systemModel->checkDate('empty', $_POST['inquiry_date'] ?? '', '', 'Y-m-d', '');
 
         /* =========================
             BUILD FILE AS
@@ -118,12 +122,32 @@ class LeadController {
         $user = $this->userModel->getUserByID($userID);
 
         if (!$user || !$user['is_active']) {
-
             echo json_encode([
                 'success' => false,
                 'isInactive' => true
             ]);
             exit;
+        }
+
+        /* =========================
+            CHECK DUPLICATE LEAD
+        ========================== */
+
+        if (!$confirmDuplicate) {
+            $duplicate = $this->leadModel->checkDuplicateLead($firstName, $lastName, $leadID);
+            
+            if ($duplicate) {
+                $assignedTo = !empty($duplicate['assigned_user_name']) 
+                    ? $duplicate['assigned_user_name'] 
+                    : 'another agent';
+
+                echo json_encode([
+                    'success' => false,
+                    'isDuplicate' => true,
+                    'message' => 'The lead name "' . $firstName . ' ' . $lastName . '" was already encoded and assigned to ' . $assignedTo . '. Do you still want to proceed?'
+                ]);
+                exit;
+            }
         }
 
         /* =========================
@@ -151,6 +175,7 @@ class LeadController {
                 $cityID,
                 $email,
                 $phone,
+                $social_media_account,
                 $genderID,
                 $leadStatusID,
                 $inquiryTypeID,
@@ -187,6 +212,7 @@ class LeadController {
                 $cityID,
                 $email,
                 $phone,
+                $social_media_account,
                 $genderID,
                 $leadStatusID,
                 $inquiryTypeID,

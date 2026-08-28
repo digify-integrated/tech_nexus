@@ -6994,7 +6994,7 @@ CREATE TABLE `leads` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `lead`;
+DROP TABLE IF EXISTS `inquiry_type`;
 CREATE TABLE `inquiry_type` (
   `inquiry_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   `inquiry_type_name` varchar(100) NOT NULL,
@@ -7248,4 +7248,29 @@ CREATE TABLE pms_matrix_alternate_part (
     INDEX(pms_matrix_id),
     INDEX(pms_matrix_part_id),
     INDEX(part_id)
+);
+
+CREATE TABLE sales_proposal_pms_matrix(
+	sales_proposal_pms_matrix_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	pms_matrix_id INT UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+DROP TABLE sales_proposal_requested_parts;
+CREATE TABLE sales_proposal_requested_parts(
+	sales_proposal_requested_parts_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	part_id INT UNSIGNED NOT NULL,
+	alternate_part_id INT,
+    required_quantity DOUBLE,
+    price DOUBLE,
+    pms_matrix_id JSON,
+    total_price DOUBLE,
+	is_required ENUM('Yes', 'No') DEFAULT 'No',
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );

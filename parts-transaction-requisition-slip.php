@@ -92,6 +92,9 @@
             else if($company_id == '8'){
                 $title = 'NE FUEL';
             }
+            else if($company_id == '15'){
+                $title = 'OMODA JAECOO';
+            }
             else{
                 $title = 'FUSO TARLAC';
             }
@@ -234,6 +237,7 @@
 
         $list='';
         $averageTotal = 0;
+        $total = 0;
         foreach ($options as $row) {
             $part_id  = $row['part_id'];
             $quantity = $row['quantity'];
@@ -247,6 +251,9 @@
 
             $unitCode = $unitModel->getUnit($unitSale);
             $short_name = $unitCode['short_name'] ?? null;
+            $rowTotal = $price * $quantity;
+
+            $total += $rowTotal;
 
             if($customer_type == 'Customer' || $customer_type == 'Miscellaneous'){
                  $list .= '<tr>
@@ -254,7 +261,7 @@
                         <td style="text-align:center">'. strtoupper($description) .'</td>
                         <td style="text-align:center">'. number_format($quantity, 2) . ' ' . strtoupper($short_name) .'</td>
                         <td style="text-align:center">'. number_format($price, 2) .'</td>
-                        <td style="text-align:center">'. number_format(($price * $quantity), 2) .'</td>
+                        <td style="text-align:center">'. number_format(($rowTotal), 2) .'</td>
                     </tr>';
             }
             else{
@@ -281,6 +288,10 @@
                         </thead>
                         <tbody>
                             '.$list.'
+                            <tr>
+                                <td colspan="4" style="text-align: right"><b>TOTAL</b></td>
+                                <td style="text-align:center">'. number_format(($total), 2) .'</td>
+                            </tr>
                         </tbody>
                     </table>';
         }

@@ -6,6 +6,7 @@
   require('model/product-model.php');
   require('model/approving-officer-model.php');
   require('model/id-type-model.php');
+  require('model/pms-catalog-model.php');
 
   $pageTitle = 'Sales Proposal For Bank Financing';
   
@@ -14,6 +15,7 @@
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
   $idTypeModel = new IDTypeModel($databaseModel);
+  $pmsCatalogModel = new PMSCatalogModel($databaseModel);
   
   require('model/application-source-model.php');
   $applicationSourceModel = new ApplicationSourceModel($databaseModel);

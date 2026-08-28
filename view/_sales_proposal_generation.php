@@ -12,6 +12,7 @@ require_once '../model/customer-model.php';
 require_once '../model/product-model.php';
 require_once '../model/contractor-model.php';
 require_once '../model/work-center-model.php';
+require_once '../model/parts-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -21,6 +22,7 @@ $customerModel = new CustomerModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $contractorModel = new ContractorModel($databaseModel);
 $workCenterModel = new WorkCenterModel($databaseModel);
+$partsModel = new PartsModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -1945,6 +1947,77 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     $action . 
                                     '</div>'
                         ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        case 'sales proposal pms parts table':
+            if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+                $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
+                $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? '';
+
+                $sql = $databaseModel->getConnection()->prepare('SELECT * FROM sales_proposal_requested_parts WHERE sales_proposal_id = :salesProposalID');
+                $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                $response = [];
+
+                foreach ($options as $row) {
+                    $sales_proposal_requested_parts_id = $row['sales_proposal_requested_parts_id'];
+                    $required_quantity = $row['required_quantity'];
+                    $price = $row['price'];
+                    $total_price = $row['total_price'];
+                    $is_required = $row['is_required'];
+                    $alternate_part_id = $row['alternate_part_id'];
+
+                    // Determine which part ID to use: alternate_part_id if set, otherwise part_id
+                    $effective_part_id = (!empty($alternate_part_id)) ? $alternate_part_id : $row['part_id'];
+
+                    $partDetails = $partsModel->getParts($effective_part_id);
+                    $description = $partDetails['description'] ?? '';
+                    $part_number = $partDetails['part_number'] ?? '';
+                    $part = $part_number . ' - ' . $description;
+
+                    $action = '';
+                    if ($salesProposalStatus == 'Draft') {
+                        if ($is_required == 'Yes') {
+
+                            if(empty($alternate_part_id)){
+                                 $action = '<div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-icon btn-success update-sales-proposal-pms-part" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-alternate-pms-parts-offcanvas" aria-controls="sales-proposal-alternate-pms-parts-offcanvas" data-sales-proposal-requested-parts-id="'. $sales_proposal_requested_parts_id .'" title="Update Part">
+                                        <i class="ti ti-edit"></i>
+                                    </button>
+                                </div>';
+                            }
+                            else{
+                                $action = '<div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-icon btn-warning revert-sales-proposal-pms-part" data-sales-proposal-requested-parts-id="'. $sales_proposal_requested_parts_id .'" title="Revert Alternate Part">
+                                            <i class="ti ti-rotate-2"></i>
+                                        </button>
+                                    </div>';
+                            }
+                           
+                        } else {
+                            $action = '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-pms-part" data-sales-proposal-requested-parts-id="'. $sales_proposal_requested_parts_id .'" title="Delete Part">
+                                    <i class="ti ti-trash"></i>
+                                </button>
+                            </div>';
+                        }
+                    }
+
+                    $response[] = [
+                        'PART' => $part,
+                        'QTY' => number_format($required_quantity, 2),
+                        'PRICE' => number_format($price, 2),
+                        'TOTAL_PRICE' => number_format($total_price, 2),
+                        'ACTION' => '<div class="d-flex gap-2">' . $action . '</div>'
+                    ];
                 }
 
                 echo json_encode($response);

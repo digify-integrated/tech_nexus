@@ -159,6 +159,39 @@
             }
         });
 
+        $(document).on('click','#generate-water-billing',function() {
+            if(checkedBoxes != ''){
+                const leasing_application_id = $('#leasing-application-id').text();
+
+                window.open('leasing-utilities-billing.php?id=' + checkedBoxes + '&leasing=' + leasing_application_id + '&type=Water', '_blank');
+            }
+            else{
+                showNotification('Generate Water Billing Error', 'No selected repayment schedule.', 'danger');
+            }
+        });
+
+        $(document).on('click','#generate-electricity-billing',function() {
+            if(checkedBoxes != ''){
+                const leasing_application_id = $('#leasing-application-id').text();
+
+                window.open('leasing-utilities-billing.php?id=' + checkedBoxes + '&leasing=' + leasing_application_id + '&type=Electricity', '_blank');
+            }
+            else{
+                showNotification('Generate Electricity Billing Error', 'No selected repayment schedule.', 'danger');
+            }
+        });
+
+        $(document).on('click','#generate-others-billing',function() {
+            if(checkedBoxes != ''){
+                const leasing_application_id = $('#leasing-application-id').text();
+
+                window.open('leasing-utilities-billing.php?id=' + checkedBoxes + '&leasing=' + leasing_application_id + '&type=Others', '_blank');
+            }
+            else{
+                showNotification('Generate Other Charges Error', 'No selected repayment schedule.', 'danger');
+            }
+        });
+
         $('#leasing-application-repayment-table').on('draw.dt', function() {
             $.each(checkedBoxes, function(index, value) {
                 $('input.billing-ids[value="' + value + '"]').prop('checked', true);

@@ -60,6 +60,7 @@
       ['#sales-proposal-table', (sel) => salesProposalTable(sel)],
       ['#all-sales-proposal-table', (sel) => allSalesProposalTable(sel)],
       ['#sales-proposal-all-approval-condition-table', (sel) => salesProposalAllApprovalConditionTable(sel)],
+      ['#sales-proposal-pms-parts-table', (sel) => salesProposalPMSPartsTable(sel)],
       ['#sales-proposal-job-order-table', (sel) => salesProposalJobOrderTable(sel)],
       ['#sales-proposal-ci-report-table', (sel) => salesProposalCIReportTable(sel)],
       ['#sales-proposal-deposit-amount-table', (sel) => salesProposalDepositAmountTable(sel)],
@@ -94,9 +95,12 @@
     const draftForms = [
       ['#sales-proposal-form', salesProposalForm],
       ['#sales-proposal-unit-details-form', salesProposalUnitForm],
+      ['#sales-proposal-pms-details-form', salesProposalPMSForm],
       ['#sales-proposal-fuel-details-form', salesProposalFuelForm],
       ['#sales-proposal-refinancing-details-form', salesProposalRefinancingForm],
       ['#sales-proposal-job-order-form', salesProposalJobOrderForm],
+      ['#sales-proposal-pms-parts-form', salesProposalPMSPartsForm],
+      ['#sales-proposal-alternate-pms-parts-form', salesProposalAlternatePMSPartsForm],
       ['#sales-proposal-pricing-computation-form', salesProposalPricingComputationForm],
     ];
 
@@ -218,6 +222,13 @@
       }
     });
 
+    $doc.on('change', '#pms_matrix_id', function () {
+      if ($(this).val()) displayDetailsGuard('get pms matrix total details', 50);
+      else {
+        $('#labor_cost, #consumable_total').val('');
+      }
+    });
+
     // term_type -> payment_frequency options (kept as-is, just cleaned)
     $doc.on('change', '#term_type', function () {
       const termType = $(this).val();
@@ -263,9 +274,10 @@
       const $tab3 = $('#sales-proposal-tab-3');
       const $tab4 = $('#sales-proposal-tab-4');
       const $tab18 = $('#sales-proposal-tab-18');
+      const $tab19 = $('#sales-proposal-tab-19');
 
-      if ($tab2.length && $tab3.length && $tab4.length && $tab18.length) {
-        $tab2.add($tab3).add($tab4).add($tab18).addClass('d-none');
+      if ($tab2.length && $tab3.length && $tab4.length && $tab18.length && $tab19.length) {
+        $tab2.add($tab3).add($tab4).add($tab18).add($tab19).addClass('d-none');
 
         const isUnitLike = ['Unit', 'Rental', 'Consignment'].includes(productType);
         const isFuel = productType === 'Fuel';
@@ -286,12 +298,13 @@
           displayDetailsGuard('get sales proposal refinancing details', 50);
         } else if (isPMSLike) {
           $tab18.removeClass('d-none');
+          $tab19.removeClass('d-none');
           //resetModalForm('sales-proposal-pms-details-form');
-          //displayDetailsGuard('get sales proposal pms details', 50);
+          
         }
       }
 
-      const lockDelivery = ['Unit', 'Rental', 'Consignment', 'Fuel'].includes(productType);
+      const lockDelivery = ['Unit', 'Rental', 'Consignment', 'Fuel', 'PMS'].includes(productType);
       setReadonlyIfExists('#delivery_price', lockDelivery);
 
       // 'Brand New' should likely follow Refinancing rules for insurance premium
@@ -682,6 +695,118 @@
             });
         });
 
+        $(document).on('click','.delete-sales-proposal-pms-part',function() {
+            const sales_proposal_requested_parts_id = $(this).data('sales-proposal-requested-parts-id');
+            const transaction = 'delete sales proposal pms parts';
+    
+            Swal.fire({
+                title: 'Confirm Part Deletion',
+                text: 'Are you sure you want to delete this part?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/sales-proposal-controller.php',
+                        dataType: 'json',
+                        data: {
+                            sales_proposal_requested_parts_id : sales_proposal_requested_parts_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Part Success', 'The part has been deleted successfully.', 'success');
+                                displayDetails('get pms matrix sp total details', 50);
+                                reloadDatatable('#sales-proposal-pms-parts-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Delete Part Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.revert-sales-proposal-pms-part',function() {
+            const sales_proposal_requested_parts_id = $(this).data('sales-proposal-requested-parts-id');
+            const transaction = 'delete sales proposal alternate pms parts';
+    
+            Swal.fire({
+                title: 'Confirm Alternate Part Reverse',
+                text: 'Are you sure you want to reverse this alternate part?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Reverse',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/sales-proposal-controller.php',
+                        dataType: 'json',
+                        data: {
+                            sales_proposal_requested_parts_id : sales_proposal_requested_parts_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Alternate Part Reverse Success', 'The alternate part has been resversed successfully.', 'success');
+                                displayDetails('get pms matrix sp total details', 50);
+                                reloadDatatable('#sales-proposal-pms-parts-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Alternate Part Reverse Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('click','#add-sales-proposal-deposit-amount',function() {
             resetModalForm("sales-proposal-deposit-amount-form");
         });
@@ -692,6 +817,13 @@
             sessionStorage.setItem('sales_proposal_deposit_amount_id', sales_proposal_deposit_amount_id);
             
             displayDetails('get sales proposal deposit amount details');
+        });
+
+        $(document).on('click','.update-sales-proposal-pms-part',function() {
+            const sales_proposal_requested_parts_id = $(this).data('sales-proposal-requested-parts-id');
+    
+            $('#sales_proposal_requested_parts_id').val(sales_proposal_requested_parts_id);
+            generate_pms_alternate_part(sales_proposal_requested_parts_id);
         });
 
         $(document).on('click','.delete-sales-proposal-deposit-amount',function() {
@@ -1569,6 +1701,31 @@ function salesProposalApprovalConditionTable(datatable_name, buttons = false, sh
   });
 }
 
+function salesProposalPMSPartsTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal pms parts table',
+    data: { sales_proposal_id: getSalesProposalId() },
+    order: [[0, 'asc']],
+    columns: [
+      { data: 'PART' },
+      { data: 'QTY' },
+      { data: 'PRICE' },
+      { data: 'TOTAL_PRICE' },
+      { data: 'ACTION' },
+    ],
+    columnDefs: [
+      { width: '42%', targets: 0 },
+      { width: '14%', targets: 1 },
+      { width: '14%', targets: 2 },
+      { width: '14%', targets: 3 },
+      { width: '16%', orderable: false, targets: 4 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
 function salesProposalJobOrderTable(datatable_name, buttons = false, show_all = false) {
   return createServerDataTable(datatable_name, {
     url: 'view/_sales_proposal_generation.php',
@@ -2377,6 +2534,42 @@ function salesProposalUnitForm() {
   });
 }
 
+function salesProposalPMSForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-pms-details-form',
+    rules: {
+      pms_catalog_id: { required: true },
+      pms_matrix_id: { required: true },
+    },
+    messages: {
+      pms_catalog_id: { required: 'Please choose the PMS catalog' },
+      pms_matrix_id: { required: 'Please enter the PMS matrix' },
+    },
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const customer_id = domText('#customer-id');
+      const transaction = 'save sales proposal pms';
+
+      try {
+        const body = serializeForm(form);
+        body.append('transaction', transaction);
+        body.append('sales_proposal_id', sales_proposal_id);
+        body.append('customer_id', customer_id);
+
+        const response = await postJson(SALES_CONTROLLER, body);
+        handleControllerResponse(response);
+        
+         displayDetails('get pms matrix sp total details', 50);
+         reloadDatatable?.('#sales-proposal-pms-parts-table');
+      } catch (err) {
+        handleNetworkError(err);
+      }
+
+      return false;
+    },
+  });
+}
+
 function salesProposalFuelForm() {
   initValidatedForm({
     formSelector: '#sales-proposal-fuel-details-form',
@@ -2501,6 +2694,100 @@ function salesProposalJobOrderForm() {
         reloadDatatable?.('#sales-proposal-job-order-table');
         resetModalForm?.('sales-proposal-job-order-form');
         salesProposalSummaryJobOrderTable?.();
+      }
+
+      return false;
+    },
+  });
+}
+
+function salesProposalPMSPartsForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-pms-parts-form',
+    rules: {
+      part_id: { required: true },
+      required_quantity: { required: true },
+    },
+    messages: {
+      part_id: { required: 'Please choose the part' },
+      required_quantity: { required: 'Please enter the required quantity' },
+    },
+    // Uses offcanvas-select2 too
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal pms parts';
+
+      const formData = new FormData(form);
+      formData.append('sales_proposal_id', sales_proposal_id);
+      formData.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-job-order');
+
+        const response = await postFormDataJson(SALES_CONTROLLER, formData);
+
+        handleControllerResponse(response, {
+          onSuccess: (r) => {
+            const title = r.insertRecord ? 'Insert Requested Part Success' : 'Update Requested Part Success';
+            const desc = r.insertRecord
+              ? 'The requested part has been inserted successfully.'
+              : 'The requested part has been updated successfully.';
+            ui.notifySuccess(title, desc);
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-pms-parts', 'Submit');
+        $('#sales-proposal-pms-parts-offcanvas').offcanvas('hide');
+        reloadDatatable?.('#sales-proposal-pms-parts-table');
+        resetModalForm?.('sales-proposal-pms-parts-form');
+      }
+
+      return false;
+    },
+  });
+}
+
+function salesProposalAlternatePMSPartsForm() {
+  initValidatedForm({
+    formSelector: '#sales-proposal-alternate-pms-parts-form',
+    rules: {
+      alternate_part_id: { required: true },
+    },
+    messages: {
+      alternate_part_id: { required: 'Please choose the alternate part' },
+    },
+    // Uses offcanvas-select2 too
+    submit: async (form) => {
+      const sales_proposal_id = domText('#sales-proposal-id');
+      const transaction = 'save sales proposal alternate pms parts';
+
+      const formData = new FormData(form);
+      formData.append('sales_proposal_id', sales_proposal_id);
+      formData.append('transaction', transaction);
+
+      try {
+        disableFormSubmitButton?.('submit-sales-proposal-job-order');
+
+        const response = await postFormDataJson(SALES_CONTROLLER, formData);
+
+        handleControllerResponse(response, {
+          onSuccess: (r) => {
+            const title = r.insertRecord ? 'Insert Requested Part Success' : 'Update Requested Part Success';
+            const desc = r.insertRecord
+              ? 'The requested part has been inserted successfully.'
+              : 'The requested part has been updated successfully.';
+            ui.notifySuccess(title, desc);
+          },
+        });
+      } catch (err) {
+        handleNetworkError(err);
+      } finally {
+        enableFormSubmitButton?.('submit-sales-proposal-alternate-pms-parts', 'Submit');
+        $('#sales-proposal-alternate-pms-parts-offcanvas').offcanvas('hide');
+        reloadDatatable?.('#sales-proposal-pms-parts-table');
+        resetModalForm?.('sales-proposal-alternate-pms-parts-form');
       }
 
       return false;
@@ -3731,8 +4018,11 @@ async function displayDetails(transaction) {
         if ($('#other-document-file').length) document.getElementById('other-document-file').src = response.otherDocumentFile;
 
         $('#summary-commission').text(encryptCommission(response.commissionAmount));
+        
+        
 
         checkOptionExist('#renewal_tag', response.renewalTag, '');
+        checkOptionExist('#pms_catalog_id', response.pmsCatalogId, '');
         checkOptionExist('#application_source_id', response.applicationSourceID, '');
         checkOptionExist('#product_type', response.productType, '');
         checkOptionExist('#transaction_type', response.transactionType, '');
@@ -3744,6 +4034,7 @@ async function displayDetails(transaction) {
         checkOptionExist('#initial_approving_officer', response.initialApprovingOfficer, '');
         checkOptionExist('#final_approving_officer', response.finalApprovingOfficer, '');
         checkOptionExist('#company_id', response.companyID, '');
+
 
         $('#summary-referred-by').text(response.referredBy);
         $('#summary-release-date').text(response.releaseDate);
@@ -3780,6 +4071,8 @@ async function displayDetails(transaction) {
           displayDetails('get sales proposal unit details');
         } else if (productType === 'Fuel') {
           displayDetails('get sales proposal fuel details');
+        } else if (productType === 'PMS') {
+          generate_pms_matrix(response.pmsCatalogId, response.pmsMatrixIds);
         } else {
           displayDetails('get sales proposal refinancing details');
         }
@@ -3895,6 +4188,57 @@ async function displayDetails(transaction) {
         displayDetails('get sales proposal pricing computation details');
         break;
       }
+
+      case 'get pms matrix total details': {
+        var pms_matrix_id = $('#pms_matrix_id').val();
+
+            $.ajax({
+                url: 'controller/pms-catalog-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    pms_matrix_id: pms_matrix_id,
+                    transaction: transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#labor_cost').val(Number(response.laborCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                        $('#consumable_total').val(Number(response.consumableTotal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    } else {
+                        if (response.isInactive) {
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Get Product Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Corrected template literals syntax with backticks
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+            });
+            break;
+      }
+
+      case 'get pms matrix sp total details': {
+         const sales_proposal_id = domText('#sales-proposal-id');
+
+        const response = await runTo(SALES_CONTROLLER, { sales_proposal_id, transaction });
+
+        if (!response?.success) {
+          return fail('Get Sales Proposal Details Error', response, 'Unable to load unit details.');
+        }
+
+        $('#delivery_price').val(parseCurrency(response.grand_total.toFixed(2)).toLocaleString('en-US'));
+
+        calculateTotalDeliveryPrice();
+        break;
+      }
+            
 
 
       case 'get sales proposal job order details': {
@@ -4812,14 +5156,20 @@ async function traverseTabs(direction) {
   const stepConfig = {
     proposal: { form: '#sales-proposal-form' },
     unit: { form: '#sales-proposal-unit-details-form' },
+    pms: { form: '#sales-proposal-pms-details-form' },
     fuel: { form: '#sales-proposal-fuel-details-form' },
     refinancing: { form: '#sales-proposal-refinancing-details-form', },
     pricing: { form: '#sales-proposal-pricing-computation-form' },
     otherCharges: { form: '#sales-proposal-other-charges-form' },
     renewal: { form: '#sales-proposal-renewal-amount-form' },
     otherProduct: { form: '#sales-proposal-other-product-details-form' },
+    partsRequested: { form: '#sales-proposal-requested-parts-form' },
 
     // ✅ YOUR MISSING ONES (revised)
+    partsRequested: {
+      onEnter: () => $('#add-sales-proposal-pms-parts-button').removeClass('d-none'),
+      onLeave: () => $('#add-sales-proposal-pms-parts-button').addClass('d-none'),
+    },
     jobOrder: {
       onEnter: () => $('#add-sales-proposal-job-order-button').removeClass('d-none'),
       onLeave: () => $('#add-sales-proposal-job-order-button').addClass('d-none'),
@@ -5012,3 +5362,90 @@ function disableFormAndSelect2(formId) {
   }
 }
 
+function generate_pms_matrix(pms_catalog_id, pms_matrix_ids){
+    const transaction = 'generate pms matrix by catalog';
+
+    $.ajax({
+        type: 'POST',
+        url: 'controller/pms-catalog-controller.php',
+        data: {
+            transaction: transaction,
+            pms_catalog_id: pms_catalog_id
+        },
+        dataType: 'json', // Tell jQuery to expect JSON
+        success: function(result) {
+
+            let $select = $('#pms_matrix_id');
+
+            // Remove old options
+            $select.empty();
+
+            // Add new options
+            $.each(result, function(index, item) {
+
+                let text = item.odometer + ' KM - ' + item.months_interval + ' Month';
+
+                $select.append(
+                    $('<option>', {
+                        value: item.pms_matrix_id,
+                        text: text
+                    })
+                );
+            });
+
+            // Refresh Select2
+            $select.trigger('change');
+        },
+        complete: function(){
+           $('#pms_matrix_id')
+                        .val(pms_matrix_ids)
+                        .trigger('change');
+
+          displayDetails('get pms matrix total details', 50);
+        }
+    });
+}
+
+function generate_pms_alternate_part(sales_proposal_requested_parts_id) {
+    const transaction = 'generate pms alternate part';
+
+    $.ajax({
+        type: 'POST',
+        url: 'controller/sales-proposal-controller.php',
+        data: {
+            transaction: transaction,
+            sales_proposal_requested_parts_id: sales_proposal_requested_parts_id
+        },
+        dataType: 'json',
+        success: function(result) {
+            let $select = $('#alternate_part_id');
+
+            // Clear existing options and reset with default placeholder
+            $select.empty().append($('<option>', {
+                value: '',
+                text: '-- Select Alternate Part --'
+            }));
+
+            // Populate options if alternate parts exist
+            if (Array.isArray(result) && result.length > 0) {
+                $.each(result, function(index, item) {
+                    
+                    let text = `${item.part_number} - ${item.description} `;
+
+                    $select.append(
+                        $('<option>', {
+                            value: item.alternate_part_id,
+                            text: text
+                        })
+                    );
+                });
+            }
+
+            // Refresh Select2 dropdown UI
+            $select.trigger('change');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching alternate parts:', error);
+        }
+    });
+}

@@ -479,6 +479,7 @@ class PMSCatalogModel {
                 pmp.pms_matrix_id,
                 pmp.part_id,
                 p.description AS part_name,
+                p.part_number AS part_number,
                 pmp.required_quantity,
                 pmp.unit_id,
                 u.unit_name,
@@ -530,13 +531,63 @@ class PMSCatalogModel {
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
+    public function getPMSMatrixTotal(array $pmsMatrixIds) {
+        if (empty($pmsMatrixIds)) {
+            return [
+                'consumableTotal' => 0,
+                'laborCost'       => 0,
+                'partsCost'       => 0,
+                'totalCost'       => 0
+            ];
+        }
+
+        // Prepare placeholders (?, ?, ?) for PDO safely
+        $placeholders = implode(',', array_fill(0, count($pmsMatrixIds), '?'));
+
+        $sql = "
+            SELECT 
+                -- 1. Highest consumables and labor totals
+                COALESCE(MAX(pm.consumables_total), 0) AS max_consumables,
+                COALESCE(MAX(pm.labor_total), 0) AS max_labor,
+                
+                -- 2. Total price of UNIQUE parts selected across these matrices
+                COALESCE((
+                    SELECT SUM(p.part_price)
+                    FROM part p
+                    WHERE p.part_id IN (
+                        SELECT DISTINCT pmp.part_id
+                        FROM pms_matrix_part pmp
+                        WHERE pmp.pms_matrix_id IN ($placeholders)
+                    )
+                ), 0) AS unique_parts_total
+            FROM pms_matrix pm
+            WHERE pm.pms_matrix_id IN ($placeholders)
+        ";
+
+        $stmt = $this->db->getConnection()->prepare($sql);
+        
+        // Bind the matrix IDs twice (once for the inner subquery, once for the main table)
+        $params = array_merge($pmsMatrixIds, $pmsMatrixIds);
+        $stmt->execute($params);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return [
+            'consumableTotal' => (float) $result['max_consumables'],
+            'laborCost'       => (float) $result['max_labor'],
+            'partsCost'       => (float) $result['unique_parts_total'],
+            'totalCost'       => (float) $result['max_consumables'] + (float) $result['max_labor'] + (float) $result['unique_parts_total']
+        ];
+    }
+
     public function getPMSMatrixAlternateParts($pms_matrix_part_id)
     {
         $stmt = $this->db->getConnection()->prepare("
             SELECT
                 a.pms_matrix_alternate_part_id,
                 a.part_id,
-                p.description AS part_name
+                p.description AS part_name,
+                p.part_number AS part_number
             FROM pms_matrix_alternate_part a
             INNER JOIN part p
                 ON p.part_id = a.part_id
@@ -551,17 +602,17 @@ class PMSCatalogModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function generateGeneratePartByCompanyOptions($company_id) {
-        $stmt = $this->db->getConnection()->prepare('SELECT part_id, description FROM part WHERE company_id IN (?) ORDER BY description');
-        $stmt->execute([$company_id]);
+    public function generatePMSCatalogOptions() {
+        $stmt = $this->db->getConnection()->prepare('SELECT pms_catalog_id, pms_catalog_name FROM pms_catalog ORDER BY pms_catalog_name');
+        $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $htmlOptions = '';
         foreach ($options as $row) {
-            $partsID = $row['part_id'];
-            $description = $row['description'];
+            $pms_catalog_id = $row['pms_catalog_id'];
+            $pms_catalog_name = $row['pms_catalog_name'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . $pms_catalog_id . '">' .  $pms_catalog_name .'</option>';
         }
 
         return $htmlOptions;

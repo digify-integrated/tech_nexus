@@ -351,7 +351,7 @@
                         <span class="text-danger">*</span>
                     </label>
 
-                    <select class="form-control select2" name="part_id" id="part_id">
+                    <select class="form-control offcanvas-select2" name="part_id" id="part_id">
                       <option value="">--</option>
                       <?php echo $partsModel->generateGeneratePartByCompanyOptions($company_id); ?>
                     </select>
@@ -371,7 +371,7 @@
                         min="0.01" step="0.01">
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 d-none">
                     <label class="form-label">
                         Unit
                         <span class="text-danger">*</span>

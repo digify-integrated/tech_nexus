@@ -50,11 +50,12 @@
 
         $productDetails = $productModel->getProduct($productID);
         $rrNumber = $productDetails['rr_no'];
+        $rrDate = $systemModel->checkDate('summary', $productDetails['checklist_date'], '', 'm/d/Y', '');
     }
 
     $summaryTable = generatePrint($productID);
     $summaryTable2 = generatePrint2($productID);
-    $summaryTable3 = generatePrint3($productID);
+    $summaryTable3 = generatePrint3($productID, $rrDate);
 
     ob_start();
 
@@ -157,7 +158,7 @@
         $className = $classModel->getClass($class_id)['class_name'] ?? null;
         $colorName = $colorModel->getColor($color_id)['color_name'] ?? null;
 
-        $rrDate = $systemModel->checkDate('summary', $productDetails['checklist_date'], '', 'm/d/Y', '');
+        $arrival_date = $systemModel->checkDate('summary', $productDetails['arrival_date'], '', 'm/d/Y', '');
 
         $response = '<table border="0.5" width="100%" cellpadding="2" align="left">
                         <tbody>
@@ -169,7 +170,7 @@
                                 '. $supplierName .'
                             </td>
                             <td><small>DATE RECEIVED</small><br/>
-                                '. $rrDate .'
+                                '. $arrival_date .'
                             </td>
                             <td><small>STOCK CLASS</small><br/>
                                 '. $className .'
@@ -288,7 +289,7 @@
         return $response;
     }
 
-    function generatePrint3($productID){
+    function generatePrint3($productID, $rrDate){
 
         $response = '<table width="100%" cellpadding="2" align="left">
                         <tbody>
@@ -524,7 +525,7 @@
                             <td width="25%">77 LINKAGE</td>
                             <td width="3%" border="0.5"></td>
                             <td width="25%">125 1 SET RIM</td>
-                            <td width="16%" border="0.5" rowspan="4"><b>PREPARED BY:</b></td>
+                            <td width="16%" border="0.5" rowspan="4"><b>CHECKLIST DATE:</b> <br/><br/><span style="font-size: 9px">'. $rrDate .'</span></td>
                         </tr>
                         <tr>
                             <td width="3%" border="0.5"></td>
@@ -557,7 +558,7 @@
                             <td width="25%">81 PROP W/ YOKE</td>
                             <td width="3%" border="0.5"></td>
                             <td width="25%">129 LEFT SIDE GATE</td>
-                            <td width="16%" border="0.5" rowspan="4"><b>CHECKED BY:</b></td>
+                            <td width="16%" border="0.5" rowspan="4"><b>PREPARED BY:</b></td>
                         </tr>
                         <tr>
                             <td width="3%" border="0.5"></td>
@@ -590,7 +591,7 @@
                             <td width="25%">85 U-VOLT REAR</td>
                             <td width="3%" border="0.5"></td>
                             <td width="25%">133 DUMP HOIST</td>
-                            <td width="16%" border="0.5" rowspan="4"><b>NOTED BY:</b></td>
+                            <td width="16%" border="0.5" rowspan="4"><b>CHECKED BY:</b></td>
                         </tr>
                         <tr>
                             <td width="3%" border="0.5"></td>
@@ -623,7 +624,7 @@
                             <td width="25%">89 SHOCK BRACKET</td>
                             <td width="3%" border="0.5"></td>
                             <td width="25%">137 OTHERS (PLS SPECIFY)</td>
-                            <td width="16%" border="0.5" rowspan="4"></td>
+                            <td width="16%" border="0.5" rowspan="4"><b>NOTED BY:</b></td>
                         </tr>
                         <tr>
                             <td width="3%" border="0.5"></td>

@@ -102,6 +102,18 @@ class SalesProposalController {
                 case 'save sales proposal unit':
                     $this->saveSalesProposalUnit();
                     break;
+                case 'save sales proposal pms':
+                    $this->saveSalesProposalPMS();
+                    break;
+                case 'save sales proposal pms parts':
+                    $this->saveSalesProposalPMSParts();
+                    break;
+                case 'save sales proposal alternate pms parts':
+                    $this->saveSalesProposalAlternatePMSParts();
+                    break;
+                case 'delete sales proposal alternate pms parts':
+                    $this->deleteSalesProposalAlternatePMSParts();
+                    break;
                 case 'save sales proposal fuel':
                     $this->saveSalesProposalFuel();
                     break;
@@ -137,6 +149,12 @@ class SalesProposalController {
                     break;
                 case 'tag for initial approval':
                     $this->tagSalesProposalForInitialApproval();
+                    break;
+                case 'confirm deposit':
+                    $this->confirmDeposit();
+                    break;
+                case 'waive deposit':
+                    $this->waiveDeposit();
                     break;
                 case 'tag for review':
                     $this->tagSalesProposalForReview();
@@ -198,6 +216,9 @@ class SalesProposalController {
                 case 'delete sales proposal job order':
                     $this->deleteSalesProposalJobOrder();
                     break;
+                case 'delete sales proposal pms parts':
+                    $this->deleteSalesProposalPMSParts();
+                    break;
                 case 'delete sales proposal additional job order':
                     $this->deleteSalesProposalAdditionalJobOrder();
                     break;
@@ -257,6 +278,9 @@ class SalesProposalController {
                     break;
                 case 'get sales proposal confirmation details':
                     $this->getSalesProposalConfirmationDetails();
+                    break;
+                case 'get pms matrix sp total details':
+                    $this->getSalesProposalPMSTotal();
                     break;
                 case 'save sales proposal client confirmation':
                     $this->saveSalesProposalClientConfirmation();
@@ -333,6 +357,18 @@ class SalesProposalController {
                 case 'sales proposal additional job order cancel':
                     $this->cancelAdditionalJobOrderProgress();
                     break;
+                case 'generate pms alternate part':
+                    $salesProposalRequestedPartsID = $_POST['sales_proposal_requested_parts_id'] ?? null;
+
+                    if (!$salesProposalRequestedPartsID) {
+                        echo json_encode([]);
+                        exit;
+                    }
+
+                    $alternateParts = $this->salesProposalModel->getPMSAlternatePartsByRequestedPartID((int)$salesProposalRequestedPartsID);
+
+                    echo json_encode($alternateParts);
+                    exit;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -406,6 +442,8 @@ class SalesProposalController {
                 exit;
             } 
             else {
+                
+                $pms_catalog_id = htmlspecialchars($_POST['pms_catalog_id'], ENT_QUOTES, 'UTF-8');
                 $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
                 $forRegistration = htmlspecialchars($_POST['for_registration'], ENT_QUOTES, 'UTF-8');
                 $withCR = htmlspecialchars($_POST['with_cr'], ENT_QUOTES, 'UTF-8');
@@ -484,7 +522,7 @@ class SalesProposalController {
 
                 $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
 
-                $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $additional_maker_id, $comaker_id2, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $userID);
+                $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $additional_maker_id, $comaker_id2, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $pms_catalog_id, $userID);
 
                 $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
@@ -500,6 +538,32 @@ class SalesProposalController {
                     $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, $dieselFuelQuantity, $dieselPricePerLiter, $regularFuelQuantity, $regularPricePerliter, $premiumFuelQuantity, $premiumPricePerliter, $userID);
                     $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', $userID);
                     $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
+                }
+                else if ($productType == 'PMS') {
+                    $pms_matrix_ids = $_POST['pms_matrix_id'] ?? [];
+
+                    // Force array format if string was submitted
+                    if (!is_array($pms_matrix_ids) && !empty($pms_matrix_ids)) {
+                        $pms_matrix_ids = explode(',', $pms_matrix_ids);
+                    }
+
+                    if (!empty($pms_matrix_ids) && is_array($pms_matrix_ids)) {
+                        // 1. Insert selected matrix records
+                        foreach ($pms_matrix_ids as $pms_matrix_id) {
+                            $this->salesProposalModel->insertSalesProposalPMSMatrix(
+                                $salesProposalID,
+                                $pms_matrix_id,
+                                $userID
+                            );
+                        }
+
+                        // 2. Insert all unique requested parts with is_required = 'Yes'
+                        $this->salesProposalModel->insertSalesProposalUniquePMSParts(
+                            $salesProposalID,
+                            $pms_matrix_ids,
+                            $userID
+                        );
+                    }
                 }
                 else if($productType == 'Brand New' || $productType == 'Refinancing' || $productType == 'Restructure'){
                     if($productType == 'Brand New'){
@@ -594,6 +658,238 @@ class SalesProposalController {
     # Returns: Array
     #
     # -------------------------------------------------------------
+    public function saveSalesProposalPMS() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            exit;
+        }
+
+        $userID = $_SESSION['user_id'] ?? null;
+        $salesProposalID = $_POST['sales_proposal_id'] ?? null;
+        $pms_catalog_id = htmlspecialchars($_POST['pms_catalog_id'] ?? '', ENT_QUOTES, 'UTF-8');
+
+        if (!$userID || !$salesProposalID) {
+            echo json_encode(['success' => false, 'message' => 'Missing required parameters.']);
+            exit;
+        }
+
+        $user = $this->userModel->getUserByID($userID);
+
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+
+        if ($total > 0) {
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $current_pms_catalog_id = $salesProposalDetails['pms_catalog_id'] ?? null;
+
+            // STEP 1: Update catalog ID only if it actually changed
+            if ((string)$current_pms_catalog_id !== (string)$pms_catalog_id) {
+                $this->salesProposalModel->updateSalesProposalPMSDetails($salesProposalID, $pms_catalog_id, $userID);
+            }
+
+            // Parse incoming pms_matrix_id safely
+            $pms_matrix_ids = [];
+
+            if (isset($_POST['pms_matrix_id'])) {
+                if (is_array($_POST['pms_matrix_id'])) {
+                    $pms_matrix_ids = $_POST['pms_matrix_id'];
+                } else {
+                    // Parse raw HTTP body to capture duplicate keys (e.g., pms_matrix_id=1&pms_matrix_id=2)
+                    $rawInput = file_get_contents('php://input');
+                    preg_match_all('/(?:^|&)pms_matrix_id=([^&]*)/', $rawInput, $matches);
+
+                    if (!empty($matches[1])) {
+                        $pms_matrix_ids = array_map('urldecode', $matches[1]);
+                    } else {
+                        // Fallback for single value or comma-separated string ("1,2")
+                        $pms_matrix_ids = explode(',', $_POST['pms_matrix_id']);
+                    }
+                }
+            }
+
+            // Clean incoming values: extract unique positive integers and sort for consistent comparison
+            $new_pms_matrix_ids = array_values(array_unique(array_filter(array_map('intval', $pms_matrix_ids))));
+            sort($new_pms_matrix_ids);
+
+            // STEP 2: Fetch existing matrix IDs for this proposal
+            $existing_pms_matrix_ids = $this->salesProposalModel->getSalesProposalPMSMatrixIDs($salesProposalID); // returns array of ints
+            if (!is_array($existing_pms_matrix_ids)) {
+                $existing_pms_matrix_ids = [];
+            }
+            $existing_pms_matrix_ids = array_values(array_unique(array_map('intval', $existing_pms_matrix_ids)));
+            sort($existing_pms_matrix_ids);
+
+            // STEP 3: Compare existing vs new matrix IDs
+            $has_matrix_changed = ($new_pms_matrix_ids !== $existing_pms_matrix_ids);
+
+            // Only delete & re-insert IF the matrix selections have actually changed
+            if ($has_matrix_changed) {
+                // Delete previous entries first
+                $this->salesProposalModel->deleteSalesProposalPMSMatrix($salesProposalID);
+                $this->salesProposalModel->deleteRequiredSalesProposalParts($salesProposalID);
+
+                if (!empty($new_pms_matrix_ids)) {
+                    // Insert matrix items
+                    foreach ($new_pms_matrix_ids as $pms_matrix_id) {
+                        $this->salesProposalModel->insertSalesProposalPMSMatrix(
+                            $salesProposalID,
+                            $pms_matrix_id,
+                            $userID
+                        );
+                    }
+
+                    // Insert unique auto-required parts tied to these matrix IDs
+                    $this->salesProposalModel->insertSalesProposalUniquePMSParts(
+                        $salesProposalID,
+                        $new_pms_matrix_ids,
+                        $userID
+                    );
+                }
+            }
+
+            echo json_encode(['success' => true, 'insertRecord' => false, 'matrixChanged' => $has_matrix_changed]);
+            exit;
+        }
+
+        echo json_encode(['success' => false, 'message' => 'Sales proposal not found.']);
+        exit;
+    }
+
+    public function saveSalesProposalPMSParts() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            exit;
+        }
+
+        $userID = $_SESSION['user_id'] ?? null;
+        $salesProposalID = $_POST['sales_proposal_id'] ?? null;
+        $partID = $_POST['part_id'] ?? null;
+        $requiredQuantity = (float)($_POST['required_quantity'] ?? 0);
+
+        if (!$userID || !$salesProposalID || !$partID || $requiredQuantity <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Please provide a valid part and quantity.']);
+            exit;
+        }
+
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+
+        if ($total > 0) {
+            // STEP 1: Check if part is already added to this sales proposal
+            $partExists = $this->salesProposalModel->checkSalesProposalPartExists($salesProposalID, $partID);
+
+            if ($partExists) {
+                echo json_encode(['success' => false, 'message' => 'This part has already been added to the proposal.']);
+                exit;
+            }
+
+            // STEP 2: Fetch part price and insert with is_required = 'No'
+            $inserted = $this->salesProposalModel->insertSalesProposalCustomPart(
+                (int)$salesProposalID, 
+                (int)$partID, 
+                $requiredQuantity, 
+                (int)$userID
+            );
+
+            if ($inserted) {
+                echo json_encode(['success' => true, 'message' => 'Part added successfully.']);
+                exit;
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Part record not found or could not be inserted.']);
+                exit;
+            }
+        }
+
+        echo json_encode(['success' => false, 'message' => 'Sales proposal not found.']);
+        exit;
+    }
+
+    public function saveSalesProposalAlternatePMSParts() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            exit;
+        }
+
+        $userID = $_SESSION['user_id'] ?? null;
+        $salesProposalRequestedPartsID = $_POST['sales_proposal_requested_parts_id'] ?? null;
+        $alternatePartID = !empty($_POST['alternate_part_id']) ? (int)$_POST['alternate_part_id'] : null;
+
+        if (!$userID) {
+            echo json_encode(['success' => false, 'message' => 'User session expired. Please log in again.']);
+            exit;
+        }
+
+        if (!$salesProposalRequestedPartsID) {
+            echo json_encode(['success' => false, 'message' => 'Missing requested part ID.']);
+            exit;
+        }
+
+        $user = $this->userModel->getUserByID($userID);
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $updated = $this->salesProposalModel->updateSalesProposalAlternatePart(
+            (int)$salesProposalRequestedPartsID,
+            $alternatePartID,
+            (int)$userID
+        );
+
+        if ($updated) {
+            echo json_encode(['success' => true, 'message' => 'Alternate part saved successfully.']);
+            exit;
+        }
+
+        echo json_encode(['success' => false, 'message' => 'Failed to update alternate part.']);
+        exit;
+    }
+
+    public function deleteSalesProposalAlternatePMSParts() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            exit;
+        }
+
+        $userID = $_SESSION['user_id'] ?? null;
+        $salesProposalRequestedPartsID = $_POST['sales_proposal_requested_parts_id'] ?? null;
+
+        if (!$userID) {
+            echo json_encode(['success' => false, 'message' => 'User session expired. Please log in again.']);
+            exit;
+        }
+
+        if (!$salesProposalRequestedPartsID) {
+            echo json_encode(['success' => false, 'message' => 'Missing requested part ID.']);
+            exit;
+        }
+
+        $user = $this->userModel->getUserByID($userID);
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        // Pass null as alternate_part_id to revert to original part
+        $reverted = $this->salesProposalModel->resetSalesProposalAlternatePart(
+            (int)$salesProposalRequestedPartsID,
+            (int)$userID
+        );
+
+        if ($reverted) {
+            echo json_encode(['success' => true, 'message' => 'Reverted to original part successfully.']);
+            exit;
+        }
+
+        echo json_encode(['success' => false, 'message' => 'Failed to revert alternate part.']);
+        exit;
+    }
+
     public function saveSalesProposalFuel() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
@@ -2233,11 +2529,54 @@ class SalesProposalController {
         echo json_encode(['success' => true]);
         exit;
     }
+
+    public function confirmDeposit() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->updateDepositStatus($salesProposalID, 'Confimed', '', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function waiveDeposit() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $deposit_waive_reason = $_POST['deposit_waive_reason'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->updateDepositStatus($salesProposalID, 'Waived', $deposit_waive_reason, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #
-    # Function: tagSalesProposalForInitialApproval
+    # Function: 
     # Description: 
     # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
     #
@@ -3804,7 +4143,6 @@ class SalesProposalController {
         $deliverPrice = str_replace(',', '', $_POST['delivery_price']);
         $nominalDiscount = str_replace(',', '', $_POST['nominal_discount']);
         $addOnCharge = str_replace(',', '', $_POST['add_on_charge']);
-        $totalDeliveryPrice = str_replace(',', '', $_POST['total_delivery_price']);
         $costOfAccessories = str_replace(',', '', $_POST['cost_of_accessories']);
         $reconditioningCost = str_replace(',', '', $_POST['reconditioning_cost']);
         $subtotal = str_replace(',', '', $_POST['subtotal']);
@@ -3821,6 +4159,8 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        $totalDeliveryPrice = ($deliverPrice + $addOnCharge) - $nominalDiscount;
     
         $checkSalesProposalPricingComputationExist = $this->salesProposalModel->checkSalesProposalPricingComputationExist($salesProposalID);
         $total = $checkSalesProposalPricingComputationExist['total'] ?? 0;
@@ -4325,6 +4665,26 @@ class SalesProposalController {
         }
     
         $this->salesProposalModel->deleteSalesProposalJobOrder($salesProposalJobOrderID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    public function deleteSalesProposalPMSParts() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $sales_proposal_requested_parts_id = htmlspecialchars($_POST['sales_proposal_requested_parts_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->deleteSalesProposalPMSParts($sales_proposal_requested_parts_id);
             
         echo json_encode(['success' => true]);
         exit;
@@ -4992,6 +5352,8 @@ class SalesProposalController {
             $salesProposalPricingComputationDetails = $this->salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
             $outstanding_balance = $salesProposalPricingComputationDetails['outstanding_balance'] ?? 0;
 
+            $pmsMatrixIds = $this->salesProposalModel->getPMSMatrixIds($salesProposalID);
+
             $response = [
                 'success' => true,
                 'salesProposalNumber' => $salesProposalDetails['sales_proposal_number'],
@@ -5000,6 +5362,8 @@ class SalesProposalController {
                 'transactionType' => $salesProposalDetails['transaction_type'] ?? null,
                 'financingInstitution' => $salesProposalDetails['financing_institution'] ?? null,
                 'renewalTag' => $salesProposalDetails['renewal_tag'] ?? null,
+                'pmsCatalogId' => $salesProposalDetails['pms_catalog_id'] ?? null,
+                'pmsMatrixIds' => $pmsMatrixIds,
                 'applicationSourceID' => $salesProposalDetails['application_source_id'] ?? null,
                 'commissionAmount' => $salesProposalDetails['commission_amount'] ?? null,
                 'initialApprovalRemarks' => $salesProposalDetails['initial_approval_remarks'] ?? null,
@@ -5219,6 +5583,41 @@ class SalesProposalController {
             echo json_encode($response);
             exit;
         }
+    }
+
+    public function getSalesProposalPMSTotal() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            exit;
+        }
+
+        $salesProposalID = $_POST['sales_proposal_id'] ?? null;
+        $userID = $_SESSION['user_id'] ?? null;
+
+        if (empty($salesProposalID)) {
+            echo json_encode(['success' => false, 'message' => 'Sales Proposal ID is required.']);
+            exit;
+        }
+
+        $user = $this->userModel->getUserByID($userID);
+
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $totals = $this->salesProposalModel->getSalesProposalPMSTotal($salesProposalID);
+
+        $response = [
+            'success' => true,
+            'max_consumables_total' => (float)($totals['max_consumables_total'] ?? 0),
+            'max_labor_total'       => (float)($totals['max_labor_total'] ?? 0),
+            'total_parts_cost'      => (float)($totals['total_parts_cost'] ?? 0),
+            'grand_total'           => (float)($totals['grand_total'] ?? 0)
+        ];
+
+        echo json_encode($response);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -6086,7 +6485,6 @@ class SalesProposalController {
         $this->configureSMTP($mailer);
         
         $mailer->setFrom($mailFromEmail, $mailFromName);
-        #$mailer->addAddress('l.agulto@christianmotors.ph');
         $mailer->addAddress('l.cabarles@christianmotors.ph');
         $mailer->addAddress('j.pineda@christianmotors.ph');
         $mailer->Subject = $emailSubject;

@@ -71,6 +71,11 @@
                 $viewSalesProposalForCIDashboard = $userModel->checkSystemActionAccessRights($user_id, 222);
                 $viewSalesProposalForVerificationDashboard = $userModel->checkSystemActionAccessRights($user_id, 224);
                 $viewSalesProposalSTAForApprovalDashboard = $userModel->checkSystemActionAccessRights($user_id, 234);
+                $viewLeadMonitoringDashboard = $userModel->checkSystemActionAccessRights($user_id, 241);
+
+                if ($viewLeadMonitoringDashboard['total'] > 0) {
+                  require_once('view/_lead_monitoring_dashboard.php');
+                }
 
                 if ($viewDashboardSalesProposal['total'] > 0) {
                   require_once('view/_sales_proposal_dashboard.php');

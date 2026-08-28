@@ -9,6 +9,7 @@
   require('model/application-source-model.php');
   require('model/company-model.php');
   require('model/pms-catalog-model.php');
+  require('model/parts-model.php');
 
   $pageTitle = 'All Sales Proposal';
 
@@ -20,6 +21,8 @@
   $idTypeModel = new IDTypeModel($databaseModel);
   $applicationSourceModel = new ApplicationSourceModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
+  $pmsCatalog = new PMSCatalogModel($databaseModel);
+  $partsModel = new PartsModel($databaseModel);
     
   $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 72, 'read');
   $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);  

@@ -38,6 +38,13 @@
           header('location: dashboard.php');
           exit;
         }
+
+        if(!empty($_GET['type'])){
+          $type = $_GET['type'];
+        }
+        else{
+            $type = '';
+        }
         
         $leasingID = $_GET['leasing'];
         $repaymentID = explode(',', $_GET['id']);
@@ -74,7 +81,7 @@
         $companyFullAddress = $companyAddress . ', ' . $companyCityName . ', ' . $companyStateName . ', ' . $companyCountryName;
     }
 
-    $billingTable = generateBillingTable($repaymentID, $leasingID, $initialBasicRental);
+    $billingTable = generateBillingTable($repaymentID, $leasingID, $initialBasicRental, $type);
 
     ob_start();
 
@@ -142,7 +149,7 @@
     $pdf->Output('sales-invoice.pdf', 'I');
     ob_end_flush();
 
-    function generateBillingTable($repaymentID, $leasingID, $initialBasicRental){
+    function generateBillingTable($repaymentID, $leasingID, $initialBasicRental, $type){
         
         require_once 'model/database-model.php';
         require_once 'model/leasing-application-model.php';
@@ -205,29 +212,59 @@
                 $coverageEndDate = $otherCharges['coverage_end_date'];
                 $total = $dueAmount + $duePaid;
 
-                $totalAmount = $totalAmount + $dueAmount;
+                if(empty($type)){
+                    $totalAmount = $totalAmount + $dueAmount;
 
 
-                $from = date('m/d/Y', strtotime($coverageStartDate));
-                $to = date('m/d/Y', strtotime($coverageEndDate));
+                    $from = date('m/d/Y', strtotime($coverageStartDate));
+                    $to = date('m/d/Y', strtotime($coverageEndDate));
 
-                if(number_format($dueAmount, 2, '.', '') > 0){
-                    /*$response .= ' <tr>
-                            <td>'. strtoupper($otherChargesType) .'</td>
-                            <td>'. strtoupper($referenceNumber) .'</td>
-                            <td>'. $from .'</td>
-                            <td>'. $to .'</td>
-                            <td>'. number_format($total, 2) .'</td>
-                            <td>'. number_format($duePaid, 2) .'</td>
-                            <td>'. number_format($dueAmount, 2) .'</td>
-                        </tr>';*/
-                    $response .= ' <tr>
-                            <td>'. strtoupper($otherChargesType) .'</td>
-                            <td>'. strtoupper($referenceNumber) .'</td>
-                            <td>'. number_format($total, 2) .'</td>
-                            <td>'. number_format($duePaid, 2) .'</td>
-                            <td>'. number_format($dueAmount, 2) .'</td>
-                        </tr>';
+                    if(number_format($dueAmount, 2, '.', '') > 0){
+                        /*$response .= ' <tr>
+                                <td>'. strtoupper($otherChargesType) .'</td>
+                                <td>'. strtoupper($referenceNumber) .'</td>
+                                <td>'. $from .'</td>
+                                <td>'. $to .'</td>
+                                <td>'. number_format($total, 2) .'</td>
+                                <td>'. number_format($duePaid, 2) .'</td>
+                                <td>'. number_format($dueAmount, 2) .'</td>
+                            </tr>';*/
+                        $response .= ' <tr>
+                                <td>'. strtoupper($otherChargesType) .'</td>
+                                <td>'. strtoupper($referenceNumber) .'</td>
+                                <td>'. number_format($total, 2) .'</td>
+                                <td>'. number_format($duePaid, 2) .'</td>
+                                <td>'. number_format($dueAmount, 2) .'</td>
+                            </tr>';
+                    }
+                }
+                else{
+                    if($type == $otherChargesType){
+                         $totalAmount = $totalAmount + $dueAmount;
+
+
+                        $from = date('m/d/Y', strtotime($coverageStartDate));
+                        $to = date('m/d/Y', strtotime($coverageEndDate));
+
+                        if(number_format($dueAmount, 2, '.', '') > 0){
+                            /*$response .= ' <tr>
+                                    <td>'. strtoupper($otherChargesType) .'</td>
+                                    <td>'. strtoupper($referenceNumber) .'</td>
+                                    <td>'. $from .'</td>
+                                    <td>'. $to .'</td>
+                                    <td>'. number_format($total, 2) .'</td>
+                                    <td>'. number_format($duePaid, 2) .'</td>
+                                    <td>'. number_format($dueAmount, 2) .'</td>
+                                </tr>';*/
+                            $response .= ' <tr>
+                                    <td>'. strtoupper($otherChargesType) .'</td>
+                                    <td>'. strtoupper($referenceNumber) .'</td>
+                                    <td>'. number_format($total, 2) .'</td>
+                                    <td>'. number_format($duePaid, 2) .'</td>
+                                    <td>'. number_format($dueAmount, 2) .'</td>
+                                </tr>';
+                        }
+                    }
                 }
             }
         }

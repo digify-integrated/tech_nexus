@@ -61,12 +61,24 @@
                                                 <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#generate-pdc-offcanvas" aria-controls="generate-pdc-offcanvas">Generate Repayment PDC</button>
                                             </div>';
                                     }
-                                  }
-                                  
+                                }
+
                                 if(!empty($startDate) && !empty($drNumber) && $salesProposalStatus == 'For DR'){
-                                    echo '<div class="previous me-2">
+                                    if($depositStatus == 'Pending'){
+                                        echo '<button type="button" class="btn btn-success me-2" id="confirm-deposit">Confirm Deposit Payment</button>';
+
+                                        if($waiveDeposit['total'] > 0){
+                                            echo '<div class="previous me-2">
+                                                <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-status-offcanvas" aria-controls="sales-proposal-deposit-status-offcanvas" >Waive Deposit</button>
+                                            </div>';
+                                        }
+                                    }
+                                    else{
+                                        echo '<div class="previous me-2">
                                             <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-tag-as-released-offcanvas" aria-controls="sales-proposal-tag-as-released-offcanvas" >Release</button>
                                         </div>';
+                                    }
+                                    
                                 }
 
                                 if($salesProposalStatus == 'Released'){

@@ -79,7 +79,7 @@
           </select>
         </div>
         <div class="col-lg-4">
-          <label class="form-label small text-muted">Lead Priority </label>
+          <label class="form-label small text-muted">Lead Priority <span class="text-danger">*</span></label>
           <select class="form-control select2" id="lead_priority" name="lead_priority">
             <option value="">Select</option>
             <option value="Hot">Hot</option>
@@ -176,12 +176,10 @@
                placeholder="+63 912 345 6789">
       </div>
 
-      <div class="col-lg-12">
-        <label class="form-label small text-muted">Address</label>
-        <textarea class="form-control"
-                  id="address" name="address"
-                  rows="2"
-                  placeholder="Complete address"></textarea>
+      <div class="col-lg-6">
+        <label class="form-label small text-muted">Social Media Account</label>
+        <input type="text" class="form-control"
+               id="social_media_account" name="social_media_account">
       </div>
 
       <div class="col-lg-6">
@@ -191,6 +189,14 @@
           <option value="">Select city</option>
           <?php echo $cityModel->generateCityOptions(); ?>
         </select>
+      </div>
+
+      <div class="col-lg-12">
+        <label class="form-label small text-muted">Address</label>
+        <textarea class="form-control"
+                  id="address" name="address"
+                  rows="2"
+                  placeholder="Complete address"></textarea>
       </div>
 
     </div>

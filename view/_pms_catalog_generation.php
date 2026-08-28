@@ -125,42 +125,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
-
-        # -------------------------------------------------------------
-        #
-        # Type: add pms catalog file extension table
-        # Description:
-        # Generates the file extension not in pms catalog file extension table.
-        #
-        # Parameters: None
-        #
-        # Returns: Array
-        #
-        # -------------------------------------------------------------
-        case 'add pms catalog file extension table':
-            if(isset($_POST['pms_catalog_id']) && !empty($_POST['pms_catalog_id'])){
-                $pmsCatalogID = htmlspecialchars($_POST['pms_catalog_id'], ENT_QUOTES, 'UTF-8');
-
-                $sql = $databaseModel->getConnection()->prepare('CALL generateAddPMSCatalogFileExensionTable(:pmsCatalogID)');
-                $sql->bindValue(':pmsCatalogID', $pmsCatalogID, PDO::PARAM_INT);
-                $sql->execute();
-                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-                $sql->closeCursor();
-
-                foreach ($options as $row) {
-                    $fileExtensionID = $row['file_extension_id'];
-                    $fileExtensionName = $row['file_extension_name'];
-    
-                    $response[] = [
-                        'FILE_EXTENSION_NAME' => $fileExtensionName,
-                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input pms-catalog-file-extension" type="checkbox" value="'. $fileExtensionID.'"></div>'
-                    ];
-                }
-    
-                echo json_encode($response);
-            }
-        break;
-        # -------------------------------------------------------------
     }
 }
 

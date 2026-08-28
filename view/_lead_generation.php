@@ -124,6 +124,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $lead_status_name = $leadStatusModel->getLeadStatus($lead_status_id)['lead_status_name'] ?? '--';
                 $lead_source_name = $leadSourceModel->getLeadSource($row['lead_source_id'])['lead_source_name'] ?? '--';
                 $lead_note = $leadModel->getLastNote($leadID)['note'] ?? '--';
+                $lead_note_date = $systemModel->checkDate('empty', $leadModel->getLastNote($leadID)['created_at'] ?? null, '', 'm/d/Y', '');
                 $transaction_date = $systemModel->checkDate('empty', $row['created_at'], '', 'm/d/Y', '');
                 $inquiry_date = $systemModel->checkDate('empty', $row['inquiry_date'], '', 'm/d/Y', '');
 
@@ -150,6 +151,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PRODUCT' => $stock_number,
                     'STATUS' => $lead_status_name,
                     'LEAD_NOTE' => $lead_note,
+                    'LEAD_NOTE_DATE' => $lead_note_date,
                     'ASSIGNED_TO' => $fileAs,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="lead-monitoring.php?id='. $leadIDEncrypted .'" class="btn btn-icon btn-primary">
@@ -162,6 +164,105 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+
+        case 'lead monitoring dashboard list':
+            // Default to current date if filter date is not provided
+            $filter_lead_date = !empty($_POST['filter_lead_date']) 
+                ? $systemModel->checkDate('empty', $_POST['filter_lead_date'], '', 'Y-m-d', '') 
+                : date('Y-m-d');
+
+            // Using 5 positional parameters (?) for each date comparison
+            $query = "
+                SELECT 
+                    u.user_id,
+                    u.file_as,
+                    u.profile_picture,
+                    COUNT(DISTINCT CASE WHEN DATE(l.created_at) = ? THEN l.lead_id END) AS new_leads_count,
+                    COUNT(DISTINCT CASE WHEN DATE(l.created_at) = ? AND l.lead_priority = 'Hot' THEN l.lead_id END) AS hot_leads_count,
+                    COUNT(DISTINCT CASE WHEN DATE(l.created_at) = ? AND l.lead_priority = 'Warm' THEN l.lead_id END) AS warm_leads_count,
+                    COUNT(DISTINCT CASE WHEN DATE(l.created_at) = ? AND l.lead_priority = 'Cold' THEN l.lead_id END) AS cold_leads_count,
+                    COUNT(DISTINCT CASE WHEN DATE(n.created_at) = ? AND n.deleted_at IS NULL THEN n.lead_note_id END) AS notes_added_count
+                FROM users u
+                INNER JOIN leads l ON l.assigned_to = u.user_id
+                LEFT JOIN lead_notes n ON n.created_by = u.user_id
+                GROUP BY u.user_id, u.file_as, u.profile_picture
+                ORDER BY u.file_as ASC
+            ";
+
+            $stmt = $databaseModel->getConnection()->prepare($query);
+            
+            // Pass the date array directly into execute() matching the 5 positional parameters
+            $stmt->execute([
+                $filter_lead_date, // 1st ? -> Total leads
+                $filter_lead_date, // 2nd ? -> Hot leads
+                $filter_lead_date, // 3rd ? -> Warm leads
+                $filter_lead_date, // 4th ? -> Cold leads
+                $filter_lead_date  // 5th ? -> Notes added
+            ]);
+            
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+
+            $list = '';
+
+            foreach ($results as $row) {
+                $user_id = $row['user_id'];
+                $file_as = htmlspecialchars($row['file_as']);
+                $new_leads = (int)$row['new_leads_count'];
+                $hot_leads = (int)$row['hot_leads_count'];
+                $warm_leads = (int)$row['warm_leads_count'];
+                $cold_leads = (int)$row['cold_leads_count'];
+                $notes_added = (int)$row['notes_added_count'];
+                
+                // Check if total activity is less than 5
+                $total_activity = $new_leads + $notes_added;
+                $is_low_activity = ($total_activity < 5);
+
+                // Apply highlight styles (light red background, border, and padding for soft warning visual)
+                $highlight_class = $is_low_activity ? 'bg-light-danger border border-danger rounded p-2' : '';
+                
+                // Handle avatar fallback using your system model
+                $userImage = $systemModel->checkImage($row['profile_picture'], 'profile');
+
+                $list .= '
+                <div class="align-middle m-b-25 d-flex align-items-center justify-content-between flex-wrap ' . $highlight_class . '">
+                    <div class="d-flex align-items-center m-b-10">
+                        <img src="' . $userImage . '" alt="user image" class="img-radius align-top m-r-15" style="width:40px; height:40px; object-fit:cover;">
+                        <div>
+                            <h6>' . $file_as . '</h6>
+                            ' . ($is_low_activity ? '<small class="text-danger font-weight-bold"><i class="feather icon-alert-circle m-r-5"></i>Low Activity (< 5)</small>' : '') . '
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="m-b-5">
+                            <span class="badge badge-light-primary m-r-5 fs-6" title="Total New Leads Today">
+                                <i class="feather icon-user-plus m-r-5"></i>' . number_format($new_leads, 0) . ' Total Leads
+                            </span>
+                            <span class="badge badge-light-secondary fs-6" title="Notes Added Today">
+                                <i class="feather icon-file-text m-r-5"></i>' . number_format($notes_added, 0) . ' Notes
+                            </span>
+                        </div>
+                        <div class="d-none">
+                            <span class="badge badge-light-danger text-danger m-r-5 fs-7" title="Hot Leads Today">
+                                <i class="feather icon-zap m-r-5"></i>' . number_format($hot_leads, 0) . ' Hot
+                            </span>
+                            <span class="badge badge-light-warning text-warning m-r-5 fs-7" title="Warm Leads Today">
+                                <i class="feather icon-sun m-r-5"></i>' . number_format($warm_leads, 0) . ' Warm
+                            </span>
+                            <span class="badge badge-light-info text-info m-r-5 fs-7" title="Cold Leads Today">
+                                <i class="feather icon-thermometer m-r-5"></i>' . number_format($cold_leads, 0) . ' Cold
+                            </span>
+                        </div>
+                    </div>
+                </div>';
+            }
+
+            if (empty($list)) {
+                $list = '<h6 class="text-center pb-5">No Assigned Leads Found</h6>';
+            }
+
+            echo json_encode(['LIST' => $list]);
+            break;
 
         case 'lead note table':
 

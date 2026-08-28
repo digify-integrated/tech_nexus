@@ -32,6 +32,7 @@
   $tagSalesProposalForOnProcess = $userModel->checkSystemActionAccessRights($user_id, 132);
   $tagSalesProposalReadyForRelease = $userModel->checkSystemActionAccessRights($user_id, 133);
   $tagSalesProposalForDR = $userModel->checkSystemActionAccessRights($user_id, 134);
+  $waiveDeposit = $userModel->checkSystemActionAccessRights($user_id, 240);
 
   if ($allSalesProposalReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -97,6 +98,7 @@
     $releaseTo = $salesProposalDetails['release_to'] ?? null;
     $termLength = $salesProposalDetails['term_length'] ?? null;
     $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
+    $depositStatus = $salesProposalDetails['deposit_status'] ?? 'Pending';
     $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
     $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
     $createdDate = $systemModel->checkDate('summary', $salesProposalDetails['created_date'], '', 'd-M-Y', '');

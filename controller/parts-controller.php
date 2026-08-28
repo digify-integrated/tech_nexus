@@ -247,15 +247,15 @@ class PartsController {
         $part_class_id = $partSubclassDetails['part_class_id'];
 
         if($part_class_id == 4){
-            $stockNumberLatest = $this->systemSettingModel->getSystemSetting(47)['value'] + 1;
-            $stockNumber = $partSubclassDetails['part_subclass_code'] . date('my') . $stockNumberLatest;
-            $this->systemSettingModel->updateSystemSettingValue(47, $stockNumberLatest, $userID);
+            $partNumberLatest = $this->systemSettingModel->getSystemSetting(47)['value'] + 1;
+            $partNumber = $partSubclassDetails['part_subclass_code'] . date('my') . $partNumberLatest;
+            $this->systemSettingModel->updateSystemSettingValue(47, $partNumberLatest, $userID);
         }
         else{
-            $stockNumber = '';
+            $partNumber = '';
         }
     
-        $partsID = $this->partsModel->insertParts($part_category_id, $part_class_id, $part_subclass_id, $description, $bar_code, $stockNumber, $company_id, $unit_sale, $stock_alert, $quantity, $brand_id, $warehouse_id, $remarks, $userID);        
+        $partsID = $this->partsModel->insertParts($part_category_id, $part_class_id, $part_subclass_id, $description, $bar_code, null, $company_id, $unit_sale, $stock_alert, $quantity, $brand_id, $warehouse_id, $remarks, $userID);        
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'partsID' => $this->securityModel->encryptData($partsID)]);
         exit;

@@ -23,6 +23,32 @@ class LeadModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function checkDuplicateLead($firstName, $lastName, $leadID = null) {
+        $sql = 'SELECT l.lead_id, u.file_as AS assigned_user_name 
+                FROM leads l
+                LEFT JOIN users u ON l.assigned_to = u.user_id
+                WHERE LOWER(l.first_name) = LOWER(:first_name) 
+                AND LOWER(l.last_name) = LOWER(:last_name)';
+
+        // If updating, ignore current lead
+        if (!empty($leadID)) {
+            $sql .= ' AND l.lead_id != :lead_id';
+        }
+
+        $sql .= ' LIMIT 1';
+
+        $stmt = $this->db->getConnection()->prepare($sql);
+        $stmt->bindValue(':first_name', $firstName, PDO::PARAM_STR);
+        $stmt->bindValue(':last_name', $lastName, PDO::PARAM_STR);
+
+        if (!empty($leadID)) {
+            $stmt->bindValue(':lead_id', $leadID, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     /* -----------------------------------------------
     | INSERT LEAD
     |----------------------------------------------- */
@@ -37,6 +63,7 @@ class LeadModel {
         $cityID,
         $email,
         $phone,
+        $social_media_account,
         $genderID,
         $leadStatusID,
         $inquiryTypeID,
@@ -59,6 +86,7 @@ class LeadModel {
                 city_id,
                 email,
                 phone,
+                social_media_account,
                 gender_id,
                 lead_status_id,
                 lead_source_id,
@@ -80,6 +108,7 @@ class LeadModel {
                 :city_id,
                 :email,
                 :phone,
+                :social_media_account,
                 :gender_id,
                 :lead_status_id,
                 :lead_source_id,
@@ -102,6 +131,7 @@ class LeadModel {
         $stmt->bindValue(':city_id', $cityID, PDO::PARAM_INT);
         $stmt->bindValue(':email', $email, PDO::PARAM_STR);
         $stmt->bindValue(':phone', $phone, PDO::PARAM_STR);
+        $stmt->bindValue(':social_media_account', $social_media_account, PDO::PARAM_STR);
         $stmt->bindValue(':gender_id', $genderID, PDO::PARAM_INT);
         $stmt->bindValue(':lead_status_id', $leadStatusID, PDO::PARAM_INT);
         $stmt->bindValue(':inquiry_type_id', $inquiryTypeID, PDO::PARAM_INT);
@@ -134,6 +164,7 @@ class LeadModel {
         $cityID,
         $email,
         $phone,
+        $social_media_account,
         $genderID,
         $leadStatusID,
         $inquiryTypeID,
@@ -157,6 +188,7 @@ class LeadModel {
                 city_id = :city_id,
                 email = :email,
                 phone = :phone,
+                social_media_account = :social_media_account,
                 gender_id = :gender_id,
                 lead_status_id = :lead_status_id,
                 lead_source_id = :lead_source_id,
@@ -179,6 +211,7 @@ class LeadModel {
         $stmt->bindValue(':city_id', $cityID, PDO::PARAM_INT);
         $stmt->bindValue(':email', $email, PDO::PARAM_STR);
         $stmt->bindValue(':phone', $phone, PDO::PARAM_STR);
+        $stmt->bindValue(':social_media_account', $social_media_account, PDO::PARAM_STR);
         $stmt->bindValue(':gender_id', $genderID, PDO::PARAM_INT);
         $stmt->bindValue(':lead_status_id', $leadStatusID, PDO::PARAM_INT);
         $stmt->bindValue(':inquiry_type_id', $inquiryTypeID, PDO::PARAM_INT);
@@ -311,6 +344,8 @@ class LeadModel {
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    
     public function getLastNote($leadID) {
         $stmt = $this->db->getConnection()->prepare('
             SELECT 

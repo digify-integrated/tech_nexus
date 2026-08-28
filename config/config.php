@@ -53,7 +53,7 @@ define('MAIL_SMTP_AUTH', true);
 define('MAIL_USERNAME', 'cgmi-noreply@christianmotors.ph');
 
 // Password for SMTP authentication
-define('MAIL_PASSWORD', 'P@ssw0rd');
+define('MAIL_PASSWORD', '7y5vKY90wF.');
 
 // SMTP security type (ssl/tls)
 define('MAIL_SMTP_SECURE', 'ssl');

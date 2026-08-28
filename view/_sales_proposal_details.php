@@ -157,6 +157,19 @@
           </li>
 
           <li>
+            <a class="nav-link d-none"
+              id="sales-proposal-tab-19"
+              data-bs-toggle="pill"
+              href="#v-parts-requested"
+              role="tab"
+              aria-controls="v-parts-requested"
+              aria-selected="false"
+              data-step="partsRequested">
+              PMS Requested Parts
+            </a>
+          </li>
+
+          <li>
             <a class="nav-link"
               id="sales-proposal-tab-5"
               data-bs-toggle="pill"
@@ -346,6 +359,10 @@
                             <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-offcanvas" aria-controls="sales-proposal-job-order-offcanvas" id="add-sales-proposal-job-order">Add Job Order</button>
                           </div>';
 
+                  echo '  <div class="previous me-2 d-none" id="add-sales-proposal-pms-parts-button">
+                            <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-pms-parts-offcanvas" aria-controls="sales-proposal-pms-parts-offcanvas" id="add-sales-proposal-pms-parts">Add Requested Parts</button>
+                          </div>';
+
                   echo '  <div class="previous me-2 d-none" id="add-sales-proposal-deposit-amount-button">
                             <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" id="add-sales-proposal-deposit-amount">Add Amount of Deposit</button>
                           </div>';
@@ -424,6 +441,7 @@
                     'Restructure',
                     'Brand New',
                     'Fuel',
+                    'Rental',
                     'Parts'
                 ]);
 
@@ -1053,16 +1071,62 @@
 
           <div class="tab-pane" id="v-pms-details">
             <form id="sales-proposal-pms-details-form" method="post" action="#">
+              <div class="row">
+            <div class="col-lg-12">
               <div class="form-group row">
-                <label class="col-lg-7 col-form-label">PMS Catalog : </label>
-                <div class="col-lg-5">
+                <label class="col-lg-2 col-form-label">PMS Catalog : <span class="text-danger">*</span></label>
+                <div class="col-lg-10">
                   <select class="form-control select2" name="pms_catalog_id" id="pms_catalog_id">
                     <option value="">--</option>
-                    <?php #echo $pmsCatalogModel->generatePMSCatalogOptions(); ?>
+                    <?php echo $pmsCatalogModel->generatePMSCatalogOptions(); ?>
                   </select>
                 </div>
               </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="form-group row">
+                <label class="col-lg-2 col-form-label">PMS Matrix : <span class="text-danger">*</span></label>
+                <div class="col-lg-10">
+                  <select class="form-control select2" multiple="multiple" name="pms_matrix_id" id="pms_matrix_id"></select>
+                  <span class="text-sm text-danger">Changing this will reset the requested parts. Kindly review the requested parts after each change.</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Labor Total :</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control currency" id="labor_cost" name="labor_cost" readonly>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Consumable Total :</label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control currency" id="consumable_total" name="consumable_total" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
             </form>
+          </div>
+
+          <div class="tab-pane" id="v-parts-requested">
+            <div class="table-responsive">
+              <table id="sales-proposal-pms-parts-table" class="table table-hover nowrap w-100">
+                <thead>
+                  <tr>
+                    <th>Part</th>
+                    <th>QTY.</th>
+                    <th>Price</th>
+                    <th>Total Price</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
 
           <div class="tab-pane" id="v-job-order">
@@ -1887,6 +1951,76 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-sales-proposal-job-order" form="sales-proposal-job-order-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-pms-parts-offcanvas" aria-labelledby="sales-proposal-pms-parts-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-pms-parts-offcanvas-label" style="margin-bottom:-0.5rem">Add Requested Parts</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-pms-parts-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12">
+                <label class="form-label">Parts <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="part_id" id="part_id">
+                  <option value="">--</option>
+                  <?php echo $partsModel->generateAllPartsOptions(); ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label" for="required_quantity">Required Quantity <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="required_quantity" name="required_quantity" min="0" step="0.01">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-pms-parts" form="sales-proposal-pms-parts-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-alternate-pms-parts-offcanvas" aria-labelledby="sales-proposal-alternate-pms-parts-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-alternate-pms-parts-offcanvas-label" style="margin-bottom:-0.5rem">Choose Alternate Parts</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-alternate-pms-parts-form" method="post" action="#">
+            <div class="form-group row">
+              <input type="hidden" id="sales_proposal_requested_parts_id" name="sales_proposal_requested_parts_id">
+              <div class="col-lg-12">
+                <label class="form-label">Alternate Parts <span class="text-danger">*</span></label>
+                <select class="form-control offcanvas-select2" name="alternate_part_id" id="alternate_part_id">
+                  <option value="">--</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-alternate-pms-parts" form="sales-proposal-alternate-pms-parts-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

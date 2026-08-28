@@ -443,8 +443,9 @@ class PartsModel {
         foreach ($options as $row) {
             $partsID = $row['part_id'];
             $description = $row['description'];
+            $part_number = $row['part_number'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . $partsID . '">'. $part_number .' - ' . $description .'</option>';
         }
 
         return $htmlOptions;
@@ -458,8 +459,9 @@ class PartsModel {
         foreach ($options as $row) {
             $partsID = $row['part_id'];
             $description = $row['description'];
+            $part_number = $row['part_number'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . $partsID . '">'. $part_number .' - ' . $description .'</option>';
         }
 
         return $htmlOptions;
@@ -501,7 +503,7 @@ class PartsModel {
     }
 
     public function generateGeneratePartByCompanyOptions($company_id) {
-        $stmt = $this->db->getConnection()->prepare('SELECT part_id, description FROM part WHERE company_id IN (?) ORDER BY description');
+        $stmt = $this->db->getConnection()->prepare('SELECT part_id, part_number, description FROM part WHERE company_id IN (?) ORDER BY description');
         $stmt->execute([$company_id]);
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -509,8 +511,9 @@ class PartsModel {
         foreach ($options as $row) {
             $partsID = $row['part_id'];
             $description = $row['description'];
+            $part_number = $row['part_number'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . $partsID . '">'. $part_number .' - ' . $description .'</option>';
         }
 
         return $htmlOptions;

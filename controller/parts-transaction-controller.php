@@ -456,6 +456,15 @@ class PartsTransactionController {
             exit;
         }
 
+        // 1. Fetch transaction details EARLY to check the current status
+        $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
+        
+        // 2. CRITICAL PREVENTATIVE CHECK: If it's already released, stop immediately!
+        if (isset($partsTransactionDetails['status']) && $partsTransactionDetails['status'] === 'Released') {
+            echo json_encode(['success' => false, 'message' => 'The transaction already released.']);
+            exit;
+        }
+
         $check_exceed_part_quantity = $this->partsTransactionModel->check_exceed_part_quantity($parts_transaction_id)['total'] ?? 0;
 
         if($check_exceed_part_quantity > 0){
@@ -470,13 +479,12 @@ class PartsTransactionController {
             exit;
         }
 
-        $partsTransactionDetails = $this->partsTransactionModel->getPartsTransaction($parts_transaction_id);
         $company_id = $partsTransactionDetails['company_id'] ?? '';
         $customer_type = $partsTransactionDetails['customer_type'] ?? '';
         $customer_id = $partsTransactionDetails['customer_id'] ?? '';
         $remarks = $partsTransactionDetails['remarks'] ?? '';
         $sales_proposal_number = $partsTransactionDetails['sales_proposal_number'] ?? '';
-       
+    
         if($customer_type == 'Internal' && $customer_id == 958){
             $issuance_for = $partsTransactionDetails['issuance_for'] ?? '';
         }
@@ -493,8 +501,9 @@ class PartsTransactionController {
 
         $cost = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'cost')['total'] ?? 0;
 
+        // 3. Update the status right now so parallel requests fail the status check above
         $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Released', '', $userID);
-       
+    
         if($customer_type == 'Internal'){
             $productDetails = $this->productModel->getProduct($customer_id);
             $is_service = $productDetails['is_service'] ?? 'No';

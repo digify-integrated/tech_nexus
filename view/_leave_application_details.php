@@ -4,6 +4,11 @@
            if($creationType === 'manual'){
              $hiddenEmployee = '';
            }
+
+           $disabled = 'disabled';
+           if ($leaveApplicationWriteAccess['total'] > 0 && $status == 'Draft') {
+              $disabled = '';
+           }
           ?>
 <div class="row">
   <div class="col-lg-12">
@@ -64,9 +69,8 @@
                  
 
                   if ($leaveApplicationWriteAccess['total'] > 0 && $status == 'Draft') {
-                      echo '<button type="submit" class="btn btn-info form-details" id="edit-form">Edit</button>
-                          <button type="submit" form="leave-application-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
-                          <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
+                      echo '<button type="submit" form="leave-application-form" class="btn btn-success" id="submit-data">Save</button>
+                          <button type="button" id="discard-update" class="btn btn-outline-danger me-1">Discard</button>';
                   }
 
 
@@ -91,7 +95,7 @@
           <div class="form-group row <?php echo $hiddenEmployee; ?>">
             <label class="col-lg-2 col-form-label">Employee <span class="text-danger">*</span></label>
             <div class="col-lg-10">
-                <select class="form-control select2" name="employee_id" id="employee_id">
+                <select class="form-control select2" name="employee_id" id="employee_id" <?php echo $disabled; ?>>
                     <option value="">--</option>
                     <?php echo $employeeModel->generateEmployeeOptions('active employee'); ?>
                 </select>
@@ -100,7 +104,7 @@
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Leave Type <span class="text-danger">*</span></label>
             <div class="col-lg-10">
-                <select class="form-control select2" name="leave_type_id" id="leave_type_id">
+                <select class="form-control select2" name="leave_type_id" id="leave_type_id" <?php echo $disabled; ?>>
                     <option value="">--</option>
                     <?php 
                       if($creationType === 'manual'){
@@ -116,7 +120,7 @@
           <div class="form-group row d-none sil-group">
             <label class="col-lg-2 col-form-label">Application Type <span class="text-danger">*</span></label>
             <div class="col-lg-10">
-                <select class="form-control select2" name="application_type" id="application_type">
+                <select class="form-control select2" name="application_type" id="application_type" <?php echo $disabled; ?>>
                     <option value="">--</option>
                     <option value="Whole Day">Whole Day</option>
                     <option value="Half Day Morning">Half Day Morning</option>
@@ -128,7 +132,7 @@
             <label class="col-lg-2 col-form-label">Leave Date <span class="text-danger">*</span></label>
             <div class="col-lg-10">
                 <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="leave_date" name="leave_date" autocomplete="off">
+                    <input type="text" class="form-control regular-datepicker" id="leave_date" name="leave_date" autocomplete="off" <?php echo $disabled; ?>>
                     <span class="input-group-text">
                         <i class="feather icon-calendar"></i>
                     </span>
@@ -138,17 +142,17 @@
           <div class="form-group row d-none leave-group">
             <label class="col-lg-2 col-form-label">Start Time <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-                <input class="form-control" id="leave_start_time" name="leave_start_time" type="time">
+                <input class="form-control" id="leave_start_time" name="leave_start_time" type="time" <?php echo $disabled; ?>>
             </div>
             <label class="col-lg-2 col-form-label">End Time <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-                <input class="form-control" id="leave_end_time" name="leave_end_time" type="time">
+                <input class="form-control" id="leave_end_time" name="leave_end_time" type="time" <?php echo $disabled; ?>>
             </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Leave Reason <span class="text-danger">*</span></label>
             <div class="col-lg-10">
-              <textarea class="form-control" id="reason" name="reason" maxlength="500"></textarea>
+              <textarea class="form-control" id="reason" name="reason" maxlength="500" <?php echo $disabled; ?>></textarea>
             </div>
           </div>
         </form>
