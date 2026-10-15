@@ -37,7 +37,7 @@ class InsuranceProviderModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateInsuranceProvider($p_provider_id, $p_provider_name, $p_address, $p_city_id, $p_tax_id, $p_currency_id, $p_mobile, $p_telephone, $p_email, $p_website, $p_last_log_by) {
+    public function updateInsuranceProvider($p_provider_id, $p_provider_name, $p_address, $p_city_id, $p_tax_id, $p_currency_id, $p_mobile, $p_telephone, $p_email, $p_website, $p_local_government_tax_rate, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('
             UPDATE insurance_provider 
             SET provider_name = :p_provider_name, 
@@ -49,6 +49,7 @@ class InsuranceProviderModel {
                 telephone = :p_telephone, 
                 email = :p_email, 
                 website = :p_website, 
+                local_government_tax_rate = :p_local_government_tax_rate, 
                 last_log_by = :p_last_log_by
             WHERE provider_id = :p_provider_id
         ');
@@ -63,6 +64,7 @@ class InsuranceProviderModel {
         $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
         $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
         $stmt->bindValue(':p_website', $p_website, PDO::PARAM_STR);
+        $stmt->bindValue('p_local_government_tax_rate', $p_local_government_tax_rate, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -121,12 +123,12 @@ class InsuranceProviderModel {
     # Returns: String (The newly generated record primary key)
     #
     # -------------------------------------------------------------
-    public function insertInsuranceProvider($p_provider_name, $p_address, $p_city_id, $p_tax_id, $p_currency_id, $p_mobile, $p_telephone, $p_email, $p_website, $p_last_log_by) {
+    public function insertInsuranceProvider($p_provider_name, $p_address, $p_city_id, $p_tax_id, $p_currency_id, $p_mobile, $p_telephone, $p_email, $p_website, $p_local_government_tax_rate, $p_last_log_by) {
         $connection = $this->db->getConnection();
         
         $stmt = $connection->prepare('
-            INSERT INTO insurance_provider (provider_name, address, city_id, tax_id, currency_id, mobile, telephone, email, website, last_log_by) 
-            VALUES (:p_provider_name, :p_address, :p_city_id, :p_tax_id, :p_currency_id, :p_mobile, :p_telephone, :p_email, :p_website, :p_last_log_by)
+            INSERT INTO insurance_provider (provider_name, address, city_id, tax_id, currency_id, mobile, telephone, email, website, local_government_tax_rate, last_log_by) 
+            VALUES (:p_provider_name, :p_address, :p_city_id, :p_tax_id, :p_currency_id, :p_mobile, :p_telephone, :p_email, :p_website, :p_local_government_tax_rate, :p_last_log_by)
         ');
         
         $stmt->bindValue(':p_provider_name', $p_provider_name, PDO::PARAM_STR);
@@ -138,6 +140,7 @@ class InsuranceProviderModel {
         $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
         $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
         $stmt->bindValue(':p_website', $p_website, PDO::PARAM_STR);
+        $stmt->bindValue(':p_local_government_tax_rate', $p_local_government_tax_rate, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -194,6 +197,157 @@ class InsuranceProviderModel {
         ');
         $stmt->bindValue(':p_provider_id', $p_provider_id, PDO::PARAM_INT);
         $stmt->execute();
+    }
+
+    public function checkCoverageExist($p_insurance_coverage_rate_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total
+        FROM insurance_coverage_rate
+        WHERE insurance_coverage_rate_id = :p_insurance_coverage_rate_id');
+        $stmt->bindValue(':p_insurance_coverage_rate_id', $p_insurance_coverage_rate_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function updateCoverage($p_insurance_coverage_rate_id, $insurance_provider, $p_coverage_amount_start, $p_coverage_amount_end, $p_bi_rate, $p_pd_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE insurance_coverage_rate SET insurance_provider = :insurance_provider, coverage_amount_start = :p_coverage_amount_start, coverage_amount_end = :p_coverage_amount_end, bi_rate = :p_bi_rate, pd_amount = :p_pd_amount, last_log_by = :p_last_log_by WHERE insurance_coverage_rate_id = :p_insurance_coverage_rate_id');
+        $stmt->bindValue(':p_insurance_coverage_rate_id', $p_insurance_coverage_rate_id, PDO::PARAM_INT);
+        $stmt->bindValue(':insurance_provider', $insurance_provider, PDO::PARAM_INT);
+        $stmt->bindValue(':p_coverage_amount_start', $p_coverage_amount_start, PDO::PARAM_STR);
+        $stmt->bindValue(':p_coverage_amount_end', $p_coverage_amount_end, PDO::PARAM_STR);
+        $stmt->bindValue(':p_bi_rate', $p_bi_rate, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pd_amount', $p_pd_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function insertCoverage($insurance_provider, $p_coverage_amount_start, $p_coverage_amount_end, $p_bi_rate, $p_pd_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('INSERT INTO insurance_coverage_rate (insurance_provider, coverage_amount_start, coverage_amount_end, bi_rate, pd_amount, last_log_by) VALUES (:insurance_provider, :p_coverage_amount_start, :p_coverage_amount_end, :p_bi_rate, :p_pd_amount, :p_last_log_by)');
+        $stmt->bindValue(':insurance_provider', $insurance_provider, PDO::PARAM_INT);
+        $stmt->bindValue(':p_coverage_amount_start', $p_coverage_amount_start, PDO::PARAM_STR);
+        $stmt->bindValue(':p_coverage_amount_end', $p_coverage_amount_end, PDO::PARAM_STR);
+        $stmt->bindValue(':p_bi_rate', $p_bi_rate, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pd_amount', $p_pd_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function deleteCoverage($insurance_coverage_rate_id) {
+        $stmt = $this->db->getConnection()->prepare('DELETE FROM insurance_coverage_rate WHERE insurance_coverage_rate_id = :insurance_coverage_rate_id');
+        $stmt->bindValue(':insurance_coverage_rate_id', $insurance_coverage_rate_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function getCoverage($p_insurance_coverage_rate_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM insurance_coverage_rate WHERE insurance_coverage_rate_id = :p_insurance_coverage_rate_id');
+        $stmt->bindValue(':p_insurance_coverage_rate_id', $p_insurance_coverage_rate_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getCategoryRate($provider_id, $category_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT insurance_rate, commission_rate 
+            FROM insurance_category_rate 
+            WHERE insurance_provider = :provider_id 
+            AND insurance_category_id = :category_id
+            LIMIT 1
+        ');
+        $stmt->bindValue(':provider_id', $provider_id, PDO::PARAM_INT);
+        $stmt->bindValue(':category_id', $category_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getTaxRate($provider_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT local_government_tax_rate 
+            FROM insurance_provider 
+            WHERE provider_id  = :provider_id 
+            LIMIT 1
+        ');
+        $stmt->bindValue(':provider_id', $provider_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Fetch coverage rates (bi_rate / pd_amount) based on coverage range matching
+    public function getCoverageRateByAmount($provider_id, $coverage_amount) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT bi_rate, pd_amount 
+            FROM insurance_coverage_rate 
+            WHERE insurance_provider = :provider_id 
+            AND :coverage_amount BETWEEN coverage_amount_start AND coverage_amount_end
+            LIMIT 1
+        ');
+        $stmt->bindValue(':provider_id', $provider_id, PDO::PARAM_INT);
+        $stmt->bindValue(':coverage_amount', $coverage_amount, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Fetch categories along with existing rates for a specific provider
+    public function getCategoryRatesByProvider($provider_id) {
+        $sql = "SELECT 
+                    ic.insurance_category_id,
+                    ic.insurance_category_name,
+                    icr.insurance_category_rate_id,
+                    IFNULL(icr.insurance_rate, 0) AS insurance_rate,
+                    IFNULL(icr.commission_rate, 0) AS commission_rate
+                FROM insurance_category ic
+                LEFT JOIN insurance_category_rate icr 
+                    ON ic.insurance_category_id = icr.insurance_category_id 
+                AND icr.insurance_provider = :provider_id
+                ORDER BY ic.insurance_category_name ASC";
+
+        $stmt = $this->db->getConnection()->prepare($sql);
+        $stmt->bindValue(':provider_id', $provider_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Check if rate record exists for provider + category combination
+    public function checkCategoryRateExist($provider_id, $category_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT insurance_category_rate_id 
+            FROM insurance_category_rate 
+            WHERE insurance_provider = :provider_id AND insurance_category_id = :category_id
+        ');
+        $stmt->bindValue(':provider_id', $provider_id, PDO::PARAM_INT);
+        $stmt->bindValue(':category_id', $category_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Upsert category rate
+    public function saveCategoryRate($provider_id, $category_id, $insurance_rate, $commission_rate, $last_log_by) {
+        $existing = $this->checkCategoryRateExist($provider_id, $category_id);
+
+        if ($existing) {
+            $stmt = $this->db->getConnection()->prepare('
+                UPDATE insurance_category_rate 
+                SET insurance_rate = :insurance_rate, 
+                    commission_rate = :commission_rate, 
+                    last_log_by = :last_log_by 
+                WHERE insurance_category_rate_id = :rate_id
+            ');
+            $stmt->bindValue(':rate_id', $existing['insurance_category_rate_id'], PDO::PARAM_INT);
+        } else {
+            $stmt = $this->db->getConnection()->prepare('
+                INSERT INTO insurance_category_rate 
+                    (insurance_provider, insurance_category_id, insurance_rate, commission_rate, last_log_by) 
+                VALUES 
+                    (:provider_id, :category_id, :insurance_rate, :commission_rate, :last_log_by)
+            ');
+            $stmt->bindValue(':provider_id', $provider_id, PDO::PARAM_INT);
+            $stmt->bindValue(':category_id', $category_id, PDO::PARAM_INT);
+        }
+
+        $stmt->bindValue(':insurance_rate', $insurance_rate, PDO::PARAM_STR);
+        $stmt->bindValue(':commission_rate', $commission_rate, PDO::PARAM_STR);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+        return $stmt->execute();
     }
     # -------------------------------------------------------------
 

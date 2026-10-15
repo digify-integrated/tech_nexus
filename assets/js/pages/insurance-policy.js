@@ -10,6 +10,22 @@
             cancelForm();
         }
 
+        if($('#collect-form').length){
+            collectForm();
+        }
+
+        if($('#remit-form').length){
+            remitForm();
+        }
+
+        if($('#multiple-collect-form').length){
+            multipleCollectForm();
+        }
+
+        if($('#multiple-remit-form').length){
+            multipleRemitForm();
+        }
+
         if($('#insurance-policy-id').length){
             displayDetails('get insurance policy details');
         }
@@ -157,24 +173,36 @@ function insurancePolicyTable(datatable_name) {
 
     const column = [
         { data: 'CHECK_BOX' },
+        { data: 'PROVIDER_NAME' },
+        { data: 'ASSURED' },
+        { data: 'STOCK_NUMBER' },
+        { data: 'PLATE_NUMBER' },
+        { data: 'CHASSIS_NUMBER' },
+        { data: 'ENGINE_NUMBER' },
+        { data: 'LAST_YEAR_COVERAGE' },
+        { data: 'COVERAGE' },
+        { data: 'STATUS' },
+        { data: 'MATURITY_DATE' },
         { data: 'POLICY_NUMBER' },
         { data: 'CUSTOMER_NAME' },
         { data: 'INSURANCE_TYPE' },
-        { data: 'PROVIDER_NAME' },
         { data: 'GROSS' },
         { data: 'NET_PREMIUM' },
         { data: 'INCEPTION_DATE' },
         { data: 'EXPIRY_DATE' },
         { data: 'REMITTANCE_DATE' },
         { data: 'PAYMENT_DATE' },
-        { data: 'STATUS' },
+        { data: 'INS_STATUS' },
         { data: 'ACTION' }
     ];
 
     const column_definition = [
         { width: '1%', bSortable: false, targets: 0 },
-        { width: 'auto', type: 'date', targets: 7 },
-        { width: '15%', bSortable: false, targets: 12 }
+        { width: 'auto', type: 'date', targets: 10 },
+        { width: 'auto', type: 'date', targets: 16 },
+        { width: 'auto', type: 'date', targets: 17 },
+        { width: 'auto', type: 'date', targets: 18 },
+        { width: '15%', bSortable: false, targets: 19 }
     ];
 
     destroyDatatable(datatable_name);
@@ -211,7 +239,7 @@ function insurancePolicyTable(datatable_name) {
         columnDefs: column_definition,
 
         // Hide the default DataTables buttons
-        dom: 'rtip',
+        dom: 'flrtip',
 
         language: {
             emptyTable: 'No data found',
@@ -458,8 +486,8 @@ function cancelForm(){
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = 'Tag Insurance Policy As Received Success';
-                        const notificationDescription = 'The insurance policy has been tagged as canceld successfully.';
+                        const notificationMessage = 'Tag Insurance Policy As Cancelled Success';
+                        const notificationDescription = 'The insurance policy has been tagged as cancelled successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
                         window.location.reload();
@@ -483,6 +511,384 @@ function cancelForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function collectForm(){
+    $('#collect-form').validate({
+        rules: {
+            payment_date: {
+                required: true
+            },
+        },
+        messages: {
+            payment_date: {
+                required: 'Please choose the collection date'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const insurance_policy_id = $('#insurance-policy-id').text();
+            const transaction = 'collect insurance policy';
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/insurance-policy-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&insurance_policy_id=' + insurance_policy_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Tag Insurance Policy As Collected Success';
+                        const notificationDescription = 'The insurance policy has been tagged as collected successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function multipleCollectForm(){
+    $('#multiple-collect-form').validate({
+        rules: {
+            payment_date: {
+                required: true
+            },
+        },
+        messages: {
+            payment_date: {
+                required: 'Please choose the collection date'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            let insurance_policy_id = [];
+            const transaction = 'collect multiple insurance policy'; // or 'collect multiple insurance policy'
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    insurance_policy_id.push(element.value);
+                }
+            });
+
+            // Build the data string properly with array brackets []
+            let formData = $(form).serialize() + '&transaction=' + encodeURIComponent(transaction);
+            insurance_policy_id.forEach(id => {
+                formData += '&insurance_policy_id[]=' + encodeURIComponent(id);
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/insurance-policy-controller.php',
+                data: formData,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-collect');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Tag Insurance Policy As Collected Success';
+                        const notificationDescription = 'The insurance policy has been tagged as collected successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                        reloadDatatable('#insurance-policy-table');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-collect', 'Save');
+                    $('#collect-offcanvas').offcanvas('hide');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function remitForm(){
+    $('#remit-form').validate({
+        rules: {
+            remittance_date: {
+                required: true
+            },
+        },
+        messages: {
+            remittance_date: {
+                required: 'Please choose the remittance date'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const insurance_policy_id = $('#insurance-policy-id').text();
+            const transaction = 'remit insurance policy';
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/insurance-policy-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&insurance_policy_id=' + insurance_policy_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Tag Insurance Policy As Remitted Success';
+                        const notificationDescription = 'The insurance policy has been tagged as remitted successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function multipleRemitForm(){
+    $('#multiple-remit-form').validate({
+        rules: {
+            remittance_date: {
+                required: true
+            },
+        },
+        messages: {
+            remittance_date: {
+                required: 'Please choose the remittance date'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            let insurance_policy_id = [];
+            const transaction = 'remit multiple insurance policy'; // or 'collect multiple insurance policy'
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    insurance_policy_id.push(element.value);
+                }
+            });
+
+            // Build the data string properly with array brackets []
+            let formData = $(form).serialize() + '&transaction=' + encodeURIComponent(transaction);
+            insurance_policy_id.forEach(id => {
+                formData += '&insurance_policy_id[]=' + encodeURIComponent(id);
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/insurance-policy-controller.php',
+                data: formData,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-remit');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Tag Insurance Policy As Remitted Success';
+                        const notificationDescription = 'The insurance policy has been tagged as remitted successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                        reloadDatatable('#insurance-policy-table');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-remit', 'Save');
+                    $('#remit-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -519,6 +925,8 @@ function displayDetails(transaction){
                         $('#net_premium_amount').text(response.netPremiumAmount);
                         $('#expiry_date_1').text(response.expiryDate);
                         $('#expiry_date_2').text(response.expiryDate);
+                        $('#collection_date').text(response.paymentDate);
+                        $('#remittance_date').text(response.remittanceDate);
                         $('#inception_date').text(response.inceptionDate);
                         $('#provider_name').text(response.providerName);
                         $('#customer_name').text(response.customer);
@@ -543,6 +951,18 @@ function displayDetails(transaction){
                         $('#policy_status_2').html(`
                             <span class="badge bg-${response.statusBadge}">
                                 ${response.status}
+                            </span>
+                        `);
+                        
+                        $('#collection_status').html(`
+                            <span class="badge bg-${response.collectionBadge}">
+                                ${response.payment_status}
+                            </span>
+                        `);
+                        
+                        $('#remittance_status').html(`
+                            <span class="badge bg-${response.remittanceBadge}">
+                                ${response.remittance_status}
                             </span>
                         `);
                     } 

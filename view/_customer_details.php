@@ -13,11 +13,12 @@ $viewCIReport = $userModel->checkSystemActionAccessRights($user_id, 208);
 
 if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customerStatus == 'For Updating')){
   $customerCustomerInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#personal-information-offcanvas" aria-controls="personal-information-offcanvas" id="update-personal-information"><i class="ti ti-pencil"></i></button>';
+}
+
 
   if($addCustomerAddress['total'] > 0){
     $customerAddressAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" id="add-contact-address"><i class="ti ti-plus"></i></button>';
   }
-}
 
 if($addCustomerContactInformation['total'] > 0){
   $contactInformationAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" id="add-contact-information"><i class="ti ti-plus"></i></button>';

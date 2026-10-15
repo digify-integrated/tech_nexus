@@ -17,7 +17,7 @@
             debounceTimeout = setTimeout(func, delay);
         }
 
-        function loadEmployeeCard(current_page, is_loading, clearExisting) {
+        function loadEmployeeCard(current_page, clearExisting) {
             if (is_loading) return;
 
             var employee_search = employeeSearch.val();
@@ -87,7 +87,7 @@
         
             lastSearchValue = employee_search;
 
-            is_loading = true;
+            is_loading = true; 
             const type = 'employee card';
 
             if (clearExisting) {
@@ -118,11 +118,10 @@
                     type: type
                 },
                 success: function(response) {
-                    is_loading = false;
-
+                    is_loading = false; // Reset outer variable
                     loadContent.addClass('d-none');
 
-                    if (response.length === 0) {
+                    if (!response || response.length === 0) {
                         if (current_page === 1) {
                             employeeCard.html('<div class="col-lg-12 text-center">No employee found.</div>');
                         }
@@ -136,8 +135,7 @@
                     employeeCard.find('.no-search-result').remove();
                 },
                 error: function(xhr, status, error) {
-                    is_loading = false;
-
+                    is_loading = false; // Reset outer variable
                     loadContent.addClass('d-none');
 
                     var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -151,7 +149,7 @@
 
         function resetAndLoadEmployeeCard() {
             page = 1;
-            loadEmployeeCard(page, false, true);
+            loadEmployeeCard(page, true);
         }
 
         function debounceAndReset() {
@@ -161,7 +159,8 @@
         }
 
         if (employeeCard.length) {
-            loadEmployeeCard(page, is_loading, true);
+            loadEmployeeCard(page, true);
+
             employeeSearch.on('keyup', function() {
                 debounceAndReset();
             });
@@ -171,10 +170,11 @@
             });
 
             $(window).scroll(function () {
-                if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
+                // Trigger 100px before reaching the bottom
+                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
                     if (!is_loading) {
                         page++;
-                        loadEmployeeCard(page, is_loading, false);
+                        loadEmployeeCard(page, false);
                     }
                 }
             });

@@ -25,7 +25,7 @@
 
   try {
 
-    $emailSetting = $emailSettingModel->getEmailSetting(1);
+    $emailSetting = $emailSettingModel->getEmailSetting(2);
     $mailFromName = $emailSetting['mail_from_name'] ?? null;
     $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
 

@@ -122,34 +122,40 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         # -------------------------------------------------------------
 
-        # -------------------------------------------------------------
-        #
-        # Type: insurance provider reference table
-        # Description:
-        # Generates the insurance provider reference table using inline statement selection.
-        #
-        # Parameters: None
-        #
-        # Returns: Array
-        #
-        # -------------------------------------------------------------
-        case 'insurance provider reference table':
+        case 'coverage table':
+            $insurance_provider_id = htmlspecialchars($_POST['insurance_provider_id'], ENT_QUOTES, 'UTF-8');
             $sql = $databaseModel->getConnection()->prepare('
-                SELECT provider_id, provider_name 
-                FROM insurance_provider 
-                ORDER BY provider_name ASC;
+                SELECT * 
+                FROM insurance_coverage_rate 
+                WHERE insurance_provider = :insurance_provider_id
+                ORDER BY coverage_amount_start ASC;
             ');
+            $sql->bindValue(':insurance_provider_id', $insurance_provider_id, PDO::PARAM_INT);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
     
             foreach ($options as $row) {
-                $insuranceProviderID = $row['provider_id'];
-                $insuranceProviderName = $row['provider_name'];
-    
+                $insurance_coverage_rate_id = $row['insurance_coverage_rate_id'];
+                $coverageAmountStart = $row['coverage_amount_start'] ?? 0;
+                $coverageAmountEnd = $row['coverage_amount_end'] ?? 0;
+                $bi_rate = $row['bi_rate'] ?? 0;
+                $pd_amount = $row['pd_amount'] ?? 0;
+
+                $delete = '<button type="button" class="btn btn-icon btn-danger delete-coverage" data-insurance-coverage-rate-id="'. $insurance_coverage_rate_id .'" title="Delete Coverage">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+
                 $response[] = [
-                    'INSURANCE_PROVIDER_ID' => $insuranceProviderID,
-                    'INSURANCE_PROVIDER' => $insuranceProviderName,
+                    'COVERAGE' => number_format($coverageAmountStart, 2) . ' - ' . number_format($coverageAmountEnd, 2),
+                    'BI' => number_format($bi_rate, 2),
+                    'PD' => number_format($pd_amount, 2),
+                    'ACTION' => '<div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-icon btn-success update-coverage" data-bs-toggle="offcanvas" data-bs-target="#coverage-offcanvas" data-insurance-coverage-rate-id="'. $insurance_coverage_rate_id .'" title="Update Coverage">
+                                            <i class="ti ti-edit"></i>
+                                        </button>
+                                        '. $delete .'
+                                    </div>'
                 ];
             }
     

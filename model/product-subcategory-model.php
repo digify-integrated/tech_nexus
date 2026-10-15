@@ -30,12 +30,13 @@ class ProductSubcategoryModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateProductSubcategory($p_product_subcategory_id, $p_product_subcategory_name, $p_product_subcategory_code, $p_product_category_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateProductSubcategory(:p_product_subcategory_id, :p_product_subcategory_name, :p_product_subcategory_code, :p_product_category_id, :p_last_log_by)');
+    public function updateProductSubcategory($p_product_subcategory_id, $p_product_subcategory_name, $p_product_subcategory_code, $p_product_category_id, $p_standard_inclusions, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateProductSubcategory(:p_product_subcategory_id, :p_product_subcategory_name, :p_product_subcategory_code, :p_product_category_id, :p_standard_inclusions, :p_last_log_by)');
         $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_subcategory_name', $p_product_subcategory_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_subcategory_code', $p_product_subcategory_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_standard_inclusions', $p_standard_inclusions, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -59,11 +60,12 @@ class ProductSubcategoryModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertProductSubcategory($p_product_subcategory_name, $p_product_subcategory_code, $p_product_category_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertProductSubcategory(:p_product_subcategory_name, :p_product_subcategory_code, :p_product_category_id, :p_last_log_by, @p_product_subcategory_id)');
+    public function insertProductSubcategory($p_product_subcategory_name, $p_product_subcategory_code, $p_product_category_id, $p_standard_inclusions, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertProductSubcategory(:p_product_subcategory_name, :p_product_subcategory_code, :p_product_category_id, :p_standard_inclusions, :p_last_log_by, @p_product_subcategory_id)');
         $stmt->bindValue(':p_product_subcategory_name', $p_product_subcategory_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_subcategory_code', $p_product_subcategory_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_standard_inclusions', $p_standard_inclusions, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -71,6 +73,45 @@ class ProductSubcategoryModel {
         $p_product_subcategory_id = $result->fetch(PDO::FETCH_ASSOC)['p_product_subcategory_id'];
 
         return $p_product_subcategory_id;
+    }
+    public function checkPricingThresholdExist($p_product_subcategory_id, $p_year_model, $p_transmission_type, $p_length, $p_length_unit) {
+        $stmt = $this->db->getConnection()->prepare('SELECT COUNT(*) AS total FROM quotation_standard_pricing WHERE product_subcategory_id = :p_product_subcategory_id AND year_model = :p_year_model AND transmission_type = :p_transmission_type AND length = :p_length AND length_unit = :p_length_unit');
+        $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transmission_type', $p_transmission_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_length', $p_length, PDO::PARAM_STR);
+        $stmt->bindValue(':p_length_unit', $p_length_unit, PDO::PARAM_STR);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row['total'] > 0;
+    }
+
+    public function updatePricingThreshold($quotation_standard_pricing_id, $p_product_subcategory_id, $p_year_model, $p_transmission_type, $p_length, $p_length_unit, $p_price_threshold, $p_discount_threshold, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE quotation_standard_pricing SET product_subcategory_id = :p_product_subcategory_id, year_model = :p_year_model, transmission_type = :p_transmission_type, length = :p_length, length_unit = :p_length_unit, price_threshold = :p_price_threshold, discount_threshold = :p_discount_threshold, last_log_by = :p_last_log_by WHERE quotation_standard_pricing_id = :quotation_standard_pricing_id');
+        $stmt->bindValue(':quotation_standard_pricing_id', $quotation_standard_pricing_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transmission_type', $p_transmission_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_length', $p_length, PDO::PARAM_STR);
+        $stmt->bindValue(':p_length_unit', $p_length_unit, PDO::PARAM_STR);
+        $stmt->bindValue(':p_price_threshold', $p_price_threshold, PDO::PARAM_STR);
+        $stmt->bindValue(':p_discount_threshold', $p_discount_threshold, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function insertPricingThreshold($p_product_subcategory_id, $p_year_model, $p_transmission_type, $p_length, $p_length_unit, $p_price_threshold, $p_discount_threshold, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('INSERT INTO quotation_standard_pricing (product_subcategory_id, year_model, transmission_type, length, length_unit, price_threshold, discount_threshold, last_log_by) VALUES (:p_product_subcategory_id, :p_year_model, :p_transmission_type, :p_length, :p_length_unit, :p_price_threshold, :p_discount_threshold, :p_last_log_by)');
+        $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transmission_type', $p_transmission_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_length', $p_length, PDO::PARAM_STR);
+        $stmt->bindValue(':p_length_unit', $p_length_unit, PDO::PARAM_STR);
+        $stmt->bindValue(':p_price_threshold', $p_price_threshold, PDO::PARAM_STR);
+        $stmt->bindValue(':p_discount_threshold', $p_discount_threshold, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
     }
     # -------------------------------------------------------------
 
@@ -117,6 +158,11 @@ class ProductSubcategoryModel {
         $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function deletePricingThreshold($p_quotation_standard_pricing_id) {
+        $stmt = $this->db->getConnection()->prepare('DELETE FROM quotation_standard_pricing WHERE quotation_standard_pricing_id = :p_quotation_standard_pricing_id');
+        $stmt->bindValue(':p_quotation_standard_pricing_id', $p_quotation_standard_pricing_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -138,6 +184,22 @@ class ProductSubcategoryModel {
     public function getProductSubcategory($p_product_subcategory_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getProductSubcategory(:p_product_subcategory_id)');
         $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getQuotationStandardPricingDetails($p_quotation_standard_pricing_id) {
+        $stmt = $this->db->getConnection()->prepare('SELECT * FROM quotation_standard_pricing WHERE quotation_standard_pricing_id = :p_quotation_standard_pricing_id');
+        $stmt->bindValue(':p_quotation_standard_pricing_id', $p_quotation_standard_pricing_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getQuotationStandardPricing($p_product_subcategory_id, $p_year_model, $p_transmission_type, $p_length, $p_length_unit) {
+        $stmt = $this->db->getConnection()->prepare('Select * FROM quotation_standard_pricing WHERE product_subcategory_id = :p_product_subcategory_id AND year_model = :p_year_model AND transmission_type = :p_transmission_type AND length = :p_length AND length_unit = :p_length_unit');
+        $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transmission_type', $p_transmission_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_length', $p_length, PDO::PARAM_STR);
+        $stmt->bindValue(':p_length_unit', $p_length_unit, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -312,6 +374,40 @@ class ProductSubcategoryModel {
         }
 
         return $htmlOptions;
+    }
+
+    public function updateDefaultImage($p_product_subcategory_id, $p_default_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('Update product_subcategory set default_image = :p_default_image, last_log_by = :p_last_log_by where product_subcategory_id = :p_product_subcategory_id');
+        $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_default_image', $p_default_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function generatePricingThresholdTable(
+        $filter_product_subcategory
+    ) {
+
+        $query = '
+            SELECT *
+            FROM quotation_standard_pricing
+            WHERE 1=1
+        ';
+
+        $params = [];
+
+        if (!empty($filter_product_subcategory)) {
+
+            $query .= " AND product_subcategory_id IN ($filter_product_subcategory)";
+        }
+
+        $query .= ' ORDER BY product_subcategory_id DESC';
+
+        $stmt = $this->db->getConnection()->prepare($query);
+
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
 }

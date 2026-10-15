@@ -157,7 +157,11 @@ class DocumentController {
         $documentName = htmlspecialchars($_POST['document_name'], ENT_QUOTES, 'UTF-8');
         $documentCategoryID = htmlspecialchars($_POST['document_category_id'], ENT_QUOTES, 'UTF-8');
         $isConfidential = htmlspecialchars($_POST['is_confidential'], ENT_QUOTES, 'UTF-8');
-        $documentPassword = $this->securityModel->encryptData(htmlspecialchars($_POST['document_password'], ENT_QUOTES, 'UTF-8'));;
+        $rawPasswordInput = isset($_POST['document_password']) ? $_POST['document_password'] : '';
+        $decodedPassword = base64_decode($rawPasswordInput);
+
+        // Pass decoded password to your security model
+        $documentPassword = $this->securityModel->encryptData(htmlspecialchars($decodedPassword, ENT_QUOTES, 'UTF-8'));
         $documentDescription = htmlspecialchars($_POST['document_description'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -743,7 +747,7 @@ class DocumentController {
     # -------------------------------------------------------------
     public function sendPublish($documentID, $documentName) {
         $documentIDEncrypted = $this->securityModel->encryptData($documentID);
-        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $emailSetting = $this->emailSettingModel->getEmailSetting(2);
         $mailFromName = $emailSetting['mail_from_name'] ?? null;
         $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
 
@@ -798,7 +802,7 @@ class DocumentController {
     #
     # -------------------------------------------------------------
     private function configureSMTP($mailer, $isHTML = true) {
-        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $emailSetting = $this->emailSettingModel->getEmailSetting(2);
         $mailHost = $emailSetting['mail_host'] ?? MAIL_HOST;
         $smtpAuth = empty($emailSetting['smtp_auth']) ? false : true;
         $mailUsername = $emailSetting['mail_username'] ?? MAIL_USERNAME;

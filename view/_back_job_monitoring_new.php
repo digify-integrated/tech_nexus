@@ -26,6 +26,17 @@
                         <option value="Backjob">Backjob</option>
                         <option value="Internal Repair">Internal Repair</option>
                         <option value="Warranty">Warranty</option>
+                        <option value="FOC Repair/Warranty">FOC Repair/Warranty</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row d-none warranty-row">
+                <label class="col-lg-4 col-form-label">Warranty Source <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                    <select class="form-control select2" name="warranty_source" id="warranty_source">
+                        <option value="">--</option>
+                        <option value="Customer">Customer</option>
+                        <option value="Dealer">Dealer</option>
                     </select>
                 </div>
             </div>
@@ -47,12 +58,12 @@
                     </select>
                 </div>
             </div>
-            <div class="form-group row d-none" id="warranty-row">
+            <div class="form-group row d-none warranty-row">
                 <label class="col-lg-4 col-form-label">Product <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
                     <select class="form-control select2" name="product_id2" id="product_id2">
                         <option value="">--</option>
-                        <?php echo $productModel->generateSoldProductOptions(); ?>
+                        <?php echo $productModel->generateNotDraftProductOptions(); ?>
                     </select>
                 </div>
             </div>

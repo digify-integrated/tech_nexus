@@ -8,6 +8,7 @@ require_once '../model/system-model.php';
 require_once '../model/insurance-request-model.php';
 require_once '../model/insurance-provider-model.php';
 require_once '../model/insurance-type-model.php';
+require_once '../model/insurance-category-model.php';
 require_once '../model/sales-proposal-model.php';
 require_once '../model/customer-model.php';
 require_once '../model/miscellaneous-client-model.php';
@@ -18,6 +19,7 @@ $userModel = new UserModel($databaseModel, $systemModel);
 $insuranceRequestModel = new InsuranceRequestModel($databaseModel);
 $insuranceProviderModel = new InsuranceProviderModel($databaseModel);
 $insuranceTypeModel = new InsuranceTypeModel($databaseModel);
+$insuranceCategoryModel = new InsuranceCategoryModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
 $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
@@ -29,8 +31,78 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
     switch ($type) {
         case 'insurance request table':
-            $sql = $databaseModel->getConnection()->prepare('SELECT * FROM insurance_request');
-            $sql->execute();
+            // Retrieve and sanitize filter inputs from AJAX POST request
+            $status_filter = isset($_POST['status_filter']) ? trim($_POST['status_filter']) : '';
+            $request_type_filter = isset($_POST['request_type_filter']) ? trim($_POST['request_type_filter']) : '';
+            $filter_inception_start_date = $systemModel->checkDate('empty', $_POST['filter_inception_start_date'], '', 'Y-m-d', '');
+            $filter_inception_end_date = $systemModel->checkDate('empty', $_POST['filter_inception_end_date'], '', 'Y-m-d', '');
+            $insurance_provider_filter = isset($_POST['insurance_provider_filter']) ? trim($_POST['insurance_provider_filter']) : '';
+            $insurance_category_filter = isset($_POST['insurance_category_filter']) ? trim($_POST['insurance_category_filter']) : '';
+
+            // Base query and parameters array
+            $query = 'SELECT * FROM insurance_request WHERE 1=1';
+            $params = [];
+            $conditions = [];
+
+            // 1. Status Filter
+            if (!empty($status_filter) && $status_filter !== 'All') {
+                $conditions[] = 'status = :status_filter';
+                $params[':status_filter'] = $status_filter;
+            }
+
+            // 2. Request Type Filter
+            if (!empty($request_type_filter) && $request_type_filter !== 'All') {
+                $conditions[] = 'request_type = :request_type_filter';
+                $params[':request_type_filter'] = $request_type_filter;
+            }
+
+            // 3. Inception Date Range Filter
+            if (!empty($filter_inception_start_date)) {
+                $conditions[] = 'inception_date >= :filter_inception_start_date';
+                $params[':filter_inception_start_date'] = $filter_inception_start_date;
+            }
+
+            if (!empty($filter_inception_end_date)) {
+                $conditions[] = 'inception_date <= :filter_inception_end_date';
+                $params[':filter_inception_end_date'] = $filter_inception_end_date;
+            }
+
+            // 4. Insurance Provider Filter (handles comma-separated checkbox IDs safely)
+            if (!empty($insurance_provider_filter)) {
+                $providers = array_filter(array_map('trim', explode(',', $insurance_provider_filter)));
+                if (!empty($providers)) {
+                    $providerPlaceholders = [];
+                    foreach ($providers as $index => $providerId) {
+                        $key = ':provider_' . $index;
+                        $providerPlaceholders[] = $key;
+                        $params[$key] = (int)$providerId;
+                    }
+                    $conditions[] = 'insurance_provider IN (' . implode(', ', $providerPlaceholders) . ')';
+                }
+            }
+
+            // 5. Insurance Category Filter (handles comma-separated category values)
+            if (!empty($insurance_category_filter)) {
+                $categories = array_filter(array_map('trim', explode(',', $insurance_category_filter)));
+                if (!empty($categories)) {
+                    $categoryPlaceholders = [];
+                    foreach ($categories as $index => $categoryVal) {
+                        $key = ':category_' . $index;
+                        $categoryPlaceholders[] = $key;
+                        $params[$key] = $categoryVal;
+                    }
+                    $conditions[] = 'insurance_category IN (' . implode(', ', $categoryPlaceholders) . ')';
+                }
+            }
+
+            // Append conditions to query if any exist
+            if (!empty($conditions)) {
+                $query .= ' AND ' . implode(' AND ', $conditions);
+            }
+
+            // Prepare and execute with bound parameters
+            $sql = $databaseModel->getConnection()->prepare($query);
+            $sql->execute($params);
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
@@ -45,6 +117,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $insurance_type_id = $row['insurance_type_id'];
                 $customer_id = $row['customer_id'];
                 $sales_proposal_id = $row['sales_proposal_id'];
+                $insurance_category = $row['insurance_category'];
                 $inception_date = $systemModel->checkDate('summary', $row['inception_date'], '', 'm/d/Y', '');
 
                 if($customer_type == 'Customer'){
@@ -57,7 +130,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
                 else{
                     $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id); 
-                    $customer_id = $salesProposalDetails['customer_id'];
+                    $customer_id = $salesProposalDetails['customer_id'] ?? null;
                     
                     $customerDetails = $customerModel->getPersonalInformation($customer_id);
                     $customerName = $customerDetails['file_as'] ?? null;
@@ -68,6 +141,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $providerDetails = $insuranceProviderModel->getInsuranceProvider($insurance_provider);
                 $provider_name = $providerDetails['provider_name'] ?? null;
+
+                $category = $insuranceCategoryModel->getInsuranceCategory($insurance_category);
+                $insurance_category_name = $category['insurance_category_name'] ?? null;
 
                 $insuranceRequestIDEncrypted = $securityModel->encryptData($insuranceRequestID);
 
@@ -85,6 +161,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'REQUEST_TYPE' => $request_type,
                     'INSURANCE_TYPE' => $insrance_type_name,
                     'INCEPTION_DATE' => $inception_date,
+                    'CATEGORY' => $insurance_category_name,
                     'STATUS' => $status,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="insurance-request.php?id='. $insuranceRequestIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">

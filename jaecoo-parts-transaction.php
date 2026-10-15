@@ -79,7 +79,7 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Inventory</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="netruck-parts-transaction.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="jaecoo-parts-transaction.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($partsTransactionID)){
                             echo '<li class="breadcrumb-item" id="parts-transaction-id">'. $partsTransactionID .'</li>';

@@ -628,6 +628,8 @@ class PMSCatalogController {
             'consumableTotal' => $totals['consumableTotal'],
             'laborCost'       => $totals['laborCost'],
             'partsCost'       => $totals['partsCost'],
+            'maxLaborCost'    => $totals['maxLaborCost'],
+            'maxConsumables'  => $totals['maxConsumables'],
             'totalCost'       => $totals['totalCost']
         ];
 

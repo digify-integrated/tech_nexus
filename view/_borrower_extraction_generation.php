@@ -60,6 +60,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $first_name = $customerDetails['first_name'];
                 $middle_name = $customerDetails['middle_name'];
                 $last_name = $customerDetails['last_name'];
+                $suffix = $customerDetails['suffix'];
+
+                if(!empty($suffix)){
+                    $suffix = ' ' . $suffix;
+                }
 
                 $birthday = $systemModel->checkDate('empty', $customerDetails['birthday'], '', 'm/d/Y', '');
 
@@ -75,7 +80,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'CUSTOMER_ID' => $customer_id,
                     'FIRST_NAME' => strtoupper($first_name),
-                    'MIDDLE_NAME' => strtoupper($middle_name . ' ' . $last_name),
+                    'MIDDLE_NAME' => strtoupper($middle_name . ' ' . $last_name . $suffix),
                     'BIRTHDAY' => $birthday,
                     'ADDRESS' => strtoupper($address),
                     'CITY' => strtoupper($city_name),

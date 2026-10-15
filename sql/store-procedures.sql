@@ -337,7 +337,7 @@ END //
 
 /* Audit Log Table Stored Procedures */
 
-CREATE PROCEDURE generateLogNotes(IN p_table_name VARCHAR(255), IN p_reference_id INT)
+CREATE PROCEDURE generateLogNotes(IN p_table_name VARCHAR(255), IN p_reference_id VARCHAR(500))
 BEGIN
 	SELECT log, changed_by, changed_at FROM audit_log
     WHERE table_name = p_table_name AND reference_id = p_reference_id
@@ -6744,20 +6744,21 @@ BEGIN
     WHERE product_subcategory_id = p_product_subcategory_id;
 END //
 
-CREATE PROCEDURE insertProductSubcategory(IN p_product_subcategory_name VARCHAR(100), IN p_product_subcategory_code VARCHAR(50), IN p_product_category_id INT, IN p_last_log_by INT, OUT p_product_subcategory_id INT)
+CREATE PROCEDURE insertProductSubcategory(IN p_product_subcategory_name VARCHAR(100), IN p_product_subcategory_code VARCHAR(50), IN p_product_category_id INT, IN p_standard_inclusions TEXT, IN p_last_log_by INT, OUT p_product_subcategory_id INT)
 BEGIN
-    INSERT INTO product_subcategory (product_subcategory_name, product_subcategory_code, product_category_id, last_log_by) 
-	VALUES(p_product_subcategory_name, p_product_subcategory_code, p_product_category_id, p_last_log_by);
+    INSERT INTO product_subcategory (product_subcategory_name, product_subcategory_code, product_category_id, standard_inclusions, last_log_by) 
+	VALUES(p_product_subcategory_name, p_product_subcategory_code, p_product_category_id, p_standard_inclusions, p_last_log_by);
 	
     SET p_product_subcategory_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateProductSubcategory(IN p_product_subcategory_id INT, IN p_product_subcategory_name VARCHAR(100), IN p_product_subcategory_code VARCHAR(50), IN p_product_category_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateProductSubcategory(IN p_product_subcategory_id INT, IN p_product_subcategory_name VARCHAR(100), IN p_product_subcategory_code VARCHAR(50), IN p_product_category_id INT, IN p_standard_inclusions TEXT, IN p_last_log_by INT)
 BEGIN
 	UPDATE product_subcategory
     SET product_subcategory_name = p_product_subcategory_name,
     product_subcategory_code = p_product_subcategory_code,
     product_category_id = p_product_category_id,
+    standard_inclusions = p_standard_inclusions,
     last_log_by = p_last_log_by
     WHERE product_subcategory_id = p_product_subcategory_id;
 END //
@@ -7758,12 +7759,12 @@ END //
 
 
 
-CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_additional_maker_id INT, IN p_comaker_id2 INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_application_source_id INT, IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_pms_catalog_id INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
+CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_additional_maker_id INT, IN p_comaker_id2 INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_application_source_id INT, IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_pms_catalog_id INT, IN p_add_on_labor_rate DOUBLE, IN p_pms_labor_total DOUBLE, IN p_add_on_consumables_rate DOUBLE, IN p_pms_consumable_total DOUBLE, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, additional_maker_id, comaker_id2, product_type, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, renewal_tag, application_source_id, commission_amount, company_id, pms_catalog_id, last_log_by) 
-	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_additional_maker_id, p_comaker_id2, p_product_type, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_renewal_tag, p_application_source_id, p_commission_amount, p_company_id, p_pms_catalog_id, p_last_log_by);
+    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, additional_maker_id, comaker_id2, product_type, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, renewal_tag, application_source_id, commission_amount, company_id, pms_catalog_id, add_on_labor_rate, pms_labor_total, add_on_consumables_rate, pms_consumable_total, last_log_by) 
+	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_additional_maker_id, p_comaker_id2, p_product_type, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_renewal_tag, p_application_source_id, p_commission_amount, p_company_id, p_pms_catalog_id, p_add_on_labor_rate, p_pms_labor_total, p_add_on_consumables_rate, p_pms_consumable_total, p_last_log_by);
       	
     SET p_sales_proposal_id = LAST_INSERT_ID();
 
@@ -7782,6 +7783,11 @@ BEGIN
 
         INSERT INTO sales_proposal_job_order (sales_proposal_id, job_order, cost, last_log_by) 
 	    VALUES(p_sales_proposal_id, 'Check cowl, interior, tires and other accessories', 0, p_last_log_by);
+    END IF;
+
+    IF p_product_type IN ('PMS', 'Rental', 'Brand New') THEN
+        INSERT INTO sales_proposal_job_order (sales_proposal_id, job_order, cost, last_log_by) 
+	    VALUES(p_sales_proposal_id, 'Quality Check', 0, p_last_log_by);
     END IF;
 END //
 
@@ -7823,12 +7829,12 @@ BEGIN
     SET p_loan_collection_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE insertCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_leasing_application_repayment_id INT, IN p_leasing_other_charges_id INT, IN p_leasing_collections_id INT, IN p_payment_for VARCHAR(50), IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_payment_advice VARCHAR(5), IN p_last_log_by INT, OUT p_loan_collection_id INT)
+CREATE PROCEDURE insertCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_leasing_application_repayment_id INT, IN p_leasing_other_charges_id INT, IN p_leasing_collections_id INT, IN p_payment_for VARCHAR(50), IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_type VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_payment_advice VARCHAR(5), IN p_last_log_by INT, OUT p_loan_collection_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, leasing_application_id, leasing_application_repayment_id, leasing_other_charges_id, leasing_collections_id, payment_for, pdc_type, mode_of_payment, or_number, or_date, payment_date, payment_amount, reference_number, payment_details, company_id, deposited_to, remarks, transaction_date, collection_status, collected_from, payment_advice, last_log_by) 
-	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, leasing_application_id, p_leasing_application_repayment_id, p_leasing_other_charges_id, p_leasing_collections_id, p_payment_for, p_pdc_type, p_mode_of_payment, p_or_number, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), 'Posted', p_collected_from, p_payment_advice, p_last_log_by);
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, leasing_application_id, leasing_application_repayment_id, leasing_other_charges_id, leasing_collections_id, payment_for, pdc_type, mode_of_payment, or_number, or_type, or_date, payment_date, payment_amount, reference_number, payment_details, company_id, deposited_to, remarks, transaction_date, collection_status, collected_from, payment_advice, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, leasing_application_id, p_leasing_application_repayment_id, p_leasing_other_charges_id, p_leasing_collections_id, p_payment_for, p_pdc_type, p_mode_of_payment, p_or_number, p_or_type, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), 'Posted', p_collected_from, p_payment_advice, p_last_log_by);
 
     SET p_loan_collection_id = LAST_INSERT_ID();
 
@@ -7836,7 +7842,7 @@ BEGIN
     VALUES(p_loan_collection_id, p_mode_of_payment, NOW(), 'Posted', p_or_number, p_or_date, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_leasing_application_repayment_id INT, IN p_leasing_other_charges_id INT, IN p_payment_for VARCHAR(50), IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_payment_advice VARCHAR(5), IN p_last_log_by INT)
+CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_leasing_application_id INT, IN p_leasing_application_repayment_id INT, IN p_leasing_other_charges_id INT, IN p_payment_for VARCHAR(50), IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_type VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_payment_advice VARCHAR(5), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
@@ -7852,6 +7858,7 @@ BEGIN
     pdc_type = p_pdc_type,
     mode_of_payment = p_mode_of_payment,
     or_number = p_or_number,
+    or_type = p_or_type,
     or_date = p_or_date,
     payment_amount = p_payment_amount,
     reference_number = p_reference_number,
@@ -8028,19 +8035,31 @@ BEGIN
         AND created_date < NOW() - INTERVAL 31 DAY;
 END //
 
+
+
 CREATE PROCEDURE cronSalesProposalCancelProceed(IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
-	UPDATE sales_proposal
-        SET sales_proposal_status = 'Cancelled',
+    UPDATE product p
+    JOIN sales_proposal sp ON p.product_id = sp.product_id
+    SET p.product_status = 'For Sale'
+    WHERE sp.sales_proposal_status = 'Proceed' 
+      AND sp.product_type NOT IN ('Fuel', 'Brand New')
+      AND sp.approval_date < NOW() - INTERVAL 31 DAY
+      AND p.product_status IN ('On-Process', 'Ready For Release', 'For DR', 'With Application');
+
+    UPDATE sales_proposal
+    SET sales_proposal_status = 'Cancelled',
         cancellation_date = NOW(),
         cancellation_reason = 'Lapsed Approval',
         last_log_by = p_last_log_by
-        WHERE sales_proposal_status = 'Proceed' 
-        AND product_type NOT IN ('Fuel', 'Brand New')
-        AND approval_date < NOW() - INTERVAL 31 DAY;
+    WHERE sales_proposal_status = 'Proceed' 
+      AND product_type NOT IN ('Fuel', 'Brand New')
+      AND approval_date < NOW() - INTERVAL 31 DAY;
+
 END //
+
 
 CREATE PROCEDURE cronSalesProposalCancelFuelProceed(IN p_last_log_by INT)
 BEGIN
@@ -8627,7 +8646,7 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateDashboardForInitialApproval(IN p_initial_approving_officer INT)
+CREATE PROCEDURE generateDashboardForInitialApprovalc(IN p_initial_approving_officer INT)
 BEGIN
     SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For Initial Approval' AND initial_approving_officer = p_initial_approving_officer;
 END //
@@ -8635,6 +8654,16 @@ END //
 CREATE PROCEDURE generateDashboardForFinalApproval(IN p_final_approving_officer INT)
 BEGIN
     SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For Final Approval' AND final_approving_officer = p_final_approving_officer;
+END //
+
+CREATE PROCEDURE generateDashboardForFinalApproval2(IN p_final_approving_officer INT)
+BEGIN
+    SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For Final Approval' AND final_approving_officer = p_final_approving_officer AND transaction_type != 'Bank Financing';
+END //
+
+CREATE PROCEDURE generateDashboardForFinalApproval3(IN p_final_approving_officer INT)
+BEGIN
+    SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For Final Approval' AND final_approving_officer = p_final_approving_officer AND transaction_type = 'Bank Financing';
 END //
 
 CREATE PROCEDURE generateOwnSalesProposalTable(IN p_contact_id INT, IN p_user_id INT, IN p_filter_sale_proposal_status VARCHAR(500), IN p_filter_product_type VARCHAR(500), IN p_filter_company VARCHAR(500), IN p_filter_user VARCHAR(100), IN p_filter_created_date_start_date DATE, IN p_filter_created_date_end_date DATE, IN p_filter_released_date_start_date DATE, IN p_filter_released_date_end_date DATE)
@@ -12658,6 +12687,7 @@ END //
 DELIMITER //
 DROP PROCEDURE create_journal_entry//
 
+
 CREATE PROCEDURE create_journal_entry(
     IN p_loan_number VARCHAR(100),
     IN p_company_id INT,
@@ -12673,7 +12703,7 @@ BEGIN
     -- Declare variables
     DECLARE v_transaction VARCHAR(100);
     DECLARE v_item VARCHAR(100);
-    DECLARE v_amount DOUBLE;
+    DECLARE v_amount DOUBLE DEFAULT 0;
     DECLARE v_debit_code VARCHAR(100);
     DECLARE v_credit_code VARCHAR(100);
     DECLARE v_cursor_done INT DEFAULT 0;
@@ -12706,14 +12736,16 @@ BEGIN
     -- Open cursor
     OPEN cur_journal_code;
 
-    -- Fetch first row from cursor
-    FETCH cur_journal_code INTO v_transaction, v_item, v_debit_code, v_credit_code;
-
     -- Process each journal code
     journal_loop: LOOP
+        FETCH cur_journal_code INTO v_transaction, v_item, v_debit_code, v_credit_code;
+
         IF v_cursor_done THEN
             LEAVE journal_loop;
         END IF;
+
+        -- Reset amount per iteration
+        SET v_amount = 0;
 
         -- Determine the amount based on the item
         IF v_item = 'PRI' THEN
@@ -12764,20 +12796,31 @@ BEGIN
         ELSEIF v_item = 'AJO' THEN
             SELECT COALESCE(SUM(cost), 0) INTO v_amount
             FROM sales_proposal_additional_job_order
-            WHERE sales_proposal_id = p_sales_proposal_id
-            LIMIT 1;
+            WHERE sales_proposal_id = p_sales_proposal_id;
         END IF;
 
-        -- Set analytic_lines and analytic_distribution based on p_product_type
+        -- Evaluated against input parameter p_company_id directly
+        CASE p_company_id
+            WHEN 1 THEN
+                SET v_analytic_lines = 'CGMI';
+                SET v_analytic_distribution = '{"1": 100.0}';
+            WHEN 3 THEN
+                SET v_analytic_lines = 'FUSO';
+                SET v_analytic_distribution = '{"1": 100.0}';
+            WHEN 15 THEN
+                SET v_analytic_lines = 'OMODAJAECOO';
+                SET v_analytic_distribution = '{"21": 100.0}';
+            ELSE
+                SET v_analytic_lines = 'CGMI';
+                SET v_analytic_distribution = '{"1": 100.0}';
+        END CASE;
+
         IF p_product_type = 'Fuel' THEN
             SET v_analytic_lines = 'NE FUEL';
             SET v_analytic_distribution = '{"6": 100.0}';
-        ELSE
-            SET v_analytic_lines = 'CGMI';
-            SET v_analytic_distribution = '{"1": 100.0}';
         END IF;
 
-        -- Insert Debit Entry using the journal transaction value for debit
+        -- Insert Debit Entry
         INSERT INTO journal_entry (
             loan_number, 
             journal_entry_date, 
@@ -12795,8 +12838,8 @@ BEGIN
             p_loan_number, 
             p_journal_entry_date, 
             v_reference_code, 
-            'Miscellaneous Operations', -- Use the debit account code
-            v_debit_code, -- Use the transaction as journal_item (which can be the debit reference)
+            'Miscellaneous Operations', 
+            v_debit_code, 
             v_amount, 
             0, 
             '', 
@@ -12806,7 +12849,7 @@ BEGIN
             p_last_log_by
         );
 
-        -- Insert Credit Entry using the journal transaction value for credit
+        -- Insert Credit Entry
         INSERT INTO journal_entry (
             loan_number, 
             journal_entry_date, 
@@ -12824,8 +12867,8 @@ BEGIN
             p_loan_number, 
             p_journal_entry_date, 
             v_reference_code, 
-            'Miscellaneous Operations', -- Use the credit account code
-            v_credit_code, -- Use the transaction as journal_item (which can be the credit reference)
+            'Miscellaneous Operations', 
+            v_credit_code, 
             0, 
             v_amount, 
             '', 
@@ -12834,16 +12877,11 @@ BEGIN
             NOW(), 
             p_last_log_by
         );
-
-        -- Fetch the next journal code
-        FETCH cur_journal_code INTO v_transaction, v_item, v_debit_code, v_credit_code;
     END LOOP;
 
     -- Close cursor
     CLOSE cur_journal_code;
 END//
-
-
 
 CREATE PROCEDURE checkDisbursementExist (IN p_disbursement_id INT)
 BEGIN
@@ -14411,20 +14449,21 @@ BEGIN
     WHERE backjob_monitoring_id = p_backjob_monitoring_id AND backjob_monitoring_id != 0 AND backjob_monitoring_id IS NOT NULL;
 END //
 
-CREATE PROCEDURE insertBackJobMonitoring(IN p_type VARCHAR(50), IN p_product_id INT, IN p_sales_proposal_id INT, IN p_last_log_by INT, OUT p_backjob_monitoring_id INT)
+CREATE PROCEDURE insertBackJobMonitoring(IN p_type VARCHAR(50), IN p_product_id INT, IN p_sales_proposal_id INT, IN p_warranty_source VARCHAR(100), IN p_last_log_by INT, OUT p_backjob_monitoring_id INT)
 BEGIN
-    INSERT INTO backjob_monitoring (type, product_id, sales_proposal_id, last_log_by) 
-	VALUES(p_type, p_product_id, p_sales_proposal_id, p_last_log_by);
+    INSERT INTO backjob_monitoring (type, product_id, sales_proposal_id, warranty_source, last_log_by) 
+	VALUES(p_type, p_product_id, p_sales_proposal_id, p_warranty_source, p_last_log_by);
 	
     SET p_backjob_monitoring_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateBackJobMonitoring(IN p_backjob_monitoring_id INT, IN p_type VARCHAR(50), IN p_product_id INT, IN p_sales_proposal_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateBackJobMonitoring(IN p_backjob_monitoring_id INT, IN p_type VARCHAR(50), IN p_product_id INT, IN p_sales_proposal_id INT, IN p_warranty_source VARCHAR(100), IN p_last_log_by INT)
 BEGIN
 	UPDATE backjob_monitoring
     SET type = p_type,
     product_id = p_product_id,
     sales_proposal_id = p_sales_proposal_id,
+    warranty_source = p_warranty_source,
     last_log_by = p_last_log_by
     WHERE backjob_monitoring_id = p_backjob_monitoring_id;
 END //
@@ -16176,7 +16215,7 @@ BEGIN
             released_date = NOW(),
             part_transaction_status = p_part_transaction_status,
             last_log_by = p_last_log_by
-        WHERE part_transaction_id = p_parts_transaction_id AND (company_id = '2' OR company_id = '1' OR company_id = '8');
+        WHERE part_transaction_id = p_parts_transaction_id AND (company_id = '2' OR company_id = '1' OR company_id = '8' OR company_id = '15');
 
          UPDATE part_transaction
         SET 
@@ -16350,15 +16389,15 @@ BEGIN
     WHERE part_incoming_id = p_part_incoming_id;
 END //
 
-CREATE PROCEDURE insertPartsIncoming(IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_company_id INT, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_remarks VARCHAR(2000), IN p_incoming_for VARCHAR(100), IN p_last_log_by INT, OUT p_part_incoming_id INT)
+CREATE PROCEDURE insertPartsIncoming(IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_company_id INT, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_remarks VARCHAR(2000), IN p_incoming_for VARCHAR(100), IN p_tax_type VARCHAR(50), IN p_last_log_by INT, OUT p_part_incoming_id INT)
 BEGIN
-    INSERT INTO part_incoming (reference_number, supplier_id, rr_no, rr_date, delivery_date, purchase_date, company_id, request_by, product_id, customer_ref_id, remarks, incoming_for, last_log_by) 
-	VALUES(p_reference_number, p_supplier_id, p_rr_no, p_rr_date, p_delivery_date, p_purchase_date, p_company_id, p_request_by, p_product_id, p_customer_ref_id, p_remarks, p_incoming_for, p_last_log_by);
+    INSERT INTO part_incoming (reference_number, supplier_id, rr_no, rr_date, delivery_date, purchase_date, company_id, request_by, product_id, customer_ref_id, remarks, incoming_for, tax_type, last_log_by) 
+	VALUES(p_reference_number, p_supplier_id, p_rr_no, p_rr_date, p_delivery_date, p_purchase_date, p_company_id, p_request_by, p_product_id, p_customer_ref_id, p_remarks, p_incoming_for, p_tax_type, p_last_log_by);
 	
     SET p_part_incoming_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updatePartsIncoming(IN p_part_incoming_id INT, IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_remarks VARCHAR(2000), IN p_incoming_for VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updatePartsIncoming(IN p_part_incoming_id INT, IN p_reference_number VARCHAR(500), IN p_supplier_id INT, IN p_rr_no VARCHAR(100), IN p_rr_date DATE, IN p_delivery_date DATE, IN p_purchase_date DATE, IN p_request_by VARCHAR(500), IN p_product_id INT, IN p_customer_ref_id INT, IN p_remarks VARCHAR(2000), IN p_incoming_for VARCHAR(100), IN p_tax_type VARCHAR(50), IN p_last_log_by INT)
 BEGIN
 	UPDATE part_incoming
     SET reference_number = p_reference_number,
@@ -16372,6 +16411,7 @@ BEGIN
     product_id = p_product_id,
     remarks = p_remarks,
     incoming_for = p_incoming_for,
+    tax_type = p_tax_type,
     last_log_by = p_last_log_by
     WHERE part_incoming_id = p_part_incoming_id;
 END //
@@ -16572,25 +16612,37 @@ BEGIN
 END //
 
 DELIMITER //
-DROP PROCEDURE updatePartsReceivedIncomingCart//
+DROP PROCEDURE IF EXISTS updatePartsReceivedIncomingCart;
+
+
+
 CREATE PROCEDURE updatePartsReceivedIncomingCart (
     IN p_part_incoming_cart_id INT,
     IN p_part_id INT,
     IN p_received_quantity DOUBLE,
-    IN p_last_log_by INT
+    IN p_last_log_by INT,
+    OUT p_success INT
 )
 BEGIN
-    -- Update the incoming cart's received and remaining quantity
+    -- Atomic update
     UPDATE part_incoming_cart
-    SET 
-        cost = total_cost/(received_quantity + p_received_quantity),
+    SET
+        cost = total_cost / (received_quantity + p_received_quantity),
         received_quantity = received_quantity + p_received_quantity,
-        remaining_quantity = GREATEST(remaining_quantity - p_received_quantity, 0), -- prevent negative values
+        remaining_quantity = GREATEST(remaining_quantity - p_received_quantity, 0),
         last_log_by = p_last_log_by
-    WHERE 
+    WHERE
         part_incoming_cart_id = p_part_incoming_cart_id
         AND remaining_quantity >= p_received_quantity;
+
+    IF ROW_COUNT() > 0 THEN
+        SET p_success = 1;
+    ELSE
+        SET p_success = 0;
+    END IF;
 END //
+
+DELIMITER ;
 
 DROP PROCEDURE IF EXISTS updatePartsAverageCostAndSRP//
 CREATE PROCEDURE updatePartsAverageCostAndSRP (
@@ -16637,8 +16689,6 @@ BEGIN
     -- Compute new part price
     IF p_company_id = 2 AND p_supplier_id != 9 THEN
         SET new_part_price = ROUND(new_part_cost * 1.3, 2);
-    ELSEIF p_company_id = 3 AND p_supplier_id != 9 THEN
-        SET new_part_price = ROUND(new_part_cost * 1.6, 2);
     ELSEIF p_company_id = 8 AND p_supplier_id != 9 THEN
         SET new_part_price = new_part_cost;
     ELSE
@@ -20998,6 +21048,140 @@ BEGIN
     );
 END//
 
+DROP PROCEDURE IF EXISTS createBackjobJobOrderFOCEntry //
+CREATE PROCEDURE createBackjobJobOrderFOCEntry(
+    IN p_backjob_monitoring_id VARCHAR(100),
+    IN p_job_order_id INT,
+    IN p_entry_type VARCHAR(50),
+    IN p_company_id INT,
+    IN p_cost DECIMAL(15,2),
+    IN p_last_log_by INT
+)
+BEGIN
+    -- Declare variables
+    DECLARE v_analytic_lines VARCHAR(500);
+    DECLARE v_analytic_distribution VARCHAR(500);
+    DECLARE v_debit VARCHAR(100);
+    DECLARE v_credit VARCHAR(100);
+    DECLARE v_debit_amount DECIMAL(15,2);
+    DECLARE v_credit_amount DECIMAL(15,2);
+
+    CASE p_company_id
+        WHEN 1 THEN
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 2 THEN
+            SET v_analytic_lines = 'CGMI';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 3 THEN
+            SET v_analytic_lines = 'FUSO';
+            SET v_analytic_distribution = '{"1": 100.0}';
+        WHEN 4 THEN
+            SET v_analytic_lines = 'PCG PROPERTY';
+            SET v_analytic_distribution = '{"4": 100.0}';
+        WHEN 5 THEN
+            SET v_analytic_lines = 'GCB PROPERTY';
+            SET v_analytic_distribution = '{"3": 100.0}';
+        WHEN 6 THEN
+            SET v_analytic_lines = 'GCB FARMING';
+            SET v_analytic_distribution = '{"11": 100.0}';
+        WHEN 7 THEN
+            SET v_analytic_lines = 'PCG FARMING';
+            SET v_analytic_distribution = '{"15": 100.0}';
+        WHEN 8 THEN
+            SET v_analytic_lines = 'NE FUEL';
+            SET v_analytic_distribution = '{"6": 100.0}';
+        WHEN 9 THEN
+            SET v_analytic_lines = 'AKIHIRO TRUCK TRADING';
+            SET v_analytic_distribution = '{"17": 100.0}';
+        WHEN 10 THEN
+            SET v_analytic_lines = 'Avida';
+            SET v_analytic_distribution = '{"20": 100.0}';
+        WHEN 11 THEN
+            SET v_analytic_lines = 'Caalibangbangan';
+            SET v_analytic_distribution = '{"19": 100.0}';
+        WHEN 12 THEN
+            SET v_analytic_lines = 'Sta Rosa';
+            SET v_analytic_distribution = '{"18": 100.0}';
+        WHEN 13 THEN
+            SET v_analytic_lines = 'KPC VENTURE INC';
+            SET v_analytic_distribution = '{"16": 100.0}';
+        WHEN 14 THEN
+            SET v_analytic_lines = 'NE HAULING';
+            SET v_analytic_distribution = '{"7": 100.0}';
+            WHEN 15 THEN
+                SET v_analytic_lines = 'OMODAJAECOO';
+                SET v_analytic_distribution = '{"21": 100.0}';
+        ELSE
+            SET v_analytic_lines = 'DEFAULT';
+            SET v_analytic_distribution = '{"0": 0.0}';
+    END CASE;
+    
+    SET v_debit = '	10301000 Accounts Receivable';
+    SET v_credit = '40101010 Cash Service Income';
+
+    SET v_debit_amount = p_cost;
+    SET v_credit_amount = p_cost;
+
+    -- Insert debit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_backjob_monitoring_id, 
+        NOW(), 
+        p_job_order_id, 
+        p_entry_type, 
+        v_debit, 
+        v_debit_amount, 
+        0, 
+        '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+
+    -- Insert credit entry
+    INSERT INTO journal_entry (
+        loan_number, 
+        journal_entry_date, 
+        reference_code, 
+        journal_id, 
+        journal_item, 
+        debit, 
+        credit, 
+        journal_label, 
+        analytic_lines, 
+        analytic_distribution, 
+        created_date, 
+        last_log_by
+    ) VALUES (
+        p_backjob_monitoring_id, 
+        NOW(), 
+        p_job_order_id, 
+        p_entry_type, 
+        v_credit, 
+        0, 
+        v_credit_amount, 
+         '', 
+        v_analytic_lines, 
+        v_analytic_distribution, 
+        NOW(), 
+        p_last_log_by
+    );
+END//
+
 
 DELIMITER //
 
@@ -21085,10 +21269,11 @@ BEGIN
     DECLARE done INT DEFAULT 0;
     DECLARE v_part_transaction_id INT;
     DECLARE v_return_quantity INT;
+    DECLARE v_part_id INT;
 
     -- Cursor to loop through each part_return_cart row for the given part_return_id
     DECLARE cur CURSOR FOR
-        SELECT part_transaction_id, return_quantity
+        SELECT part_transaction_id, part_id, return_quantity
         FROM part_return_cart
         WHERE part_return_id = p_part_return_id;
 
@@ -21097,7 +21282,7 @@ BEGIN
     OPEN cur;
 
     read_loop: LOOP
-        FETCH cur INTO v_part_transaction_id, v_return_quantity;
+        FETCH cur INTO v_part_transaction_id, v_part_id, v_return_quantity;
         IF done THEN
             LEAVE read_loop;
         END IF;
@@ -21106,7 +21291,7 @@ BEGIN
         UPDATE part_transaction_cart
         SET return_quantity = GREATEST(return_quantity - v_return_quantity, 0),
             last_log_by = p_last_log_by
-        WHERE part_transaction_id = v_part_transaction_id;
+        WHERE part_transaction_id = v_part_transaction_id AND part_id = v_part_id;
     END LOOP;
 
     CLOSE cur;

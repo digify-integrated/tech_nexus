@@ -23,6 +23,73 @@ class LeadModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function checkSPAFExist($spaf_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT COUNT(*) AS total 
+            FROM spaf 
+            WHERE spaf_id = :spaf_id
+        ');
+
+        $stmt->bindValue(':spaf_id', $spaf_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function checkQuotationExist($quotation_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT COUNT(*) AS total 
+            FROM quotations 
+            WHERE quotation_id = :quotation_id
+        ');
+
+        $stmt->bindValue(':quotation_id', $quotation_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function checkCIFSupplierExist($cif_id, $supplier_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT COUNT(*) AS total 
+            FROM cif_supplier 
+            WHERE cif_id = :cif_id AND supplier_id = :supplier_id
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->bindValue(':supplier_id', $supplier_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function checkCIFExist($cif_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT COUNT(*) AS total 
+            FROM cif
+            WHERE cif_id = :cif_id
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function checkLeadProductInquiryExist($leadID, $product_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT COUNT(*) AS total 
+            FROM leads_product_inquiry 
+            WHERE lead_id = :lead_id AND product_id = :product_id
+        ');
+
+        $stmt->bindValue(':lead_id', $leadID, PDO::PARAM_INT);
+        $stmt->bindValue(':product_id', $product_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function checkDuplicateLead($firstName, $lastName, $leadID = null) {
         $sql = 'SELECT l.lead_id, u.file_as AS assigned_user_name 
                 FROM leads l
@@ -58,7 +125,6 @@ class LeadModel {
         $middleName,
         $lastName,
         $corporateName,
-        $stockNumber,
         $address,
         $cityID,
         $email,
@@ -81,7 +147,6 @@ class LeadModel {
                 middle_name,
                 last_name,
                 corporate_name,
-                stock_number,
                 address,
                 city_id,
                 email,
@@ -103,7 +168,6 @@ class LeadModel {
                 :middle_name,
                 :last_name,
                 :corporate_name,
-                :stock_number,
                 :address,
                 :city_id,
                 :email,
@@ -126,7 +190,6 @@ class LeadModel {
         $stmt->bindValue(':middle_name', $middleName, PDO::PARAM_STR);
         $stmt->bindValue(':last_name', $lastName, PDO::PARAM_STR);
         $stmt->bindValue(':corporate_name', $corporateName, PDO::PARAM_STR);
-        $stmt->bindValue(':stock_number', $stockNumber, PDO::PARAM_STR);
         $stmt->bindValue(':address', $address, PDO::PARAM_STR);
         $stmt->bindValue(':city_id', $cityID, PDO::PARAM_INT);
         $stmt->bindValue(':email', $email, PDO::PARAM_STR);
@@ -148,6 +211,279 @@ class LeadModel {
 
         return $this->db->getConnection()->lastInsertId();
     }
+
+    public function insertQuotation(
+        $lead_id,
+        $leads_product_inquiry_id,
+        $company_id,
+        $price,
+        $quantity,
+        $discount,
+        $inclusions,
+        $delivery_address,
+        $delivery_instructions,
+        $delivery_conditions,
+        $remarks,
+        $expiration_date,
+        $pre_approve,
+        $lastLogBy
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            INSERT INTO quotations (
+                lead_id,
+                leads_product_inquiry_id,
+                company_id,
+                price,
+                quantity,
+                discount,
+                inclusions,
+                delivery_address,
+                delivery_instructions,
+                delivery_conditions,
+                remarks,
+                expiration_date,
+                pre_approve,
+                last_log_by
+            )
+            VALUES (
+                :lead_id,
+                :leads_product_inquiry_id,
+                :company_id,
+                :price,
+                :quantity,
+                :discount,
+                :inclusions,
+                :delivery_address,
+                :delivery_instructions,
+                :delivery_conditions,
+                :remarks,
+                :expiration_date,
+                :pre_approve,
+                :last_log_by
+            )
+        ');
+
+        $stmt->bindValue(':lead_id', $lead_id, PDO::PARAM_INT);
+        $stmt->bindValue(':leads_product_inquiry_id', $leads_product_inquiry_id, PDO::PARAM_INT);
+        $stmt->bindValue(':company_id', $company_id, PDO::PARAM_STR);
+        $stmt->bindValue(':price', $price, PDO::PARAM_STR);
+        $stmt->bindValue(':quantity', $quantity, PDO::PARAM_STR);
+        $stmt->bindValue(':discount', $discount, PDO::PARAM_STR);
+        $stmt->bindValue(':inclusions', $inclusions, PDO::PARAM_STR);
+        $stmt->bindValue(':delivery_address', $delivery_address, PDO::PARAM_STR);
+        $stmt->bindValue(':delivery_instructions', $delivery_instructions, PDO::PARAM_STR);
+        $stmt->bindValue(':delivery_conditions', $delivery_conditions, PDO::PARAM_STR);
+        $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':expiration_date', $expiration_date, PDO::PARAM_STR);
+        $stmt->bindValue(':pre_approve', $pre_approve, PDO::PARAM_STR);
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        return $this->db->getConnection()->lastInsertId();
+    }
+
+    public function insertCIF(
+        $lead_id,
+        $leads_product_inquiry_id,
+        $cif_reference_no,
+        $company_id,
+        $add_ons,
+        $remarks,
+        $lastLogBy
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            INSERT INTO cif (
+                lead_id,
+                leads_product_inquiry_id,
+                cif_reference_no,
+                company_id,
+                add_ons,
+                remarks,
+                last_log_by
+            )
+            VALUES (
+                :lead_id,
+                :leads_product_inquiry_id,
+                :cif_reference_no,
+                :company_id,
+                :add_ons,
+                :remarks,
+                :last_log_by
+            )
+        ');
+
+        $stmt->bindValue(':lead_id', $lead_id, PDO::PARAM_INT);
+        $stmt->bindValue(':leads_product_inquiry_id', $leads_product_inquiry_id, PDO::PARAM_INT);
+        $stmt->bindValue(':cif_reference_no', $cif_reference_no, PDO::PARAM_STR);
+        $stmt->bindValue(':company_id', $company_id, PDO::PARAM_STR);
+        $stmt->bindValue(':add_ons', $add_ons, PDO::PARAM_STR);
+        $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        return $this->db->getConnection()->lastInsertId();
+    }
+
+    public function insertLeadProductInquiry(
+        $lead_id,
+        $product_id,
+        $product_subcategory_id,
+        $unit_description,
+        $engine_no,
+        $chassis_no,
+        $color,
+        $year_model,
+        $transmission_type,
+        $length,
+        $length_unit,
+        $lastLogBy
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            INSERT INTO leads_product_inquiry (
+                lead_id,
+                product_id,
+                product_subcategory_id,
+                unit_description,
+                engine_no,
+                chassis_no,
+                color,
+                year_model,
+                transmission_type,
+                length,
+                length_unit,
+                last_log_by
+            )
+            VALUES (
+                :lead_id,
+                :product_id,
+                :product_subcategory_id,
+                :unit_description,
+                :engine_no,
+                :chassis_no,
+                :color,
+                :year_model,
+                :transmission_type,
+                :length,
+                :length_unit,
+                :last_log_by
+            )
+        ');
+
+        $stmt->bindValue(':lead_id', $lead_id, PDO::PARAM_INT);
+        $stmt->bindValue(':product_id', $product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':product_subcategory_id', $product_subcategory_id, PDO::PARAM_INT);
+        $stmt->bindValue(':unit_description', $unit_description, PDO::PARAM_STR);
+        $stmt->bindValue(':engine_no', $engine_no, PDO::PARAM_STR);
+        $stmt->bindValue(':chassis_no', $chassis_no, PDO::PARAM_STR);
+        $stmt->bindValue(':color', $color, PDO::PARAM_STR);
+        $stmt->bindValue(':year_model', $year_model, PDO::PARAM_STR);
+        $stmt->bindValue(':transmission_type', $transmission_type, PDO::PARAM_STR);
+        $stmt->bindValue(':length', $length, PDO::PARAM_STR);
+        $stmt->bindValue(':length_unit', $length_unit, PDO::PARAM_STR);
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function insertSPAF(
+        $cif_id,
+        $lead_id,
+        $leads_product_inquiry_id,
+        $supplier_id,
+        $unit_price,
+        $dealer_discount,
+        $net_price,
+        $remarks,
+        $lastLogBy
+    ) {
+        // Automatically generate a reference number since spaf_reference_no is NOT NULL
+        $spaf_reference_no = 'SPAF-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
+
+        $stmt = $this->db->getConnection()->prepare('
+            INSERT INTO spaf (
+                cif_id,
+                lead_id,
+                leads_product_inquiry_id,
+                supplier_id,
+                spaf_reference_no,
+                unit_price,
+                dealer_discount,
+                net_price,
+                remarks,
+                last_log_by
+            )
+            VALUES (
+                :cif_id,
+                :lead_id,
+                :leads_product_inquiry_id,
+                :supplier_id,
+                :spaf_reference_no,
+                :unit_price,
+                :dealer_discount,
+                :net_price,
+                :remarks,
+                :last_log_by
+            )
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->bindValue(':lead_id', $lead_id, PDO::PARAM_INT);
+        $stmt->bindValue(':leads_product_inquiry_id', $leads_product_inquiry_id, PDO::PARAM_INT);
+        $stmt->bindValue(':supplier_id', $supplier_id, PDO::PARAM_INT);
+        $stmt->bindValue(':spaf_reference_no', $spaf_reference_no, PDO::PARAM_STR);
+        $stmt->bindValue(':unit_price', $unit_price, PDO::PARAM_STR);
+        $stmt->bindValue(':dealer_discount', $dealer_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':net_price', $net_price, PDO::PARAM_STR);
+        $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+        
+        $stmt->execute();
+        return $this->db->getConnection()->lastInsertId();
+    }
+
+    public function updateSPAF(
+        $spaf_id,
+        $cif_id,
+        $lead_id,
+        $leads_product_inquiry_id,
+        $supplier_id,
+        $unit_price,
+        $dealer_discount,
+        $net_price,
+        $remarks,
+        $lastLogBy
+    ) {
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE spaf SET
+                cif_id = :cif_id,
+                lead_id = :lead_id,
+                leads_product_inquiry_id = :leads_product_inquiry_id,
+                supplier_id = :supplier_id,
+                unit_price = :unit_price,
+                dealer_discount = :dealer_discount,
+                net_price = :net_price,
+                remarks = :remarks,
+                last_log_by = :last_log_by
+            WHERE spaf_id = :spaf_id
+        ');
+
+        $stmt->bindValue(':spaf_id', $spaf_id, PDO::PARAM_INT);
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->bindValue(':lead_id', $lead_id, PDO::PARAM_INT);
+        $stmt->bindValue(':leads_product_inquiry_id', $leads_product_inquiry_id, PDO::PARAM_INT);
+        $stmt->bindValue(':supplier_id', $supplier_id, PDO::PARAM_INT);
+        $stmt->bindValue(':unit_price', $unit_price, PDO::PARAM_STR);
+        $stmt->bindValue(':dealer_discount', $dealer_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':net_price', $net_price, PDO::PARAM_STR);
+        $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+        
+        $stmt->execute();
+    }
     
     /* -----------------------------------------------
     | UPDATE LEAD
@@ -159,7 +495,6 @@ class LeadModel {
         $middleName,
         $lastName,
         $corporateName,
-        $stockNumber,
         $address,
         $cityID,
         $email,
@@ -183,7 +518,6 @@ class LeadModel {
                 middle_name = :middle_name,
                 last_name = :last_name,
                 corporate_name = :corporate_name,
-                stock_number = :stock_number,
                 address = :address,
                 city_id = :city_id,
                 email = :email,
@@ -206,7 +540,6 @@ class LeadModel {
         $stmt->bindValue(':middle_name', $middleName, PDO::PARAM_STR);
         $stmt->bindValue(':last_name', $lastName, PDO::PARAM_STR);
         $stmt->bindValue(':corporate_name', $corporateName, PDO::PARAM_STR);
-        $stmt->bindValue(':stock_number', $stockNumber, PDO::PARAM_STR);
         $stmt->bindValue(':address', $address, PDO::PARAM_STR);
         $stmt->bindValue(':city_id', $cityID, PDO::PARAM_INT);
         $stmt->bindValue(':email', $email, PDO::PARAM_STR);
@@ -240,6 +573,145 @@ class LeadModel {
 
         $stmt->bindValue(':lead_id', $leadID, PDO::PARAM_INT);
         $stmt->bindValue(':lead_status_id', $leadStatusID, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function updateQuotationImage(
+        $quotation_id,
+        $quotation_image,
+        $lastLogBy
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE quotations 
+            SET quotation_image = :quotation_image, 
+            last_log_by = :last_log_by 
+            WHERE quotation_id = :quotation_id;
+        ');
+
+        $stmt->bindValue(':quotation_id', $quotation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':quotation_image', $quotation_image, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function updateApprovalConfirmation(
+        $quotation_id,
+        $approval_confirmation,
+        $lastLogBy
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE quotations 
+            SET approval_confirmation = :approval_confirmation, 
+            last_log_by = :last_log_by 
+            WHERE quotation_id = :quotation_id;
+        ');
+
+        $stmt->bindValue(':quotation_id', $quotation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':approval_confirmation', $approval_confirmation, PDO::PARAM_STR);
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function updateCIFImage(
+        $cif_id,
+        $cif_image,
+        $lastLogBy
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE cif 
+            SET cif_image = :cif_image, 
+            last_log_by = :last_log_by 
+            WHERE cif_id = :cif_id;
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->bindValue(':cif_image', $cif_image, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function updateCIF(
+        $cif_id, 
+        $company_id, 
+        $add_ons, 
+        $remarks, 
+        $lastLogBy
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE cif
+            SET
+                company_id = :company_id,
+                add_ons = :add_ons,
+                remarks = :remarks, 
+            last_log_by = :last_log_by 
+            WHERE cif_id = :cif_id
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->bindValue(':company_id', $company_id, PDO::PARAM_STR);
+        $stmt->bindValue(':add_ons', $add_ons, PDO::PARAM_STR);
+        $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+
+    public function updateQuotation(
+        $quotation_id, 
+        $company_id, 
+        $price, 
+        $quantity, 
+        $discount, 
+        $inclusions, 
+        $delivery_address, 
+        $delivery_instructions, 
+        $delivery_conditions, 
+        $remarks, 
+        $expiration_date,
+        $pre_approve,
+        $lastLogBy
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE quotations
+            SET
+                company_id = :company_id,
+                inclusions = :inclusions,
+                price = :price,
+                quantity = :quantity,
+                discount = :discount,
+                delivery_address = :delivery_address,
+                delivery_instructions = :delivery_instructions,
+                delivery_conditions = :delivery_conditions,
+                remarks = :remarks,
+                expiration_date = :expiration_date,
+                pre_approve = :pre_approve,
+                last_log_by = :last_log_by
+            WHERE quotation_id = :quotation_id
+        ');
+
+        $stmt->bindValue(':quotation_id', $quotation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':company_id', $company_id, PDO::PARAM_STR);
+        $stmt->bindValue(':price', $price, PDO::PARAM_STR);
+        $stmt->bindValue(':quantity', $quantity, PDO::PARAM_STR);
+        $stmt->bindValue(':discount', $discount, PDO::PARAM_STR);
+        $stmt->bindValue(':inclusions', $inclusions, PDO::PARAM_STR);
+        $stmt->bindValue(':delivery_address', $delivery_address, PDO::PARAM_STR);
+        $stmt->bindValue(':delivery_instructions', $delivery_instructions, PDO::PARAM_STR);
+        $stmt->bindValue(':delivery_conditions', $delivery_conditions, PDO::PARAM_STR);
+        $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':expiration_date', $expiration_date, PDO::PARAM_STR);
+        $stmt->bindValue(':pre_approve', $pre_approve, PDO::PARAM_STR);
         $stmt->bindValue(':last_log_by', $lastLogBy, PDO::PARAM_INT);
 
         $stmt->execute();
@@ -292,6 +764,325 @@ class LeadModel {
         $stmt->execute();
     }
 
+    public function forApprovalQuotation(
+        $quotation_id,
+        $last_log_by
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE quotations
+            SET
+                status = "For Approval",
+                for_approval_date = NOW(),
+                last_log_by = :last_log_by
+            WHERE quotation_id = :quotation_id
+        ');
+
+        $stmt->bindValue(':quotation_id', $quotation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function forCheckingQuotation(
+        $quotation_id,
+        $last_log_by
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE quotations
+            SET
+                status = "For Checking",
+                for_checking_date = NOW(),
+                last_log_by = :last_log_by
+            WHERE quotation_id = :quotation_id
+        ');
+
+        $stmt->bindValue(':quotation_id', $quotation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function draftQuotation(
+        $quotation_id,
+        $last_log_by
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE quotations
+            SET
+                status = "Draft",
+                last_log_by = :last_log_by
+            WHERE quotation_id = :quotation_id
+        ');
+
+        $stmt->bindValue(':quotation_id', $quotation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function approveQuotation(
+        $quotation_id,
+        $last_log_by
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE quotations
+            SET
+                status = "Approved",
+                approval_date = NOW(),
+                last_log_by = :last_log_by
+            WHERE quotation_id = :quotation_id
+        ');
+
+        $stmt->bindValue(':quotation_id', $quotation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function completeCIF(
+        $cif_id,
+        $last_log_by
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE cif
+            SET
+                status = "Completed",
+                completed_date = NOW(),
+                last_log_by = :last_log_by
+            WHERE cif_id = :cif_id
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function onProcessCIF(
+        $cif_id,
+        $last_log_by
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE cif
+            SET
+                status = "On-Process",
+                on_process_date = NOW(),
+                last_log_by = :last_log_by
+            WHERE cif_id = :cif_id
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function deleteCIFSuppliers(
+        $cif_id
+    ) {
+        $stmt = $this->db->getConnection()->prepare('
+            DELETE FROM cif_supplier 
+            WHERE cif_id = :cif_id
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function insertCIFSupplier(
+        $cif_id,
+        $supplier_id,
+        $last_log_by
+    ) {
+        $stmt = $this->db->getConnection()->prepare('
+            INSERT INTO cif_supplier (
+                cif_id,
+                supplier_id,
+                last_log_by
+            ) VALUES (
+                :cif_id,
+                :supplier_id,
+                :last_log_by
+            )
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->bindValue(':supplier_id', $supplier_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function getCifSuppliersWithDetails($cif_id) {
+        // 1. Get suppliers
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT cs.cif_supplier_id, cs.supplier_id, cs.supplier_quotation, cs.remarks, cs.quoted_amount, s.supplier_name
+            FROM cif_supplier cs
+            JOIN supplier s ON cs.supplier_id = s.supplier_id
+            WHERE cs.cif_id = :cif_id
+        ');
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $suppliers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 2. For each supplier, fetch their related SPAFs for this CIF
+        foreach ($suppliers as &$sup) {
+            $spafStmt = $this->db->getConnection()->prepare('
+                SELECT spaf_id, spaf_reference_no, unit_price, net_price, created_at 
+                FROM spaf 
+                WHERE cif_id = :cif_id AND supplier_id = :supplier_id
+            ');
+            $spafStmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+            $spafStmt->bindValue(':supplier_id', $sup['supplier_id'], PDO::PARAM_INT);
+            $spafStmt->execute();
+            $sup['spafs'] = $spafStmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return $suppliers;
+    }
+
+public function getCifSupplierById($cif_supplier_id) {
+    $stmt = $this->db->getConnection()->prepare('
+        SELECT * FROM cif_supplier WHERE cif_supplier_id = :cif_supplier_id
+    ');
+    $stmt->bindValue(':cif_supplier_id', $cif_supplier_id, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+public function updateCifSupplierQuotation($cif_supplier_id, $supplier_quotation, $quoted_amount, $remarks, $last_log_by) {
+    $stmt = $this->db->getConnection()->prepare('
+        UPDATE cif_supplier 
+        SET supplier_quotation = :supplier_quotation, 
+            quoted_amount = :quoted_amount, 
+            remarks = :remarks, 
+            last_log_by = :last_log_by 
+        WHERE cif_supplier_id = :cif_supplier_id
+    ');
+    $stmt->bindValue(':supplier_quotation', $supplier_quotation, PDO::PARAM_STR);
+    $stmt->bindValue(':quoted_amount', $quoted_amount, PDO::PARAM_STR);
+    $stmt->bindValue(':remarks', $remarks, PDO::PARAM_STR);
+    $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+    $stmt->bindValue(':cif_supplier_id', $cif_supplier_id, PDO::PARAM_INT);
+    $stmt->execute();
+}
+
+    public function approveCIF(
+        $spaf_id,
+        $last_log_by
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE spaf
+            SET
+                status = "Approved",
+                approval_date = NOW(),
+                last_log_by = :last_log_by
+            WHERE spaf_id = :spaf_id
+        ');
+
+        $stmt->bindValue(':spaf_id', $spaf_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function forApprovalCIF(
+        $spaf_id,
+        $last_log_by
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE spaf
+            SET
+                status = "For Approval",
+                for_approval_date = NOW(),
+                last_log_by = :last_log_by
+            WHERE spaf_id = :spaf_id
+        ');
+
+        $stmt->bindValue(':spaf_id', $spaf_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function cancelQuotation(
+        $quotation_id,
+        $last_log_by
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE quotations
+            SET
+                status = "Cancelled",
+                cancellation_date = NOW(),
+                last_log_by = :last_log_by
+            WHERE quotation_id = :quotation_id
+        ');
+
+        $stmt->bindValue(':quotation_id', $quotation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function cancelCIF(
+        $cif_id,
+        $last_log_by
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE cif
+            SET
+                status = "Cancelled",
+                cancellation_date = NOW(),
+                last_log_by = :last_log_by
+            WHERE cif_id = :cif_id
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function cancelSPAF(
+        $spaf_id,
+        $last_log_by
+    ) {
+
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE spaf
+            SET
+                status = "Cancelled",
+                cancellation_date = NOW(),
+                last_log_by = :last_log_by
+            WHERE spaf_id = :spaf_id
+        ');
+
+        $stmt->bindValue(':spaf_id', $spaf_id, PDO::PARAM_INT);
+        $stmt->bindValue(':last_log_by', $last_log_by, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    public function deleteProductInquiry($leads_product_inquiry_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            DELETE FROM leads_product_inquiry 
+            WHERE leads_product_inquiry_id = :leads_product_inquiry_id
+        ');
+
+        $stmt->bindValue(':leads_product_inquiry_id', $leads_product_inquiry_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function generateLeadNotes($leadID) {
 
         $stmt = $this->db->getConnection()->prepare('
@@ -327,6 +1118,33 @@ class LeadModel {
         $stmt->bindValue(':lead_id', $leadID, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function deleteQuotation($quotation_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            DELETE FROM quotations 
+            WHERE quotation_id = :quotation_id
+        ');
+
+        $stmt->bindValue(':quotation_id', $quotation_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function deleteCIF($cif_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            DELETE FROM cif 
+            WHERE cif_id = :cif_id
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    public function deleteSpaf($spaf_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            DELETE FROM spaf 
+            WHERE spaf_id = :spaf_id
+        ');
+
+        $stmt->bindValue(':spaf_id', $spaf_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
 
     /* -----------------------------------------------
     | GET LEAD DETAILS
@@ -345,6 +1163,104 @@ class LeadModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getLeadInquiryDetails($leads_product_inquiry_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT 
+                *
+            FROM leads_product_inquiry
+            WHERE leads_product_inquiry_id = :leads_product_inquiry_id
+        ');
+
+        $stmt->bindValue(':leads_product_inquiry_id', $leads_product_inquiry_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getQuotation($quotation_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT 
+                *
+            FROM quotations
+            WHERE quotation_id = :quotation_id
+        ');
+
+        $stmt->bindValue(':quotation_id', $quotation_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getCIF($cif_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT 
+                *
+            FROM cif
+            WHERE cif_id = :cif_id
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getCifSuppliers($cif_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT supplier_id 
+            FROM cif_supplier 
+            WHERE cif_id = :cif_id
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Fetch just a flat array of supplier IDs (e.g., [1, 4, 12])
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public function getCifSupplierDetails($cif_id, $supplier_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT * 
+            FROM cif_supplier 
+            WHERE cif_id = :cif_id AND supplier_id = :supplier_id
+        ');
+
+        $stmt->bindValue(':cif_id', $cif_id, PDO::PARAM_INT);
+        $stmt->bindValue(':supplier_id', $supplier_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Fetch just a flat array of supplier IDs (e.g., [1, 4, 12])
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getSpaf($spaf_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT 
+                *
+            FROM spaf
+            WHERE spaf_id = :spaf_id
+        ');
+
+        $stmt->bindValue(':spaf_id', $spaf_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getProductInquiry($leads_product_inquiry_id) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT 
+                *
+            FROM leads_product_inquiry
+            WHERE leads_product_inquiry_id = :leads_product_inquiry_id
+        ');
+
+        $stmt->bindValue(':leads_product_inquiry_id', $leads_product_inquiry_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     
     public function getLastNote($leadID) {
         $stmt = $this->db->getConnection()->prepare('
@@ -370,7 +1286,8 @@ class LeadModel {
         $filter_lead_status,
         $filter_inquiry_type,
         $filter_lead_source,
-        $filter_lead_priority
+        $filter_lead_priority,
+        $filter_assigned_to
     ) {
 
         $query = '
@@ -417,6 +1334,11 @@ class LeadModel {
         if (!empty($filter_inquiry_type)) {
 
             $query .= " AND inquiry_type_id IN ($filter_inquiry_type)";
+        }
+
+        if (!empty($filter_assigned_to)) {
+
+            $query .= " AND assigned_to IN ($filter_assigned_to)";
         }
 
         /* =========================
@@ -605,6 +1527,31 @@ class LeadModel {
         return $htmlOptions;
     }
 
+    public function generateCIFOptions() {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT c.cif_id, c.cif_reference_no, l.file_as 
+            FROM cif c
+            JOIN leads l ON l.lead_id = c.lead_id 
+            WHERE c.status = "Submitted"
+            ORDER BY l.file_as ASC
+        ');
+
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+
+        foreach ($options as $row) {
+            $htmlOptions .= '
+                <option value="' . htmlspecialchars($row['cif_id'], ENT_QUOTES) . '">
+                    ' . htmlspecialchars($row['cif_reference_no'], ENT_QUOTES) . ' - ' . htmlspecialchars($row['file_as'], ENT_QUOTES) . '
+                </option>
+            ';
+        }
+
+        return $htmlOptions;
+    }
+
     /* -----------------------------------------------
     | GENERATE CHECKBOX FILTER
     |----------------------------------------------- */
@@ -632,6 +1579,91 @@ class LeadModel {
                         value="' . $leadID . '" />
                     <label class="form-check-label" for="lead-' . $leadID . '">
                         ' . $leadName . '
+                    </label>
+                </div>
+            ';
+        }
+
+        return $htmlOptions;
+    }
+
+    public function generateSPAFTable(
+        $filter_status
+    ) {
+
+        $query = '
+            SELECT *
+            FROM spaf
+            WHERE 1=1
+        ';
+
+        $params = [];
+
+        if (!empty($filter_status)) {
+
+            $query .= " AND status IN ($filter_status)";
+        }
+
+        $query .= ' ORDER BY spaf_id DESC';
+
+        $stmt = $this->db->getConnection()->prepare($query);
+
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function generateCIFTable(
+        $filter_status
+    ) {
+
+        $query = '
+            SELECT *
+            FROM cif
+            WHERE 1=1
+        ';
+
+        $params = [];
+
+        if (!empty($filter_status)) {
+
+            $query .= " AND status IN ($filter_status)";
+        }
+
+        $query .= ' ORDER BY cif_id DESC';
+
+        $stmt = $this->db->getConnection()->prepare($query);
+
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function generateCreatedByCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT DISTINCT(assigned_to) assigned_to, users.file_as as file_as
+            FROM leads 
+            LEFT JOIN users ON users.user_id = leads.assigned_to
+            ORDER BY users.file_as ASC
+        ');
+
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+
+        foreach ($options as $row) {
+            $assigned_to = htmlspecialchars($row['assigned_to'], ENT_QUOTES);
+            $file_as = htmlspecialchars($row['file_as'], ENT_QUOTES);
+
+            $htmlOptions .= '
+                <div class="form-check my-2">
+                    <input class="form-check-input assigned-to-filter" 
+                        type="checkbox" 
+                        id="assigned-to-' . $assigned_to . '" 
+                        value="' . $assigned_to . '" />
+                    <label class="form-check-label" for="assigned-to-' . $assigned_to . '">
+                        ' . strtoupper($file_as) . '
                     </label>
                 </div>
             ';

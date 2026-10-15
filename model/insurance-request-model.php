@@ -34,6 +34,7 @@ class InsuranceRequestModel {
         $customerType,
         $customerId,
         $salesProposalId,
+        $productId,
         $yearModel,
         $color,
         $make,
@@ -46,6 +47,7 @@ class InsuranceRequestModel {
         $aon_coverage,
         $paid_by,
         $assured,
+        $collection_amount,
         $lastLogBy
     ) {
         // Generate a default request number block or temporary draft code if your system requires it
@@ -61,6 +63,7 @@ class InsuranceRequestModel {
                 customer_type,
                 customer_id,
                 sales_proposal_id,
+                product_id,
                 year_model,
                 color,
                 make,
@@ -75,6 +78,7 @@ class InsuranceRequestModel {
                 tppd_coverage,
                 paid_by,
                 assured,
+                collection_amount,
                 last_log_by
             )
             VALUES (
@@ -86,6 +90,7 @@ class InsuranceRequestModel {
                 :customer_type,
                 :customer_id,
                 :sales_proposal_id,
+                :product_id,
                 :year_model,
                 :color,
                 :make,
@@ -100,6 +105,7 @@ class InsuranceRequestModel {
                 "200000",
                 :paid_by,
                 :assured,
+                :collection_amount,
                 :last_log_by
             )
         ');
@@ -115,9 +121,11 @@ class InsuranceRequestModel {
         $stmt->bindValue(':aon_coverage', $aon_coverage, PDO::PARAM_STR);
         $stmt->bindValue(':paid_by', $paid_by, PDO::PARAM_STR);
         $stmt->bindValue(':assured', $assured, PDO::PARAM_STR);
+        $stmt->bindValue(':collection_amount', $collection_amount, PDO::PARAM_STR);
         $stmt->bindValue(':customer_id', !empty($customerId) ? $customerId : null, PDO::PARAM_INT);
         $stmt->bindValue(':sales_proposal_id', !empty($salesProposalId) ? $salesProposalId : null, PDO::PARAM_INT);
-        
+        $stmt->bindValue(':product_id', !empty($productId) ? $productId : null, PDO::PARAM_INT);
+
         // Vehicle parameters binding
         $stmt->bindValue(':year_model', !empty($yearModel) ? $yearModel : null, PDO::PARAM_STR);
         $stmt->bindValue(':color', !empty($color) ? $color : null, PDO::PARAM_STR);
@@ -147,6 +155,18 @@ class InsuranceRequestModel {
         $stmt = $this->db->getConnection()->prepare('
             INSERT INTO insurance_policy (
                 insurance_request_id,
+                customer_type,
+                customer_id,
+                insurance_type_id,
+                insurance_provider,
+                insurance_category,
+                year_model,
+                color,
+                make,
+                plate_number,
+                chassis_number,
+                engine_number,
+                mv_file_number,
                 policy_number,
                 inception_date,
                 expiry_date,
@@ -156,17 +176,30 @@ class InsuranceRequestModel {
                 remarks,
                 last_log_by
             )
-            VALUES (
-                :insurance_request_id,
-                :policy_number,
-                :inception_date,
-                :expiry_date,
-                :gross,
-                :net_premium,
-                :coverage_amount,
-                :remarks,
-                :last_log_by
-            )
+            SELECT 
+                insurance_request_id,                     -- maps to insurance_request_id
+                customer_type,
+                customer_id,
+                insurance_type_id,
+                insurance_provider,
+                insurance_category,
+                year_model,
+                color,
+                make,
+                plate_number,
+                chassis_number,
+                engine_number,
+                mv_file_number,
+                :policy_number,         -- passed parameter
+                :inception_date,        -- passed parameter
+                :expiry_date,           -- passed parameter
+                :gross,                 -- passed parameter
+                :net_premium,           -- passed parameter
+                :coverage_amount,       -- passed parameter
+                :remarks,               -- passed parameter
+                :last_log_by            -- passed parameter
+            FROM insurance_request
+            WHERE insurance_request_id = :insurance_request_id
         ');
 
         $stmt->bindValue(':insurance_request_id', $insurance_request_id);
@@ -194,6 +227,7 @@ class InsuranceRequestModel {
         $customerType,
         $customerId,
         $salesProposalId,
+        $productId,
         $yearModel,
         $color,
         $make,
@@ -204,6 +238,7 @@ class InsuranceRequestModel {
         $insurance_policy_id,
         $paid_by,
         $assured,
+        $collection_amount,
         $lastLogBy
     ) {
         $stmt = $this->db->getConnection()->prepare('
@@ -216,6 +251,7 @@ class InsuranceRequestModel {
                 customer_type = :customer_type,
                 customer_id = :customer_id,
                 sales_proposal_id = :sales_proposal_id,
+                product_id = :product_id,
                 year_model = :year_model,
                 color = :color,
                 make = :make,
@@ -226,6 +262,7 @@ class InsuranceRequestModel {
                 insurance_policy_id = :insurance_policy_id,
                 paid_by = :paid_by,
                 assured = :assured,
+                collection_amount = :collection_amount,
                 last_log_by = :last_log_by
             WHERE insurance_request_id = :insurance_request_id
         ');
@@ -239,9 +276,11 @@ class InsuranceRequestModel {
         $stmt->bindValue(':customer_type', $customerType, PDO::PARAM_STR);
         $stmt->bindValue(':paid_by', $paid_by, PDO::PARAM_STR);
         $stmt->bindValue(':assured', $assured, PDO::PARAM_STR);
+        $stmt->bindValue(':collection_amount', $collection_amount, PDO::PARAM_STR);
         $stmt->bindValue(':customer_id', !empty($customerId) ? $customerId : null, PDO::PARAM_INT);
         $stmt->bindValue(':sales_proposal_id', !empty($salesProposalId) ? $salesProposalId : null, PDO::PARAM_INT);
-        
+        $stmt->bindValue(':product_id', !empty($productId) ? $productId : null, PDO::PARAM_INT);
+
         // Vehicle parameters binding
         $stmt->bindValue(':year_model', !empty($yearModel) ? $yearModel : null, PDO::PARAM_STR);
         $stmt->bindValue(':color', !empty($color) ? $color : null, PDO::PARAM_STR);
@@ -260,52 +299,67 @@ class InsuranceRequestModel {
         $stmt = $this->db->getConnection()->prepare('
             UPDATE insurance_request
             SET
-                insurance_category  = :insurance_category,
-                ctpl_coverage       = :ctpl_coverage,
-                od_theft_coverage   = :od_theft_coverage,
-                aon_coverage        = :aon_coverage,
-                tpbi_coverage       = :tpbi_coverage,
-                tppd_coverage       = :tppd_coverage,
-                par_coverage        = :par_coverage,
+                insurance_category        = :insurance_category,
+                encoding_mode        = :encoding_mode,
                 
-                ctpl_premium        = :ctpl_premium,
-                od_theft_premium    = :od_theft_premium,
-                aon_premium         = :aon_premium,
-                tpbi_premium        = :tpbi_premium,
-                tppd_premium        = :tppd_premium,
-                par_premium         = :par_premium,
+                ctpl_coverage             = :ctpl_coverage,
+                all_risk_coverage             = :all_risk_coverage,
+                od_theft_coverage        = :od_theft_coverage,
+                aon_coverage              = :aon_coverage,
+                tpbi_coverage             = :tpbi_coverage,
+                tppd_coverage             = :tppd_coverage,
+                par_coverage              = :par_coverage,
                 
-                total_premium       = :total_premium,
-                vat_premium_tax     = :vat_premium_tax,
-                docstamp            = :docstamp,
-                local_tax           = :local_tax,
-                gross               = :gross,
-                net_premium         = :net_premium,
+                ctpl_rate                 = :ctpl_rate,
+                all_risk_rate                 = :all_risk_rate,
+                od_theft_rate            = :od_theft_rate,
+                aon_rate                  = :aon_rate,
+                tpbi_rate                 = :tpbi_rate,
+                tppd_rate                 = :tppd_rate,
+                par_rate                  = :par_rate,
                 
-                premium_comission   = :premium_comission,
-                aon_comission       = :aon_comission,
-                tpbi_comission      = :tpbi_comission,
-                tppd_comission      = :tppd_comission,
-                par_comission       = :par_comission,
-                comission_subtotal  = :comission_subtotal,
-                commission_discount = :commission_discount,
-                net_commission      = :net_commission,
-                last_log_by         = :last_log_by
+                ctpl_premium              = :ctpl_premium,
+                all_risk_premium              = :all_risk_premium,
+                od_theft_premium          = :od_theft_premium,
+                aon_premium               = :aon_premium,
+                tpbi_premium              = :tpbi_premium,
+                tppd_premium              = :tppd_premium,
+                par_premium               = :par_premium,
+                
+                total_premium             = :total_premium,
+                vat_premium_tax           = :vat_premium_tax,
+                docstamp                  = :docstamp,
+                local_tax                 = :local_tax,
+                gross                     = :gross,
+                
+                premium_commission_rate    = :premium_commission_rate,
+                aon_commission_rate        = :aon_commission_rate,
+                tpbi_commission_rate       = :tpbi_commission_rate,
+                tppd_commission_rate       = :tppd_commission_rate,
+                par_commission_rate        = :par_commission_rate,
+                
+                premium_commission         = :premium_commission,
+                aon_commission             = :aon_commission,
+                tpbi_commission            = :tpbi_commission,
+                tppd_commission            = :tppd_commission,
+                par_commission             = :par_commission,
+                
+                commission_subtotal        = :commission_subtotal,
+                commission_discount_rate  = :commission_discount_rate,
+                commission_discount       = :commission_discount,
+                net_commission            = :net_commission,
+                net_premium               = :net_premium,
+                last_log_by               = :last_log_by
             WHERE insurance_request_id = :insurance_request_id
         ');
 
-        // Bind the WHERE filter target
         $stmt->bindValue(':insurance_request_id', (int)$insuranceRequestID, PDO::PARAM_INT);
 
-        // Iteratively bind all data attributes parsed out by our controller block
         foreach ($data as $key => $value) {
-            if ($key === 'insurance_category') {
-                $stmt->bindValue(':' . $key, $value, PDO::PARAM_STR);
-            } elseif ($key === 'last_log_by') {
+            if ($key === 'insurance_category' || $key === 'last_log_by') {
                 $stmt->bindValue(':' . $key, $value, PDO::PARAM_INT);
             } else {
-                // All coverage calculations, premiums, taxes, and net scales map as numeric doubles
-                $stmt->bindValue(':' . $key, $value, PDO::PARAM_STR); 
+                $stmt->bindValue(':' . $key, $value, PDO::PARAM_STR);
             }
         }
 
@@ -392,6 +446,23 @@ class InsuranceRequestModel {
         ');
 
         $stmt->bindValue(':insurance_request_id', $insuranceRequestID, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getLastInsuranceRequest($insurancePolicyID) {
+        $stmt = $this->db->getConnection()->prepare('
+            SELECT 
+                target_policy.*
+            FROM insurance_policy AS base_policy
+            JOIN insurance_request AS req 
+                ON req.insurance_policy_id = base_policy.insurance_policy_id
+            JOIN insurance_policy AS target_policy 
+                ON target_policy.insurance_request_id = req.insurance_request_id
+            WHERE base_policy.insurance_policy_id = :your_policy_id;
+        ');
+
+        $stmt->bindValue(':your_policy_id', $insurancePolicyID, PDO::PARAM_INT);
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);

@@ -266,22 +266,22 @@
             if(type === 'Backjob'){
                 $('#sales-row').removeClass('d-none');
                 $('#product-row').addClass('d-none');
-                $('#warranty-row').addClass('d-none');
+                $('.warranty-row').addClass('d-none');
             }
             else if(type === 'Internal Repair'){
                 $('#sales-row').addClass('d-none');
-                $('#warranty-row').addClass('d-none');
+                $('.warranty-row').addClass('d-none');
                 $('#product-row').removeClass('d-none');
             }
-            else if(type === 'Warranty'){
+            else if(type === 'Warranty' || type === 'FOC Repair/Warranty'){
                 $('#sales-row').addClass('d-none');
                 $('#product-row').addClass('d-none');
-                $('#warranty-row').removeClass('d-none');
+                $('.warranty-row').removeClass('d-none');
             }
             else{
                 $('#sales-row').addClass('d-none');
                 $('#product-row').addClass('d-none');
-                $('#warranty-row').addClass('d-none');
+                $('.warranty-row').addClass('d-none');
             }
         });
 
@@ -1070,7 +1070,12 @@ function backJobMonitoringForm(){
             },
             product_id2: {
                 required: function () {
-                    return $('#type').val() == 'Warranty';
+                    return $('#type').val() == 'Warranty' || $('#type').val() == 'FOC Repair/Warranty';
+                }
+            },
+            warranty_source: {
+                required: function () {
+                    return $('#type').val() == 'Warranty' || $('#type').val() == 'FOC Repair/Warranty';
                 }
             },
         },
@@ -1086,6 +1091,9 @@ function backJobMonitoringForm(){
             },
             product_id2: {
                 required: 'Please choose the product'
+            },
+            warranty_source: {
+                required: 'Please choose the warranty source'
             },
         },
         errorPlacement: function (error, element) {
@@ -2468,6 +2476,7 @@ function displayDetails(transaction){
                     if (response.success) {
                         checkOptionExist('#type', response.type, '');
                         checkOptionExist('#sales_proposal_id', response.sales_proposal_id, '');
+                        checkOptionExist('#warranty_source', response.warranty_source, '');
                         checkOptionExist('#product_id', response.product_id, '');
                         checkOptionExist('#product_id2', response.product_id, '');
 
@@ -2547,7 +2556,7 @@ function displayDetails(transaction){
                             $('#job_order_date_started').val(response.dateStarted);
     
                             checkOptionExist('#job_order_contractor_id', response.contractorID, '');
-                            checkOptionExist('#job_order_company_id', response.companyID, '');
+                            checkOptionExist('#job_order_company_id', response.companyId, '');
                             checkOptionExist('#job_order_work_center_id', response.workCenterID, '');
                         } 
                         else {
@@ -2595,7 +2604,7 @@ function displayDetails(transaction){
                             $('#additional_job_order_date_started').val(response.dateStarted);
     
                             checkOptionExist('#additional_job_order_contractor_id', response.contractorID, '');
-                            checkOptionExist('#additional_job_order_company_id', response.companyID, '');
+                            checkOptionExist('#additional_job_order_company_id', response.companyId, '');
                             checkOptionExist('#additional_job_order_work_center_id', response.workCenterID, '');
                         } 
                         else {

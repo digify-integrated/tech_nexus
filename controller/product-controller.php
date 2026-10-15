@@ -591,6 +591,29 @@ class ProductController {
             $this->productModel->updateRRDate($productID, $userID);
         }
 
+        if(!empty($stockNumber)){
+            $currentProductSubcategoryID = $productDetails['product_subcategory_id'] ?? null;
+
+            if($currentProductSubcategoryID != $productSubcategoryID){
+                // 1. Get the current (old) subcategory details
+                $currentProductSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($currentProductSubcategoryID);
+                $currentProductSubcategoryCode = $currentProductSubcategoryDetails['product_subcategory_code'] ?? '';
+
+                // 2. Get the new subcategory details
+                $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubcategoryID);
+                $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? '';
+                
+                // 3. Remove ONLY the current subcategory code if it exists at the start of the stock number
+                $stockNumberLatest = $stockNumber;
+                if (!empty($currentProductSubcategoryCode) && str_starts_with($stockNumber, $currentProductSubcategoryCode)) {
+                    $stockNumberLatest = substr($stockNumber, strlen($currentProductSubcategoryCode));
+                }
+                
+                // 4. Combine the new subcategory code with the remaining stock number
+                $stockNumber = $productSubcategoryCode . $stockNumberLatest;
+            }
+        }
+
         $unitDetails = $this->unitModel->getUnit($lengthUnit);
         $unitShortName = $unitDetails['short_name'] ?? null;
 
@@ -1462,6 +1485,7 @@ class ProductController {
             $bodyTypeID = $productDetails['body_type_id'];
             $productCategoryID = $productDetails['product_category_id'];
             $colorID = $productDetails['color_id'];
+            $makeID = $productDetails['make_id'];
             
             $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
             $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
@@ -1481,6 +1505,8 @@ class ProductController {
 
             
             $productCost = $this->productModel->getTotalProductCost($productID)['expense_amount'] ?? 0;
+            
+            $makeName = $this->makeModel->getMake($makeID)['make_name'] ?? '';
 
         
             $response = [
@@ -1500,8 +1526,8 @@ class ProductController {
                 'warehouseID' => $productDetails['warehouse_id'],
                 'bodyTypeID' => $bodyTypeID,
                 'bodyTypeName' => $bodyTypeName,
-                'length' => $productDetails['length'],
-                'lengthUnit' => $productDetails['length_unit'],
+                'length' => $productDetails['length'] ?? 0,
+                'lengthUnit' => $productDetails['length_unit'] ?? 8,
                 'runningHours' => $productDetails['running_hours'],
                 'mileage' => $productDetails['mileage'],
                 'colorID' => $colorID,
@@ -1521,7 +1547,8 @@ class ProductController {
                 'brand_id' => $productDetails['brand_id'],
                 'cabin_id' => $productDetails['cabin_id'],
                 'model_id' => $productDetails['model_id'],
-                'make_id' => $productDetails['make_id'],
+                'make_id' => $makeID,
+                'make_name' => $makeName,
                 'class_id' => $productDetails['class_id'],
                 'mode_of_acquisition_id' => $productDetails['mode_of_acquisition_id'],
                 'broker' => $productDetails['broker'],

@@ -41,7 +41,7 @@
                   echo '<button class="btn btn-dark ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#draft-return-offcanvas" aria-controls="draft-return-offcanvas" id="draft">Set To Draft</button>';
                 }
 
-                if(($part_return_status == 'Validated' || $part_return_status == 'Released' || $part_return_status == 'Cancelled') && ($company == '2' || $company == '1')){
+                if(($part_return_status == 'Validated' || $part_return_status == 'Released' || $part_return_status == 'Cancelled') && ($company == '2' || $company == '1' || $company == '3' || $company == '15')){
                   echo '<a href="parts-return-slip.php?id='. $partsReturnID .'" class="button btn btn-info ms-2 me-2" target="_blank">Print Return Slip</a>';
                 }
 

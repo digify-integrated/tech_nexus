@@ -90,7 +90,7 @@
   <div class="col-md-3">
     <div class="card">
       <div class="card-body">
-        <ul class="nav flex-column nav-pills nav-pills-locked" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+       <ul class="nav flex-column nav-pills nav-pills-locked" id="v-pills-tab" role="tablist" aria-orientation="vertical">
           <li>
             <a class="nav-link active"
               id="sales-proposal-tab-1"
@@ -145,7 +145,7 @@
 
           <li>
             <a class="nav-link d-none"
-              id="sales-proposal-tab-18"
+              id="sales-proposal-tab-5"
               data-bs-toggle="pill"
               href="#v-pms-details"
               role="tab"
@@ -158,7 +158,7 @@
 
           <li>
             <a class="nav-link d-none"
-              id="sales-proposal-tab-19"
+              id="sales-proposal-tab-6"
               data-bs-toggle="pill"
               href="#v-parts-requested"
               role="tab"
@@ -171,7 +171,7 @@
 
           <li>
             <a class="nav-link"
-              id="sales-proposal-tab-5"
+              id="sales-proposal-tab-7"
               data-bs-toggle="pill"
               href="#v-job-order"
               role="tab"
@@ -184,7 +184,7 @@
 
           <li>
             <a class="nav-link"
-              id="sales-proposal-tab-6"
+              id="sales-proposal-tab-8"
               data-bs-toggle="pill"
               href="#v-pricing-computation"
               role="tab"
@@ -197,7 +197,7 @@
 
           <li>
             <a class="nav-link"
-              id="sales-proposal-tab-7"
+              id="sales-proposal-tab-9"
               data-bs-toggle="pill"
               href="#v-other-charges"
               role="tab"
@@ -210,7 +210,7 @@
 
           <li>
             <a class="nav-link"
-              id="sales-proposal-tab-8"
+              id="sales-proposal-tab-10"
               data-bs-toggle="pill"
               href="#v-renewal-amount"
               role="tab"
@@ -223,7 +223,7 @@
 
           <li>
             <a class="nav-link"
-              id="sales-proposal-tab-9"
+              id="sales-proposal-tab-11"
               data-bs-toggle="pill"
               href="#v-amount-of-deposit"
               role="tab"
@@ -236,7 +236,7 @@
 
           <li>
             <a class="nav-link"
-              id="sales-proposal-tab-10"
+              id="sales-proposal-tab-12"
               data-bs-toggle="pill"
               href="#v-additional-job-order"
               role="tab"
@@ -249,7 +249,7 @@
 
           <li>
             <a class="nav-link"
-              id="sales-proposal-tab-16"
+              id="sales-proposal-tab-13"
               data-bs-toggle="pill"
               href="#v-parts-issued"
               role="tab"
@@ -262,7 +262,7 @@
 
           <li>
             <a class="nav-link"
-              id="sales-proposal-tab-11"
+              id="sales-proposal-tab-14"
               data-bs-toggle="pill"
               href="#v-confirmations"
               role="tab"
@@ -275,7 +275,7 @@
 
           <li>
             <a class="nav-link"
-              id="sales-proposal-tab-12"
+              id="sales-proposal-tab-15"
               data-bs-toggle="pill"
               href="#v-remarks"
               role="tab"
@@ -288,7 +288,7 @@
 
           <li>
             <a class="nav-link"
-              id="sales-proposal-tab-17"
+              id="sales-proposal-tab-16"
               data-bs-toggle="pill"
               href="#v-set-to-draft-files"
               role="tab"
@@ -301,7 +301,7 @@
 
           <li class="">
             <a class="nav-link"
-              id="sales-proposal-tab-14"
+              id="sales-proposal-tab-17"
               data-bs-toggle="pill"
               href="#v-ci-report"
               role="tab"
@@ -314,7 +314,7 @@
 
           <li class="">
             <a class="nav-link"
-              id="sales-proposal-tab-15"
+              id="sales-proposal-tab-18"
               data-bs-toggle="pill"
               href="#v-approval-condition"
               role="tab"
@@ -327,7 +327,7 @@
 
           <li>
             <a class="nav-link"
-              id="sales-proposal-tab-13"
+              id="sales-proposal-tab-19"
               data-bs-toggle="pill"
               href="#v-summary"
               role="tab"
@@ -337,7 +337,6 @@
               Summary
             </a>
           </li>
-
         </ul>
       </div>
     </div>
@@ -434,7 +433,7 @@
 
                 $isProcessStatus = in_array($salesProposalStatus, ['Proceed', 'On-Process']);
 
-                $isUnitType = in_array($productType, ['Unit', 'Repair']);
+                $isUnitType = in_array($productType, ['Unit', 'Repair', 'PMS']);
 
                 $isOtherType = in_array($productType, [
                     'Refinancing',
@@ -597,6 +596,7 @@
                         <!--<option value="2">NE Truck Builders</option>-->
                         <option value="3">FUSO Tarlac</option>
                         <option value="8">NE Fuel</option>
+                    <option value="15">Omoda Jaecoo</option>
                       </select>
                     </div>
                   </div>
@@ -615,7 +615,7 @@
                           <option value="Restructure">Restructure</option>
                           <option value="Real Estate">Real Estate</option>
                         </optgroup>
-                        <optgroup label="Aftersales">
+                        <optgroup label="Aftersales">                          
                           <option value="PMS">PMS</option>
                           <option value="Parts">Parts</option>
                           <option value="Repair">Repair</option>
@@ -1071,44 +1071,128 @@
 
           <div class="tab-pane" id="v-pms-details">
             <form id="sales-proposal-pms-details-form" method="post" action="#">
-              <div class="row">
-            <div class="col-lg-12">
-              <div class="form-group row">
-                <label class="col-lg-2 col-form-label">PMS Catalog : <span class="text-danger">*</span></label>
-                <div class="col-lg-10">
-                  <select class="form-control select2" name="pms_catalog_id" id="pms_catalog_id">
-                    <option value="">--</option>
-                    <?php echo $pmsCatalogModel->generatePMSCatalogOptions(); ?>
-                  </select>
+               <div class="row">
+
+                <!-- 1. SELECTION SECTION -->
+                <div class="col-lg-12">
+                  <h6 class="text-primary font-weight-bold mb-3">1. Selection</h6>
                 </div>
-              </div>
-            </div>
-            <div class="col-lg-12">
-              <div class="form-group row">
-                <label class="col-lg-2 col-form-label">PMS Matrix : <span class="text-danger">*</span></label>
-                <div class="col-lg-10">
-                  <select class="form-control select2" multiple="multiple" name="pms_matrix_id" id="pms_matrix_id"></select>
-                  <span class="text-sm text-danger">Changing this will reset the requested parts. Kindly review the requested parts after each change.</span>
+
+                <div class="col-lg-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">PMS Product :</label>
+                    <div class="col-lg-9">
+                      <select class="form-control select2" name="pms_product_id" id="pms_product_id">
+                        <option value="">--</option>
+                        <?php echo $productModel->generateAllProductOptions(); ?>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Labor Total :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control currency" id="labor_cost" name="labor_cost" readonly>
+
+                <div class="col-lg-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">PMS Catalog : <span class="text-danger">*</span></label>
+                    <div class="col-lg-9">
+                      <select class="form-control select2" name="pms_catalog_id" id="pms_catalog_id">
+                        <option value="">--</option>
+                        <?php echo $pmsCatalogModel->generatePMSCatalogOptions(); ?>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Consumable Total :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control currency" id="consumable_total" name="consumable_total" readonly>
+
+                <div class="col-lg-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">PMS Matrix : <span class="text-danger">*</span></label>
+                    <div class="col-lg-9">
+                      <select class="form-control select2" multiple="multiple" name="pms_matrix_id" id="pms_matrix_id"></select>
+                    </div>
+                  </div>
                 </div>
+
+                <!-- SEPARATOR -->
+                <div class="col-lg-12"><hr class="my-4"></div>
+
+                <!-- 2. PARTS & LABOR SECTION -->
+                <div class="col-lg-12">
+                  <h6 class="text-primary font-weight-bold mb-3">2. Parts & Labor</h6>
+                </div>
+
+                <div class="col-lg-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Total PMS Parts Cost :</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control currency bg-light" id="total_parts_cost" name="total_parts_cost" readonly>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">PMS Labor :</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control currency bg-light" id="labor_cost" name="labor_cost" readonly>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Add-on PMS Labor Hours :</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control currency" id="add_on_labor_rate" name="add_on_labor_rate">
+                      <input type="hidden" id="labor_rate">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label font-weight-bold">PMS Labor Total :</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control currency bg-light font-weight-bold" id="pms_labor_total" name="pms_labor_total" readonly>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- SEPARATOR -->
+                <div class="col-lg-12"><hr class="my-4"></div>
+
+                <!-- 3. CONSUMABLES SECTION -->
+                <div class="col-lg-12">
+                  <h6 class="text-primary font-weight-bold mb-3">3. Consumables</h6>
+                </div>
+
+                <div class="col-lg-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">PMS Consumable :</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control currency bg-light" id="consumable_total" name="consumable_total" readonly>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">Add-on PMS Consumable Unit:</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control currency" id="add_on_consumables_rate" name="add_on_consumables_rate">
+                      <input type="hidden" id="consumable_rate">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-12">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label font-weight-bold">PMS Consumable Total:</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control currency bg-light font-weight-bold" id="pms_consumable_total" name="pms_consumable_total" readonly>
+                    </div>
+                  </div>
+                </div>
+
               </div>
-            </div>
-          </div>
             </form>
           </div>
 
@@ -1973,7 +2057,7 @@
                 <label class="form-label">Parts <span class="text-danger">*</span></label>
                 <select class="form-control offcanvas-select2" name="part_id" id="part_id">
                   <option value="">--</option>
-                  <?php echo $partsModel->generateAllPartsOptions(); ?>
+                  <?php echo $partsModel->generateFusoPartsOptions(); ?>
                 </select>
               </div>
             </div>

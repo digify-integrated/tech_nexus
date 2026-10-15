@@ -502,7 +502,6 @@ class PartsTransactionController {
         $cost = $this->partsTransactionModel->getPartsTransactionCartTotal($parts_transaction_id, 'cost')['total'] ?? 0;
 
         // 3. Update the status right now so parallel requests fail the status check above
-        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Released', '', $userID);
     
         if($customer_type == 'Internal'){
             $productDetails = $this->productModel->getProduct($customer_id);
@@ -529,6 +528,8 @@ class PartsTransactionController {
         if($company_id == '2' || $company_id == '3' || $company_id == '15' || $company_id == '8'){
             $this->partsTransactionModel->createPartsTransactionEntry($parts_transaction_id, $company_id, $p_reference_number, $cost, $overallTotal, $customer_type, $is_service, $product_status, $issuance_for, $sales_proposal_number, $userID);
         }
+        
+        $this->partsTransactionModel->updatePartsTransactionStatus($parts_transaction_id, 'Released', '', $userID);
 
         echo json_encode(['success' => true]);
         exit;

@@ -131,7 +131,6 @@ if(isset($_GET['id'])){
             $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? null);
             $fullStockNumber = $productSubcategoryCode . $stockNumber;
 
-            $stockNumber = $stockNumber;
             $engineNumber = $productDetails['engine_number'] ??  '--';
             $chassisNumber = $productDetails['chassis_number'] ??  '--';
             $plateNumber = $productDetails['plate_number'] ?? '--';
@@ -142,7 +141,14 @@ if(isset($_GET['id'])){
             $chassisNumber = $salesProposalDetails['ref_chassis_no'] ??  '--';
             $plateNumber = $salesProposalDetails['ref_plate_no'] ??  '--';
             $fullStockNumber ='';
-        };
+        }
+        else{
+            $stockNumber = '--';
+            $engineNumber = '--';
+            $chassisNumber = '--';
+            $plateNumber = '--';
+            $fullStockNumber = '';
+        }
 
     }
 

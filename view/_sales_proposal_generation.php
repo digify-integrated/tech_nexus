@@ -10,6 +10,7 @@ require_once '../model/system-model.php';
 require_once '../model/sales-proposal-model.php';
 require_once '../model/customer-model.php';
 require_once '../model/product-model.php';
+require_once '../model/product-subcategory-model.php';
 require_once '../model/contractor-model.php';
 require_once '../model/work-center-model.php';
 require_once '../model/parts-model.php';
@@ -20,6 +21,7 @@ $userModel = new UserModel($databaseModel, $systemModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
+$productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
 $contractorModel = new ContractorModel($databaseModel);
 $workCenterModel = new WorkCenterModel($databaseModel);
 $partsModel = new PartsModel($databaseModel);
@@ -718,7 +720,70 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         case 'dashboard for final approval list':
             $contactID = $_SESSION['contact_id'];
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardForFinalApproval(:contactID)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardForFinalApproval2(:contactID)');
+            $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $list = '';
+            foreach ($options as $row) {
+                $salesProposalID = $row['sales_proposal_id'];
+                $customerID = $row['customer_id'];
+                $salesProposalNumber = $row['sales_proposal_number'];
+                $productType = $row['product_type'];
+                $productID = $row['product_id'];
+
+                $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
+                $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+
+                $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
+                $customerImage = $systemModel->checkImage($customerDetails['contact_image'], 'profile');
+
+                  $list .= ' <li class="list-group-item">
+                          <div class="d-flex align-items-center">
+                              <div class="flex-shrink-0">
+                                <img src="'. $customerImage .'" alt="user-image" class="user-avtar rounded wid-50 hie-50">
+                              </div>
+                              <div class="flex-grow-1 ms-3">
+                                  <div class="row g-1">
+                                        <div class="col-8">
+                                            <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" target="_blank" class="text-dark text-decoration-none">
+                                                <h6 class="mb-0">'. strtoupper($customerName) .'</h6>
+                                                <p class="text-muted mb-0"><small>OS Number: '. $salesProposalNumber .'</small></p>
+                                                <p class="text-muted mb-0"><small>Product Type: '. $productType .'</small></p>
+                                                <p class="text-muted mb-0"><small>Stock Number: '. $stockNumber .'</small></p>
+                                                <p class="text-muted mb-0"><small>Created Date: '. $createdDate .'</small></p>
+                                            </a>
+                                      </div>
+                                      <div class="col-4 text-end">
+                                          '. $salesProposalStatus .'
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>';
+            }
+
+            if(empty($list)){
+                $list = ' <li class="list-group-item text-center"><b>No For Final Approval Found</b></li>';
+            }
+
+            echo json_encode(['LIST' => $list]);
+        break;
+
+        case 'dashboard for final approval list 2':
+            $contactID = $_SESSION['contact_id'];
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardForFinalApproval3(:contactID)');
             $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
@@ -1790,6 +1855,126 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </a>
                                 </div>'
                     ];
+            }
+
+            echo json_encode($response);
+        break;
+
+        case 'released report table':
+            
+            $company_filter = isset($_POST['company_filter']) ? $_POST['company_filter'] : [];
+            $product_type_filter = isset($_POST['product_type_filter']) ? $_POST['product_type_filter'] : [];
+
+            $filter_release_start_date = $systemModel->checkDate('empty', $_POST['filter_release_start_date'], '', 'Y-m-d', '');
+            $filter_release_end_date = $systemModel->checkDate('empty', $_POST['filter_release_end_date'], '', 'Y-m-d', '');
+
+            // Build query conditionally
+            $queryString = 'SELECT * FROM sales_proposal WHERE 1=1';
+            $params = [];
+
+            // Handle multiple company filters using IN clause
+            if (!empty($company_filter) && is_array($company_filter)) {
+                $companyPlaceholders = [];
+                foreach ($company_filter as $index => $val) {
+                    $ph = ":company_$index";
+                    $companyPlaceholders[] = $ph;
+                    $params[$ph] = trim($val);
+                }
+                $queryString .= ' AND company_id IN (' . implode(', ', $companyPlaceholders) . ')';
+            }
+
+            // Handle multiple product type filters using IN clause
+            if (!empty($product_type_filter) && is_array($product_type_filter)) {
+                $productPlaceholders = [];
+                foreach ($product_type_filter as $index => $val) {
+                    $ph = ":product_$index";
+                    $productPlaceholders[] = $ph;
+                    $params[$ph] = trim($val);
+                }
+                $queryString .= ' AND product_type IN (' . implode(', ', $productPlaceholders) . ')';
+            }
+
+            if (!empty($filter_release_start_date)) {
+                $queryString .= ' AND released_date >= :filter_release_start_date';
+                $params[':filter_release_start_date'] = $filter_release_start_date;
+            }
+
+            if (!empty($filter_release_end_date)) {
+                $queryString .= ' AND released_date <= :filter_release_end_date';
+                $params[':filter_release_end_date'] = $filter_release_end_date;
+            }
+
+            $sql = $databaseModel->getConnection()->prepare($queryString);
+            $sql->execute($params);
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $salesProposalID = $row['sales_proposal_id'];
+                $customerID = $row['customer_id'];
+                $productType = $row['product_type'];
+                $productID = $row['product_id'];
+                $dr_number = $row['dr_number'];
+
+                $getSalesProposalOtherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
+                $release_remarks = $getSalesProposalOtherProductDetails['product_description'] ?? null;
+
+                $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
+                $srp = $pricingComputationDetails['delivery_price'] ?? 0;
+                $discount = $pricingComputationDetails['nominal_discount'] ?? 0;
+                $add_on_charge = $pricingComputationDetails['add_on_charge'] ?? 0;
+                $total_delivery_price = $pricingComputationDetails['total_delivery_price'] ?? 0;
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+
+                $releasedDate = $systemModel->checkDate('summary', $row['released_date'], '', 'm/d/Y', '');
+
+                if($productType == 'Unit'){
+                    $productDetails = $productModel->getProduct($productID);
+                    $productSubategoryID = $productDetails['product_subcategory_id'] ?? null;
+                    $srp = $productDetails['product_price'] ?? 0;
+
+                    $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
+                    $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+                    $productCategoryID = $productSubcategoryDetails['product_category_id'] ?? null;
+
+                    $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? null);
+                    $fullStockNumber = $productSubcategoryCode . $stockNumber;
+
+                    $engineNumber = $productDetails['engine_number'] ??  '--';
+                    $chassisNumber = $productDetails['chassis_number'] ??  '--';
+                    $plateNumber = $productDetails['plate_number'] ?? '--';
+                }
+                else if($productType == 'Refinancing'){
+                    $stockNumber = $salesProposalDetails['ref_stock_no'] ??  '--';
+                    $engineNumber = $salesProposalDetails['ref_engine_no'] ??  '--';
+                    $chassisNumber = $salesProposalDetails['ref_chassis_no'] ??  '--';
+                    $plateNumber = $salesProposalDetails['ref_plate_no'] ??  '--';
+                    $fullStockNumber ='';
+                }
+                else{
+                    $stockNumber = '--';
+                    $engineNumber = '--';
+                    $chassisNumber = '--';
+                    $plateNumber = '--';
+                    $fullStockNumber = '';
+                }
+
+                $response[] = [
+                    'CUSTOMER' => $customerName,
+                    'DR_NO' => $dr_number,
+                    'DR_DATE' => $releasedDate,
+                    'STOCK_NO' => $fullStockNumber,
+                    'ENGINE' => $engineNumber,
+                    'CHASSIS' => $chassisNumber,
+                    'PLATE_NO' => $plateNumber,
+                    'DESCRIPTION' => '<span class="text-wrap">' . $release_remarks . '</span>',
+                    'SRP' => number_format($srp, 2),
+                    'DISCOUNT' => number_format($discount, 2),
+                    'ADD_ON' => number_format($add_on_charge, 2),
+                    'NET' => number_format($total_delivery_price, 2),
+                ];
             }
 
             echo json_encode($response);

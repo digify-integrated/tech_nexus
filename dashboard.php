@@ -51,16 +51,18 @@
               </div>
             </div> <!-- END: row align-items-center (1st block) -->
 
-            <?php
-              // Check access and include daily employee status dashboard
-              $viewDashboardEmployeeDailyStatusForm = $userModel->checkSystemActionAccessRights($user_id, 198);
+            
 
-              if ($viewDashboardEmployeeDailyStatusForm['total'] > 0) {
-                require_once('view/_daily_employee_status_dashboard.php');
-              }
-            ?>
+            <div class="row align-items-center">
+              <?php
+                // Check access and include daily employee status dashboard
+                $viewDashboardEmployeeDailyStatusForm = $userModel->checkSystemActionAccessRights($user_id, 198);
 
-            <div class="row align-items-center"> <!-- 2nd row -->
+                if ($viewDashboardEmployeeDailyStatusForm['total'] > 0) {
+                  require_once('view/_daily_employee_status_dashboard.php');
+                }
+              ?>
+
               <?php
                 $viewDashboardSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 181);
                 $viewDashboardTravelForm = $userModel->checkSystemActionAccessRights($user_id, 182);

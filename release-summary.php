@@ -7,6 +7,8 @@
   require('model/product-model.php');
   require('model/approving-officer-model.php');
   require('model/id-type-model.php');
+  require('model/pms-catalog-model.php');
+  require('model/parts-model.php');
 
   $pageTitle = 'Release Summary';
   
@@ -15,6 +17,9 @@
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
   $idTypeModel = new IDTypeModel($databaseModel);
+  $pmsCatalogModel = new PMSCatalogModel($databaseModel);
+  $partsModel = new PartsModel($databaseModel);
+
     
   $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 85, 'read');
   $allSalesProposalCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 85, 'create');

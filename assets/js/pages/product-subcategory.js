@@ -202,6 +202,52 @@
             enableForm();
         });
 
+        $(document).on('change','#default_image',function() {
+            if ($(this).val() !== '' && $(this)[0].files.length > 0) {
+                const transaction = 'update default image';
+                const product_subcategory_id = $('#product-subcategory-id').text();
+                var formData = new FormData();
+                formData.append('default_image', $(this)[0].files[0]);
+                formData.append('transaction', transaction);
+                formData.append('product_subcategory_id', product_subcategory_id);
+        
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller/product-subcategory-controller.php',
+                    dataType: 'json',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        if (response.success) {
+                            showNotification('Update Default Image Success', 'The default image has been updated successfully.', 'success');
+                            displayDetails('get product subcategory details');
+                        }
+                        else {
+                            if (response.isInactive || response.userNotExist || response.userInactive || response.userLocked || response.sessionExpired) {
+                                setNotification(response.title, response.message, response.messageType);
+                                window.location = 'logout.php?logout';
+                            }
+                            else if (response.notExist) {
+                                setNotification(response.title, response.message, response.messageType);
+                                window.location = page_link;
+                            }
+                            else {
+                                showNotification(response.title, response.message, response.messageType);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                        if (xhr.responseText) {
+                            fullErrorMessage += `, Response: ${xhr.responseText}`;
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    }
+                });
+            }
+        });
+
         $(document).on('click','#duplicate-product-subcategory',function() {
             const product_subcategory_id = $('#product-subcategory-id').text();
             const transaction = 'duplicate product subcategory';
@@ -440,12 +486,18 @@ function displayDetails(transaction){
                         $('#product_subcategory_id').val(product_subcategory_id);
                         $('#product_subcategory_name').val(response.productSubcategoryName);
                         $('#product_subcategory_code').val(response.productSubcategoryCode);
+                        $('#price_threshold').val(response.priceThreshold);
+                        $('#discount_threshold').val(response.discountThreshold);
+                        $('#standard_inclusions').val(response.standardInclusions);
 
                         checkOptionExist('#product_category_id', response.productCategoryID, '');
 
                         $('#product_subcategory_name_label').text(response.productSubcategoryName);
                         $('#product_subcategory_code_label').text(response.productSubcategoryCode);
                         $('#product_category_id_label').text(response.productCategoryName);
+                        $('#price_threshold_label').text(response.priceThreshold);
+                        $('#discount_threshold_label').text(response.discountThreshold);
+                        $('#standard_inclusions_label').text(response.standardInclusions);
                     } 
                     else {
                         if(response.isInactive){

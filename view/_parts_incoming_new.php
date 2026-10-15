@@ -22,8 +22,13 @@
             $hidden = '';
             $suppliesHidden = '';
             $fuelHidden = '';
+            $fuelOnly = '';
             if($company == '2' || $company == '1' || $company == '3' || $company == '8' || $company == '15'){
               $hidden = 'd-none';
+            }
+
+            if($company == '2' || $company == '1' || $company == '3' || $company == '15'){
+              $fuelOnly = 'd-none';
             }
 
             if($company == '1'){
@@ -77,6 +82,16 @@
               <select class="form-control select2" name="product_id" id="product_id">
                 <option value="">--</option>
                 <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row <?php echo $fuelOnly; ?>">
+            <label class="col-lg-2 col-form-label">Tax Type <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="tax_type" id="tax_type">
+                <option value="">--</option>
+                <option value="VAT">VAT</option>
+                <option value="NON-VAT">NON-VAT</option>
               </select>
             </div>
           </div>

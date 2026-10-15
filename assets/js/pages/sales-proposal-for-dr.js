@@ -7,6 +7,10 @@
         if($('#sales-proposal-table').length){
             salesProposalTable('#sales-proposal-table');
         }
+        
+        if($('#sales-proposal-pms-parts-table').length){
+            salesProposalPMSPartsTable('#sales-proposal-pms-parts-table');
+        }
 
         if($('#all-sales-proposal-table').length){
             allSalesProposalTable('#all-sales-proposal-table');
@@ -292,6 +296,10 @@
             if($('#sales-proposal-form').length){
                 disableFormAndSelect2('sales-proposal-form');
             }
+
+            if($('#sales-proposal-pms-details-form').length){
+                disableFormAndSelect2('sales-proposal-pms-details-form');
+            }
     
             if($('#sales-proposal-unit-details-form').length){
                 disableFormAndSelect2('sales-proposal-unit-details-form');
@@ -440,17 +448,25 @@
             }
 
             if($('#sales-proposal-tab-2').length && $('#sales-proposal-tab-3').length && $('#sales-proposal-tab-4').length){
-                $('#sales-proposal-tab-2, #sales-proposal-tab-3, #sales-proposal-tab-4').addClass('d-none');
+                $('#sales-proposal-tab-2, #sales-proposal-tab-3, #sales-proposal-tab-4, #sales-proposal-tab-17, #sales-proposal-tab-18').addClass('d-none');
 
                 if (productType === 'Unit' || productType === 'Rental' || productType === 'Consignment') {
                     $('#sales-proposal-tab-2').removeClass('d-none');
                     resetModalForm('sales-proposal-unit-details-form');
                     displayDetails('get sales proposal unit details');
                 }
-               else if (productType === 'Fuel') {
+                else if (productType === 'Fuel') {
                     $('#sales-proposal-tab-3').removeClass('d-none');
                    // resetModalForm('sales-proposal-fuel-details-form');
                     displayDetails('get sales proposal fuel details');
+                }
+                else if (productType == 'PMS') {
+                    $('#sales-proposal-tab-17').removeClass('d-none');
+                    $('#sales-proposal-tab-18').removeClass('d-none');
+
+                    $('#sales-proposal-tab-7').addClass('d-none');
+                    $('#sales-proposal-tab-8').addClass('d-none');
+                    $('#sales-proposal-tab-14').addClass('d-none');
                 }
                 else if (productType === 'Refinancing' || productType === 'Restructure' || productType === 'Brand New') {
                     $('#sales-proposal-tab-4').removeClass('d-none');
@@ -494,6 +510,31 @@
             displayDetails('get comaker2 details');
         });
 
+        $(document).on('change','#total_parts_cost',function() {
+            calculatePMSTotal();
+        });
+
+        $(document).on('change','#labor_cost',function() {
+            calculatePMSTotal();
+        });
+
+        $(document).on('change','#add_on_labor_rate',function() {
+            calculatePMSTotal();
+        });
+
+        $(document).on('change','#consumable_total',function() {
+            calculatePMSTotal();
+        });
+
+        $(document).on('change','#add_on_consumables_rate',function() {
+            calculatePMSTotal();
+        });
+
+        $(document).on('change','#pms_catalog_id',function() {
+            let pms_catalog_id = $(this).val();
+            generate_pms_matrix(pms_catalog_id, '');
+        });
+
         $(document).on('change','#term_type',function() {
             $('#payment_frequency').empty().append(new Option('--', '', false, false));
 
@@ -506,6 +547,8 @@
                 $('#payment_frequency').append(new Option('Quarterly', 'Quarterly', false, false));
                 $('#payment_frequency').append(new Option('Semi-Annual', 'Semi-Annual', false, false));
             }
+            
+            calculateFirstDueDate();
         });
 
         $(document).on('change','#start_date',function() {
@@ -524,7 +567,8 @@
             calculatePaymentNumber();
         });
 
-        $(document).on('change','#term_length',function() {
+        $(document).on('change','#term_length',function() {            
+            calculateFirstDueDate();
             calculatePaymentNumber();
         });
 
@@ -1701,6 +1745,66 @@ function salesProposalJobOrderTable(datatable_name, buttons = false, show_all = 
         { 'width': '14%', 'aTargets': 2 },
         { 'width': '14%', 'aTargets': 3 },
         { 'width': '16%','bSortable': false, 'aTargets': 4 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'sales_proposal_id' : sales_proposal_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    }
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function salesProposalPMSPartsTable(datatable_name, buttons = false, show_all = false){
+    const sales_proposal_id = $('#sales-proposal-id').text();
+    const type = 'sales proposal pms parts table';
+    var settings;
+
+    const column = [ 
+        { data: 'PART' },
+        { data: 'QTY' },
+        { data: 'PRICE' },
+        { data: 'TOTAL_PRICE' },
+        { data: 'ACTION' },
+    ];
+
+    const column_definition = [
+        { width: '42%', targets: 0 },
+        { width: '14%', targets: 1 },
+        { width: '14%', targets: 2 },
+        { width: '14%', targets: 3 },
+        { width: '16%', orderable: false, targets: 4 },
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -5653,6 +5757,8 @@ function displayDetails(transaction){
                         }
                        
                         checkOptionExist('#renewal_tag', response.renewalTag, '');
+                        checkOptionExist('#pms_catalog_id', response.pmsCatalogId, '');      
+                        checkOptionExist('#pms_product_id', response.pmsProductId, '');                  
                         checkOptionExist('#product_type', response.productType, '');
                         checkOptionExist('#transaction_type', response.transactionType, '');
                         checkOptionExist('#comaker_id', response.comakerID, '');
@@ -5683,6 +5789,10 @@ function displayDetails(transaction){
                             $('#summary-remarks').text(existingText + "\n \n" + response.unitDescription);
                         } else {
                             $('#summary-remarks').text(response.remarks);
+                        }
+
+                         if (response.productType === 'PMS') {
+                            generate_pms_matrix(response.pmsCatalogId, response.pmsMatrixIds);
                         }
 
                         $('#initial_approval_remarks_label').text(response.initialApprovalRemarks);
@@ -5809,6 +5919,81 @@ function displayDetails(transaction){
                     }
                     showErrorDialog(fullErrorMessage);
                 }
+            });
+            break;
+        case 'get pms matrix total details':
+            var pms_matrix_id = $('#pms_matrix_id').val();
+
+            $.ajax({
+                url: 'controller/pms-catalog-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    pms_matrix_id: pms_matrix_id,
+                    transaction: transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#total_parts_cost').val(Number(response.totalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                        $('#labor_cost').val(Number(response.laborCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                        $('#consumable_total').val(Number(response.consumableTotal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                        
+                        $('#labor_rate').val(response.maxLaborCost);
+                        $('#consumable_rate').val(response.maxConsumables);
+                    
+                    calculatePMSTotal();
+                    calculateTotalDeliveryPrice();
+                    } else {
+                        if (response.isInactive) {
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Get Product Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Corrected template literals syntax with backticks
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+            });
+            break;
+        case 'get pms matrix sp total details':
+            var sales_proposal_id = $('#sales-proposal-id').text();
+            
+            return $.ajax({
+                url: 'controller/sales-proposal-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    sales_proposal_id : sales_proposal_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        calculatePMSTotal();
+
+                        calculateTotalDeliveryPrice();
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Sales Proposal Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
             });
             break;
         case 'get sales proposal refinancing details':
@@ -6997,7 +7182,7 @@ function calculateRenewalAmount(){
 function calculateTotalOtherCharges(){
     var productType = $('#product_type').val();
 
-    if(productType != 'Fuel' && productType != 'Parts' && productType != 'Repair' && productType != 'Rental'){
+    if(productType != 'Fuel' && productType != 'Parts' && productType != 'Repair' && productType != 'Rental' && productType != 'PMS'){
         var amount_financed = parseCurrency($("#amount_financed").val());
         var pn_amount = parseCurrency($("#pn_amount").val());
         var product_category = $('#product_category').val();
@@ -7151,7 +7336,7 @@ function traverseTabs(direction) {
     }
 
     if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR'){
-        if (currentIndex == 6 && direction === 'next') {
+        if (currentIndex == 8 && direction === 'next') {
             if ($('#sales-proposal-other-charges-form').valid()) {
                 $('#sales-proposal-other-charges-form').submit();
             } else {
@@ -7159,7 +7344,7 @@ function traverseTabs(direction) {
             }
         }
 
-        if (nextIndex == 8) {
+        if (nextIndex == 10) {
             if($('#add-sales-proposal-deposit-amount-button').length){
                 $('#add-sales-proposal-deposit-amount-button').removeClass('d-none');
             }
@@ -7170,7 +7355,7 @@ function traverseTabs(direction) {
             }
         }
         
-        if (currentIndex == 7 && direction === 'next') {
+        if (currentIndex == 9 && direction === 'next') {
             if ($('#sales-proposal-renewal-amount-form').valid()) {
                 $('#sales-proposal-renewal-amount-form').submit();
             } else {
@@ -7179,7 +7364,7 @@ function traverseTabs(direction) {
         }
     }
     
-    if (nextIndex == 9 || (nextIndex == 3 && sales_proposal_type == 'modified')) {
+    if (nextIndex == 11 || (nextIndex == 5 && sales_proposal_type == 'modified')) {
         if($('#add-sales-proposal-additional-job-order-button').length){
             $('#add-sales-proposal-additional-job-order-button').removeClass('d-none');
         }
@@ -7190,7 +7375,7 @@ function traverseTabs(direction) {
         }
     }
     
-    if ((nextIndex == 4 && sales_proposal_type == 'modified')) {
+    if ((nextIndex == 6 && sales_proposal_type == 'modified')) {
         if($('#on-process-sales-proposal-button').length){
             $('#on-process-sales-proposal-button').removeClass('d-none');
         }
@@ -7210,7 +7395,7 @@ function traverseTabs(direction) {
     }
 
     if(sales_proposal_status == 'For DR'){
-        if (currentIndex == 14) {
+        if (currentIndex == 16) {
             if ($('#sales-proposal-other-product-details-form').valid()) {
                 $('#sales-proposal-other-product-details-form').submit();
             } else {
@@ -7220,7 +7405,7 @@ function traverseTabs(direction) {
     }
 
     if($('#sales-proposal-tab-13').length){
-        if (nextIndex == 13) {
+        if (nextIndex == 15) {
             if($('#tag-for-initial-approval-button').length){
                 $('#tag-for-initial-approval-button').removeClass('d-none');
             }
@@ -7313,7 +7498,7 @@ function traverseTabs(direction) {
     }
 
     if($('#sales-proposal-tab-14').length){
-        if (nextIndex == 13) {
+        if (nextIndex == 15) {
             if($('#add-sales-proposal-pdc-manual-input-button').length){
                 $('#add-sales-proposal-pdc-manual-input-button').removeClass('d-none');
             }
@@ -7325,7 +7510,7 @@ function traverseTabs(direction) {
         }
     }
 
-    if(nextIndex == 12){
+    if(nextIndex == 14){
         if($('#summary-print-button').length){
             $('#summary-print-button').removeClass('d-none');
         }
@@ -7336,7 +7521,7 @@ function traverseTabs(direction) {
         }
     }
 
-    if(nextIndex == 20){
+    if(nextIndex == 22){
         if($('#gatepass-print-button').length){
             $('#gatepass-print-button').removeClass('d-none');
         }
@@ -7347,7 +7532,7 @@ function traverseTabs(direction) {
         }
     }
 
-    if( nextIndex == 15){
+    if( nextIndex == 17){
         if($('#online-print-button').length){
             $('#online-print-button').removeClass('d-none');
         }
@@ -7358,7 +7543,7 @@ function traverseTabs(direction) {
         }
     }
 
-    if( nextIndex == 16){
+    if( nextIndex == 18){
         if($('#authorization-print-button').length){
             $('#authorization-print-button').removeClass('d-none');
         }
@@ -7369,7 +7554,7 @@ function traverseTabs(direction) {
         }
     }
 
-    if( nextIndex == 17){
+    if( nextIndex == 19){
         if($('#pn-print-button').length){
             $('#pn-print-button').removeClass('d-none');
         }
@@ -7380,7 +7565,7 @@ function traverseTabs(direction) {
         }
     }
 
-    if( nextIndex == 18){
+    if( nextIndex == 20){
         if($('#disclosure-print-button').length){
             $('#disclosure-print-button').removeClass('d-none');
         }
@@ -7391,7 +7576,7 @@ function traverseTabs(direction) {
         }
     }
 
-    if( nextIndex == 19){
+    if( nextIndex == 21){
         if($('#insurance-request-print-button').length){
             $('#insurance-request-print-button').removeClass('d-none');
         }
@@ -7402,7 +7587,7 @@ function traverseTabs(direction) {
         }
     }
 
-    if( nextIndex == 15 ||  nextIndex == 16 ||  nextIndex == 17 || nextIndex == 18 || nextIndex == 19){
+    if( nextIndex == 17 ||  nextIndex == 18 ||  nextIndex == 19 || nextIndex == 20 || nextIndex == 21){
         if($('#dr-receipt-print-button').length){
             $('#dr-receipt-print-button').removeClass('d-none');
         }
@@ -7490,9 +7675,9 @@ async function loadSalesProposalSequentially() {
             await displayDetails('get sales proposal refinancing details');
         }
             
-        await displayDetails('get sales proposal pricing computation details');
-        await displayDetails('get sales proposal other charges details');
         await displayDetails('get sales proposal renewal amount details');
+        await displayDetails('get sales proposal other charges details');
+        await displayDetails('get sales proposal pricing computation details');
 
         // 2. Logic Fork: Check the product type
         var productType = $('#product_type').val();
@@ -7506,7 +7691,6 @@ async function loadSalesProposalSequentially() {
         }
 
         // 3. Run remaining independent calculations
-        calculateTotalOtherCharges();
         calculateRenewalAmount();
 
         // 4. Secondary data
@@ -7520,4 +7704,132 @@ async function loadSalesProposalSequentially() {
     } catch (error) {
         console.error("Sequence failed:", error);
     }
+}
+
+function generate_pms_matrix(pms_catalog_id, pms_matrix_ids){
+    const transaction = 'generate pms matrix by catalog';
+
+    $.ajax({
+        type: 'POST',
+        url: 'controller/pms-catalog-controller.php',
+        data: {
+            transaction: transaction,
+            pms_catalog_id: pms_catalog_id
+        },
+        dataType: 'json', // Tell jQuery to expect JSON
+        success: function(result) {
+
+            let $select = $('#pms_matrix_id');
+
+            // Remove old options
+            $select.empty();
+
+            // Add new options
+            $.each(result, function(index, item) {
+
+                let text = item.odometer + ' KM - ' + item.months_interval + ' Month';
+
+                $select.append(
+                    $('<option>', {
+                        value: item.pms_matrix_id,
+                        text: text
+                    })
+                );
+            });
+
+            // Refresh Select2
+            $select.trigger('change');
+        },
+        complete: function(){
+           $('#pms_matrix_id')
+                        .val(pms_matrix_ids)
+                        .trigger('change');
+
+          displayDetails('get pms matrix total details', 50);
+        }
+    });
+}
+
+function generate_pms_alternate_part(sales_proposal_requested_parts_id) {
+    const transaction = 'generate pms alternate part';
+
+    $.ajax({
+        type: 'POST',
+        url: 'controller/sales-proposal-controller.php',
+        data: {
+            transaction: transaction,
+            sales_proposal_requested_parts_id: sales_proposal_requested_parts_id
+        },
+        dataType: 'json',
+        success: function(result) {
+            let $select = $('#alternate_part_id');
+
+            // Clear existing options and reset with default placeholder
+            $select.empty().append($('<option>', {
+                value: '',
+                text: '-- Select Alternate Part --'
+            }));
+
+            // Populate options if alternate parts exist
+            if (Array.isArray(result) && result.length > 0) {
+                $.each(result, function(index, item) {
+                    
+                    let text = `${item.part_number} - ${item.description} `;
+
+                    $select.append(
+                        $('<option>', {
+                            value: item.alternate_part_id,
+                            text: text
+                        })
+                    );
+                });
+            }
+
+            // Refresh Select2 dropdown UI
+            $select.trigger('change');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching alternate parts:', error);
+        }
+    });
+}
+
+function calculatePMSTotal() {
+    // 1. Helper function to strip commas/symbols and safely convert to number
+    const parseNum = selector => {
+        let val = $(selector).val();
+        if (!val) return 0;
+        
+        // Remove everything except digits, minus signs, and decimal points
+        let cleanVal = val.toString().replace(/[^0-9.-]+/g, ""); 
+        return parseFloat(cleanVal) || 0;
+    };
+
+    // 2. Extract inputs
+    const totalPartsCost = parseNum('#total_parts_cost');
+    const laborCost = parseNum('#labor_cost');
+    const addOnLaborRate = parseNum('#add_on_labor_rate');
+    const laborRate = parseNum('#labor_rate');
+
+    const consumableBase = parseNum('#consumable_total');
+    const addOnConsumablesRate = parseNum('#add_on_consumables_rate');
+    const consumableRate = parseNum('#consumable_rate');
+
+    // 3. Perform calculations
+    const laborTotal = laborCost + (addOnLaborRate * laborRate);
+    const consumableTotal = consumableBase + (addOnConsumablesRate * consumableRate);
+    const total = totalPartsCost + laborTotal + consumableTotal;
+
+    // 4. Formatter helper (formats back to standard comma currency string: e.g., "29,909.12")
+    const formatCurrency = num => num.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    // 5. Update the form fields
+    $('#pms_labor_total').val(formatCurrency(laborTotal));
+    $('#pms_consumable_total').val(formatCurrency(consumableTotal));
+    $('#delivery_price').val(formatCurrency(total));
+
+    calculateTotalDeliveryPrice();
 }

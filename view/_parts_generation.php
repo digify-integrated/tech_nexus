@@ -149,18 +149,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $response[] = [
                         'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $partsID .'">',
                         'IMAGE' => '<a href="'. $partsImage .'" target="_blank">View Image</a>',
-                        'PART' => '<div class="row">
-                                        <div class="col">
-                                            <h6 class="mb-0">'. $part_number .'</h6>
-                                            <p class="f-12 mb-0 text-wrap">'. $description .'</p>
-                                        </div>
-                                    </div>',
+                        'PART' => $part_number,
+                        'DESCRIPTION' => $description,
                         'CATEGORY' => $part_category_name,
                         'CLASS' => $part_class_name . ' <br/>(' . $part_subclass_name . ')',
                         'QUANTITY' => number_format($quantity, 2),
-                        'PRODUCT_COST' => number_format($part_cost,2) . ' PHP',
-                        'PRODUCT_TOTAL_COST' => number_format(($part_cost * $quantity),2) . ' PHP',
-                        'PRODUCT_PRICE' => number_format($part_price,2) . ' PHP',
+                        'PRODUCT_COST' => number_format($part_cost,2),
+                        'PRODUCT_TOTAL_COST' => number_format(($part_cost * $quantity),2),
+                        'PRODUCT_PRICE' => number_format($part_price,2),
                         'PRODUCT_STATUS' => $partsStatus,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <a href="'. $link .'.php?id='. $partsIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details" target="_blank">

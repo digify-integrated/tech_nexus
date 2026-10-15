@@ -131,7 +131,6 @@ if(isset($_GET['id'])){
             $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? null);
             $fullStockNumber = $productSubcategoryCode . $stockNumber;
 
-            $stockNumber = $stockNumber;
             $engineNumber = $productDetails['engine_number'] ??  '--';
             $chassisNumber = $productDetails['chassis_number'] ??  '--';
             $plateNumber = $productDetails['plate_number'] ?? '--';
@@ -142,7 +141,15 @@ if(isset($_GET['id'])){
             $chassisNumber = $salesProposalDetails['ref_chassis_no'] ??  '--';
             $plateNumber = $salesProposalDetails['ref_plate_no'] ??  '--';
             $fullStockNumber ='';
-        };
+        }
+        else{
+            $stockNumber = '--';
+            $engineNumber = '--';
+            $chassisNumber = '--';
+            $plateNumber = '--';
+            $fullStockNumber = '';
+        }
+
 
     }
 
@@ -169,7 +176,7 @@ $pdf->SetXY(165,25);
 $pdf->Cell(105,5, strtoupper(date('d-M-Y')));
 
 $pdf->SetXY(15,31);
-$pdf->Cell(153,5, $tin. 'TIN');
+$pdf->Cell(153,5, $tin);
 
 $pdf->SetXY(165,31);
 $pdf->Cell(100,5, $termLength);
@@ -184,7 +191,7 @@ while ($pdf->GetStringWidth($address) > 165) {
 $pdf->Cell(135, 5, $address . '...');
 
 $pdf->SetXY(35, 44);
-$pdf->Cell(150, 5, $businessStyle. 'BUSINESS STYLE');
+$pdf->Cell(150, 5, $businessStyle);
 
 drawChattelMortgageTable(
     $pdf,
@@ -220,16 +227,16 @@ function drawChattelMortgageTable($pdf, $fullStockNumber, $productDescription, $
     $pdf->MultiCell(30, 4, $fullStockNumber, 0);
 
     $pdf->SetXY($colDesc, $rowY);
-    $pdf->MultiCell(45, 4, $productDescription, 0);
+    $pdf->MultiCell(45, 4, $productDescription, 0, 'L');
 
     $pdf->SetXY($colEngine, $rowY);
-    $pdf->MultiCell(18, 4, $engineNumber . 'Engine', 0);
+    $pdf->MultiCell(18, 4, $engineNumber, 0);
 
     $pdf->SetXY($colChassis, $rowY);
-    $pdf->MultiCell(20, 4, $chassisNumber . 'Chassis', 0);
+    $pdf->MultiCell(20, 4, $chassisNumber, 0);
 
     $pdf->SetXY($colPlate, $rowY);
-    $pdf->MultiCell(15, 4, $plateNumber . 'Platessssssssss', 0);
+    $pdf->MultiCell(15, 4, $plateNumber, 0);
 
     $pdf->SetXY($colQty, $rowY);
     $pdf->Cell(20, 5, '1', 0);
@@ -247,7 +254,16 @@ function drawChattelMortgageTable($pdf, $fullStockNumber, $productDescription, $
     $pdf->SetXY(170, 208);
     $pdf->Cell(25, 5, number_format($pnAmount, 2), 0, 0, 'R');
 
+    $pdf->SetXY(30, 214);
+    $pdf->Cell(25, 5, number_format(0, 2), 0, 0, 'R');
+
+    $pdf->SetXY(30, 220);
+    $pdf->Cell(25, 5, number_format(0, 2), 0, 0, 'R');
+
     $pdf->SetXY(30, 227);
+    $pdf->Cell(25, 5, number_format($vat, 2), 0, 0, 'R');
+
+    $pdf->SetXY(170, 215);
     $pdf->Cell(25, 5, number_format($vat, 2), 0, 0, 'R');
 
     $pdf->SetXY(170, 221);
@@ -261,5 +277,5 @@ function drawChattelMortgageTable($pdf, $fullStockNumber, $productDescription, $
 $pdf->SetFont('Arial', '', size: 7.5);
 
 // Output the modified PDF
-$pdf->Output('I', 'BIR_2307_filled.pdf');
+$pdf->Output('I', 'sales_invoice.pdf');
 ?>

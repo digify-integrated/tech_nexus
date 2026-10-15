@@ -841,6 +841,7 @@ function partsTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'CHECK_BOX' },
             { 'data' : 'IMAGE' },
             { 'data' : 'PART' },
+            { 'data' : 'DESCRIPTION' },
             { 'data' : 'CATEGORY' },
             { 'data' : 'CLASS' },
             { 'data' : 'QUANTITY' },
@@ -852,17 +853,9 @@ function partsTable(datatable_name, buttons = false, show_all = false){
         ];
 
         column_definition = [
-            { 'width': '1%','bSortable': false, 'aTargets': 0 },
-            { 'width': '1%','bSortable': false, 'aTargets': 1 },
-            { 'width': '40%', 'aTargets': 2 },
-            { 'width': 'auto', 'aTargets': 3 },
-            { 'width': 'auto', 'aTargets': 4 },
-            { 'width': 'auto', 'aTargets': 5 },
-            { 'width': 'auto', 'aTargets': 6 },
-            { 'width': 'auto', 'aTargets': 7 },
-            { 'width': 'auto', 'aTargets': 8 },
-            { 'width': 'auto', 'aTargets': 9 },
-            { 'width': '10%','bSortable': false, 'aTargets': 10 }
+            { 'width': '1%', 'orderable': false, 'targets': 0 },
+            { 'width': '1%', 'orderable': false, 'targets': 1 },
+            { 'width': '10%', 'orderable': false, 'targets': 11 }
         ];
     }
     else{
@@ -870,6 +863,7 @@ function partsTable(datatable_name, buttons = false, show_all = false){
             { 'data' : 'CHECK_BOX' },
             { 'data' : 'IMAGE' },
             { 'data' : 'PART' },
+            { 'data' : 'DESCRIPTION' },
             { 'data' : 'CATEGORY' },
             { 'data' : 'CLASS' },
             { 'data' : 'QUANTITY' },
@@ -879,17 +873,11 @@ function partsTable(datatable_name, buttons = false, show_all = false){
         ];
 
         column_definition = [
-            { 'width': '1%','bSortable': false, 'aTargets': 0 },
-            { 'width': '1%','bSortable': false, 'aTargets': 1 },
-            { 'width': '40%', 'aTargets': 2 },
-            { 'width': 'auto', 'aTargets': 3 },
-            { 'width': 'auto', 'aTargets': 4 },
-            { 'width': 'auto', 'aTargets': 5 },
-            { 'width': 'auto', 'aTargets': 6 },
-            { 'width': 'auto', 'aTargets': 7 },
-            { 'width': '10%','bSortable': false, 'aTargets': 8 }
+            { 'width': '1%', 'orderable': false, 'targets': 0 },
+            { 'width': '1%', 'orderable': false, 'targets': 1 },
+            { 'width': '10%', 'orderable': false, 'targets': 9 }
         ];
-    }    
+    }
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
@@ -939,7 +927,28 @@ function partsTable(datatable_name, buttons = false, show_all = false){
 
     if (buttons) {
         settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
+        
+        // Configured buttons to export starting from column index 2 onwards
+        settings.buttons = [
+            {
+                extend: 'csv',
+                exportOptions: {
+                    columns: ':gt(1)' // selects all columns after index 1 (i.e. index 2 onwards)
+                }
+            },
+            {
+                extend: 'excel',
+                exportOptions: {
+                    columns: ':gt(1)'
+                }
+            },
+            {
+                extend: 'pdf',
+                exportOptions: {
+                    columns: ':gt(1)'
+                }
+            }
+        ];
     }
 
     destroyDatatable(datatable_name);

@@ -268,7 +268,7 @@ $isOtherProduct = $product_id != 'Unit' && $product_id != 'Rental';
                         <h5 class="mb-0">Unit (Front)</h5>
                         <?php
                           if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
-                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
+                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'PMS' || $productType == 'Rental')){
                               echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-image-offcanvas" aria-controls="sales-proposal-unit-image-offcanvas" id="sales-proposal-unit-image">Unit Front</button>';
                             }
                           }
@@ -295,7 +295,7 @@ $isOtherProduct = $product_id != 'Unit' && $product_id != 'Rental';
                         <h5 class="mb-0">Unit (Back)</h5>
                         <?php
                           if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
-                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
+                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'PMS' || $productType == 'Rental')){
                               echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-back-offcanvas" aria-controls="sales-proposal-unit-back-offcanvas" id="sales-proposal-unit-back">Unit Back</button>';
                             }
                           }
@@ -320,7 +320,7 @@ $isOtherProduct = $product_id != 'Unit' && $product_id != 'Rental';
                         <h5 class="mb-0">Unit (Left Side)</h5>
                         <?php
                           if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
-                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
+                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'PMS' || $productType == 'Rental')){
                               echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-left-offcanvas" aria-controls="sales-proposal-unit-left-offcanvas" id="sales-proposal-unit-left">Unit Left Side</button>';
                             }
                           }
@@ -347,7 +347,7 @@ $isOtherProduct = $product_id != 'Unit' && $product_id != 'Rental';
                         <h5 class="mb-0">Unit (Right Side)</h5>
                         <?php
                           if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
-                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
+                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'PMS' || $productType == 'Rental')){
                               echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-right-offcanvas" aria-controls="sales-proposal-unit-right-offcanvas" id="sales-proposal-unit-right">Unit Right Side</button>';
                             }
                           }
@@ -372,7 +372,7 @@ $isOtherProduct = $product_id != 'Unit' && $product_id != 'Rental';
                         <h5 class="mb-0">Unit (Interior)</h5>
                         <?php
                           if($salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR'){          
-                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'Rental')){
+                            if(($productType == 'Unit' || $productType == 'Repair' || $productType == 'PMS' || $productType == 'Rental')){
                               echo ' <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-unit-interior-offcanvas" aria-controls="sales-proposal-unit-interior-offcanvas" id="sales-proposal-unit-interior">Unit Interior</button>';
                             }
                           }

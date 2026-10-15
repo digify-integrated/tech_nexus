@@ -989,6 +989,13 @@ function collectionsForm(){
                     }
                 }
             },
+            or_type: {
+                required: {
+                    depends: function(element) {
+                        return $("#payment_advice").val() === 'No';
+                    }
+                }
+            },
             or_date: {
                 required: true
             },
@@ -1081,7 +1088,10 @@ function collectionsForm(){
                 required: 'Please choose the company'
             },
             or_number: {
-                required: 'Please choose the OR number'
+                required: 'Please enter the OR number'
+            },
+            or_type: {
+                required: 'Please choose the OR type'
             },
             or_date: {
                 required: 'Please choose the OR date'
@@ -1627,6 +1637,7 @@ function displayDetails(transaction){
                         checkOptionExist('#payment_details', response.paymentDetails, '');
                         checkOptionExist('#deposited_to', response.depositedTo, '');
                         checkOptionExist('#miscellaneous_client_id', response.miscellaneousClientID, '');
+                        checkOptionExist('#or_type', response.orType, '');
                         
                         checkOptionExist('#leasing_repayment_id', response.leasingRepaymentID, '');
                         checkOptionExist('#leasing_other_charges_id', response.leasingOtherChargesID, '');

@@ -6994,6 +6994,88 @@ CREATE TABLE `leads` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE `leads_product_inquiry` (
+  `leads_product_inquiry_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `lead_id` int(10) UNSIGNED NOT NULL,
+  `product_id` INT NOT NULL,
+  `unit_description` VARCHAR(500),
+  `engine_no` VARCHAR(100),
+  `chassis_no` VARCHAR(100),
+  `color` VARCHAR(100),
+  `year_model` VARCHAR(100),
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `quotations` (
+  `quotation_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `lead_id` int(10) UNSIGNED NOT NULL,
+  `leads_product_inquiry_id` int(10) UNSIGNED NOT NULL,
+  `company_id` int(10) UNSIGNED NOT NULL,
+  `quotation_image` VARCHAR(500),
+  `price` DOUBLE,
+  `status` ENUM('Draft', 'For Approval', 'Approved', 'Cancelled') NOT NULL DEFAULT 'Draft',
+  `inclusions` TEXT,
+  `delivery_address` VARCHAR(5000),
+  `delivery_instructions` VARCHAR(2000),
+  `delivery_conditions` VARCHAR(2000),
+  `remarks` VARCHAR(1000),
+  `expiration_date` date,
+  `for_approval_date` datetime,
+  `approval_date` datetime,
+  `cancellation_date` datetime,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE `cif`;
+CREATE TABLE `cif` ( 
+  `cif_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `lead_id` int(10) UNSIGNED NOT NULL,
+  `leads_product_inquiry_id` int(10) UNSIGNED NOT NULL,
+  `company_id` int(10) UNSIGNED NOT NULL,
+  `status` ENUM('Draft', 'On-Process', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Draft',
+  `cif_image` VARCHAR(500),
+  `cif_reference_no` VARCHAR(100),
+  `add_ons` TEXT,
+  `remarks` VARCHAR(1000),
+  `on_process_date` datetime,
+  `completed_date` datetime,
+  `cancellation_date` datetime,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `cif_supplier` ( 
+  `cif_supplier_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `cif_id` int(10) NOT NULL,
+  `supplier_id` int(10) UNSIGNED NOT NULL,
+  `supplier_quotation` VARCHAR(500),
+  `remarks` VARCHAR(1000),
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `spaf` ( 
+  `spaf_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `cif_id` int(10) UNSIGNED NOT NULL,
+  `lead_id` int(10) UNSIGNED NOT NULL,
+  `leads_product_inquiry_id` int(10) UNSIGNED NOT NULL,
+  `supplier_id` int(10) UNSIGNED NOT NULL,
+  `spaf_reference_no` VARCHAR(100) NOT NULL,
+  `unit_price` DOUBLE DEFAULT 0,
+  `dealer_discount` DOUBLE DEFAULT 0,
+  `net_price` DOUBLE DEFAULT 0,
+  `remarks` VARCHAR(1000),
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS `inquiry_type`;
 CREATE TABLE `inquiry_type` (
   `inquiry_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -7066,10 +7148,40 @@ CREATE TABLE insurance_provider(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
+CREATE TABLE insurance_coverage_rate(
+	insurance_coverage_rate_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    insurance_provider int(10) NOT NULL,
+    coverage_amount_start DOUBLE DEFAULT 0,
+    coverage_amount_end DOUBLE DEFAULT 0,
+    bi_rate DOUBLE DEFAULT 0,
+    pd_amount DOUBLE DEFAULT 0,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE insurance_category_rate(
+	insurance_category_rate_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    insurance_provider int(10) NOT NULL,
+    insurance_category_id int(10) NOT NULL,
+    insurance_rate DOUBLE DEFAULT 0,
+    commission_rate DOUBLE DEFAULT 0,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
 DROP TABLE IF EXISTS `insurance_type`;
 CREATE TABLE `insurance_type` (
   `insurance_type_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
   `insurance_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(10) UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `insurance_category`;
+CREATE TABLE `insurance_category` (
+  `insurance_category_id` int(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  `insurance_category_name` varchar(100) NOT NULL,
   `last_log_by` int(10) UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -7272,5 +7384,18 @@ CREATE TABLE sales_proposal_requested_parts(
 	is_required ENUM('Yes', 'No') DEFAULT 'No',
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE TABLE quotation_standard_pricing(
+	quotation_standard_pricing_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	product_subcategory_id INT UNSIGNED NOT NULL,
+	year_model VARCHAR(20),
+	transmission_type ENUM('Manual', 'Automatic', 'CVT', 'Tiptronic', 'Dual Clutch', 'Semi-Automatic', 'Electric') DEFAULT NULL,
+	length DOUBLE,
+	length_unit INT UNSIGNED,
+    price_threshold DOUBLE DEFAULT 0,
+    discount_threshold DOUBLE DEFAULT 0,
+    last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );

@@ -92,6 +92,15 @@
                 </div>
               </div>
             </div>
+
+             <div class="col-md-6 ">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">For Collection Amount <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <input type="number" class="form-control" id="collection_amount" name="collection_amount" step="0.01" min="0" value="0.00">
+                </div>
+              </div>
+            </div>
           </div>
 
           <hr class="my-4">
@@ -107,6 +116,7 @@
                     <option value="Customer">Customer</option>
                     <option value="Miscellaneous">Miscellaneous</option>
                     <option value="Sales Proposal">Sales Proposal</option>
+                    <option value="Product">Product</option>
                   </select>
                 </div>
               </div>
@@ -143,6 +153,17 @@
                   <select class="form-control select2" name="sales_proposal_id" id="sales_proposal_id">
                     <option value="">--</option>        
                     <?php echo $salesProposalModel->generateReleasedSalesProposalOptions(); ?>            
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 product-field d-none">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Product</label>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="product_id" id="product_id">
+                    <option value="">--</option>
+                    <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
                   </select>
                 </div>
               </div>

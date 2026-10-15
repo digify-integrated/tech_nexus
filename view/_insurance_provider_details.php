@@ -110,6 +110,11 @@
                                 <label class="col-form-label form-details fw-normal" id="website_label"></label>
                                 <input type="text" class="form-control d-none form-edit" id="website" name="website" maxlength="500" autocomplete="off">
                             </div>
+                            <label class="col-lg-2 col-form-label">Local Govt. Tax Rate</label>
+                            <div class="col-lg-4">
+                                <label class="col-form-label form-details fw-normal" id="local_government_tax_rate_label"></label>
+                                <input type="number" class="form-control d-none form-edit" id="local_government_tax_rate" name="local_government_tax_rate" value="0" min="0" step="0.01">
+                            </div>
                         </div>
                         
                         <div class="row mt-4 mb-2">
@@ -191,6 +196,12 @@
                                 <label class="col-form-label form-details fw-normal" id="website_label"></label>
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label class="col-lg-2 col-form-label">Local Govt. Tax Rate</label>
+                            <div class="col-lg-4">
+                                <label class="col-form-label form-details fw-normal" id="local_government_tax_rate_label"></label>
+                            </div>
+                        </div>
                         
                         <div class="row mt-4 mb-2">
                           <div class="col-12">
@@ -227,6 +238,63 @@
       </div>
     </div>
   </div>
+  <div class="col-lg-6">
+    <?php
+      $addCoverage = '';
+      if($insuranceProviderWriteAccess['total'] > 0){
+        $addCoverage = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#coverage-offcanvas" aria-controls="coverage-offcanvas" id="add-coverage">Add Coverage</button>';
+      }
+    ?>
+
+    <div class="card table-card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Coverage</h5>
+          </div>
+          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+              <?php echo $addCoverage; ?>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive dt-responsive">
+          <table id="coverage-table" class="table table-hover wrap w-100">
+            <thead>
+              <tr>
+                <th>Coverage</th>
+                <th>BI</th>
+                <th>PD</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody class="text-wrap"></tbody>
+            </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card table-card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-12">
+            <h5>Coverage</h5>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-12">
+            <form id="category-rate-form">
+              <div id="category-rates-container" class="p-3"></div>
+              <button type="submit" id="submit-category-rate" class="btn btn-primary ms-3 ">Save Category Rates</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 <?php
 echo '<div class="col-lg-12">
         <div class="card">
@@ -245,4 +313,51 @@ echo '<div class="col-lg-12">
         </div>
       </div>';
 ?>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="coverage-offcanvas" aria-labelledby="coverage-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="coverage-offcanvas-label" style="margin-bottom:-0.5rem">Coverage</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="coverage-form" method="post" action="#">
+             <input type="hidden" id="insurance_coverage_rate_id" name="insurance_coverage_rate_id">
+            <div class="form-group row">
+              <div class="col-lg-12">
+                <label class="form-label">Coverage Range <span class="text-danger">*</span></label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6">
+                <input type="number" class="form-control" id="coverage_amount_start" name="coverage_amount_start" value="0" step="0.01">
+              </div>
+              <div class="col-lg-6">
+                <input type="number" class="form-control" id="coverage_amount_end" name="coverage_amount_end" value="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">BI <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="bi_rate" name="bi_rate" value="0" step="0.01">
+              </div>
+              <div class="col-lg-6 mt-3 mt-lg-0">
+                <label class="form-label">PD <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="pd_amount" name="pd_amount" value="0" step="0.01">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-coverage" form="coverage-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

@@ -471,6 +471,7 @@ class CollectionsController {
         $leasing_other_charges_id = htmlspecialchars($_POST['leasing_other_charges_id'], ENT_QUOTES, 'UTF-8');
         $payment_for = htmlspecialchars($_POST['payment_for'], ENT_QUOTES, 'UTF-8');
         $paymentDetails = $_POST['payment_details'];
+        $or_type = $_POST['or_type'];
         
         $paymentAmount = $_POST['payment_amount'];
         $referenceNumber = $_POST['reference_number'];
@@ -478,7 +479,6 @@ class CollectionsController {
         $depositedTo = $_POST['deposited_to'];
         $miscellaneousClientID = $_POST['miscellaneous_client_id'];
         $payment_advice = $_POST['payment_advice'];
-        $orDate = $this->systemModel->checkDate('empty', $_POST['or_date'], '', 'Y-m-d', '');
         $paymentDate = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
@@ -516,6 +516,7 @@ class CollectionsController {
         }
     
         if ($total > 0) {
+            $orDate = $this->systemModel->checkDate('default', $_POST['or_date'], '', 'Y-m-d', '');
             $orNumber = $_POST['or_number'];
             $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
             $paymentAmount2 = $collectionsDetails['payment_amount'];
@@ -549,7 +550,7 @@ class CollectionsController {
             
             $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $paymentAmount;
 
-            $this->collectionsModel->updateCollection( $loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $leasing_application_id, $leasing_repayment_id, $leasing_other_charges_id, $payment_for, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $payment_advice, $userID);
+            $this->collectionsModel->updateCollection( $loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $leasing_application_id, $leasing_repayment_id, $leasing_other_charges_id, $payment_for, $pdcType, $modeOfPayment, $orNumber, $or_type, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $payment_advice, $userID);
                     
             if($payment_advice == 'No'){
                 $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
@@ -624,7 +625,9 @@ class CollectionsController {
                 $leasing_collections_id = '';
             }
 
-            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $leasing_application_id, $leasing_repayment_id, $leasing_other_charges_id, $leasing_collections_id, $payment_for, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $payment_advice, $userID);
+            $orDate = date('Y-m-d');
+
+            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $leasing_application_id, $leasing_repayment_id, $leasing_other_charges_id, $leasing_collections_id, $payment_for, $pdcType, $modeOfPayment, $orNumber, $or_type, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $payment_advice, $userID);
 
             if($pdcType != 'Leasing Other' && $pdcType != 'Leasing'){
                 $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $paymentAmount;
@@ -817,6 +820,7 @@ class CollectionsController {
                 'referenceNumber' => $collectionsDetails['reference_number'],
                 'depositedTo' => $collectionsDetails['deposited_to'],
                 'miscellaneousClientID' => $collectionsDetails['collected_from'],
+                'orType' => $collectionsDetails['or_type'],
                 'orDate' =>  $this->systemModel->checkDate('empty', $collectionsDetails['or_date'], '', 'm/d/Y', ''),
                 'paymentDate' =>  $this->systemModel->checkDate('empty', $collectionsDetails['payment_date'], '', 'm/d/Y', ''),
             ];

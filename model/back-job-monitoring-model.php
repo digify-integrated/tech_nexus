@@ -28,12 +28,13 @@ class BackJobMonitoringModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateBackJobMonitoring($p_backjob_monitoring_id, $p_type, $p_product_id, $p_sales_proposal_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoring(:p_backjob_monitoring_id, :p_type, :p_product_id, :p_sales_proposal_id, :p_last_log_by)');
+    public function updateBackJobMonitoring($p_backjob_monitoring_id, $p_type, $p_product_id, $p_sales_proposal_id, $p_warranty_source, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoring(:p_backjob_monitoring_id, :p_type, :p_product_id, :p_sales_proposal_id, :p_warranty_source, :p_last_log_by)');
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_warranty_source', $p_warranty_source, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -229,6 +230,17 @@ class BackJobMonitoringModel {
         $stmt->execute();
     }
 
+     public function createBackjobJobOrderFOCEntry($p_backjob_monitoring_id, $p_job_order_id, $p_entry_type, $p_company_id, $p_cost, $p_last_log_by): void {
+        $stmt = $this->db->getConnection()->prepare('CALL createBackjobJobOrderFOCEntry(:p_backjob_monitoring_id, :p_job_order_id, :p_entry_type, :p_company_id, :p_cost, :p_last_log_by)');
+        $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_job_order_id', $p_job_order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_entry_type', $p_entry_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     public function updateBackJobMonitoringAsDraft($p_backjob_monitoring_id, $p_status, $p_set_to_draft_reason, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateBackJobMonitoringAsDraft(:p_backjob_monitoring_id, :p_status, :p_set_to_draft_reason, :p_last_log_by)');
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
@@ -294,15 +306,16 @@ class BackJobMonitoringModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertBackJobMonitoring($p_type, $p_product_id, $p_sales_proposal_id, $p_last_log_by) {
+    public function insertBackJobMonitoring($p_type, $p_product_id, $p_sales_proposal_id, $p_warranty_source, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare(
-            'CALL insertBackJobMonitoring(:p_type, :p_product_id, :p_sales_proposal_id, :p_last_log_by, @p_backjob_monitoring_id)'
+            'CALL insertBackJobMonitoring(:p_type, :p_product_id, :p_sales_proposal_id, :p_warranty_source, :p_last_log_by, @p_backjob_monitoring_id)'
         );
     
         // Remove spaces after parameter names
         $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_warranty_source', $p_warranty_source, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
     
         $stmt->execute();
@@ -394,6 +407,29 @@ class BackJobMonitoringModel {
         $stmt->bindValue(':p_backjob_monitoring_id', $p_backjob_monitoring_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getBackJobMonitoringCostTotal($backjobMonitoringID) {
+        $sql = '
+            SELECT 
+                (SELECT COALESCE(SUM(cost), 0) 
+                FROM backjob_monitoring_job_order 
+                WHERE backjob_monitoring_id = :backjob_monitoring_id_1)
+                +
+                (SELECT COALESCE(SUM(cost), 0) 
+                FROM backjob_monitoring_additional_job_order 
+                WHERE backjob_monitoring_id = :backjob_monitoring_id_2) 
+            AS total_cost
+        ';
+
+        $stmt = $this->db->getConnection()->prepare($sql);
+        $stmt->bindValue(':backjob_monitoring_id_1', $backjobMonitoringID, PDO::PARAM_INT);
+        $stmt->bindValue(':backjob_monitoring_id_2', $backjobMonitoringID, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return (float) ($result['total_cost'] ?? 0);
     }
 
     public function getBackJobMonitoringJobOrder($p_backjob_monitoring_job_order_id) {

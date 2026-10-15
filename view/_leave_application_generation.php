@@ -229,6 +229,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $response[] = [
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $leaveApplicationID .'">',
                     'FILE_AS' => '<a href="leave-recommendation.php?id='. $leaveApplicationIDEncrypted .'">'. $fileAs . '</a>',
                     'LEAVE_TYPE' => $leaveTypeName,
                     'LEAVE_DATE' => $leaveDateDetails,

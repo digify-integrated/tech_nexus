@@ -49,6 +49,18 @@ class InsurancePolicyController {
                 case 'delete multiple insurance policy':
                     $this->deleteMultipleInsurancePolicy();
                     break;
+                case 'collect insurance policy':
+                    $this->collectInsurancePolicy();
+                    break;
+                case 'collect multiple insurance policy':
+                    $this->collectMultipleInsurancePolicy();
+                    break;
+                case 'remit insurance policy':
+                    $this->remitInsurancePolicy();
+                    break;
+                case 'remit multiple insurance policy':
+                    $this->remitMultipleInsurancePolicy();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -137,6 +149,110 @@ class InsurancePolicyController {
         echo json_encode(['success' => true]);
         exit;
     }
+
+    public function collectInsurancePolicy() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $insurancePolicyID = htmlspecialchars($_POST['insurance_policy_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkInsurancePolicyExist = $this->insurancePolicyModel->checkInsurancePolicyExist($insurancePolicyID);
+        $total = $checkInsurancePolicyExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->insurancePolicyModel->collectInsurancePolicy($insurancePolicyID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function collectMultipleInsurancePolicy() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $insurancePolicyIDs = $_POST['insurance_policy_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($insurancePolicyIDs as $insurancePolicyID){
+            $this->insurancePolicyModel->collectInsurancePolicy($insurancePolicyID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    public function remitInsurancePolicy() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $insurancePolicyID = htmlspecialchars($_POST['insurance_policy_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkInsurancePolicyExist = $this->insurancePolicyModel->checkInsurancePolicyExist($insurancePolicyID);
+        $total = $checkInsurancePolicyExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->insurancePolicyModel->remitInsurancePolicy($insurancePolicyID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function remitMultipleInsurancePolicy() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $insurancePolicyIDs = $_POST['insurance_policy_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($insurancePolicyIDs as $insurancePolicyID){
+            $this->insurancePolicyModel->remitInsurancePolicy($insurancePolicyID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
     
     public function getInsurancePolicyDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -158,8 +274,29 @@ class InsurancePolicyController {
             $insurance_request_id = $insurancePolicyDetails['insurance_request_id'] ?? null;
             $status = $insurancePolicyDetails['status'] ?? 'Active';
             $expiryDate = $insurancePolicyDetails['expiry_date'];
+            
+            $customer_type = $insurancePolicyDetails['customer_type'];
+                $customer_id = $insurancePolicyDetails['customer_id'];
+                $insurance_type_id = $insurancePolicyDetails['insurance_type_id'];
+                $insurance_provider = $insurancePolicyDetails['insurance_provider'];
+                $remittance_status = $insurancePolicyDetails['remittance_status'];
+                $payment_status = $insurancePolicyDetails['payment_status'];
 
             $currentDate = date('Y-m-d');
+
+            if ($remittance_status === 'Remitted') {
+                $remittanceBadge = 'success';
+            }
+            else {
+                $remittanceBadge = 'warning';
+            }
+
+            if ($payment_status === 'Unpaid') {
+                $collectionBadge = 'success';
+            }
+            else {
+                $collectionBadge = 'warning';
+            }
 
             if ($status === 'Cancelled') {
                 $displayStatus = 'Cancelled';
@@ -173,42 +310,26 @@ class InsurancePolicyController {
                 $displayStatus = 'Active';
                 $statusBadge = 'success';
             }
-            
-            $insuranceRequestDetails = $this->insuranceRequestModel->getInsuranceRequest($insurance_request_id);
 
-            $customer_type = $insuranceRequestDetails['customer_type'];
-                $customer_id = $insuranceRequestDetails['customer_id'];
-                $sales_proposal_id = $insuranceRequestDetails['sales_proposal_id'];
-                $insurance_type_id = $insuranceRequestDetails['insurance_type_id'];
-                $insurance_provider = $insuranceRequestDetails['insurance_provider'];
-
-                if($customer_type == 'Customer'){
-                    $customerDetails = $this->customerModel->getPersonalInformation($customer_id);
-                    $customerName = $customerDetails['file_as'] ?? null;
-
-                    $customerPrimaryAddress = $this->customerModel->getCustomerPrimaryAddress($customer_id);
-                    $address = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
-
-                     $customerContactInformation = $this->customerModel->getCustomerPrimaryContactInformation($customer_id);
-                    $mobile = !empty($customerContactInformation['mobile']) ? $customerContactInformation['mobile'] : '--';
-                }
-                else if($customer_type == 'Miscellaneous'){
+            if($customer_type == 'Miscellaneous'){
                     $miscellaneousClientDetails = $this->miscellaneousClientModel->getMiscellaneousClient($customer_id);
                     $customerName = $miscellaneousClientDetails['client_name'] ?? null;
                     $address = $miscellaneousClientDetails['address'] ?? null;
                     $mobile = '--';
                 }
-                else{
-                    $salesProposalDetails = $this->salesProposalModel->getSalesProposal($sales_proposal_id); 
-                    $customer_id = $salesProposalDetails['customer_id'];
-                    
+                else{                    
                     $customerDetails = $this->customerModel->getPersonalInformation($customer_id);
                     $customerName = $customerDetails['file_as'] ?? null;
 
                     $customerPrimaryAddress = $this->customerModel->getCustomerPrimaryAddress($customer_id);
-                    $address = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
-
-                     $customerContactInformation = $this->customerModel->getCustomerPrimaryContactInformation($customer_id);
+                    if(!empty($customerPrimaryAddress['address'] ?? null)){
+                        $address = $customerPrimaryAddress['address'] ?? '' . ', ' . $customerPrimaryAddress['city_name'] ?? '' . ', ' . $customerPrimaryAddress['state_name'] ?? '' . ', ' . $customerPrimaryAddress['country_name'] ?? '';
+                    }
+                    else{
+                        $address = '--';
+                    }
+                    
+                    $customerContactInformation = $this->customerModel->getCustomerPrimaryContactInformation($customer_id);
                     $mobile = !empty($customerContactInformation['mobile']) ? $customerContactInformation['mobile'] : '--';
                 }
 
@@ -222,6 +343,10 @@ class InsurancePolicyController {
                 'success' => true, 
                 'status' => $displayStatus,
                 'statusBadge' => $statusBadge,
+                'remittanceBadge' => $remittanceBadge,
+                'collectionBadge' => $collectionBadge,
+                'payment_status' => $payment_status,
+                'remittance_status' => $remittance_status,
                 'policyNumber' => $insurancePolicyDetails['policy_number'],
                 'policyType' => $insurancePolicyDetails['status'],
                 'customer' => $customerName,
@@ -233,14 +358,16 @@ class InsurancePolicyController {
                 'netPremiumAmount' => number_format($insurancePolicyDetails['net_premium'], 2),
                 'coverageAmount' => number_format($insurancePolicyDetails['coverage_amount'], 2),
                 'inceptionDate' =>  $this->systemModel->checkDate('empty', $insurancePolicyDetails['inception_date'], '', 'm/d/Y', ''),
+                'paymentDate' =>  $this->systemModel->checkDate('empty', $insurancePolicyDetails['payment_date'], '', 'm/d/Y', ''),
+                'remittanceDate' =>  $this->systemModel->checkDate('empty', $insurancePolicyDetails['remittance_date'], '', 'm/d/Y', ''),
                 'expiryDate' =>  $this->systemModel->checkDate('empty', $expiryDate, '', 'm/d/Y', ''),
-                'yearModel'          => $insuranceRequestDetails['year_model'] ?? '--',
-                'color'              => $insuranceRequestDetails['color'] ?? '--',
-                'make'               => $insuranceRequestDetails['make'] ?? '--',
-                'plateNumber'        => $insuranceRequestDetails['plate_number'] ?? '--',
-                'chassisNumber'      => $insuranceRequestDetails['chassis_number'] ?? '--',
-                'engineNumber'       => $insuranceRequestDetails['engine_number'] ?? '--',
-                'mvFileNumber'       => $insuranceRequestDetails['mv_file_number'] ?? '--',
+                'yearModel'          => $insurancePolicyDetails['year_model'] ?? '--',
+                'color'              => $insurancePolicyDetails['color'] ?? '--',
+                'make'               => $insurancePolicyDetails['make'] ?? '--',
+                'plateNumber'        => $insurancePolicyDetails['plate_number'] ?? '--',
+                'chassisNumber'      => $insurancePolicyDetails['chassis_number'] ?? '--',
+                'engineNumber'       => $insurancePolicyDetails['engine_number'] ?? '--',
+                'mvFileNumber'       => $insurancePolicyDetails['mv_file_number'] ?? '--',
                 'paidBy'             => $insurancePolicyDetails['paid_by'] ?? '--',
                 'assured'            => $insurancePolicyDetails['assured'] ?? '--'
             ];

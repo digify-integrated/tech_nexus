@@ -10,7 +10,6 @@ $updatePartsDisabled = $userModel->checkSystemActionAccessRights($user_id, 220);
 
 $disabledPartsForm = 'disabled';
 $disabledLandedCostForm = 'readonly';
-$disabledLandedCostForm2 = 'readonly';
 
 if ($updateLandedCost['total'] > 0 && $partsStatus == 'Draft') {
   $disabledLandedCostForm = '';

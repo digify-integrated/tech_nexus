@@ -9,7 +9,7 @@
   $cityModel = new CityModel($databaseModel);
   $currencyModel  = new CurrencyModel($databaseModel);
 
-  $pageTitle = 'Insurance Configurations';
+  $pageTitle = 'Insurance Provider';
     
   $insuranceProviderReadAccess = $userModel->checkMenuItemAccessRights($user_id, 196, 'read');
   $insuranceProviderCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 196, 'create');

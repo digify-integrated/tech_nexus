@@ -102,6 +102,10 @@
         if($('#for-final-approval-list').length){
             dashboardFinalApprovalList();
         }
+
+        if($('#for-final-approval-list-2').length){
+            dashboardFinalApprovalList2();
+        }
         
         if($('#parts-incoming-dashboard-table').length){
             partsIncomingTable('#parts-incoming-dashboard-table');
@@ -514,6 +518,27 @@ function dashboardFinalApprovalList(){
         dataType: 'json',
         success: function (response) {
             document.getElementById('for-final-approval-list').innerHTML = response.LIST;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function dashboardFinalApprovalList2(){
+    const type = 'dashboard for final approval list 2';
+        
+    $.ajax({
+        type: 'POST',
+        url: 'view/_sales_proposal_generation.php',
+        data: 'type=' + type,
+        dataType: 'json',
+        success: function (response) {
+            document.getElementById('for-final-approval-list-2').innerHTML = response.LIST;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

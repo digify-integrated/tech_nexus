@@ -54,19 +54,19 @@
             </div>
           </div>
           <div class="card-body">
-            <div class="table-responsive dt-responsive">
+            <div class="table-responsive dt-responsive w-100">
               <table id="borrower-extraction-table" class="table table-hover text-wrap w-100">
                 <thead>
                   <tr>
-                    <th>Borrower Unique Number</th>
-                    <th>First Name</th>
-                    <th>Middle + Last Name</th>
-                    <th>Birthday</th>
-                    <th>Address</th>
-                    <th>City/Town</th>
-                    <th>Province</th>
-                    <th>Mobile</th>
-                    <th>Email</th>
+                    <th class="w-100">Borrower Unique Number</th>
+                    <th class="w-100">First Name</th>
+                    <th class="w-100">Middle + Last Name</th>
+                    <th class="w-100">Birthday</th>
+                    <th class="w-100">Address</th>
+                    <th class="w-100">City/Town</th>
+                    <th class="w-100">Province</th>
+                    <th class="w-100">Mobile</th>
+                    <th class="w-100">Email</th>
                   </tr>
                 </thead>
                 <tbody></tbody>

@@ -49,7 +49,7 @@ $sql = $databaseModel->getConnection()->prepare('
     SELECT * 
     FROM loan_collections
     WHERE mode_of_payment = "Check"
-    AND check_number LIKE "%LACKING%"
+    AND check_number LIKE "%LACKING%" AND collection_status = "Pending"
 ');
 $sql->execute();
 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
@@ -71,10 +71,13 @@ foreach ($options as $row) {
     $customerDetails = $customerModel->getPersonalInformation($customerID);
     $customerName = $customerDetails['file_as'] ?? '';
 
+    $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID); 
+    $releasedDate =  $systemModel->checkDate('default', $salesProposalDetails['released_date'], '', 'm/d/Y', '');
+
     if($pdcType == 'Leasing'){
         $leasing = $leasingApplicationModel->getLeasingApplication($leasingApplicationID);
-
         $loanNumber = $leasing['leasing_application_number'] ?? '';
+        $releasedDate = date('m/d/Y', strtotime($group['activation_date']));
 
         $tenant = $tenantModel->getTenant($leasing['tenant_id'] ?? '');
         $customerName = $tenant['tenant_name'] ?? '';
@@ -87,6 +90,7 @@ foreach ($options as $row) {
             'customer' => $customerName,
             'loan_number' => $loanNumber,
             'check_count' => 0,
+            'released_date' => $releasedDate,
             'earliest_date' => $checkDateRaw,
             'payment_amount' => $paymentAmount
         ];
@@ -106,6 +110,7 @@ $table = '
             <th>Customer</th>
             <th>Loan Number</th>
             <th>No. of Checks</th>
+            <th>Released Date</th>
             <th>Earliest Check Date</th>
             <th>Check Amount</th>
         </tr>
@@ -120,6 +125,7 @@ foreach($groupedData as $group){
             <td>'.$group['customer'].'</td>
             <td>'.$group['loan_number'].'</td>
             <td align="center">'.$group['check_count'].'</td>
+            <td>'.$group['released_date'].'</td>
             <td>'.date('m/d/Y', strtotime($group['earliest_date'])).'</td>
             <td align="right">'.number_format($group['payment_amount'],2).'</td>
         </tr>
@@ -176,6 +182,7 @@ $mailer->addAddress('j.pineda@christianmotors.ph');
 $mailer->addAddress('l.cabarles@christianmotors.ph');
 $mailer->addAddress('christianbaguisa@christianmotors.ph');
 $mailer->addAddress('ma.garsula@christianmotors.ph');
+$mailer->addAddress('glenbonita@christianmotors.ph');
 $mailer->Subject = $emailSubject;
 $mailer->Body = $message;
 

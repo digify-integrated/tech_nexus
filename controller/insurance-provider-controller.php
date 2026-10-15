@@ -81,8 +81,14 @@ class InsuranceProviderController {
                 case 'save insurance provider':
                     $this->saveInsuranceProvider();
                     break;
+                case 'save coverage':
+                    $this->saveCoverage();
+                    break;
                 case 'get insurance provider details':
                     $this->getInsuranceProviderDetails();
+                    break;
+                case 'get coverage details':
+                    $this->getCoverageDetails();
                     break;
                 case 'delete insurance provider':
                     $this->deleteInsuranceProvider();
@@ -90,11 +96,60 @@ class InsuranceProviderController {
                 case 'delete multiple insurance provider':
                     $this->deleteMultipleInsuranceProvider();
                     break;
-                case 'duplicate insurance provider':
-                    $this->duplicateInsuranceProvider();
+                case 'delete coverage':
+                    $this->deleteCoverage();
                     break;
-                case 'change insurance provider logo':
-                    $this->updateInsuranceProviderLogo();
+                case 'generate category rate form':
+                    $provider_id = $_POST['provider_id'] ?? null;
+                    if (!$provider_id) {
+                        echo json_encode(['success' => false, 'message' => 'Provider ID is required']);
+                        exit;
+                    }
+
+                    $categories = $this->insuranceProviderModel->getCategoryRatesByProvider($provider_id);
+                    
+                    echo json_encode([
+                        'success' => true,
+                        'categories' => $categories
+                    ]);
+                    exit;
+                    break;
+
+                case 'save category rates':
+                    if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+                        echo json_encode(['success' => false, 'isInactive' => true]);
+                        exit;
+                    }
+                    $userID = $_SESSION['user_id'];
+
+                    $provider_id = $_POST['insurance_provider_id'] ?? null;
+                    $rates = $_POST['rates'] ?? []; // Array of [category_id => ['insurance_rate' => x, 'commission_rate' => y]]
+
+                    if (!$provider_id || empty($rates)) {
+                        echo json_encode(['success' => false, 'message' => 'No rates provided to save.']);
+                        exit;
+                    }
+
+                    foreach ($rates as $category_id => $values) {
+                        $insurance_rate = (float)($values['insurance_rate'] ?? 0);
+                        $commission_rate = (float)($values['commission_rate'] ?? 0);
+
+                        // Basic validation: ensure rates aren't negative
+                        if ($insurance_rate < 0 || $commission_rate < 0) {
+                            echo json_encode(['success' => false, 'message' => 'Rates cannot be negative.']);
+                            exit;
+                        }
+
+                        $this->insuranceProviderModel->saveCategoryRate(
+                            $provider_id, 
+                            $category_id, 
+                            $insurance_rate, 
+                            $commission_rate, 
+                            $userID
+                        );
+                    }
+
+                    echo json_encode(['success' => true]);
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -135,6 +190,7 @@ class InsuranceProviderController {
         $telephone = htmlspecialchars($_POST['telephone'], ENT_QUOTES, 'UTF-8');
         $email = htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8');
         $website = htmlspecialchars($_POST['website'], ENT_QUOTES, 'UTF-8');
+        $local_government_tax_rate = htmlspecialchars($_POST['local_government_tax_rate'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -147,15 +203,74 @@ class InsuranceProviderController {
         $total = $checkProviderExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->insuranceProviderModel->updateInsuranceProvider($providerID, $providerName, $address, $cityID, $taxId, $currencyID, $mobile, $telephone, $email, $website, $userID);
+            $this->insuranceProviderModel->updateInsuranceProvider($providerID, $providerName, $address, $cityID, $taxId, $currencyID, $mobile, $telephone, $email, $website, $local_government_tax_rate, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'providerID' => $this->securityModel->encryptData($providerID)]);
             exit;
         } 
         else {
-            $providerID = $this->insuranceProviderModel->insertInsuranceProvider($providerName, $address, $cityID, $taxId, $currencyID, $mobile, $telephone, $email, $website, $userID);
+            $providerID = $this->insuranceProviderModel->insertInsuranceProvider($providerName, $address, $cityID, $taxId, $currencyID, $mobile, $telephone, $email, $website, $local_government_tax_rate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'providerID' => $this->securityModel->encryptData($providerID)]);
+            exit;
+        }
+    }
+
+    public function saveCoverage() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+
+        if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $insurance_coverage_rate_id = isset($_POST['insurance_coverage_rate_id']) ? htmlspecialchars($_POST['insurance_coverage_rate_id'], ENT_QUOTES, 'UTF-8') : null;
+        $insurance_provider_id = $_POST['insurance_provider_id'] ?? null;
+        $coverage_amount_start = $_POST['coverage_amount_start'] ?? null;
+        $coverage_amount_end = $_POST['coverage_amount_end'] ?? null;
+        $bi_rate = $_POST['bi_rate'] ?? null;
+        $pd_amount = $_POST['pd_amount'] ?? null;
+
+        // --- Start & End Validation ---
+        if (!is_numeric($coverage_amount_start) || !is_numeric($coverage_amount_end)) {
+            echo json_encode(['success' => false, 'message' => 'Coverage start and end amounts must be valid numbers.']);
+            exit;
+        }
+
+        $start = (float) $coverage_amount_start;
+        $end = (float) $coverage_amount_end;
+
+        // Prevents start from being greater than or equal to end (e.g. start: 100, end: 12)
+        if ($start >= $end) {
+            echo json_encode(['success' => false, 'message' => 'Start coverage amount cannot be greater than or equal to the end coverage amount.']);
+            exit;
+        }
+        // ------------------------------
+
+        $user = $this->userModel->getUserByID($userID);
+
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $checkCoverageExist = $this->insuranceProviderModel->checkCoverageExist($insurance_coverage_rate_id);
+        $total = $checkCoverageExist['total'] ?? 0;
+
+        if ($total > 0) {
+            $this->insuranceProviderModel->updateCoverage($insurance_coverage_rate_id, $insurance_provider_id, $start, $end, $bi_rate, $pd_amount, $userID);
+            
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            $this->insuranceProviderModel->insertCoverage($insurance_provider_id, $start, $end, $bi_rate, $pd_amount, $userID);
+
+            echo json_encode(['success' => true]);
             exit;
         }
     }
@@ -165,124 +280,6 @@ class InsuranceProviderController {
     #   Update methods
     # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    #
-    # Function: updateInsuranceProviderLogo
-    # Description: 
-    # Handles the update of the provider's brand logo image.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function updateInsuranceProviderLogo() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $providerID = htmlspecialchars($_POST['provider_id'], ENT_QUOTES, 'UTF-8');
-        
-        $user = $this->userModel->getUserByID($userID);
-        $isActive = $user['is_active'] ?? 0;
-    
-        if (!$isActive) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-
-        $providerLogoFileName = $_FILES['provider_logo']['name'];
-        $providerLogoFileSize = $_FILES['provider_logo']['size'];
-        $providerLogoFileError = $_FILES['provider_logo']['error'];
-        $providerLogoTempName = $_FILES['provider_logo']['tmp_name'];
-        $providerLogoFileExtension = explode('.', $providerLogoFileName);
-        $providerLogoActualFileExtension = strtolower(end($providerLogoFileExtension));
-
-        $uploadSetting = $this->uploadSettingModel->getUploadSetting(3);
-        $maxFileSize = $uploadSetting['max_file_size'];
-
-        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(3);
-        $allowedFileExtensions = [];
-
-        foreach ($uploadSettingFileExtension as $row) {
-            $fileExtensionID = $row['file_extension_id'];
-            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
-            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
-        }
-
-        if (!in_array($providerLogoActualFileExtension, $allowedFileExtensions)) {
-            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
-            echo json_encode($response);
-            exit;
-        }
-        
-        if(empty($providerLogoTempName)){
-            echo json_encode(['success' => false, 'message' => 'Please choose the insurance provider logo.']);
-            exit;
-        }
-        
-        if($providerLogoFileError){
-            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
-            exit;
-        }
-        
-        if($providerLogoFileSize > ($maxFileSize * 1048576)){
-            echo json_encode(['success' => false, 'message' => 'The uploaded file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
-            exit;
-        }
-
-        $fileName = $this->securityModel->generateFileName();
-        $fileNew = $fileName . '.' . $providerLogoActualFileExtension;
-
-        $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'insurance_provider/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'insurance_provider/' . $fileNew;
-        $filePath = $directory . $fileNew;
-
-        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
-
-        if(!$directoryChecker){
-            echo json_encode(['success' => false, 'message' => $directoryChecker]);
-            exit;
-        }
-
-        $providerDetails = $this->insuranceProviderModel->getInsuranceProvider($providerID);
-        $providerLogo = !empty($providerDetails['provider_logo']) ? '.' . $providerDetails['provider_logo'] : null;
-
-        if(file_exists($providerLogo)){
-            if (!unlink($providerLogo)) {
-                echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
-                exit;
-            }
-        }
-
-        if(!move_uploaded_file($providerLogoTempName, $fileDestination)){
-            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
-            exit;
-        }
-
-        $this->insuranceProviderModel->updateInsuranceProviderLogo($providerID, $filePath, $userID);
-
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #   Delete methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: deleteInsuranceProvider
-    # Description: 
-    # Delete the insurance provider if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
     public function deleteInsuranceProvider() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -321,19 +318,34 @@ class InsuranceProviderController {
         echo json_encode(['success' => true]);
         exit;
     }
-    # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    #
-    # Function: deleteMultipleInsuranceProvider
-    # Description: 
-    # Delete the selected insurance providers if they exist; otherwise, skip.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
+    public function deleteCoverage() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+       if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userID = $_SESSION['user_id'];
+        } else {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $insurance_coverage_rate_id = isset($_POST['insurance_coverage_rate_id']) ? htmlspecialchars($_POST['insurance_coverage_rate_id'], ENT_QUOTES, 'UTF-8') : null;
+       
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $this->insuranceProviderModel->deleteCoverage($insurance_coverage_rate_id);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
     public function deleteMultipleInsuranceProvider() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -368,72 +380,6 @@ class InsuranceProviderController {
     }
     # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    #   Duplicate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: duplicateInsuranceProvider
-    # Description: 
-    # Duplicates the insurance provider configuration details if it exists.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function duplicateInsuranceProvider() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $providerID = htmlspecialchars($_POST['provider_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkProviderExist = $this->insuranceProviderModel->checkInsuranceProviderExist($providerID);
-        $total = $checkProviderExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-
-        $providerDetails = $this->insuranceProviderModel->getInsuranceProvider($providerID);
-        $providerLogo = !empty($providerDetails['provider_logo']) ? '.' . $providerDetails['provider_logo'] : null;
-
-        if(file_exists($providerLogo)){
-            $extension = pathinfo($providerLogo, PATHINFO_EXTENSION);
-
-            $fileName = $this->securityModel->generateFileName();
-            $fileNew = $fileName . '.' . $extension;
-
-            $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'insurance_provider/';
-            $filePath = $directory . $fileNew;
-
-            copy($providerLogo, '.' . $filePath);
-        }
-        else{
-            $filePath = null;
-        }
-
-        $providerID = $this->insuranceProviderModel->duplicateInsuranceProvider($providerID, $userID);
-
-        if(file_exists($providerLogo)){
-            $this->insuranceProviderModel->updateInsuranceProviderLogo($providerID, $filePath, $userID);
-        }        
-
-        echo json_encode(['success' => true, 'providerID' =>  $this->securityModel->encryptData($providerID)]);
-        exit;
-    }
-    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Get details methods
@@ -496,7 +442,39 @@ class InsuranceProviderController {
                 'mobile' => $providerDetails['mobile'],
                 'telephone' => $providerDetails['telephone'],
                 'email' => $providerDetails['email'],
-                'website' => $providerDetails['website']
+                'website' => $providerDetails['website'],
+                'localGovernmentTaxRate' => $providerDetails['local_government_tax_rate'],
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+
+     public function getCoverageDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['insurance_coverage_rate_id']) && !empty($_POST['insurance_coverage_rate_id'])) {
+            $userID = $_SESSION['user_id'];
+            $insurance_coverage_rate_id = $_POST['insurance_coverage_rate_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $coverageDetails = $this->insuranceProviderModel->getCoverage($insurance_coverage_rate_id);
+
+            $response = [
+                'success' => true,
+                'coverage_amount_start' => $coverageDetails['coverage_amount_start'] ?? 0,
+                'coverage_amount_end' => $coverageDetails['coverage_amount_end'] ?? 0,
+                'bi_rate' => $coverageDetails['bi_rate'] ?? 0,
+                'pd_amount' => $coverageDetails['pd_amount'] ?? 0,
             ];
 
             echo json_encode($response);

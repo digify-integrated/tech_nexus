@@ -321,6 +321,7 @@ class BackJobMonitoringController {
         $userID = $_SESSION['user_id'];
         $backjobMonitoringID = isset($_POST['backjob_monitoring_id']) ? htmlspecialchars($_POST['backjob_monitoring_id'], ENT_QUOTES, 'UTF-8') : null;
         $type = htmlspecialchars($_POST['type'], ENT_QUOTES, 'UTF-8');
+        $warranty_source = htmlspecialchars($_POST['warranty_source'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -339,7 +340,7 @@ class BackJobMonitoringController {
         if($type === 'Internal Repair'){
             $product_id = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
         }
-        else if($type === 'Warranty'){
+        else if($type === 'Warranty' || $type === 'FOC Repair/Warranty'){
             $product_id = htmlspecialchars($_POST['product_id2'], ENT_QUOTES, 'UTF-8');
         }
         else{
@@ -351,7 +352,7 @@ class BackJobMonitoringController {
         $total = $checkBackJobMonitoringExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->backJobMonitoringModel->updateBackJobMonitoring($backjobMonitoringID, $type, $product_id, $sales_proposal_id, $userID);
+            $this->backJobMonitoringModel->updateBackJobMonitoring($backjobMonitoringID, $type, $product_id, $sales_proposal_id, $warranty_source, $userID);
 
             $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
 
@@ -363,7 +364,7 @@ class BackJobMonitoringController {
             exit;
         } 
         else {
-            $backjobMonitoringID = $this->backJobMonitoringModel->insertBackJobMonitoring($type, $product_id, $sales_proposal_id, $userID);
+            $backjobMonitoringID = $this->backJobMonitoringModel->insertBackJobMonitoring($type, $product_id, $sales_proposal_id, $warranty_source, $userID);
 
             if($type == 'Backjob'){
                 $this->backJobMonitoringModel->loadBackJobMonitoringJobOrder($backjobMonitoringID, $sales_proposal_id, $userID);
@@ -1429,6 +1430,7 @@ class BackJobMonitoringController {
 
         echo json_encode(['success' => true]);
     }
+
     public function tagBackJobMonitoringAsCancelled() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -1673,6 +1675,22 @@ class BackJobMonitoringController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        // ADD ENTRY HERE
+        $backJobMonitoringDetails = $this->backJobMonitoringModel->getBackJobMonitoring($backjobMonitoringID);
+        $type = $backJobMonitoringDetails['type'];
+        $product_id = $backJobMonitoringDetails['product_id'];
+
+        if($type == 'FOC Repair/Warranty'){          
+            $productDetails = $this->productModel->getProduct($product_id);
+            $company_id = $productDetails['company_id'] ?? 1;
+            $product_status = $productDetails['product_status'] ?? 'Draft';
+            $stock_number = $productDetails['stock_number'] ?? '';
+            $total_cost = $this->backJobMonitoringModel->getBackJobMonitoringCostTotal($backjobMonitoringID);
+            
+            $entry_type = 'FOC Repair/Warranty';
+            $this->backJobMonitoringModel->createBackjobJobOrderFOCEntry($backjobMonitoringID, $stock_number, $entry_type, $company_id, $total_cost, $userID);
+        }
     
         $this->backJobMonitoringModel->updateBackJobMonitoringAsForDR($backjobMonitoringID, 'For DR', $userID);
 
@@ -1746,6 +1764,7 @@ class BackJobMonitoringController {
                 'type' => $backJobMonitoringDetails['type'],
                 'product_id' => $backJobMonitoringDetails['product_id'],
                 'sales_proposal_id' => $backJobMonitoringDetails['sales_proposal_id'],
+                'warranty_source' => $backJobMonitoringDetails['warranty_source'],
                 'unitImage' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_image'], 'default'),
                 'unitBack' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_back'], 'default'),
                 'unitLeft' =>  $this->systemModel->checkImage($backJobMonitoringDetails['unit_left'], 'default'),

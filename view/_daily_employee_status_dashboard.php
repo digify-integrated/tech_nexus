@@ -1,5 +1,4 @@
-<div class="row">
-  <div class="col-xl-12 col-md-12">
+<div class="col-xl-12 col-md-12">
     <div class="card table-card">
       <div class="card-header">
         <div class="row align-items-center">
@@ -63,8 +62,7 @@
       </div>
     </div>
   </div>
-</div>
-
+  
 <div class="ecom-wrapper">
   <div class="offcanvas offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
     <div class="offcanvas-body p-0 sticky-top">

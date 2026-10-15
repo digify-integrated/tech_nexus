@@ -15,6 +15,8 @@
                 <ul class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                     <li><a class="nav-link active" id="sales-proposal-tab-1" data-bs-toggle="pill" href="#v-basic-details" role="tab" aria-controls="v-basic-details" aria-selected="true" disabled>Basic Details</a></li>
                     <li><a class="nav-link d-none" id="sales-proposal-tab-2" data-bs-toggle="pill" href="#v-unit-details" role="tab" aria-controls="v-unit-details" aria-selected="false" disabled>Unit Details</a></li>
+                    <li><a class="nav-link d-none" id="sales-proposal-tab-17" data-bs-toggle="pill" href="#v-pms-details" role="tab" aria-controls="v-pms-details" aria-selected="false" disabled>PMS Details</a></li>
+                    <li><a class="nav-link d-none" id="sales-proposal-tab-18" data-bs-toggle="pill" href="#v-parts-requested" role="tab" aria-controls="v-parts-requested" aria-selected="false" disabled>PMS Requested Parts</a></li>
                     <li><a class="nav-link d-none" id="sales-proposal-tab-3" data-bs-toggle="pill" href="#v-fuel-details" role="tab" aria-controls="v-fuel-details" aria-selected="false" disabled>Fuel Details</a></li>
                     <li><a class="nav-link d-none" id="sales-proposal-tab-4" data-bs-toggle="pill" href="#v-refinancing-details" role="tab" aria-controls="v-refinancing-details" aria-selected="false" disabled>Refinancing Details</a></li>
                     <li><a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="pill" href="#v-job-order" role="tab" aria-controls="v-job-order" aria-selected="false" disabled>Job Order</a></li>
@@ -173,6 +175,7 @@
                                     <!--<option value="2">NE Truck Builders</option>-->
                                     <option value="3">FUSO Tarlac</option>
                                     <option value="8">NE Fuel</option>
+                    <option value="15">Omoda Jaecoo</option>
                                 </select>
                                 </div>
                             </div>
@@ -182,19 +185,19 @@
                                 <select class="form-control select2" name="product_type" id="product_type">
                                      <option value="">--</option>
                                         <optgroup label="Sales">
-                                        <option value="Unit">Unit</option>
-                                        <option value="Fuel">Fuel</option>
-                                        <option value="Rental">Rental</option>
-                                        <option value="Consignment">Consignment</option>
-                                        <option value="Brand New">Brand New</option>
-                                        <option value="Refinancing">Refinancing</option>
-                                        <option value="Restructure">Restructure</option>
-                                        <option value="Real Estate">Real Estate</option>
+                                            <option value="Unit">Unit</option>
+                                            <option value="Fuel">Fuel</option>
+                                            <option value="Rental">Rental</option>
+                                            <option value="Consignment">Consignment</option>
+                                            <option value="Brand New">Brand New</option>
+                                            <option value="Refinancing">Refinancing</option>
+                                            <option value="Restructure">Restructure</option>
+                                            <option value="Real Estate">Real Estate</option>
                                         </optgroup>
                                         <optgroup label="Aftersales">
-                                        <option value="PMS">PMS</option>
-                                        <option value="Parts">Parts</option>
-                                        <option value="Repair">Repair</option>
+                                            <option value="PMS">PMS</option>
+                                            <option value="Parts">Parts</option>
+                                            <option value="Repair">Repair</option>
                                         </optgroup>
                                 </select>
                                 </div>
@@ -591,6 +594,151 @@
                         </div>
                         </form>
                     </div>
+                    
+
+                    <div class="tab-pane" id="v-pms-details">
+                            <form id="sales-proposal-pms-details-form" method="post" action="#">
+                            <div class="row">
+
+                                <!-- 1. SELECTION SECTION -->
+                                <div class="col-lg-12">
+                                <h6 class="text-primary font-weight-bold mb-3">1. Selection</h6>
+                                </div>
+
+                                <div class="col-lg-12">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">PMS Product :</label>
+                                    <div class="col-lg-9">
+                                    <select class="form-control select2" name="pms_product_id" id="pms_product_id">
+                                        <option value="">--</option>
+                                        <?php echo $productModel->generateAllProductOptions(); ?>
+                                    </select>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">PMS Catalog : <span class="text-danger">*</span></label>
+                                    <div class="col-lg-9">
+                                    <select class="form-control select2" name="pms_catalog_id" id="pms_catalog_id">
+                                        <option value="">--</option>
+                                        <?php echo $pmsCatalogModel->generatePMSCatalogOptions(); ?>
+                                    </select>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">PMS Matrix : <span class="text-danger">*</span></label>
+                                    <div class="col-lg-9">
+                                    <select class="form-control select2" multiple="multiple" name="pms_matrix_id" id="pms_matrix_id"></select>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <!-- SEPARATOR -->
+                                <div class="col-lg-12"><hr class="my-4"></div>
+
+                                <!-- 2. PARTS & LABOR SECTION -->
+                                <div class="col-lg-12">
+                                <h6 class="text-primary font-weight-bold mb-3">2. Parts & Labor</h6>
+                                </div>
+
+                                <div class="col-lg-12">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Total PMS Parts Cost :</label>
+                                    <div class="col-lg-9">
+                                    <input type="text" class="form-control currency bg-light" id="total_parts_cost" name="total_parts_cost" readonly>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">PMS Labor :</label>
+                                    <div class="col-lg-9">
+                                    <input type="text" class="form-control currency bg-light" id="labor_cost" name="labor_cost" readonly>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Add-on PMS Labor Hours :</label>
+                                    <div class="col-lg-9">
+                                    <input type="text" class="form-control currency" id="add_on_labor_rate" name="add_on_labor_rate">
+                                    <input type="hidden" id="labor_rate">
+                                    </div>
+                                </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label font-weight-bold">PMS Labor Total :</label>
+                                    <div class="col-lg-9">
+                                    <input type="text" class="form-control currency bg-light font-weight-bold" id="pms_labor_total" name="pms_labor_total" readonly>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <!-- SEPARATOR -->
+                                <div class="col-lg-12"><hr class="my-4"></div>
+
+                                <!-- 3. CONSUMABLES SECTION -->
+                                <div class="col-lg-12">
+                                <h6 class="text-primary font-weight-bold mb-3">3. Consumables</h6>
+                                </div>
+
+                                <div class="col-lg-12">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">PMS Consumable :</label>
+                                    <div class="col-lg-9">
+                                    <input type="text" class="form-control currency bg-light" id="consumable_total" name="consumable_total" readonly>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Add-on PMS Consumable Unit:</label>
+                                    <div class="col-lg-9">
+                                    <input type="text" class="form-control currency" id="add_on_consumables_rate" name="add_on_consumables_rate">
+                                    <input type="hidden" id="consumable_rate">
+                                    </div>
+                                </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label font-weight-bold">PMS Consumable Total:</label>
+                                    <div class="col-lg-9">
+                                    <input type="text" class="form-control currency bg-light font-weight-bold" id="pms_consumable_total" name="pms_consumable_total" readonly>
+                                    </div>
+                                </div>
+                                </div>
+
+                            </div>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane" id="v-parts-requested">
+                            <div class="table-responsive">
+                            <table id="sales-proposal-pms-parts-table" class="table table-hover nowrap w-100">
+                                <thead>
+                                <tr>
+                                    <th>Part</th>
+                                    <th>QTY.</th>
+                                    <th>Price</th>
+                                    <th>Total Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            </div>
+                        </div>
                     <div class="tab-pane" id="v-job-order">
                         <div class="table-responsive">
                         <table id="sales-proposal-job-order-table" class="table table-hover nowrap w-100">

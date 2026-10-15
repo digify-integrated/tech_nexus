@@ -1,3 +1,13 @@
+<?php
+  $updateORDate = $userModel->checkSystemActionAccessRights($user_id, 242);
+
+  $datepicker = '';
+  $datepicker_disabled = 'disabled';
+  if($updateORDate['total'] > 0){
+    $datepicker = 'regular-datepicker';
+    $datepicker_disabled = '';
+  }
+?>
 <div class="row">
   <div class="col-lg-12">
     <div class="card">
@@ -178,6 +188,7 @@
                     <option value="Pull-out Fee">Pull-out Fee</option>
                     <option value="Collection Fee">Collection Fee</option>
                     <option value="Rental">Rental</option>
+                <option value="Lot Payment">Lot Payment</option>
                 </select>
             </div>
           </div>
@@ -187,7 +198,7 @@
             <div class="col-lg-4">
                 <input type="number" class="form-control" id="payment_amount" name="payment_amount" min="0" step="0.01" <?php echo $disabled; ?>>
             </div>
-            <label class="col-lg-2 col-form-label">Online Reference Number</label>
+            <label class="col-lg-2 col-form-label">Online Reference No.</label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
             </div>
@@ -200,13 +211,21 @@
           ?>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">OR Number <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
+            <div class="col-lg-2">
+              <select class="form-control select2" name="or_type" id="or_type" <?php echo $disabled; ?>>
+                <option value="">Select OR Type</option>
+                <option value="OR">OR</option>
+                <option value="Sales Invoice">Sales Invoice</option>
+                <option value="Service Invoice">Service Invoice</option>
+              </select>
+            </div>
+            <div class="col-lg-2">
               <input type="text" class="form-control" id="or_number" name="or_number" maxlength="100" autocomplete="off"  <?php echo $readonly . ' ' .$disabled; ?>>
             </div>
             <label class="col-lg-2 col-form-label">OR Date <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="or_date" name="or_date" autocomplete="off" <?php echo $disabled; ?>>
+                    <input type="text" class="form-control <?php echo $datepicker ?>" id="or_date" name="or_date" autocomplete="off" <?php echo $datepicker_disabled ?>>
                     <span class="input-group-text">
                         <i class="feather icon-calendar"></i>
                     </span>

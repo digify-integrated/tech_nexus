@@ -191,8 +191,8 @@ class TransmittalController {
                 $transmittalDetails = $this->transmittalModel->getTransmittal($transmittalID);
                 $clientConfirmationImage = !empty($transmittalDetails['transmittal_image']) ? '.' . $transmittalDetails['transmittal_image'] : null;
         
-                if(file_exists($transmittalImage)){
-                    if (!unlink($transmittalImage)) {
+                if(file_exists($clientConfirmationImage)){
+                    if (!unlink($clientConfirmationImage)) {
                         echo json_encode(['success' => false, 'message' => 'Transmittal image cannot be deleted due to an error.']);
                         exit;
                     }
@@ -669,15 +669,31 @@ class TransmittalController {
             exit;
         }
 
-        foreach($transmittalIDs as $transmittalID){
+      foreach ($transmittalIDs as $transmittalID) {
             $transmittalDetails = $this->transmittalModel->getTransmittal($transmittalID);
-            $receiverID = $transmittalDetails['receiver_id'];
-            $receiverDepartment = $transmittalDetails['receiver_department'];
-            $transmittalStatus = $transmittalDetails['transmittal_status'];
-
-            if(($transmittalStatus == 'Transmitted' || $transmittalStatus == 'Re-Transmitted') && ((!empty($receiverID) && $receiverID == $contactID) || (empty($receiverID) && $receiverDepartment == $contactDepartment))){
-                $this->transmittalModel->updateTransmittalStatus($transmittalID, 'Received', $userID);
+            
+            // Skip if transmittal record doesn't exist
+            if (!$transmittalDetails) {
+                continue;
             }
+
+            $receiverID = $transmittalDetails['receiver_id'] ?? null;
+            $receiverDepartment = $transmittalDetails['receiver_department'] ?? null;
+            $transmittalStatus = $transmittalDetails['transmittal_status'] ?? null;
+
+            // Cleaner status check using in_array
+            if (!in_array($transmittalStatus, ['Transmitted', 'Re-Transmitted'], true)) {
+                continue;
+            }
+
+            // Receiver validation check
+            if ((!empty($receiverID) && $receiverID !== $contactID) || 
+                (empty($receiverID) && $receiverDepartment !== $contactDepartment)) {
+                continue;
+            }
+
+            // Update status if all checks pass
+            $this->transmittalModel->updateTransmittalStatus($transmittalID, 'Received', $userID);
         }
             
         echo json_encode(['success' => true]);

@@ -60,6 +60,7 @@
                 <option value="">--</option>
                   <option value="2">Christian General Motors Inc.</option>
                   <option value="3">FUSO Tarlac</option>
+                  <option value="15">Omoda Jaecoo</option>
                 </select>
             </div>
           </div>

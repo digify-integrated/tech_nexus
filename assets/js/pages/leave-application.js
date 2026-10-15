@@ -186,6 +186,73 @@
             }
         });
 
+        $(document).on('click','#recommend-leave',function() {
+            let leave_application_id = [];
+            const transaction = 'recommend multiple leave application';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    leave_application_id.push(element.value);
+                }
+            });
+    
+            if(leave_application_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple Leave Applications Recommendation',
+                    text: 'Are you sure you want to recommend these leave applications?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Recommend',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/leave-application-controller.php',
+                            dataType: 'json',
+                            data: {
+                                leave_application_id: leave_application_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Recommend Leave Application Success', 'The selected leave applications have been recommended successfully.', 'success');
+                                        reloadDatatable('#leave-recommendation-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Recommend Leave Application Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Recommend Multiple Leave Application Error', 'Please select the leave applications you wish to recommend.', 'danger');
+            }
+        });
+
         $(document).on('click','#delete-leave-application-details',function() {
             const leave_application_id = $('#leave-application-id').text();
             const transaction = 'delete leave application';
@@ -759,6 +826,7 @@ function leaveRecommendationTable(datatable_name, buttons = false, show_all = fa
     var settings;
 
     const column = [ 
+        { 'data' : 'CHECK_BOX' },
         { 'data' : 'FILE_AS' },
         { 'data' : 'LEAVE_TYPE' },
         { 'data' : 'LEAVE_DATE' },
@@ -768,12 +836,13 @@ function leaveRecommendationTable(datatable_name, buttons = false, show_all = fa
     ];
 
     const column_definition = [
-        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': '15%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

@@ -69,6 +69,10 @@
                 case 'PMS':
                     $('#pms-card').removeClass('d-none');
                     resetModalForm('pms-card');
+                    $('#term_length').val('7');
+                    $('#number_of_payments').val('1');
+                    checkOptionExist('#term_type', 'Days', '');
+                    checkOptionExist('#payment_frequency', 'Lumpsum', '');
                     break;
                 case 'Brand New':
                 case 'Refinancing':
@@ -134,6 +138,26 @@
            displayDetails('get pms matrix total details');
         });
 
+        $(document).on('change','#total_parts_cost',function() {
+            calculatePMSTotal();
+        });
+
+        $(document).on('change','#labor_cost',function() {
+            calculatePMSTotal();
+        });
+
+        $(document).on('change','#add_on_labor_rate',function() {
+            calculatePMSTotal();
+        });
+
+        $(document).on('change','#consumable_total',function() {
+            calculatePMSTotal();
+        });
+
+        $(document).on('change','#add_on_consumables_rate',function() {
+            calculatePMSTotal();
+        });
+
         $(document).on('change','#diesel_fuel_quantity',function() {
             calculateFuelTotal();
             calculateTotalOtherCharges();
@@ -181,6 +205,7 @@
         });
 
         $(document).on('change','#term_length',function() {
+            calculateFirstDueDate();
             calculatePricingComputation();
         });
 
@@ -286,6 +311,8 @@
                 $('#payment_frequency').append(new Option('Quarterly', 'Quarterly', false, false));
                 $('#payment_frequency').append(new Option('Semi-Annual', 'Semi-Annual', false, false));
             }
+            
+            calculateFirstDueDate();
         });
     });
 })(jQuery);
@@ -344,6 +371,9 @@ function addSalesProposalForm(){
                 required: true
             },
             commission_amount: {
+                required: true
+            },
+            first_due_date: {
                 required: true
             },
             product_id: {
@@ -514,6 +544,9 @@ function addSalesProposalForm(){
             },
             new_color: {
                 required: 'Please enter the new color'
+            },
+            first_due_date: {
+                required: 'The first due date is missing kindly check term'
             },
             new_body: {
                 required: 'Please enter the new body'
@@ -1065,7 +1098,7 @@ function calculateRenewalAmount(){
 function calculateTotalOtherCharges(){
     var productType = $('#product_type').val();
 
-    if(productType != 'Fuel' && productType != 'Parts' && productType != 'Repair' && productType != 'Rental'){
+    if(productType != 'Fuel' && productType != 'Parts' && productType != 'Repair' && productType != 'Rental' && productType != 'PMS'){
         var amount_financed = parseCurrency($("#amount_financed").val());
         var pn_amount = parseCurrency($("#pn_amount").val());
         var product_category = $('#product_category').val();
@@ -1252,9 +1285,12 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         // Populate inputs formatted as currency
-                        $('#delivery_price').val(Number(response.totalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                        $('#total_parts_cost').val(Number(response.totalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                         $('#labor_cost').val(Number(response.laborCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                         $('#consumable_total').val(Number(response.consumableTotal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                        
+                        $('#labor_rate').val(response.maxLaborCost);
+                        $('#consumable_rate').val(response.maxConsumables);
                     } else {
                         if (response.isInactive) {
                             window.location = 'logout.php?logout';
@@ -1272,10 +1308,49 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
+                    calculatePMSTotal();
                     calculateTotalDeliveryPrice();
                     calculateTotalOtherCharges();
                 }
             });
             break;
     }
+}
+
+function calculatePMSTotal() {
+    // 1. Helper function to strip commas/symbols and safely convert to number
+    const parseNum = selector => {
+        let val = $(selector).val();
+        if (!val) return 0;
+        
+        // Remove everything except digits, minus signs, and decimal points
+        let cleanVal = val.toString().replace(/[^0-9.-]+/g, ""); 
+        return parseFloat(cleanVal) || 0;
+    };
+
+    // 2. Extract inputs
+    const totalPartsCost = parseNum('#total_parts_cost');
+    const laborCost = parseNum('#labor_cost');
+    const addOnLaborRate = parseNum('#add_on_labor_rate');
+    const laborRate = parseNum('#labor_rate');
+
+    const consumableBase = parseNum('#consumable_total');
+    const addOnConsumablesRate = parseNum('#add_on_consumables_rate');
+    const consumableRate = parseNum('#consumable_rate');
+
+    // 3. Perform calculations
+    const laborTotal = laborCost + (addOnLaborRate * laborRate);
+    const consumableTotal = consumableBase + (addOnConsumablesRate * consumableRate);
+    const total = totalPartsCost + laborTotal + consumableTotal;
+
+    // 4. Formatter helper (formats back to standard comma currency string: e.g., "29,909.12")
+    const formatCurrency = num => num.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    // 5. Update the form fields
+    $('#pms_labor_total').val(formatCurrency(laborTotal));
+    $('#pms_consumable_total').val(formatCurrency(consumableTotal));
+    $('#delivery_price').val(formatCurrency(total));
 }

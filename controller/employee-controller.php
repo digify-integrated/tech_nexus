@@ -2591,7 +2591,7 @@ class EmployeeController {
     # -------------------------------------------------------------
 
     public function sendWelcomeEmail1($contactImage, $fileAs, $nickname, $companyName, $departmentName, $jobPositionName, $email, $mobile, $onboardDate) {
-        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $emailSetting = $this->emailSettingModel->getEmailSetting(2);
         $mailFromName = $emailSetting['mail_from_name'] ?? null;
         $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
 
@@ -2635,8 +2635,9 @@ class EmployeeController {
             return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
         }
     }
+    
     public function sendArchiveEmail1($contactImage, $fileAs, $nickname, $companyName, $departmentName, $jobPositionName, $email, $mobile, $onboardDate, $offboardDate) {
-        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $emailSetting = $this->emailSettingModel->getEmailSetting(2);
         $mailFromName = $emailSetting['mail_from_name'] ?? null;
         $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
 
@@ -2683,7 +2684,7 @@ class EmployeeController {
     }
 
     private function configureSMTP($mailer, $isHTML = true) {
-        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $emailSetting = $this->emailSettingModel->getEmailSetting(2);
         $mailHost = $emailSetting['mail_host'] ?? MAIL_HOST;
         $smtpAuth = empty($emailSetting['smtp_auth']) ? false : true;
         $mailUsername = $emailSetting['mail_username'] ?? MAIL_USERNAME;

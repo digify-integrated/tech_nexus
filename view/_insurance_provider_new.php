@@ -70,6 +70,12 @@
                     <input type="url" class="form-control" id="website" name="website" maxlength="500" autocomplete="off">
                 </div>
             </div>
+            <div class="form-group row">
+                <label class="col-lg-2 col-form-label">Local Government Tax Rate</label>
+                <div class="col-lg-4">
+                    <input type="number" class="form-control text-end" id="local_government_tax_rate" name="local_government_tax_rate" value="0" min="0" step="0.01">
+                </div>
+            </div>
             
             <div class="row mt-4 mb-2">
               <div class="col-12">

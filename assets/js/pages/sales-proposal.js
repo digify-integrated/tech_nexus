@@ -170,7 +170,7 @@
       '#start_date': () => calculateFirstDueDate(),
       '#payment_frequency': () => { calculateFirstDueDate(); calculatePaymentNumber(); },
       '#number_of_payments': () => calculateFirstDueDate(),
-      '#term_length': () => { calculatePaymentNumber(); calculatePricingComputation(); }, // merged
+      '#term_length': () => { calculateFirstDueDate(); calculatePaymentNumber(); calculatePricingComputation(); }, // merged
       '#interest_rate': () => { calculatePricingComputation(); calculateTotalOtherCharges(); },
       '#cost_of_accessories': () => { calculatePricingComputation(); calculateTotalOtherCharges(); },
       '#reconditioning_cost': () => { calculatePricingComputation(); calculateTotalOtherCharges(); },
@@ -223,7 +223,10 @@
     });
 
     $doc.on('change', '#pms_matrix_id', function () {
-      if ($(this).val()) displayDetailsGuard('get pms matrix total details', 50);
+      if ($(this).val()) {
+        displayDetailsGuard('get pms matrix total details', 50);
+        displayDetailsGuard('get pms matrix sp total details', 100);
+      }
       else {
         $('#labor_cost, #consumable_total').val('');
       }
@@ -246,6 +249,8 @@
       // Summary term update (merged logic)
       const termLength = $('#term_length').val();
       $('#summary-term').text(`${termLength} ${termType}`);
+      
+      calculateFirstDueDate();
     });
 
     // for_change_engine
@@ -255,64 +260,96 @@
       if (!yes) $('#new_engine').val('');
     });
 
+    $doc.on('change', '#total_parts_cost', function () {
+      calculatePMSTotal();
+    });
+
+    $doc.on('change', '#labor_cost', function () {
+      calculatePMSTotal();
+    });
+
+    $doc.on('change', '#add_on_labor_rate', function () {
+      calculatePMSTotal();
+    });
+
+    $doc.on('change', '#consumable_total', function () {
+      calculatePMSTotal();
+    });
+
+    $doc.on('change', '#add_on_consumables_rate', function () {
+      calculatePMSTotal();
+    });
+
     // ---------------------------------------
     // 4) product_type handler (Revised)
     // ---------------------------------------
     $doc.on('change', '#product_type', function () {
-      const productType = $(this).val();
+  const productType = $(this).val();
 
-      // Tab 4 label - Ensured 'Brand New' maps to the correct label
-      const tab4Label = ({
-        'Brand New': 'Brand New Details',
-        'Refinancing': 'Refinancing Details',
-        'Restructure': 'Restructure Details',
-      })[productType];
-      
-      if (tab4Label) $('#sales-proposal-tab-4').text(tab4Label);
+  // Tab 4 label - Ensured 'Brand New' maps to the correct label
+  const tab4Label = ({
+    'Brand New': 'Brand New Details',
+    'Refinancing': 'Refinancing Details',
+    'Restructure': 'Restructure Details',
+  })[productType];
+  
+  if (tab4Label) $('#sales-proposal-tab-4').text(tab4Label);
 
-      const $tab2 = $('#sales-proposal-tab-2');
-      const $tab3 = $('#sales-proposal-tab-3');
-      const $tab4 = $('#sales-proposal-tab-4');
-      const $tab18 = $('#sales-proposal-tab-18');
-      const $tab19 = $('#sales-proposal-tab-19');
+  const $tab2 = $('#sales-proposal-tab-2');   // Unit Details
+  const $tab3 = $('#sales-proposal-tab-3');   // Fuel Details
+  const $tab4 = $('#sales-proposal-tab-4');   // Refinancing Details
+  const $tab5 = $('#sales-proposal-tab-5');   // PMS Details
+  const $tab6 = $('#sales-proposal-tab-6');   // PMS Requested Parts
+  const $tab9 = $('#sales-proposal-tab-9');   // Other Charges
+  const $tab10 = $('#sales-proposal-tab-10'); // Renewal Amount
+  const $tab17 = $('#sales-proposal-tab-17'); // CI Report
+  const $tab18 = $('#sales-proposal-tab-18'); // Approval Condition
 
-      if ($tab2.length && $tab3.length && $tab4.length && $tab18.length && $tab19.length) {
-        $tab2.add($tab3).add($tab4).add($tab18).add($tab19).addClass('d-none');
+  if ($tab2.length && $tab3.length && $tab4.length && $tab5.length && $tab6.length) {
+    // Hide conditional product tabs initially
+    $tab2.add($tab3).add($tab4).add($tab5).add($tab6).addClass('d-none');
+    
+    // Show standard/non-PMS tabs initially
+    $tab9.add($tab10).add($tab17).add($tab18).removeClass('d-none');
 
-        const isUnitLike = ['Unit', 'Rental', 'Consignment'].includes(productType);
-        const isFuel = productType === 'Fuel';
-        const isRefiLike = ['Refinancing', 'Restructure', 'Brand New'].includes(productType);
-        const isPMSLike = productType === 'PMS';
+    const isUnitLike = ['Unit', 'Rental', 'Consignment'].includes(productType);
+    const isFuel = productType === 'Fuel';
+    const isRefiLike = ['Refinancing', 'Restructure', 'Brand New'].includes(productType);
+    const isPMSLike = productType === 'PMS';
 
-        if (isUnitLike) {
-          $tab2.removeClass('d-none');
-          resetModalForm('sales-proposal-unit-details-form');
-          displayDetailsGuard('get sales proposal unit details', 50);
-        } else if (isFuel) {
-          $tab3.removeClass('d-none');
-          displayDetailsGuard('get sales proposal fuel details', 50);
-        } else if (isRefiLike) {
-          $tab4.removeClass('d-none');
-          // IMPORTANT: Ensure 'Brand New' uses the same form initialization as Refinancing
-          resetModalForm('sales-proposal-refinancing-details-form');
-          displayDetailsGuard('get sales proposal refinancing details', 50);
-        } else if (isPMSLike) {
-          $tab18.removeClass('d-none');
-          $tab19.removeClass('d-none');
-          //resetModalForm('sales-proposal-pms-details-form');
-          
-        }
-      }
+    if (isUnitLike) {
+      $tab2.removeClass('d-none');
+      resetModalForm('sales-proposal-unit-details-form');
+      displayDetailsGuard('get sales proposal unit details', 50);
+    } else if (isFuel) {
+      $tab3.removeClass('d-none');
+      displayDetailsGuard('get sales proposal fuel details', 50);
+    } else if (isRefiLike) {
+      $tab4.removeClass('d-none');
+      // IMPORTANT: Ensure 'Brand New' uses the same form initialization as Refinancing
+      resetModalForm('sales-proposal-refinancing-details-form');
+      displayDetailsGuard('get sales proposal refinancing details', 50);
+    } else if (isPMSLike) {
+      $tab5.removeClass('d-none');
+      $tab6.removeClass('d-none');
 
-      const lockDelivery = ['Unit', 'Rental', 'Consignment', 'Fuel', 'PMS'].includes(productType);
-      setReadonlyIfExists('#delivery_price', lockDelivery);
+      $tab9.addClass('d-none');
+      $tab10.addClass('d-none');
+      $tab17.addClass('d-none');
+      $tab18.addClass('d-none');
+      //resetModalForm('sales-proposal-pms-details-form');
+    }
+  }
 
-      // 'Brand New' should likely follow Refinancing rules for insurance premium
-      const unlockInsurance = ['Refinancing', 'Restructure', 'Brand New'].includes(productType);
-      setReadonlyIfExists('#insurance_premium', !unlockInsurance);
+  const lockDelivery = ['Unit', 'Rental', 'Consignment', 'Fuel', 'PMS'].includes(productType);
+  setReadonlyIfExists('#delivery_price', lockDelivery);
 
-      $('#summary-product-type').text(productType);
-    });
+  // 'Brand New' should likely follow Refinancing rules for insurance premium
+  const unlockInsurance = ['Refinancing', 'Restructure', 'Brand New'].includes(productType);
+  setReadonlyIfExists('#insurance_premium', !unlockInsurance);
+
+  $('#summary-product-type').text(productType);
+});
 
     // ---------------------------------------
     // 5) Summary field bindings (map-driven)
@@ -2079,6 +2116,34 @@ function salesProposalForBankFinancingTable(datatable_name, buttons = false, sho
   });
 }
 
+function salesProposalChangeRequestTable(datatable_name, buttons = false, show_all = false) {
+  return createServerDataTable(datatable_name, {
+    url: 'view/_sales_proposal_generation.php',
+    type: 'sales proposal change request table',
+    order: [[4, 'desc']],
+    columns: [
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT_TYPE' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'PROCEED_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ],
+    columnDefs: [
+      { width: '15%', targets: 0 },
+      { width: '15%', targets: 1 },
+      { width: '15%', targets: 2 },
+      { width: '25%', targets: 3 },
+      { width: '25%', type: 'date', targets: 4 },
+      { width: '10%', targets: 5 },
+      { width: '10%', orderable: false, targets: 6 },
+    ],
+    buttons,
+    showAll: show_all,
+  });
+}
+
 function installmentSalesApprovalTable(datatable_name, buttons = false, show_all = false) {
   return createServerDataTable(datatable_name, {
     url: 'view/_sales_proposal_generation.php',
@@ -2439,6 +2504,7 @@ function salesProposalForm() {
       payment_frequency: { required: true },
       initial_approving_officer: { required: true },
       final_approving_officer: { required: true },
+      first_due_date: { required: true },
     },
     messages: {
       renewal_tag: { required: 'Please choose the renewal tag' },
@@ -2455,6 +2521,7 @@ function salesProposalForm() {
       payment_frequency: { required: 'Please choose the payment frequency' },
       initial_approving_officer: { required: 'Please choose the initial approving officer' },
       final_approving_officer: { required: 'Please choose the final approving officer' },
+      first_due_date: { required: 'The first due date is missing kindly check term' },
     },
     submit: async (form) => {
       const sales_proposal_id = domText('#sales-proposal-id');
@@ -2491,8 +2558,16 @@ function salesProposalUnitForm() {
     formSelector: '#sales-proposal-unit-details-form',
     rules: {
       product_id: { required: true },
-      new_color: { required: true },
-      new_body: { required: true },
+      new_color: { 
+         required: {
+          depends: () => $("select[name='for_change_color']").val() === 'Yes',
+        }, 
+      },
+      new_body: { 
+         required: {
+          depends: () => $("select[name='for_change_body']").val() === 'Yes',
+        }, 
+      },
       for_change_engine: { required: true },
       new_engine: {
         required: {
@@ -4011,6 +4086,10 @@ async function displayDetails(transaction) {
         $('#dr_number').val(response.drNumber);
         $('#release_to').val(response.releaseTo);
         $('#actual_start_date').val(response.actualStartDate);
+        $('#add_on_labor_rate').val(response.addOnLaborRate);
+        $('#pms_labor_total').val(response.pmsLaborTotal);
+        $('#add_on_consumables_rate').val(response.addOnConsumablesRate);
+        $('#pms_consumable_total').val(response.pmsConsumableTotal);
 
         if ($('#term_length_2').length) $('#term_length_2').val(response.termLength);
 
@@ -4023,6 +4102,7 @@ async function displayDetails(transaction) {
 
         checkOptionExist('#renewal_tag', response.renewalTag, '');
         checkOptionExist('#pms_catalog_id', response.pmsCatalogId, '');
+        checkOptionExist('#pms_product_id', response.pmsProductId, '');
         checkOptionExist('#application_source_id', response.applicationSourceID, '');
         checkOptionExist('#product_type', response.productType, '');
         checkOptionExist('#transaction_type', response.transactionType, '');
@@ -4034,7 +4114,6 @@ async function displayDetails(transaction) {
         checkOptionExist('#initial_approving_officer', response.initialApprovingOfficer, '');
         checkOptionExist('#final_approving_officer', response.finalApprovingOfficer, '');
         checkOptionExist('#company_id', response.companyID, '');
-
 
         $('#summary-referred-by').text(response.referredBy);
         $('#summary-release-date').text(response.releaseDate);
@@ -4204,6 +4283,12 @@ async function displayDetails(transaction) {
                     if (response.success) {
                         $('#labor_cost').val(Number(response.laborCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                         $('#consumable_total').val(Number(response.consumableTotal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                        
+                        $('#labor_rate').val(response.maxLaborCost);
+                        $('#consumable_rate').val(response.maxConsumables);
+                    
+                    calculatePMSTotal();
+                    calculateTotalDeliveryPrice();
                     } else {
                         if (response.isInactive) {
                             window.location = 'logout.php?logout';
@@ -4233,7 +4318,9 @@ async function displayDetails(transaction) {
           return fail('Get Sales Proposal Details Error', response, 'Unable to load unit details.');
         }
 
-        $('#delivery_price').val(parseCurrency(response.grand_total.toFixed(2)).toLocaleString('en-US'));
+        $('#total_parts_cost').val(Number(response.total_parts_cost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+
+        calculatePMSTotal();
 
         calculateTotalDeliveryPrice();
         break;
@@ -5053,7 +5140,7 @@ function calculateTotalOtherCharges() {
     $('#summary-other-charges-total').text('0.00');
   };
 
-  if (['Fuel', 'Parts', 'Repair', 'Rental'].includes(productType)) {
+  if (['Fuel', 'Parts', 'Repair', 'Rental', 'PMS'].includes(productType)) {
     setAllZero();
     return;
   }
@@ -5146,27 +5233,28 @@ function calculateTotalOtherCharges() {
      That variable name & logic were inverted.
    ============================================================ */
 async function traverseTabs(direction) {
-  const $tabs = $('#v-pills-tab .nav-link'); // ✅ scoped
-  const $active = $tabs.filter('.active');
+  const $tabs =$('#v-pills-tab .nav-link'); // ✅ scoped
+  const $active =$tabs.filter('.active');
 
   if (!$tabs.length || !$active.length) return;
 
   const currentStep = $active.data('step');
 
   const stepConfig = {
+    // ---------- Form Steps ----------
     proposal: { form: '#sales-proposal-form' },
     unit: { form: '#sales-proposal-unit-details-form' },
     pms: { form: '#sales-proposal-pms-details-form' },
     fuel: { form: '#sales-proposal-fuel-details-form' },
-    refinancing: { form: '#sales-proposal-refinancing-details-form', },
+    refinancing: { form: '#sales-proposal-refinancing-details-form' },
     pricing: { form: '#sales-proposal-pricing-computation-form' },
     otherCharges: { form: '#sales-proposal-other-charges-form' },
     renewal: { form: '#sales-proposal-renewal-amount-form' },
     otherProduct: { form: '#sales-proposal-other-product-details-form' },
-    partsRequested: { form: '#sales-proposal-requested-parts-form' },
 
-    // ✅ YOUR MISSING ONES (revised)
+    // ---------- Action / Button Toggle Steps ----------
     partsRequested: {
+      form: '#sales-proposal-requested-parts-form',
       onEnter: () => $('#add-sales-proposal-pms-parts-button').removeClass('d-none'),
       onLeave: () => $('#add-sales-proposal-pms-parts-button').addClass('d-none'),
     },
@@ -5186,6 +5274,10 @@ async function traverseTabs(direction) {
       onEnter: () => $('#add-sales-proposal-deposit-amount-button').removeClass('d-none'),
       onLeave: () => $('#add-sales-proposal-deposit-amount-button').addClass('d-none'),
     },
+    partsIssued: {},
+    approvals: {},
+    remarks: {},
+    'set-to-draft-files': {},
     gatepass: {
       onEnter: () => $('#gatepass-print-button').removeClass('d-none'),
       onLeave: () => $('#gatepass-print-button').addClass('d-none'),
@@ -5215,43 +5307,45 @@ async function traverseTabs(direction) {
       onLeave: () => $('#insurance-request-print-button').addClass('d-none'),
     },
 
-    // ✅ Summary step stays as your “action hub”
+    // ---------- Summary Step (Action Hub) ----------
     summary: {
-      onEnter: () => {
-        [
-          '#tag-for-initial-approval-button',
-          '#tag-for-review-button',
-          '#sales-proposal-initial-approval-button',
-          '#sales-proposal-final-approval-button',
-          '#sales-proposal-reject-button',
-          '#sales-proposal-cancel-button',
-          '#for-ci-sales-proposal-button',
-          '#sales-proposal-set-to-draft-button',
-          '#for-dr-sales-proposal-button',
-          '#approve-installment-sales-button',
-          '#print-button',
-        ].forEach((sel) => $(sel).removeClass('d-none'));
-      },
-      onLeave: () => {
-        [
-          '#tag-for-initial-approval-button',
-          '#tag-for-review-button',
-          '#sales-proposal-initial-approval-button',
-          '#sales-proposal-final-approval-button',
-          '#sales-proposal-reject-button',
-          '#sales-proposal-cancel-button',
-          '#for-ci-sales-proposal-button',
-          '#sales-proposal-set-to-draft-button',
-          '#for-dr-sales-proposal-button',
-          '#approve-installment-sales-button',
-          '#summary-print-button',
-          '#print-button',
-        ].forEach((sel) => $(sel).addClass('d-none'));
-      },
+    onEnter: () => {
+      [
+        '#tag-for-initial-approval-button',
+        '#tag-for-review-button',
+        '#sales-proposal-initial-approval-button',
+        '#sales-proposal-final-approval-button',
+        '#sales-proposal-reject-button',
+        '#sales-proposal-cancel-button',
+        '#for-ci-sales-proposal-button',
+        '#sales-proposal-set-to-draft-button',
+        '#for-dr-sales-proposal-button',
+        '#approve-installment-sales-button',
+        '#print-button',
+        '.action-dropdown' // Keep if you want it to show on enter
+      ].forEach((sel) => $(sel).removeClass('d-none'));
     },
+    onLeave: () => {
+      [
+        '#tag-for-initial-approval-button',
+        '#tag-for-review-button',
+        '#sales-proposal-initial-approval-button',
+        '#sales-proposal-final-approval-button',
+        '#sales-proposal-reject-button',
+        '#sales-proposal-cancel-button',
+        '#for-ci-sales-proposal-button',
+        '#sales-proposal-set-to-draft-button',
+        '#for-dr-sales-proposal-button',
+        '#approve-installment-sales-button',
+        '#summary-print-button',
+        '#print-button'
+        // ❌ REMOVED '#action-dropdown' from here so it doesn't get forced back to d-none!
+      ].forEach((sel) => $(sel).addClass('d-none'));
+    },
+  },
   };
 
-  const $visibleTabs = $tabs.not('.d-none');
+  const $visibleTabs =$tabs.not('.d-none');
   if (!$visibleTabs.length) return;
 
   const currentVisibleIndex = $visibleTabs.index($active);
@@ -5265,23 +5359,22 @@ async function traverseTabs(direction) {
   };
 
   const nextVisibleIndex = getNextVisibleIndex(direction);
-  const $nextTab = $visibleTabs.eq(nextVisibleIndex);
+  const $nextTab =$visibleTabs.eq(nextVisibleIndex);
   const nextStep = $nextTab.data('step');
 
   // ---------- Validate + Submit on forward movement ----------
   const isForward = direction === 'next' || direction === 'last';
 
   const focusFirstInvalid = ($form) => {
-    const $first = $form.find('.is-invalid:visible:first');
-    if ($first.length) {
-      $first.trigger('focus');
+    const $first =$form.find('.is-invalid:visible:first');
+    if ($first.length) {$first.trigger('focus');
       const top = $first.offset()?.top;
       if (top) window.scrollTo({ top: top - 120, behavior: 'smooth' });
     }
   };
 
   const validateAndSubmit = async (formSelector) => {
-    const $form = $(formSelector);
+    const $form =$(formSelector);
     if (!$form.length) return true;
 
     const hasEnabledUserInputs =
@@ -5318,12 +5411,10 @@ async function traverseTabs(direction) {
   // ---------- Switch tab (Bootstrap 5 safe) ----------
   if (window.bootstrap?.Tab) {
     bootstrap.Tab.getOrCreateInstance($nextTab[0]).show();
-  } else if (typeof $nextTab.tab === 'function') {
-    $nextTab.tab('show');
+  } else if (typeof $nextTab.tab === 'function') {$nextTab.tab('show');
   } else {
     // fallback
-    $tabs.removeClass('active');
-    $nextTab.addClass('active');
+    $tabs.removeClass('active');$nextTab.addClass('active');
   }
 
   // ---------- Enter next step ----------
@@ -5354,12 +5445,17 @@ function disableFormAndSelect2(formId) {
     elements[i].disabled = true;
   }
 
-  const select2Dropdowns = form.getElementsByClassName('select2');
-  for (let j = 0; j < select2Dropdowns.length; j++) {
-    const $select = $(select2Dropdowns[j]);
-    $select.select2('destroy');
+  // Target ONLY <select> elements with class 'select2' or 'select2-hidden-accessible'
+  const $selects = $(form).find('select.select2, select.select2-hidden-accessible');
+
+  $selects.each(function () {
+    const $select = $(this);
+    // Safety check: destroy only if Select2 was actually initialized on this element
+    if ($select.hasClass('select2-hidden-accessible') || $select.data('select2')) {
+      $select.select2('destroy');
+    }
     $select.prop('disabled', true);
-  }
+  });
 }
 
 function generate_pms_matrix(pms_catalog_id, pms_matrix_ids){
@@ -5448,4 +5544,44 @@ function generate_pms_alternate_part(sales_proposal_requested_parts_id) {
             console.error('Error fetching alternate parts:', error);
         }
     });
+}
+
+function calculatePMSTotal() {
+    // 1. Helper function to strip commas/symbols and safely convert to number
+    const parseNum = selector => {
+        let val = $(selector).val();
+        if (!val) return 0;
+        
+        // Remove everything except digits, minus signs, and decimal points
+        let cleanVal = val.toString().replace(/[^0-9.-]+/g, ""); 
+        return parseFloat(cleanVal) || 0;
+    };
+
+    // 2. Extract inputs
+    const totalPartsCost = parseNum('#total_parts_cost');
+    const laborCost = parseNum('#labor_cost');
+    const addOnLaborRate = parseNum('#add_on_labor_rate');
+    const laborRate = parseNum('#labor_rate');
+
+    const consumableBase = parseNum('#consumable_total');
+    const addOnConsumablesRate = parseNum('#add_on_consumables_rate');
+    const consumableRate = parseNum('#consumable_rate');
+
+    // 3. Perform calculations
+    const laborTotal = laborCost + (addOnLaborRate * laborRate);
+    const consumableTotal = consumableBase + (addOnConsumablesRate * consumableRate);
+    const total = totalPartsCost + laborTotal + consumableTotal;
+
+    // 4. Formatter helper (formats back to standard comma currency string: e.g., "29,909.12")
+    const formatCurrency = num => num.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    // 5. Update the form fields
+    $('#pms_labor_total').val(formatCurrency(laborTotal));
+    $('#pms_consumable_total').val(formatCurrency(consumableTotal));
+    $('#delivery_price').val(formatCurrency(total));
+
+    calculateTotalDeliveryPrice();
 }

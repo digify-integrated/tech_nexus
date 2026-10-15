@@ -8,6 +8,7 @@
   require('model/approving-officer-model.php');
   require('model/id-type-model.php');
   require('model/pms-catalog-model.php');
+  require('model/parts-model.php');
 
   $pageTitle = 'Sales Proposal For DR';
   
@@ -16,7 +17,8 @@
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
   $idTypeModel = new IDTypeModel($databaseModel);
-  $pmsCatalog = new PMSCatalogModel($databaseModel);
+  $pmsCatalogModel = new PMSCatalogModel($databaseModel);
+  $partsModel = new PartsModel($databaseModel);
 
   require('model/application-source-model.php');
   $applicationSourceModel = new ApplicationSourceModel($databaseModel);

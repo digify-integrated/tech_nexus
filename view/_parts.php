@@ -255,31 +255,32 @@
               <div class="card-body">
                 <div class="table-responsive dt-responsive">
                   <table id="parts-table" class="table table-hover wrap w-100">
-                    <thead>
-                      <tr>
-                        <th>
-                          <div class="form-check">
-                            <input class="form-check-input" id="datatable-checkbox" type="checkbox">
-                          </div>
-                        </th>
-                        <th>Image</th>
-                        <th class="w-100"><?php echo $cardLabel; ?></th>
-                        <th class="w-100">Category</th>
-                        <th class="w-100">Class</th>
-                        <th class="w-100">Quantity</th>
-                        <?php
-                          if($viewSalesProposalPartCost['total'] > 0){
-                            echo '<th id="cost_column" class="w-100">Cost Per Unit</th>';
-                            echo '<th id="cost_column" class="w-100">Total Cost</th>';
-                          }
-                        ?>
-                        <th class="w-100">Price</th>
-                        <th class="w-100">Status</th>
-                        <th class="w-100">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
+          <thead>
+            <tr>
+              <th>
+                <div class="form-check">
+                  <input class="form-check-input" id="datatable-checkbox" type="checkbox">
+                </div>
+              </th>
+              <th>Image</th>
+              <th class="w-100"><?php echo $cardLabel; ?> Number</th>
+              <th class="w-100">Description</th>
+              <th class="w-100">Category</th>
+              <th class="w-100">Class</th>
+              <th class="w-100">Quantity</th>
+              <?php
+                if($viewSalesProposalPartCost['total'] > 0){
+                    echo '<th id="cost_column" class="w-100">Cost Per Unit</th>';
+                    echo '<th class="w-100">Total Cost</th>'; // Removed duplicate id="cost_column"
+                }
+              ?>
+              <th class="w-100">Price</th>
+              <th class="w-100">Status</th>
+              <th class="w-100">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+      </table>
                 </div>
               </div>
             </div>

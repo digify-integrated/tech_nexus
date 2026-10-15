@@ -49,6 +49,10 @@
 
         $approvalByDetails = $userModel->getUserByID($approval_by);
         $approvalByName = strtoupper($approvalByDetails['file_as'] ?? '');
+
+        if($partsReturnDetails['company_id'] === 15) {
+            $approvalByName = 'CHRISTIAN EDWARD CAYMO BAGUISA';
+        } 
     }
 
     $firstTable = generateFirst($stockTransferAdviceID);

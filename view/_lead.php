@@ -1,3 +1,11 @@
+<?php
+$viewAll = $userModel->checkSystemActionAccessRights($user_id, 238);
+$filter = 'd-none';
+if($viewAll['total'] > 0){
+  $filter = '';
+}          
+?>
+
 <div class="row">
   <div class="col-lg-12">
     <div class="card table-card">
@@ -94,7 +102,6 @@
   </div>
 </div>
 
-
 <div class="offcanvas offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
   <div class="offcanvas-body p-0 sticky-top">
     <div id="ecom-filter" class="show collapse collapse-horizontal">
@@ -188,6 +195,18 @@
                       <div class="py-3">
                         <?php
                           echo $inquiryTypeModel->generateInquiryTypeCheckBox();
+                        ?>
+                      </div>
+                    </div>
+                </li>
+                 <li class="list-group-item px-0 py-2 <?php echo $filter; ?>">
+                    <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#assigned-to-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                      Created By
+                    </a>
+                    <div class="collapse" id="assigned-to-filter-collapse">
+                      <div class="py-3">
+                        <?php
+                          echo $leadModel->generateCreatedByCheckBox();
                         ?>
                       </div>
                     </div>

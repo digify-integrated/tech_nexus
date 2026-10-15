@@ -29,7 +29,7 @@
 
                 if($status == 'For Submission' || $status == 'Submitted'){
                     $dropdown .= '<li><button class="dropdown-item" type="button" id="draft">Set to Draft</button></li>';
-                    $dropdown .= '<li><a href="print-insurance-request.php?id='. $insuranceRequestID .'" class="dropdown-item" type="button">Print</a></li>';
+                    $dropdown .= '<li><a href="print-insurance-request.php?id='. $insuranceRequestID .'" class="dropdown-item" target="_blank">Print</a></li>';
                 }
 
                 if($status == 'Draft' || $status == 'For Submission'){
@@ -133,13 +133,21 @@
                 </div>
               </div>
             </div>
-
+            
+            <div class="col-md-6">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">For Collection Amount <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <input type="number" class="form-control" id="collection_amount" name="collection_amount" step="0.01" min="0" value="0.00" <?= $disabled ?>>
+                </div>
+              </div>
+            </div>
             
             <div class="col-md-6 ">
               <div class="form-group row mb-3">
                 <label class="col-lg-4 col-form-label">Assured</label>
                 <div class="col-lg-8">
-                  <input type="text" class="form-control" id="assured" name="assured" maxlength="500" autocomplete="off" readonly>
+                  <input type="text" class="form-control" id="assured" name="assured" maxlength="500" autocomplete="off" <?= $disabled ?>>
                 </div>
               </div>
             </div>
@@ -158,6 +166,7 @@
                     <option value="Customer">Customer</option>
                     <option value="Miscellaneous">Miscellaneous</option>
                     <option value="Sales Proposal">Sales Proposal</option>
+                    <option value="Product">Product</option>
                   </select>
                 </div>
               </div>
@@ -198,6 +207,18 @@
                 </div>
               </div>
             </div>
+
+            <div class="col-md-6 product-field d-none">
+              <div class="form-group row mb-3">
+                <label class="col-lg-4 col-form-label">Product</label>
+                <div class="col-lg-8">
+                   <select class="form-control select2" name="product_id" id="product_id" <?= $disabled ?>>
+                    <option value="">--</option>
+                    <?php echo $productModel->generateAllProductWithStockNumberOptions(); ?>
+                  </select>
+                </div>
+              </div>
+            </div>
             
           </div>
           
@@ -209,7 +230,7 @@
               <div class="form-group row mb-3">
                 <label class="col-lg-4 col-form-label">Year Model <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
-                  <input type="text" class="form-control" id="year_model" name="year_model" maxlength="100" autocomplete="off">
+                  <input type="text" class="form-control" id="year_model" name="year_model" maxlength="100" autocomplete="off" <?= $disabled ?>>
                 </div>
               </div>
             </div>
@@ -217,7 +238,7 @@
               <div class="form-group row mb-3">
                 <label class="col-lg-4 col-form-label">Color</label>
                 <div class="col-lg-8">
-                  <input type="text" class="form-control" id="color" name="color" maxlength="100" autocomplete="off">
+                  <input type="text" class="form-control" id="color" name="color" maxlength="100" autocomplete="off" <?= $disabled ?>>
                 </div>
               </div>
             </div>
@@ -225,7 +246,7 @@
               <div class="form-group row mb-3">
                 <label class="col-lg-4 col-form-label">Make <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
-                  <input type="text" class="form-control" id="make" name="make" maxlength="100" autocomplete="off">
+                  <input type="text" class="form-control" id="make" name="make" maxlength="100" autocomplete="off" <?= $disabled ?>>
                 </div>
               </div>
             </div>
@@ -233,7 +254,7 @@
               <div class="form-group row mb-3">
                 <label class="col-lg-4 col-form-label">Plate Number <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
-                  <input type="text" class="form-control" id="plate_number" name="plate_number" maxlength="100" autocomplete="off">
+                  <input type="text" class="form-control" id="plate_number" name="plate_number" maxlength="100" autocomplete="off" <?= $disabled ?>>
                 </div>
               </div>
             </div>
@@ -241,7 +262,7 @@
               <div class="form-group row mb-3">
                 <label class="col-lg-4 col-form-label">Chassis Number</label>
                 <div class="col-lg-8">
-                  <input type="text" class="form-control" id="chassis_number" name="chassis_number" maxlength="100" autocomplete="off">
+                  <input type="text" class="form-control" id="chassis_number" name="chassis_number" maxlength="100" autocomplete="off" <?= $disabled ?>>
                 </div>
               </div>
             </div>
@@ -249,7 +270,7 @@
               <div class="form-group row mb-3">
                 <label class="col-lg-4 col-form-label">Engine Number</label>
                 <div class="col-lg-8">
-                  <input type="text" class="form-control" id="engine_number" name="engine_number" maxlength="100" autocomplete="off">
+                  <input type="text" class="form-control" id="engine_number" name="engine_number" maxlength="100" autocomplete="off" <?= $disabled ?>>
                 </div>
               </div>
             </div>
@@ -257,7 +278,7 @@
               <div class="form-group row mb-3">
                 <label class="col-lg-4 col-form-label">MV File Number</label>
                 <div class="col-lg-8">
-                  <input type="text" class="form-control" id="mv_file_number" name="mv_file_number" maxlength="100" autocomplete="off">
+                  <input type="text" class="form-control" id="mv_file_number" name="mv_file_number" maxlength="100" autocomplete="off" <?= $disabled ?>>
                 </div>
               </div>
             </div>
@@ -286,54 +307,10 @@
         </div>
     </div>
 
-    <!-- KPI Cards -->
-    <div class="row mb-4">
-
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <small class="text-muted text-uppercase">
-                        Gross Premium
-                    </small>
-                    <h2 class="fw-bold mt-2 mb-0" id="gross_display">
-                        ₱0.00
-                    </h2>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <small class="text-muted text-uppercase">
-                        Net Premium
-                    </small>
-                    <h2 class="fw-bold mt-2 mb-0" id="net_premium_display">
-                        ₱0.00
-                    </h2>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <small class="text-muted text-uppercase">
-                        Net Commission
-                    </small>
-                    <h2 class="fw-bold mt-2 mb-0" id="net_commission_display">
-                        ₱0.00
-                    </h2>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
     <div class="row">
 
         <!-- Coverage Table -->
-        <div class="col-lg-8">
+        <div class="col-lg-7">
 
             <div class="card border-0 shadow-sm">
                 <div class="card-header">
@@ -353,9 +330,16 @@
                               <div class="col-lg-8">
                                 <select class="form-control select2" name="insurance_category" id="insurance_category" <?= $disabled ?>>
                                   <option value="">--</option>
-                                  <option value="Trucks">Trucks</option>
-                                  <option value="Equipment">Equipment</option>
-                                  <option value="Equipment with AON">Equipment with AON</option>
+                                  <?php echo $insuranceCategoryModel->generateInsuranceCategoryOptions(); ?>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="form-group row mb-3">
+                              <label class="col-lg-4 col-form-label">Encoding Mode <span class="text-danger">*</span></label>
+                              <div class="col-lg-8">
+                                <select class="form-control select2" name="encoding_mode" id="encoding_mode" <?= $disabled ?>>
+                                  <option value="Auto" selected>Auto</option>
+                                  <option value="Manual">Manual</option>
                                 </select>
                               </div>
                             </div>
@@ -368,47 +352,65 @@
 
                                 <thead class="table-light">
                                     <tr>
-                                        <th width="30%">Coverage Type</th>
-                                        <th width="35%">Coverage Amount</th>
-                                        <th width="35%">Premium</th>
+                                        <th>Coverage Type</th>
+                                        <th>Coverage Amount</th>
+                                        <th>Rate (%)</th>
+                                        <th>Premium</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
 
                                     <tr>
-                                        <td>CTPL</td>
                                         <td>
-                                            <input type="number"
-                                                class="form-control bg-light"
-                                                id="ctpl_coverage"
-                                                value="0.00"
-                                                readonly>
+                                            <select class="form-control" name="coverage_type" id="coverage_type" <?= $disabled ?>>
+                                              <option value="OD/Theft">OD/Theft</option>
+                                              <option value="All Risk">All Risk</option>
+                                            </select>
                                         </td>
                                         <td>
                                             <input type="number"
-                                                class="form-control bg-light"
-                                                id="ctpl_premium"
+                                                class="form-control"
+                                                id="od_theft_coverage"
+                                                value="0.00" <?= $disabled ?>>
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control"
+                                                id="od_theft_rate"
+                                                max="100"
+                                                value="0.00"
+                                                readonly
+                                                 <?= $disabled ?>>
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control text-end"
+                                                id="od_theft_premium"
                                                 value="0.00"
                                                 readonly>
                                         </td>
                                     </tr>
 
                                     <tr>
-                                        <td>
-                                            OD/Theft
-                                            <span class="text-danger">*</span>
-                                        </td>
+                                        <td>CTPL</td>
                                         <td>
                                             <input type="number"
-                                                class="form-control bg-light"
-                                                id="od_theft_coverage"
+                                                class="form-control"
+                                                id="ctpl_coverage"
                                                 value="0.00" <?= $disabled ?>>
                                         </td>
                                         <td>
                                             <input type="number"
-                                                class="form-control bg-light"
-                                                id="od_theft_premium"
+                                                class="form-control"
+                                                id="ctpl_rate"
+                                                max="100"
+                                                value="0.00" <?= $disabled ?>>
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control text-end"
+                                                id="ctpl_premium"
                                                 value="0.00"
                                                 readonly>
                                         </td>
@@ -421,13 +423,20 @@
                                         </td>
                                         <td>
                                             <input type="number"
-                                                class="form-control bg-light"
+                                                class="form-control"
                                                 id="aon_coverage"
                                                 value="0.00" <?= $disabled ?>>
                                         </td>
                                         <td>
                                             <input type="number"
-                                                class="form-control bg-light"
+                                                class="form-control"
+                                                id="aon_rate"
+                                                max="100"
+                                                value="0.00" <?= $disabled ?>>
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control text-end"
                                                 id="aon_premium"
                                                 value="0.00"
                                                 readonly>
@@ -436,19 +445,27 @@
 
                                     <tr>
                                         <td>TPBI</td>
-                                        <td>
-                                            <select class="form-control bg-light select2" name="tpbi_coverage" id="tpbi_coverage" <?= $disabled ?>>
+                                        <td colspan="2">
+                                            <select class="form-control select2" name="tpbi_coverage" id="tpbi_coverage" <?= $disabled ?>>
                                               <option value="">--</option>
                                               <option value="100000">100,000</option>
                                               <option value="200000">200,000</option>
                                               <option value="300000">300,000</option>
-                                              <option value="400000" selected>400,000</option>
+                                              <option value="400000">400,000</option>
                                               <option value="500000">500,000</option>
                                             </select>
                                         </td>
+                                        <td class="d-none">
+                                            <input type="number"
+                                                class="form-control d-none"
+                                                id="tpbi_rate"
+                                                max="100"
+                                                value="0.00"
+                                                readonly>
+                                        </td>
                                         <td>
                                             <input type="number"
-                                                class="form-control bg-light"
+                                                class="form-control text-end"
                                                 id="tpbi_premium"
                                                 value="0.00"
                                                 readonly>
@@ -457,19 +474,27 @@
 
                                     <tr>
                                         <td>TPPD</td>
-                                        <td>
-                                            <select class="form-control bg-light select2" name="tppd_coverage" id="tppd_coverage" <?= $disabled ?>>
+                                        <td colspan="2">
+                                            <select class="form-control select2" name="tppd_coverage" id="tppd_coverage" <?= $disabled ?>>
                                               <option value="">--</option>
                                               <option value="100000">100,000</option>
                                               <option value="200000">200,000</option>
                                               <option value="300000">300,000</option>
-                                              <option value="400000" selected>400,000</option>
+                                              <option value="400000">400,000</option>
                                               <option value="500000">500,000</option>
                                             </select>
                                         </td>
+                                        <td class="d-none">
+                                            <input type="number"
+                                                class="form-control d-none"
+                                                id="tppd_rate"
+                                                max="100"
+                                                value="0.00"
+                                                readonly>
+                                        </td>
                                         <td>
                                             <input type="number"
-                                                class="form-control bg-light"
+                                                class="form-control text-end"
                                                 id="tppd_premium"
                                                 value="0.00"
                                                 readonly>
@@ -480,14 +505,20 @@
                                         <td>PAR</td>
                                         <td>
                                             <input type="number"
-                                                class="form-control bg-light"
+                                                class="form-control"
                                                 id="par_coverage"
-                                                value="0.00"
-                                                readonly>
+                                                value="0.00" <?= $disabled ?>>
                                         </td>
                                         <td>
                                             <input type="number"
-                                                class="form-control bg-light"
+                                                class="form-control"
+                                                id="par_rate"
+                                                max="100"
+                                                value="0.00" <?= $disabled ?>>
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control text-end"
                                                 id="par_premium"
                                                 value="0.00"
                                                 readonly>
@@ -508,128 +539,243 @@
         </div>
 
         <!-- Right Side Summary -->
-        <div class="col-lg-4">
+        <div class="col-lg-5">
 
-            <!-- Premium Summary -->
-            <div class="card border-0 shadow-sm mb-4">
-
+          <div class="card border-0 shadow-sm">
                 <div class="card-header">
                     <h5 class="mb-0">
-                        <i class="bi bi-receipt me-2"></i>
+                        <i class="bi bi-table me-2"></i>
+                        Commission Details
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                  <form id="insurance-request-commission-form">
+                        <div class="table-responsive">
+
+                            <table class="table align-middle">
+
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Coverage Type</th>
+                                        <th>Rate (%)</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            Premium
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control"
+                                                id="od_theft_commission_rate"
+                                                max="100"
+                                                value="0.00"
+                                                readonly>
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control text-end"
+                                                id="od_theft_commission"
+                                                value="0.00"
+                                                readonly>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            AON
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control"
+                                                id="aon_commission_rate"
+                                                max="100"
+                                                value="0.00" <?= $disabled ?>>
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control text-end"
+                                                id="aon_commission"
+                                                value="0.00"
+                                                readonly>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>TPBI</td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control"
+                                                id="tpbi_commission_rate"
+                                                max="100"
+                                                value="0.00" <?= $disabled ?>>
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control text-end"
+                                                id="tpbi_commission"
+                                                value="0.00"
+                                                readonly>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>TPPD</td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control"
+                                                id="tppd_commission_rate"
+                                                max="100"
+                                                value="0.00" <?= $disabled ?>>
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control text-end"
+                                                id="tppd_commission"
+                                                value="0.00"
+                                                readonly>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>PAR</td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control"
+                                                id="par_commission_rate"
+                                                max="100"
+                                                value="0.00" <?= $disabled ?>>
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control text-end"
+                                                id="par_commission"
+                                                value="0.00"
+                                                readonly>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Subtotal</td>
+                                        <td colspan="2">
+                                            <input type="number"
+                                                class="form-control text-end"
+                                                id="commission_subtotal"
+                                                value="0.00"
+                                                readonly>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Less wtp</td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control"
+                                                id="commission_discount_rate"
+                                                max="100"
+                                                value="0.00" <?= $disabled ?>>
+                                        </td>
+                                        <td>
+                                            <input type="number"
+                                                class="form-control text-end"
+                                                id="commission_discount"
+                                                value="0.00"
+                                                readonly>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Net Commission</td>
+                                        <td colspan="2">
+                                            <input type="number"
+                                                class="form-control text-end"
+                                                id="net_commission"
+                                                value="0.00"
+                                                readonly>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </form>
+
+                </div>
+          </div>
+
+          <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-table me-2"></i>
                         Premium Summary
                     </h5>
                 </div>
 
                 <div class="card-body">
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span>Total Premium</span>
-                        <strong id="total_premium">₱0.00</strong>
-                    </div>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span>VAT / Premium Tax</span>
-                        <strong id="vat_premium_tax">₱0.00</strong>
-                    </div>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span>Document Stamp</span>
-                        <strong id="docstamp">₱0.00</strong>
-                    </div>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span>Local Government Tax</span>
-                        <strong id="local_tax">₱0.00</strong>
-                    </div>
-
-                    <hr>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span class="fw-bold">Gross</span>
-                        <span class="fw-bold fs-5" id="gross">
-                            ₱0.00
-                        </span>
-                    </div>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span class="fw-bold">Net Premium</span>
-                        <span class="fw-bold fs-5" id="net_premium">
-                            ₱0.00
-                        </span>
-                    </div>
-
+                  <div class="table-responsive">
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <td>
+                              Total Premium
+                          </td>
+                          <td>
+                            <input type="number" class="form-control text-end" id="total_premium" value="0.00" readonly>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                              VAT / Premium Tax
+                          </td>
+                          <td>
+                            <input type="number" class="form-control text-end" id="vat_premium_tax" value="0.00" readonly>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                              Document Stamp
+                          </td>
+                          <td>
+                            <input type="number" class="form-control text-end" id="docstamp" value="0.00" readonly>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                              Local Government Tax
+                          </td>
+                          <td>
+                            <input type="hidden" class="form-control text-end" id="local_government_tax_rate" value="0.00" readonly>
+                            <input type="number" class="form-control text-end" id="local_tax" value="0.00" readonly>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                              Gross
+                          </td>
+                          <td>
+                            <input type="number" class="form-control text-end" id="gross" value="0.00" readonly>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                              Net Premium
+                          </td>
+                          <td>
+                            <input type="number" class="form-control text-end" id="net_premium" value="0.00" readonly>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-
-            </div>
-
-            <!-- Commission Summary -->
-            <div class="card border-0 shadow-sm">
-
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-cash-stack me-2"></i>
-                        Commission Summary
-                    </h5>
-                </div>
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span>Premium</span>
-                        <strong id="premium_comission">₱0.00</strong>
-                    </div>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span>AON</span>
-                        <strong id="aon_comission">₱0.00</strong>
-                    </div>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span>TPBI</span>
-                        <strong id="tpbi_comission">₱0.00</strong>
-                    </div>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span>TPPD</span>
-                        <strong id="tppd_comission">₱0.00</strong>
-                    </div>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span>PAR</span>
-                        <strong id="par_comission">₱0.00</strong>
-                    </div>
-
-                    <hr>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span>Subtotal</span>
-                        <strong id="comission_subtotal">
-                            ₱0.00
-                        </strong>
-                    </div>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span>Less 10% WHT</span>
-                        <strong id="commission_discount">
-                            ₱0.00
-                        </strong>
-                    </div>
-
-                    <hr>
-
-                    <div class="d-flex justify-content-between py-2">
-                        <span class="fw-bold">
-                            Net Commission
-                        </span>
-                        <span class="fw-bold fs-5"
-                            id="net_commission">
-                            ₱0.00
-                        </span>
-                    </div>
-
-                </div>
-
-            </div>
+          </div>
 
         </div>
 
@@ -741,7 +887,7 @@
             </div>
             <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
               <div class="card-body p-b-0">
-                '. $userModel->generateLogNotes('inquiry_type', $insuranceRequestID) .'
+                '. $userModel->generateLogNotes('insurance_request', $insuranceRequestID) .'
               </div>
             </div>
           </div>

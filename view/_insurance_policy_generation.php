@@ -11,6 +11,7 @@ require_once '../model/insurance-provider-model.php';
 require_once '../model/insurance-type-model.php';
 require_once '../model/sales-proposal-model.php';
 require_once '../model/customer-model.php';
+require_once '../model/product-model.php';
 require_once '../model/miscellaneous-client-model.php';
 
 $databaseModel = new DatabaseModel();
@@ -21,6 +22,7 @@ $insuranceRequestModel = new InsuranceRequestModel($databaseModel);
 $insuranceProviderModel = new InsuranceProviderModel($databaseModel);
 $insuranceTypeModel = new InsuranceTypeModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
+$productModel = new ProductModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
 $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 $securityModel = new SecurityModel();
@@ -113,11 +115,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $gross = $row['gross'] ?? 0;
                 $net_premium = $row['net_premium'] ?? 0;
                 $coverage_amount = $row['coverage_amount'] ?? 0;
+                $plate_number = $row['plate_number'] ?? '';
+                $chassis_number = $row['chassis_number'] ?? '';
+                $engine_number = $row['engine_number'] ?? '';
 
                 $raw_inception_date = $row['inception_date'];
                 $raw_expiry_date = $row['expiry_date'];
                 $raw_remittance_date = $row['remittance_date'];
                 $raw_payment_date = $row['payment_date'];
+
+                $customer_type = $row['customer_type'] ?? '--';
+                $customer_id = $row['customer_id'] ?? '';
+                $insurance_type_id = $row['insurance_type_id'] ?? '';
+                $insurance_provider = $row['insurance_provider'] ?? '';
 
                 $inception_date = $systemModel->checkDate('summary', $raw_inception_date, '', 'm/d/Y', '');
                 $expiry_date = $systemModel->checkDate('summary', $raw_expiry_date, '', 'm/d/Y', '');
@@ -132,7 +142,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $expiryBadgeClass = '';
 
                 if (!empty($raw_expiry_date)) {
-
                     try {
                         $expiry = new DateTime($raw_expiry_date);
                         $daysRemaining = (int)$today->diff($expiry)->format('%r%a');
@@ -184,25 +193,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 // =========================
                 // CUSTOMER DETAILS
                 // =========================
-                $insuranceRequestDetails = $insuranceRequestModel->getInsuranceRequest($insurance_request_id);
-                $customer_type = $insuranceRequestDetails['customer_type'];
-                $customer_id = $insuranceRequestDetails['customer_id'];
-                $sales_proposal_id = $insuranceRequestDetails['sales_proposal_id'];
-                $insurance_type_id = $insuranceRequestDetails['insurance_type_id'];
-                $insurance_provider = $insuranceRequestDetails['insurance_provider'];
 
-                if ($customer_type == 'Customer') {
-                    $customerDetails = $customerModel->getPersonalInformation($customer_id);
-                    $customerName = $customerDetails['file_as'] ?? null;
-
-                } elseif ($customer_type == 'Miscellaneous') {
+                if ($customer_type == 'Miscellaneous') {
                     $miscellaneousClientDetails = $miscellaneousClientModel->getMiscellaneousClient($customer_id);
                     $customerName = $miscellaneousClientDetails['client_name'] ?? null;
-
-                } else {
-                    $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
-                    $customer_id = $salesProposalDetails['customer_id'];
-
+                }
+                else {
                     $customerDetails = $customerModel->getPersonalInformation($customer_id);
                     $customerName = $customerDetails['file_as'] ?? null;
                 }
@@ -212,6 +208,31 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $providerDetails = $insuranceProviderModel->getInsuranceProvider($insurance_provider);
                 $provider_name = $providerDetails['provider_name'] ?? null;
+
+                $insuranceRequestDetails = $insuranceRequestModel->getInsuranceRequest($insurance_request_id);
+                $assured = $insuranceRequestDetails['assured'] ?? null;
+                $sales_proposal_id = $insuranceRequestDetails['sales_proposal_id'] ?? null;
+
+                $lastInsuranceRequestDetails = $insuranceRequestModel->getLastInsuranceRequest($insurancePolicyID);
+                $last_coverage_amount = $lastInsuranceRequestDetails['coverage_amount'] ?? 0;
+
+                if(!empty($sales_proposal_id)){
+                    $salesProposalDetails = $salesProposalModel->getSalesProposal($sales_proposal_id);
+                    $product_id = $salesProposalDetails['product_id'] ?? null;
+
+                    $termLength = $salesProposalDetails['term_length'];
+                    $termType = $salesProposalDetails['term_type'];
+
+                    // Compute maturity date
+                    $maturityRaw = date('F d, Y', strtotime("+{$termLength} {$termType}", strtotime($salesProposalDetails['actual_start_date'])));
+
+                    $productDetails = $productModel->getProduct($product_id);
+                    $stockNumber = $productDetails['stock_number'] ?? null;
+                }
+                else{
+                    $maturityRaw = '';
+                    $stockNumber = '';
+                }                
 
                 $insurancePolicyIDEncrypted = $securityModel->encryptData($insurancePolicyID);
 
@@ -239,8 +260,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CUSTOMER_NAME' => $customerName,
                     'INSURANCE_TYPE' => $insrance_type_name,
                     'PROVIDER_NAME' => $provider_name,
-                    'GROSS' => number_format($gross),
-                    'NET_PREMIUM' => number_format($net_premium),
+                    'STOCK_NUMBER' => $stockNumber,
+                    'PLATE_NUMBER' => $plate_number,
+                    'CHASSIS_NUMBER' => $chassis_number,
+                    'ENGINE_NUMBER' => $engine_number,
+                    'ASSURED' => $assured,
+                    'STATUS' => '',
+                    'LAST_YEAR_COVERAGE' => number_format($last_coverage_amount, 2),
+                    'COVERAGE' => number_format($coverage_amount, 2),
+                    'GROSS' => number_format($gross, 2),
+                    'MATURITY_DATE' => $maturityRaw,
+                    'NET_PREMIUM' => number_format($net_premium, 2),
 
                     'INCEPTION_DATE' => $inception_date,
                     'REMITTANCE_DATE' => $remittance_date,
@@ -253,7 +283,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>
                     ',
 
-                    'STATUS' => '<span class="badge bg-'. $statusBadge .'">
+                    'INS_STATUS' => '<span class="badge bg-'. $statusBadge .'">
                                     '. $displayStatus .'
                                 </span>',
 

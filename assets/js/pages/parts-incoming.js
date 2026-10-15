@@ -504,6 +504,14 @@ function partsIncomingForm(){
                     }
                 }
             },
+            tax_type: {
+                required: {
+                    depends: function () {
+                        var val = $('#page-company').val();
+                        return val === '8';
+                    }
+                }
+            },
             customer_ref_id: {
                 required: {
                     depends: function () {
@@ -2025,6 +2033,7 @@ function displayDetails(transaction){
                         checkOptionExist('#supplier_id', response.supplier_id, '');
                         checkOptionExist('#product_id', response.product_id, '');
                         checkOptionExist('#customer_ref_id', response.customer_ref_id, '');
+                        checkOptionExist('#tax_type', response.tax_type, '');
                     } 
                     else {
                         if(response.isInactive){

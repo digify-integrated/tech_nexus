@@ -537,6 +537,8 @@ class PMSCatalogModel {
                 'consumableTotal' => 0,
                 'laborCost'       => 0,
                 'partsCost'       => 0,
+                'maxLaborCost'    => 0,
+                'maxConsumables'  => 0,
                 'totalCost'       => 0
             ];
         }
@@ -549,6 +551,8 @@ class PMSCatalogModel {
                 -- 1. Highest consumables and labor totals
                 COALESCE(MAX(pm.consumables_total), 0) AS max_consumables,
                 COALESCE(MAX(pm.labor_total), 0) AS max_labor,
+                COALESCE(MAX(pm.labor_cost), 0) AS max_labor_cost,
+                COALESCE(MAX(pm.consumables), 0) AS max_consumables,
                 
                 -- 2. Total price of UNIQUE parts selected across these matrices
                 COALESCE((
@@ -575,6 +579,8 @@ class PMSCatalogModel {
         return [
             'consumableTotal' => (float) $result['max_consumables'],
             'laborCost'       => (float) $result['max_labor'],
+            'maxLaborCost'       => (float) $result['max_labor_cost'],
+            'maxConsumables'       => (float) $result['max_consumables'],
             'partsCost'       => (float) $result['unique_parts_total'],
             'totalCost'       => (float) $result['max_consumables'] + (float) $result['max_labor'] + (float) $result['unique_parts_total']
         ];
@@ -603,7 +609,7 @@ class PMSCatalogModel {
     }
 
     public function generatePMSCatalogOptions() {
-        $stmt = $this->db->getConnection()->prepare('SELECT pms_catalog_id, pms_catalog_name FROM pms_catalog ORDER BY pms_catalog_name');
+        $stmt = $this->db->getConnection()->prepare('SELECT pms_catalog_id, pms_catalog_name, description FROM pms_catalog ORDER BY pms_catalog_name');
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -611,8 +617,9 @@ class PMSCatalogModel {
         foreach ($options as $row) {
             $pms_catalog_id = $row['pms_catalog_id'];
             $pms_catalog_name = $row['pms_catalog_name'];
+            $pms_catalog_description = $row['description'];
 
-            $htmlOptions .= '<option value="' . $pms_catalog_id . '">' .  $pms_catalog_name .'</option>';
+            $htmlOptions .= '<option value="' . $pms_catalog_id . '">' .  $pms_catalog_name .' - ' . $pms_catalog_description . '</option>';
         }
 
         return $htmlOptions;

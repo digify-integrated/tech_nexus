@@ -4184,51 +4184,73 @@ END //
 
 /* Product Subcategory Table Triggers */
 
+DELIMITER //
+
+DROP TRIGGER IF EXISTS product_subcategory_trigger_update//
 CREATE TRIGGER product_subcategory_trigger_update
 AFTER UPDATE ON product_subcategory
 FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
 
-    IF NEW.product_subcategory_name <> OLD.product_subcategory_name THEN
-        SET audit_log = CONCAT(audit_log, "Product Subcategory Name: ", OLD.product_subcategory_name, " -> ", NEW.product_subcategory_name, "<br/>");
+    IF (NEW.product_subcategory_name IS NULL AND OLD.product_subcategory_name IS NOT NULL) OR
+       (NEW.product_subcategory_name IS NOT NULL AND OLD.product_subcategory_name IS NULL) OR
+       (NEW.product_subcategory_name <> OLD.product_subcategory_name) THEN
+        SET audit_log = CONCAT(audit_log, "Product Subcategory Name: ", COALESCE(OLD.product_subcategory_name, 'NULL'), " -> ", COALESCE(NEW.product_subcategory_name, 'NULL'), "<br/>");
     END IF;
 
-    IF NEW.product_subcategory_code <> OLD.product_subcategory_code THEN
-        SET audit_log = CONCAT(audit_log, "Product Subcategory Code: ", OLD.product_subcategory_code, " -> ", NEW.product_subcategory_code, "<br/>");
+    IF (NEW.product_subcategory_code IS NULL AND OLD.product_subcategory_code IS NOT NULL) OR
+       (NEW.product_subcategory_code IS NOT NULL AND OLD.product_subcategory_code IS NULL) OR
+       (NEW.product_subcategory_code <> OLD.product_subcategory_code) THEN
+        SET audit_log = CONCAT(audit_log, "Product Subcategory Code: ", COALESCE(OLD.product_subcategory_code, 'NULL'), " -> ", COALESCE(NEW.product_subcategory_code, 'NULL'), "<br/>");
     END IF;
 
-    IF NEW.product_category_id <> OLD.product_category_id THEN
-        SET audit_log = CONCAT(audit_log, "Product Category ID: ", OLD.product_category_id, " -> ", NEW.product_category_id, "<br/>");
+    IF (NEW.product_category_id IS NULL AND OLD.product_category_id IS NOT NULL) OR
+       (NEW.product_category_id IS NOT NULL AND OLD.product_category_id IS NULL) OR
+       (NEW.product_category_id <> OLD.product_category_id) THEN
+        SET audit_log = CONCAT(audit_log, "Product Category ID: ", COALESCE(CAST(OLD.product_category_id AS CHAR), 'NULL'), " -> ", COALESCE(CAST(NEW.product_category_id AS CHAR), 'NULL'), "<br/>");
     END IF;
-    
+
+    IF (NEW.standard_inclusions IS NULL AND OLD.standard_inclusions IS NOT NULL) OR
+       (NEW.standard_inclusions IS NOT NULL AND OLD.standard_inclusions IS NULL) OR
+       (NEW.standard_inclusions <> OLD.standard_inclusions) THEN
+        SET audit_log = CONCAT(audit_log, "Standard Inclusions: ", COALESCE(OLD.standard_inclusions, 'NULL'), " -> ", COALESCE(NEW.standard_inclusions, 'NULL'), "<br/>");
+    END IF;
+
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('product_subcategory', NEW.product_subcategory_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
+DROP TRIGGER IF EXISTS product_subcategory_trigger_insert//
 CREATE TRIGGER product_subcategory_trigger_insert
 AFTER INSERT ON product_subcategory
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Product subcategory created. <br/>';
+    DECLARE audit_log TEXT DEFAULT 'Product subcategory created.<br/>';
 
-    IF NEW.product_subcategory_name <> '' THEN
+    IF NEW.product_subcategory_name IS NOT NULL AND NEW.product_subcategory_name <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Product Subcategory Name: ", NEW.product_subcategory_name);
     END IF;
 
-    IF NEW.product_subcategory_code <> '' THEN
+    IF NEW.product_subcategory_code IS NOT NULL AND NEW.product_subcategory_code <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Product Subcategory Code: ", NEW.product_subcategory_code);
     END IF;
 
-    IF NEW.product_category_id <> '' THEN
+    IF NEW.product_category_id IS NOT NULL THEN
         SET audit_log = CONCAT(audit_log, "<br/>Product Category ID: ", NEW.product_category_id);
+    END IF;
+
+    IF NEW.standard_inclusions IS NOT NULL AND NEW.standard_inclusions <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Standard Inclusions: ", NEW.standard_inclusions);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('product_subcategory', NEW.product_subcategory_id, audit_log, NEW.last_log_by, NOW());
 END //
+
+DELIMITER ;
 
 CREATE TRIGGER sales_proposal_additional_job_order_trigger_update
 AFTER UPDATE ON sales_proposal_additional_job_order
@@ -8436,7 +8458,37 @@ BEGIN
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('insurance_type', NEW.insurance_type_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('insurance_category', NEW.insurance_category_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER insurance_category_trigger_update
+AFTER UPDATE ON insurance_category
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.insurance_category_name <> OLD.insurance_category_name THEN
+        SET audit_log = CONCAT(audit_log, "Insurance Category Name: ", OLD.insurance_category_name, " -> ", NEW.insurance_category_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('insurance_category', NEW.insurance_category_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER insurance_category_trigger_insert
+AFTER INSERT ON insurance_category
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Insurance type created. <br/>';
+
+    IF NEW.insurance_category_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Insurance Category Name: ", NEW.insurance_category_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('insurance_category', NEW.insurance_category_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 DELIMITER //
@@ -8984,3 +9036,206 @@ BEGIN
     INSERT INTO audit_log(table_name, reference_id, log, changed_by, changed_at)
     VALUES('insurance_request', NEW.insurance_request_id, audit_log, NEW.last_log_by, NOW());
 END //
+
+Here are the MySQL trigger definitions tailored for the quotation_standard_pricing table to track updates and insertions in the audit_log table.
+
+SQL
+DELIMITER //
+
+-- Update Trigger
+CREATE TRIGGER quotation_standard_pricing_trigger_update
+AFTER UPDATE ON quotation_standard_pricing
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.product_subcategory_id <> OLD.product_subcategory_id THEN
+        SET audit_log = CONCAT(audit_log, "Product Subcategory ID: ", OLD.product_subcategory_id, " -> ", NEW.product_subcategory_id, "<br/>");
+    END IF;
+
+    IF (NEW.year_model IS NULL AND OLD.year_model IS NOT NULL) OR 
+       (NEW.year_model IS NOT NULL AND OLD.year_model IS NULL) OR 
+       (NEW.year_model <> OLD.year_model) THEN
+        SET audit_log = CONCAT(audit_log, "Year Model: ", COALESCE(OLD.year_model, 'NULL'), " -> ", COALESCE(NEW.year_model, 'NULL'), "<br/>");
+    END IF;
+
+    IF NEW.price_threshold <> OLD.price_threshold THEN
+        SET audit_log = CONCAT(audit_log, "Price Threshold: ", OLD.price_threshold, " -> ", NEW.price_threshold, "<br/>");
+    END IF;
+
+    IF NEW.discount_threshold <> OLD.discount_threshold THEN
+        SET audit_log = CONCAT(audit_log, "Discount Threshold: ", OLD.discount_threshold, " -> ", NEW.discount_threshold, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('quotation_standard_pricing', NEW.quotation_standard_pricing_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+-- Insert Trigger
+CREATE TRIGGER quotation_standard_pricing_trigger_insert
+AFTER INSERT ON quotation_standard_pricing
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Quotation Standard Pricing created.<br/>';
+
+    SET audit_log = CONCAT(
+        audit_log,
+        "Product Subcategory ID: ", NEW.product_subcategory_id, "<br/>",
+        "Year Model: ", COALESCE(NEW.year_model, 'N/A'), "<br/>",
+        "Price Threshold: ", NEW.price_threshold, "<br/>",
+        "Discount Threshold: ", NEW.discount_threshold, "<br/>"
+    );
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('quotation_standard_pricing', NEW.quotation_standard_pricing_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+DELIMITER //
+
+DROP TRIGGER IF EXISTS cif_trigger_update//
+CREATE TRIGGER cif_trigger_update
+AFTER UPDATE ON cif
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF (NEW.lead_id IS NULL AND OLD.lead_id IS NOT NULL) OR
+       (NEW.lead_id IS NOT NULL AND OLD.lead_id IS NULL) OR
+       (NEW.lead_id <> OLD.lead_id) THEN
+        SET audit_log = CONCAT(audit_log, "Lead ID: ", COALESCE(CAST(OLD.lead_id AS CHAR), 'NULL'), " -> ", COALESCE(CAST(NEW.lead_id AS CHAR), 'NULL'), "<br/>");
+    END IF;
+
+    IF (NEW.leads_product_inquiry_id IS NULL AND OLD.leads_product_inquiry_id IS NOT NULL) OR
+       (NEW.leads_product_inquiry_id IS NOT NULL AND OLD.leads_product_inquiry_id IS NULL) OR
+       (NEW.leads_product_inquiry_id <> OLD.leads_product_inquiry_id) THEN
+        SET audit_log = CONCAT(audit_log, "Leads Product Inquiry ID: ", COALESCE(CAST(OLD.leads_product_inquiry_id AS CHAR), 'NULL'), " -> ", COALESCE(CAST(NEW.leads_product_inquiry_id AS CHAR), 'NULL'), "<br/>");
+    END IF;
+
+    IF (NEW.company_id IS NULL AND OLD.company_id IS NOT NULL) OR
+       (NEW.company_id IS NOT NULL AND OLD.company_id IS NULL) OR
+       (NEW.company_id <> OLD.company_id) THEN
+        SET audit_log = CONCAT(audit_log, "Company ID: ", COALESCE(CAST(OLD.company_id AS CHAR), 'NULL'), " -> ", COALESCE(CAST(NEW.company_id AS CHAR), 'NULL'), "<br/>");
+    END IF;
+
+    IF (NEW.status IS NULL AND OLD.status IS NOT NULL) OR
+       (NEW.status IS NOT NULL AND OLD.status IS NULL) OR
+       (NEW.status <> OLD.status) THEN
+        SET audit_log = CONCAT(audit_log, "Status: ", COALESCE(OLD.status, 'NULL'), " -> ", COALESCE(NEW.status, 'NULL'), "<br/>");
+    END IF;
+
+    IF (NEW.cif_image IS NULL AND OLD.cif_image IS NOT NULL) OR
+       (NEW.cif_image IS NOT NULL AND OLD.cif_image IS NULL) OR
+       (NEW.cif_image <> OLD.cif_image) THEN
+        SET audit_log = CONCAT(audit_log, "CIF Image: ", COALESCE(OLD.cif_image, 'NULL'), " -> ", COALESCE(NEW.cif_image, 'NULL'), "<br/>");
+    END IF;
+
+    IF (NEW.cif_reference_no IS NULL AND OLD.cif_reference_no IS NOT NULL) OR
+       (NEW.cif_reference_no IS NOT NULL AND OLD.cif_reference_no IS NULL) OR
+       (NEW.cif_reference_no <> OLD.cif_reference_no) THEN
+        SET audit_log = CONCAT(audit_log, "CIF Reference No: ", COALESCE(OLD.cif_reference_no, 'NULL'), " -> ", COALESCE(NEW.cif_reference_no, 'NULL'), "<br/>");
+    END IF;
+
+    IF (NEW.add_ons IS NULL AND OLD.add_ons IS NOT NULL) OR
+       (NEW.add_ons IS NOT NULL AND OLD.add_ons IS NULL) OR
+       (NEW.add_ons <> OLD.add_ons) THEN
+        SET audit_log = CONCAT(audit_log, "Add Ons: ", COALESCE(OLD.add_ons, 'NULL'), " -> ", COALESCE(NEW.add_ons, 'NULL'), "<br/>");
+    END IF;
+
+    IF (NEW.supplier_id IS NULL AND OLD.supplier_id IS NOT NULL) OR
+       (NEW.supplier_id IS NOT NULL AND OLD.supplier_id IS NULL) OR
+       (NEW.supplier_id <> OLD.supplier_id) THEN
+        SET audit_log = CONCAT(audit_log, "Supplier ID: ", COALESCE(CAST(OLD.supplier_id AS CHAR), 'NULL'), " -> ", COALESCE(CAST(NEW.supplier_id AS CHAR), 'NULL'), "<br/>");
+    END IF;
+
+    IF (NEW.remarks IS NULL AND OLD.remarks IS NOT NULL) OR
+       (NEW.remarks IS NOT NULL AND OLD.remarks IS NULL) OR
+       (NEW.remarks <> OLD.remarks) THEN
+        SET audit_log = CONCAT(audit_log, "Remarks: ", COALESCE(OLD.remarks, 'NULL'), " -> ", COALESCE(NEW.remarks, 'NULL'), "<br/>");
+    END IF;
+
+    IF (NEW.for_submission_date IS NULL AND OLD.for_submission_date IS NOT NULL) OR
+       (NEW.for_submission_date IS NOT NULL AND OLD.for_submission_date IS NULL) OR
+       (NEW.for_submission_date <> OLD.for_submission_date) THEN
+        SET audit_log = CONCAT(audit_log, "For Submission Date: ", COALESCE(CAST(OLD.for_submission_date AS CHAR), 'NULL'), " -> ", COALESCE(CAST(NEW.for_submission_date AS CHAR), 'NULL'), "<br/>");
+    END IF;
+
+    IF (NEW.submitted_date IS NULL AND OLD.submitted_date IS NOT NULL) OR
+       (NEW.submitted_date IS NOT NULL AND OLD.submitted_date IS NULL) OR
+       (NEW.submitted_date <> OLD.submitted_date) THEN
+        SET audit_log = CONCAT(audit_log, "Submitted Date: ", COALESCE(CAST(OLD.submitted_date AS CHAR), 'NULL'), " -> ", COALESCE(CAST(NEW.submitted_date AS CHAR), 'NULL'), "<br/>");
+    END IF;
+
+    IF (NEW.cancellation_date IS NULL AND OLD.cancellation_date IS NOT NULL) OR
+       (NEW.cancellation_date IS NOT NULL AND OLD.cancellation_date IS NULL) OR
+       (NEW.cancellation_date <> OLD.cancellation_date) THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Date: ", COALESCE(CAST(OLD.cancellation_date AS CHAR), 'NULL'), " -> ", COALESCE(CAST(NEW.cancellation_date AS CHAR), 'NULL'), "<br/>");
+    END IF;
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('cif', NEW.cif_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+DROP TRIGGER IF EXISTS cif_trigger_insert//
+CREATE TRIGGER cif_trigger_insert
+AFTER INSERT ON cif
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'CIF record created.<br/>';
+
+    IF NEW.lead_id IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Lead ID: ", NEW.lead_id);
+    END IF;
+
+    IF NEW.leads_product_inquiry_id IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Leads Product Inquiry ID: ", NEW.leads_product_inquiry_id);
+    END IF;
+
+    IF NEW.company_id IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Company ID: ", NEW.company_id);
+    END IF;
+
+    IF NEW.status IS NOT NULL AND NEW.status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Status: ", NEW.status);
+    END IF;
+
+    IF NEW.cif_image IS NOT NULL AND NEW.cif_image <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>CIF Image: ", NEW.cif_image);
+    END IF;
+
+    IF NEW.cif_reference_no IS NOT NULL AND NEW.cif_reference_no <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>CIF Reference No: ", NEW.cif_reference_no);
+    END IF;
+
+    IF NEW.add_ons IS NOT NULL AND NEW.add_ons <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Add Ons: ", NEW.add_ons);
+    END IF;
+
+    IF NEW.supplier_id IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Supplier ID: ", NEW.supplier_id);
+    END IF;
+
+    IF NEW.remarks IS NOT NULL AND NEW.remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Remarks: ", NEW.remarks);
+    END IF;
+
+    IF NEW.for_submission_date IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For Submission Date: ", NEW.for_submission_date);
+    END IF;
+
+    IF NEW.submitted_date IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Submitted Date: ", NEW.submitted_date);
+    END IF;
+
+    IF NEW.cancellation_date IS NOT NULL THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cancellation Date: ", NEW.cancellation_date);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('cif', NEW.cif_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+DELIMITER ;

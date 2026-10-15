@@ -45,6 +45,16 @@
           <?php
             if($productSubcategoryWriteAccess['total'] > 0){
               echo '<div class="form-group row">
+                      <h5 class="col-lg-12">Default Image</h5>
+                    </div>
+                    <div class="mb-3">
+                      <img src="'. DEFAULT_PLACEHOLDER_IMAGE .'" alt="User Image" id="default_image_thumbnail" class="img-fluid wid-100 hei-100">
+                    </div>
+                    <div class="mb-2">
+                      <label class="btn btn-outline-secondary" for="default_image"><i class="ti ti-upload me-2"></i> Click to Upload</label> 
+                      <input type="file" id="default_image" name="default_image" class="d-none">
+                </div>
+              <div class="form-group row">
                       <label class="col-lg-2 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="product_subcategory_name_label"></label>
@@ -67,6 +77,15 @@
                           </select>
                         </div>
                       </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label">Standard Inclusions</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="standard_inclusions_label"></label>
+                        <div class="d-none form-edit">
+                           <textarea type="text" class="form-control" id="standard_inclusions" name="standard_inclusions" row="5"> </textarea>
+                        </div>
+                      </div>
                     </div>';
             }
             else{
@@ -82,8 +101,12 @@
                     </div>
                     <div class="form-group row">
                       <label class="col-lg-2 col-form-label">Product Category</label>
-                      <div class="col-lg-10">
+                      <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="product_category_id_label"></label>
+                      </div>
+                      <label class="col-lg-2 col-form-label">Standard Inclusions</label>
+                      <div class="col-lg-4">
+                        <label class="col-form-label form-details fw-normal" id="standard_inclusions_label"></label>
                       </div>
                     </div>';
             }

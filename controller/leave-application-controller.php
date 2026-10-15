@@ -97,6 +97,9 @@ class LeaveApplicationController {
                 case 'delete multiple leave application':
                     $this->deleteMultipleLeaveApplication();
                     break;
+                case 'recommend multiple leave application':
+                    $this->recommendMultipleLeaveApplication();
+                    break;
                 case 'approve multiple leave':
                     $this->approveMultipleLeaveApplication();
                     break;
@@ -349,12 +352,14 @@ class LeaveApplicationController {
             // 1. Date Validation: Check if leave date is in the past
             $currentDate = date('Y-m-d'); 
             
-            if ($leaveDate < $currentDate) {
-                echo json_encode([
-                    'success' => false, 
-                    'message' => 'You cannot apply for this leave type on a past date.'
-                ]);
-                exit;
+            if($creation_type == 'own'){
+                if ($leaveDate < $currentDate) {
+                    echo json_encode([
+                        'success' => false, 
+                        'message' => 'You cannot apply for this leave type on a past date.'
+                    ]);
+                    exit;
+                }
             }
 
             // 2. Entitlement Validation
@@ -407,73 +412,61 @@ class LeaveApplicationController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
-    
-        $userID = $_SESSION['user_id'];
-        $contactID = $_SESSION['contact_id'];
-        $leaveApplicationID = isset($_POST['leave_application_id']) ? htmlspecialchars($_POST['leave_application_id'], ENT_QUOTES, 'UTF-8') : null;
-    
+
+        $userID = $_SESSION['user_id'] ?? null;
+        $contactID = $_SESSION['contact_id'] ?? null;
+        $leaveApplicationID = isset($_POST['leave_application_id']) 
+            ? htmlspecialchars($_POST['leave_application_id'], ENT_QUOTES, 'UTF-8') 
+            : null;
+
         $user = $this->userModel->getUserByID($userID);
-    
+
         if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
-    
+
         $checkLeaveApplicationExist = $this->leaveApplicationModel->checkLeaveApplicationExist($leaveApplicationID);
-        $total = $checkLeaveApplicationExist['total'] ?? 0;
-     
-        if ($total > 0) {
-           
+        $total = (int) ($checkLeaveApplicationExist['total'] ?? 0);
 
-            $leaveApplicationDetails = $this->leaveApplicationModel->getLeaveApplication($leaveApplicationID);
-            $leaveTypeID = $leaveApplicationDetails['leave_type_id'];
-            $application_type = $leaveApplicationDetails['application_type'];
-            $leave_date = $leaveApplicationDetails['leave_date'];
-            $contact_id = $leaveApplicationDetails['contact_id'];
-
-            $leaveApplicationDetails = $this->leaveApplicationModel->getLeaveApplication($leaveApplicationID);
-            $creation_type = $leaveApplicationDetails['creation_type'] ?? 'own';
-            $leave_form = $leaveApplicationDetails['leave_form'] ?? null;
-
-            if($creation_type === 'own'){
-                $getLeaveConfirmationDocument = $this->leaveApplicationModel->getLeaveConfirmationDocument($leaveApplicationID)['total'] ?? 0;
-
-                if($getLeaveConfirmationDocument == 0){
-                    echo json_encode(['success' => false, 'leaveConfirmation' => true]);
-                    exit;
-                }
-                
-                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Recommendation', '', $userID);
-                
-            }
-            else{
-                $getLeaveConfirmationDocument = $this->leaveApplicationModel->getLeaveConfirmationDocument($leaveApplicationID)['total'] ?? 0;
-
-                if($getLeaveConfirmationDocument == 0){
-                    echo json_encode(['success' => false, 'leaveConfirmation' => true]);
-                    exit;
-                }
-
-                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Recommendation', '', $userID);
-            }
-
-            if($leaveTypeID == '1'){    
-                if($application_type === 'Whole Day'){
-                    $application_amount = 8;
-                }
-                else{
-                    $application_amount = 4;
-                }
-    
-                $this->leaveApplicationModel->updateLeaveEntitlementAmount($contact_id, $leaveTypeID, $leave_date, $application_amount, 'decrease', $userID);
-            }
-
-            echo json_encode(['success' => true]);
-        } 
-        else {
-            echo json_encode(['success' => false, 'notExist' =>  true]);
+        if ($total === 0) {
+            echo json_encode(['success' => false, 'notExist' => true]);
             exit;
         }
+
+        // Fetch leave application details once
+        $leaveApplicationDetails = $this->leaveApplicationModel->getLeaveApplication($leaveApplicationID);
+        if (!$leaveApplicationDetails) {
+            echo json_encode(['success' => false, 'notExist' => true]);
+            exit;
+        }
+
+        $leaveTypeID = $leaveApplicationDetails['leave_type_id'] ?? null;
+        $application_type = $leaveApplicationDetails['application_type'] ?? null;
+        $leave_date = $leaveApplicationDetails['leave_date'] ?? null;
+        $contact_id = $leaveApplicationDetails['contact_id'] ?? null;
+
+        // Check confirmation document presence (Cast to int strictly)
+        $documentCheck = $this->leaveApplicationModel->getLeaveConfirmationDocument($leaveApplicationID);
+        $docCount = (int) ($documentCheck['total'] ?? 0);
+
+        // Strict validation check
+        if ($docCount <= 0) {
+            echo json_encode(['success' => false, 'leaveConfirmation' => true]);
+            exit;
+        }
+
+        // Update status to 'For Recommendation'
+        $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Recommendation', '', $userID);
+
+        // Adjust leave entitlement if applicable
+        if ((string)$leaveTypeID === '1') {
+            $application_amount = ($application_type === 'Whole Day') ? 8 : 4;
+            $this->leaveApplicationModel->updateLeaveEntitlementAmount($contact_id, $leaveTypeID, $leave_date, $application_amount, 'decrease', $userID);
+        }
+
+        echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -510,23 +503,27 @@ class LeaveApplicationController {
         if ($total > 0) {
             $leaveApplicationDetails = $this->leaveApplicationModel->getLeaveApplication($leaveApplicationID);
             $creation_type = $leaveApplicationDetails['creation_type'] ?? 'own';
-            $leave_form = $leaveApplicationDetails['leave_form'] ?? null;
+            $leave_type_id = $leaveApplicationDetails['leave_type_id'] ?? '1';
 
             if($creation_type === 'own'){
                 $getLeaveConfirmationDocument = $this->leaveApplicationModel->getLeaveConfirmationDocument($leaveApplicationID)['total'] ?? 0;
 
-                if($getLeaveConfirmationDocument == 0){
+                if($getLeaveConfirmationDocument === 0){
                     echo json_encode(['success' => false, 'leaveConfirmation' => true]);
                     exit;
                 }
-                
-                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Approval', '', $userID);
-                
+
+                if($leave_type_id == '5'){
+                    $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'Approved', '', $userID);
+                }
+                else{
+                    $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Approval', '', $userID);
+                }                
             }
             else{
                 $getLeaveConfirmationDocument = $this->leaveApplicationModel->getLeaveConfirmationDocument($leaveApplicationID)['total'] ?? 0;
 
-                if($getLeaveConfirmationDocument == 0){
+                if($getLeaveConfirmationDocument === 0){
                     echo json_encode(['success' => false, 'leaveConfirmation' => true]);
                     exit;
                 }
@@ -824,7 +821,56 @@ class LeaveApplicationController {
         }
 
         foreach($leaveApplicationIDs as $leaveApplicationID){
-            $this->leaveApplicationModel->deleteLeaveApplication($leaveApplicationID);
+           $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'Approved', '', $userID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    public function recommendMultipleLeaveApplication() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $leaveApplicationIDs = $_POST['leave_application_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($leaveApplicationIDs as $leaveApplicationID){
+            $leaveApplicationDetails = $this->leaveApplicationModel->getLeaveApplication($leaveApplicationID);
+            $creation_type = $leaveApplicationDetails['creation_type'] ?? 'own';
+            $leave_type_id = $leaveApplicationDetails['leave_type_id'] ?? '1';
+
+            if($creation_type === 'own'){
+                $getLeaveConfirmationDocument = $this->leaveApplicationModel->getLeaveConfirmationDocument($leaveApplicationID)['total'] ?? 0;
+
+                if($getLeaveConfirmationDocument === 0){
+                    continue;
+                }
+
+                if($leave_type_id == '5'){
+                    $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'Approved', '', $userID);
+                }
+                else{
+                    $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Approval', '', $userID);
+                }                
+            }
+            else{
+                $getLeaveConfirmationDocument = $this->leaveApplicationModel->getLeaveConfirmationDocument($leaveApplicationID)['total'] ?? 0;
+
+                if($getLeaveConfirmationDocument === 0){
+                    continue;
+                }
+
+                $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'Approved', '', $userID);
+            }        
         }
             
         echo json_encode(['success' => true]);
@@ -848,10 +894,6 @@ class LeaveApplicationController {
 
         foreach($leaveApplicationIDs as $leaveApplicationID){
             $leaveApplicationDetails = $this->leaveApplicationModel->getLeaveApplication($leaveApplicationID);
-            $leaveTypeID = $leaveApplicationDetails['leave_type_id'];
-            $application_type = $leaveApplicationDetails['application_type'];
-            $leave_date = $leaveApplicationDetails['leave_date'];
-            $contact_id = $leaveApplicationDetails['contact_id'];
             
             $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'Approved', '', $userID);
         }

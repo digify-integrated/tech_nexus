@@ -54,7 +54,8 @@
         }
 
         if ($('.select2').length) {
-            $('.select2').select2({}).on("change", function () {
+            $('.select2').select2({
+            }).on('change select2:select select2:unselect', function () {
                 $(this).valid();
             }).on("select2:open", function () {
                 focusSelect2Search();
@@ -139,6 +140,22 @@
                     todayHighlight: true,
                     autohide: true,
                     maxDate: tenYearsAgo, // Only allow dates up to 10 years ago
+                });
+            });
+        }
+        
+
+        if ($('.back-date-restricted-datepicker').length) {
+            var datepickerElements = document.querySelectorAll('.back-date-restricted-datepicker');
+
+            datepickerElements.forEach(function(element) {
+                var today = new Date();
+
+                var filter_date_picker = new Datepicker(element, {
+                    buttonClass: 'btn',
+                    todayHighlight: true,
+                    autohide: true,
+                    minDate: today // Restricts yesterday and all past dates (only allows today & future dates)
                 });
             });
         }

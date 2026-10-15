@@ -77,7 +77,7 @@ define('DEFAULT_MENU_LOGO_IMAGE', './assets/images/default/default-menu-logo.png
 define('DEFAULT_MODULE_ICON_IMAGE', './assets/images/default/default-module-icon.svg');
 define('DEFAULT_FAVICON_IMAGE', './assets/images/default/default-favicon.svg');
 define('DEFAULT_COMPANY_LOGO_IMAGE', './assets/images/default/default-company-logo.png');
-define('DEFAULT_PLACEHOLDER_IMAGE', './assets/images/default/default-image-placeholder.png');
+define('DEFAULT_PLACEHOLDER_IMAGE', './assets/images/default/default-product-image.png');
 
 # -------------------------------------------------------------
 #
@@ -90,8 +90,14 @@ define('DEFAULT_IMAGES_FULL_PATH_FILE', '/assets/images/');
 define('DEFAULT_IMAGES_RELATIVE_PATH_FILE', './assets/images/');
 define('DEFAULT_DOCUMENT_FULL_PATH_FILE', '/document/');
 define('DEFAULT_DOCUMENT_RELATIVE_PATH_FILE', './document/');
-define('DEFAULT_PRODUCT_FULL_PATH_FILE', '/tech_nexus/inventory/product/');
-define('DEFAULT_PRODUCT_RELATIVE_PATH_FILE', './tech_nexus/inventory/product/');
+define('PROJECT_ROOT', dirname(__DIR__)); // If config.php is directly inside 'config/' folder
+// If config.php is deeper (e.g. config/app/config.php), use: dirname(__DIR__, 2)
+
+// Full system path on disk: C:\xampp\htdocs\tech_nexus\inventory\product\
+define('DEFAULT_PRODUCT_FULL_PATH_FILE', PROJECT_ROOT . '/inventory/product/');
+
+// Web relative path for HTML img tags and database: /tech_nexus/inventory/product/
+define('DEFAULT_PRODUCT_RELATIVE_PATH_FILE', '/tech_nexus/inventory/product/');
 define('DEFAULT_EMPLOYEE_FULL_PATH_FILE', '/employee/');
 define('DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE', './employee/');
 define('DEFAULT_CUSTOMER_FULL_PATH_FILE', '/customer/');

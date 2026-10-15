@@ -27,6 +27,10 @@
                 echo $action;
               }
             ?>
+
+            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#filter-modal">
+              Filter
+            </button>
           </div>
         </div>
       </div>
@@ -45,6 +49,7 @@
                 <th>Request Type</th>
                 <th>Insurance Type</th>
                 <th>Inception Date</th>
+                <th>Category</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -55,4 +60,89 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="modal fade modal-animate" id="filter-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Filter</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ci-appraisal-source-form" method="post" action="#">
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label">Status</label>
+                            <div class="row py-3">
+                              <div class="col-12">
+                                <select class="form-control" id="status_filter">
+                                  <option value="">--</option>
+                                  <option value="Draft">Draft</option>
+                                  <option value="For Submission">For Submission</option>
+                                  <option value="Submitted">Submitted</option>
+                                  <option value="Received">Received</option>
+                                  <option value="Cancelled">Cancelled</option>
+                                </select>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label">Request Type</label>
+                            <div class="row py-3">
+                              <div class="col-12">
+                                <select class="form-control" id="request_type_filter">
+                                  <option value="">--</option>
+                                  <option value="New Policy">New Policy</option>
+                                  <option value="Renewal">Renewal</option>
+                                </select>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label">Inception Date</label>
+                            <div class="row py-3">
+                              <div class="col-12">
+                                <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_inception_start_date" id="filter_inception_start_date" placeholder="Start Date">
+                                <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_inception_end_date" id="filter_inception_end_date" placeholder="End Date">
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label">Insurance Provider</label>
+                            <div class="row py-3">
+                              <div class="col-12">
+                                <?php
+                                  echo $insuranceProviderModel->generateInsuranceProviderCheckBox();
+                                ?>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label">Category</label>
+                            <div class="row py-3">
+                              <div class="col-12">
+                                <?php
+                                  echo $insuranceCategoryModel->generateInsuranceCategoryCheckBox();
+                                ?>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ci-collateral-modal" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-primary" id="apply-filter">Apply</button>
+            </div>
+        </div>
+    </div>
 </div>

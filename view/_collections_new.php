@@ -46,6 +46,7 @@
                 <option value="Leasing">Leasing Rental</option>
                 <option value="Leasing Other">Leasing Other Charges</option>
                 <option value="Miscellaneous">Miscellaneous</option>
+                <option value="Lot Payment">Lot Payment</option>
                </select>
             </div>
           </div>
@@ -156,7 +157,7 @@
             <div class="col-lg-4">
                 <input type="number" class="form-control" id="payment_amount" name="payment_amount" min="0" step="0.01">
             </div>
-            <label class="col-lg-2 col-form-label">Online Reference Number</label>
+            <label class="col-lg-2 col-form-label">Online Reference No.</label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="200" autocomplete="off">
             </div>
@@ -170,12 +171,20 @@
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">OR Number <span class="text-danger">*</span></label>
             <div class="col-lg-4">
+              <select class="form-control select2" name="or_type" id="or_type">
+                <option value="">Select OR Type</option>
+                <option value="OR">OR</option>
+                <option value="Sales Invoice">Sales Invoice</option>
+                <option value="Service Invoice">Service Invoice</option>
+              </select>
+            </div>
+            <div class="col-lg-6">
               <input type="text" class="form-control" id="or_number" name="or_number" maxlength="100" autocomplete="off" <?php echo $readonly; ?>>
             </div>
-            <label class="col-lg-2 col-form-label">OR Date <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
+            <label class="col-lg-2 col-form-label d-none">OR Date <span class="text-danger">*</span></label>
+            <div class="col-lg-4 d-none">
                 <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="or_date" name="or_date" autocomplete="off">
+                    <input type="text" class="form-control" id="or_date" name="or_date" autocomplete="off" disabled>
                     <span class="input-group-text">
                         <i class="feather icon-calendar"></i>
                     </span>

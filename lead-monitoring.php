@@ -8,6 +8,10 @@
   require('model/city-model.php');
   require('model/gender-model.php');
   require('model/product-model.php');
+  require('model/product-subcategory-model.php');
+  require('model/company-model.php');
+  require('model/supplier-model.php');
+  require('model/unit-model.php');
   
   $leadModel = new LeadModel($databaseModel);
   $leadStatusModel = new LeadStatusModel($databaseModel);
@@ -16,6 +20,10 @@
   $cityModel = new CityModel($databaseModel);
   $genderModel = new GenderModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
+  $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
+  $companyModel = new CompanyModel($databaseModel);
+  $supplierModel = new SupplierModel($databaseModel);
+  $unitModel = new UnitModel($databaseModel);
 
   $pageTitle = 'Lead Monitoring';
     

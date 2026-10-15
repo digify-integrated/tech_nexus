@@ -140,4 +140,4 @@ if($count > 0){
 }
 
 file_put_contents($log_file, "Script ended at " . date("Y-m-d H:i:s") . "\n", FILE_APPEND);
-?>c
+?>

@@ -19,7 +19,13 @@
         }
 
         if($('#insurance-request-id').length){
-            displayDetails('get insurance request details');
+            window.isLoadingDetails = true; // Lock calculations/fetches
+    
+            displayDetails('get insurance request details').always(function() {
+                // Unlock after details are fully loaded and rendered
+                window.isLoadingDetails = false;
+                calculateInsurance(); // Run once safely at the end
+            });
         }
 
         $(document).on('click','.delete-insurance-request',function() {
@@ -262,7 +268,19 @@
 
         $(document).on('change', '#customer_type', function () {
             let customerType = $(this).val();
-            $('.customer-field, .misc-field, .sales-proposal-field, .vehicle-field').addClass('d-none');
+            $('.customer-field, .misc-field, .sales-proposal-field, .product-field, .vehicle-field').addClass('d-none');
+            
+            if($('#assured').length){
+                document.getElementById("assured").readOnly = false;
+            }
+                
+            document.getElementById("year_model").readOnly = false;
+            document.getElementById("color").readOnly = false;
+            document.getElementById("make").readOnly = false;
+            document.getElementById("plate_number").readOnly = false;
+            document.getElementById("chassis_number").readOnly = false;
+            document.getElementById("engine_number").readOnly = false;
+            document.getElementById("mv_file_number").readOnly = false;
 
             if (customerType === 'Customer') {
                 $('.customer-field').removeClass('d-none');
@@ -274,8 +292,42 @@
             }
             else if (customerType === 'Sales Proposal') {
                 $('.sales-proposal-field').removeClass('d-none');
-                $('.vehicle-field').addClass('d-none');
+                $('.vehicle-field').removeClass('d-none');
+                
+                document.getElementById("year_model").readOnly = true;
+                document.getElementById("color").readOnly = true;
+                document.getElementById("make").readOnly = true;
+                document.getElementById("plate_number").readOnly = true;
+                document.getElementById("chassis_number").readOnly = true;
+                document.getElementById("engine_number").readOnly = true;
+                document.getElementById("mv_file_number").readOnly = true;
+                
+                if($('#assured').length){
+                    document.getElementById("assured").readOnly = true;
+                }
             }
+            else if (customerType === 'Product') {
+                $('.product-field').removeClass('d-none');
+                $('.vehicle-field').removeClass('d-none');
+                
+                document.getElementById("year_model").readOnly = true;
+                document.getElementById("color").readOnly = true;
+                document.getElementById("make").readOnly = true;
+                document.getElementById("plate_number").readOnly = true;
+                document.getElementById("chassis_number").readOnly = true;
+                document.getElementById("engine_number").readOnly = true;
+                document.getElementById("mv_file_number").readOnly = true;
+            }
+        });
+
+        $(document).on('change', '#product_id', function () {
+            let product_id = $(this).val();
+            displayProductDetails(product_id);
+        });
+
+        $(document).on('change', '#sales_proposal_id', function () {
+            let sales_proposal_id = $(this).val();
+            displaySalesProposalDetails(sales_proposal_id);
         });
 
         $(document).on('change', '#request_type', function () {
@@ -444,23 +496,92 @@
             });
         });
 
-        $(document).on('change', '#insurance_category', function () {
-            calculateInsurance();
+        $(document).on('change', '#insurance_category, #insurance_provider_id', function () {
+            if (window.isLoadingDetails) return;
+            fetchCategoryRates();
+            fetchTaxRates();
         });
-        
-        $(document).on('change', '#od_theft_coverage', function () {
+
+        $(document).on('change', '#tpbi_coverage, #tppd_coverage, #insurance_provider_id', function () {
+            fetchCoverageRates();
+        });
+
+        $(document).on('change', '#coverage_type', function () {
+            // If we are currently loading details, skip resetting the rate
+            if (window.isLoadingDetails) return;
+
+            let coverage_type = $(this).val();
+            var mode = $('#encoding_mode').val();
+            $('#od_theft_rate').val(0);
+
+            if (mode == 'Auto') {
+                if (coverage_type == 'OD/Theft') {
+                    fetchCategoryRates();
+                    document.getElementById("od_theft_rate").readOnly = true;
+                } else {
+                    document.getElementById("od_theft_rate").readOnly = false;
+                }
+            } else {
+                document.getElementById("od_theft_rate").readOnly = false;
+
+                if (coverage_type == 'OD/Theft') {
+                    fetchCategoryRates();
+                }
+            }            
+
             calculateInsurance();
         });
 
-        $(document).on('change', '#aon_coverage', function () {
+        const insuranceInputsSelectors = [
+            '#insurance_category',
+            '#ctpl_coverage', '#all_risk_coverage', '#od_theft_coverage', 
+            '#aon_coverage', '#tpbi_coverage', '#tppd_coverage', '#par_coverage',
+            '#ctpl_rate', '#all_risk_rate', '#od_theft_rate', 
+            '#aon_rate', '#tpbi_rate', '#tppd_rate', '#par_rate',
+            '#ctpl_premium', '#all_risk_premium', '#od_theft_premium', 
+            '#aon_premium', '#tpbi_premium', '#tppd_premium', '#par_premium',
+            '#total_premium', '#vat_premium_tax', '#docstamp', 
+            '#local_tax', '#gross',
+            '#od_theft_commission_rate', '#aon_commission_rate', 
+            '#tpbi_commission_rate', '#tppd_commission_rate', '#par_commission_rate',
+            '#od_theft_commission', '#aon_commission', 
+            '#tpbi_commission', '#tppd_commission', '#par_commission',
+            '#commission_subtotal', '#commission_discount_rate', 
+            '#commission_discount', '#net_commission', '#net_premium'
+        ].join(', ');
+
+        $(document).on('input change', insuranceInputsSelectors, function () {
+            if (window.isLoadingDetails) return;
             calculateInsurance();
         });
 
-        $(document).on('change', '#tpbi_coverage', function () {
-            calculateInsurance();
-        });
+        function toggleReadonly() {
+            var mode = $('#encoding_mode').val();
+            var customerType = $('#customer_type').val(); // Adjust selector if needed
+            
+            // Exclude #collection_amount from the base collection
+            var $allInputs = $('input[type="number"]').not('#collection_amount');
 
-        $(document).on('change', '#tppd_coverage', function () {
+            if (mode === 'Auto') {
+                // Set everything to readonly first
+                $allInputs.prop('readonly', true);
+
+                // If customer_type is Customer or Miscellaneous, make these specific fields editable
+                if (customerType === 'Customer' || customerType === 'Miscellaneous') {
+                    $('#od_theft_coverage, #aon_coverage').prop('readonly', false);
+                }
+            } else {
+                // Remove readonly from all targeted inputs when not in Auto mode
+                $allInputs.prop('readonly', false);
+            }
+        }
+
+        // Run on initial page load
+        toggleReadonly();
+
+        // Run whenever Encoding Mode changes
+        $('#encoding_mode').on('change', function () {
+            toggleReadonly();
             calculateInsurance();
         });
 
@@ -477,11 +598,34 @@
 
             $('#expiration_date').val(expirationDate);
         });
+
+         $(document).on('click','#apply-filter',function() {
+            insuranceRequestTable('#insurance-request-table');
+        });
     });
 })(jQuery);
 
 function insuranceRequestTable(datatable_name, buttons = false, show_all = false){
     const request = 'insurance request table';
+    
+    const status_filter = $('#status_filter').val();
+    const request_type_filter = $('#request_type_filter').val();
+    const filter_inception_start_date = $('#filter_inception_start_date').val();
+    const filter_inception_end_date = $('#filter_inception_end_date').val();
+    var insurance_provider_filter_values = [];
+    var insurance_category_filter_values = [];
+
+    $('.provider-filter:checked').each(function() {
+        insurance_provider_filter_values.push($(this).val());
+    });
+
+    $('.insurance-category-filter:checked').each(function() {
+        insurance_category_filter_values.push($(this).val());
+    });
+
+    var insurance_provider_filter = insurance_provider_filter_values.join(', ');
+    var insurance_category_filter = insurance_category_filter_values.join(', ');
+
     var settings;
 
     const column = [ 
@@ -491,13 +635,15 @@ function insuranceRequestTable(datatable_name, buttons = false, show_all = false
         { 'data' : 'REQUEST_TYPE' },
         { 'data' : 'INSURANCE_TYPE' },
         { 'data' : 'INCEPTION_DATE' },
+        { 'data' : 'CATEGORY' },
         { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '15%','bSortable': false, 'aTargets': 7 }
+        { 'width': 'auto', 'type':'date', 'aTargets': 5 },
+        { 'width': '15%','bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -507,7 +653,15 @@ function insuranceRequestTable(datatable_name, buttons = false, show_all = false
             'url' : 'view/_insurance_request_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : request},
+            'data': {
+                'type' : request,
+                'status_filter' : status_filter,
+                'request_type_filter' : request_type_filter,
+                'filter_inception_start_date' : filter_inception_start_date,
+                'filter_inception_end_date' : filter_inception_end_date,
+                'insurance_provider_filter' : insurance_provider_filter,
+                'insurance_category_filter' : insurance_category_filter,
+            },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -517,7 +671,7 @@ function insuranceRequestTable(datatable_name, buttons = false, show_all = false
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 5, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -557,6 +711,9 @@ function insuranceRequestForm(){
             paid_by: {
                 required: true
             },
+            collection_amount: {
+                required: true
+            },
             customer_id: {
                 required: function () {
                     return $('#customer_type').val() === 'Customer';
@@ -574,17 +731,17 @@ function insuranceRequestForm(){
             },
             year_model: {
                 required: function () {
-                    return $('#customer_type').val() != 'Sales Proposal';
+                    return $('#customer_type').val() != 'Sales Proposal' || $('#customer_type').val() != 'Product';
                 }
             },
             make: {
                 required: function () {
-                    return $('#customer_type').val() != 'Sales Proposal';
+                    return $('#customer_type').val() != 'Sales Proposal' || $('#customer_type').val() != 'Product';
                 }
             },
             plate_number: {
                 required: function () {
-                    return $('#customer_type').val() != 'Sales Proposal';
+                    return $('#customer_type').val() != 'Sales Proposal' || $('#customer_type').val() != 'Product';
                 }
             },
         },
@@ -905,12 +1062,12 @@ function cancelForm(){
     });
 }
 
-function displayDetails(transaction){
+function displayDetails(transaction) {
     switch (transaction) {
         case 'get insurance request details':
             const insurance_request_id = $('#insurance-request-id').text();
             
-            $.ajax({
+            return $.ajax({
                 url: 'controller/insurance-request-controller.php',
                 method: 'POST',
                 dataType: 'json',
@@ -923,10 +1080,10 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
+                        window.isLoadingDetails = true;
+
                         $('#insurance_request_id').val(insurance_request_id);
                         $('#inception_date').val(response.inceptionDate);
-                        $('#od_theft_coverage').val(response.odTheftCoverage);
-                        $('#aon_coverage').val(response.aonCoverage);
 
                         $('#year_model').val(response.yearModel);
                         $('#color').val(response.color);
@@ -937,33 +1094,107 @@ function displayDetails(transaction){
                         $('#mv_file_number').val(response.mvFileNumber);
                         $('#paid_by').val(response.paidBy);
                         $('#assured').val(response.assured);
+                        $('#collection_amount').val(response.collectionAmount);
 
                         checkOptionExist('#customer_type', response.customerType, '');
                         checkOptionExist('#insurance_policy_id', response.insurancePolicyId, '');
-
                         checkOptionExist('#request_type', response.requestType, '');
                         checkOptionExist('#insurance_provider_id', response.insuranceProvider, '');
                         checkOptionExist('#insurance_type_id', response.insuranceTypeId, '');
                         checkOptionExist('#insurance_category', response.insuranceCategory, '');
                         checkOptionExist('#tpbi_coverage', response.tpbiCoverage, '');
                         checkOptionExist('#tppd_coverage', response.tppdCoverage, '');
+                        checkOptionExist('#coverage_type', response.coverageType, '');
+                        checkOptionExist('#encoding_mode', response.encodingMode, '');
 
-                        if(response.customerType == 'Customer'){
+                        // Coverages
+                        $('#ctpl_coverage').val(response.ctplCoverage);
+                        $('#od_theft_coverage').val(response.odTheftCoverage);
+                        $('#aon_coverage').val(response.aonCoverage);
+                        $('#par_coverage').val(response.parCoverage);
+
+                        // Rates
+                        $('#ctpl_rate').val(response.ctplRate);
+                        $('#od_theft_rate').val(response.odTheftRate);
+                        $('#aon_rate').val(response.aonRate);
+                        $('#tpbi_rate').val(response.tpbiRate);
+                        $('#tppd_rate').val(response.tppdRate);
+                        $('#par_rate').val(response.parRate);
+
+                        // Premiums
+                        $('#ctpl_premium').val(response.ctplPremium);
+                        $('#od_theft_premium').val(response.odTheftPremium);
+                        $('#aon_premium').val(response.aonPremium);
+                        $('#tpbi_premium').val(response.tpbiPremium);
+                        $('#tppd_premium').val(response.tppdPremium);
+                        $('#par_premium').val(response.parPremium);
+
+                        // Totals & Taxes
+                        $('#total_premium').val(response.totalPremium);
+                        $('#vat_premium_tax').val(response.vatPremiumTax);
+                        $('#docstamp').val(response.docstamp);
+                        $('#local_tax').val(response.localTax);
+                        $('#gross').val(response.gross);
+
+                        // Commission Rates
+                        $('#od_theft_commission_rate').val(response.premiumComissionRate);
+                        $('#aon_commission_rate').val(response.aonComissionRate);
+                        $('#tpbi_commission_rate').val(response.tpbiComissionRate);
+                        $('#tppd_commission_rate').val(response.tppdComissionRate);
+                        $('#par_commission_rate').val(response.parComissionRate);
+
+                        // Commissions
+                        $('#od_theft_commission').val(response.premiumCommission);
+                        $('#aon_commission').val(response.aonCommission);
+                        $('#tpbi_commission').val(response.tpbiCommission);
+                        $('#tppd_commission').val(response.tppdCommission);
+                        $('#par_commission').val(response.parCommission);
+
+                        // Subtotals & Summary
+                        $('#commission_subtotal').val(response.commissionSubtotal);
+                        $('#commission_discount_rate').val(response.commissionDiscountRate);
+                        $('#commission_discount').val(response.commissionDiscount);
+                        $('#net_commission').val(response.netCommission);
+                        $('#net_premium').val(response.netPremium);
+
+                        // Customer Selection Mapping
+                        if (response.customerType === 'Customer') {
                             checkOptionExist('#customer_id', response.customerId, '');
-                        }
-                        else if(response.customerType == 'Miscellaneous'){
+                        } else if (response.customerType === 'Miscellaneous') {
                             checkOptionExist('#misc_id', response.customerId, '');
-                        }
-                        else{
+                        } else if(response.customerType === 'Product'){
+                            checkOptionExist('#product_id', response.productId, '');
+                            displayProductDetails(response.productId);
+                        } else {
                             checkOptionExist('#sales_proposal_id', response.salesProposalId, '');
+                            displaySalesProposalDetails(response.salesProposalId);
                         }
-                        
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
+
+                        if(response.encodingMode == 'Auto'){
+                            if(response.coverageType == 'OD/Theft'){
+                                document.getElementById("od_theft_rate").readOnly = true;
+                            }
+                            else{
+                                document.getElementById("od_theft_rate").readOnly = false;
+                            }
                         }
                         else{
+                            document.getElementById("od_theft_rate").readOnly = false;
+                        }
+
+
+                        window.isLoadingDetails = false;
+
+                        // Recalculate options/totals dynamically
+                        if (typeof calculateInsurance === 'function') {
+                            calculateInsurance();
+                        }
+                    } else {
+                        window.isLoadingDetails = false;
+
+                        if (response.isInactive) {
+                            window.location = 'logout.php?logout';
+                        } else {
                             showNotification('Get Insurance Request Details Error', response.message, 'danger');
                         }
                     }
@@ -980,138 +1211,463 @@ function displayDetails(transaction){
     }
 }
 
-// 1. Centralized Business Logic Configuration (Easy to update later)
-const RATES_CONFIG = {
-    categories: {
-        'Trucks':               { rate1: 0.024,  rate2: 0.26 },
-        'Equipment':            { rate1: 0.015,  rate2: 0.20 },
-        'Equipment with AON':   { rate1: 0.0185, rate2: 0.20 }
-    },
-    defaultCategory:            { rate1: 0.01,   rate2: 0 },
-    aonRate: 0.005,
-    coverageTables: {
-        100000: { bi: 465,  pd: 1290 },
-        200000: { bi: 660,  pd: 1395 },
-        300000: { bi: 855,  pd: 1515 },
-        400000: { bi: 975,  pd: 1590 },
-        500000: { bi: 1095, pd: 1680 }
+function displayProductDetails(product_id){
+    let transaction = 'get product details';
+    
+    if(product_id != '' && product_id != 0){
+        $.ajax({
+            url: 'controller/product-controller.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                product_id : product_id, 
+                transaction : transaction
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#engine_number').val(response.engineNumber);
+                    $('#chassis_number').val(response.chassisNumber);
+                    $('#color').val(response.colorName);
+                    $('#year_model').val(response.year_model);
+                    $('#make').val(response.make_name);
+                    $('#plate_number').val(response.plateNumber);
+                } 
+                else {
+                    if(response.isInactive){
+                        window.location = 'logout.php?logout';
+                    }
+                    else{
+                        showNotification('Get Product Details Error', response.message, 'danger');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                if (xhr.responseText) {
+                    fullErrorMessage += ', Response: ${xhr.responseText}';
+                }
+                showErrorDialog(fullErrorMessage);
+            },
+        });
     }
-};
+}
 
-function calculateInsurance() {
-    // 2. Fetch Input Values safely (with fallbacks to prevent NaN errors)
+function displaySalesProposalDetails(sales_proposal_id){
+    let transaction = 'get sales proposal unit details';
+    
+    if(sales_proposal_id != '' && sales_proposal_id != 0){
+        $.ajax({
+            url: 'controller/sales-proposal-controller.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                sales_proposal_id : sales_proposal_id, 
+                transaction : transaction
+            },
+            success: function(response) {
+                if (response.success) {
+                    let product_id = response.productID;
+                    displayProductDetails(product_id);
+                } 
+                else {
+                    if(response.isInactive){
+                        window.location = 'logout.php?logout';
+                    }
+                    else{
+                        showNotification('Get Product Details Error', response.message, 'danger');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                if (xhr.responseText) {
+                    fullErrorMessage += ', Response: ${xhr.responseText}';
+                }
+                showErrorDialog(fullErrorMessage);
+            },
+        });
+    }
+}
+
+let saveTimer = null;
+
+function calculateInsurance(skipSave = false) {
+    // 1. Fetch Input Values safely
+    const encoding_mode = $('#encoding_mode').val();
     const category = $('#insurance_category').val();
-    const odTheftCoverage = parseFloat($('#od_theft_coverage').val()) || 0;
-    const aonCoverage = parseFloat($('#aon_coverage').val()) || 0;
-    const tpbiCoverage = $('#tpbi_coverage').val();
+    const coverage_type = $('#coverage_type').val();
 
-    // 3. Resolve rates using config lookup map
-    const catData = RATES_CONFIG.categories[category] || RATES_CONFIG.defaultCategory;
-    const tableData = RATES_CONFIG.coverageTables[tpbiCoverage] || { bi: 0, pd: 0 };
+    // Shared field values for OD/Theft and All Risk
+    const baseCoverage = parseFloat($('#od_theft_coverage').val()) || 0;
+    const baseRate = parseFloat($('#od_theft_rate').val()) || 0;
 
-    // 4. Perform Premium Calculations
-    const odTheftPremium = odTheftCoverage * catData.rate1;
-    const aonPremium = aonCoverage * RATES_CONFIG.aonRate;
-    const tpbiPremium = tableData.bi;
-    const tppdPremium = tableData.pd;
+    // Conditionally assign based on coverage_type and zero out the other for backend payload
+    const odTheftCoverage = (coverage_type === 'OD/Theft') ? baseCoverage : 0;
+    const allRiskCoverage = (coverage_type === 'All Risk') ? baseCoverage : 0;
 
-    const totalPremium = odTheftPremium + aonPremium + tpbiPremium + tppdPremium;
-    
-    // Tax Breakdowns
-    const vatPremiumTax = totalPremium * 0.12;
-    const docstamp = totalPremium * 0.125;
-    const localTax = totalPremium * 0.005;
-    const gross = totalPremium + vatPremiumTax + docstamp + localTax;
+    const odTheftRate = (coverage_type === 'OD/Theft') ? baseRate : 0;
+    const allRiskRate = (coverage_type === 'All Risk') ? baseRate : 0;
 
-    // 5. Commission Calculations
-    const premiumCommission = odTheftPremium * catData.rate2;
-    const aonCommission = aonPremium * 0.05;
-    const tpbiCommission = tpbiPremium * 0.15;
-    const tppdCommission = tppdPremium * 0.15;
-    const parCommission = 0;
-    
-    const commissionSubtotal = premiumCommission + aonCommission + tpbiCommission + tppdCommission + parCommission;
-    const commissionDiscount = 0; // Keeping as placeholder if needed later
-    const netCommission = commissionSubtotal - commissionDiscount;
+    if (encoding_mode == 'Auto') {
+        const ctplCoverage = parseFloat($('#ctpl_coverage').val()) || 0;
+        const aonCoverage = parseFloat($('#aon_coverage').val()) || 0;
+        const tpbiCoverage = parseFloat($('#tpbi_coverage').val()) || 0;
+        const tppdCoverage = parseFloat($('#tppd_coverage').val()) || 0;
+        const parCoverage = parseFloat($('#par_coverage').val()) || 0;
+        const tppdPremium = parseFloat($('#tppd_premium').val()) || 0;
+        const tpbiPremium = parseFloat($('#tpbi_premium').val()) || 0;
+        const localGovernmentTaxRate = parseFloat($('#local_government_tax_rate').val()) || 0;
 
-    // Net Premium Calculation
-    const netPremium = gross - netCommission;
+        const ctplRate = parseFloat($('#ctpl_rate').val()) || 0;
+        const aonRate = parseFloat($('#aon_rate').val()) || 0;
+        const tpbiRate = 0;
+        const tppdRate = 0;
+        const parRate = parseFloat($('#par_rate').val()) || 0;
 
-    // 6. Helper function to format currency consistently
-    const toPHP = num => '₱' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        // 2. Premium Calculations
+        const ctplPremium = ctplCoverage * (ctplRate / 100);
+        const allRiskPremium = allRiskCoverage * (allRiskRate / 100);
+        const odTheftPremium = odTheftCoverage * (odTheftRate > 1 ? odTheftRate / 100 : odTheftRate);
+        const aonPremium = aonCoverage * (aonRate / 100);
+        const parPremium = parCoverage * (parRate / 100);
 
-    // 7. Update Inputs fields (using .val)
-    $('#od_theft_premium').val(odTheftPremium.toFixed(2));
-    $('#aon_premium').val(aonPremium.toFixed(2));
-    $('#tpbi_premium').val(tpbiPremium.toFixed(2));
-    $('#tppd_premium').val(tppdPremium.toFixed(2));
+        // Determine the active premium for the shared UI input field & commissions
+        const activePremium = (coverage_type === 'All Risk') ? allRiskPremium : odTheftPremium;
 
-    // 8. Update text layouts and fixed bug on KPI displays (using .text)
-    $('#gross_display, #gross').text(toPHP(gross));
-    $('#net_premium_display, #net_premium').text(toPHP(netPremium));
-    $('#net_commission_display, #net_commission').text(toPHP(netCommission));
+        const totalPremium = ctplPremium + allRiskPremium + odTheftPremium + aonPremium + tpbiPremium + tppdPremium + parPremium;
 
-    $('#total_premium').text(toPHP(totalPremium));
-    $('#vat_premium_tax').text(toPHP(vatPremiumTax));
-    $('#docstamp').text(toPHP(docstamp));
-    $('#local_tax').text(toPHP(localTax));
+        // 3. Tax Breakdowns
+        const vatPremiumTax = totalPremium * 0.12;
+        const docstamp = totalPremium * 0.125;
+        const localTax = totalPremium * (localGovernmentTaxRate / 100);
+        const gross = totalPremium + vatPremiumTax + docstamp + localTax;
 
-    $('#premium_comission').text(toPHP(premiumCommission));
-    $('#aon_comission').text(toPHP(aonCommission));
-    $('#tpbi_comission').text(toPHP(tpbiCommission));
-    $('#tppd_comission').text(toPHP(tppdCommission));
-    $('#par_comission').text(toPHP(parCommission));
-    $('#comission_subtotal').text(toPHP(commissionSubtotal));
-    $('#commission_discount').text(toPHP(commissionDiscount));
+        // 4. Commission Calculations (using activePremium so it works for both All Risk and OD/Theft)
+        const odTheftCommissionRate = parseFloat($('#od_theft_commission_rate').val()) || 0;
+        const premiumCommission = activePremium * (odTheftCommissionRate > 1 ? odTheftCommissionRate / 100 : odTheftCommissionRate);
+        const aonCommission = aonPremium * (parseFloat($('#aon_commission_rate').val()) / 100 || 0.05);
+        const tpbiCommission = tpbiPremium * (parseFloat($('#tpbi_commission_rate').val()) / 100 || 0.15);
+        const tppdCommission = tppdPremium * (parseFloat($('#tppd_commission_rate').val()) / 100 || 0.15);
+        const parCommission = parPremium * (parseFloat($('#par_commission_rate').val()) / 100 || 0);
 
-    const computationData = {
-        insurance_request_id : $('#insurance-request-id').text(),
-        transaction : 'save insurance request computation',
-        insurance_category: category,
-        od_theft_coverage: odTheftCoverage,
-        aon_coverage: aonCoverage,
-        tpbi_coverage: tpbiCoverage,
-        tppd_coverage: $('#tppd_coverage').val(), // Added these if you need them sent
-        ctpl_coverage: $('#ctpl_coverage').val() || 0,
-        par_coverage: $('#par_coverage').val() || 0,
-        
-        od_theft_premium: odTheftPremium,
-        aon_premium: aonPremium,
-        tpbi_premium: tpbiPremium,
-        tppd_premium: tppdPremium,
-        ctpl_premium: 0, // placeholder based on your HTML
-        par_premium: 0,
-        
-        total_premium: totalPremium,
-        vat_premium_tax: vatPremiumTax,
-        docstamp: docstamp,
-        local_tax: localTax,
-        gross: gross,
-        net_premium: netPremium,
-        
-        premium_comission: premiumCommission,
-        aon_comission: aonCommission,
-        tpbi_comission: tpbiCommission,
-        tppd_comission: tppdCommission,
-        par_comission: parCommission,
-        comission_subtotal: commissionSubtotal,
-        commission_discount: commissionDiscount,
-        net_commission: netCommission
-    };
+        const commissionSubtotal = premiumCommission + aonCommission + tpbiCommission + tppdCommission + parCommission;
+        const discountRate = parseFloat($('#commission_discount_rate').val()) || 0;
+        const commissionDiscount = commissionSubtotal * (discountRate / 100);
+        const netCommission = commissionSubtotal - commissionDiscount;
 
-    saveComputation(computationData);
+        // Net Premium Calculation
+        const netPremium = gross - netCommission;
+
+        // 5. Update Input fields (Using activePremium for the shared #od_theft_premium input)
+        $('#ctpl_premium').val(ctplPremium.toFixed(2));
+        $('#all_risk_premium').val(allRiskPremium.toFixed(2));
+        $('#od_theft_premium').val(activePremium.toFixed(2)); 
+        $('#aon_premium').val(aonPremium.toFixed(2));
+        $('#tpbi_premium').val(tpbiPremium.toFixed(2));
+        $('#tppd_premium').val(tppdPremium.toFixed(2));
+        $('#par_premium').val(parPremium.toFixed(2));
+
+        // 6. Update text displays
+        $('#gross_display, #gross').val(gross.toFixed(2));
+        $('#net_premium_display, #net_premium').val(netPremium.toFixed(2));
+        $('#net_commission_display, #net_commission').val(netCommission.toFixed(2));
+
+        $('#total_premium').val(totalPremium.toFixed(2));
+        $('#vat_premium_tax').val(vatPremiumTax.toFixed(2));
+        $('#docstamp').val(docstamp.toFixed(2));
+        $('#local_tax').val(localTax.toFixed(2));
+
+        $('#od_theft_commission').val(premiumCommission.toFixed(2));
+        $('#aon_commission').val(aonCommission.toFixed(2));
+        $('#tpbi_commission').val(tpbiCommission.toFixed(2));
+        $('#tppd_commission').val(tppdCommission.toFixed(2));
+        $('#par_commission').val(parCommission.toFixed(2));
+        $('#commission_subtotal').val(commissionSubtotal.toFixed(2));
+        $('#commission_discount').val(commissionDiscount.toFixed(2));
+
+        // 7. Construct Payload for Backend API
+        const computationData = {
+            insurance_request_id: $('#insurance-request-id').text().trim(),
+            transaction: 'save insurance request computation',
+            
+            insurance_category: category,
+            coverage_type: coverage_type,
+            encoding_mode: encoding_mode,
+            
+            // Coverages
+            ctpl_coverage: ctplCoverage,
+            all_risk_coverage: allRiskCoverage,
+            od_theft_coverage: odTheftCoverage,
+            aon_coverage: aonCoverage,
+            tpbi_coverage: tpbiCoverage,
+            tppd_coverage: tppdCoverage,
+            par_coverage: parCoverage,
+            
+            // Rates
+            ctpl_rate: ctplRate,
+            all_risk_rate: allRiskRate,
+            od_theft_rate: odTheftRate,
+            aon_rate: aonRate,
+            tpbi_rate: tpbiRate,
+            tppd_rate: tppdRate,
+            par_rate: parRate,
+            
+            // Premiums
+            ctpl_premium: ctplPremium,
+            all_risk_premium: allRiskPremium,
+            od_theft_premium: odTheftPremium,
+            aon_premium: aonPremium,
+            tpbi_premium: tpbiPremium,
+            tppd_premium: tppdPremium,
+            par_premium: parPremium,
+            
+            // Totals & Taxes
+            total_premium: totalPremium,
+            vat_premium_tax: vatPremiumTax,
+            docstamp: docstamp,
+            local_tax: localTax,
+            gross: gross,
+            
+            // Commission Rates
+            premium_commission_rate: odTheftCommissionRate,
+            aon_commission_rate: parseFloat($('#aon_commission_rate').val()) || 0,
+            tpbi_commission_rate: parseFloat($('#tpbi_commission_rate').val()) || 0,
+            tppd_commission_rate: parseFloat($('#tppd_commission_rate').val()) || 0,
+            par_commission_rate: parseFloat($('#par_commission_rate').val()) || 0,
+            
+            // Commissions
+            premium_commission: premiumCommission,
+            aon_commission: aonCommission,
+            tpbi_commission: tpbiCommission,
+            tppd_commission: tppdCommission,
+            par_commission: parCommission,
+            
+            // Subtotals & Discounts
+            commission_subtotal: commissionSubtotal,
+            commission_discount_rate: discountRate,
+            commission_discount: commissionDiscount,
+            net_commission: netCommission,
+            net_premium: netPremium
+        };
+
+        if (!skipSave) {
+            saveComputation(computationData);
+        }
+    } else {
+        const basePremium = parseFloat($('#od_theft_premium').val()) || 0;
+        const allRiskPremium = (coverage_type === 'All Risk') ? basePremium : 0;
+        const odTheftPremium = (coverage_type === 'OD/Theft') ? basePremium : 0;
+
+        const computationData = {
+            insurance_request_id: $('#insurance-request-id').text().trim(),
+            transaction: 'save insurance request computation',
+            
+            insurance_category: category,
+            encoding_mode: encoding_mode,
+            coverage_type: coverage_type,
+            
+            // Coverages
+            ctplCoverage : parseFloat($('#ctpl_coverage').val()) || 0,
+            allRiskCoverage : allRiskCoverage,
+            odTheftCoverage : odTheftCoverage,
+            aonCoverage : parseFloat($('#aon_coverage').val()) || 0,
+            tpbiCoverage : parseFloat($('#tpbi_coverage').val()) || 0,
+            tppdCoverage : parseFloat($('#tppd_coverage').val()) || 0,
+            parCoverage : parseFloat($('#par_coverage').val()) || 0,
+
+            ctplRate : parseFloat($('#ctpl_rate').val()) || 0,
+            allRiskRate : allRiskRate,
+            odTheftRate : odTheftRate,
+            aonRate : parseFloat($('#aon_rate').val()) || 0,
+            tpbiRate : parseFloat($('#tpbi_rate').val()) || 0,
+            tppdRate : parseFloat($('#tppd_rate').val()) || 0,
+            parRate : parseFloat($('#par_rate').val()) || 0,
+
+            ctplPremium : parseFloat($('#ctpl_premium').val()) || 0,
+            allRiskPremium : allRiskPremium,
+            odTheftPremium : odTheftPremium,
+            aonPremium : parseFloat($('#aon_premium').val()) || 0,
+            tpbiPremium : parseFloat($('#tpbi_premium').val()) || 0,
+            tppdPremium : parseFloat($('#tppd_premium').val()) || 0,
+            parPremium : parseFloat($('#par_premium').val()) || 0,
+
+            totalPremium : parseFloat($('#total_premium').val()) || 0,
+            vatPremiumTax : parseFloat($('#vat_premium_tax').val()) || 0,
+            docstamp : parseFloat($('#docstamp').val()) || 0,
+            localTax : parseFloat($('#local_tax').val()) || 0,
+            gross : parseFloat($('#gross').val()) || 0,
+
+            odTheftCommissionRate : parseFloat($('#od_theft_commission_rate').val()) || 0,
+            aonCommissionRate : parseFloat($('#aon_commission_rate').val()) || 0,
+            tpbiCommissionRate : parseFloat($('#tpbi_commission_rate').val()) || 0,
+            tppdCommissionRate : parseFloat($('#tppd_commission_rate').val()) || 0,
+            parCommissionRate : parseFloat($('#par_commission_rate').val()) || 0,
+
+            premiumCommission : parseFloat($('#od_theft_commission').val()) || 0,
+            aonCommission : parseFloat($('#aon_commission').val()) || 0,
+            tpbiCommission : parseFloat($('#tpbi_commission').val()) || 0,
+            tppdCommission : parseFloat($('#tppd_commission').val()) || 0,
+            parCommission : parseFloat($('#par_commission').val()) || 0,
+
+            commissionSubtotal : parseFloat($('#commission_subtotal').val()) || 0,
+            discountRate : parseFloat($('#commission_discount_rate').val()) || 0,
+            commissionDiscount : parseFloat($('#commission_discount').val()) || 0,
+            netCommission : parseFloat($('#net_commission').val()) || 0,
+            netPremium : parseFloat($('#net_premium').val()) || 0,
+        };
+
+        if (!skipSave) {
+            saveComputation(computationData);
+        }
+    }
 }
 
 function saveComputation(payload) {
+    // Prevent missing request ID from firing requests
+    if (!payload.insurance_request_id) return;
+
+    // Clear previous pending save request
+    clearTimeout(saveTimer);
+
+    // Delay request by 500ms (Debounce)
+    saveTimer = setTimeout(function () {
+        $.ajax({
+            type: 'POST',
+            url: 'controller/insurance-request-controller.php',
+            data: payload,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    console.log('Saved successfully:', response);
+                } else {
+                    if (response.isInactive) {
+                        window.location = 'logout.php?logout';
+                    } else {
+                        console.error('Save failed:', response.message);
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Save AJAX failed:', error);
+            }
+        });
+    }, 500);
+}
+
+// Function to fetch fixed OD/Theft rate & commission rate based on Provider & Category
+function fetchCategoryRates() {
+    if (window.isLoadingDetails) {
+        return; 
+    }
+    
+    const providerId = $('#insurance_provider_id').val();
+    const categoryId = $('#insurance_category').val();
+
+    if (!providerId || !categoryId) return;
+
     $.ajax({
-        type: 'POST',
         url: 'controller/insurance-request-controller.php',
-        data: payload,
-        success: function(response) {
-            console.log('Saved successfully:', response);
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            transaction: 'get category rates',
+            insurance_provider_id: providerId,
+            insurance_category_id: categoryId
         },
-        error: function(xhr, status, error) {
-            console.error('Save failed:', error);
+        success: function (response) {
+            if (response.success) {
+                $('#od_theft_rate').val(response.od_theft_rate);
+                $('#od_theft_commission_rate').val(response.commission_rate);
+                calculateInsurance();
+            } else if (response.isInactive) {
+                window.location = 'logout.php?logout';
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Fetch Category Rates AJAX error:', error);
         }
     });
+}
+
+function fetchTaxRates() {
+    const providerId = $('#insurance_provider_id').val();
+
+    if (!providerId) return;
+
+    $.ajax({
+        url: 'controller/insurance-request-controller.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            transaction: 'get tax rates',
+            insurance_provider_id: providerId,
+        },
+        success: function (response) {
+            if (response.success) {
+                $('#local_government_tax_rate').val(response.local_government_tax_rate);
+                calculateInsurance();
+            } else if (response.isInactive) {
+                window.location = 'logout.php?logout';
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Fetch Tax Rates AJAX error:', error);
+        }
+    });
+}
+
+// Function to fetch fixed TPBI & TPPD rates/amounts based on Coverage selected
+function fetchCoverageRates() {
+    const providerId = $('#insurance_provider_id').val();
+    const tpbiCoverage = parseFloat($('#tpbi_coverage').val()) || 0;
+    const tppdCoverage = parseFloat($('#tppd_coverage').val()) || 0;
+
+    if (!providerId) return;
+
+    // Fetch TPBI rate matching coverage
+    if (tpbiCoverage > 0) {
+        $.ajax({
+            url: 'controller/insurance-request-controller.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                transaction: 'get coverage rates',
+                insurance_provider_id: providerId,
+                coverage_amount: tpbiCoverage
+            },
+            success: function (response) {
+                if (response.success) {
+                    $('#tpbi_premium').val(response.bi_rate);
+                    calculateInsurance();
+                }
+            }
+        });
+    }
+    else{
+        $('#tpbi_premium').val(0);
+    }
+
+    // Fetch TPPD fixed amount matching coverage
+    if (tppdCoverage > 0) {
+        $.ajax({
+            url: 'controller/insurance-request-controller.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                transaction: 'get coverage rates',
+                insurance_provider_id: providerId,
+                coverage_amount: tppdCoverage
+            },
+            success: function (response) {
+                if (response.success) {
+                    // Update tppd_rate with fixed pd_amount rate
+                    $('#tppd_premium').val(response.pd_amount);
+                    calculateInsurance();
+                }
+            }
+        });
+    }
+    else{
+        $('#tppd_premium').val(0);
+    }
 }

@@ -1,24 +1,4 @@
-<div class="col-xl-6 col-md-12">
-  <div class="card">
-    <div class="card-header">
-        <div class="row align-items-center">
-          <div class="col-sm-6">
-            <h5>Daily Lead Monitoring Status</h5>
-          </div>
-          <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-            <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-lead-canvas">
-              Filter
-            </button>
-          </div>
-        </div>
-      </div>
-    <div class="card-body p-0">
-      <div class="customer-scroll" style="max-height: 415px; position: relative; overflow: auto;">
-        <ul class="list-group list-group-flush p-4" id="lead-monitoring-list"></ul>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 <div class="ecom-wrapper">
   <div class="offcanvas offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-lead-canvas">
@@ -54,6 +34,28 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col-xl-6">
+  <div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Daily Lead Monitoring Status</h5>
+          </div>
+          <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+            <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-lead-canvas">
+              Filter
+            </button>
+          </div>
+        </div>
+      </div>
+    <div class="card-body p-0">
+      <div class="customer-scroll" style="max-height: 415px; position: relative; overflow: auto;">
+        <ul class="list-group list-group-flush p-4" id="lead-monitoring-list"></ul>
       </div>
     </div>
   </div>

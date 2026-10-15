@@ -223,6 +223,30 @@ class InsurancePolicyModel {
         $stmt->execute();
     }
 
+    public function collectInsurancePolicy($insurancePolicyID) {
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE insurance_policy
+            SET payment_status = "Paid",
+            payment_date = NOW()
+            WHERE insurance_policy_id = :insurance_policy_id AND payment_status = "Unpaid"
+        ');
+
+        $stmt->bindValue(':insurance_policy_id', $insurancePolicyID, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function remitInsurancePolicy($insurancePolicyID) {
+        $stmt = $this->db->getConnection()->prepare('
+            UPDATE insurance_policy
+            SET remittance_status = "Remitted",
+            remittance_date = NOW()
+            WHERE insurance_policy_id = :insurance_policy_id AND remittance_status = "Pending"
+        ');
+
+        $stmt->bindValue(':insurance_policy_id', $insurancePolicyID, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
     /* -----------------------------------------------
     | GET SINGLE LEAD STATUS
     |----------------------------------------------- */

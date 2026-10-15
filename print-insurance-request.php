@@ -217,50 +217,56 @@
         $insuranceRequestDetails = $insuranceRequestModel->getInsuranceRequest($insuranceRequestID);
         $insurance_category = $insuranceRequestDetails['insurance_category'];
         $ctpl_coverage = $insuranceRequestDetails['ctpl_coverage'];
+        $ctpl_rate = $insuranceRequestDetails['ctpl_rate'];
         $od_theft_coverage = $insuranceRequestDetails['od_theft_coverage'];
+        $od_theft_rate = $insuranceRequestDetails['od_theft_rate'];
+        $all_risk_coverage = $insuranceRequestDetails['all_risk_coverage'];
+        $all_risk_rate = $insuranceRequestDetails['all_risk_rate'];
         $aon_coverage = $insuranceRequestDetails['aon_coverage'];
+        $aon_rate = $insuranceRequestDetails['aon_rate'];
         $tpbi_coverage = $insuranceRequestDetails['tpbi_coverage'];
         $tppd_coverage = $insuranceRequestDetails['tppd_coverage'];
         $par_coverage = $insuranceRequestDetails['par_coverage'];
         $ctpl_premium = $insuranceRequestDetails['ctpl_premium'];
         $od_theft_premium = $insuranceRequestDetails['od_theft_premium'];
+        $all_risk_premium = $insuranceRequestDetails['all_risk_premium'];
         $aon_premium = $insuranceRequestDetails['aon_premium'];
         $tpbi_premium = $insuranceRequestDetails['tpbi_premium'];
         $tppd_premium = $insuranceRequestDetails['tppd_premium'];
         $par_premium = $insuranceRequestDetails['par_premium'];
-        $par_premium = $insuranceRequestDetails['par_premium'];
+        $par_rate = $insuranceRequestDetails['par_rate'];
         $total_premium = $insuranceRequestDetails['total_premium'];
         $vat_premium_tax = $insuranceRequestDetails['vat_premium_tax'];
         $docstamp = $insuranceRequestDetails['docstamp'];
         $local_tax = $insuranceRequestDetails['local_tax'];
         $gross = $insuranceRequestDetails['gross'];
-        $premium_comission = $insuranceRequestDetails['premium_comission'];
-        $aon_comission = $insuranceRequestDetails['aon_comission'];
-        $tpbi_comission = $insuranceRequestDetails['tpbi_comission'];
-        $tppd_comission = $insuranceRequestDetails['tppd_comission'];
-        $par_comission = $insuranceRequestDetails['par_comission'];
-        $comission_subtotal = $insuranceRequestDetails['comission_subtotal'];
+        $premium_commission = $insuranceRequestDetails['premium_commission'];
+        $aon_commission = $insuranceRequestDetails['aon_commission'];
+        $tpbi_commission = $insuranceRequestDetails['tpbi_commission'];
+        $tppd_commission = $insuranceRequestDetails['tppd_commission'];
+        $par_commission = $insuranceRequestDetails['par_commission'];
+        $commission_subtotal = $insuranceRequestDetails['commission_subtotal'];
         $commission_discount = $insuranceRequestDetails['commission_discount'];
         $net_commission = $insuranceRequestDetails['net_commission'];
         $net_premium = $insuranceRequestDetails['net_premium'];
 
-        if($insurance_category == 'Truck'){
-            $od_theft_rate = '2.40%';
-            $premium_rate = '26.00%';
-
-        }
-        else if($insurance_category == 'Equipment'){
-            $od_theft_rate = '1.50%';
-            $premium_rate = '20.00%';
-        }
-        else if($insurance_category == 'Equipment with AON'){
-            $od_theft_rate = '1.85%';
-            $premium_rate = '20.00%';
+        if($od_theft_coverage > 0){
+            $coverage_type = '<tr>
+                                <td>OD/THEFT</td>
+                                <td>'. number_format($od_theft_coverage, 2) .'</td>
+                                <td>'. number_format($od_theft_rate, 2) .'%</td>
+                                <td>'. number_format($od_theft_premium, 2) .'</td>
+                            </tr>';
         }
         else{
-            $od_theft_rate = '0.00%';
-            $premium_rate = '0.00%';
-        }    
+            $coverage_type = '<tr>
+                                <td>ALL RISK</td>
+                                <td>'. number_format($all_risk_coverage, 2) .'</td>
+                                <td>'. number_format($all_risk_rate, 2) .'%</td>
+                                <td>'. number_format($all_risk_premium, 2) .'</td>
+                            </tr>';
+        }
+
     
         $response = '<table border="1" width="100%" cellpadding="5" align="left">
                         <thead>
@@ -272,22 +278,17 @@
                             </tr>
                         </thead>
                         <tbody>
+                            '. $coverage_type .'
                             <tr>
                                 <td>CTPL</td>
                                 <td>'. number_format($ctpl_coverage, 2) .'</td>
-                                <td>0.00</td>
+                                <td>'. number_format($ctpl_rate, 2) .'%</td>
                                 <td>'. number_format($ctpl_premium, 2) .'</td>
-                            </tr>
-                            <tr>
-                                <td>OD/THEFT</td>
-                                <td>'. number_format($od_theft_coverage, 2) .'</td>
-                                <td>'.$od_theft_rate.'</td>
-                                <td>'. number_format($od_theft_premium, 2) .'</td>
                             </tr>
                             <tr>
                                 <td>AON</td>
                                 <td>'. number_format($aon_coverage, 2) .'</td>
-                                <td>0.50%</td>
+                                <td>'. number_format($aon_rate, 2) .'%</td>
                                 <td>'. number_format($aon_premium, 2) .'</td>
                             </tr>
                             <tr>
@@ -305,7 +306,7 @@
                             <tr>
                                 <td>PAR</td>
                                 <td>'. number_format($par_coverage, 2) .'</td>
-                                <td></td>
+                                <td>'. number_format($par_rate, 2) .'%</td>
                                 <td>'. number_format($par_premium, 2) .'</td>
                             </tr>
                             <tr>
@@ -380,34 +381,22 @@
         $docstamp = $insuranceRequestDetails['docstamp'];
         $local_tax = $insuranceRequestDetails['local_tax'];
         $gross = $insuranceRequestDetails['gross'];
-        $premium_comission = $insuranceRequestDetails['premium_comission'];
-        $aon_comission = $insuranceRequestDetails['aon_comission'];
-        $tpbi_comission = $insuranceRequestDetails['tpbi_comission'];
-        $tppd_comission = $insuranceRequestDetails['tppd_comission'];
-        $par_comission = $insuranceRequestDetails['par_comission'];
-        $comission_subtotal = $insuranceRequestDetails['comission_subtotal'];
+        $premium_commission = $insuranceRequestDetails['premium_commission'];
+        $aon_commission = $insuranceRequestDetails['aon_commission'];
+        $tpbi_commission = $insuranceRequestDetails['tpbi_commission'];
+        $tppd_commission = $insuranceRequestDetails['tppd_commission'];
+        $par_commission = $insuranceRequestDetails['par_commission'];
+        $commission_subtotal = $insuranceRequestDetails['commission_subtotal'];
         $commission_discount = $insuranceRequestDetails['commission_discount'];
         $net_commission = $insuranceRequestDetails['net_commission'];
         $net_premium = $insuranceRequestDetails['net_premium'];
+        $premium_rate = $insuranceRequestDetails['premium_rate'];
+        $par_commission_rate = $insuranceRequestDetails['par_commission_rate'];
+        $tppd_commission_rate = $insuranceRequestDetails['tppd_commission_rate'];
+        $aon_commission_rate = $insuranceRequestDetails['aon_commission_rate'];
+        $commission_discount_rate = $insuranceRequestDetails['commission_discount_rate'];
+        $premium_commission_rate = $insuranceRequestDetails['premium_commission_rate'];
 
-        if($insurance_category == 'Truck'){
-            $od_theft_rate = '2.40%';
-            $premium_rate = '26.00%';
-
-        }
-        else if($insurance_category == 'Equipment'){
-            $od_theft_rate = '1.50%';
-            $premium_rate = '20.00%';
-        }
-        else if($insurance_category == 'Equipment with AON'){
-            $od_theft_rate = '1.85%';
-            $premium_rate = '20.00%';
-        }
-        else{
-            $od_theft_rate = '0.00%';
-            $premium_rate = '0.00%';
-        }    
-    
         $response = '<table border="1" width="100%" cellpadding="5" align="left">
                         <thead>
                             <tr style="text-align:center">
@@ -417,37 +406,36 @@
                         <tbody>
                             <tr>
                                 <td>PREMIUM</td>
-                                <td>'.$premium_rate.'</td>
-                                <td>'. number_format($premium_comission, 2) .'</td>
+                                <td>'. number_format($premium_commission_rate, 2) .'% </td>
+                                <td>'. number_format($premium_commission, 2) .'</td>
                             </tr>
                             <tr>
                                 <td>AON</td>
-                                <td>5.00%</td>
-                                <td>'. number_format($aon_comission, 2) .'</td>
+                                <td>'. number_format($aon_commission_rate, 2) .'%</td>
+                                <td>'. number_format($aon_commission, 2) .'</td>
                             </tr>
                             <tr>
                                 <td>TPBI</td>
-                                <td>15.00%</td>
-                                <td>'. number_format($tpbi_comission, 2) .'</td>
+                                <td>'. number_format($tpbi_commission_rate, 2) .'%</td>
+                                <td>'. number_format($tpbi_commission, 2) .'</td>
                             </tr>
                             <tr>
                                 <td>TPPD</td>
-                                <td>15.00%</td>
-                                <td>'. number_format($tppd_comission, 2) .'</td>
+                                <td>'. number_format($tppd_commission_rate, 2) .'%</td>
+                                <td>'. number_format($tppd_commission, 2) .'</td>
                             </tr>
                             <tr>
                                 <td>PAR</td>
-                                <td></td>
+                                <td>'. number_format($par_commission_rate, 2) .'%</td>
                                 <td>0.00</td>
                             </tr>
                             <tr>
                                 <td>LESS 10% WTP</td>
-                                <td></td>
+                                <td>'. number_format($commission_discount_rate, 2) .'%</td>
                                 <td>'. number_format($commission_discount, 2) .'</td>
                             </tr>
                             <tr>
-                                <td>NET COMMISSION</td>
-                                <td></td>
+                                <td colspan="2">NET COMMISSION</td>
                                 <td>'. number_format($net_commission, 2) .'</td>
                             </tr>
                         </tbody>
@@ -502,12 +490,12 @@
         $docstamp = $insuranceRequestDetails['docstamp'];
         $local_tax = $insuranceRequestDetails['local_tax'];
         $gross = $insuranceRequestDetails['gross'];
-        $premium_comission = $insuranceRequestDetails['premium_comission'];
-        $aon_comission = $insuranceRequestDetails['aon_comission'];
-        $tpbi_comission = $insuranceRequestDetails['tpbi_comission'];
-        $tppd_comission = $insuranceRequestDetails['tppd_comission'];
-        $par_comission = $insuranceRequestDetails['par_comission'];
-        $comission_subtotal = $insuranceRequestDetails['comission_subtotal'];
+        $premium_commission = $insuranceRequestDetails['premium_commission'];
+        $aon_commission = $insuranceRequestDetails['aon_commission'];
+        $tpbi_commission = $insuranceRequestDetails['tpbi_commission'];
+        $tppd_commission = $insuranceRequestDetails['tppd_commission'];
+        $par_commission = $insuranceRequestDetails['par_commission'];
+        $commission_subtotal = $insuranceRequestDetails['commission_subtotal'];
         $commission_discount = $insuranceRequestDetails['commission_discount'];
         $net_commission = $insuranceRequestDetails['net_commission'];
         $net_premium = $insuranceRequestDetails['net_premium'];

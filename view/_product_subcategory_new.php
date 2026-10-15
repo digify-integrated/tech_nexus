@@ -37,6 +37,12 @@
                </select>
             </div>
           </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Standard Inclusions</label>
+            <div class="col-lg-10">
+              <textarea type="text" class="form-control" id="standard_inclusions" name="standard_inclusions" row="5"> </textarea>
+            </div>
+          </div>
         </form>
       </div>
     </div>

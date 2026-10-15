@@ -21,7 +21,7 @@
   $idTypeModel = new IDTypeModel($databaseModel);
   $applicationSourceModel = new ApplicationSourceModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
-  $pmsCatalog = new PMSCatalogModel($databaseModel);
+  $pmsCatalogModel = new PMSCatalogModel($databaseModel);
   $partsModel = new PartsModel($databaseModel);
     
   $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 72, 'read');

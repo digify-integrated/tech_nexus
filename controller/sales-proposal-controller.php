@@ -31,6 +31,7 @@ class SalesProposalController {
     private $uploadSettingModel;
     private $fileExtensionModel;
     private $partsModel;
+    private $pmsCatalogModel;
     private $systemModel;
     private $securityModel;
 
@@ -56,7 +57,7 @@ class SalesProposalController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, ProductModel $productModel, BodyTypeModel $bodyTypeModel, ColorModel $colorModel, ProductSubcategoryModel $productSubcategoryModel, ContractorModel $contractorModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, WorkCenterModel $workCenterModel, PartsModel $partsModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, ProductModel $productModel, BodyTypeModel $bodyTypeModel, ColorModel $colorModel, ProductSubcategoryModel $productSubcategoryModel, ContractorModel $contractorModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, WorkCenterModel $workCenterModel, PartsModel $partsModel, PMSCatalogModel $pmsCatalogModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->salesProposalModel = $salesProposalModel;
         $this->customerModel = $customerModel;
         $this->productModel = $productModel;
@@ -72,6 +73,7 @@ class SalesProposalController {
         $this->emailSettingModel = $emailSettingModel;
         $this->workCenterModel = $workCenterModel;
         $this->partsModel = $partsModel;
+        $this->pmsCatalogModel = $pmsCatalogModel;
         $this->notificationSettingModel = $notificationSettingModel;
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
@@ -441,8 +443,7 @@ class SalesProposalController {
                 echo json_encode(['success' => true, 'insertRecord' => false, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
                 exit;
             } 
-            else {
-                
+            else {                
                 $pms_catalog_id = htmlspecialchars($_POST['pms_catalog_id'], ENT_QUOTES, 'UTF-8');
                 $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
                 $forRegistration = htmlspecialchars($_POST['for_registration'], ENT_QUOTES, 'UTF-8');
@@ -462,6 +463,10 @@ class SalesProposalController {
                 $regularPricePerliter = str_replace(',', '', $_POST['regular_price_per_liter']);
                 $premiumFuelQuantity = str_replace(',', '', $_POST['premium_fuel_quantity']);
                 $premiumPricePerliter = str_replace(',', '', $_POST['premium_price_per_liter']);
+                $add_on_labor_rate = str_replace(',', '', $_POST['add_on_labor_rate']);
+                $pms_labor_total = str_replace(',', '', $_POST['pms_labor_total']);
+                $add_on_consumables_rate = str_replace(',', '', $_POST['add_on_consumables_rate']);
+                $pms_consumable_total = str_replace(',', '', $_POST['pms_consumable_total']);
 
                 $refEngineNo = htmlspecialchars($_POST['ref_engine_no'], ENT_QUOTES, 'UTF-8');
                 $refChassisNo = htmlspecialchars($_POST['ref_chassis_no'], ENT_QUOTES, 'UTF-8');
@@ -522,7 +527,7 @@ class SalesProposalController {
 
                 $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
 
-                $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $additional_maker_id, $comaker_id2, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $pms_catalog_id, $userID);
+                $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $additional_maker_id, $comaker_id2, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $applicationSourceID, $commissionAmount, $companyID, $pms_catalog_id, $add_on_labor_rate, $pms_labor_total, $add_on_consumables_rate, $pms_consumable_total, $userID);
 
                 $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
@@ -540,29 +545,82 @@ class SalesProposalController {
                     $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
                 }
                 else if ($productType == 'PMS') {
-                    $pms_matrix_ids = $_POST['pms_matrix_id'] ?? [];
+                    $pms_catalog_id = htmlspecialchars($_POST['pms_catalog_id'] ?? '', ENT_QUOTES, 'UTF-8');
 
-                    // Force array format if string was submitted
-                    if (!is_array($pms_matrix_ids) && !empty($pms_matrix_ids)) {
-                        $pms_matrix_ids = explode(',', $pms_matrix_ids);
+                    // Fetch existing catalog ID and update if changed
+                    $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+                    $current_pms_catalog_id = $salesProposalDetails['pms_catalog_id'] ?? null;
+
+                    if ((string)$current_pms_catalog_id !== (string)$pms_catalog_id) {
+                        $this->salesProposalModel->updateSalesProposalPMSCatalog($salesProposalID, $pms_catalog_id, $userID);
                     }
 
-                    if (!empty($pms_matrix_ids) && is_array($pms_matrix_ids)) {
-                        // 1. Insert selected matrix records
-                        foreach ($pms_matrix_ids as $pms_matrix_id) {
-                            $this->salesProposalModel->insertSalesProposalPMSMatrix(
+                    // Safely extract incoming pms_matrix_id values across all potential input formats
+                    $pms_matrix_ids = [];
+
+                    if (isset($_POST['pms_matrix_id'])) {
+                        if (is_array($_POST['pms_matrix_id'])) {
+                            $pms_matrix_ids = $_POST['pms_matrix_id'];
+                        } else {
+                            // Parse raw HTTP input to capture duplicate key structures (e.g. pms_matrix_id=1&pms_matrix_id=2)
+                            $rawInput = file_get_contents('php://input');
+                            preg_match_all('/(?:^|&)pms_matrix_id=([^&]*)/', $rawInput, $matches);
+
+                            if (!empty($matches[1])) {
+                                $pms_matrix_ids = array_map('urldecode', $matches[1]);
+                            } else {
+                                // Fallback for single value or comma-separated string ("1,2")
+                                $pms_matrix_ids = explode(',', $_POST['pms_matrix_id']);
+                            }
+                        }
+                    }
+
+                    // Clean, sanitize, and sort incoming matrix IDs
+                    $new_pms_matrix_ids = array_values(array_unique(array_filter(array_map('intval', $pms_matrix_ids))));
+                    sort($new_pms_matrix_ids);
+
+                    // Fetch existing matrix IDs from database
+                    $existing_pms_matrix_ids = $this->salesProposalModel->getSalesProposalPMSMatrixIDs($salesProposalID);
+                    if (!is_array($existing_pms_matrix_ids)) {
+                        $existing_pms_matrix_ids = [];
+                    }
+                    $existing_pms_matrix_ids = array_values(array_unique(array_map('intval', $existing_pms_matrix_ids)));
+                    sort($existing_pms_matrix_ids);
+
+                    // Only update matrix & required parts if matrix choices actually changed
+                    $has_matrix_changed = ($new_pms_matrix_ids !== $existing_pms_matrix_ids);
+
+                    if ($has_matrix_changed) {
+                        $this->salesProposalModel->deleteSalesProposalPMSMatrix($salesProposalID);
+                        $this->salesProposalModel->deleteRequiredSalesProposalParts($salesProposalID);
+
+                        if (!empty($new_pms_matrix_ids)) {
+                            // 1. Insert updated matrix records
+                            foreach ($new_pms_matrix_ids as $pms_matrix_id) {
+                                $this->salesProposalModel->insertSalesProposalPMSMatrix(
+                                    $salesProposalID,
+                                    $pms_matrix_id,
+                                    $userID
+                                );
+
+                                $pmsMatrixDetails = $this->pmsCatalogModel->getPMSMatrix($pms_matrix_id);
+
+                                $this->salesProposalModel->insertSalesProposalJobOrder(
+                                    $salesProposalID,
+                                    $pmsMatrixDetails['odometer'] . ' ' . $pmsMatrixDetails['months_interval'] . ' PMS',
+                                    0,
+                                    '',
+                                    $userID
+                                );
+                            }
+
+                            // 2. Insert unique auto-required parts tied to matrix selections
+                            $this->salesProposalModel->insertSalesProposalUniquePMSParts(
                                 $salesProposalID,
-                                $pms_matrix_id,
+                                $new_pms_matrix_ids,
                                 $userID
                             );
                         }
-
-                        // 2. Insert all unique requested parts with is_required = 'Yes'
-                        $this->salesProposalModel->insertSalesProposalUniquePMSParts(
-                            $salesProposalID,
-                            $pms_matrix_ids,
-                            $userID
-                        );
                     }
                 }
                 else if($productType == 'Brand New' || $productType == 'Refinancing' || $productType == 'Restructure'){
@@ -666,7 +724,12 @@ class SalesProposalController {
 
         $userID = $_SESSION['user_id'] ?? null;
         $salesProposalID = $_POST['sales_proposal_id'] ?? null;
+        $pms_product_id = $_POST['pms_product_id'] ?? null;
         $pms_catalog_id = htmlspecialchars($_POST['pms_catalog_id'] ?? '', ENT_QUOTES, 'UTF-8');
+        $add_on_labor_rate = str_replace(',', '', $_POST['add_on_labor_rate']);
+        $pms_labor_total = str_replace(',', '', $_POST['pms_labor_total']);
+        $add_on_consumables_rate = str_replace(',', '', $_POST['add_on_consumables_rate']);
+        $pms_consumable_total = str_replace(',', '', $_POST['pms_consumable_total']);
 
         if (!$userID || !$salesProposalID) {
             echo json_encode(['success' => false, 'message' => 'Missing required parameters.']);
@@ -685,12 +748,9 @@ class SalesProposalController {
 
         if ($total > 0) {
             $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
-            $current_pms_catalog_id = $salesProposalDetails['pms_catalog_id'] ?? null;
 
             // STEP 1: Update catalog ID only if it actually changed
-            if ((string)$current_pms_catalog_id !== (string)$pms_catalog_id) {
-                $this->salesProposalModel->updateSalesProposalPMSDetails($salesProposalID, $pms_catalog_id, $userID);
-            }
+            $this->salesProposalModel->updateSalesProposalPMSDetails($salesProposalID, $pms_product_id, $pms_catalog_id, $add_on_labor_rate, $pms_labor_total, $add_on_consumables_rate, $pms_consumable_total, $userID);
 
             // Parse incoming pms_matrix_id safely
             $pms_matrix_ids = [];
@@ -3046,7 +3106,15 @@ class SalesProposalController {
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
         $sales_proposal_status = $salesProposalDetails['sales_proposal_status'] ?? 'Draft';
 
+        
+            
+        if($sales_proposal_status == 'Draft' || $sales_proposal_status == 'Cancelled' || $sales_proposal_status == 'Rejected' || $sales_proposal_status == 'Released'){
+            echo json_encode(['success' => false, 'message' => 'Cannot set to draft.']);
+            exit;
+        }
+
         if($sales_proposal_status != 'Draft' && $sales_proposal_status != 'Cancelled' && $sales_proposal_status != 'Rejected' && $sales_proposal_status != 'Released' && $sales_proposal_status != 'For Review' && $sales_proposal_status != 'For Initial Approval'){
+
             $setToDraftFileFileName = $_FILES['set_to_draft_file']['name'];
             $setToDraftFileFileSize = $_FILES['set_to_draft_file']['size'];
             $setToDraftFileFileError = $_FILES['set_to_draft_file']['error'];
@@ -3531,7 +3599,7 @@ class SalesProposalController {
             else if($productType == 'Parts'){
                 $productTypeCode = '2';
             }
-            else if($productType == 'Repair'){
+            else if($productType == 'Repair' || $productType == 'PMS'){
                 $productTypeCode = '7';
             }
             else if($productType == 'Rental'){
@@ -5363,6 +5431,7 @@ class SalesProposalController {
                 'financingInstitution' => $salesProposalDetails['financing_institution'] ?? null,
                 'renewalTag' => $salesProposalDetails['renewal_tag'] ?? null,
                 'pmsCatalogId' => $salesProposalDetails['pms_catalog_id'] ?? null,
+                'pmsProductId' => $salesProposalDetails['pms_product_id'] ?? null,
                 'pmsMatrixIds' => $pmsMatrixIds,
                 'applicationSourceID' => $salesProposalDetails['application_source_id'] ?? null,
                 'commissionAmount' => $salesProposalDetails['commission_amount'] ?? null,
@@ -5401,6 +5470,10 @@ class SalesProposalController {
                 'companyID' => $salesProposalDetails['company_id'],
                 'setToDraftFile' => $salesProposalDetails['set_to_draft_file'] ?? null,
                 'otherDocumentFile' => $salesProposalDetails['other_document_file'] ?? null,
+                'addOnLaborRate' => $salesProposalDetails['add_on_labor_rate'] ?? 0,
+                'pmsLaborTotal' => $salesProposalDetails['pms_labor_total'] ?? 0,
+                'addOnConsumablesRate' => $salesProposalDetails['add_on_consumables_rate'] ?? 0,
+                'pmsConsumableTotal' => $salesProposalDetails['pms_consumable_total'] ?? 0,
                 'initialApprovingOfficer' => $initialApprovingOfficer,
                 'finalApprovingOfficer' => $finalApprovingOfficer,
                 'summaryTotal' => number_format((($salesProposalAdditionalJobOrderTotalDetails['total'] ?? 0) + $outstanding_balance), 2),
@@ -6651,11 +6724,12 @@ require_once '../model/email-setting-model.php';
 require_once '../model/work-center-model.php';
 require_once '../model/parts-model.php';
 require_once '../model/security-model.php';
+require_once '../model/pms-catalog-model.php';
 require_once '../model/system-model.php';
 require '../assets/libs/PHPMailer/src/PHPMailer.php';
 require '../assets/libs/PHPMailer/src/Exception.php';
 require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new ProductModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new ColorModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new ContractorModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new WorkCenterModel(new DatabaseModel), new PartsModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new ProductModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new ColorModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new ContractorModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new WorkCenterModel(new DatabaseModel), new PartsModel(new DatabaseModel), new PMSCatalogModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

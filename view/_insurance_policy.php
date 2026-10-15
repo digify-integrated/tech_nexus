@@ -36,16 +36,25 @@
             </div>
             <?php
               if($insurancePolicyCreateAccess['total'] > 0 || $insurancePolicyDeleteAccess['total'] > 0){
-                $action = '';
+                $action = '<div class="btn-group m-r-10">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                                <ul class="dropdown-menu dropdown-menu-end">';
                               
                 if($insurancePolicyDeleteAccess['total'] > 0){
-                  $action .= '<div class="btn-group m-r-10">
-                                <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
-                                <ul class="dropdown-menu dropdown-menu-end">
+                  $action .= '
                                   <li><button class="dropdown-item" type="button" id="delete-insurance-policy">Delete Insurance Policy</button></li>
-                                </ul>
-                              </div>';
+                                ';
                 }
+
+                $action .= ' <li><button class="dropdown-item" type="button" id="collect-insurance-policy" data-bs-toggle="offcanvas"
+                                data-bs-target="#collect-offcanvas"
+                                aria-controls="collect-offcanvas">Tag As Collected</button></li>';
+                $action .= ' <li><button class="dropdown-item" type="button" id="remit-insurance-policy" data-bs-toggle="offcanvas"
+                                data-bs-target="#remit-offcanvas"
+                                aria-controls="remit-offcanvas">Tag As Remitted</button></li>';
+
+                $action .= '</ul>
+                              </div>';
 
                 if($insurancePolicyCreateAccess['total'] > 0){
                   $action .= '<a href="insurance-policy.php?new" class="btn btn-success">Create</a>';
@@ -71,17 +80,26 @@
                     <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                   </div>
                 </th>
+                <th>Insurance Provider</th>
+                <th>Assured</th>
+                <th>Unit No.</th>
+                <th>Plate No.</th>
+                <th>Chassis</th>
+                <th>Engine</th>
+                <th>Amount Insured Last Year</th>
+                <th>Amount Insured This Year</th>
+                <th>Status</th>
+                <th>Maturity of Account</th>
                 <th>Policy Number</th>
                 <th>Customer</th>
                 <th>Insurance Type</th>
-                <th>Insurance Provider</th>
                 <th>Gross</th>
                 <th>Net Premium</th>
                 <th>Inception Date</th>
                 <th>Expiry Date</th>
-                <th>Remittance Status</th>
-                <th>Payment Status</th>
-                <th>Status</th>
+                <th>Remittance Date</th>
+                <th>Collection Date</th>
+                <th>Ins. Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -176,4 +194,67 @@
             </div>
         </div>
     </div>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="collect-offcanvas" aria-labelledby="collect-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="collect-offcanvas-label" style="margin-bottom:-0.5rem">Tag as Collected</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="multiple-collect-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3"> 
+                <label class="form-label">Collection Date <span class="text-danger">*</span></label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="payment_date" name="payment_date" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-collect" form="multiple-collect-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+  </div>
+</div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="remit-offcanvas" aria-labelledby="remit-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="remit-offcanvas-label" style="margin-bottom:-0.5rem">Tag as Remitted</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="multiple-remit-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3"> 
+                <label class="form-label">Remittance Date <span class="text-danger">*</span></label>
+                <div class="input-group date">
+                  <input type="text" class="form-control regular-datepicker" id="remittance_date" name="remittance_date" autocomplete="off">
+                    <span class="input-group-text">
+                      <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-remit" form="multiple-remit-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+  </div>
 </div>

@@ -99,7 +99,7 @@ class SystemModel {
             }
         }
         else if($type == 'summary'){
-            if(!empty($date)){
+            if(!empty($date) && ($date != '0000-00-00 00:00:00' || $date != '0000-00-00')){
                 return $this->formatDate($format, $date, $modify);
             }
             else{

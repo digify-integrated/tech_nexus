@@ -397,10 +397,31 @@ class SalesProposalModel {
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
-    public function updateSalesProposalPMSDetails($p_sales_proposal_id, $p_pms_catalog_id, $p_last_log_by) {
+    public function updateSalesProposalPMSDetails($p_sales_proposal_id, $p_pms_product_id, $p_pms_catalog_id, $p_add_on_labor_rate, $p_pms_labor_total, $p_add_on_consumables_rate, $p_pms_consumable_total, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal
+        SET pms_product_id = :p_pms_product_id,
+            pms_catalog_id = :p_pms_catalog_id,
+            add_on_labor_rate = :p_add_on_labor_rate,
+            pms_labor_total = :p_pms_labor_total,
+            add_on_consumables_rate = :p_add_on_consumables_rate,
+            pms_consumable_total = :p_pms_consumable_total,
+        last_log_by = :p_last_log_by
+        WHERE sales_proposal_id = :p_sales_proposal_id;');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_pms_product_id', $p_pms_product_id, PDO::PARAM_INT);   
+        $stmt->bindValue(':p_pms_catalog_id', $p_pms_catalog_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_add_on_labor_rate', $p_add_on_labor_rate, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pms_labor_total', $p_pms_labor_total, PDO::PARAM_STR);
+        $stmt->bindValue(':p_add_on_consumables_rate', $p_add_on_consumables_rate, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pms_consumable_total', $p_pms_consumable_total, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateSalesProposalPMSCatalog($p_sales_proposal_id, $p_pms_catalog_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('UPDATE sales_proposal
         SET pms_catalog_id = :p_pms_catalog_id,
-        last_log_by = :p_last_log_by
+            last_log_by = :p_last_log_by
         WHERE sales_proposal_id = :p_sales_proposal_id;');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_pms_catalog_id', $p_pms_catalog_id, PDO::PARAM_INT);
@@ -1117,8 +1138,8 @@ public function deleteRequiredSalesProposalParts($salesProposalID) {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposal($p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_additional_maker_id, $p_comaker_id2, $p_product_type, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_remarks, $p_created_by, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_application_source_id, $p_commission_amount, $p_company_id, $p_pms_catalog_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposal(:p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_additional_maker_id, :p_comaker_id2, :p_product_type, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_remarks, :p_created_by, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_application_source_id, :p_commission_amount, :p_company_id, :p_pms_catalog_id, :p_last_log_by, @p_sales_proposal_id)');
+    public function insertSalesProposal($p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_additional_maker_id, $p_comaker_id2, $p_product_type, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_remarks, $p_created_by, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_application_source_id, $p_commission_amount, $p_company_id, $p_pms_catalog_id, $p_add_on_labor_rate, $p_pms_labor_total, $p_add_on_consumables_rate, $p_pms_consumable_total, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposal(:p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_additional_maker_id, :p_comaker_id2, :p_product_type, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_remarks, :p_created_by, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_application_source_id, :p_commission_amount, :p_company_id, :p_pms_catalog_id, :p_add_on_labor_rate, :p_pms_labor_total, :p_add_on_consumables_rate, :p_pms_consumable_total, :p_last_log_by, @p_sales_proposal_id)');
         $stmt->bindValue(':p_sales_proposal_number', $p_sales_proposal_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_comaker_id', $p_comaker_id, PDO::PARAM_INT);
@@ -1144,6 +1165,10 @@ public function deleteRequiredSalesProposalParts($salesProposalID) {
         $stmt->bindValue(':p_commission_amount', $p_commission_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_pms_catalog_id', $p_pms_catalog_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_add_on_labor_rate', $p_add_on_labor_rate, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pms_labor_total', $p_pms_labor_total, PDO::PARAM_STR);
+        $stmt->bindValue(':p_add_on_consumables_rate', $p_add_on_consumables_rate, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pms_consumable_total', $p_pms_consumable_total, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -2570,10 +2595,12 @@ public function deleteRequiredSalesProposalParts($salesProposalID) {
     }
     
     public function generateReleasedSalesProposalOptions() {
-        $stmt = $this->db->getConnection()->prepare('SELECT sales_proposal_id, sales_proposal_number, file_as
+        $stmt = $this->db->getConnection()->prepare('SELECT sales_proposal_id, sales_proposal_number, file_as, stock_number
         FROM sales_proposal
         LEFT OUTER JOIN personal_information 
             ON personal_information.contact_id = sales_proposal.customer_id
+        LEFT OUTER JOIN product 
+            ON product.product_id = sales_proposal.product_id
         WHERE sales_proposal_status IN ("Released", "For DR", "Ready For Release")
         AND product_type = "Unit"
         AND sales_proposal_number LIKE "5%"
@@ -2586,8 +2613,9 @@ public function deleteRequiredSalesProposalParts($salesProposalID) {
             $salesProposalID = $row['sales_proposal_id'];
             $salesProposalNumber = $row['sales_proposal_number'];
             $fileAs = strtoupper($row['file_as']);
+            $stock_number = strtoupper($row['stock_number']);
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($salesProposalID, ENT_QUOTES) . '">' . htmlspecialchars($salesProposalNumber, ENT_QUOTES) . ' - '. htmlspecialchars($fileAs, ENT_QUOTES)  .'</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($salesProposalID, ENT_QUOTES) . '">' . htmlspecialchars($salesProposalNumber, ENT_QUOTES) . ' - '. htmlspecialchars($fileAs, ENT_QUOTES)  .' ('. $stock_number .')</option>';
         }
 
         return $htmlOptions;

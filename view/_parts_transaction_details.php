@@ -497,7 +497,7 @@
             </div>
             <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
               <div class="card-body p-b-0">
-                '. $userModel->generateLogNotes('parts_transaction', $partsTransactionID) .'
+                '. $userModel->generateLogNotes('part_transaction', $partsTransactionID) .'
               </div>
             </div>
           </div>

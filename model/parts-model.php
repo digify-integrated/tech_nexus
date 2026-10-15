@@ -97,7 +97,7 @@ class PartsModel {
     }
 
     public function updatePartsQuantityOnHandReturnStock($p_part_id, $return_quantity, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('UPDATE part SET quantity = quantity + :return_quantity WHERE part_id = :p_part_id');
+        $stmt = $this->db->getConnection()->prepare('CALL updatePartsQuantityOnHandReturnStock(:p_part_id, :return_quantity, :p_last_log_by)');
         $stmt->bindValue(':p_part_id', $p_part_id, PDO::PARAM_INT);
         $stmt->bindValue(':return_quantity', $return_quantity, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
@@ -487,7 +487,7 @@ class PartsModel {
     }
 
     public function generateFusoPartsOptions() {
-        $stmt = $this->db->getConnection()->prepare('SELECT part_id, description FROM part WHERE company_id IN (3) ORDER BY description');
+        $stmt = $this->db->getConnection()->prepare('SELECT part_id, description, part_number FROM part WHERE company_id IN (3) ORDER BY description');
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -495,8 +495,9 @@ class PartsModel {
         foreach ($options as $row) {
             $partsID = $row['part_id'];
             $description = $row['description'];
+            $part_number = $row['part_number'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($partsID, ENT_QUOTES) . '">' .  htmlspecialchars($description, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . $partsID . '">'. $part_number .' - ' . $description .'</option>';
         }
 
         return $htmlOptions;

@@ -444,13 +444,6 @@ class PartsReturnController {
             exit;
         }
 
-        $check_exceed_part_quantity = $this->partsReturnModel->check_exceed_part_quantity($parts_return_id)['total'] ?? 0;
-
-        if($check_exceed_part_quantity > 0){
-            echo json_encode(['success' => false, 'partQuantityExceed' => true]);
-            exit;
-        }
-
         $partsReturnDetails = $this->partsReturnModel->getPartsReturn($parts_return_id);
         $company_id = $partsReturnDetails['company_id'] ?? 2;
         $remarks = $partsReturnDetails['remarks'] ?? null;

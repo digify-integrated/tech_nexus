@@ -987,7 +987,7 @@ class UserModel {
     public function generateLogNotes($p_table_name, $p_reference_id) {
         $stmt = $this->db->getConnection()->prepare('CALL generateLogNotes(:p_table_name, :p_reference_id)');
         $stmt->bindValue(':p_table_name', $p_table_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_reference_id', $p_reference_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_id', $p_reference_id, PDO::PARAM_STR);
         $stmt->execute();
         
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);

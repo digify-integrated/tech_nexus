@@ -373,6 +373,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 else if($company == '2'){
                     $link = 'netruck-parts-return';
                 }
+                else if($company == '15'){
+                    $link = 'jaecoo-parts-return';
+                }
                 else{
                     $link = 'parts-return';
                 }
@@ -461,6 +464,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
                 else if($company == '2'){
                     $link = 'netruck-parts-return';
+                }
+                else if($company == '15'){
+                    $link = 'jaecoo-parts-return';
                 }
                 else{
                     $link = 'parts-return';

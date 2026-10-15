@@ -395,11 +395,13 @@ class PDCManagementController {
             }
         }
 
+        $minimumDate = date('Y-m-d', strtotime('+5 days'));
+        
         foreach ($loanCollectionIDs as $loanCollectionID) {
             $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
             $checkDate = $pdcManagementDetails['check_date'];
-        
-            if (strtotime( $checkDate) <= strtotime($currentDate)) {
+
+            if (strtotime($checkDate) <= strtotime($minimumDate)) {
                 $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', '', '', $userID);
             }
         }
@@ -423,13 +425,13 @@ class PDCManagementController {
             exit;
         }
 
-        $currentDate = date('Y-m-d'); // Current date in m-d-Y format
 
+        $minimumDate = date('Y-m-d', strtotime('+5 days'));
         foreach ($loanCollectionIDs as $loanCollectionID) {
             $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
             $checkDate = $pdcManagementDetails['check_date'];
         
-            if (strtotime( $checkDate) <= strtotime($currentDate)) {
+            if (strtotime($checkDate) <= strtotime($minimumDate)) {
                 $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', '', '', $userID);
             }
         }

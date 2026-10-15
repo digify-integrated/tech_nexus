@@ -1257,7 +1257,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sub_total = $row['sub_total'];
                 $total_discount = $row['total_discount'];
                 $total_amount = $row['total_amount'];
-                $issuance_no = $row['issuance_no'];
+                $issuance_no = $row['issuance_no'] ?? null;
                 $reference_number = $row['reference_number'];
                 $customer_type = $row['customer_type'];
                 $customer_id = $row['customer_id'];
@@ -1314,7 +1314,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
                 else if($company == '8'){
                     $link = 'fuel-issuance';
-                    $number = $issuance_no;
+                    if(!empty($issuance_no)){
+                        $number = $issuance_no;
+                    }
+                    else{
+                        $number = $part_transaction_id;
+                    }
                 }
                 else if($company == '15'){
                     $link = 'jaecoo-parts-transaction';
